@@ -158,6 +158,23 @@ QString RimGridTimeHistoryCurve::quantityName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimGridTimeHistoryCurve::caseName() const
+{
+    RimEclipseCase* eclCase = nullptr;
+    RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
+    cellResStorage->firstAncestorOrThisOfType(eclCase);
+
+    if (eclCase)
+    {
+        return eclCase->caseUserDescription();
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::createCurveAutoName()
 {
     QString text;
@@ -198,29 +215,20 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate()
 {
     this->RimPlotCurve::updateCurvePresentation();
 
-    RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
-    if (eclTopItem && eclTopItem->eclipseCase())
+    if (isCurveVisible())
     {
-        m_eclipseResultDefinition->loadResult();
-
-        RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
-        RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
-
-        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates(m_eclipseResultDefinition->scalarResultIndex());
-
-        std::vector<double> values = yValues();
-
-        if (isCurveVisible())
+        RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
+        if (eclTopItem && eclTopItem->eclipseCase())
         {
-            std::vector<time_t> dateTimes;
-            for (QDateTime dt : timeStepDates)
-            {
-                dateTimes.push_back(dt.toTime_t());
-            }
+            m_eclipseResultDefinition->loadResult();
+
+            std::vector<time_t> dateTimes = timeStepValues();
+
+            std::vector<double> values = yValues();
 
             RimSummaryPlot* plot = nullptr;
             firstAncestorOrThisOfType(plot);
-            bool isLogCurve = false;// plot->isLogarithmicScaleEnabled(this->yAxis());
+            bool isLogCurve = plot->isLogarithmicScaleEnabled(this->yAxis());
 
             if (dateTimes.size() > 0 && dateTimes.size() == values.size())
             {
@@ -262,6 +270,26 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate()
 
         plot->updateAxes();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
+{
+    std::vector<time_t> dateTimes;
+
+    RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
+    RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
+
+    std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates(m_eclipseResultDefinition->scalarResultIndex());
+
+    for (QDateTime dt : timeStepDates)
+    {
+        dateTimes.push_back(dt.toTime_t());
+    }
+
+    return dateTimes;
 }
 
 //--------------------------------------------------------------------------------------------------

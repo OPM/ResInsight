@@ -203,78 +203,154 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 {
     QString out;
 
-    std::vector<RimSummaryCurve*> curves;
-    this->descendantsIncludingThisOfType(curves);
-
-    std::vector<QString> caseNames;
-    std::vector<std::vector<time_t> > timeSteps;
-
-    std::vector<std::vector<std::vector<double> > > allCurveData;
-    std::vector<std::vector<QString > > allCurveNames;
-    //Vectors containing cases - curves - data points/curve name
-
-    for (RimSummaryCurve* curve : curves)
     {
-        if (!curve->isCurveVisible()) continue;
-        QString curveCaseName = curve->summaryCase()->caseName();
+        std::vector<RimSummaryCurve*> curves;
+        this->descendantsIncludingThisOfType(curves);
 
-        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-        for (size_t i = 0; i < caseNames.size(); i++)
+        std::vector<QString> caseNames;
+        std::vector<std::vector<time_t> > timeSteps;
+
+        std::vector<std::vector<std::vector<double> > > allCurveData;
+        std::vector<std::vector<QString > > allCurveNames;
+        //Vectors containing cases - curves - data points/curve name
+
+        for (RimSummaryCurve* curve : curves)
         {
-            if (curveCaseName == caseNames[i]) casePosInList = i;
-        }
+            if (!curve->isCurveVisible()) continue;
+            QString curveCaseName = curve->summaryCase()->caseName();
 
-        if (casePosInList == cvf::UNDEFINED_SIZE_T)
-        {
-            caseNames.push_back(curveCaseName);
-            
-            std::vector<time_t> curveTimeSteps = curve->timeSteps();
-            timeSteps.push_back(curveTimeSteps);
-
-            std::vector<std::vector<double> > curveDataForCase;
-            std::vector<double> curveYData = curve->yValues();
-            curveDataForCase.push_back(curveYData);
-            allCurveData.push_back(curveDataForCase);
-
-            std::vector<QString> curveNamesForCase;
-            curveNamesForCase.push_back(curve->curveName());
-            allCurveNames.push_back(curveNamesForCase);
-        }
-        else
-        {
-            std::vector<double> curveYData = curve->yValues();
-            allCurveData[casePosInList].push_back(curveYData);
-
-            QString curveName = curve->curveName();
-            allCurveNames[casePosInList].push_back(curveName);
-        }
-    }
-
-    for (size_t i = 0; i < timeSteps.size(); i++) //cases
-    {
-        out += "\n\n";
-        out += "Case: " + caseNames[i];
-        out += "\n";
-
-        for (size_t j = 0; j < timeSteps[i].size(); j++) //time steps & data points
-        {
-            if (j == 0)
+            size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+            for (size_t i = 0; i < caseNames.size(); i++)
             {
-                out += "Date and time";
-                for (size_t k = 0; k < allCurveNames[i].size(); k++) // curves
+                if (curveCaseName == caseNames[i]) casePosInList = i;
+            }
+
+            if (casePosInList == cvf::UNDEFINED_SIZE_T)
+            {
+                caseNames.push_back(curveCaseName);
+            
+                std::vector<time_t> curveTimeSteps = curve->timeSteps();
+                timeSteps.push_back(curveTimeSteps);
+
+                std::vector<std::vector<double> > curveDataForCase;
+                std::vector<double> curveYData = curve->yValues();
+                curveDataForCase.push_back(curveYData);
+                allCurveData.push_back(curveDataForCase);
+
+                std::vector<QString> curveNamesForCase;
+                curveNamesForCase.push_back(curve->curveName());
+                allCurveNames.push_back(curveNamesForCase);
+            }
+            else
+            {
+                std::vector<double> curveYData = curve->yValues();
+                allCurveData[casePosInList].push_back(curveYData);
+
+                QString curveName = curve->curveName();
+                allCurveNames[casePosInList].push_back(curveName);
+            }
+        }
+
+        for (size_t i = 0; i < timeSteps.size(); i++) //cases
+        {
+            out += "\n\n";
+            out += "Case: " + caseNames[i];
+            out += "\n";
+
+            for (size_t j = 0; j < timeSteps[i].size(); j++) //time steps & data points
+            {
+                if (j == 0)
                 {
-                    out += "\t" + (allCurveNames[i][k]);
+                    out += "Date and time";
+                    for (size_t k = 0; k < allCurveNames[i].size(); k++) // curves
+                    {
+                        out += "\t" + (allCurveNames[i][k]);
+                    }
+                }
+                out += "\n";
+                out += QDateTime::fromTime_t(timeSteps[i][j]).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
+
+                for (size_t k = 0; k < allCurveData[i].size(); k++) // curves
+                {
+                    out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
                 }
             }
-            out += "\n";
-            out += QDateTime::fromTime_t(timeSteps[i][j]).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
+        }
+    }
 
-            for (size_t k = 0; k < allCurveData[i].size(); k++) // curves
+
+    {
+        std::vector<QString> caseNames;
+        std::vector<std::vector<time_t> > timeSteps;
+
+        std::vector<std::vector<std::vector<double> > > allCurveData;
+        std::vector<std::vector<QString > > allCurveNames;
+        //Vectors containing cases - curves - data points/curve name
+
+        for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
+        {
+            if (!curve->isCurveVisible()) continue;
+            QString curveCaseName = curve->caseName();
+
+            size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+            for (size_t i = 0; i < caseNames.size(); i++)
             {
-                out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
+                if (curveCaseName == caseNames[i]) casePosInList = i;
+            }
+
+            if (casePosInList == cvf::UNDEFINED_SIZE_T)
+            {
+                caseNames.push_back(curveCaseName);
+
+                std::vector<time_t> curveTimeSteps = curve->timeStepValues();
+                timeSteps.push_back(curveTimeSteps);
+
+                std::vector<std::vector<double> > curveDataForCase;
+                std::vector<double> curveYData = curve->yValues();
+                curveDataForCase.push_back(curveYData);
+                allCurveData.push_back(curveDataForCase);
+
+                std::vector<QString> curveNamesForCase;
+                curveNamesForCase.push_back(curve->curveName());
+                allCurveNames.push_back(curveNamesForCase);
+            }
+            else
+            {
+                std::vector<double> curveYData = curve->yValues();
+                allCurveData[casePosInList].push_back(curveYData);
+
+                QString curveName = curve->curveName();
+                allCurveNames[casePosInList].push_back(curveName);
+            }
+        }
+
+        for (size_t i = 0; i < timeSteps.size(); i++) //cases
+        {
+            out += "\n\n";
+            out += "Case: " + caseNames[i];
+            out += "\n";
+
+            for (size_t j = 0; j < timeSteps[i].size(); j++) //time steps & data points
+            {
+                if (j == 0)
+                {
+                    out += "Date and time";
+                    for (size_t k = 0; k < allCurveNames[i].size(); k++) // curves
+                    {
+                        out += "\t" + (allCurveNames[i][k]);
+                    }
+                }
+                out += "\n";
+                out += QDateTime::fromTime_t(timeSteps[i][j]).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
+
+                for (size_t k = 0; k < allCurveData[i].size(); k++) // curves
+                {
+                    out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
+                }
             }
         }
     }
+
     return out;
 }
 

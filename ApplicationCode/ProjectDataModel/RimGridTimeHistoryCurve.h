@@ -50,13 +50,17 @@ public:
     void                    setYAxis(RimDefines::PlotAxis plotAxis);
 
     std::vector<double>     yValues() const;
+    std::vector<time_t>     timeStepValues() const;
 
     QString                 quantityName() const;
+    QString                 caseName() const;
 
 protected:
     virtual QString createCurveAutoName() override;
     virtual void    updateZoomInParentPlot() override;
     virtual void    onLoadDataAndUpdate() override;
+
+
     virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void    initAfterRead() override;
     virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
