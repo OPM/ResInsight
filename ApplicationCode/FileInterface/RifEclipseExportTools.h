@@ -51,6 +51,8 @@ public:
 
     static bool writeFracturesToTextFile(const QString& fileName, const std::vector<RimFracture*>& fractures, RimEclipseCase* caseToApply);
 
+    static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
+
     static void printCOMPDATvalues(QTextStream & out, RigFractureData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
 
     static void printBackgroundDataHeaderLine(QTextStream & out);

@@ -502,6 +502,9 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 //--------------------------------------------------------------------------------------------------
 void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply)
 {
+
+    //TODO: A lot of common code with function for calculating transmissibility... 
+
     if (!attachedFractureDefinition()) return;
     
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
@@ -559,6 +562,13 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
 
     for (size_t fracCell : fracCells)
     {
+
+        if (fracCell == 168690)
+        {
+            qDebug() << "Test";
+        }
+
+
         bool cellIsActive = activeCellInfo->isActive(fracCell);
 
         cvf::Vec3d localX;
@@ -628,10 +638,11 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
             double fractureCellArea = 0.0;
             for (double area : areaOfFractureParts) fractureCellArea += area;
             double fractureCellAreaXvalue = 0.0;
-            for (double areaXvalue : areaXvalueOfFractureParts) fractureCellAreaXvalue += area;
-            double upscaledValue = fractureCellAreaXvalue / fractureCellArea;
+            for (double areaXvalue : areaXvalueOfFractureParts) fractureCellAreaXvalue += areaXvalue;
+            double upscaledValueArithmetic = fractureCellAreaXvalue / fractureCellArea;
 
-            fracData.upscaledStimPlanValue = upscaledValue;
+            fracData.upscaledStimPlanValue = upscaledValueArithmetic;
+            fracData.cellIndex = fracCell;
             fracDataVec.push_back(fracData);
         }
 

@@ -283,36 +283,27 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
 {
-    std::vector<double> depthCoordsAtNodes = stimPlanFracTemplate->adjustedDepthCoordsAroundWellPathPosition();
-    std::vector<double> xCoordsAtNodes = stimPlanFracTemplate->getNegAndPosXcoords();
 
-    //To show lines in between nodes instead of between nodes
-    std::vector<double> xCoords;
-    for (int i = 0; i < xCoordsAtNodes.size() -1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 1);
-    std::vector<double> depthCoords;
-    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 1);
+    //TODO: Get these more generally: 
+    QString resultName = "CONDUCTIVITY";
+    QString resultUnit = "md-m";
+    size_t timeStepIndex = 0;
 
-
-    float polygonXmin;
-    float polygonXmax;
-    float polygonYmin;
-    float polygonYmax;
-
-    getPolygonBB(polygonXmin, polygonXmax, polygonYmin, polygonYmax);
-
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
+    std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
+    std::vector<double> stimPlanParameterValues;
+    stimPlanFracTemplate->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
 
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
-    for (int i = 0; i < xCoords.size() - 1; i++)
+
+    for (int i = 0; i < stimPlanParameterValues.size(); i++)
     {
-        for (int j = 0; j < depthCoords.size() - 1; j++)
+        double stimPlanParameterValue = stimPlanParameterValues[i];
+        if (stimPlanParameterValue > 1e-7)
         {
-            if (stimPlanCellTouchesPolygon(polygon, xCoords[i], xCoords[i + 1], depthCoords[j], depthCoords[j + 1], polygonXmin, polygonXmax, polygonYmin, polygonYmax))
+            std::vector<cvf::Vec3d> stimPlanCell = stimPlanCellsAsPolygons[i];
+            for (auto cellCorner : stimPlanCell)
             {
-                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0f));
-                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0f));
-                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0f));
-                stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0f));
+                stimPlanMeshVertices.push_back(static_cast<cvf::Vec3f>(cellCorner));
             }
         }
     }

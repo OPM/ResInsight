@@ -46,7 +46,9 @@ public:
 
     bool cellIsActive;
     
+    //TODO: Used for upscaling - should be moved?
     double upscaledStimPlanValue;
+    size_t cellIndex;
 
 
 };
