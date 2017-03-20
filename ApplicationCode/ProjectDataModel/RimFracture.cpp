@@ -500,7 +500,7 @@ void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply)
+void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex)
 {
 
     //TODO: A lot of common code with function for calculating transmissibility... 
@@ -534,13 +534,6 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
         return;
     }
 
-
-    //TODO: Get these more generally: 
-    QString resultName = "CONDUCTIVITY";
-    QString resultUnit = "md-m";
-    size_t timeStepIndex = 0;
-
-
     std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
     std::vector<double> stimPlanParameterValues;
     fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
@@ -563,79 +556,19 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
     for (size_t fracCell : fracCells)
     {
 
-        if (fracCell == 160050)
-        {
-            qDebug() << "Test";
-        }
-
-
-        bool cellIsActive = activeCellInfo->isActive(fracCell);
-
-        cvf::Vec3d localX;
-        cvf::Vec3d localY;
-        cvf::Vec3d localZ;
-        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
-        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
-
-        //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
-        cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
-        for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
-        {
-            for (cvf::Vec3d& v : planeCellPolygon)
-            {
-                v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
-            }
-        }
-
-        cvf::Vec3d localZinFracPlane;
-        localZinFracPlane = localZ;
-        localZinFracPlane.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
-        cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
-        directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
-        directionOfLength.normalize();
-
         RigFractureData fracData;
         fracData.reservoirCellIndex = fracCell;
 
+        double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
+        double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
+        caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
+        computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, caseToApply, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
 
-
-        std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon(unitForExport);
-        std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
-
-        double area;
-        std::vector<double> areaOfFractureParts;
-        std::vector<double> valuesForFractureParts;
-
-        for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
+        if (upscaledAritmStimPlanValue != cvf::UNDEFINED_DOUBLE)
         {
+            fracData.upscaledAritmStimPlanValue = upscaledAritmStimPlanValue;
+            fracData.upscaledHarmStimPlanValue = upscaledHarmStimPlanValue;
 
-            for (int i = 0; i < stimPlanParameterValues.size(); i++)
-            {
-                double stimPlanParameterValue = stimPlanParameterValues[i];
-                if (stimPlanParameterValue != 0)
-                {
-                    std::vector<cvf::Vec3d> stimPlanCell = stimPlanCellsAsPolygons[i];
-                    std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell, planeCellPolygon);
-                    if (clippedStimPlanPolygons.size() > 0)
-                    {
-                        for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
-                        {
-                            area = cvf::GeometryTools::polygonAreaNormal3D(clippedStimPlanPolygon).length();
-                            areaOfFractureParts.push_back(area);
-                            valuesForFractureParts.push_back(stimPlanParameterValue);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (areaOfFractureParts.size() > 0)
-        {
-            fracData.upscaledAritmStimPlanValue = areaWeightedArithmeticAverage(areaOfFractureParts, valuesForFractureParts);
-            fracData.upscaledHarmStimPlanValue = areaWeightedHarmonicAverage(areaOfFractureParts, valuesForFractureParts);
-
-            fracData.cellIndex = fracCell;
             fracDataVec.push_back(fracData);
         }
     }
@@ -645,6 +578,171 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
 
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex)
+{
+    //TODO: A lot of common code with function for calculating transmissibility... 
+
+    if (!attachedFractureDefinition()) return;
+
+    RimStimPlanFractureTemplate* fracTemplateStimPlan;
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition()))
+    {
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+    }
+    else return;
+
+    //TODO: UNITS! 
+
+    std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
+    std::vector<double> stimPlanParameterValues;
+    fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
+
+    //TODO: A lot of common code with function above... Can be cleaned up...?
+    std::vector<size_t> fracCells = getPotentiallyFracturedCells();
+
+
+    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+
+
+    bool cellIsActive = activeCellInfo->isActive(cellIndex);
+
+    cvf::Vec3d localX;
+    cvf::Vec3d localY;
+    cvf::Vec3d localZ;
+    std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
+    bool isPlanIntersected = planeCellIntersectionPolygons(cellIndex, planeCellPolygons, localX, localY, localZ);
+    if (!isPlanIntersected || planeCellPolygons.size() == 0) return;
+
+    //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
+    cvf::Mat4f invertedTransMatrix = transformMatrix().getInverted();
+    for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
+    {
+        for (cvf::Vec3d& v : planeCellPolygon)
+        {
+            v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
+        }
+    }
+
+    cvf::Vec3d localZinFracPlane;
+    localZinFracPlane = localZ;
+    localZinFracPlane.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+    cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
+    directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
+    directionOfLength.normalize();
+
+    std::vector<cvf::Vec3f> fracPolygon = attachedFractureDefinition()->fracturePolygon(unitSystem);
+    std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
+
+    double area;
+    std::vector<double> areaOfFractureParts;
+    std::vector<double> valuesForFractureParts;
+
+    for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
+    {
+
+        for (int i = 0; i < stimPlanParameterValues.size(); i++)
+        {
+            double stimPlanParameterValue = stimPlanParameterValues[i];
+            if (stimPlanParameterValue != 0)
+            {
+                std::vector<cvf::Vec3d> stimPlanCell = stimPlanCellsAsPolygons[i];
+                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell, planeCellPolygon);
+                if (clippedStimPlanPolygons.size() > 0)
+                {
+                    for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
+                    {
+                        area = cvf::GeometryTools::polygonAreaNormal3D(clippedStimPlanPolygon).length();
+                        areaOfFractureParts.push_back(area);
+                        valuesForFractureParts.push_back(stimPlanParameterValue);
+                    }
+                }
+            }
+        }
+    }
+
+    if (areaOfFractureParts.size() > 0)
+    {
+        upscaledAritmStimPlanValue = areaWeightedArithmeticAverage(areaOfFractureParts, valuesForFractureParts);
+        upscaledHarmStimPlanValue = areaWeightedHarmonicAverage(areaOfFractureParts, valuesForFractureParts);
+    }
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::computeFlowInFracture(RimEclipseCase* caseToApply)
+{
+
+    //TODO: A lot of common code with function for calculating transmissibility... 
+
+    if (!attachedFractureDefinition()) return;
+
+    RimStimPlanFractureTemplate* fracTemplateStimPlan;
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition()))
+    {
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+    }
+    else return;
+
+    //Get correct unit system: 
+    RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
+    RimDefines::UnitSystem unitForExport;
+
+    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities for %1 in metric units").arg(name()));
+        unitForExport = RimDefines::UNITS_METRIC;
+    }
+    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities for %1 in field units").arg(name()));
+        unitForExport = RimDefines::UNITS_FIELD;
+    }
+    else
+    {
+        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
+        return;
+    }
+
+
+    //TODO: A lot of common code with function above... Can be cleaned up...?
+    std::vector<size_t> fracCells = getPotentiallyFracturedCells();
+
+
+    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+
+
+    std::vector<RigFractureData> fracDataVec;
+
+    for (size_t fracCell : fracCells)
+    {
+
+
+
+    }
+
+    m_rigFracture->setFractureData(fracDataVec);
+
+
+
+}
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

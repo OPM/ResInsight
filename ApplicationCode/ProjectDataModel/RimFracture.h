@@ -85,7 +85,9 @@ public:
 
     std::vector<size_t>             getPotentiallyFracturedCells();
     void                            computeTransmissibility(RimEclipseCase* caseToApply);
-    void                            computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply);
+    void                            computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex);
+    void                            computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex);
+    void                            computeFlowInFracture(RimEclipseCase* caseToApply);
 
     double                          areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
     double                          areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);

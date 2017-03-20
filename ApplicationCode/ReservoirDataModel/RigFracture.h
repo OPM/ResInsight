@@ -49,7 +49,6 @@ public:
     //TODO: Used for upscaling - should be moved?
     double upscaledAritmStimPlanValue;
     double upscaledHarmStimPlanValue;
-    size_t cellIndex;
 
 
 };

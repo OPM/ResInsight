@@ -152,9 +152,18 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
+
+
+    //TODO: Get these more generally: 
+    QString resultName = "CONDUCTIVITY";
+    QString resultUnit = "md-m";
+    size_t timeStepIndex = 0;
+
+
+
     for (RimFracture* fracture : fractures) //For testing upscaling...
     {
-        fracture->computeUpscaledPropertyFromStimPlan(caseToApply);
+        fracture->computeUpscaledPropertyFromStimPlan(caseToApply, resultName, resultUnit, timeStepIndex);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         out << qSetFieldWidth(4);
@@ -204,7 +213,7 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
             out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
 
             out << qSetFieldWidth(10);
-            out << fracData.cellIndex;
+            out << fracData.reservoirCellIndex;
             out << QString::number(fracData.upscaledAritmStimPlanValue, 'f', 3);
             out << QString::number(fracData.upscaledHarmStimPlanValue, 'f', 3);
 
