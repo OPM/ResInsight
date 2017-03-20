@@ -125,6 +125,10 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
         plot->setDescription(featureUi.newPlotName());
 
+        summaryPlotColl->updateConnectedEditors();
+
+        plot->loadDataAndUpdate();
+
         summaryPlot = plot;
     }
     else
