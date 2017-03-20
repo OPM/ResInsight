@@ -81,12 +81,30 @@ private:
 };
 
 //==================================================================================================
-/// Class representing a group of fields
+/// Class representing a group of fields communicated to the Gui
 //==================================================================================================
 
 class PdmUiGroup : public PdmUiItem, public PdmUiOrdering
 {
+public:
+    PdmUiGroup() { m_isCollapsedByDefault = false; m_hasForcedExpandedState = false; m_forcedCollapseState = false;}
+
     virtual bool isUiGroup() { return true; }
+
+    /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect. 
+    void         setCollapsedByDefault(bool doCollapse) { m_isCollapsedByDefault = doCollapse;} 
+    /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
+    void         setCollapsed(bool doCollapse)          { m_hasForcedExpandedState = true; m_forcedCollapseState = doCollapse;}
+
+    // Internal use
+    bool         isExpandedByDefault()    const { return !m_isCollapsedByDefault;} 
+    bool         hasForcedExpandedState() const { return m_hasForcedExpandedState;} 
+    bool         forcedExpandedState()    const { return !m_forcedCollapseState;}
+
+private:
+    bool         m_isCollapsedByDefault;
+    bool         m_hasForcedExpandedState;
+    bool         m_forcedCollapseState;
 };
 
 

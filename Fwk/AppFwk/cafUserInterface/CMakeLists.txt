@@ -23,6 +23,7 @@ set( QOBJECT_HEADERS
     cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
+    cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
     cafPdmUiLineEditor.h

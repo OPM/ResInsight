@@ -184,11 +184,23 @@ void QMinimizePanel::setTitle(const QString& title)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString QMinimizePanel::title() const
+{
+    return m_titleLabel->text();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void QMinimizePanel::setExpanded(bool isExpanded)
 {
+    if (m_contentFrame->isHidden() != isExpanded) return;
+
     m_contentFrame->setVisible(isExpanded);
     isExpanded ? m_collapseButton->setIcon(expandUpIcon()) : m_collapseButton->setIcon(expandDownIcon());
     this->QWidget::updateGeometry();
+    
+    emit expandedChanged(isExpanded);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,7 +208,7 @@ void QMinimizePanel::setExpanded(bool isExpanded)
 //--------------------------------------------------------------------------------------------------
 void QMinimizePanel::toggleExpanded()
 {
-    setExpanded(!m_contentFrame->isVisible());
+    setExpanded(m_contentFrame->isHidden());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -207,7 +219,7 @@ QSize QMinimizePanel::minimumSizeHint() const
     QSize labelSize =  m_titleLabel->sizeHint();
     QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
 
-    if (m_contentFrame->isVisible())
+    if (!m_contentFrame->isHidden())
     {
         QSize titleBarMin(0, labelSize.height() + 8  );
         QSize contentsMin(m_contentFrame->minimumSizeHint());
@@ -236,10 +248,10 @@ void QMinimizePanel::resizeEvent(QResizeEvent *resizeEv )
     int buttonSize = titleHeight - 2;
 
     m_titleFrame->setGeometry(0,0,width, titleHeight);
-    m_titleLabel->setGeometry( 4, titleHeight - labelHeight - 4, width - buttonSize - 1, labelHeight);
+    m_titleLabel->setGeometry( 4, titleHeight - labelHeight - 4, width - 4 - buttonSize - 1, labelHeight);
     m_collapseButton->setGeometry(width - buttonSize - 1, 1, buttonSize, buttonSize);
     
-    m_contentFrame->setGeometry(0, titleHeight-1, width, heigth - titleHeight-1);
+    m_contentFrame->setGeometry(0, titleHeight-1, width, heigth - (titleHeight-1));
 }
 
 bool  QMinimizePanel::event(QEvent* event)

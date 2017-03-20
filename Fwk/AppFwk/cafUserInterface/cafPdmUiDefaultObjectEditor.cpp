@@ -227,6 +227,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                 groupBox->setTitle(uiItems[i]->uiName());
                 groupBoxLayout = new QGridLayout();
                 groupBox->contentFrame()->setLayout(groupBoxLayout);
+                connect(groupBox, SIGNAL(expandedChanged(bool)), this, SLOT(groupBoxExpandedStateToggled(bool)));
 
                 m_newGroupBoxes[groupBoxKey] = groupBox;
             }
@@ -244,6 +245,11 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             /// Insert the group box at the correct position of the parent layout
 
             parentLayout->addWidget(groupBox, currentRowIndex, 0, 1, 2);
+
+            // Set Expanded state
+            bool isExpanded = isUiGroupExpanded(group);
+            groupBox->setExpanded(isExpanded);
+
             recursiveSetupFieldsAndGroups(groupChildren, groupBox->contentFrame(), groupBoxLayout, uiConfigName);
             currentRowIndex++;
         }
@@ -361,6 +367,28 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool PdmUiDefaultObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGroup)
+{
+    if (uiGroup->hasForcedExpandedState()) return uiGroup->forcedExpandedState();
+
+    auto kwMapPair = m_objectKeywordGroupUiNameExpandedState.find(pdmObject()->xmlCapability()->classKeyword());
+    if ( kwMapPair != m_objectKeywordGroupUiNameExpandedState.end() )
+    {
+        QString uiName = uiGroup->uiName();
+
+        auto uiNameExpStatePair = kwMapPair->second.find(uiName);
+        if ( uiNameExpStatePair != kwMapPair->second.end() )
+        {
+            return uiNameExpStatePair->second;
+        }
+    }
+
+    return uiGroup->isExpandedByDefault();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames)
 {
     for (size_t i = 0; i < uiItems.size(); ++i)
@@ -445,6 +473,22 @@ caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFi
     }
 
     return fieldEditor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
+{
+    if (!this->pdmObject()->xmlCapability()) return;
+
+    QString objKeyword = this->pdmObject()->xmlCapability()->classKeyword();
+    QMinimizePanel* panel = dynamic_cast<QMinimizePanel*>(this->sender());
+    
+    if (!panel) return;
+
+    m_objectKeywordGroupUiNameExpandedState[objKeyword][panel->title()] = isExpanded;
+
 }
 
 } // end namespace caf

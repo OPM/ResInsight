@@ -52,10 +52,15 @@ public:
 
     QFrame *      contentFrame() { return m_contentFrame; }  
     void          setTitle (const QString& title);
+    QString       title() const;
 
 public slots:
     void          setExpanded(bool isExpanded);
     void          toggleExpanded();
+
+signals:
+    void          expandedChanged(bool isExpanded);
+
 public:
     virtual QSize minimumSizeHint() const override;
 
