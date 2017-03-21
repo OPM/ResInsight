@@ -81,6 +81,12 @@ private:
                                                                            size_t frameIndex,
                                                                            const std::string& nativeResultName,
                                                                            RimFlowDiagSolution::TracerStatusType wantedTracerType);
+    std::vector< std::pair<std::string, const std::vector<double>*> > 
+                                             findNamedResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr, 
+                                                                                size_t frameIndex, 
+                                                                                const std::string& nativeResultName, 
+                                                                                RimFlowDiagSolution::TracerStatusType wantedTracerType);
+
     void                                     calculateSumOfFractionAndFractionMultTOF(size_t activeCellCount,
                                                                                       const std::vector<const std::vector<double> *>& injectorFractions,
                                                                                       const std::vector<const std::vector<double> *>& injectorTOFs,

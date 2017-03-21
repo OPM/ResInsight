@@ -275,19 +275,24 @@ std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult(const Rig
 //--------------------------------------------------------------------------------------------------
 std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(const RigFlowDiagResultAddress &resVarAddr, size_t frameIndex)
 {
-    std::vector<int> selectedTracerIdxToGlobalTracerIdx;
+    std::vector< std::pair<std::string, const std::vector<double>* > > fractions = findNamedResultsForSelectedTracers(resVarAddr,
+                                                                                                                      frameIndex,
+                                                                                                                      RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                                                      RimFlowDiagSolution::UNDEFINED);
+
+    std::vector<int> resultTracerIdxToGlobalTracerIdx;
     {
-        selectedTracerIdxToGlobalTracerIdx.resize(resVarAddr.selectedTracerNames.size(), -1);
+        resultTracerIdxToGlobalTracerIdx.resize(fractions.size(), -1);
 
         std::vector<QString> allTracerNames = m_flowDiagSolution->tracerNames();
         int selTracerIdx = 0;
-        for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+        for ( const auto& trNameFractionPair: fractions )
         {
             for ( size_t globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
             {
-                if ( allTracerNames[globIdx].toStdString() == tracerName )
+                if ( allTracerNames[globIdx].toStdString() == trNameFractionPair.first )
                 {
-                    selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = static_cast<int>(globIdx);
+                    resultTracerIdxToGlobalTracerIdx[selTracerIdx] = static_cast<int>(globIdx);
                     break;
                 }
             }
@@ -302,10 +307,6 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
     std::vector<double>& maxFractionTracerIdx = maxFractionTracerIdxFrames->frameData(frameIndex);
     {
 
-        std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
-                                                                                           frameIndex,
-                                                                                           RIG_FLD_CELL_FRACTION_RESNAME,
-                                                                                           RimFlowDiagSolution::UNDEFINED);
         maxFractionTracerIdx.resize(activeCellCount, HUGE_VAL);
 
         std::vector<double> maxFraction;
@@ -313,7 +314,7 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
 
         for ( size_t frIdx = 0; frIdx < fractions.size(); ++frIdx )
         {
-            const std::vector<double> * fr = fractions[frIdx];
+            const std::vector<double> * fr = fractions[frIdx].second;
 
             for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
             {
@@ -322,18 +323,10 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
                 if ( maxFraction[acIdx] < (*fr)[acIdx] )
                 {
                     maxFraction[acIdx] =  (*fr)[acIdx];
-                    maxFractionTracerIdx[acIdx] = frIdx;
+                    maxFractionTracerIdx[acIdx] = resultTracerIdxToGlobalTracerIdx[frIdx];
                 }
             }
         }
-    }
-
-    for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-    {
-        if ( maxFractionTracerIdx[acIdx] == HUGE_VAL ) continue;
-
-        double selectedTracerIdx = static_cast<int>(maxFractionTracerIdx[acIdx]);
-        maxFractionTracerIdx[acIdx] = selectedTracerIdxToGlobalTracerIdx[selectedTracerIdx];
     }
 
     return &maxFractionTracerIdx;
@@ -402,6 +395,32 @@ std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelec
     return selectedTracersResults;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector< std::pair<std::string, const std::vector<double>*> > 
+RigFlowDiagResults::findNamedResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr,
+                                                       size_t frameIndex,
+                                                       const std::string& nativeResultName,
+                                                       RimFlowDiagSolution::TracerStatusType wantedTracerType)
+{
+
+    std::vector<std::pair<std::string, const std::vector<double>* > > selectedTracersResults;
+
+    for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+    {
+        RimFlowDiagSolution::TracerStatusType tracerType = m_flowDiagSolution->tracerStatusInTimeStep(QString::fromStdString(tracerName), frameIndex);
+
+        if (tracerType != RimFlowDiagSolution::CLOSED 
+            && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
+        {
+            selectedTracersResults.push_back(std::make_pair(tracerName, findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, tracerName), frameIndex)));
+        }
+    }
+
+    return selectedTracersResults;
+}
 
 
 //--------------------------------------------------------------------------------------------------
