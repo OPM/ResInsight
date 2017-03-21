@@ -626,20 +626,22 @@ void RimLegendConfig::setCategoryItems(const std::vector< std::tuple<QString, in
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimLegendConfig::categoryNameFromCategoryValue(int categoryValue) const
+QString RimLegendConfig::categoryNameFromCategoryValue(double categoryResultValue) const
 {
+    if (categoryResultValue == HUGE_VAL) return "Undefined";
+
     if (m_categoryNames.size() > 0)
     {
         for (size_t categoryIndex = 0; categoryIndex < m_categories.size(); categoryIndex++)
         {
-            if (categoryValue == m_categories[categoryIndex])
+            if (categoryResultValue == m_categories[categoryIndex])
             {
                 return cvfqt::Utils::toQString(m_categoryNames[categoryIndex]);
             }
         }
     }
 
-    return QString("%1").arg(categoryValue);
+    return QString("%1").arg(categoryResultValue);
 }
 
 //--------------------------------------------------------------------------------------------------
