@@ -39,6 +39,7 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
+#include "RigFractureTransCalc.h"
 
 
 
@@ -109,7 +110,8 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     for (RimFracture* fracture : fractures)
     {
-        fracture->computeTransmissibility(caseToApply);
+        //TODO: Check that there is a fracture template available for given fracture....
+        RigFractureTransCalc::computeTransmissibility(caseToApply, fracture);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         for (RigFractureData fracData : fracDataVector)
@@ -124,7 +126,6 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     for (RimFracture* fracture : fractures)
     {
         RiaLogging::debug(QString("Writing COMPDAT values for fracture %1").arg(fracture->name()));
-        fracture->computeTransmissibility(caseToApply);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         for (RigFractureData fracData : fracDataVector)
@@ -163,7 +164,7 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 
     for (RimFracture* fracture : fractures) //For testing upscaling...
     {
-        fracture->computeUpscaledPropertyFromStimPlan(caseToApply, resultName, resultUnit, timeStepIndex);
+        RigFractureTransCalc::computeUpscaledPropertyFromStimPlan(caseToApply, fracture, resultName, resultUnit, timeStepIndex);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         out << qSetFieldWidth(4);

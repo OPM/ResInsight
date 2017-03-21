@@ -39,6 +39,7 @@ class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
 class RimFractureTemplate;
+class RigFractureData;
 
 //==================================================================================================
 ///  
@@ -81,18 +82,13 @@ public:
     
     const std::vector<cvf::uint>&   triangleIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
+    void                            setFractureData(std::vector<RigFractureData> fractureDataVector);
 
 
     std::vector<size_t>             getPotentiallyFracturedCells();
-    void                            computeTransmissibility(RimEclipseCase* caseToApply);
-    void                            computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex);
-    void                            computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex);
-    void                            computeFlowInFracture(RimEclipseCase* caseToApply);
-    void                            computeFlowIntoTransverseWell(RimEclipseCase* caseToApply);
 
-    double                          areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
-    double                          areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
-
+    //TODO: Move this function?
+    bool planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ);
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
@@ -114,8 +110,6 @@ private:
     
     QString                         createOneBasedIJK() const;
 
-    //Functions for area calculations - should these be in separate class
-    bool planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ);
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
