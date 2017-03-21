@@ -483,7 +483,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     uiOrdering.add(&m_showTrackLegends);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 

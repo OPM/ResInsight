@@ -273,7 +273,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add(&useZVariable);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

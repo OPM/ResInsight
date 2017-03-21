@@ -462,7 +462,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 
     uiOrdering.add(&m_plotAxis);
 
-    uiOrdering.setForgetRemainingFields(true); // For now. 
+    uiOrdering.skipRemainingFields(true); // For now. 
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -119,7 +119,7 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     if (m_isTimeLapseResultUiField())
         timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

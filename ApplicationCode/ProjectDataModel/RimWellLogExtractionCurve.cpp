@@ -420,7 +420,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
 
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

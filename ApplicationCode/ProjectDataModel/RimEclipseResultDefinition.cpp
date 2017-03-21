@@ -945,7 +945,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     }
     uiOrdering.add(&m_resultVariableUiField);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

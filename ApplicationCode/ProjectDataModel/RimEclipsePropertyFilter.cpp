@@ -206,7 +206,7 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
         uiOrdering.add(&m_upperBound);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 
     updateReadOnlyStateOfAllFields();
     updateRangeLabel();

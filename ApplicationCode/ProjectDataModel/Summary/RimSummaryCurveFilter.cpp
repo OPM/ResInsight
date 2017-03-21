@@ -225,7 +225,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add(&m_autoApplyChangesToPlot);
     uiOrdering.add(&m_applyButtonField);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

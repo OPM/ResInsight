@@ -321,7 +321,7 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         group->add(&ternaryRangeSummary);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

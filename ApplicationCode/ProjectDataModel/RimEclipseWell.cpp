@@ -353,7 +353,7 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

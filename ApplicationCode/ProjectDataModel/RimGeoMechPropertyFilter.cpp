@@ -150,7 +150,7 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     updateReadOnlyStateOfAllFields();
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

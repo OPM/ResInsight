@@ -228,7 +228,7 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     updateWellExtentDefaultValue();
 
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

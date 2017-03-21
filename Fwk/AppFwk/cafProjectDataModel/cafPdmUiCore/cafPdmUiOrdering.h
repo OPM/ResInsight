@@ -55,7 +55,7 @@ class PdmObjectHandle;
 class PdmUiOrdering
 {
 public:
-    PdmUiOrdering(): m_forgetRemainingFields(false) { };
+    PdmUiOrdering(): m_skipRemainingFields(false) { };
     virtual ~PdmUiOrdering();
 
     PdmUiOrdering(const PdmUiOrdering&) = delete;
@@ -68,8 +68,8 @@ public:
     void                            add(const PdmFieldHandle* field);
     void                            add(const PdmObjectHandle* obj);
 
-    bool                            forgetRemainingFields() const      { return m_forgetRemainingFields; }
-    void                            setForgetRemainingFields(bool val) { m_forgetRemainingFields = val; }
+    bool                            includeRemainingFields() const      { return !m_skipRemainingFields; }
+    void                            skipRemainingFields(bool val)       { m_skipRemainingFields = val; }
 
     const std::vector<PdmUiItem*>&  uiItems() const                    { return m_ordering; }
     bool                            contains(const PdmUiItem* item) const;
@@ -77,7 +77,7 @@ public:
 private:
     std::vector<PdmUiItem*>         m_ordering;      ///< The order of groups and fields
     std::vector<PdmUiGroup*>        m_createdGroups; ///< Owned PdmUiGroups, for mem management
-    bool                            m_forgetRemainingFields;
+    bool                            m_skipRemainingFields;
 };
 
 //==================================================================================================
