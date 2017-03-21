@@ -43,6 +43,21 @@
 
 class QVBoxLayout;
 
+
+#include <QScrollArea>
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class QVerticalScrollArea : public QScrollArea
+{
+    Q_OBJECT
+public:
+    explicit QVerticalScrollArea(QWidget* parent = 0);
+    virtual bool eventFilter(QObject* object, QEvent* event) override;
+};
+
+
 namespace caf
 {
 
