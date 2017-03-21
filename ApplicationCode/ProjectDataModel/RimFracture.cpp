@@ -281,6 +281,7 @@ cvf::Mat4f RimFracture::transformMatrix()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+//TODO: Make static and move to another class
 void RimFracture::computeTransmissibility(RimEclipseCase* caseToApply)
 { 
     //Get correct unit system: 
@@ -537,19 +538,14 @@ void RimFracture::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToAppl
     std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
     std::vector<double> stimPlanParameterValues;
     fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
-
-
-
+    
     //TODO: A lot of common code with function above... Can be cleaned up...?
     std::vector<size_t> fracCells = getPotentiallyFracturedCells();
  
-
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
-
 
     std::vector<RigFractureData> fracDataVec;
 
@@ -689,9 +685,14 @@ void RimFracture::computeFlowInFracture(RimEclipseCase* caseToApply)
     if (!attachedFractureDefinition()) return;
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
+    RimEllipseFractureTemplate* fracTemplateEllipse;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition()))
     {
         fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+    }
+    else if (dynamic_cast<RimEllipseFractureTemplate*>(attachedFractureDefinition()))
+    {
+        fracTemplateEllipse = dynamic_cast<RimEllipseFractureTemplate*>(attachedFractureDefinition());
     }
     else return;
 
@@ -731,17 +732,65 @@ void RimFracture::computeFlowInFracture(RimEclipseCase* caseToApply)
 
     for (size_t fracCell : fracCells)
     {
+        double K; //Conductivity
+        double w; //Fracture width
 
+        if (fracTemplateEllipse)
+        {
+            //TODO: UNit handling...
+            K = fracTemplateEllipse->fractureConductivity();
+            w = fracTemplateEllipse->width();
+        }
+        else if (fracTemplateStimPlan)
+        {
+            QString resultName = "CONDUCTIVITY";
+            QString resultUnit = "md-m";
+            size_t timeStepIndex = 0; //TODO... 
+            double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
+            double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
+            caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
+            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, caseToApply, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
+            K = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
 
+            resultName = "WIDTH";
+            resultUnit = "cm"; //TODO handle mm and cm!
+            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, caseToApply, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
+            w = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
+
+        }
 
     }
 
     m_rigFracture->setFractureData(fracDataVec);
 
-
-
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::computeFlowIntoTransverseWell(RimEclipseCase* caseToApply)
+{
+
+    //TODO: A lot of common code with function for calculating transmissibility... 
+
+    if (!attachedFractureDefinition()) return;
+    if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return;
+
+    double wellRadius = cvf::UNDEFINED_DOUBLE;
+    if (attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    {
+        wellRadius = 0.0;//TODO read this value...
+    }
+    if (attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+    {
+
+
+    }
+
+ 
+
+}
 
 
 //--------------------------------------------------------------------------------------------------
