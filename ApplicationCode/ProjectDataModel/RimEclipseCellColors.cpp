@@ -241,6 +241,33 @@ RimEclipseView* RimEclipseCellColors::reservoirView()
     return m_reservoirView;
 }
 
+bool operator<(const cvf::Color3ub first, const cvf::Color3ub second)
+{
+    if (first.r() != second.r()) return  first.r() < second.r();
+    if (first.g() != second.g()) return  first.g() < second.g();
+    if (first.b() != second.b()) return  first.b() < second.b();
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class TupleCompare
+{
+public :
+    bool operator() (const std::tuple<QString, int, cvf::Color3ub>& t1, const std::tuple<QString, int, cvf::Color3ub>& t2) const
+    {
+        using namespace std;
+        if (get<0>(t1) != get<0>(t2)) return get<0>(t1) < get<0>(t2);
+        if (get<1>(t1) != get<1>(t2)) return get<1>(t1) < get<1>(t2);
+        if (get<2>(t1) != get<2>(t2)) return get<2>(t1) < get<2>(t2);
+
+        return false;
+    }
+};
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -282,32 +309,28 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
+            std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare > categories;
+            //std::set<std::tuple<QString, int, cvf::Color3ub> > categories;
 
             std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
-
-            // Loop through the wells to get same ordering as the wells in tree view
-            for (size_t i = 0; i < m_reservoirView->wellCollection()->wells().size(); i++)
+            int tracerIndex = 0;
+            for (const auto& tracerName : tracerNames)
             {
-                size_t reverseIndex = m_reservoirView->wellCollection()->wells().size() - i - 1;
+                RimEclipseWell* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
+                cvf::Color3ub color(cvf::Color3::GRAY);
+                if (well) color = cvf::Color3ub(well->wellPipeColor());
 
-                RimEclipseWell* well = m_reservoirView->wellCollection()->wells()[reverseIndex];
-                QString wellName = well->name();
-
-                auto tracer = std::find(begin(tracerNames), end(tracerNames), wellName);
-                if (tracer != end(tracerNames))
-                {
-                    // The category value is defined as the index of the tracer name in the tracer name vector
-                    size_t categoryValue = std::distance(begin(tracerNames), tracer);
-
-                    cvf::Color3ub color(cvf::Color3::SEA_GREEN);
-                    color = cvf::Color3ub(well->wellPipeColor());
-
-                    categories.push_back(std::make_tuple(wellName, static_cast<int>(categoryValue), color));
-                }
+                categories.insert(std::make_tuple(tracerName, tracerIndex, color));
+                ++tracerIndex;
             }
 
-            this->legendConfig()->setCategoryItems(categories);
+            std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
+            for (auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt)
+            {
+                reverseCategories.push_back(*tupIt);
+            }
+           
+            this->legendConfig()->setCategoryItems(reverseCategories);
         }
     }
     else
