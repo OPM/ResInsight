@@ -61,6 +61,8 @@ public:
 
     bool                                              hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
+    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 protected:
     virtual void                                      updateLegendCategorySettings() {};
 
@@ -72,7 +74,6 @@ private:
 
     virtual QList<caf::PdmOptionItemInfo>             calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, 
                                                                             bool * useOptionsOnly);
-    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                                      fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                                        const QVariant& oldValue, 
                                                                        const QVariant& newValue);

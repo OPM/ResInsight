@@ -25,11 +25,16 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
+#include <memory>
+
 class RigMainGrid;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
 class RimEclipseTopologyItem;
+class RimGeoMechResultDefinition;
+class RimGeoMechTopologyItem;
 class RimPickingTopologyItem;
+class RiuFemTimeHistoryResultAccessor;
 class RiuSelectionItem;
 
 //==================================================================================================
@@ -68,13 +73,19 @@ protected:
 private:
     RigMainGrid*            mainGrid();
     RimEclipseTopologyItem* eclipseTopologyItem() const;
+    RimGeoMechTopologyItem* geoMechTopologyItem() const;
     void                    updateResultDefinitionFromCase();
     QString                 topologyText() const;
     void                    updateQwtPlotAxis();
 
+    std::unique_ptr<RiuFemTimeHistoryResultAccessor> femTimeHistoryResultAccessor() const;
+
 private:
     caf::PdmProxyValueField<QString>                m_topologyText;
+    
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
+    caf::PdmChildField<RimGeoMechResultDefinition*> m_geoMechResultDefinition;
+
     caf::PdmChildField<RimPickingTopologyItem*>     m_pickingTopologyItem;
     caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
 };

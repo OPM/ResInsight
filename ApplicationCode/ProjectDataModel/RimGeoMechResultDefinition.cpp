@@ -30,8 +30,8 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechView.h"
+#include "RimPlotCurve.h"
 #include "RimViewLinker.h"
-#include "RimWellLogCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -206,11 +206,10 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     // Get the possible property filter owner
     RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>(this->parentField()->ownerObject());
-    RimView* view = NULL;
+    RimView* view = nullptr;
     this->firstAncestorOrThisOfType(view);
-    RimWellLogCurve* curve = NULL;
+    RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
-
 
     if (&m_resultVariableUiField == changedField)
     {
