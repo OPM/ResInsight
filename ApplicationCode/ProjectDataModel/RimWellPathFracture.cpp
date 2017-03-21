@@ -96,15 +96,8 @@ void RimWellPathFracture::updateAzimuthFromFractureDefinition()
     if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
 
-        caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-        if (!objHandle) return;
+        double wellPathAzimuth = wellAzimuthAtFracturePosition();
 
-        RimWellPath* wellPath = nullptr;
-        objHandle->firstAncestorOrThisOfType(wellPath);
-        if (!wellPath) return;
-
-        RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-        double wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
         if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             azimuth = wellPathAzimuth;
@@ -120,6 +113,23 @@ void RimWellPathFracture::updateAzimuthFromFractureDefinition()
 //     {
 //         azimuth = attachedFractureDefinition()->azimuthAngle;
 //     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimWellPathFracture::wellAzimuthAtFracturePosition()
+{
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
+    if (!objHandle) return cvf::UNDEFINED_DOUBLE;
+
+    RimWellPath* wellPath = nullptr;
+    objHandle->firstAncestorOrThisOfType(wellPath);
+    if (!wellPath) return cvf::UNDEFINED_DOUBLE;
+
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    double wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
+    return wellPathAzimuth;
 }
 
 //--------------------------------------------------------------------------------------------------

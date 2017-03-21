@@ -81,8 +81,8 @@ void RimSimWellFracture::updateAzimuthFromFractureDefinition()
 
     if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation== RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
-        updateBranchGeometry();
-        double simWellAzimuth = m_branchCenterLines[m_branchIndex].simWellAzimuthAngle(fracturePosition());
+        double simWellAzimuth = wellAzimuthAtFracturePosition();
+
         if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH )
         {
             azimuth = simWellAzimuth;
@@ -98,6 +98,16 @@ void RimSimWellFracture::updateAzimuthFromFractureDefinition()
         if (attachedFractureDefinition()) azimuth = attachedFractureDefinition()->azimuthAngle;
         else azimuth = 0.0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimSimWellFracture::wellAzimuthAtFracturePosition()
+{
+    updateBranchGeometry();
+    double simWellAzimuth = m_branchCenterLines[m_branchIndex].simWellAzimuthAngle(fracturePosition());
+    return simWellAzimuth;
 }
 
 //--------------------------------------------------------------------------------------------------

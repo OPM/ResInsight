@@ -44,6 +44,8 @@ public:
     void                                            updateFracturePositionFromLocation();
     void                                            updateAzimuthFromFractureDefinition() override;
 
+    double                                          wellAzimuthAtFracturePosition() override;
+
 
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
