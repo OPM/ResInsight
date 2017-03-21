@@ -19,68 +19,50 @@
 #pragma once
 
 
+#include "RimDefines.h"
+
+#include "cafAppEnum.h"
+
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfMath.h"
 #include "cvfVector3.h"
+#include "cvfMatrix4.h"
+#include "cvfPlane.h"
 
 #include <vector>
 #include <QString>
-#include "cafAppEnum.h"
-#include "RimDefines.h"
 
 
 class RimFracture;
 class RimEclipseCase;
 
-// class RigFractureData
-// {
-// public:
-//     RigFractureData();
-// 
-//     size_t reservoirCellIndex;
-//     double transmissibility;
-//     cvf::Vec3d transmissibilities;
-//     
-//     double totalArea;
-//     double fractureLenght;
-//     cvf::Vec3d projectedAreas;
-// 
-//     cvf::Vec3d permeabilities;
-//     cvf::Vec3d cellSizes;
-//     double NTG;
-//     double skinFactor;
-// 
-//     bool cellIsActive;
-//     
-//     //TODO: Used for upscaling - should be moved?
-//     double upscaledAritmStimPlanValue;
-//     double upscaledHarmStimPlanValue;
-// 
-// 
-// };
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigFractureTransCalc : public cvf::Object
+class RigFractureTransCalc
 {
 public:
-    RigFractureTransCalc();
+    explicit RigFractureTransCalc(RimEclipseCase* caseToApply, RimFracture* fracture);
 
-    static void                     computeTransmissibility(RimEclipseCase* caseToApply, RimFracture* fracture);
+    void                    computeTransmissibility();
+    bool                    planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ);
 
-   static  void                     computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, RimFracture* fracture, RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex);
-    static double                   areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
-    static double                   areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
 
-    static void                     computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply, RimFracture* fracture, QString resultName, QString resultUnit, size_t timeStepIndex);
-
-    static void                     computeFlowInFracture(RimEclipseCase* caseToApply, RimFracture* fracture);
-    static void                     computeFlowIntoTransverseWell(RimEclipseCase* caseToApply, RimFracture* fracture);
+    void                    computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);
+    void                    computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex);
+    
+    static double           areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
+    static double           areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
+    
+    void                    computeFlowInFracture();
+    void                    computeFlowIntoTransverseWell();
 
 
 private:
+    RimEclipseCase*         m_case;
+    RimFracture*            m_fracture;
+    RimDefines::UnitSystem  m_unitForCalculation;
 
 };
 

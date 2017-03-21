@@ -110,8 +110,10 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 
     for (RimFracture* fracture : fractures)
     {
+        RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+
         //TODO: Check that there is a fracture template available for given fracture....
-        RigFractureTransCalc::computeTransmissibility(caseToApply, fracture);
+        transmissibilityCalculator.computeTransmissibility();
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         for (RigFractureData fracData : fracDataVector)
@@ -164,7 +166,8 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 
     for (RimFracture* fracture : fractures) //For testing upscaling...
     {
-        RigFractureTransCalc::computeUpscaledPropertyFromStimPlan(caseToApply, fracture, resultName, resultUnit, timeStepIndex);
+        RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+        transmissibilityCalculator.computeUpscaledPropertyFromStimPlan(resultName, resultUnit, timeStepIndex);
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         out << qSetFieldWidth(4);

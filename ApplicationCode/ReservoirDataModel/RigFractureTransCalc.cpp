@@ -34,20 +34,41 @@
 #include <QString>
 #include "RimEllipseFractureTemplate.h"
 #include "cafAppEnum.h"
+#include "RigCell.h"
+#include "RigMainGrid.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-// RigFractureData::RigFractureData()
-// {
-// 
-// }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigFractureTransCalc::RigFractureTransCalc()
+RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFracture* fracture)
 {
+    m_case = caseToApply;
+    m_fracture = fracture;
+
+
+    //Set correct unit system: 
+    RigEclipseCaseData::UnitsType caseUnit = m_case->eclipseCaseData()->unitsType();
+
+    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
+        m_unitForCalculation = RimDefines::UNITS_METRIC;
+    }
+    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities in field units"));
+        m_unitForCalculation = RimDefines::UNITS_FIELD;
+    }
+    else
+    {
+        //TODO: How to handle lab units for eclipse case?
+        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
+        RiaLogging::error(QString("Export will be in metric units, but results might be wrong."));
+        m_unitForCalculation = RimDefines::UNITS_METRIC;
+    }
+
+
+
 }
 
 
@@ -56,39 +77,39 @@ RigFractureTransCalc::RigFractureTransCalc()
 /// 
 //--------------------------------------------------------------------------------------------------
 //TODO: Make static and move to another class
-void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, RimFracture* fracture)
+void RigFractureTransCalc::computeTransmissibility()
 {
-    //Get correct unit system: 
-    RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
-    RimDefines::UnitSystem unitForExport;
+//     //Get correct unit system: 
+//     RigEclipseCaseData::UnitsType caseUnit = m_case->eclipseCaseData()->unitsType();
+//     RimDefines::UnitSystem unitForExport;
+// 
+//     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
+//     {
+//         RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
+//         unitForExport = RimDefines::UNITS_METRIC;
+//     }
+//     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
+//     {
+//         RiaLogging::debug(QString("Calculating transmissibilities in field units"));
+//         unitForExport = RimDefines::UNITS_FIELD;
+//     }
+//     else
+//     {
+//         RiaLogging::error(QString("Unit system for case not supported for fracture export."));
+//         return;
+//     }
 
-    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
-    {
-        RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
-        unitForExport = RimDefines::UNITS_METRIC;
-    }
-    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
-    {
-        RiaLogging::debug(QString("Calculating transmissibilities in field units"));
-        unitForExport = RimDefines::UNITS_FIELD;
-    }
-    else
-    {
-        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
-        return;
-    }
-
-    if (fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
+    if (m_fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
     {
         RiaLogging::warning(QString("Transimssibility for finite conductity in fracture not yet implemented."));
         RiaLogging::warning(QString("Performing calculation for infinite conductivity instead."));
     }
 
 
-    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
 
     size_t scalarSetIndex;
     scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
@@ -110,7 +131,7 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
     std::vector<RigFractureData> fracDataVec;
-    std::vector<size_t> fracCells = fracture->getPotentiallyFracturedCells();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
     for (size_t fracCell : fracCells)
     {
@@ -130,11 +151,11 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
         cvf::Vec3d localY;
         cvf::Vec3d localZ;
         std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = fracture->planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
+        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
         if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
 
         //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
-        cvf::Mat4f invertedTransMatrix =  fracture->transformMatrix().getInverted();
+        cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
         for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
         {
             for (cvf::Vec3d& v : planeCellPolygon)
@@ -165,7 +186,7 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
         double transmissibility_Z = 0.0;
 
 
-        std::vector<cvf::Vec3f> fracPolygon = fracture->attachedFractureDefinition()->fracturePolygon(unitForExport);
+        std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(m_unitForCalculation);
 
         std::vector<cvf::Vec3d> fracPolygonDouble;
         for (auto v : fracPolygon) fracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
@@ -196,7 +217,7 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
             lengthXareaOfFractureParts.push_back(length * area);
 
             cvf::Plane fracturePlane;
-            cvf::Mat4f m = fracture->transformMatrix();
+            cvf::Mat4f m = m_fracture->transformMatrix();
             bool isCellIntersected = false;
 
             fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
@@ -216,11 +237,11 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
         fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
         double c = cvf::UNDEFINED_DOUBLE;
-        if (unitForExport == RimDefines::UNITS_METRIC) c = 0.00852702;
-        if (unitForExport == RimDefines::UNITS_FIELD)  c = 0.00112712;
+        if (m_unitForCalculation == RimDefines::UNITS_METRIC) c = 0.00852702;
+        if (m_unitForCalculation == RimDefines::UNITS_FIELD)  c = 0.00112712;
         // TODO: Use value from RimReservoirCellResultsStorage?       
 
-        skinfactor = fracture->attachedFractureDefinition()->skinFactor;
+        skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
 
         double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
 
@@ -253,7 +274,58 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
 
     }
 
-    fracture->setFractureData(fracDataVec);
+    m_fracture->setFractureData(fracDataVec);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigFractureTransCalc::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons,
+    cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ)
+{
+
+    cvf::Plane fracturePlane;
+    cvf::Mat4f m = m_fracture->transformMatrix();
+    bool isCellIntersected = false;
+
+    fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
+        static_cast<cvf::Vec3d>(m.col(2)));
+
+    const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+    if (!mainGrid) return false;
+
+    RigCell cell = mainGrid->globalCellArray()[cellindex];
+    if (cell.isInvalid()) return mainGrid;
+
+    if (cellindex == 186234)
+    {
+        cvf::Vec3d cellcenter = cell.center();
+    }
+
+    //Copied (and adapted) from RigEclipseWellLogExtractor
+    cvf::Vec3d hexCorners[8];
+    const std::vector<cvf::Vec3d>& nodeCoords = mainGrid->nodes();
+    const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
+
+    hexCorners[0] = nodeCoords[cornerIndices[0]];
+    hexCorners[1] = nodeCoords[cornerIndices[1]];
+    hexCorners[2] = nodeCoords[cornerIndices[2]];
+    hexCorners[3] = nodeCoords[cornerIndices[3]];
+    hexCorners[4] = nodeCoords[cornerIndices[4]];
+    hexCorners[5] = nodeCoords[cornerIndices[5]];
+    hexCorners[6] = nodeCoords[cornerIndices[6]];
+    hexCorners[7] = nodeCoords[cornerIndices[7]];
+
+    //Find line-segments where cell and fracture plane intersects
+    std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > intersectionLineSegments;
+
+    isCellIntersected = RigCellGeometryTools::planeHexCellIntersection(hexCorners, fracturePlane, intersectionLineSegments);
+
+    RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
+
+    RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
+
+    return isCellIntersected;
 }
 
 
@@ -261,14 +333,14 @@ void RigFractureTransCalc::computeTransmissibility(RimEclipseCase* caseToApply, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, RimFracture* fracture, RimEclipseCase* caseToApply, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex)
+void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex)
 {
     //TODO: A lot of common code with function for calculating transmissibility... 
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
     {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
     }
     else return;
 
@@ -279,13 +351,13 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
     fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
 
     //TODO: A lot of common code with function above... Can be cleaned up...?
-    std::vector<size_t> fracCells = fracture->getPotentiallyFracturedCells();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
 
-    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
 
@@ -295,11 +367,11 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
     cvf::Vec3d localY;
     cvf::Vec3d localZ;
     std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-    bool isPlanIntersected = fracture->planeCellIntersectionPolygons(cellIndex, planeCellPolygons, localX, localY, localZ);
+    bool isPlanIntersected = planeCellIntersectionPolygons(cellIndex, planeCellPolygons, localX, localY, localZ);
     if (!isPlanIntersected || planeCellPolygons.size() == 0) return;
 
     //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
-    cvf::Mat4f invertedTransMatrix = fracture->transformMatrix().getInverted();
+    cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
     for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
     {
         for (cvf::Vec3d& v : planeCellPolygon)
@@ -315,7 +387,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
     directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
     directionOfLength.normalize();
 
-    std::vector<cvf::Vec3f> fracPolygon = fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
+    std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
     std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
 
     double area;
@@ -351,9 +423,6 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
         upscaledHarmStimPlanValue = areaWeightedHarmonicAverage(areaOfFractureParts, valuesForFractureParts);
     }
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -402,48 +471,29 @@ double RigFractureTransCalc::areaWeightedArithmeticAverage(std::vector<double> a
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan(RimEclipseCase* caseToApply, RimFracture* fracture, QString resultName, QString resultUnit, size_t timeStepIndex)
+void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultName, QString resultUnit, size_t timeStepIndex)
 {
 
     //TODO: A lot of common code with function for calculating transmissibility... 
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
     {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
     }
     else return;
 
-    //Get correct unit system: 
-    RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
-    RimDefines::UnitSystem unitForExport;
-
-    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
-    {
-        RiaLogging::debug(QString("Calculating upscaled stimPlan values in metric units"));
-        unitForExport = RimDefines::UNITS_METRIC;
-    }
-    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
-    {
-        RiaLogging::debug(QString("Calculating upscaled stimPlan values in field units"));
-        unitForExport = RimDefines::UNITS_FIELD;
-    }
-    else
-    {
-        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
-        return;
-    }
 
     std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
     std::vector<double> stimPlanParameterValues;
     fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
 
     //TODO: A lot of common code with function above... Can be cleaned up...?
-    std::vector<size_t> fracCells = fracture->getPotentiallyFracturedCells();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
-    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
     std::vector<RigFractureData> fracDataVec;
@@ -456,8 +506,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan(RimEclipseCase* c
 
         double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
         double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
-        caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
-        computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, fracture, caseToApply, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
+        computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, m_unitForCalculation, fracCell);
 
         if (upscaledAritmStimPlanValue != cvf::UNDEFINED_DOUBLE)
         {
@@ -468,7 +517,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan(RimEclipseCase* c
         }
     }
 
-    fracture->setFractureData(fracDataVec);
+    m_fracture->setFractureData(fracDataVec);
 
 
 
@@ -478,25 +527,25 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan(RimEclipseCase* c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeFlowInFracture(RimEclipseCase* caseToApply, RimFracture* fracture)
+void RigFractureTransCalc::computeFlowInFracture()
 {
 
     //TODO: A lot of common code with function for calculating transmissibility... 
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
     RimEllipseFractureTemplate* fracTemplateEllipse;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
     {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
     }
-    else if (dynamic_cast<RimEllipseFractureTemplate*>(fracture->attachedFractureDefinition()))
+    else if (dynamic_cast<RimEllipseFractureTemplate*>(m_fracture->attachedFractureDefinition()))
     {
-        fracTemplateEllipse = dynamic_cast<RimEllipseFractureTemplate*>(fracture->attachedFractureDefinition());
+        fracTemplateEllipse = dynamic_cast<RimEllipseFractureTemplate*>(m_fracture->attachedFractureDefinition());
     }
     else return;
 
     //Get correct unit system: 
-    RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
+    RigEclipseCaseData::UnitsType caseUnit = m_case->eclipseCaseData()->unitsType();
     RimDefines::UnitSystem unitForExport;
 
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
@@ -517,13 +566,13 @@ void RigFractureTransCalc::computeFlowInFracture(RimEclipseCase* caseToApply, Ri
 
 
     //TODO: A lot of common code with function above... Can be cleaned up...?
-    std::vector<size_t> fracCells = fracture->getPotentiallyFracturedCells();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
 
-    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
+    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
 
@@ -548,19 +597,19 @@ void RigFractureTransCalc::computeFlowInFracture(RimEclipseCase* caseToApply, Ri
             double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
             double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
             caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
-            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, fracture, caseToApply, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
+            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
             K = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
 
             resultName = "WIDTH";
             resultUnit = "cm"; //TODO handle mm and cm!
-            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, fracture, caseToApply, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
+            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
             w = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
 
         }
 
     }
 
-    fracture->setFractureData(fracDataVec);
+    m_fracture->setFractureData(fracDataVec);
 
 }
 
@@ -568,19 +617,19 @@ void RigFractureTransCalc::computeFlowInFracture(RimEclipseCase* caseToApply, Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeFlowIntoTransverseWell(RimEclipseCase* caseToApply, RimFracture* fracture)
+void RigFractureTransCalc::computeFlowIntoTransverseWell()
 {
 
     //TODO: A lot of common code with function for calculating transmissibility... 
 
-    if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return;
+    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return;
 
     double wellRadius = cvf::UNDEFINED_DOUBLE;
-    if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         wellRadius = 0.0;//TODO read this value...
     }
-    if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
     {
 
 

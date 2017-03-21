@@ -287,64 +287,6 @@ cvf::Mat4f RimFracture::transformMatrix()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, 
-                                                cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ)
-{
-    
-    cvf::Plane fracturePlane;
-    cvf::Mat4f m = transformMatrix();
-    bool isCellIntersected = false;
-
-    fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()), 
-                                        static_cast<cvf::Vec3d>(m.col(2)));
-
-    RiaApplication* app = RiaApplication::instance();
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return isCellIntersected;
-
-    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-    if (!activeRiv) return isCellIntersected;
-
-    const RigMainGrid* mainGrid = activeRiv->mainGrid();
-    if (!mainGrid) return isCellIntersected;
-
-    RigCell cell = mainGrid->globalCellArray()[cellindex];
-    if (cell.isInvalid()) return isCellIntersected;
-
-    if (cellindex == 186234)
-    {
-        cvf::Vec3d cellcenter = cell.center();
-    }
-
-    //Copied (and adapted) from RigEclipseWellLogExtractor
-    cvf::Vec3d hexCorners[8];
-    const std::vector<cvf::Vec3d>& nodeCoords = mainGrid->nodes();
-    const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
-
-    hexCorners[0] = nodeCoords[cornerIndices[0]];
-    hexCorners[1] = nodeCoords[cornerIndices[1]];
-    hexCorners[2] = nodeCoords[cornerIndices[2]];
-    hexCorners[3] = nodeCoords[cornerIndices[3]];
-    hexCorners[4] = nodeCoords[cornerIndices[4]];
-    hexCorners[5] = nodeCoords[cornerIndices[5]];
-    hexCorners[6] = nodeCoords[cornerIndices[6]];
-    hexCorners[7] = nodeCoords[cornerIndices[7]];
-
-    //Find line-segments where cell and fracture plane intersects
-    std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > intersectionLineSegments;
-
-    isCellIntersected = RigCellGeometryTools::planeHexCellIntersection(hexCorners, fracturePlane, intersectionLineSegments);
-       
-    RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
-
-    RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
-
-    return isCellIntersected;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFracture::setRecomputeGeometryFlag()
 {
     m_recomputeGeometry = true;
