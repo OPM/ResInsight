@@ -423,13 +423,13 @@ void RimGridTimeHistoryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     if (eclipseTopologyItem())
     {
         CVF_ASSERT(m_eclipseResultDefinition());
-        m_eclipseResultDefinition->defineUiOrdering(uiConfigName, *group1);
+        m_eclipseResultDefinition->uiOrdering(uiConfigName, *group1);
     }
 
     if (geoMechTopologyItem())
     {
         CVF_ASSERT(m_geoMechResultDefinition());
-        m_geoMechResultDefinition->defineUiOrdering(uiConfigName, *group1);
+        m_geoMechResultDefinition->uiOrdering(uiConfigName, *group1);
     }
 
     uiOrdering.add(&m_plotAxis);

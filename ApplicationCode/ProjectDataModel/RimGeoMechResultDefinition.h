@@ -61,12 +61,9 @@ public:
 
     bool                                              hasCategoryResult()  { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
-    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
 protected:
     virtual void                                      updateLegendCategorySettings() {};
-
-
+    virtual void                                      defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
 
