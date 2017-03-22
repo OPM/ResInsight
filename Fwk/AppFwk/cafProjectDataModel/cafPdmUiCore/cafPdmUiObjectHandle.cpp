@@ -39,10 +39,10 @@ void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrderi
 {
     // Restore state for includeRemainingFields, as this flag
     // can be changed in defineUiOrdering()
-    bool includeRemaining_originalState = uiOrdering.includeRemainingFields();
+    bool includeRemaining_originalState = uiOrdering.isIncludingRemainingFields();
 
     this->defineUiOrdering(uiConfigName, uiOrdering);
-    if (uiOrdering.includeRemainingFields())
+    if (uiOrdering.isIncludingRemainingFields())
     {
         // Add the remaining Fields To UiConfig
         std::vector<PdmFieldHandle*> fields;
@@ -60,7 +60,7 @@ void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrderi
     // Restore incoming value
     uiOrdering.skipRemainingFields(!includeRemaining_originalState);
 
-    CAF_ASSERT(includeRemaining_originalState == uiOrdering.includeRemainingFields());
+    CAF_ASSERT(includeRemaining_originalState == uiOrdering.isIncludingRemainingFields());
 }
 
 //--------------------------------------------------------------------------------------------------

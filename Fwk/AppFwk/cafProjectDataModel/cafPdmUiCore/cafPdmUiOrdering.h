@@ -63,20 +63,20 @@ public:
 
     PdmUiGroup*                     addNewGroup(QString displayName);
 
-    /// HACK constness of this class and functions must be revisited
-    //void                            add(const PdmUiItem* item)         { m_ordering.push_back(const_cast<PdmUiItem*>(item)); }
     void                            add(const PdmFieldHandle* field);
     void                            add(const PdmObjectHandle* obj);
 
-    bool                            includeRemainingFields() const      { return !m_skipRemainingFields; }
-    void                            skipRemainingFields(bool val)       { m_skipRemainingFields = val; }
+    void                            skipRemainingFields(bool doSkip = true);
 
-    const std::vector<PdmUiItem*>&  uiItems() const                    { return m_ordering; }
+    // Pdm internal methods
+
+    const std::vector<PdmUiItem*>&  uiItems() const;
     bool                            contains(const PdmUiItem* item) const;
+    bool                            isIncludingRemainingFields() const;
 
 private:
-    std::vector<PdmUiItem*>         m_ordering;      ///< The order of groups and fields
-    std::vector<PdmUiGroup*>        m_createdGroups; ///< Owned PdmUiGroups, for mem management
+    std::vector<PdmUiItem*>         m_ordering;            ///< The order of groups and fields
+    std::vector<PdmUiGroup*>        m_createdGroups;       ///< Owned PdmUiGroups, for memory management only
     bool                            m_skipRemainingFields;
 };
 
@@ -96,7 +96,7 @@ public:
     /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
     void         setCollapsed(bool doCollapse)          { m_hasForcedExpandedState = true; m_forcedCollapseState = doCollapse;}
 
-    // Internal use
+    // Pdm internal methods
     bool         isExpandedByDefault()    const { return !m_isCollapsedByDefault;} 
     bool         hasForcedExpandedState() const { return m_hasForcedExpandedState;} 
     bool         forcedExpandedState()    const { return !m_forcedCollapseState;}
