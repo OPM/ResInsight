@@ -300,12 +300,14 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
 
     getPolygonBB(polygonXmin, polygonXmax, polygonYmin, polygonYmax);
 
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
+
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
     for (int i = 0; i < xCoords.size() - 1; i++)
     {
         for (int j = 0; j < depthCoords.size() - 1; j++)
         {
-            if (stimPlanCellTouchesPolygon(xCoords[i], xCoords[i + 1], depthCoords[j], depthCoords[j + 1], polygonXmin, polygonXmax, polygonYmin, polygonYmax))
+            if (stimPlanCellTouchesPolygon(polygon, xCoords[i], xCoords[i + 1], depthCoords[j], depthCoords[j + 1], polygonXmin, polygonXmax, polygonYmin, polygonYmax))
             {
                 stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0f));
                 stimPlanMeshVertices.push_back(cvf::Vec3f(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0f));
@@ -505,7 +507,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createGeo(const std::vector<c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RivWellFracturePartMgr::stimPlanCellTouchesPolygon(double xMin, double xMax, double yMin, double yMax, float polygonXmin, float polygonXmax, float polygonYmin, float polygonYmax)
+bool RivWellFracturePartMgr::stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, double xMin, double xMax, double yMin, double yMax, float polygonXmin, float polygonXmax, float polygonYmin, float polygonYmax)
 {
 
     if (static_cast<float>(xMin) > polygonXmin && static_cast<float>(xMax) < polygonXmax)
@@ -516,7 +518,7 @@ bool RivWellFracturePartMgr::stimPlanCellTouchesPolygon(double xMin, double xMax
         }
     }
 
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
+    //std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
 
     for (cvf::Vec3f v : polygon)
     {

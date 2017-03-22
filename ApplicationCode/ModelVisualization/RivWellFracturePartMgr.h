@@ -67,7 +67,7 @@ private:
     void getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax);
 
     std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> polygon, cvf::Mat4f m, caf::DisplayCoordTransform* displayCoordTransform);
-    bool                                stimPlanCellTouchesPolygon(double xMin, double xMax, double yMin, double yMax, float polygonXmin, float polygonXmax, float polygonYmin, float polygonYmax);
+    bool                                stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, double xMin, double xMax, double yMin, double yMax, float polygonXmin, float polygonXmax, float polygonYmin, float polygonYmax);
 
     std::vector<double>                 mirrorDataAtSingleDepth(std::vector<double> depthData);
     static cvf::ref<cvf::DrawableGeo>   createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
