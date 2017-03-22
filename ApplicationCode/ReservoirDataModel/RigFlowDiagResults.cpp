@@ -316,6 +316,8 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
         {
             const std::vector<double> * fr = fractions[frIdx].second;
 
+            if (!fr) continue;
+
             for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
             {
                 if ( (*fr)[acIdx] == HUGE_VAL ) continue;

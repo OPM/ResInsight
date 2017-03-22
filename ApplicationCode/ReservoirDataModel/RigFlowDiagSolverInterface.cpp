@@ -92,6 +92,9 @@ void RigFlowDiagTimeStepResult::setInjProdWellPairFlux(const std::string& inject
 void RigFlowDiagTimeStepResult::addResult(const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues)
 {
     std::vector<double>& activeCellValues =  m_nativeResults[resAddr];
+
+    CVF_ASSERT(activeCellValues.empty());
+
     activeCellValues.resize(m_activeCellCount, HUGE_VAL);
 
     for (const auto& pairIt : cellValues)
