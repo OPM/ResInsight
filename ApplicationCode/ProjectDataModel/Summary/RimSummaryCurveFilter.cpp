@@ -194,7 +194,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
 
-    m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
+    m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
 
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
@@ -219,7 +219,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     }
 
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroup("Curve Name Configuration");
-    m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
+    m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
     uiOrdering.add(&m_plotAxis);
     uiOrdering.add(&m_autoApplyChangesToPlot);

@@ -184,7 +184,7 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
     // Fields declared in RimResultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    resultDefinition->defineUiOrdering(uiConfigName, *group1);
+    resultDefinition->uiOrdering(uiConfigName, *group1);
     
     // Fields declared in RimCellFilter
     uiOrdering.add(&filterMode);

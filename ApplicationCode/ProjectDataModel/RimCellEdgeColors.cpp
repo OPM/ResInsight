@@ -262,7 +262,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     if (isUsingSingleVariable())
     {
-        m_singleVarEdgeResultColors->defineUiOrdering(uiConfigName,uiOrdering );
+        m_singleVarEdgeResultColors->uiOrdering(uiConfigName,uiOrdering );
     }
     else
     {

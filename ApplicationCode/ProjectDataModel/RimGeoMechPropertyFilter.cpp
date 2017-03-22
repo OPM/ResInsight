@@ -133,7 +133,7 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    resultDefinition->defineUiOrdering(uiConfigName, *group1);
+    resultDefinition->uiOrdering(uiConfigName, *group1);
 
     uiOrdering.add(&isActive);
     uiOrdering.add(&filterMode);
