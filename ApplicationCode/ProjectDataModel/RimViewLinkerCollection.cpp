@@ -62,7 +62,7 @@ void RimViewLinkerCollection::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTre
         childObject->addViewControllers(uiTreeOrdering);
     }
 
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -110,7 +110,7 @@ PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""
 void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrdering)
 {
 #if 1
-    if (!uiTreeOrdering->forgetRemainingFields())
+    if (uiTreeOrdering->isIncludingRemainingChildren())
     {
         // Add the remaining Fields To UiConfig
         std::vector<PdmFieldHandle*> fields;

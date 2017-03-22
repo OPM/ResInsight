@@ -194,7 +194,7 @@ void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
         uiTreeOrdering.add(m_legendConfigPtrField());
     }
 
-   uiTreeOrdering.setForgetRemainingFields(true);
+   uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
