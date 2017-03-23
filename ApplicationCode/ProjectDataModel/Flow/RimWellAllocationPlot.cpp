@@ -358,7 +358,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
             {
                 RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
                 const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
-                tracerCellFractionValues[tracerName] = tracerCellFractions;
+                if (tracerCellFractions) tracerCellFractionValues[tracerName] = tracerCellFractions;
             }
         }
     }

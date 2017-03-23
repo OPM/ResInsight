@@ -650,15 +650,19 @@ std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer(cons
                                                                         wellCell.m_gridCellIndex);
             size_t tracerIdx = 0;
             double totalTracerFractionInCell = 0.0;
-            for ( const auto & tracerFractionIt: (*m_tracerCellFractionValues) )
+            for ( const auto & tracerFractionValsPair: (*m_tracerCellFractionValues) )
             {
-                double cellTracerFraction = (*tracerFractionIt.second)[resCellIndex];
-                if ( cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction )
+                const std::vector<double>* fractionVals = tracerFractionValsPair.second ;
+                if ( fractionVals )
                 {
-                    double tracerFlow = cellTracerFraction * wellCell.flowRate();
-                    flowPrTracer[tracerIdx]     = tracerFlow;
+                    double cellTracerFraction = (*fractionVals)[resCellIndex];
+                    if ( cellTracerFraction != HUGE_VAL && cellTracerFraction == cellTracerFraction )
+                    {
+                        double tracerFlow = cellTracerFraction * wellCell.flowRate();
+                        flowPrTracer[tracerIdx]     = tracerFlow;
 
-                    totalTracerFractionInCell += cellTracerFraction;
+                        totalTracerFractionInCell += cellTracerFraction;
+                    }
                 }
                 tracerIdx++;
             }
