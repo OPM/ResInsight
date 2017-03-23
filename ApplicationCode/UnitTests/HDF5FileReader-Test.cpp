@@ -1,3 +1,5 @@
+#ifdef USE_HDF5
+
 #include "gtest/gtest.h"
 
 #include "H5Cpp.h"
@@ -129,3 +131,4 @@ TEST(HDFTests, BasicFileRead)
 
 }
 
+#endif //USE_HDF5

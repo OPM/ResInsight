@@ -27,12 +27,15 @@
 #include <QList>
 #include <QDateTime>
 
+#include <memory>
+
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
-class RigGridBase;
-class RigMainGrid;
+class RifHdf5ReaderInterface;
 class RigActiveCellInfo;
 class RigFault;
+class RigGridBase;
+class RigMainGrid;
 
 struct RigWellResultPoint;
 
@@ -52,6 +55,7 @@ public:
     virtual ~RifReaderEclipseOutput();
 
     bool                    open(const QString& fileName, RigEclipseCaseData* eclipseCase);
+    void                    setHdf5FileName(const QString& fileName);
 
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
     void                    close();
@@ -97,4 +101,6 @@ private:
 
     ecl_file_type*                          m_ecl_init_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
+
+    std::unique_ptr<RifHdf5ReaderInterface> m_hdfReaderInterface;
 };

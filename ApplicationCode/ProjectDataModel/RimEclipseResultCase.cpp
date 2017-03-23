@@ -70,7 +70,8 @@ RimEclipseResultCase::RimEclipseResultCase()
     flipYAxis.xmlCapability()->setIOWritable(true);
     //flipYAxis.uiCapability()->setUiHidden(true);
 
-
+    CAF_PDM_InitField(&m_sourSimFileName, "SourSimFileName", QString(), "SourSim File Name", "", "", "");
+    //m_sourSimFileName.uiCapability()->setUiReadOnly(true);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -140,6 +141,12 @@ bool RimEclipseResultCase::openEclipseGridFile()
         {
             m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
         }
+    }
+
+    if (!m_sourSimFileName().isEmpty())
+    {
+        RifReaderEclipseOutput* outReader = dynamic_cast<RifReaderEclipseOutput*>(readerInterface.p());
+        outReader->setHdf5FileName(m_sourSimFileName());
     }
     
     return true;
@@ -408,6 +415,20 @@ void RimEclipseResultCase::setCaseInfo(const QString& userDescription, const QSt
 
     RimProject* proj = RiaApplication::instance()->project();
     proj->assignCaseIdToCase(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::setSourSimFileName(const QString& fileName)
+{
+    m_sourSimFileName = fileName;
+
+    RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(results(RifReaderInterface::FRACTURE_RESULTS)->readerInterface());
+    if (rifReaderOutput)
+    {
+        rifReaderOutput->setHdf5FileName(fileName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

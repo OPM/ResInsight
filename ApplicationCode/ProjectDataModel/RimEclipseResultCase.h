@@ -42,6 +42,7 @@ public:
 
     void                        setGridFileName(const QString& caseFileName);
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
+    void                        setSourSimFileName(const QString& fileName);
 
     virtual bool                openEclipseGridFile();
     bool                        openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase);
@@ -68,6 +69,7 @@ private:
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
     caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
+    caf::PdmField<QString>      m_sourSimFileName;
 
 
     // Obsolete field

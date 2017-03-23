@@ -20,11 +20,17 @@
 
 #include "RifReaderEclipseOutput.h"
 
+#include "RiaLogging.h"
+
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderOpmParserInput.h"
+
+#ifdef USE_HDF5
+#include "RifHdf5Reader.h"
+#endif
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -436,6 +442,83 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     progInfo.incrementProgress();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
+{
+    CVF_ASSERT(m_eclipseCase);
+
+    RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+    CVF_ASSERT(matrixModelResults);
+
+    std::unique_ptr<RifHdf5ReaderInterface> myReader;
+#ifdef USE_HDF5
+    myReader = std::unique_ptr<RifHdf5ReaderInterface>(new RifHdf5Reader(fileName));
+#endif // USE_HDF5
+
+    if (!myReader) return;
+
+    std::vector<QDateTime> hdfTimeSteps = myReader->timeSteps();
+    if (m_timeSteps.size() > 0)
+    {
+        if (hdfTimeSteps.size() != m_timeSteps.size())
+        {
+            RiaLogging::error("HDF: Time step count does not match");
+            return;
+        }
+    
+        for (size_t i = 0; i < m_timeSteps.size(); i++)
+        {
+            if (hdfTimeSteps[i] != m_timeSteps[i])
+            {
+                RiaLogging::error("HDF: Time steps does not match");
+
+                return;
+            }
+        }
+    }
+    else
+    {
+        // Use time steps from HDF to define the time steps
+        m_timeSteps = hdfTimeSteps;
+    }
+
+    std::vector<int> reportNumbers;
+    if (m_dynamicResultsAccess.notNull())
+    {
+        reportNumbers = m_dynamicResultsAccess->reportNumbers();
+    }
+
+    QStringList resultNames;
+    std::vector<size_t> resultNamesDataItemCounts;
+    myReader->resultNames(&resultNames, &resultNamesDataItemCounts);
+    if (resultNames.size() != static_cast<int>(resultNamesDataItemCounts.size()))
+    {
+        RiaLogging::error("HDF: Result name vectors and result name data item count does not match");
+
+        return;
+    }
+
+    size_t activeCellCount = 0;
+    matrixModelResults->activeCellInfo()->gridActiveCellCounts(0, activeCellCount);
+
+    for (int i = 0; i < resultNames.size(); ++i)
+    {
+        if (activeCellCount != resultNamesDataItemCounts[i])
+        {
+            RiaLogging::error("HDF: Number of active cells does not match");
+        }
+        else
+        {
+            size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, resultNames[i], false);
+            matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
+        }
+    }
+
+    m_hdfReaderInterface = std::move(myReader);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -855,6 +938,16 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
+#ifdef USE_HDF5
+    if (m_hdfReaderInterface)
+    {
+        if (m_hdfReaderInterface->dynamicResult(result, stepIndex, values))
+        {
+            return true;
+        }
+    }
+#endif
+
     if (m_dynamicResultsAccess.isNull())
     {
         m_dynamicResultsAccess = createDynamicResultsAccess();

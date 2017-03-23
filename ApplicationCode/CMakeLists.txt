@@ -193,6 +193,13 @@ if(RESINSIGHT_ENABLE_HDF5)
 		    ${HDF5_LIBRARIES}
 		)
 
+        list( APPEND CPP_SOURCES
+            FileInterface/RifHdf5Reader.h
+            FileInterface/RifHdf5Reader.cpp
+        )
+
+        source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
+
 		add_definitions(-DUSE_HDF5)
         # TODO add_subdirectory(HDF/Hdf5Reader)
         message( STATUS "Linking HD5 libraries : ${HDF5_LIBRARIES}" )
