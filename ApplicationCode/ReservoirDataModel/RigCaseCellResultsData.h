@@ -73,6 +73,7 @@ public:
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
+    std::vector<QDateTime>                             timeStepDates() const;
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;

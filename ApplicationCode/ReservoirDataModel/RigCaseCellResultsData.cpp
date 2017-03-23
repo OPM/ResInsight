@@ -403,10 +403,21 @@ QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t 
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResultIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() )
-        return  m_resultInfos[scalarResultIndex].m_timeStepDates;
+    if (scalarResultIndex < m_resultInfos.size())
+        return m_resultInfos[scalarResultIndex].m_timeStepDates;
     else
         return std::vector<QDateTime>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
+{
+    size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+    maxTimeStepCount(&scalarResWithMostTimeSteps);
+
+    return timeStepDates(scalarResWithMostTimeSteps);
 }
 
 //--------------------------------------------------------------------------------------------------

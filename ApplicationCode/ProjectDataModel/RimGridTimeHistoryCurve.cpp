@@ -176,7 +176,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
         RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
 
-        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates(m_eclipseResultDefinition->scalarResultIndex());
+        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
 
         values = RigTimeHistoryResultAccessor::timeHistoryValues(eclTopItem->eclipseCase()->eclipseCaseData(), m_eclipseResultDefinition(), gridIndex, cellIndex, timeStepDates.size());
     }
@@ -371,7 +371,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
         RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
         RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
 
-        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates(m_eclipseResultDefinition->scalarResultIndex());
+        std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
 
         for (QDateTime dt : timeStepDates)
         {
