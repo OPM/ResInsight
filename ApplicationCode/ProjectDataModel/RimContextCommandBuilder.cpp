@@ -376,7 +376,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
+        commandIds << "RicPasteTimeHistoryCurveFeature";
         commandIds << "RicCopyReferencesToClipboardFeature";
+        
         commandIds << "RicShowPlotDataFeature";
         commandIds << "RicSummaryCurveSwitchAxisFeature";
 
