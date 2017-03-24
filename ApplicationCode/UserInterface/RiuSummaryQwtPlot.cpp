@@ -55,9 +55,31 @@
 class RiuQwtPlotPicker : public QwtPlotPicker
 {
 public:
-    explicit RiuQwtPlotPicker(QWidget *canvas)
-        : QwtPlotPicker(canvas)
+    explicit RiuQwtPlotPicker(QwtPlot* plot, bool isMainAxisHorizontal)
+        : QwtPlotPicker(plot->canvas()), m_plot(plot), m_isMainAxisHorizontal(isMainAxisHorizontal)
     {
+        this->setTrackerMode(QwtPicker::AlwaysOn);
+        m_plotMarker = new QwtPlotMarker;
+
+        // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
+        QwtSymbol* mySymbol = new QwtSymbol(QwtSymbol::Ellipse, Qt::NoBrush, QPen(Qt::black, 2.0), QSize(12, 12));
+        m_plotMarker->setSymbol(mySymbol);
+    }
+
+    ~RiuQwtPlotPicker()
+    {
+        m_plotMarker->detach();
+        delete m_plotMarker;
+    }
+
+    void removeMarker()
+    {
+        if (m_plotMarker->plot())
+        {
+            m_plotMarker->detach();
+
+            m_plot->replot();
+        }
     }
 
 protected:
@@ -68,31 +90,154 @@ protected:
     {
         QwtText txt;
 
-        const RiuSummaryQwtPlot* sumPlot = dynamic_cast<const RiuSummaryQwtPlot*>(this->plot());
-        if (sumPlot)
+        if (m_plot)
         {
-            int closestYAxis = QwtPlot::yLeft;
-            QString timeString;
-            QString valueString;
-            QPointF closestPoint = sumPlot->closestCurvePoint(pos, &valueString, &timeString, &closestYAxis);
+            QwtPlot::Axis relatedYAxis = QwtPlot::yLeft;
+            QwtPlot::Axis relatedXAxis = QwtPlot::xBottom;
+
+            QString mainAxisValueString;
+            QString valueAxisValueString;
+            QPointF closestPoint = closestCurvePoint(pos, &valueAxisValueString, &mainAxisValueString, &relatedXAxis, &relatedYAxis);
             if (!closestPoint.isNull())
             {
-                QString str = valueString;
+                QString str = valueAxisValueString;
 
-                if (!timeString.isEmpty())
+                if (!mainAxisValueString.isEmpty())
                 {
-                    str += QString(" (%1)").arg(timeString);
+                    str += QString(" (%1)").arg(mainAxisValueString);
                 }
 
                 txt.setText(str);
             }
 
-            RiuSummaryQwtPlot* nonConstPlot = const_cast<RiuSummaryQwtPlot*>(sumPlot);
-            nonConstPlot->updateClosestCurvePointMarker(closestPoint, closestYAxis);
+            updateClosestCurvePointMarker(closestPoint, relatedXAxis, relatedYAxis);
         }
 
         return txt;
     }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    QPointF closestCurvePoint(const QPoint& cursorPosition, QString* valueAxisValueString, QString* mainAxisValueString, QwtPlot::Axis* relatedXAxis, QwtPlot::Axis* relatedYAxis) const
+    {
+        QPointF samplePoint;
+
+        QwtPlotCurve* closestCurve = nullptr;
+        double distMin = DBL_MAX;
+        int closestPointSampleIndex = -1;
+
+        const QwtPlotItemList& itmList = m_plot->itemList();
+        for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
+        {
+            if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
+            {
+                QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
+                double dist = DBL_MAX;
+                int candidateSampleIndex = candidateCurve->closestPoint(cursorPosition, &dist);
+                if (dist < distMin)
+                {
+                    closestCurve = candidateCurve;
+                    distMin = dist;
+                    closestPointSampleIndex = candidateSampleIndex;
+                }
+            }
+        }
+
+        if (closestCurve && distMin < 50)
+        {
+            samplePoint = closestCurve->sample(closestPointSampleIndex);
+
+            if (relatedXAxis) *relatedXAxis = static_cast<QwtPlot::Axis>( closestCurve->xAxis());
+            if (relatedYAxis) *relatedYAxis = static_cast<QwtPlot::Axis>( closestCurve->yAxis());
+        }
+
+
+        if (mainAxisValueString)
+        {
+            const QwtScaleDraw* mainAxisScaleDraw = m_isMainAxisHorizontal ? m_plot->axisScaleDraw(*relatedXAxis): m_plot->axisScaleDraw(*relatedYAxis);
+            auto dateScaleDraw = dynamic_cast<const QwtDateScaleDraw*>(mainAxisScaleDraw) ;
+
+            qreal mainAxisSampleVal = 0.0;
+            if (m_isMainAxisHorizontal) 
+                mainAxisSampleVal = samplePoint.x();
+            else 
+                mainAxisSampleVal = samplePoint.y();
+
+            if (dateScaleDraw)
+            {
+                QDateTime date = dateScaleDraw->toDateTime(mainAxisSampleVal);
+                *mainAxisValueString = date.toString("hh:mm dd.MMMM.yyyy");
+            } 
+            else if (mainAxisScaleDraw)
+            {
+                *mainAxisValueString = mainAxisScaleDraw->label(mainAxisSampleVal).text();
+            }
+        }
+
+        if (valueAxisValueString && closestCurve)
+        {
+            const QwtScaleDraw* valueAxisScaleDraw =  m_isMainAxisHorizontal ? m_plot->axisScaleDraw(*relatedYAxis): m_plot->axisScaleDraw(*relatedXAxis);
+
+            qreal valueAxisSampleVal = 0.0;
+            if (m_isMainAxisHorizontal) 
+                valueAxisSampleVal = samplePoint.x();
+            else 
+                valueAxisSampleVal = samplePoint.y();
+
+            if (valueAxisScaleDraw)
+            {
+                *valueAxisValueString = valueAxisScaleDraw->label(valueAxisSampleVal).text();
+            }
+        }
+
+        return samplePoint;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void updateClosestCurvePointMarker(const QPointF& closestPoint, QwtPlot::Axis relatedXAxis, QwtPlot::Axis relatedYAxis) const
+    {
+        bool replotRequired = false;
+
+        if (!closestPoint.isNull())
+        {
+            if (!m_plotMarker->plot())
+            {
+                m_plotMarker->attach(m_plot);
+
+                replotRequired = true;
+            }
+
+            if (m_plotMarker->value() != closestPoint)
+            {
+                m_plotMarker->setValue(closestPoint.x(), closestPoint.y());
+
+                // Set the axes that the marker realtes to, to make the positioning correct
+                m_plotMarker->setAxes(relatedXAxis, relatedYAxis);
+
+                // TODO : Should use a color or other visual indicator to show what axis the curve relates to
+
+                replotRequired = true;
+            }
+        }
+        else
+        {
+            if (m_plotMarker->plot())
+            {
+                m_plotMarker->detach();
+
+                replotRequired = true;
+            }
+        }
+
+        if (replotRequired) m_plot->replot();
+    }
+
+    QPointer<QwtPlot> m_plot; 
+    QwtPlotMarker*  m_plotMarker;
+    bool m_isMainAxisHorizontal;
 };
 
 
@@ -134,14 +279,8 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
 
     // Create a plot picker to display values next to mouse cursor
-    m_plotPicker = new RiuQwtPlotPicker(this->canvas());
-    m_plotPicker->setTrackerMode(QwtPicker::AlwaysOn);
+    m_plotPicker = new RiuQwtPlotPicker(this, true);
 
-    m_plotMarker = new QwtPlotMarker;
-
-    // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
-    QwtSymbol* mySymbol = new QwtSymbol(QwtSymbol::Ellipse, Qt::NoBrush, QPen(Qt::black, 2.0), QSize(12, 12));
-    m_plotMarker->setSymbol(mySymbol);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,8 +297,6 @@ RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
         m_plotDefinition->handleMdiWindowClosed();
     }
 
-    m_plotMarker->detach();
-    delete m_plotMarker;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,110 +377,6 @@ void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
 QSize RiuSummaryQwtPlot::sizeHint() const
 {
     return QSize(0, 0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QPointF RiuSummaryQwtPlot::closestCurvePoint(const QPoint& cursorPosition, QString* valueString, QString* timeString, int* yAxis) const
-{
-    QPointF samplePoint;
-
-    QwtPlotCurve* closestCurve = nullptr;
-    double distMin = DBL_MAX;
-    int closestPointSampleIndex = -1;
-
-    const QwtPlotItemList& itmList = itemList();
-    for (QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++)
-    {
-        if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve)
-        {
-            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>(*it);
-            double dist = DBL_MAX;
-            int candidateSampleIndex = candidateCurve->closestPoint(cursorPosition, &dist);
-            if (dist < distMin)
-            {
-                closestCurve = candidateCurve;
-                distMin = dist;
-                closestPointSampleIndex = candidateSampleIndex;
-            }
-        }
-    }
-
-    if (closestCurve && distMin < 50)
-    {
-        samplePoint = closestCurve->sample(closestPointSampleIndex);
-
-        if (yAxis) *yAxis = closestCurve->yAxis();
-    }
-
-
-    if (timeString)
-    {
-        const QwtScaleDraw* timeAxisScaleDraw = axisScaleDraw(QwtPlot::xBottom);
-        auto dateScaleDraw = dynamic_cast<const QwtDateScaleDraw*>(timeAxisScaleDraw) ;
-
-        if (dateScaleDraw)
-        {
-            QDateTime date = dateScaleDraw->toDateTime(samplePoint.x());
-            *timeString = date.toString("hh:mm dd.MMMM.yyyy");
-        } 
-        else if (timeAxisScaleDraw)
-        {
-            *timeString = timeAxisScaleDraw->label(samplePoint.x()).text();
-        }
-    }
-
-    if (valueString && closestCurve)
-    {
-        const QwtScaleDraw* yAxisScaleDraw = axisScaleDraw(closestCurve->yAxis());
-        if (yAxisScaleDraw)
-        {
-            *valueString = yAxisScaleDraw->label(samplePoint.y()).text();
-        }
-    }
-
-    return samplePoint;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::updateClosestCurvePointMarker(const QPointF& closestPoint, int yAxis)
-{
-    bool replotRequired = false;
-
-    if (!closestPoint.isNull())
-    {
-        if (!m_plotMarker->plot())
-        {
-            m_plotMarker->attach(this);
-            
-            replotRequired = true;
-        }
-
-        if (m_plotMarker->value() != closestPoint)
-        {
-            m_plotMarker->setValue(closestPoint.x(), closestPoint.y());
-
-            // Set y-axis to be able to support more than one y-axis. Default y-axis is left axis.
-            // TODO : Should use a color or other visual indicator to show what axis the curve relates to
-            m_plotMarker->setYAxis(yAxis);
-
-            replotRequired = true;
-        }
-    }
-    else
-    {
-        if (m_plotMarker->plot())
-        {
-            m_plotMarker->detach();
-            
-            replotRequired = true;
-        }
-    }
-
-    if (replotRequired) this->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,12 +486,7 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::leaveEvent(QEvent *)
 {
-    if (m_plotMarker->plot())
-    {
-        m_plotMarker->detach();
-
-        replot();
-    }
+    m_plotPicker->removeMarker();
 }
 
 //--------------------------------------------------------------------------------------------------

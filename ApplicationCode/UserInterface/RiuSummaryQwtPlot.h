@@ -30,6 +30,7 @@ class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
 
+class RiuQwtPlotPicker;
 class RimSummaryPlot;
 
 //==================================================================================================
@@ -72,7 +73,6 @@ private:
 
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
-    void                            showToolTip(const QPoint& pos);
 
 private slots:
     void                            onZoomedSlot( );
@@ -80,8 +80,7 @@ private slots:
 
 private:
     QwtPlotGrid*                    m_grid;
-    QwtPicker*                      m_plotPicker;
-    QwtPlotMarker*                  m_plotMarker;
+    RiuQwtPlotPicker*               m_plotPicker;
 
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
 
