@@ -22,6 +22,9 @@
 
 #include <QString>
 
+#include "H5Cpp.h"
+
+
 //==================================================================================================
 // 
 //
@@ -42,6 +45,17 @@ public:
 
 
     virtual void resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts) override;
+
+
+private:
+	int                      getIntAttribute(H5::H5File file, std::string groupName, std::string attributeName) const;
+	double                   getDoubleAttribute(H5::H5File file, std::string groupName, std::string attributeName) const;
+	std::string              getStringAttribute(H5::H5File file, std::string groupName, std::string attributeName) const;
+	std::vector<std::string> getSubGroupNames(H5::H5File file, std::string baseGroupName) const;
+	std::vector<double>      getStepTimeValues(H5::H5File file, std::string baseGroupName) const;
+	std::vector<std::string> getResultNames(H5::H5File file, std::string baseGroupName) const;
+	void                     getElementResultValues(H5::H5File file, std::string groupName, std::vector<double>* resultValues) const;
+
 
 private:
     QString m_fileName;
