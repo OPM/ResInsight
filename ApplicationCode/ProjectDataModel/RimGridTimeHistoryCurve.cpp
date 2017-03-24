@@ -54,26 +54,21 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 {
     CAF_PDM_InitObject("Grid Time History Curve", ":/SummaryCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_topologyText, "TopologyText", "TopologyText", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_topologyText, "TopologyText", "Topology Reference", "", "", "");
     m_topologyText.registerGetMethod(this, &RimGridTimeHistoryCurve::topologyText);
     m_topologyText.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result definition", "", "", "");
-
-    // Set to hidden to avoid this item to been displayed as a child item
-    // Fields in this object are displayed using defineUiOrdering()
     m_eclipseResultDefinition.uiCapability()->setUiHidden(true);
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result definition", "", "", "");
-
-    // Set to hidden to avoid this item to been displayed as a child item
-    // Fields in this object are displayed using defineUiOrdering()
     m_geoMechResultDefinition.uiCapability()->setUiHidden(true);
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_pickingTopologyItem, "PickingTopologyItem", "Picking Topology Item", "", "", "");
     m_pickingTopologyItem.uiCapability()->setUiTreeHidden(true);
+    m_pickingTopologyItem.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_plotAxis, "PlotAxis", caf::AppEnum< RimDefines::PlotAxis >(RimDefines::PLOT_AXIS_LEFT), "Axis", "", "", "");
 }
