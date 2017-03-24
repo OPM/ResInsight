@@ -19,14 +19,12 @@
 
 #include "RigTimeHistoryResultAccessor.h"
 
-#include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
-#include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RimEclipseCellColors.h"
+#include "RigEclipseCaseData.h"
+#include "RigGridBase.h"
 
-#include <cmath> // Needed for HUGE_VAL on Linux
+//#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -35,11 +33,22 @@ std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCa
 {
     std::vector<double> values;
 
+    RigHugeValResultAccessor hugeVal;
+
     for (size_t i = 0; i < timeStepCount; i++)
     {
-        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, resultDefinition);
+        // TODO: Consider rewrite RigResultAccessorFactory::createFromResultDefinition so the function always returns a valid
+        // result accessor. Use hugeVal result accessor if no valid result is found
 
-        values.push_back(resultAccessor->cellScalar(cellIndex));
+        cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCaseData, gridIndex, i, resultDefinition);
+        if (resultAccessor.notNull())
+        {
+            values.push_back(resultAccessor->cellScalar(cellIndex));
+        }
+        else
+        {
+            values.push_back(hugeVal.cellScalar(cellIndex));
+        }
     }
 
     return values;
