@@ -37,6 +37,7 @@ public:
 protected:
     void                                    setCategoryValues(const std::vector<int>& categoryValues);
     void                                    setCategoryNames(const std::vector<QString>& categoryNames);
+    void                                    setCategoryNamesAndValues(const std::vector<std::pair<QString, int>>& categoryNamesAndValues);
     void                                    clearCategories();
     
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;

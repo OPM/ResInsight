@@ -71,6 +71,7 @@ private:
     void                                    updateReadOnlyStateOfAllFields();
     void                                    updateRangeLabel();
     bool                                    isPropertyFilterControlled();
+    void                                    setCategoriesFromTracerNames(const std::vector<QString>& tracerNames);
 
     RimEclipsePropertyFilterCollection*     parentContainer();
 
