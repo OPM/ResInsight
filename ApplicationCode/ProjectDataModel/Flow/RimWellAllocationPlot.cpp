@@ -296,7 +296,8 @@ void RimWellAllocationPlot::updateFromWell()
 
     QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
     
-    setDescription("Well Allocation: " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
+    QString flowTypeText = m_flowType().uiText();
+    setDescription(flowTypeText + " : " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
  
     /// Pie chart
 
