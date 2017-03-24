@@ -11,6 +11,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RimTotalWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellFlowRateCurve.h
 ${CEE_CURRENT_LIST_DIR}RimWellAllocationPlotLegend.h
+${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -20,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellAllocationPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimTotalWellAllocationPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellFlowRateCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellAllocationPlotLegend.cpp
+${CEE_CURRENT_LIST_DIR}RimFlowCharacteristicsPlot.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

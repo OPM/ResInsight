@@ -39,6 +39,7 @@ RigFlowDiagResults::RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t
     m_timeStepCount = timeStepCount;
     m_hasAtemptedNativeResults.resize(timeStepCount, false);
     m_injProdPairFluxCommunicationTimesteps.resize(timeStepCount);
+    m_flowCharResultFrames.resize(timeStepCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +118,12 @@ void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t f
         }
 
         m_injProdPairFluxCommunicationTimesteps[frameIndex].swap(nativeTimestepResults.injProdWellPairFluxes());
+
+        m_flowCharResultFrames[frameIndex].m_lorenzCoefficient = nativeTimestepResults.lorenzCoefficient();
+        m_flowCharResultFrames[frameIndex].m_flowCapStorageCapCurve.first.swap(nativeTimestepResults.flowCapStorageCapCurve().first);
+        m_flowCharResultFrames[frameIndex].m_flowCapStorageCapCurve.second.swap(nativeTimestepResults.flowCapStorageCapCurve().second);
+        m_flowCharResultFrames[frameIndex].m_sweepEfficiencyCurve.first.swap(nativeTimestepResults.sweepEfficiencyCurve().first);
+        m_flowCharResultFrames[frameIndex].m_sweepEfficiencyCurve.second.swap(nativeTimestepResults.sweepEfficiencyCurve().second);
 
         m_hasAtemptedNativeResults[frameIndex] = true;
     }
@@ -651,4 +658,18 @@ double RigFlowDiagResults::maxAbsPairFlux(int frameIndex)
     }
 
     return maxFlux;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigFlowDiagResults::calculatedTimeSteps()
+{
+    std::vector<int> timestepIndices;
+    for (size_t tsIdx = 0; tsIdx < m_timeStepCount; ++tsIdx)
+    {
+        if (m_hasAtemptedNativeResults[tsIdx]) timestepIndices.push_back(static_cast<int>(tsIdx));
+    }
+
+    return timestepIndices;
 }

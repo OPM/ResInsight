@@ -62,6 +62,21 @@ public:
     std::pair<double, double>                injectorProducerPairFluxes(const std::string& injTracername, const std::string& prodTracerName, int frameIndex);
     double                                   maxAbsPairFlux(int frameIndex);
 
+    std::vector<int>                         calculatedTimeSteps();
+        
+    struct FlowCharacteristicsResultFrame
+    {
+        FlowCharacteristicsResultFrame() : m_lorenzCoefficient(HUGE_VAL) {}
+
+        using Curve = std::pair< std::vector<double>, std::vector<double> >;
+
+        Curve m_flowCapStorageCapCurve;
+        Curve m_sweepEfficiencyCurve;
+        double m_lorenzCoefficient;
+    };
+
+    const FlowCharacteristicsResultFrame&    flowCharacteristicsResults(int frameIndex) { return m_flowCharResultFrames[frameIndex];}
+
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     void                                     calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex);
@@ -117,6 +132,10 @@ private:
 
     using InjectorProducerCommunicationMap = std::map< std::pair<std::string, std::string>, std::pair<double, double> >;
     std::vector<InjectorProducerCommunicationMap> m_injProdPairFluxCommunicationTimesteps;
+
+
+
+    std::vector<FlowCharacteristicsResultFrame> m_flowCharResultFrames;
 
 };
 

@@ -19,6 +19,7 @@
 #include "RimFlowPlotCollection.h"
 
 #include "RimWellAllocationPlot.h"
+#include "RimFlowCharacteristicsPlot.h"
 
 
 #include "cvfAssert.h"
@@ -32,6 +33,10 @@ CAF_PDM_SOURCE_INIT(RimFlowPlotCollection, "FlowPlotCollection");
 RimFlowPlotCollection::RimFlowPlotCollection()
 {
     CAF_PDM_InitObject("Flow Diagnostics Plots", ":/WellAllocPlots16x16.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "", "", "", "");
+    m_flowCharacteristicsPlot.uiCapability()->setUiHidden(true);
+    m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
 
     CAF_PDM_InitFieldNoDefault(&m_defaultPlot, "DefaultFlowPlot", "", "", "", "");
     m_defaultPlot.uiCapability()->setUiHidden(true);

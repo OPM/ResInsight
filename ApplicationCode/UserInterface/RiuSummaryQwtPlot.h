@@ -63,7 +63,8 @@ protected:
 
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
-    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
+
 private:
     friend class RiuQwtPlotPicker;
     QPointF                         closestCurvePoint(const QPoint& pos, QString* valueString, QString* timeString, int* yAxis) const;
