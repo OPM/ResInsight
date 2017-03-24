@@ -167,3 +167,14 @@ void RimEclipsePropertyFilterCollection::updateIconState()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::updateFromCurrentTimeStep()
+{
+    for (RimEclipsePropertyFilter* cellFilter : propertyFilters())
+    {
+        cellFilter->updateFromCurrentTimeStep();
+    }
+}
+

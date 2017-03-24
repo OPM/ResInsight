@@ -23,11 +23,9 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
 #include "RimMimeData.h"
-#include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimWellAllocationPlot.h"
-#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -142,17 +140,13 @@ bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(PdmObject* pdm
     {
         return true;
     }
-    else if (dynamic_cast<RimSummaryCurve*>(pdmObject))
+    else if (dynamic_cast<RimPlotCurve*>(pdmObject))
     {
         return true;
     }
     else if (dynamic_cast<RimSummaryCurveFilter*>(pdmObject))
     {
         return true;
-    }
-    else if (dynamic_cast<RimWellLogCurve*>(pdmObject))
-    {
-        if (!wellAllocPlot) return true;
     }
     else if (dynamic_cast<RimWellLogTrack*>(pdmObject))
     {

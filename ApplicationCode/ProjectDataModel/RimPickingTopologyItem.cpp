@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,33 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-
-#include "cvfBase.h"
-#include "cvfCollection.h"
-#include "cvfVector3.h"
-#include "cafPdmPointer.h"
+#include "RimPickingTopologyItem.h"
 
 
-namespace cvf
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimPickingTopologyItem, "RimPickingTopologyItem");
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPickingTopologyItem::RimPickingTopologyItem()
 {
-    class ModelBasicList;
 }
 
-class RimEclipseView;
-class RivWellSpheresPartMgr;
-
-class RivReservoirWellSpheresPartMgr : public cvf::Object
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPickingTopologyItem::~RimPickingTopologyItem()
 {
-public:
-    explicit RivReservoirWellSpheresPartMgr(RimEclipseView* reservoirView);
-    ~RivReservoirWellSpheresPartMgr();
 
-    void clearGeometryCache();
-   
-    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-   
-private:
-    caf::PdmPointer<RimEclipseView>   m_reservoirView;
-	cvf::Collection< RivWellSpheresPartMgr >  m_wellSpheresPartMgrs;
-};
+}

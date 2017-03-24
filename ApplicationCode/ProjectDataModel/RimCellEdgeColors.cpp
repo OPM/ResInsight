@@ -262,7 +262,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     if (isUsingSingleVariable())
     {
-        m_singleVarEdgeResultColors->defineUiOrdering(uiConfigName,uiOrdering );
+        m_singleVarEdgeResultColors->uiOrdering(uiConfigName,uiOrdering );
     }
     else
     {
@@ -273,7 +273,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add(&useZVariable);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,7 +282,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 void RimCellEdgeColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(legendConfig());
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------

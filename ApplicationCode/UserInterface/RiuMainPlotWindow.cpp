@@ -114,6 +114,16 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
     {
         m_pdmUiPropertyView->showProperties(NULL);
     }
+
+    for (QWidget* w : m_temporaryWidgets)
+    {
+        w->close();
+        w->deleteLater();
+    }
+
+    m_temporaryWidgets.clear();
+
+    setWindowTitle("Plots - ResInsight");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,6 +375,16 @@ QMdiSubWindow* RiuMainPlotWindow::findMdiSubWindow(QWidget* viewer)
 QList<QMdiSubWindow*> RiuMainPlotWindow::subWindowList(QMdiArea::WindowOrder order)
 {
 	return m_mdiArea->subWindowList(order);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainPlotWindow::addToTemporaryWidgets(QWidget* widget)
+{
+    CVF_ASSERT(widget);
+
+    m_temporaryWidgets.push_back(widget);
 }
 
 //--------------------------------------------------------------------------------------------------

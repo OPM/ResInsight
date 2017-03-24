@@ -34,12 +34,14 @@ namespace cvf
 class RimEclipseView;
 class RivSimWellPipesPartMgr;
 class RivWellHeadPartMgr;
+class RivWellSpheresPartMgr;
+class RivWellConnectionsPartMgr;
 
-class RivReservoirPipesPartMgr : public cvf::Object
+class RivReservoirSimWellsPartMgr : public cvf::Object
 {
 public:
-    explicit RivReservoirPipesPartMgr(RimEclipseView* reservoirView);
-    ~RivReservoirPipesPartMgr();
+    explicit RivReservoirSimWellsPartMgr(RimEclipseView* reservoirView);
+    ~RivReservoirSimWellsPartMgr();
 
     void clearGeometryCache();
     void scheduleGeometryRegen();
@@ -57,4 +59,7 @@ private:
 
     cvf::Collection< RivSimWellPipesPartMgr >  m_wellPipesPartMgrs;
     cvf::Collection< RivWellHeadPartMgr >   m_wellHeadPartMgrs;
+    cvf::Collection< RivWellSpheresPartMgr >  m_wellSpheresPartMgrs;
+    cvf::Collection< RivWellConnectionsPartMgr >  m_wellConnPartMgrs;
+
 };

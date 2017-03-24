@@ -181,7 +181,6 @@ RimSummaryCurve::RimSummaryCurve()
 
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,12 +434,14 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimPlotCurve::updateOptionSensitivity();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
     curveDataGroup->add(&m_summaryCase);
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
-    m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
+    m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
 
     curveVarSelectionGroup->add(&m_uiFilterResultSelection);
 
@@ -456,12 +457,12 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     if (m_isUsingAutoName)
     {
         caf::PdmUiGroup* autoNameGroup = appearanceGroup->addNewGroup("Auto Name Config");
-        m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
+        m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
     }
 
     uiOrdering.add(&m_plotAxis);
 
-    uiOrdering.setForgetRemainingFields(true); // For now. 
+    uiOrdering.skipRemainingFields(); // For now. 
 }
 
 //--------------------------------------------------------------------------------------------------

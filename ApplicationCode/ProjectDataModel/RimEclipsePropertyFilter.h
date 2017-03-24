@@ -49,14 +49,13 @@ public:
     void                                    rangeValues(double* lower, double* upper) const;
     bool                                    isCategorySelectionActive() const;
 
-    RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
     void                                    updateFilterName();
     void                                    computeResultValueRange();
+    void                                    updateFromCurrentTimeStep();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();
-
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -70,9 +69,13 @@ private:
 
     void                                    updateActiveState();
     void                                    updateReadOnlyStateOfAllFields();
+    void                                    updateRangeLabel();
     bool                                    isPropertyFilterControlled();
 
+    RimEclipsePropertyFilterCollection*     parentContainer();
+
 private:
+    caf::PdmField<QString>                  m_rangeLabelText;
     caf::PdmField<double>                   m_lowerBound;
     caf::PdmField<double>                   m_upperBound;
 

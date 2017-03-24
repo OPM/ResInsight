@@ -51,6 +51,7 @@ public:
     void                    loadAndInitializePropertyFilters();
 
     void                    updateIconState();
+    void                    updateFromCurrentTimeStep();
 
 protected:
     // Overridden methods

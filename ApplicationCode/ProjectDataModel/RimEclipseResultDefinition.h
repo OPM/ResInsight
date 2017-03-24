@@ -93,6 +93,7 @@ public:
 
     void                            setTofAndSelectTracer(const QString& tracerName);
 
+
 protected:
     virtual void                    updateLegendCategorySettings() {};
 

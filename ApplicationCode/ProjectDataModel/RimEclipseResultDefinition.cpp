@@ -33,10 +33,10 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimPlotCurve.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
-#include "RimWellLogCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -242,7 +242,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
         cellColors->updateConnectedEditors();
     }
 
-    RimWellLogCurve* curve = nullptr;
+    RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
@@ -339,7 +339,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimWellLogCurve* curve = nullptr;
+    RimPlotCurve* curve = nullptr;
     this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
@@ -359,9 +359,9 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
         bool hasFlowDiagFluxes = false;
         RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
-        if ( eclResCase && eclResCase->reservoirData() )
+        if ( eclResCase && eclResCase->eclipseCaseData() )
         {
-            hasFlowDiagFluxes = eclResCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
+            hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
         }
 
         // Do not include flow diag results if not available
@@ -521,7 +521,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
 
         // Remove Per Cell Face options
         {
-            RimWellLogCurve* curve = nullptr;
+            RimPlotCurve* curve = nullptr;
             this->firstAncestorOrThisOfType(curve);
 
             RimEclipsePropertyFilter* propFilter = nullptr;
@@ -886,8 +886,8 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 {
     if (this->m_resultType() == RimDefines::FORMATION_NAMES
         && m_eclipseCase 
-        && m_eclipseCase->reservoirData() 
-        && m_eclipseCase->reservoirData()->activeFormationNames() ) return true;
+        && m_eclipseCase->eclipseCaseData() 
+        && m_eclipseCase->eclipseCaseData()->activeFormationNames() ) return true;
 
     if (this->m_resultType() == RimDefines::FLOW_DIAGNOSTICS
         && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME) return true;
@@ -904,9 +904,9 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
     if ( m_eclipseCase
-        && m_eclipseCase->reservoirData()
-        && m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
-        && m_eclipseCase->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
+        && m_eclipseCase->eclipseCaseData()
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
         {
             return true;
         } 
@@ -945,7 +945,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     }
     uiOrdering.add(&m_resultVariableUiField);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

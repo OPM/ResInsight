@@ -88,6 +88,9 @@ ${CEE_CURRENT_LIST_DIR}RimMdiWindowController.h
 ${CEE_CURRENT_LIST_DIR}RimPropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
+${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
+${CEE_CURRENT_LIST_DIR}RimPickingTopologyItem.h
+${CEE_CURRENT_LIST_DIR}RimEclipseTopologyItem.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -174,6 +177,9 @@ ${CEE_CURRENT_LIST_DIR}RimMdiWindowController.cpp
 ${CEE_CURRENT_LIST_DIR}RimPropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
+${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
+${CEE_CURRENT_LIST_DIR}RimPickingTopologyItem.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseTopologyItem.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

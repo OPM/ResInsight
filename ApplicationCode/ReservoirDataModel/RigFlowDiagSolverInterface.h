@@ -37,14 +37,21 @@ public:
 
     void setTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
     void setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
+    void setInjProdWellPairFlux(const std::string& injectorTracerName,
+                                const std::string& producerTracerName, 
+                                const std::pair<double, double>& injProdFluxes) ;
 
     // Use to "steal" the data from this one using swap
     std::map<RigFlowDiagResultAddress, std::vector<double> >&  nativeResults() { return m_nativeResults; }
+    std::map<std::pair<std::string, std::string>, std::pair<double, double> > &  injProdWellPairFluxes() { return m_injProdWellPairFluxes; }
+
 private:
 
     void addResult(const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues);
 
     std::map<RigFlowDiagResultAddress, std::vector<double> > m_nativeResults;
+    std::map<std::pair<std::string, std::string>, std::pair<double, double> > m_injProdWellPairFluxes;
+
     size_t m_activeCellCount;
 };
 

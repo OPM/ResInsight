@@ -88,7 +88,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
 
         QString completeFilename = selectedDir + "/" + baseFilename + ".grdecl";
 
-        RicExportFaultsFeature::saveFault(completeFilename, eclCase->reservoirData()->mainGrid(),  rimFault->faultGeometry()->faultFaces(), faultName);
+        RicExportFaultsFeature::saveFault(completeFilename, eclCase->eclipseCaseData()->mainGrid(),  rimFault->faultGeometry()->faultFaces(), faultName);
     }
 
 

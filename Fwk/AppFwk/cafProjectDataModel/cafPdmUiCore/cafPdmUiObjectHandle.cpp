@@ -37,9 +37,12 @@ PdmUiObjectHandle* uiObj(PdmObjectHandle* obj)
 //--------------------------------------------------------------------------------------------------
 void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)
 {
-#if 1
+    // Restore state for includeRemainingFields, as this flag
+    // can be changed in defineUiOrdering()
+    bool includeRemaining_originalState = uiOrdering.isIncludingRemainingFields();
+
     this->defineUiOrdering(uiConfigName, uiOrdering);
-    if (!uiOrdering.forgetRemainingFields())
+    if (uiOrdering.isIncludingRemainingFields())
     {
         // Add the remaining Fields To UiConfig
         std::vector<PdmFieldHandle*> fields;
@@ -53,7 +56,11 @@ void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrderi
             }
         }
     }
-#endif
+
+    // Restore incoming value
+    uiOrdering.skipRemainingFields(!includeRemaining_originalState);
+
+    CAF_ASSERT(includeRemaining_originalState == uiOrdering.isIncludingRemainingFields());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +110,7 @@ PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""
 void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrdering)
 {
 #if 1
-    if (!uiTreeOrdering->forgetRemainingFields())
+    if (uiTreeOrdering->isIncludingRemainingChildren())
     {
         // Add the remaining Fields To UiConfig
         std::vector<PdmFieldHandle*> fields;

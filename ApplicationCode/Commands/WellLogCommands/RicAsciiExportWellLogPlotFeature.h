@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include "cafPdmField.h"
 
 class RimWellLogPlot;
 
@@ -30,15 +29,11 @@ class RicAsciiExportWellLogPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-
 protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
-
-
 private:
-    bool writeAsciiExportForWellLogPlots(const QString& fileName, const RimWellLogPlot* wellLogPlot);
+    static bool exportAsciiForWellLogPlot(const QString& fileName, const RimWellLogPlot* wellLogPlot);
 };

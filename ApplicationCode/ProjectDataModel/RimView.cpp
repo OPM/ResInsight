@@ -298,14 +298,8 @@ void RimView::scheduleCreateDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 void RimView::setCurrentTimeStepAndUpdate(int frameIndex)
 {
-    m_currentTimeStep = frameIndex;
-    clampCurrentTimestep();
+    setCurrentTimeStep(frameIndex);
 
-    this->hasUserRequestedAnimation = true;
-    if (this->propertyFilterCollection() && this->propertyFilterCollection()->hasActiveDynamicFilters())
-    {  
-        m_currentReservoirCellVisibility = NULL; 
-    }
     this->updateCurrentTimeStep();
 }
 

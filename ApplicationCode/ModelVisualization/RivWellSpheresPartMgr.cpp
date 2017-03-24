@@ -71,7 +71,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
 {
     if (m_rimReservoirView.isNull()) return;
     if (!m_rimReservoirView->eclipseCase()) return;
-    if (!m_rimReservoirView->eclipseCase()->reservoirData()) return;   
+    if (!m_rimReservoirView->eclipseCase()->eclipseCaseData()) return;   
     
     const RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
     CVF_ASSERT(mainGrid);

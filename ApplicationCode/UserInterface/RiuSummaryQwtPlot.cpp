@@ -20,11 +20,14 @@
 
 #include "RiaApplication.h"
 
+#include "RimContextCommandBuilder.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuQwtScalePicker.h"
+
+#include "cafSelectionManager.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
@@ -40,10 +43,10 @@
 #include "qwt_symbol.h"
 
 #include <QEvent>
+#include <QMenu>
 #include <QWheelEvent>
 
 #include <float.h>
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -214,6 +217,26 @@ QSize RiuSummaryQwtPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
+
+    commandIds << "RicShowPlotDataFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QSize RiuSummaryQwtPlot::sizeHint() const
 {
     return QSize(0, 0);
@@ -376,13 +399,11 @@ void RiuSummaryQwtPlot::setDefaults()
     axisTitleY.setRenderFlags(Qt::AlignRight);
     setAxisTitle(QwtPlot::yLeft, axisTitleY);
 
-
     QwtLegend* legend = new QwtLegend(this);
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
     this->insertLegend(legend, BottomLegend);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -396,7 +417,6 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis()
     setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
     setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -467,7 +487,7 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
 
     if(closestCurve && distMin < 20)
     {
-        RimSummaryCurve* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
+        caf::PdmObject* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
         if(selectedCurve)
         {
             RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
@@ -485,7 +505,7 @@ void RiuSummaryQwtPlot::onZoomedSlot()
 
     this->setZoomWindow(left, right, time);
     
-    m_plotDefinition->updateZoomFromQwt();
+    m_plotDefinition->updateZoomWindowFromQwt();
 }
 
 //--------------------------------------------------------------------------------------------------

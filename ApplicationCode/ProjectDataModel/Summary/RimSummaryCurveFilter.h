@@ -33,9 +33,6 @@
 #include "RimDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
-
-#include <memory>
-
 class QwtPlot;
 class QwtPlotCurve;
 class RifReaderEclipseSummary;
@@ -44,7 +41,6 @@ class RimSummaryCurve;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
-
 
 
 Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
@@ -132,9 +128,5 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
 
     std::vector< caf::PdmPointer<RimSummaryCase> > m_selectionCache;
-
-    // Internal objects managed by unique_ptr
-    std::unique_ptr<RimSummaryFilter>        m_summaryFilterObject;
-    std::unique_ptr<RimSummaryCurveAutoName> m_curveNameConfigObject;
 };
 

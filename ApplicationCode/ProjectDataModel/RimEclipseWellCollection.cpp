@@ -39,6 +39,7 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
+#include "RimEclipseResultCase.h"
 
 
 namespace caf
@@ -197,6 +198,8 @@ RimEclipseWellCollection::RimEclipseWellCollection()
     CAF_PDM_InitField(&obsoleteField_showWellHead,              "ShowWellHead",     true, "Show Well Head", "", "", "");
     CAF_PDM_InitField(&obsoleteField_showWellLabel,             "ShowWellLabel",    true, "Show Well Label", "", "", "");
     CAF_PDM_InitField(&obsoleteField_showWellCellFence,         "ShowWellFences",   false,  "Show Well Cell Fence", "", "", "");
+
+    CAF_PDM_InitField(&m_showWellCommunicationLines,         "ShowWellCommunicationLines",   false,  "Show Communication Lines", "", "", "");
 
     obsoleteField_showWellHead.uiCapability()->setUiHidden(true);
     obsoleteField_showWellLabel.uiCapability()->setUiHidden(true);
@@ -392,7 +395,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
                 || &m_showWellSpheres == changedField
                 || &showConnectionStatusColors == changedField)
         {
-            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if (  &pipeCrossSectionVertexCount == changedField 
@@ -405,13 +408,13 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
                 || &wellPipeCoordType == changedField
                 || &m_showWellPipe == changedField)
         {
-            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
         else if (&showWellsIntersectingVisibleCells == changedField)
         {
             m_reservoirView->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
-            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
@@ -446,6 +449,11 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         RiuMainWindow::instance()->refreshDrawStyleActions();
     }
+
+    if (&m_showWellCommunicationLines == changedField)
+    {
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,15 +462,19 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 void RimEclipseWellCollection::assignDefaultWellColors()
 {
     const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
-    cvf::Color3ubArray catColors = colorTable.color3ubArray();
-    cvf::Color3ubArray interpolatedCatColors = caf::ColorTable::interpolateColorArray(catColors, wells.size());
+    cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+    cvf::Color3ubArray interpolatedWellColors = wellColors;
+    if (wells.size() > 1)
+    {
+        interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wells.size());
+    }
 
     for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
     {
         RimEclipseWell* well = wells[wIdx];
         if (well)
         {
-            cvf::Color3f col = cvf::Color3f(interpolatedCatColors[wIdx]);
+            cvf::Color3f col = cvf::Color3f(interpolatedWellColors[wIdx]);
 
             well->wellPipeColor = col;
             well->updateConnectedEditors();
@@ -538,6 +550,10 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     filterGroup->add(&m_showWellCells);
     filterGroup->add(&m_showWellCellFence);
     filterGroup->add(&wellCellFenceType);
+
+    RimEclipseResultCase* ownerCase; 
+    firstAncestorOrThisOfTypeAsserted(ownerCase);
+    m_showWellCommunicationLines.uiCapability()->setUiHidden(!ownerCase->flowDiagSolverInterface());
 
     m_showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
     wellCellFenceType.uiCapability()->setUiReadOnly(!showWellCells());

@@ -111,7 +111,7 @@ public:
     void                                        setIntegerCategories(const std::vector<int>& categories);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
     void                                        setCategoryItems(const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories);
-    QString                                     categoryNameFromCategoryValue(int categoryValue) const;
+    QString                                     categoryNameFromCategoryValue(double categoryResultValue) const;
 
     void                                        setTitle(const cvf::String& title);
 

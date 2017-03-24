@@ -35,20 +35,22 @@
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 
+#define CROSS_FLOW_ENDING "-XF"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool hasCrossFlowEnding(const QString& tracerName)
+bool RimFlowDiagSolution::hasCrossFlowEnding(const QString& tracerName)
 {
-    return tracerName.endsWith("-Xf");
+    return tracerName.endsWith(CROSS_FLOW_ENDING);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString removeCrossFlowEnding(const QString& tracerName)
+QString RimFlowDiagSolution::removeCrossFlowEnding(const QString& tracerName)
 {
-    if (tracerName.endsWith("-Xf"))
+    if (tracerName.endsWith(CROSS_FLOW_ENDING))
     {
         return tracerName.left(tracerName.size() - 3);
     }
@@ -61,9 +63,9 @@ QString removeCrossFlowEnding(const QString& tracerName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString addCrossFlowEnding(const QString& wellName)
+QString RimFlowDiagSolution::addCrossFlowEnding(const QString& wellName)
 {
-    return wellName + "-Xf";
+    return wellName + CROSS_FLOW_ENDING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,9 +105,9 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
             RimEclipseResultCase* eclCase;
             this->firstAncestorOrThisOfType(eclCase);
             
-            CVF_ASSERT(eclCase && eclCase->reservoirData() );
+            CVF_ASSERT(eclCase && eclCase->eclipseCaseData() );
 
-            timeStepCount = eclCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+            timeStepCount = eclCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
 
         }
 
@@ -127,7 +129,7 @@ std::vector<QString> RimFlowDiagSolution::tracerNames() const
     
     if (eclCase)
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();   
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();   
 
         for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
         {
@@ -167,9 +169,9 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
 
     if ( eclCase )
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
-        RigMainGrid* mainGrid = eclCase->reservoirData()->mainGrid();
-        RigActiveCellInfo* activeCellInfo = eclCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); //Todo: Must come from the results definition
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
+        RigMainGrid* mainGrid = eclCase->eclipseCaseData()->mainGrid();
+        RigActiveCellInfo* activeCellInfo = eclCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); //Todo: Must come from the results definition
 
         for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
         {
@@ -179,10 +181,10 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
             bool isInjectorWell =  (   wellResFrame.m_productionType != RigWellResultFrame::PRODUCER
                                     && wellResFrame.m_productionType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE);
 
-            std::string wellname   = wellResults[wIdx]->m_wellName.toStdString();
+            std::string wellName   = wellResults[wIdx]->m_wellName.toStdString();
             std::string wellNameXf = addCrossFlowEnding(wellResults[wIdx]->m_wellName).toStdString();
 
-            std::vector<int>& tracerCells = tracersWithCells[wellname];
+            std::vector<int>& tracerCells = tracersWithCells[wellName];
             std::vector<int>& tracerCellsCrossFlow = tracersWithCells[wellNameXf];
 
             for (const RigWellResultBranch& wBr: wellResFrame.m_wellResultBranches)
@@ -208,6 +210,9 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
                     }
                 }
             }
+
+            if (tracerCells.empty()) tracersWithCells.erase(wellName);
+            if (tracerCellsCrossFlow.empty()) tracersWithCells.erase(wellNameXf);
         }
     }
 
@@ -224,7 +229,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall(c
 
     TracerStatusType tracerStatus = UNDEFINED;
 
-    const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+    const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
 
     for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
     {
@@ -270,7 +275,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfTypeAsserted(eclCase);
 
-    const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+    const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
 
     for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
     {
@@ -334,7 +339,7 @@ cvf::Color3f RimFlowDiagSolution::tracerColor(const QString& tracerName) const
             // If we do not find a well color, use index in well result data to be able to get variation of tracer colors
             // This can be the case if we do not have any views at all
 
-            const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->reservoirData()->wellResults();
+            const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
 
             for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
             {

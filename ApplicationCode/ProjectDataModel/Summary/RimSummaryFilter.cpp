@@ -446,6 +446,8 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 
         }
     }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

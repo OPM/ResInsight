@@ -279,6 +279,8 @@ void RimSummaryCurveAutoName::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     }
 
     uiOrdering.add(&m_showAdvancedProperties);
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 
 #include "RicSummaryCurveSwitchAxisFeature.h"
 
+#include "RimGridTimeHistoryCurve.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -36,10 +37,14 @@ bool RicSummaryCurveSwitchAxisFeature::isCommandEnabled()
 {
     std::set<RimSummaryCurveFilter*> selectedCurveFilters;
     std::set<RimSummaryCurve*> selectedSoloCurves;
+    std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves;
 
     RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(&selectedCurveFilters,
-                                                                               &selectedSoloCurves);
-    return (selectedCurveFilters.size() || selectedSoloCurves.size());
+                                                                               &selectedSoloCurves,
+                                                                               &gridTimeHistoryCurves);
+    return (   selectedCurveFilters.size()
+            || selectedSoloCurves.size()
+            || gridTimeHistoryCurves.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,9 +54,11 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 {
     std::set<RimSummaryCurveFilter*> selectedCurveFilters;
     std::set<RimSummaryCurve*> selectedSoloCurves;
+    std::vector<RimGridTimeHistoryCurve*> gridTimeHistoryCurves;
 
     RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(&selectedCurveFilters, 
-                                                                               &selectedSoloCurves);
+                                                                               &selectedSoloCurves,
+                                                                               &gridTimeHistoryCurves);
     
     for (RimSummaryCurveFilter* summaryCurveFilter: selectedCurveFilters)
     {
@@ -89,6 +96,26 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
         summaryCurve->firstAncestorOrThisOfType(plot);
         if ( plot ) plot->updateAxes();
     }
+
+    for (RimGridTimeHistoryCurve* timeHistoryCurve : gridTimeHistoryCurves)
+    {
+        RimDefines::PlotAxis plotAxis = timeHistoryCurve->yAxis();
+
+        if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+        {
+            timeHistoryCurve->setYAxis(RimDefines::PLOT_AXIS_RIGHT);
+        }
+        else
+        {
+            timeHistoryCurve->setYAxis(RimDefines::PLOT_AXIS_LEFT);
+        }
+
+        timeHistoryCurve->updateConnectedEditors();
+
+        RimSummaryPlot* plot = nullptr;
+        timeHistoryCurve->firstAncestorOrThisOfType(plot);
+        if (plot) plot->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,19 +127,24 @@ void RicSummaryCurveSwitchAxisFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Solo curves means selected curves that does not have a selected curvefilter as parent 
+/// Solo curves means selected curves that does not have a selected curve filter as parent 
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(std::set<RimSummaryCurveFilter*>* selectedCurveFilters, 
-                                                                                std::set<RimSummaryCurve*>* selectedSoloCurves)
+                                                                                std::set<RimSummaryCurve*>* selectedSoloCurves,
+                                                                                std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves)
 {
-
     selectedSoloCurves->clear();
     {
         std::vector<RimSummaryCurve*> selection;
         caf::SelectionManager::instance()->objectsByType(&selection);
-        for (RimSummaryCurve* curve: selection)
+        for (RimSummaryCurve* curve : selection)
         {
-            selectedSoloCurves->insert(curve);
+            RimSummaryCurveFilter* parentCurveFilter = nullptr;
+            curve->firstAncestorOrThisOfType(parentCurveFilter);
+            if (!parentCurveFilter)
+            {
+                selectedSoloCurves->insert(curve);
+            }
         }
     }
 
@@ -120,30 +152,12 @@ void RicSummaryCurveSwitchAxisFeature::extractSelectedCurveFiltersAndSoloCurves(
     {
         std::vector<RimSummaryCurveFilter*> selection;
         caf::SelectionManager::instance()->objectsByType(&selection);
-        for ( RimSummaryCurveFilter* curveFilter: selection )
+        for (RimSummaryCurveFilter* curveFilter : selection)
         {
             selectedCurveFilters->insert(curveFilter);
         }
     }
 
-    std::vector<RimSummaryCurve*> curvesToRemove;
-
-    for (RimSummaryCurve* curve: (*selectedSoloCurves))
-    {
-        RimSummaryCurveFilter* parentCurveFilter;
-        curve->firstAncestorOrThisOfType(parentCurveFilter);
-        if (parentCurveFilter)
-        {
-            if (selectedCurveFilters->count(parentCurveFilter) > 0 )
-            {
-                curvesToRemove.push_back(curve);
-            }
-        }
-    }
-
-    for  (RimSummaryCurve* curve: curvesToRemove)
-    {
-        selectedSoloCurves->erase(curve);
-    }
-
+    // Read out all time history curves directly from selection manager
+    caf::SelectionManager::instance()->objectsByType(gridTimeHistoryCurves);
 }

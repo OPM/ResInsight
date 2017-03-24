@@ -124,7 +124,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
 
     progInfo.incrementProgress();
 
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
     progInfo.setProgressDescription("Computing Case Cache");
@@ -133,7 +133,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
 
-    if (reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+    if (eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
     {
         m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
         
@@ -177,14 +177,11 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
 
-        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
-        mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
-        if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
+        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates();
+        if (timeStepDates.size() == 0)
         {
             return false;
         }
-
-        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         if (!readerEclipseOutput->openAndReadActiveCellData(caseFileName(), timeStepDates, eclipseCase.p()))
@@ -202,10 +199,10 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
     results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
     results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
-    reservoirData()->computeActiveCellBoundingBoxes();
+    eclipseCaseData()->computeActiveCellBoundingBoxes();
 
     m_activeCellInfoIsReadFromFile = true;
 

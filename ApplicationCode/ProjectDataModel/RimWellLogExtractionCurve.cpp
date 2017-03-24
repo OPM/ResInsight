@@ -95,8 +95,6 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     CAF_PDM_InitField(&m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name", "", "", "");
     CAF_PDM_InitField(&m_addTimestepToCurveName, "AddTimestepToCurveName", false, "   Timestep", "", "", "");
     CAF_PDM_InitField(&m_addDateToCurveName, "AddDateToCurveName", true, "   Date", "", "", "");
-
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,7 +251,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
 
             m_eclipseResultDefinition->loadResult();
 
-            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->reservoirData(),
+            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultDefinition(eclipseCase->eclipseCaseData(),
                                                                                                       0,
                                                                                                       m_timeStep,
                                                                                                       m_eclipseResultDefinition);
@@ -263,7 +261,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->reservoirData()->unitsType();
+            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
             if (eclipseUnitsType == RigEclipseCaseData::UNITS_FIELD)
             {
                 // See https://github.com/OPM/ResInsight/issues/538
@@ -375,6 +373,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimPlotCurve::updateOptionSensitivity();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
 
     curveDataGroup->add(&m_wellPath);
@@ -420,7 +420,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
 
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,7 +442,7 @@ void RimWellLogExtractionCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -507,9 +507,9 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         if (eclipseCase)
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-            if (eclipseCase->reservoirData())
+            if (eclipseCase->eclipseCaseData())
             {
-                maxTimeStep = eclipseCase->reservoirData()->results(porosityModel)->maxTimeStepCount();
+                maxTimeStep = eclipseCase->eclipseCaseData()->results(porosityModel)->maxTimeStepCount();
             }
         }
         else if (geomCase)
@@ -605,7 +605,7 @@ QString RimWellLogExtractionCurve::wellDate() const
     if (eclipseCase)
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
-        if (eclipseCase->reservoirData())
+        if (eclipseCase->eclipseCaseData())
         {
             timeStepNames = eclipseCase->timeStepStrings();
         }

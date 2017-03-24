@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RivReservoirPipesPartMgr.h"
+#include "RivReservoirSimWellsPartMgr.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -36,11 +36,13 @@
 #include "cafPdmFieldCvfMat4d.h"
 
 #include "cvfTransform.h"
+#include "RivWellSpheresPartMgr.h"
+#include "RivWellConnectionsPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimEclipseView* reservoirView)
+RivReservoirSimWellsPartMgr::RivReservoirSimWellsPartMgr(RimEclipseView* reservoirView)
 {
     m_reservoirView = reservoirView;
 
@@ -50,7 +52,7 @@ RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimEclipseView* reservoirView
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirPipesPartMgr::~RivReservoirPipesPartMgr()
+RivReservoirSimWellsPartMgr::~RivReservoirSimWellsPartMgr()
 {
 
 }
@@ -58,16 +60,18 @@ RivReservoirPipesPartMgr::~RivReservoirPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::clearGeometryCache()
+void RivReservoirSimWellsPartMgr::clearGeometryCache()
 {
     m_wellPipesPartMgrs.clear();
     m_wellHeadPartMgrs.clear();
+    m_wellSpheresPartMgrs.clear();
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::scheduleGeometryRegen()
+void RivReservoirSimWellsPartMgr::scheduleGeometryRegen()
 {
     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
     {
@@ -78,12 +82,14 @@ void RivReservoirPipesPartMgr::scheduleGeometryRegen()
     {
         //m_wellHeadPartMgrs[wIdx]->scheduleGeometryRegen(scaleTransform);
     }
+
+    m_wellSpheresPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
+void RivReservoirSimWellsPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
 {
     m_scaleTransform = scaleTransform;
 
@@ -101,7 +107,7 @@ void RivReservoirPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
     if (!m_reservoirView->wellCollection()->isActive()) return;
 
@@ -126,12 +132,43 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
         m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
         m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
     }
+
+    // Well spheres
+
+    if (m_reservoirView->wellCollection()->wells.size() != m_wellSpheresPartMgrs.size())
+    {
+        m_wellSpheresPartMgrs.clear();
+
+        for (RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells())
+        {
+            RivWellSpheresPartMgr* wppmgr = new RivWellSpheresPartMgr(m_reservoirView, rimWell);
+            m_wellSpheresPartMgrs.push_back(wppmgr);
+        }
+    }
+
+    for (size_t wIdx = 0; wIdx < m_wellSpheresPartMgrs.size(); wIdx++)
+    {
+        if (m_reservoirView->wellCollection()->wells[wIdx]->isWellSpheresVisible(frameIndex))
+        {
+            m_wellSpheresPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+        }
+    }
+
+    // Well Connection Arrows
+    if ( m_reservoirView->wellCollection()->showWellCommunicationLines() )
+    {
+        for ( RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells() )
+        {
+            cvf::ref<RivWellConnectionsPartMgr> wppmgr = new RivWellConnectionsPartMgr(m_reservoirView, rimWell);
+            wppmgr->appendDynamicGeometryPartsToModel(model, frameIndex);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::updatePipeResultColor(size_t frameIndex)
+void RivReservoirSimWellsPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
     {
@@ -142,7 +179,7 @@ void RivReservoirPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector <cvf::Vec3d> >* RivReservoirPipesPartMgr::centerLineOfWellBranches(int wellIdx)
+const std::vector< std::vector <cvf::Vec3d> >* RivReservoirSimWellsPartMgr::centerLineOfWellBranches(int wellIdx)
 {
     if (wellIdx < static_cast<int>(m_wellPipesPartMgrs.size()))
     {

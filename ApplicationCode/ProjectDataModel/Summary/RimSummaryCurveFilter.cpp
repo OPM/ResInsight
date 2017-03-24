@@ -78,8 +78,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
-    m_summaryFilter = m_summaryFilterObject.get();
+    m_summaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
     m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
@@ -118,8 +117,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_curveNameConfig.uiCapability()->setUiHidden(true);
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
-    m_curveNameConfig = m_curveNameConfigObject.get();
+    m_curveNameConfig = new RimSummaryCurveAutoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,7 +194,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
 
-    m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
+    m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
 
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
@@ -221,13 +219,13 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     }
 
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroup("Curve Name Configuration");
-    m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
+    m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
     uiOrdering.add(&m_plotAxis);
     uiOrdering.add(&m_autoApplyChangesToPlot);
     uiOrdering.add(&m_applyButtonField);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

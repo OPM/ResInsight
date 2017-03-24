@@ -61,9 +61,8 @@
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
-#include "RivReservoirPipesPartMgr.h"
+#include "RivReservoirSimWellsPartMgr.h"
 #include "RivReservoirViewPartMgr.h"
-#include "RivReservoirWellSpheresPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathCollectionPartMgr.h"
@@ -137,10 +136,9 @@ RimEclipseView::RimEclipseView()
     this->faultResultSettings()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
-    m_pipesPartManager = new RivReservoirPipesPartMgr(this);
-	m_wellSpheresPartManager = new RivReservoirWellSpheresPartMgr(this);
+    m_simWellsPartManager = new RivReservoirSimWellsPartMgr(this);
 	
-	m_reservoir = NULL;
+	m_eclipseCase = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,7 +156,7 @@ RimEclipseView::~RimEclipseView()
 
     m_reservoirGridPartManager->clearGeometryCache();
 
-    m_reservoir = NULL;
+    m_eclipseCase = NULL;
 }
 
 
@@ -228,7 +226,7 @@ void RimEclipseView::updateScaleTransform()
     scale(2, 2) = scaleZ();
 
     this->scaleTransform()->setLocalTransform(scale);
-    m_pipesPartManager->setScaleTransform(this->scaleTransform());
+    m_simWellsPartManager->setScaleTransform(this->scaleTransform());
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -250,7 +248,7 @@ void RimEclipseView::createDisplayModel()
     RiuMainWindow::instance()->setResultInfo(QString("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
 #endif
 
-    if (!(m_reservoir && m_reservoir->reservoirData())) return;
+    if (!(m_eclipseCase && m_eclipseCase->eclipseCaseData())) return;
 
     // Define a vector containing time step indices to produce geometry for.
     // First entry in this vector is used to define the geometry only result mode with no results.
@@ -473,6 +471,8 @@ void RimEclipseView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateCurrentTimeStep()
 {
+    m_propertyFilterCollection()->updateFromCurrentTimeStep();
+
     updateLegends(); // To make sure the scalar mappers are set up correctly
 
     std::vector<RivCellSetEnum> geometriesToRecolor;
@@ -613,26 +613,23 @@ void RimEclipseView::updateCurrentTimeStep()
         crossSectionCollection->applySingleColorEffect();
     }
 
-    // Simulation Well pipes
+    // Simulation Wells
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            // Simulation Well pipes
+            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+            simWellModelBasicList->setName("SimWellPipeMod");
 
-            cvf::ref<cvf::ModelBasicList> wellPipeModelBasicList = new cvf::ModelBasicList;
-            wellPipeModelBasicList->setName("SimWellPipeMod");
+            m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
 
-            m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
-			m_wellSpheresPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
+            simWellModelBasicList->updateBoundingBoxesRecursive();
 
-            wellPipeModelBasicList->updateBoundingBoxesRecursive();
+            this->removeModelByName(frameScene, simWellModelBasicList->name());
+            frameScene->addModel(simWellModelBasicList.p());
 
-            this->removeModelByName(frameScene, wellPipeModelBasicList->name());
-            frameScene->addModel(wellPipeModelBasicList.p());
-
-            m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
+            m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
         }
     }
 
@@ -650,13 +647,13 @@ void RimEclipseView::loadDataAndUpdate()
 {
     updateScaleTransform();
 
-    if (m_reservoir)
+    if (m_eclipseCase)
     {
-        if (!m_reservoir->openReserviorCase())
+        if (!m_eclipseCase->openReserviorCase())
         {
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
-                                "Could not open the Eclipse Grid file: \n"+ m_reservoir->gridFileName());
+                                "Could not open the Eclipse Grid file: \n"+ m_eclipseCase->gridFileName());
             this->setEclipseCase( NULL);
             return;
         }
@@ -678,8 +675,7 @@ void RimEclipseView::loadDataAndUpdate()
     this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
-    m_pipesPartManager->clearGeometryCache();
-    m_wellSpheresPartManager->clearGeometryCache();
+    m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 
@@ -813,11 +809,11 @@ void RimEclipseView::updateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 {
-    if (m_reservoir)
+    if (m_eclipseCase)
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->results(porosityModel);
+        return m_eclipseCase->results(porosityModel);
     }
 
     return NULL;
@@ -828,13 +824,13 @@ RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
 {
-    if (m_reservoir &&
-        m_reservoir->reservoirData()
+    if (m_eclipseCase &&
+        m_eclipseCase->eclipseCaseData()
         )
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->reservoirData()->activeCellInfo(porosityModel);
+        return m_eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
     }
 
     return NULL;
@@ -871,10 +867,9 @@ void RimEclipseView::scheduleReservoirGridGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::schedulePipeGeometryRegen()
+void RimEclipseView::scheduleSimWellGeometryRegen()
 {
-    m_pipesPartManager->scheduleGeometryRegen();
-    m_wellSpheresPartManager->clearGeometryCache();
+    m_simWellsPartManager->scheduleGeometryRegen();
 }
 
 
@@ -887,9 +882,9 @@ void RimEclipseView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 
     // Create vector of grid indices to render
     std::vector<RigGridBase*> grids;
-    if (this->m_reservoir && this->m_reservoir->reservoirData() )
+    if (this->m_eclipseCase && this->m_eclipseCase->eclipseCaseData() )
     {
-        this->m_reservoir->reservoirData()->allGrids(&grids);
+        this->m_eclipseCase->eclipseCaseData()->allGrids(&grids);
     }
 
     size_t i;
@@ -912,12 +907,12 @@ void RimEclipseView::updateLegends()
         m_viewer->removeAllColorLegends();
     }
 
-    if (!m_reservoir || !m_viewer || !m_reservoir->reservoirData() )
+    if (!m_eclipseCase || !m_viewer || !m_eclipseCase->eclipseCaseData() )
     {
         return;
     }
 
-    RigEclipseCaseData* eclipseCase = m_reservoir->reservoirData();
+    RigEclipseCaseData* eclipseCase = m_eclipseCase->eclipseCaseData();
     CVF_ASSERT(eclipseCase);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
@@ -1049,7 +1044,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 {
-    m_reservoir = reservoir;
+    m_eclipseCase = reservoir;
     cellResult()->setEclipseCase(reservoir);
     faultResultSettings()->customFaultResult()->setEclipseCase(reservoir);
     
@@ -1061,7 +1056,7 @@ void RimEclipseView::setEclipseCase(RimEclipseCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseView::eclipseCase() const
 {
-    return m_reservoir;
+    return m_eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1079,9 +1074,9 @@ RimEclipseCase* RimEclipseView::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::syncronizeWellsWithResults()
 {
-    if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
+    if (!(m_eclipseCase && m_eclipseCase->eclipseCaseData()) ) return;
 
-    cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
+    cvf::Collection<RigSingleWellResultsData> wellResults = m_eclipseCase->eclipseCaseData()->wellResults();
 
  
     std::vector<caf::PdmPointer<RimEclipseWell> > newWells;
@@ -1262,8 +1257,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
 void RimEclipseView::updateDisplayModelForWellResults()
 {
     m_reservoirGridPartManager->clearGeometryCache();
-    m_pipesPartManager->clearGeometryCache();
-    m_wellSpheresPartManager->clearGeometryCache();
+    m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
 
@@ -1328,7 +1322,7 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
 
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1454,9 +1448,9 @@ RimCase* RimEclipseView::ownerCase()
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimEclipseView::mainGrid() const
 {
-    if (eclipseCase() && eclipseCase()->reservoirData())
+    if (eclipseCase() && eclipseCase()->eclipseCaseData())
     {
-        return eclipseCase()->reservoirData()->mainGrid();
+        return eclipseCase()->eclipseCaseData()->mainGrid();
     }
 
     return nullptr;
@@ -1508,7 +1502,7 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
 {
-    size_t gridCount = this->eclipseCase()->reservoirData()->gridCount();
+    size_t gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
     size_t cellCount = this->mainGrid()->globalCellArray().size();
 
     totalVisibility->resize(cellCount);
@@ -1516,7 +1510,7 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 
     for (size_t gridIdx = 0; gridIdx < gridCount; ++gridIdx)
     {
-        RigGridBase * grid = this->eclipseCase()->reservoirData()->grid(gridIdx);
+        RigGridBase * grid = this->eclipseCase()->eclipseCaseData()->grid(gridIdx);
         int gridCellCount = static_cast<int>(grid->cellCount());
 
         for (size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx)
@@ -1556,9 +1550,9 @@ void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part
             if (eclipseSelItem && eclipseSelItem->m_view == this)
             {
                 CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
-                CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->reservoirData());
+                CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData());
 
-                RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->reservoirData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
+                RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
 
                 cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
                 part->setTransform(this->scaleTransform());

@@ -55,7 +55,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
     bool useDefaultValueForHugeVals,
     float opacityLevel)
 {
-    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
     CVF_ASSERT(eclipseCase != NULL);
 
     // Create result access objects
@@ -199,7 +199,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
     const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
     cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
 {
-    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
     CVF_ASSERT(eclipseCase != NULL);
 
     cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeResultAccessor(cellResultColors, cellEdgeResultColors, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
