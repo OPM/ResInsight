@@ -54,8 +54,7 @@ bool RifHdf5Reader::dynamicResult(const QString& result, size_t stepIndex, std::
 	{
 		H5::Exception::dontPrint();								// Turn off auto-printing of failures to handle the errors appropriately
 
-		std::string fileName = m_fileName.toStdString();		// her ligger trøbbel mht Unicode or det smalt i H5File med direkte bruk av c_str()
-
+		std::string fileName = m_fileName.toStdString();		// her ligger trï¿½bbel mht Unicode or det smalt i H5File med direkte bruk av c_str(
 		H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
 
 		std::string groupName = "/Timestep_00001/GridFunctions/GridPart_00000/GridFunction_00002";
@@ -98,7 +97,7 @@ QStringList RifHdf5Reader::propertyNames() const
 {
     QStringList propNames;
 
-	std::string str = m_fileName.toStdString();   // her ligger trøbbel mht Unicode or det smalt i H5File med direkte bruk av c_str()
+	std::string str = m_fileName.toStdString();   // her ligger trï¿½bbel mht Unicode or det smalt i H5File med direkte bruk av c_str()
 
 	H5::H5File file(str.c_str(), H5F_ACC_RDONLY);
 
@@ -114,18 +113,6 @@ QStringList RifHdf5Reader::propertyNames() const
     return propNames;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifHdf5Reader::resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
-{
-    *resultNames = propertyNames();
-
-    for (size_t i = 0; i < propertyNames().size(); i++)
-    {
-        resultDataItemCounts->push_back(16336);
-    }
-}
 
 
 
