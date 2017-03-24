@@ -422,9 +422,9 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
         }
 
         
-        for (int i = static_cast<int>( curveDepths.size()) - 1; i >= 0; i--)
+        for (int i = static_cast<int>(curveDepths.size()) - 1; i >= 0; i--)
         {
-            if (i == curveDepths.size() - 1)
+            if (i == static_cast<int>(curveDepths.size()) - 1)
             {
                 if      (depthType() == CONNECTION_NUMBER)   out += "Connection";
                 else if (depthType() == MEASURED_DEPTH)      out += "MD   ";
