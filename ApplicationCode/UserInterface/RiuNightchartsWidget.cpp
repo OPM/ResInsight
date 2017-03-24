@@ -107,7 +107,6 @@ QSize RiuNightchartsWidget::sizeHint() const
 {
     int widthHint = 0;
     int heightHint = 0;
-    int maxPieSize = 180;
 
     if ( m_showLegend )
     {
@@ -122,6 +121,8 @@ QSize RiuNightchartsWidget::sizeHint() const
 
     if (m_showPie)
     {
+        int maxPieSize = 180;
+
         widthHint = widthHint + maxPieSize;
         heightHint = heightHint > maxPieSize ?  heightHint : maxPieSize;
     }
