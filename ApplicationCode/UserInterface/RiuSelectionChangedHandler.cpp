@@ -115,9 +115,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
 
-        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
-        eclipseView->eclipseCase()->eclipseCaseData()->results(porosityModel)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
-        std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->eclipseCaseData()->results(porosityModel)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->eclipseCaseData()->results(porosityModel)->timeStepDates();
 
         QString curveName = eclipseView->eclipseCase()->caseUserDescription();
         curveName += ", ";
