@@ -243,7 +243,12 @@ QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
 
     connect(m_listView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection& )), this, SLOT(slotSelectionChanged(const QItemSelection&, const QItemSelection& )));
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slotListItemEdited(const QModelIndex&, const QModelIndex&)));
+
+    // Used to track key press
     m_listView->installEventFilter(this);
+
+    // Used to track mouse events
+    m_listView->viewport()->installEventFilter(this);
 
     return m_listView;
 }
@@ -370,9 +375,28 @@ void PdmUiListEditor::pasteFromString(const QString& content)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
+bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
 {
-    if (listView == m_listView && event->type() == QEvent::KeyPress)
+    if (object == m_listView->viewport() && event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+        if (mouseEvent)
+        {
+            if (mouseEvent->buttons() & Qt::LeftButton
+                && mouseEvent->modifiers() & Qt::ControlModifier)
+            {
+                // When Ctrl button is pressed, left mouse button is pressed, and the mouse is moving,
+                // a possible bug in Qt is observed causing the selection to end up with single item selection
+                // When returning here without doing anything, system behaves as expected
+
+                // NOTE: The mouse event is handled by the viewport() of the list view, not the list view itself
+
+                return true;
+            }
+        }
+    }
+
+    if (object == m_listView && event->type() == QEvent::KeyPress)
     {
         if (m_optionsOnly) return false;
         CAF_ASSERT(m_options.isEmpty()); // Not supported yet
