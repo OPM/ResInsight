@@ -35,8 +35,10 @@ public:
     RicSelectSummaryPlotUI();
 
     void            setDefaultSummaryPlot(RimSummaryPlot* summaryPlot);
+    void            setSuggestedPlotName(const QString& name);
+
     RimSummaryPlot* selectedSummaryPlot() const;
-    bool            createNewPlot() const;
+    bool            isCreateNewPlotChecked() const;
     QString         newPlotName() const;
     
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

@@ -39,4 +39,5 @@ protected:
 private:
     static void createCurveFromSelectionItem(const RiuSelectionItem* selectionItem, RimSummaryPlot* plot);
     static RimSummaryPlot* userSelectedSummaryPlot();
+    static QString suggestedNewPlotName();
 };

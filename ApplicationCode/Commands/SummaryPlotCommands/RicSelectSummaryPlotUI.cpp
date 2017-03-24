@@ -18,13 +18,14 @@
 
 #include "RicSelectSummaryPlotUI.h"
 
+#include "RiaApplication.h"
+
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimProject.h"
-#include "RiaApplication.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSelectSummaryPlotUI, "RicSelectSummaryPlotUI");
@@ -36,9 +37,9 @@ RicSelectSummaryPlotUI::RicSelectSummaryPlotUI()
 {
     CAF_PDM_InitObject("RicSelectSummaryPlotUI", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedSummaryPlot,  "SelectedSummaryPlot",                    "Select Summary Plot", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedSummaryPlot,  "SelectedSummaryPlot",                    "Select Plot", "", "", "");
     CAF_PDM_InitField(&m_createNewPlot,                 "CreateNewPlot", false,                   "Create New Plot", "", "", "");
-    CAF_PDM_InitField(&m_newSummaryPlotName,            "NewViewName",   QString("Summary Plot"), "New Summary Plot Name", "", "", "");
+    CAF_PDM_InitField(&m_newSummaryPlotName,            "NewViewName",   QString("Cell Results"), "New Plot Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +53,14 @@ void RicSelectSummaryPlotUI::setDefaultSummaryPlot(RimSummaryPlot* summaryPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSelectSummaryPlotUI::setSuggestedPlotName(const QString& name)
+{
+    m_newSummaryPlotName = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicSelectSummaryPlotUI::selectedSummaryPlot() const
 {
     return m_selectedSummaryPlot();
@@ -60,7 +69,7 @@ RimSummaryPlot* RicSelectSummaryPlotUI::selectedSummaryPlot() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicSelectSummaryPlotUI::createNewPlot() const
+bool RicSelectSummaryPlotUI::isCreateNewPlotChecked() const
 {
     return m_createNewPlot;
 }

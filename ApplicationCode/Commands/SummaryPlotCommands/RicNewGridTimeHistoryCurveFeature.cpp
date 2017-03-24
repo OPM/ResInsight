@@ -24,6 +24,11 @@
 #include "RicSelectSummaryPlotUI.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
+#include "RimEclipseCellColors.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechResultDefinition.h"
+#include "RimGeoMechView.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -111,13 +116,16 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
         featureUi.setDefaultSummaryPlot(defaultSelectedPlot);
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Summary Plot", "");
+    QString newPlotName = RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName();
+    featureUi.setSuggestedPlotName(newPlotName);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Select Destination Plot", "");
     propertyDialog.resize(QSize(400, 200));
 
     if (propertyDialog.exec() != QDialog::Accepted) return nullptr;
 
     RimSummaryPlot* summaryPlot = nullptr;
-    if (featureUi.createNewPlot())
+    if (featureUi.isCreateNewPlotChecked())
     {
         RimSummaryPlot* plot = new RimSummaryPlot();
         summaryPlotColl->summaryPlots().push_back(plot);
@@ -139,6 +147,63 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     RiaApplication::instance()->setCacheDataObject(lastUsedSummaryPlotKey, refFromProjectToView);
 
     return summaryPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicNewGridTimeHistoryCurveFeature::suggestedNewPlotName()
+{
+
+    QString resultName;
+    {
+        RimView* activeView = RiaApplication::instance()->activeReservoirView();
+        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>(activeView);
+        if (eclView)
+        {
+            RimEclipseResultDefinition* resDef = eclView->cellResult();
+            resultName = resDef->resultVariableUiShortName();
+        }
+
+        RimGeoMechView* geoView = dynamic_cast<RimGeoMechView*>(activeView);
+        if (geoView)
+        {
+            // NOTE: See also RimGeoMechProertyFilter for generation of result name
+
+            RimGeoMechResultDefinition* resultDefinition = geoView->cellResultResultDefinition();
+
+            RigFemResultAddress resultAddress = resultDefinition->resultAddress();
+
+            if (resultAddress.resultPosType == RIG_FORMATION_NAMES)
+            {
+                resultName = resultDefinition->resultFieldName();
+            }
+            else
+            {
+                QString posName;
+
+                switch (resultAddress.resultPosType)
+                {
+                case RIG_NODAL: posName = "N"; break;
+                case RIG_ELEMENT_NODAL: posName = "EN"; break;
+                case RIG_INTEGRATION_POINT: posName = "IP"; break;
+                }
+
+                QString fieldUiName = resultDefinition->resultFieldUiName();
+                QString compoUiName = resultDefinition->resultComponentUiName();
+
+                resultName = posName + ", " + fieldUiName + ", " + compoUiName;
+            }
+        }
+    }
+    
+    QString plotName = "New Plot Name";
+    if (!resultName.isEmpty())
+    {
+        plotName = QString("Cell Result - %1").arg(resultName);
+    }
+
+    return plotName;
 }
 
 //--------------------------------------------------------------------------------------------------
