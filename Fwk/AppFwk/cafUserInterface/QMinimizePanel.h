@@ -53,6 +53,7 @@ public:
     QFrame *      contentFrame() { return m_contentFrame; }  
     void          setTitle (const QString& title);
     QString       title() const;
+    virtual QSize   sizeHint() const override;
 
 public slots:
     void          setExpanded(bool isExpanded);

@@ -192,6 +192,28 @@ QString QMinimizePanel::title() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QSize QMinimizePanel::sizeHint() const
+{
+    QSize labelSize = m_titleLabel->sizeHint();
+    QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
+
+    if (!m_contentFrame->isHidden())
+    {
+        QSize titleBarMin(0, labelSize.height() + 8);
+        QSize contentsMin(m_contentFrame->sizeHint());
+        QSize total = contentsMin.expandedTo(titleBarMin);
+        total.rheight() += titleBarMin.height();
+        return total;
+    }
+    else
+    {
+        return titleBarHint;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void QMinimizePanel::setExpanded(bool isExpanded)
 {
     if (m_contentFrame->isHidden() != isExpanded) return;
