@@ -30,7 +30,7 @@ class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
 
-class RiuQwtPlotPicker;
+class RiuQwtCurvePointTracker;
 class RimSummaryPlot;
 
 //==================================================================================================
@@ -67,9 +67,6 @@ protected:
     virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
-    friend class RiuQwtPlotPicker;
-    QPointF                         closestCurvePoint(const QPoint& pos, QString* valueString, QString* timeString, int* yAxis) const;
-    void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
 
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
@@ -80,7 +77,7 @@ private slots:
 
 private:
     QwtPlotGrid*                    m_grid;
-    RiuQwtPlotPicker*               m_plotPicker;
+    RiuQwtCurvePointTracker*        m_curvePointTracker;
 
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
 

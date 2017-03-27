@@ -20,6 +20,7 @@ ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.h
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
@@ -60,6 +61,7 @@ ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.cpp
+${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.cpp
