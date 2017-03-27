@@ -97,7 +97,9 @@ public:
     static double meterToFeet(double meter)         { return meter*feetPerMeter(); }
     static double feetToMeter(double feet)          { return feet*meterPerFeet();}
     static double meterToInch(double meter)         { return meter*feetPerMeter()*12; }
-    static double inchToMeter(double inch)          { return (inch / 12)*meterPerFeet(); }
+    static double inchToMeter(double inch)          { return (inch / 12.0)*meterPerFeet(); }
+    static double inchToFeet (double inch)          { return (inch / 12.0); }
+
 
 
 
