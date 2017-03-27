@@ -42,7 +42,12 @@ class QFrame;
 class QLabel;
 class QPushButton;
 
-class QMinimizePanel: public QWidget
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class QMinimizePanel : public QWidget
 {
     Q_OBJECT
 public:
@@ -50,31 +55,31 @@ public:
     explicit QMinimizePanel(const QString &title, QWidget* parent=0);
     ~QMinimizePanel();
 
-    QFrame *      contentFrame() { return m_contentFrame; }  
-    void          setTitle (const QString& title);
-    QString       title() const;
+    QFrame*         contentFrame() { return m_contentFrame; }  
+    void            setTitle (const QString& title);
+    QString         title() const;
+
     virtual QSize   sizeHint() const override;
 
 public slots:
-    void          setExpanded(bool isExpanded);
-    void          toggleExpanded();
+    void            setExpanded(bool isExpanded);
+    void            toggleExpanded();
 
 signals:
-    void          expandedChanged(bool isExpanded);
+    void            expandedChanged(bool isExpanded);
 
 public:
-    virtual QSize minimumSizeHint() const override;
+    virtual QSize   minimumSizeHint() const override;
 
 protected:
-    QFrame*       m_titleFrame;
-    QLabel*       m_titleLabel;
-    QPushButton*  m_collapseButton;
-    QFrame*       m_contentFrame;
+    QFrame*         m_titleFrame;
+    QLabel*         m_titleLabel;
+    QPushButton*    m_collapseButton;
+    QFrame*         m_contentFrame;
 
-    virtual void  resizeEvent(QResizeEvent *) override;
-    virtual bool  event(QEvent* event) override; // To catch QEvent::LayoutRequest
+    virtual void    resizeEvent(QResizeEvent *) override;
+    virtual bool    event(QEvent* event) override; // To catch QEvent::LayoutRequest
 
 private:
-    void initialize(const QString &title);
+    void            initialize(const QString &title);
 };
-
