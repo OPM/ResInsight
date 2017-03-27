@@ -58,9 +58,11 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
+    static void                     setCommonPlotBehaviour(QwtPlot* plot);
+    static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
+
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
-    virtual void                    leaveEvent(QEvent *) override;
 
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
@@ -76,7 +78,6 @@ private slots:
     void                            onAxisClicked(int axis, double value);
 
 private:
-    QwtPlotGrid*                    m_grid;
     RiuQwtCurvePointTracker*        m_curvePointTracker;
 
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;

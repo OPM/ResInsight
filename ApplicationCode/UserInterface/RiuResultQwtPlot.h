@@ -55,6 +55,5 @@ private:
 
 private:
     std::vector<QwtPlotCurve*>  m_plotCurves;
-    QwtPlotGrid*                m_grid;
 };
 

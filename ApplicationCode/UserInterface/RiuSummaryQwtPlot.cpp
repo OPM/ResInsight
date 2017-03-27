@@ -45,6 +45,8 @@
 #include <QWheelEvent>
 
 #include <float.h>
+#include "qwt_plot_magnifier.h"
+#include "RiuQwtPlotWheelZoomer.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -53,9 +55,6 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
 {
     Q_ASSERT(plotDefinition);
     m_plotDefinition = plotDefinition;
-
-    m_grid = new QwtPlotGrid;
-    m_grid->attach(this);
 
     setDefaults();
 
@@ -85,9 +84,6 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     RiuQwtScalePicker* scalePicker = new RiuQwtScalePicker(this);
     connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
 
-    // Create a plot picker to display values next to mouse cursor
-    m_curvePointTracker = new RiuQwtCurvePointTracker(this, true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,15 +91,11 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
 {
-    m_grid->detach();
-    delete m_grid;
-
     if (m_plotDefinition)
     {
         m_plotDefinition->detachAllCurves();
         m_plotDefinition->handleMdiWindowClosed();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,58 +183,78 @@ QSize RiuSummaryQwtPlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::setDefaults()
 {
-    QPalette newPalette(palette());
-    newPalette.setColor(QPalette::Background, Qt::white);
-    setPalette(newPalette);
-
-    setAutoFillBackground(true);
-    setCanvasBackground(Qt::white);
-
-    QFrame* canvasFrame = dynamic_cast<QFrame*>(canvas());
-    if (canvasFrame)
-    {
-        canvasFrame->setFrameShape(QFrame::NoFrame);
-    }
-
-    canvas()->setMouseTracking(true);
-    canvas()->installEventFilter(this);
-
-    QPen gridPen(Qt::SolidLine);
-    gridPen.setColor(Qt::lightGray);
-    m_grid->setPen(gridPen);
+    setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
 
-    plotLayout()->setAlignCanvasToScales(true);
-
     useDateBasedTimeAxis();
 
-    QFont xAxisFont = axisFont(QwtPlot::xBottom);
-    xAxisFont.setPixelSize(11);
-    setAxisFont(QwtPlot::xBottom, xAxisFont);
     setAxisMaxMinor(QwtPlot::xBottom, 2);
-
-    QFont yAxisFont = axisFont(QwtPlot::yLeft);
-    yAxisFont.setPixelSize(11);
-    setAxisFont(QwtPlot::yLeft, yAxisFont);
-
     setAxisMaxMinor(QwtPlot::yLeft, 3);
 
-    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
-    QFont yAxisTitleFont = axisTitleY.font();
-    yAxisTitleFont.setPixelSize(11);
-    yAxisTitleFont.setBold(false);
-    axisTitleY.setFont(yAxisTitleFont);
-    axisTitleY.setRenderFlags(Qt::AlignRight);
-    setAxisTitle(QwtPlot::yLeft, axisTitleY);
-
-    QwtLegend* legend = new QwtLegend(this);
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
+    QwtLegend* legend = new QwtLegend(this);
     this->insertLegend(legend, BottomLegend);
+}
+
+void RiuSummaryQwtPlot::setCommonPlotBehaviour(QwtPlot* plot)
+{
+    // Plot background and frame look
+
+    QPalette newPalette(plot->palette());
+    newPalette.setColor(QPalette::Background, Qt::white);
+    plot->setPalette(newPalette);
+
+    plot->setAutoFillBackground(true);
+    plot->setCanvasBackground(Qt::white);
+
+    QFrame* canvasFrame = dynamic_cast<QFrame*>(plot->canvas());
+    if (canvasFrame)
+    {
+        canvasFrame->setFrameShape(QFrame::NoFrame);
+    }
+
+    // Grid
+
+    QwtPlotGrid* grid = new QwtPlotGrid;
+    grid->attach(plot);
+    QPen gridPen(Qt::SolidLine);
+    gridPen.setColor(Qt::lightGray);
+    grid->setPen(gridPen);
+
+    // Axis number font
+    QFont axisFont =  plot->axisFont(QwtPlot::xBottom);
+    axisFont.setPixelSize(11);
+
+    plot->setAxisFont(QwtPlot::xBottom, axisFont);
+    plot->setAxisFont(QwtPlot::xTop, axisFont);
+    plot->setAxisFont(QwtPlot::yLeft, axisFont);
+    plot->setAxisFont(QwtPlot::yRight, axisFont);
+
+    // Axis title font
+    QwtText axisTitle = plot->axisTitle(QwtPlot::xBottom);
+    QFont axisTitleFont = axisTitle.font();
+    axisTitleFont.setPixelSize(11);
+    axisTitleFont.setBold(false);
+    axisTitle.setFont(axisTitleFont);
+    axisTitle.setRenderFlags(Qt::AlignRight);
+
+    plot->setAxisTitle(QwtPlot::xBottom, axisTitle);
+    plot->setAxisTitle(QwtPlot::xTop,    axisTitle);
+    plot->setAxisTitle(QwtPlot::yLeft,   axisTitle);
+    plot->setAxisTitle(QwtPlot::yRight,  axisTitle);
+
+    // Enable mousetracking and event filter
+
+    plot->canvas()->setMouseTracking(true);
+    plot->canvas()->installEventFilter(plot);
+    plot->plotLayout()->setAlignCanvasToScales(true);
+
+    new RiuQwtCurvePointTracker(plot, true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,12 +262,20 @@ void RiuSummaryQwtPlot::setDefaults()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useDateBasedTimeAxis()
 {
+    enableDateBasedBottomXAxis(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::enableDateBasedBottomXAxis(QwtPlot* plot)
+{
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw(Qt::UTC);
     scaleDraw->setDateFormat(QwtDate::Year, QString("dd-MM-yyyy"));
 
     QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
-    setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
-    setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
+    plot->setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
+    plot->setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,13 +308,6 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::leaveEvent(QEvent *)
-{
-    m_curvePointTracker->removeMarkerOnFocusLeave();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -335,11 +348,6 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
-    QwtInterval left, right, time;
-    currentVisibleWindow(&left, &right, &time);
-    
-    this->setZoomWindow(left, right, time);
-    
     m_plotDefinition->updateZoomWindowFromQwt();
 }
 

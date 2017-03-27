@@ -23,12 +23,14 @@
 
 #include "qwt_plot_curve.h"
 #include "qwt_date_scale_draw.h"
+#include <QEvent>
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuQwtCurvePointTracker::RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal): QwtPlotPicker(plot->canvas()), m_plot(plot), m_isMainAxisHorizontal(isMainAxisHorizontal)
+RiuQwtCurvePointTracker::RiuQwtCurvePointTracker(QwtPlot* plot, bool isMainAxisHorizontal)
+    : QwtPlotPicker(plot->canvas()), m_plot(plot), m_isMainAxisHorizontal(isMainAxisHorizontal)
 {
     this->setTrackerMode(QwtPicker::AlwaysOn);
     m_plotMarker = new QwtPlotMarker;
@@ -58,6 +60,20 @@ void RiuQwtCurvePointTracker::removeMarkerOnFocusLeave()
 
         m_plot->replot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtCurvePointTracker::eventFilter(QObject *watched, QEvent *event)
+{
+    if ( event->type() == QEvent::Leave )
+    {
+        this->removeMarkerOnFocusLeave();
+    }
+
+    // pass the event on to the parent class
+    return QwtPlotPicker::eventFilter(watched, event);
 }
 
 //--------------------------------------------------------------------------------------------------

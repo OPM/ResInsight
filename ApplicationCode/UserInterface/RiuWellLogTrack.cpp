@@ -45,6 +45,7 @@
 #include <QWheelEvent>
 
 #include <float.h>
+#include "RiuSummaryQwtPlot.h"
 
 #define RIU_SCROLLWHEEL_ZOOMFACTOR  1.1
 #define RIU_SCROLLWHEEL_PANFACTOR   0.1
@@ -57,16 +58,9 @@ RiuWellLogTrack::RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* 
 {
     Q_ASSERT(plotTrackDefinition);
     m_plotTrackDefinition = plotTrackDefinition;
-
-    m_grid = new QwtPlotGrid();
-    m_grid->attach(this);
    
     setFocusPolicy(Qt::ClickFocus);
     setDefaults();
-
-    // Create a plot picker to display values next to mouse cursor
-
-    m_curvePointTracker = new RiuQwtCurvePointTracker(this, false);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,8 +68,7 @@ RiuWellLogTrack::RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* 
 //--------------------------------------------------------------------------------------------------
 RiuWellLogTrack::~RiuWellLogTrack()
 {
-    m_grid->detach();
-    delete m_grid;
+  
 }
 
 
@@ -84,32 +77,12 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::setDefaults()
 {
-    QPalette newPalette(palette());
-    newPalette.setColor(QPalette::Background, Qt::white);
-    setPalette(newPalette);
-
-    setAutoFillBackground(true);
-    setCanvasBackground(Qt::white);
-
-    QFrame* canvasFrame = dynamic_cast<QFrame*>(canvas());
-    if (canvasFrame)
-    {
-        canvasFrame->setFrameShape(QFrame::NoFrame);
-    }
-
-    canvas()->setMouseTracking(true);
-    canvas()->installEventFilter(this);
-
-    QPen gridPen(Qt::SolidLine);
-    gridPen.setColor(Qt::lightGray);
-    m_grid->setPen(gridPen);
+    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xTop, true);
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xBottom, false);
     enableAxis(QwtPlot::yRight, false);
-
-    plotLayout()->setAlignCanvasToScales(true);
 
     axisScaleEngine(QwtPlot::yLeft)->setAttribute(QwtScaleEngine::Inverted, true);
 
@@ -119,28 +92,6 @@ void RiuWellLogTrack::setDefaults()
     setAxisScale(QwtPlot::yLeft, 1000, 0);
     setAxisScale(QwtPlot::xTop, -10, 100);
 
-    QFont xAxisFont = axisFont(QwtPlot::xTop);
-    xAxisFont.setPixelSize(9);
-    setAxisFont(QwtPlot::xTop, xAxisFont);
-    QwtText axisTitleX = axisTitle(QwtPlot::yLeft);
-    QFont xAxisTitleFont = axisTitleX.font();
-    xAxisTitleFont.setPixelSize(9);
-    xAxisTitleFont.setBold(false);
-    axisTitleX.setFont(xAxisTitleFont);
-    axisTitleX.setRenderFlags(Qt::AlignRight);
-    setAxisTitle(QwtPlot::xTop, axisTitleX);
-
-    QFont yAxisFont = axisFont(QwtPlot::yLeft);
-    yAxisFont.setPixelSize(9);
-    setAxisFont(QwtPlot::yLeft, yAxisFont);
-
-    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
-    QFont yAxisTitleFont = axisTitleY.font();
-    yAxisTitleFont.setPixelSize(9);
-    yAxisTitleFont.setBold(false);
-    axisTitleY.setFont(yAxisTitleFont);
-    axisTitleY.setRenderFlags(Qt::AlignRight);
-    setAxisTitle(QwtPlot::yLeft, axisTitleY);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -303,13 +254,6 @@ QSize RiuWellLogTrack::minimumSizeHint() const
     return QSize(0, 0);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::leaveEvent(QEvent *)
-{
-    m_curvePointTracker->removeMarkerOnFocusLeave();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

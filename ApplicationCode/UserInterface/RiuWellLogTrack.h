@@ -60,7 +60,6 @@ protected:
     virtual void                            focusInEvent(QFocusEvent* event);
     virtual QSize                           sizeHint() const;
     virtual QSize                           minimumSizeHint() const;
-    virtual void                            leaveEvent(QEvent *) override;
 
 private:
     void                                    setDefaults();
@@ -68,7 +67,6 @@ private:
 
 private:
     caf::PdmPointer<RimWellLogTrack>        m_plotTrackDefinition;
-    QwtPlotGrid*                            m_grid;
     RiuQwtCurvePointTracker*                m_curvePointTracker;
 };
 
