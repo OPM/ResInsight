@@ -85,6 +85,45 @@ private:
 };
 
 
+//==================================================================================================
+/// Helper class used to control height of size hint
+//==================================================================================================
+class QListViewHeightHint : public QListView
+{
+public:
+    explicit QListViewHeightHint(QWidget *parent = 0)
+        : m_heightHint(-1)
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QSize sizeHint() const override
+    {
+        QSize mySize = QListView::sizeHint();
+
+        if (m_heightHint > 0)
+        {
+            mySize.setHeight(m_heightHint);
+        }
+
+        return mySize;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void setHeightHint(int heightHint)
+    {
+        m_heightHint = heightHint;
+    }
+
+private:
+    int m_heightHint;
+};
+
+
 
 namespace caf
 {
@@ -151,6 +190,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         myPalette.setColor(QPalette::Base, attributes.m_baseColor);
 
         m_listView->setPalette(myPalette);
+        m_listView->setHeightHint(attributes.m_heightHint);
     }
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
@@ -230,13 +270,12 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
 {
-    m_listView = new QListView(parent);
+    m_listView = new QListViewHeightHint(parent);
 
     m_model = new MyStringListModel(m_listView);
     m_listView->setModel(m_model);
