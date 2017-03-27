@@ -21,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.h
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
@@ -62,6 +63,7 @@ ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.cpp
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.cpp
@@ -109,6 +111,7 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h

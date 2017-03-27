@@ -66,19 +66,21 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     m_zoomerLeft->setTrackerPen(QColor(Qt::black));
     m_zoomerLeft->initMousePattern(1);
 
-    // MidButton for the panning
-    QwtPlotPanner* panner = new QwtPlotPanner(canvas());
-    panner->setMouseButton(Qt::MidButton);
-
-    connect(m_zoomerLeft, SIGNAL(zoomed( const QRectF & )), SLOT(onZoomedSlot()));
-    connect(panner, SIGNAL(panned( int , int  )), SLOT(onZoomedSlot()));
-
     // Attach a zoomer for the right axis
     m_zoomerRight = new QwtPlotZoomer(canvas());
     m_zoomerRight->setAxis(xTop, yRight);
     m_zoomerRight->setTrackerMode(QwtPicker::AlwaysOff);
     m_zoomerRight->initMousePattern(1);
 
+    // MidButton for the panning
+    QwtPlotPanner* panner = new QwtPlotPanner(canvas());
+    panner->setMouseButton(Qt::MidButton);
+
+    auto wheelZoomer = new RiuQwtPlotWheelZoomer(this);
+
+    connect(wheelZoomer, SIGNAL(zoomUpdated()), SLOT(onZoomedSlot()));
+    connect(m_zoomerLeft, SIGNAL(zoomed( const QRectF & )), SLOT(onZoomedSlot()));
+    connect(panner, SIGNAL(panned( int , int  )), SLOT(onZoomedSlot()));
 
     RiuQwtScalePicker* scalePicker = new RiuQwtScalePicker(this);
     connect(scalePicker, SIGNAL(clicked(int, double)), this, SLOT(onAxisClicked(int, double)));
