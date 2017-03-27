@@ -122,6 +122,8 @@ protected:
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
+    
+    caf::PdmField<QString>                                          m_selectedTracersUiFieldFilter;
     caf::PdmField<std::vector<QString> >                            m_selectedTracersUiField;
 
 
@@ -136,5 +138,7 @@ private:
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QStringList                     getResultNamesForCurrentUiResultType();
     static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
+
+    std::vector<QString>            tracerNamesMatchingFilter() const;
 };
 

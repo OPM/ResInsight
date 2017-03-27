@@ -105,6 +105,8 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_selectedTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedTracersUiField.xmlCapability()->setIOWritable(false);
     m_selectedTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiFieldFilter, "SelectedTracersFilter", "Filter", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,8 +204,54 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     if ( &m_selectedTracersUiField == changedField )
     {
         m_flowSolution = m_flowSolutionUiField();
-        m_selectedTracers = m_selectedTracersUiField();
+
+        if (m_selectedTracersUiFieldFilter().isEmpty())
+        {
+            m_selectedTracers = m_selectedTracersUiField();
+        }
+        else
+        {
+            auto filteredTracerNames = tracerNamesMatchingFilter();
+
+            // Keep selected strings not part of currently visible selection items
+            std::vector<QString> newSelection;
+            for (auto selectedTracer : m_selectedTracers())
+            {
+                if (std::find(begin(filteredTracerNames), end(filteredTracerNames), selectedTracer) == end(filteredTracerNames))
+                {
+                    newSelection.push_back(selectedTracer);
+                }
+            }
+
+            for (auto selectedTracerUi : m_selectedTracersUiField())
+            {
+                newSelection.push_back(selectedTracerUi);
+            }
+
+            m_selectedTracers = newSelection;
+        }
+
         loadDataAndUpdate();
+    }
+
+    if (&m_selectedTracersUiFieldFilter == changedField)
+    {
+        auto visibleTracerNames = tracerNamesMatchingFilter();
+
+        std::vector<QString> subSelection;
+
+        // Remove hidden items from selection
+        for (auto selectedTracer : m_selectedTracers())
+        {
+            if (std::find(begin(visibleTracerNames), end(visibleTracerNames), selectedTracer) != end(visibleTracerNames))
+            {
+                subSelection.push_back(selectedTracer);
+            }
+        }
+
+        m_selectedTracersUiField = subSelection;
+
+        updateConnectedEditors();
     }
 
     updateAnyFieldHasChanged();
@@ -347,6 +395,19 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     }
 }
 
+bool isStringMatch(const QString& filterString, const QString& value)
+{
+    if (filterString.isEmpty()) return true;
+    if (filterString.trimmed() == "*")
+    {
+        if (!value.isEmpty()) return true;
+        else return false;
+    }
+
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    return searcher.exactMatch(value);
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -356,7 +417,6 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_resultTypeUiField )
     {
-
         bool hasFlowDiagFluxes = false;
         RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
         if ( eclResCase && eclResCase->eclipseCaseData() )
@@ -389,7 +449,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-                options = calcOptionsForVariableUiFieldStandard();
+            options = calcOptionsForVariableUiFieldStandard();
         }
     }
     else
@@ -419,7 +479,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
             if (flowSol)
             {
-                std::vector<QString> tracerNames = flowSol->tracerNames();
+                std::vector<QString> tracerNames = tracerNamesMatchingFilter();
                 std::map<QString, QString> prefixedTracerNamesMap;
                 for ( const QString& tracerName : tracerNames )
                 {
@@ -935,6 +995,7 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
         
         if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
         {
+            uiOrdering.add(&m_selectedTracersUiFieldFilter);
             uiOrdering.add(&m_selectedTracersUiField);
         }
 
@@ -971,5 +1032,35 @@ void RimEclipseResultDefinition::removePerCellFaceOptionItems(QList<caf::PdmOpti
     {
         optionItems.takeAt(*rit);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseResultDefinition::tracerNamesMatchingFilter() const
+{
+    std::vector<QString> matchingNames;
+
+    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
+    if (flowSol)
+    {
+        std::vector<QString> tracerNames = flowSol->tracerNames();
+        if (m_selectedTracersUiFieldFilter().isEmpty())
+        {
+            matchingNames = tracerNames;
+        }
+        else
+        {
+            for (const QString& tracerName : tracerNames)
+            {
+                if (isStringMatch(m_selectedTracersUiFieldFilter, tracerName))
+                {
+                    matchingNames.push_back(tracerName);
+                }
+            }
+        }
+    }
+
+    return matchingNames;
 }
 
