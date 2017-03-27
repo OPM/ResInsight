@@ -53,23 +53,21 @@ bool RiuQwtPlotWheelZoomer::eventFilter(QObject * watched, QEvent * event)
     QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>(event);
     if ( wheelEvent )
     {
-        if ( wheelEvent->modifiers() )
+        double zoomFactor = 1.0/RIU_SCROLLWHEEL_ZOOMFACTOR;
+        if ( wheelEvent->delta() > 0 )
         {
-            double zoomFactor = 1.0/RIU_SCROLLWHEEL_ZOOMFACTOR;
-            if ( wheelEvent->delta() > 0 )
-            {
-                zoomFactor = RIU_SCROLLWHEEL_ZOOMFACTOR;
-            }
-
-            zoomOnAxis(m_plot, QwtPlot::xBottom, zoomFactor, wheelEvent->pos().x());
-            zoomOnAxis(m_plot, QwtPlot::xTop, zoomFactor, wheelEvent->pos().x());
-            zoomOnAxis(m_plot, QwtPlot::yLeft, zoomFactor, wheelEvent->pos().y());
-            zoomOnAxis(m_plot, QwtPlot::yRight, zoomFactor, wheelEvent->pos().y());
-
-            m_plot->replot();
-            emit zoomUpdated();
+            zoomFactor = RIU_SCROLLWHEEL_ZOOMFACTOR;
         }
+
+        zoomOnAxis(m_plot, QwtPlot::xBottom, zoomFactor, wheelEvent->pos().x());
+        zoomOnAxis(m_plot, QwtPlot::xTop, zoomFactor, wheelEvent->pos().x());
+        zoomOnAxis(m_plot, QwtPlot::yLeft, zoomFactor, wheelEvent->pos().y());
+        zoomOnAxis(m_plot, QwtPlot::yRight, zoomFactor, wheelEvent->pos().y());
+
+        m_plot->replot();
+        emit zoomUpdated();
     }
+
     return false;
 }
 
