@@ -100,6 +100,7 @@ ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.h
+${CEE_CURRENT_LIST_DIR}RimStimPlanCell.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -198,6 +199,8 @@ ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.cpp
+${CEE_CURRENT_LIST_DIR}RimStimPlanCell.cpp
+
 
 )
 

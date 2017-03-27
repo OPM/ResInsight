@@ -26,8 +26,11 @@
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimProject.h"
+#include "RimStimPlanCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
+
+#include "RivWellFracturePartMgr.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDoubleSliderEditor.h"
@@ -40,7 +43,6 @@
 
 #include <algorithm>
 #include <vector>
-#include "RivWellFracturePartMgr.h"
 
 
 
@@ -766,6 +768,40 @@ void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector
     }
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex)
+{
+    std::vector<RimStimPlanCell*> stimPlanCells;
+
+    std::vector<std::vector<double>> propertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+
+    std::vector<double> xCoords;
+    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
+    std::vector<double> depthCoords;
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
+
+    for (int i = 0; i < xCoords.size() - 1; i++)
+    {
+        for (int j = 0; j < depthCoords.size() - 1; j++)
+        {
+            std::vector<cvf::Vec3d> cellPolygon;
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
+
+            RimStimPlanCell* stimPlanCell = new RimStimPlanCell(cellPolygon, propertyValuesAtTimeStep[j + 1][i + 1], i, j);
+            stimPlanCells.push_back(stimPlanCell);
+        }
+    }
+
+    return stimPlanCells;
 }
 
 //--------------------------------------------------------------------------------------------------

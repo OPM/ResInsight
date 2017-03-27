@@ -35,6 +35,7 @@
 
 class RigStimPlanFractureDefinition;
 class RimStimPlanLegendConfig;
+class RimStimPlanCell;
 
 //==================================================================================================
 ///  
@@ -69,7 +70,9 @@ public:
     std::vector<double>                     getStimPlanTimeValues();
     std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
+    
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
+    std::vector<RimStimPlanCell*>           getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex);
 
     void                                    loadDataAndUpdate();
     void                                    setDefaultsBasedOnXMLfile();

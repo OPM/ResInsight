@@ -25,9 +25,11 @@
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimLegendConfig.h"
+#include "RimStimPlanCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
 
+#include "RivFaultGeometryGenerator.h"
 #include "RivPartPriority.h"
 #include "RivObjectSourceInfo.h"
 
@@ -41,7 +43,6 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapperContinuousLinear.h"
 #include "cvfRenderStateDepth.h"
-#include "RivFaultGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -289,24 +290,21 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     QString resultUnit = "md-m";
     size_t timeStepIndex = 0;
 
-    std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
-    std::vector<double> stimPlanParameterValues;
-    stimPlanFracTemplate->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
-
+    std::vector<RimStimPlanCell* > stimPlanCells = stimPlanFracTemplate->getStimPlanCells(resultName, resultUnit, timeStepIndex);
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
-    for (int i = 0; i < stimPlanParameterValues.size(); i++)
+    for (RimStimPlanCell* stimPlanCell : stimPlanCells)
     {
-        double stimPlanParameterValue = stimPlanParameterValues[i];
-        if (stimPlanParameterValue > 1e-7)
+        if (stimPlanCell->getValue() > 1e-7)
         {
-            std::vector<cvf::Vec3d> stimPlanCell = stimPlanCellsAsPolygons[i];
-            for (auto cellCorner : stimPlanCell)
+            std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell->getPolygon();
+            for (cvf::Vec3d cellCorner : stimPlanCellPolygon)
             {
                 stimPlanMeshVertices.push_back(static_cast<cvf::Vec3f>(cellCorner));
             }
         }
     }
+
 
     cvf::Mat4f m = m_rimFracture->transformMatrix();
     std::vector<cvf::Vec3f> stimPlanMeshVerticesDisplayCoords = transfromToFractureDisplayCoords(stimPlanMeshVertices, m, displayCoordTransform);
