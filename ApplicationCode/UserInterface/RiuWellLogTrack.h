@@ -25,8 +25,6 @@
 
 class RimWellLogTrack;
 
-class RiuQwtCurvePointTracker;
-
 class QwtLegend;
 class QwtPicker;
 class QwtPlotGrid;
@@ -67,6 +65,5 @@ private:
 
 private:
     caf::PdmPointer<RimWellLogTrack>        m_plotTrackDefinition;
-    RiuQwtCurvePointTracker*                m_curvePointTracker;
 };
 

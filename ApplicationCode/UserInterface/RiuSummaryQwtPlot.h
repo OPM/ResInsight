@@ -30,7 +30,6 @@ class QwtInterval;
 class QwtPicker;
 class QwtPlotMarker;
 
-class RiuQwtCurvePointTracker;
 class RimSummaryPlot;
 
 //==================================================================================================
@@ -78,8 +77,6 @@ private slots:
     void                            onAxisClicked(int axis, double value);
 
 private:
-    RiuQwtCurvePointTracker*        m_curvePointTracker;
-
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
 
     QPointer<QwtPlotZoomer>         m_zoomerLeft;
