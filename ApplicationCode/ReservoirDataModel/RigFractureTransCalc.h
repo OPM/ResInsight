@@ -64,5 +64,6 @@ private:
     RimFracture*            m_fracture;
     RimDefines::UnitSystem  m_unitForCalculation;
 
+    double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
 };
 

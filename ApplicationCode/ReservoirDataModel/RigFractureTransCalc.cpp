@@ -36,6 +36,8 @@
 #include "cafAppEnum.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
+#include "cvfMath.h"
+#include "RimDefines.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -79,32 +81,12 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
 //TODO: Make static and move to another class
 void RigFractureTransCalc::computeTransmissibility()
 {
-//     //Get correct unit system: 
-//     RigEclipseCaseData::UnitsType caseUnit = m_case->eclipseCaseData()->unitsType();
-//     RimDefines::UnitSystem unitForExport;
-// 
-//     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
-//     {
-//         RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
-//         unitForExport = RimDefines::UNITS_METRIC;
-//     }
-//     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
-//     {
-//         RiaLogging::debug(QString("Calculating transmissibilities in field units"));
-//         unitForExport = RimDefines::UNITS_FIELD;
-//     }
-//     else
-//     {
-//         RiaLogging::error(QString("Unit system for case not supported for fracture export."));
-//         return;
-//     }
 
     if (m_fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
     {
         RiaLogging::warning(QString("Transimssibility for finite conductity in fracture not yet implemented."));
         RiaLogging::warning(QString("Performing calculation for infinite conductivity instead."));
     }
-
 
     RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
@@ -344,8 +326,6 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
     }
     else return;
 
-    //TODO: UNITS! 
-
     std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
     std::vector<double> stimPlanParameterValues;
     fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
@@ -464,6 +444,7 @@ double RigFractureTransCalc::areaWeightedArithmeticAverage(std::vector<double> a
 
     double upscaledValueArithmetic = fractureCellAreaXvalue / fractureCellArea;
     return upscaledValueArithmetic;
+
 }
 
 
@@ -474,7 +455,6 @@ double RigFractureTransCalc::areaWeightedArithmeticAverage(std::vector<double> a
 void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultName, QString resultUnit, size_t timeStepIndex)
 {
 
-    //TODO: A lot of common code with function for calculating transmissibility... 
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
@@ -544,27 +524,6 @@ void RigFractureTransCalc::computeFlowInFracture()
     }
     else return;
 
-    //Get correct unit system: 
-    RigEclipseCaseData::UnitsType caseUnit = m_case->eclipseCaseData()->unitsType();
-    RimDefines::UnitSystem unitForExport;
-
-    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
-    {
-        RiaLogging::debug(QString("Calculating flow in fracture in metric units"));
-        unitForExport = RimDefines::UNITS_METRIC;
-    }
-    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
-    {
-        RiaLogging::debug(QString("Calculating flow in fracture in field units"));
-        unitForExport = RimDefines::UNITS_FIELD;
-    }
-    else
-    {
-        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
-        return;
-    }
-
-
     //TODO: A lot of common code with function above... Can be cleaned up...?
     std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
@@ -580,34 +539,41 @@ void RigFractureTransCalc::computeFlowInFracture()
 
     for (size_t fracCell : fracCells)
     {
-        double K; //Conductivity
-        double w; //Fracture width
+        double Kw;  // Conductivity (Permeability K times width w)
 
         if (fracTemplateEllipse)
         {
+            double K = fracTemplateEllipse->fractureConductivity();     // Permeability
+            double w = fracTemplateEllipse->width();                    // Width
+
             //TODO: UNit handling...
-            K = fracTemplateEllipse->fractureConductivity();
-            w = fracTemplateEllipse->width();
+            if (fracTemplateEllipse->fractureTemplateUnit() == RimDefines::UNITS_FIELD)
+            {
+                w = RimDefines::inchToFeet(w);
+            }
+    
+            Kw = K * w;
         }
         else if (fracTemplateStimPlan)
         {
             QString resultName = "CONDUCTIVITY";
-            QString resultUnit = "md-m";
+            QString resultUnit;
+            if (fracTemplateStimPlan->fractureTemplateUnit() == RimDefines::UNITS_METRIC) resultUnit = "md-m";
+            if (fracTemplateStimPlan->fractureTemplateUnit() == RimDefines::UNITS_FIELD)  resultUnit = "md-ft";
+
             size_t timeStepIndex = 0; //TODO... 
             double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
             double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
             caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
             computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
-            K = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
-
-            resultName = "WIDTH";
-            resultUnit = "cm"; //TODO handle mm and cm!
-            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
-            w = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
-
+            Kw = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
         }
 
+        Kw = convertConductivtyValue(Kw, fracTemplateEllipse->fractureTemplateUnit(), m_unitForCalculation);
+
+
     }
+
 
     m_fracture->setFractureData(fracDataVec);
 
@@ -624,18 +590,33 @@ void RigFractureTransCalc::computeFlowIntoTransverseWell()
 
     if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return;
 
-    double wellRadius = cvf::UNDEFINED_DOUBLE;
-    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
-    {
-        wellRadius = 0.0;//TODO read this value...
-    }
+    double areaScalingFactor = 1.0;
     if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
     {
-
-
+        areaScalingFactor = 1 / cvf::Math::cos((m_fracture->azimuth() - (m_fracture->wellAzimuthAtFracturePosition()-90) ));
     }
 
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit)
+{
+
+    if (fromUnit == toUnit) return Kw;
+
+    else if (fromUnit == RimDefines::UNITS_METRIC && toUnit == RimDefines::UNITS_FIELD)
+    {
+        return RimDefines::meterToFeet(Kw);
+    }
+    else if (fromUnit == RimDefines::UNITS_METRIC && toUnit == RimDefines::UNITS_FIELD)
+    {
+        return RimDefines::feetToMeter(Kw);
+    }
+
+    return cvf::UNDEFINED_DOUBLE;
 }
 
