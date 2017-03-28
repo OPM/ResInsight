@@ -807,6 +807,52 @@ std::vector<RimStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanRowPolygon(size_t i) //Row with constant depth
+{
+    std::vector<cvf::Vec3d> rowPolygon;
+
+    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+
+    std::vector<double> xCoords;
+    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
+    std::vector<double> depthCoords;
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
+
+    rowPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[0]), static_cast<float>(depthCoords[i]), 0.0));
+    rowPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords.back()), static_cast<float>(depthCoords[i]), 0.0));
+    rowPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords.back()), static_cast<float>(depthCoords[i+1]), 0.0));
+    rowPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[0]), static_cast<float>(depthCoords[i+1]), 0.0));
+    
+    return rowPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_t j)
+{
+    std::vector<cvf::Vec3d> colPolygon;
+
+    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+
+    std::vector<double> xCoords;
+    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
+    std::vector<double> depthCoords;
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
+
+    colPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[0]), 0.0));
+    colPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j+1]), static_cast<float>(depthCoords[0]), 0.0));
+    colPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j+1]), static_cast<float>(depthCoords.back()), 0.0));
+    colPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords.back()), 0.0));
+    
+    return colPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
@@ -924,6 +970,22 @@ void RimStimPlanFractureTemplate::sortPolygon(std::vector<cvf::Vec3f> &polygon)
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfColums()
+{
+    return getNegAndPosXcoords().size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfRows()
+{
+    return adjustedDepthCoordsAroundWellPathPosition().size();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,8 +42,8 @@ public:
 
     std::vector<cvf::Vec3d> getPolygon() { return m_polygon; }
     double                  getValue() { return m_value; }
-    size_t                  i() { return m_i; }
-    size_t                  j() { return m_j; }
+    size_t                  getI() { return m_i; }
+    size_t                  getJ() { return m_j; }
 
 
 private:

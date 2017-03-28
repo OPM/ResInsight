@@ -38,6 +38,7 @@
 #include "RigMainGrid.h"
 #include "cvfMath.h"
 #include "RimDefines.h"
+#include "RimStimPlanCell.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -407,6 +408,134 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::HAflowAcrossLayersUpscale(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
+{
+
+    //TODO: A lot of common code with function for calculating transmissibility... 
+
+    RimStimPlanFractureTemplate* fracTemplateStimPlan;
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
+    {
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
+    }
+    else return cvf::UNDEFINED_DOUBLE;
+
+    std::vector<RimStimPlanCell* > stimPlanCells = fracTemplateStimPlan->getStimPlanCells(resultName, resultUnit, timeStepIndex);
+
+//     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+//     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
+
+
+    cvf::Vec3d localX;
+    cvf::Vec3d localY;
+    cvf::Vec3d localZ;
+    std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
+    bool isPlanIntersected = planeCellIntersectionPolygons(eclipseCellIndex, planeCellPolygons, localX, localY, localZ);
+    if (!isPlanIntersected || planeCellPolygons.size() == 0) return cvf::UNDEFINED_DOUBLE;
+
+    //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
+    cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
+    for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
+    {
+        for (cvf::Vec3d& v : planeCellPolygon)
+        {
+            v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
+        }
+    }
+
+    //Vector for vertical - på tvers av lag... Gitt av orientering av stimPlan-grid...
+
+    cvf::Vec3d directionAcrossLayers;
+    cvf::Vec3d directionAlongLayers;
+
+    //TODO: Get these vectors properly...
+    directionAcrossLayers = cvf::Vec3d(0, -1, 0);
+    directionAlongLayers = cvf::Vec3d(1, 0, 0);
+
+    directionAcrossLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+    directionAlongLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+
+    std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
+    std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
+
+    std::vector<double> upscaledConductivities;
+
+
+    //Harmonic weighted mean
+    for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
+    {
+        std::vector<double> DcolSum;
+        std::vector<double> lavgCol;
+        std::vector<double> CondHarmCol;
+        
+        for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfColums(); j++)
+        {
+            std::vector<double> conductivitiesInStimPlanCells;
+            std::vector<double> lengthsLiOfStimPlanCol;
+            std::vector<double> heightsDioFStimPlanCells;
+
+            std::vector<RimStimPlanCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
+            for (RimStimPlanCell* stimPlanCell : stimPlanCellsCol)
+            {
+                if (stimPlanCell->getValue() > 1e-7)
+                {
+                    std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
+                    if (clippedStimPlanPolygons.size() > 0)
+                    {
+                        for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
+                        {
+                            conductivitiesInStimPlanCells.push_back(stimPlanCell->getValue());
+                            lengthsLiOfStimPlanCol.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAlongLayers, clippedStimPlanPolygon));
+                            heightsDioFStimPlanCells.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAcrossLayers, clippedStimPlanPolygon));
+                        }
+                    }
+                }
+            }
+            //Regne ut average
+            double sumDiDivCondLi = 0.0;
+            double sumDi = 0.0;
+            double sumLiDi = 0.0;
+            for (int i = 0; i < conductivitiesInStimPlanCells.size(); i++)
+            {
+                sumDiDivCondLi += heightsDioFStimPlanCells[i] / (conductivitiesInStimPlanCells[i] * lengthsLiOfStimPlanCol[i]);
+                sumDi += heightsDioFStimPlanCells[i];
+                sumLiDi += heightsDioFStimPlanCells[i] * lengthsLiOfStimPlanCol[i];
+            }
+
+            if (sumDiDivCondLi != 0)
+            {
+                DcolSum.push_back(sumDi);
+                double lAvgValue = sumLiDi / sumDi;
+                lavgCol.push_back(lAvgValue);
+                CondHarmCol.push_back(1 / (sumLiDi*sumDiDivCondLi));
+            }
+        }
+        
+        //Do arithmetic upscaling based on harmonic upscaled values for coloums
+        double sumCondHLiDivDi = 0.0;
+        double sumLi = 0.0;
+        double sumDiLi = 0.0;
+        for (int i = 0; i < CondHarmCol.size(); i++)
+        {
+            sumLi += lavgCol[i];
+            sumDiLi += DcolSum[i] * lavgCol[i];
+            sumCondHLiDivDi += CondHarmCol[i] * lavgCol[i] / DcolSum[i];
+        }
+        double Davg = sumDiLi / sumLi;
+        double condHA = (Davg / sumLi) * sumCondHLiDivDi;
+
+        upscaledConductivities.push_back(condHA);
+
+    }
+
+    //TODO: Is this the right way of handling getting several values for each cell?
+    return arithmeticAverage(upscaledConductivities);
+    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RigFractureTransCalc::areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts)
 {
     //TODO: Unit test?
@@ -445,6 +574,25 @@ double RigFractureTransCalc::areaWeightedArithmeticAverage(std::vector<double> a
     double upscaledValueArithmetic = fractureCellAreaXvalue / fractureCellArea;
     return upscaledValueArithmetic;
 
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::arithmeticAverage(std::vector<double> values)
+{
+    if (values.size() == 0) return cvf::UNDEFINED_DOUBLE;
+
+    double sumValue = 0.0;
+    size_t numberOfValues = 0;
+    for (double value : values)
+    {
+        sumValue += value;
+        numberOfValues++;
+    }
+
+    return sumValue / numberOfValues;
 }
 
 
@@ -598,6 +746,42 @@ void RigFractureTransCalc::computeFlowIntoTransverseWell()
 
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimStimPlanCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::vector<RimStimPlanCell*> allStimPlanCells, size_t i)
+{
+    std::vector<RimStimPlanCell*> stimPlanCellRow;
+
+    for (RimStimPlanCell* stimPlanCell : allStimPlanCells)
+    {
+        if (stimPlanCell->getI() == i)
+        {
+            stimPlanCellRow.push_back(stimPlanCell);
+        }
+    }
+
+    return stimPlanCellRow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimStimPlanCell*> RigFractureTransCalc::getColOfStimPlanCells(std::vector<RimStimPlanCell*> allStimPlanCells, size_t j)
+{
+    std::vector<RimStimPlanCell*> stimPlanCellCol;
+
+    for (RimStimPlanCell* stimPlanCell : allStimPlanCells)
+    {
+        if (stimPlanCell->getJ() == j)
+        {
+            stimPlanCellCol.push_back(stimPlanCell);
+        }
+    }
+
+    return stimPlanCellCol;
 }
 
 //--------------------------------------------------------------------------------------------------

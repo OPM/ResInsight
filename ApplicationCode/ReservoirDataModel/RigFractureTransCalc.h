@@ -35,7 +35,7 @@
 
 class RimFracture;
 class RimEclipseCase;
-
+class RimStimPlanCell;
 
 //==================================================================================================
 /// 
@@ -52,11 +52,20 @@ public:
     void                    computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);
     void                    computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex);
     
+    double                  HAflowAcrossLayersUpscale(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
+
+
+
     static double           areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
     static double           areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts);
-    
+    static double           arithmeticAverage(std::vector<double> values);
+
     void                    computeFlowInFracture();
     void                    computeFlowIntoTransverseWell();
+
+
+    static std::vector<RimStimPlanCell*>    getRowOfStimPlanCells(std::vector<RimStimPlanCell*> allStimPlanCells, size_t i);
+    static std::vector<RimStimPlanCell*>    getColOfStimPlanCells(std::vector<RimStimPlanCell*> allStimPlanCells, size_t j);
 
 
 private:
