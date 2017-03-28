@@ -19,15 +19,16 @@
 
 #include "RigFlowDiagResultAddress.h"
 
+#include "RimFlowDiagSolution.h"
+
+#include "cafPdmPointer.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <vector>
 #include <map>
 #include <string>
-
-#include "cafPdmPointer.h"
-#include "RimFlowDiagSolution.h"
 
 class RigFlowDiagResultFrames;
 class RigStatisticsDataCache;
@@ -66,7 +67,7 @@ public:
         
     struct FlowCharacteristicsResultFrame
     {
-        FlowCharacteristicsResultFrame() : m_lorenzCoefficient(HUGE_VAL) {}
+        FlowCharacteristicsResultFrame();
 
         using Curve = std::pair< std::vector<double>, std::vector<double> >;
 

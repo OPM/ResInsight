@@ -18,13 +18,15 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
-#include "RimFlowDiagSolution.h"
-#include "RimEclipseResultCase.h"
-
 #include "RigFlowDiagResults.h"
 
-#include "RiuFlowCharacteristicsPlot.h"
+#include "RimEclipseResultCase.h"
+#include "RimFlowDiagSolution.h"
 #include "RimProject.h"
+
+#include "RiuFlowCharacteristicsPlot.h"
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 
 CAF_PDM_SOURCE_INIT(RimFlowCharacteristicsPlot, "FlowCharacteristicsPlot");

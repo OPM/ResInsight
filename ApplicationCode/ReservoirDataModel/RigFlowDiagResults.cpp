@@ -29,6 +29,8 @@
 #include "RigFlowDiagResultFrames.h"
 #include "RigStatisticsDataCache.h"
 
+#include <cmath> // Needed for HUGE_VAL on Linux
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -672,4 +674,13 @@ std::vector<int> RigFlowDiagResults::calculatedTimeSteps()
     }
 
     return timestepIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagResults::FlowCharacteristicsResultFrame::FlowCharacteristicsResultFrame()
+    : m_lorenzCoefficient(HUGE_VAL)
+{
+
 }
