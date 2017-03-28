@@ -49,6 +49,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -83,6 +84,7 @@
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellAllocationPlot.h"
+#include "RiuFlowCharacteristicsPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
 #include "RicSnapshotViewToClipboardFeature.h"
@@ -1647,6 +1649,12 @@ RimViewWindow* RiaApplication::activeViewWindow()
             if (wellAllocationPlot)
             {
                 viewWindow = wellAllocationPlot->ownerPlotDefinition();
+            }
+
+            RiuFlowCharacteristicsPlot* flowCharacteristicsPlot = dynamic_cast<RiuFlowCharacteristicsPlot*>(subwindows.back()->widget());
+            if (flowCharacteristicsPlot)
+            {
+                viewWindow = flowCharacteristicsPlot->ownerPlotDefinition();
             }
         }
     }
