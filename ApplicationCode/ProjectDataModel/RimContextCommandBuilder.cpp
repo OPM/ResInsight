@@ -34,6 +34,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFault.h"
+#include "RimFlowDiagSolution.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
@@ -137,6 +138,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
 
             commandIds << "RicNewViewFeature";
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
@@ -352,6 +354,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
+        }
+        else if (dynamic_cast<RimFlowDiagSolution*>(uiItem))
+        {
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
         }
 
 

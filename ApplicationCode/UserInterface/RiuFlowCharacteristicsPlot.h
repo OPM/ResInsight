@@ -28,6 +28,7 @@
 class RimFlowCharacteristicsPlot;
 class RiuNightchartsWidget;
 class RiuResultQwtPlot;
+class RiuLineSegmentQwtPlotCurve;
 
 class QLabel;
 
@@ -51,7 +52,13 @@ public:
     void addFlowCapStorageCapCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
     void addSweepEfficiencyCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
 
+    void removeAllCurves();
+    void zoomAll();
+
     RimFlowCharacteristicsPlot*     ownerPlotDefinition();
+
+    static void                        addWindowZoom(QwtPlot* plot);
+    static RiuLineSegmentQwtPlotCurve* createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor);
 
 protected:
     virtual QSize                   sizeHint() const override;
@@ -60,11 +67,16 @@ protected:
 private:
     void                            setDefaults();
 
+
+    void                                        initializeColors(const std::vector<QDateTime>& dateTimes);
+
 private:
     caf::PdmPointer<RimFlowCharacteristicsPlot> m_plotDefinition;
-    QPointer<RiuResultQwtPlot> m_lorenzPlot;
-    QPointer<RiuResultQwtPlot> m_flowCapVsStorageCapPlot;
-    QPointer<RiuResultQwtPlot> m_sweepEffPlot;
+    QPointer<QwtPlot>                           m_lorenzPlot;
+    QPointer<QwtPlot>                           m_flowCapVsStorageCapPlot;
+    QPointer<QwtPlot>                           m_sweepEffPlot;
 
+
+    std::map<QDateTime, QColor>                 m_dateToColorMap;
 };
 

@@ -62,8 +62,6 @@ public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
-
-
 protected:
     // RimViewWindow overrides
 

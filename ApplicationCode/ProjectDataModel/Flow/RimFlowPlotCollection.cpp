@@ -36,12 +36,11 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "", "", "", "");
     m_flowCharacteristicsPlot.uiCapability()->setUiHidden(true);
-    m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot;
 
-    CAF_PDM_InitFieldNoDefault(&m_defaultPlot, "DefaultFlowPlot", "", "", "", "");
-    m_defaultPlot.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_defaultWellAllocPlot, "DefaultFlowPlot", "", "", "", "");
+    m_defaultWellAllocPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_flowPlots, "FlowPlots", "Stored Plots",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_storedWellAllocPlots, "FlowPlots", "Stored Plots",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,9 +48,9 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
-    delete m_defaultPlot();
+    delete m_defaultWellAllocPlot();
 
-    m_flowPlots.deleteAllChildObjects();
+    m_storedWellAllocPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,12 +58,12 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 {
-    if ( m_defaultPlot )
+    if ( m_defaultWellAllocPlot )
     {
-        m_defaultPlot->removeFromMdiAreaAndDeleteViewWidget();
-        delete m_defaultPlot();
+        m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
+        delete m_defaultWellAllocPlot();
     }
-    m_flowPlots.deleteAllChildObjects();
+    m_storedWellAllocPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,12 +71,12 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::loadDataAndUpdate()
 {
-    caf::ProgressInfo plotProgress(m_flowPlots.size() + 1, "");
+    caf::ProgressInfo plotProgress(m_storedWellAllocPlots.size() + 1, "");
 
-    if (m_defaultPlot) m_defaultPlot->loadDataAndUpdate();
+    if (m_defaultWellAllocPlot) m_defaultWellAllocPlot->loadDataAndUpdate();
     plotProgress.incrementProgress();
 
-    for (RimWellAllocationPlot* p : m_flowPlots)
+    for (RimWellAllocationPlot* p : m_storedWellAllocPlots)
     {
         p->loadDataAndUpdate();
         plotProgress.incrementProgress();
@@ -90,31 +89,46 @@ void RimFlowPlotCollection::loadDataAndUpdate()
 size_t RimFlowPlotCollection::plotCount() const
 {
     size_t plotCount = 0;
-    if (m_defaultPlot) plotCount = 1;
-    plotCount += m_flowPlots.size();
+    if (m_defaultWellAllocPlot) plotCount = 1;
+    plotCount += m_storedWellAllocPlots.size();
     return plotCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFlowPlotCollection::addPlot(RimWellAllocationPlot* plot)
+void RimFlowPlotCollection::addWellAllocPlotToStoredPlots(RimWellAllocationPlot* plot)
 {
-    m_flowPlots.push_back(plot);
+    m_storedWellAllocPlots.push_back(plot);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationPlot* RimFlowPlotCollection::defaultPlot()
+RimWellAllocationPlot* RimFlowPlotCollection::defaultWellAllocPlot()
 {
-    if ( !m_defaultPlot() ) 
+    if ( !m_defaultWellAllocPlot() ) 
     {
-        m_defaultPlot = new RimWellAllocationPlot; 
-        m_defaultPlot->setDescription("Default Flow Diagnostics Plot");
+        m_defaultWellAllocPlot = new RimWellAllocationPlot; 
+        m_defaultWellAllocPlot->setDescription("Default Flow Diagnostics Plot");
     }
 
     this->updateConnectedEditors();
 
-    return m_defaultPlot();
+    return m_defaultWellAllocPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFlowCharacteristicsPlot* RimFlowPlotCollection::defaultFlowCharacteristicsPlot()
+{
+    if ( !m_flowCharacteristicsPlot() ) 
+    {
+        m_flowCharacteristicsPlot = new RimFlowCharacteristicsPlot; 
+    }
+
+    this->updateConnectedEditors();
+
+    return m_flowCharacteristicsPlot();  
 }

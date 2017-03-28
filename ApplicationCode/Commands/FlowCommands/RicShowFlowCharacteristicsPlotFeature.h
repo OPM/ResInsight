@@ -18,34 +18,23 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafCmdFeature.h"
 
-class RimWellAllocationPlot;
-class RimFlowCharacteristicsPlot;
+class RimEclipseWell;
+
 
 //==================================================================================================
-///  
-///  
+/// 
 //==================================================================================================
-class RimFlowPlotCollection : public caf::PdmObject
+class RicShowFlowCharacteristicsPlotFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    RimFlowPlotCollection();
-    virtual ~RimFlowPlotCollection();
+    CAF_CMD_HEADER_INIT;
 
-    void closeDefaultPlotWindowAndDeletePlots();
-    void loadDataAndUpdate();
-    size_t plotCount() const;
-    
-    void addWellAllocPlotToStoredPlots(RimWellAllocationPlot* plot);
-    RimWellAllocationPlot* defaultWellAllocPlot();
-    RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
-
-private:
-    caf::PdmChildField<RimFlowCharacteristicsPlot*> m_flowCharacteristicsPlot;
-    caf::PdmChildField<RimWellAllocationPlot*>      m_defaultWellAllocPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*> m_storedWellAllocPlots;
+protected:
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
+
+

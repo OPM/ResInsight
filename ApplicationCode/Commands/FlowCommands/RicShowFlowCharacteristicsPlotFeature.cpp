@@ -16,65 +16,73 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicShowWellAllocationPlotFeature.h"
+#include "RicShowFlowCharacteristicsPlotFeature.h"
 
 #include "RiaApplication.h"
 
 #include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
+#include "RimEclipseView.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimView.h"
-#include "RimWellAllocationPlot.h"
 
 #include "RiuMainPlotWindow.h"
 
-#include "cafSelectionManager.h"
-
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlotFeature");
+CAF_CMD_SOURCE_INIT(RicShowFlowCharacteristicsPlotFeature, "RicShowFlowCharacteristicsPlotFeature");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicShowWellAllocationPlotFeature::isCommandEnabled()
+RimEclipseResultCase* activeEclipseResultCase()
 {
-    std::vector<RimEclipseWell*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
+    RimView * activeView = RiaApplication::instance()->activeReservoirView();
 
-    if (collection.size() > 0)
-    {
-        return true;
-    }
+    auto eclView = dynamic_cast<RimEclipseView*>(activeView);
 
-    return false;
+    if (!eclView) return nullptr;
+
+    auto eclCase = dynamic_cast<RimEclipseResultCase*>(eclView->ownerCase());
+
+     return eclCase;
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
+bool RicShowFlowCharacteristicsPlotFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseWell*> collection;
-    caf::SelectionManager::instance()->objectsByType(&collection);
+    RimEclipseResultCase* eclCase = activeEclipseResultCase();
 
-    if (collection.size() > 0)
+    if (!eclCase) return false;
+
+    if (!eclCase->defaultFlowDiagSolution()) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
+{
+    RimEclipseResultCase* eclCase = activeEclipseResultCase();
+
+    if (eclCase &&  eclCase->defaultFlowDiagSolution())
     {
-        RimEclipseWell* eclWell = collection[0];
-
         if (RiaApplication::instance()->project())
         {
             RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
             if (flowPlotColl)
             {
-                flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell(eclWell);
-                flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
+                RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+
+                flowPlotColl->defaultFlowCharacteristicsPlot()->setFromFlowSolution(eclCase->defaultFlowDiagSolution());
+                flowPlotColl->defaultFlowCharacteristicsPlot()->updateConnectedEditors();
 
                 // Make sure the summary plot window is created and visible
-                RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-                plotwindow->selectAsCurrentItem(flowPlotColl->defaultWellAllocPlot());
+                plotwindow->selectAsCurrentItem(flowPlotColl->defaultFlowCharacteristicsPlot());
             }
         }
     }
@@ -83,8 +91,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicShowWellAllocationPlotFeature::setupActionLook(QAction* actionToSetup)
+void RicShowFlowCharacteristicsPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/WellAllocPlot16x16.png"));
-    actionToSetup->setText("Plot Well Allocation");
+    actionToSetup->setText("Plot Flow Characteristics");
 }

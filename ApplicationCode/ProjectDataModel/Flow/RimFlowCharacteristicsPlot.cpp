@@ -74,6 +74,7 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution(RimFlowDiagSolution* flowSo
     }
 
     m_flowDiagSolution = flowSolution;
+    m_showWindow = true;
 
     loadDataAndUpdate();
 }
@@ -143,6 +144,7 @@ QWidget* RimFlowCharacteristicsPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::zoomAll()
 {
+    if (m_flowCharPlotWidget) m_flowCharPlotWidget->zoomAll();
 }
 
 
@@ -187,7 +189,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    if (m_flowDiagSolution)
+    if (m_flowDiagSolution && m_flowCharPlotWidget)
     {
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
         std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
@@ -195,23 +197,26 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
         std::vector<double> lorenzVals(timeStepDates.size(), HUGE_VAL);
 
-        for (int timeStepIdx: calculatedTimesteps)
-        {
-            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx).m_lorenzCoefficient; 
+        m_flowCharPlotWidget->removeAllCurves();
 
-            if ( m_flowCharPlotWidget) 
-            {
-                const auto & flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx);
-                m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
-                                                                flowCharResults.m_flowCapStorageCapCurve.first,
-                                                                flowCharResults.m_flowCapStorageCapCurve.second);
-                m_flowCharPlotWidget->addSweepEfficiencyCurve(timeStepDates[timeStepIdx],
-                                                                flowCharResults.m_sweepEfficiencyCurve.first,
-                                                                flowCharResults.m_sweepEfficiencyCurve.second);
-            }
+        for ( int timeStepIdx: calculatedTimesteps )
+        {
+            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx).m_lorenzCoefficient;
+        }
+        m_flowCharPlotWidget->setLorenzCurve(timeStepDates, lorenzVals);
+
+        for ( int timeStepIdx: calculatedTimesteps )
+        {
+
+            const auto & flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx);
+            m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
+                                                            flowCharResults.m_flowCapStorageCapCurve.first,
+                                                            flowCharResults.m_flowCapStorageCapCurve.second);
+            m_flowCharPlotWidget->addSweepEfficiencyCurve(timeStepDates[timeStepIdx],
+                                                          flowCharResults.m_sweepEfficiencyCurve.first,
+                                                          flowCharResults.m_sweepEfficiencyCurve.second);
         }
 
-       if ( m_flowCharPlotWidget) m_flowCharPlotWidget->setLorenzCurve(timeStepDates, lorenzVals);
     }
 }
 

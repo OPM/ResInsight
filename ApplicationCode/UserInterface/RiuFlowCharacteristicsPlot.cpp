@@ -30,6 +30,12 @@
 #include <QMenu>
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include <QDateTime>
+#include "RiuSummaryQwtPlot.h"
+#include "RiuQwtPlotWheelZoomer.h"
+#include "qwt_plot_zoomer.h"
+#include "RiaColorTables.h"
+#include "qwt_plot_zoneitem.h"
+#include "qwt_date.h"
 
 
 
@@ -42,10 +48,10 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
 {
     Q_ASSERT(m_plotDefinition);
     
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+    QGridLayout* mainLayout = new QGridLayout();
     this->setLayout(mainLayout);
-    this->layout()->setMargin(0);
-    this->layout()->setSpacing(2);
+    this->layout()->setMargin(3);
+    this->layout()->setSpacing(3);
 
     // White background
     QPalette pal = this->palette();
@@ -53,15 +59,39 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     this->setAutoFillBackground(true);
     this->setPalette(pal);
 
-    m_lorenzPlot = new RiuResultQwtPlot(this);
-    m_flowCapVsStorageCapPlot = new RiuResultQwtPlot(this);
-    m_sweepEffPlot = new RiuResultQwtPlot(this);
-    mainLayout->addWidget(m_lorenzPlot);
-    mainLayout->addWidget(m_flowCapVsStorageCapPlot);
-    mainLayout->addWidget(m_sweepEffPlot);
-    
+    m_lorenzPlot = new QwtPlot(this);
+    m_flowCapVsStorageCapPlot = new QwtPlot(this);
+    m_sweepEffPlot = new QwtPlot(this);
+
+    mainLayout->addWidget(m_lorenzPlot, 0 ,0, 1, 2);
+    mainLayout->addWidget(m_flowCapVsStorageCapPlot, 1, 0);
+    mainLayout->addWidget(m_sweepEffPlot, 1, 1);
+
+    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_lorenzPlot);
+    new RiuQwtPlotWheelZoomer(m_lorenzPlot);
+    addWindowZoom(m_lorenzPlot);
+    RiuSummaryQwtPlot::enableDateBasedBottomXAxis(m_lorenzPlot);
+    m_lorenzPlot->setTitle("Lorenz Coefficient");
+
+    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_sweepEffPlot);
+    new RiuQwtPlotWheelZoomer(m_sweepEffPlot);
+    addWindowZoom(m_sweepEffPlot);
+    m_sweepEffPlot->setTitle("Sweep Efficiency");
+
+    RiuSummaryQwtPlot::setCommonPlotBehaviour(m_flowCapVsStorageCapPlot);
+    new RiuQwtPlotWheelZoomer(m_flowCapVsStorageCapPlot);
+    addWindowZoom(m_flowCapVsStorageCapPlot);
+    m_flowCapVsStorageCapPlot->setTitle("Flow Capacity vs Storage Capacity");
 }
 
+void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
+{
+    auto zoomer = new QwtPlotZoomer(plot->canvas());
+    zoomer->setRubberBandPen(QColor(Qt::black));
+    zoomer->setTrackerMode(QwtPicker::AlwaysOff);
+    zoomer->setTrackerPen(QColor(Qt::black));
+    zoomer->initMousePattern(1);
+}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -78,8 +108,56 @@ RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::setLorenzCurve(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
-    m_lorenzPlot->deleteAllCurves();
-    m_lorenzPlot->addCurve("Lorenz Coefficient", cvf::Color3f::BLUE, dateTimes, timeHistoryValues);
+    initializeColors(dateTimes);
+
+    m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    auto curve = createEmptyCurve(m_lorenzPlot, "Lorenz Coefficient", QColor(0, 0, 0));
+    curve->setSamplesFromDateAndValues(dateTimes, timeHistoryValues, false);
+    //curve->setSymbol(QwtSymbol )
+
+    //size_t tsIdx = 0;
+    //for ( const QDateTime& dateTime: dateTimes )
+    //{
+    //    auto curve = createEmptyCurve(m_lorenzPlot, dateTime.toString(), m_dateToColorMap[dateTime]);
+    //    std::vector<QDateTime> timeStep;
+    //    timeStep.push_back(dateTime);
+    //    std::vector<double> lorCoeff;
+    //    lorCoeff.push_back(timeHistoryValues[tsIdx]);
+    //    
+    //    curve->setSamplesFromDateAndValues(timeStep, lorCoeff, false);
+    //
+    //    ++tsIdx;
+    //}
+    //double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
+
+    for ( size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx )
+    {
+        double currentTsValue = QwtDate::toDouble(dateTimes[tsIdx]);
+
+        double minTsValue = currentTsValue;
+        if ( tsIdx > 0 ) minTsValue = 0.5 * (currentTsValue + QwtDate::toDouble(dateTimes[tsIdx-1]));
+        
+        double maxTsValue = currentTsValue;
+        if ( tsIdx < dateTimes.size()-1 ) maxTsValue = 0.5 * (currentTsValue + QwtDate::toDouble(dateTimes[tsIdx+1]));
+
+        auto plotZone = new QwtPlotZoneItem();
+        plotZone->setOrientation(Qt::Vertical);
+        plotZone->setInterval(minTsValue, maxTsValue);
+        plotZone->setBrush(QBrush(m_dateToColorMap[dateTimes[tsIdx]]));
+        plotZone->attach(m_lorenzPlot);
+    }
+
+    m_lorenzPlot->replot();
+}
+
+RiuLineSegmentQwtPlotCurve* RiuFlowCharacteristicsPlot::createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor )
+{
+    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve(curveName);
+   
+    plotCurve->setTitle(curveName);
+    plotCurve->setPen(QPen(curveColor));
+    plotCurve->attach(plot);
+    return plotCurve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,16 +165,10 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve(const std::vector<QDateTime>& da
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals)
 {
-    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve(dateTime.toString());
+    CVF_ASSERT(!m_dateToColorMap.empty());
+
+    RiuLineSegmentQwtPlotCurve* plotCurve = createEmptyCurve(m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime]);
     plotCurve->setSamplesFromTimeAndValues(xVals, yVals, false);
-    plotCurve->setTitle(dateTime.toString());
-
-    plotCurve->setPen(QPen(QColor(180, 0, 20)));
-
-    plotCurve->attach(m_flowCapVsStorageCapPlot);
-
-    m_flowCapVsStorageCapPlot->setAxisScale( QwtPlot::xBottom, 0.0, 1.0);
-
     m_flowCapVsStorageCapPlot->replot();
 }
 
@@ -105,17 +177,40 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve(const QDateTime& date
 //--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals)
 {
-    RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve(dateTime.toString());
+    CVF_ASSERT(!m_dateToColorMap.empty());
+
+    RiuLineSegmentQwtPlotCurve* plotCurve = createEmptyCurve(m_sweepEffPlot, dateTime.toString(),  m_dateToColorMap[dateTime]);
     plotCurve->setSamplesFromTimeAndValues(xVals, yVals, false);
-    plotCurve->setTitle(dateTime.toString());
-
-    plotCurve->setPen(QPen(QColor(180, 0, 20)));
-
-    plotCurve->attach(m_sweepEffPlot);
-
-    //m_sweepEffPlot->setAxisScale( QwtPlot::xBottom, 0.0, 1.0);
 
     m_sweepEffPlot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::removeAllCurves()
+{
+    m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_sweepEffPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_flowCapVsStorageCapPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_dateToColorMap.clear();
+}
+
+void zoomAllInPlot(QwtPlot * plot)
+{
+    plot->setAxisAutoScale(QwtPlot::xBottom, true);
+    plot->setAxisAutoScale(QwtPlot::yLeft, true);
+    plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::zoomAll()
+{
+    zoomAllInPlot(m_lorenzPlot);
+    zoomAllInPlot(m_sweepEffPlot);
+    zoomAllInPlot(m_flowCapVsStorageCapPlot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,5 +245,21 @@ QSize RiuFlowCharacteristicsPlot::sizeHint() const
 void RiuFlowCharacteristicsPlot::setDefaults()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::initializeColors(const std::vector<QDateTime>& dateTimes)
+{
+    CVF_ASSERT(m_dateToColorMap.empty());
+
+    const caf::ColorTable& palette = RiaColorTables::timestepsPaletteColors();
+    cvf::Color3ubArray colorArray = caf::ColorTable::interpolateColorArray(palette.color3ubArray(), dateTimes.size());
+
+    for (size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx)
+    {
+        m_dateToColorMap[dateTimes[tsIdx]] = QColor( colorArray[tsIdx].r(), colorArray[tsIdx].g(), colorArray[tsIdx].b());
+    }
 }
 
