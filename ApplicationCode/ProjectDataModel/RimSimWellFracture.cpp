@@ -183,6 +183,7 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     locationGroup->add(&m_branchIndex);
     locationGroup->add(&azimuth);
     locationGroup->add(&dip);
+    locationGroup->add(&tilt);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureUnit);

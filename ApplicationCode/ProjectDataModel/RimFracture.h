@@ -56,7 +56,7 @@ public:
     caf::PdmField<double>           azimuth;
     caf::PdmField<double>           perforationLength;
     caf::PdmField<double>           dip;
-
+    caf::PdmField<double>           tilt;
 
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
     caf::PdmField<bool>             showPolygonFractureOutline;
