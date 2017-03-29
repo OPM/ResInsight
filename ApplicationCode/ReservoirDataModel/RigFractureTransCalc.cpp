@@ -311,100 +311,6 @@ bool RigFractureTransCalc::planeCellIntersectionPolygons(size_t cellindex, std::
     return isCellIntersected;
 }
 
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex)
-{
-    //TODO: A lot of common code with function for calculating transmissibility... 
-
-    RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
-    {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
-    }
-    else return;
-
-    std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
-    std::vector<double> stimPlanParameterValues;
-    fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
-
-    //TODO: A lot of common code with function above... Can be cleaned up...?
-    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
-
-
-    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
-
-    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
-    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
-
-
-    bool cellIsActive = activeCellInfo->isActive(cellIndex);
-
-    cvf::Vec3d localX;
-    cvf::Vec3d localY;
-    cvf::Vec3d localZ;
-    std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-    bool isPlanIntersected = planeCellIntersectionPolygons(cellIndex, planeCellPolygons, localX, localY, localZ);
-    if (!isPlanIntersected || planeCellPolygons.size() == 0) return;
-
-    //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
-    cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
-    for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
-    {
-        for (cvf::Vec3d& v : planeCellPolygon)
-        {
-            v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
-        }
-    }
-
-    cvf::Vec3d localZinFracPlane;
-    localZinFracPlane = localZ;
-    localZinFracPlane.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
-    cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
-    directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
-    directionOfLength.normalize();
-
-    std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
-    std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
-
-    double area;
-    std::vector<double> areaOfFractureParts;
-    std::vector<double> valuesForFractureParts;
-
-    for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
-    {
-
-        for (int i = 0; i < stimPlanParameterValues.size(); i++)
-        {
-            double stimPlanParameterValue = stimPlanParameterValues[i];
-            if (stimPlanParameterValue != 0)
-            {
-                std::vector<cvf::Vec3d> stimPlanCell = stimPlanCellsAsPolygons[i];
-                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell, planeCellPolygon);
-                if (clippedStimPlanPolygons.size() > 0)
-                {
-                    for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
-                    {
-                        area = cvf::GeometryTools::polygonAreaNormal3D(clippedStimPlanPolygon).length();
-                        areaOfFractureParts.push_back(area);
-                        valuesForFractureParts.push_back(stimPlanParameterValue);
-                    }
-                }
-            }
-        }
-    }
-
-    if (areaOfFractureParts.size() > 0)
-    {
-        upscaledAritmStimPlanValue = areaWeightedArithmeticAverage(areaOfFractureParts, valuesForFractureParts);
-        upscaledHarmStimPlanValue = areaWeightedHarmonicAverage(areaOfFractureParts, valuesForFractureParts);
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -443,11 +349,8 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
         }
     }
 
-    //Vector for vertical - på tvers av lag... Gitt av orientering av stimPlan-grid...
-
     cvf::Vec3d directionAcrossLayers;
     cvf::Vec3d directionAlongLayers;
-
     //TODO: Get these vectors properly...
     directionAcrossLayers = cvf::Vec3d(0, -1, 0);
     directionAlongLayers = cvf::Vec3d(1, 0, 0);
@@ -460,8 +363,6 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 
     std::vector<double> upscaledConductivitiesHA;
     std::vector<double> upscaledConductivitiesAH;
-
-
 
     //Harmonic weighted mean
     for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
@@ -624,50 +525,6 @@ double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::areaWeightedHarmonicAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts)
-{
-    //TODO: Unit test?
-    double fractureCellArea = 0.0;
-    for (double area : areaOfFractureParts) fractureCellArea += area;
-
-    if (areaOfFractureParts.size() != valuesForFractureParts.size()) return cvf::UNDEFINED_DOUBLE;
-
-    double fractureCellAreaDivvalue = 0.0;
-    for (int i = 0; i < valuesForFractureParts.size(); i++)
-    {
-        fractureCellAreaDivvalue += areaOfFractureParts[i] / valuesForFractureParts[i];
-    }
-
-    double upscaledValueHarmonic = fractureCellArea / fractureCellAreaDivvalue;
-    return upscaledValueHarmonic;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::areaWeightedArithmeticAverage(std::vector<double> areaOfFractureParts, std::vector<double> valuesForFractureParts)
-{
-    //TODO: Unit test?
-    double fractureCellArea = 0.0;
-    for (double area : areaOfFractureParts) fractureCellArea += area;
-
-    if (areaOfFractureParts.size() != valuesForFractureParts.size()) return cvf::UNDEFINED_DOUBLE;
-
-    double fractureCellAreaXvalue = 0.0;
-    for (int i = 0; i < valuesForFractureParts.size(); i++)
-    {
-        fractureCellAreaXvalue += areaOfFractureParts[i] * valuesForFractureParts[i];
-    }
-
-    double upscaledValueArithmetic = fractureCellAreaXvalue / fractureCellArea;
-    return upscaledValueArithmetic;
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 double RigFractureTransCalc::arithmeticAverage(std::vector<double> values)
 {
     if (values.size() == 0) return cvf::UNDEFINED_DOUBLE;
@@ -682,8 +539,6 @@ double RigFractureTransCalc::arithmeticAverage(std::vector<double> values)
 
     return sumValue / numberOfValues;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -719,11 +574,12 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 
         RigFractureData fracData;
         fracData.reservoirCellIndex = fracCell;
-
-        double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
-        double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
-        computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, m_unitForCalculation, fracCell);
-
+            
+        std::pair<double, double> upscaledCondFlowAcrossLayers = flowAcrossLayersUpscaling(resultName, resultUnit, timeStepIndex, m_unitForCalculation, fracCell);
+                
+        double upscaledAritmStimPlanValue = upscaledCondFlowAcrossLayers.first;
+        double upscaledHarmStimPlanValue = upscaledCondFlowAcrossLayers.second;
+        
         if (upscaledAritmStimPlanValue != cvf::UNDEFINED_DOUBLE)
         {
             fracData.upscaledAritmStimPlanValue = upscaledAritmStimPlanValue;
