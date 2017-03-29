@@ -39,7 +39,6 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-class QGridLayout;
 class QStringListModel;
 class QItemSelection;
 class QListViewHeightHint;
@@ -100,8 +99,8 @@ private:
     QPointer<QLabel>            m_label;
     QPointer<QStringListModel>  m_model;
 
-    QList<PdmOptionItemInfo> m_options;
-    bool                     m_optionsOnly;
+    bool                    m_isEditOperationsAvailable;
+    int                     m_optionItemCount;
 };
 
 

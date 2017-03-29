@@ -58,7 +58,6 @@
 
 
 
-
 //==================================================================================================
 /// Helper class used to override flags to disable editable items
 //==================================================================================================
@@ -137,11 +136,11 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiListEditor::PdmUiListEditor(): m_optionsOnly(true)
+PdmUiListEditor::PdmUiListEditor() :
+    m_isEditOperationsAvailable(true),
+    m_optionItemCount(0)
 {
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -180,6 +179,14 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_listView->setToolTip(field()->uiToolTip(uiConfigName));
 
+    bool optionsOnly = true;
+    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
+    m_optionItemCount = options.size();
+    if (options.size() > 0 || field()->isUiReadOnly(uiConfigName))
+    {
+        m_isEditOperationsAvailable = false;
+    }
+
     PdmUiListEditorAttribute attributes;
     caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
     if (uiObject)
@@ -197,14 +204,13 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     CAF_ASSERT(strListModel);
 
-    m_options = field()->valueOptions(&m_optionsOnly);
-    if (!m_options.isEmpty())
+    if (!options.isEmpty())
     {
-        CAF_ASSERT(m_optionsOnly); // Handling Additions on the fly not implemented
+        CAF_ASSERT(optionsOnly); // Handling Additions on the fly not implemented
 
         strListModel->setItemsEditable(false);
         QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
-        QStringList texts = PdmOptionItemInfo::extractUiTexts(m_options);
+        QStringList texts = PdmOptionItemInfo::extractUiTexts(options);
         strListModel->setStringList(texts);
 
         QVariant fieldValue = field()->uiValue();
@@ -306,7 +312,7 @@ QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-    if (m_options.isEmpty()) return;
+    if (m_optionItemCount == 0) return;
 
     QVariant fieldValue = field()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
@@ -323,7 +329,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
         if (idxList.size() >= 1)
         {
-            if (idxList[0].row() < m_options.size())
+            if (idxList[0].row() < m_optionItemCount)
             {
                 this->setValueToField(QVariant(static_cast<unsigned int>(idxList[0].row())));
             }
@@ -354,7 +360,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
         QList<QVariant> valuesToSetInField;
         for (int i = 0; i < idxList.size(); ++i)
         {
-            if (idxList[i].row() < m_options.size())
+            if (idxList[i].row() < m_optionItemCount)
             {
                 valuesToSetInField.push_back(QVariant(static_cast<unsigned int>(idxList[i].row())));
             }
@@ -363,13 +369,13 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
         this->setValueToField(valuesToSetInField);
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
 {
-    if (m_optionsOnly) return;
-    CAF_ASSERT(m_options.isEmpty()); // Not supported yet
+    CAF_ASSERT(m_isEditOperationsAvailable);
 
     QStringList uiList = m_model->stringList();
 
@@ -437,37 +443,39 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
 
     if (object == m_listView && event->type() == QEvent::KeyPress)
     {
-        if (m_optionsOnly) return false;
-        CAF_ASSERT(m_options.isEmpty()); // Not supported yet
-
         QKeyEvent* keyEv = static_cast<QKeyEvent*>(event);
-        if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
+
+        if (m_isEditOperationsAvailable)
         {
-            QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
-            bool isAnyDeleted = false;
-            while(idxList.size())
+            if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
             {
-                m_model->removeRow(idxList[0].row());
-                idxList =  m_listView->selectionModel()->selectedIndexes();
-                isAnyDeleted = true;
-            }
-
-            if (isAnyDeleted)
-            {
-                QStringList uiList = m_model->stringList();
-
-                // Remove dummy elements specifically at the  end of list.
-
-                QStringList result;
-                foreach (const QString &str, uiList) 
+                QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
+                bool isAnyDeleted = false;
+                while(idxList.size())
                 {
-                    if (str != "" && str != " ") result += str;
+                    m_model->removeRow(idxList[0].row());
+                    idxList =  m_listView->selectionModel()->selectedIndexes();
+                    isAnyDeleted = true;
                 }
-                this->setValueToField(result);
+
+                if (isAnyDeleted)
+                {
+                    QStringList uiList = m_model->stringList();
+
+                    // Remove dummy elements specifically at the  end of list.
+
+                    QStringList result;
+                    foreach (const QString &str, uiList) 
+                    {
+                        if (str != "" && str != " ") result += str;
+                    }
+                    this->setValueToField(result);
+                }
+                return true;
             }
-            return true;
         }
-        else if (keyEv->modifiers() & Qt::ControlModifier)
+
+        if (keyEv->modifiers() & Qt::ControlModifier)
         {
             if (keyEv->key() == Qt::Key_C)
             {
@@ -480,7 +488,7 @@ bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
                     return true;
                 }
             }
-            else if (keyEv->key() == Qt::Key_V)
+            else if (m_isEditOperationsAvailable && keyEv->key() == Qt::Key_V)
             {
                 QClipboard* clipboard = QApplication::clipboard();
                 if (clipboard)
