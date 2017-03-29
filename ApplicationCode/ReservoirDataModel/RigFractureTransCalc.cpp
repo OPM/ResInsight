@@ -654,11 +654,9 @@ void RigFractureTransCalc::computeFlowInFracture()
             if (fracTemplateStimPlan->fractureTemplateUnit() == RimDefines::UNITS_FIELD)  resultUnit = "md-ft";
 
             size_t timeStepIndex = 0; //TODO... 
-            double upscaledAritmStimPlanValue = cvf::UNDEFINED_DOUBLE;
-            double upscaledHarmStimPlanValue = cvf::UNDEFINED_DOUBLE;
             caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
-            computeUpscaledPropertyFromStimPlanForEclipseCell(upscaledAritmStimPlanValue, upscaledHarmStimPlanValue, resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
-            Kw = (upscaledAritmStimPlanValue + upscaledHarmStimPlanValue) / 2;
+            std::pair<double, double> upscaledValues = flowAcrossLayersUpscaling(resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
+            Kw = (upscaledValues.first + upscaledValues.second) / 2;
         }
 
         Kw = convertConductivtyValue(Kw, fracTemplateEllipse->fractureTemplateUnit(), m_unitForCalculation);
