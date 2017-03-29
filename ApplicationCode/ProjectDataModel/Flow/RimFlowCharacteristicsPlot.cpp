@@ -29,6 +29,17 @@
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 
+namespace caf
+{
+template<>
+void AppEnum< RimFlowCharacteristicsPlot::TimeSelectionType >::setUp()
+{
+    addItem(RimFlowCharacteristicsPlot::ALL_AVAILABLE,    "ALL_AVAILABLE",    "All available");
+    addItem(RimFlowCharacteristicsPlot::SELECT_AVAILABLE, "SELECT_AVAILABLE",        "Select");
+    setDefault(RimFlowCharacteristicsPlot::ALL_AVAILABLE);
+}
+}
+
 CAF_PDM_SOURCE_INIT(RimFlowCharacteristicsPlot, "FlowCharacteristicsPlot");
 
 
@@ -41,6 +52,8 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_case, "FlowCase", "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "");
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();
@@ -126,9 +139,38 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             }
         }
     }
+    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    {
+        if ( m_flowDiagSolution )
+        {
+            RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
+            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+
+            std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+
+            for ( int tsIdx : calculatedTimesteps )
+            {
+                options.push_back(caf::PdmOptionItemInfo(timeStepDates[tsIdx].toString(), tsIdx));
+            }
+        }
+    }
 
     return options;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_case);
+    uiOrdering.add(&m_flowDiagSolution);
+    uiOrdering.add(&m_timeStepSelectionType);
+
+    if (m_timeStepSelectionType == SELECT_AVAILABLE) uiOrdering.add(&m_selectedTimeSteps);
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,12 +197,14 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
 {
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (   &m_case == changedField 
-        || &m_flowDiagSolution == changedField)
+    if ( &m_case == changedField )
     {
-        this->loadDataAndUpdate();
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();    
     }
 
+    // All fields update plot
+
+    this->loadDataAndUpdate();
 }
 
 
@@ -194,6 +238,20 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
         std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
         
+        if (m_timeStepSelectionType == SELECT_AVAILABLE)
+        {
+            // Find set intersection of selected and available time steps
+            std::set<int> calculatedTimeStepsSet;
+            calculatedTimeStepsSet.insert(calculatedTimesteps.begin(), calculatedTimesteps.end());
+            calculatedTimesteps.clear();
+
+            auto selectedTimeSteps = m_selectedTimeSteps();
+            for (int tsIdx : selectedTimeSteps)
+            { 
+                 if (calculatedTimeStepsSet.count(tsIdx)) calculatedTimesteps.push_back(tsIdx);
+            }
+        }
+
         std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
         std::vector<double> lorenzVals(timeStepDates.size(), HUGE_VAL);
 

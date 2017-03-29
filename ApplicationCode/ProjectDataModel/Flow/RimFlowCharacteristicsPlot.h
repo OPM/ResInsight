@@ -62,6 +62,11 @@ public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
+    enum TimeSelectionType 
+    {
+        ALL_AVAILABLE,
+        SELECT_AVAILABLE
+    };
 protected:
     // RimViewWindow overrides
 
@@ -71,10 +76,15 @@ protected:
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    caf::PdmPtrField<RimEclipseResultCase*>    m_case;
-    caf::PdmPtrField<RimFlowDiagSolution*>     m_flowDiagSolution;
 
-    QPointer<RiuFlowCharacteristicsPlot>       m_flowCharPlotWidget;
+
+    caf::PdmPtrField<RimEclipseResultCase*>         m_case;
+    caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
+    caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
+    caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+
+    QPointer<RiuFlowCharacteristicsPlot>            m_flowCharPlotWidget;
 };
