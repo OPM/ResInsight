@@ -23,16 +23,25 @@
 
 #include "H5Cpp.h"
 #include <H5Exception.h>
+#include "QDir"
+
+#include "cvfAssert.h"
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
+///std::string dateString = getStringAttribute(file, "/KaseStudy/TransientSections", "initial_date");
+///QDateTime initalDateTime = sourSimDateTimeToQDateTime(dateString);   // may rearrange/change to be a call in timeSteps()
 //--------------------------------------------------------------------------------------------------
 RifHdf5Reader::RifHdf5Reader(const QString& fileName)
     : m_fileName(fileName)
 {
+	H5::H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);     // evt fileName.toLatin1().data()
 
+	int fileStrategy = getIntAttribute(file, "/", "file_strategy");		 // fileStrategy == 1 means one time step per file
+
+	m_timeStepFiles = getSourSimTimeStepFiles(fileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,28 +57,29 @@ RifHdf5Reader::~RifHdf5Reader()
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5Reader::dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) const
 {
-    QStringList myProps = propertyNames();
+    QStringList props = propertyNames();
 
+	QStringList::iterator it = std::find(props.begin(), props.end(), result);
+
+	int propIdx = (it != props.end()) ? it - props.begin() : 0;      // index to 'result' in QStringList props (usually size_t but int gave no warning)
+	
 	try
 	{
-		H5::Exception::dontPrint();								// Turn off auto-printing of failures to handle the errors appropriately
+		H5::Exception::dontPrint();								     // Turn off auto-printing of failures to handle the errors appropriately
 
-		std::string fileName = m_fileName.toStdString();		// her ligger tr�bbel mht Unicode or det smalt i H5File med direkte bruk av c_str(
+		std::string fileName      = m_timeStepFiles[stepIndex];       
+		std::string timeStepGroup = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName);
+
 		H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
 
-		std::string groupName = "/Timestep_00001/GridFunctions/GridPart_00000/GridFunction_00002";
+		std::string groupName = timeStepGroup + "/GridFunctions/GridPart_00000/GridFunction_" + IntTo5DigitString(propIdx + 1); // adjust to HDF5 one based indexing
 
 		getElementResultValues(file, groupName, values);
 
 		return true;
 	}
 
-	catch (H5::FileIException error)		// catch failure caused by the H5File operations
-	{
-		return false;
-	}
-
-	catch (H5::DataSetIException error)		// catch failure caused by the DataSet operations
+	catch (...)		// catch any failure
 	{
 		return false;
 	}
@@ -80,37 +90,74 @@ bool RifHdf5Reader::dynamicResult(const QString& result, size_t stepIndex, std::
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 {
-    std::vector<QDateTime> times;
+	try 
+	{
+		H5::H5File mainFile(m_fileName.toStdString().c_str(), H5F_ACC_RDONLY);     // initial date part is an attribute of SourSimRL main file [Qt alternative fileName.toLatin1().data()]
 
-    QDateTime dt;
-    times.push_back(dt);
-    times.push_back(dt.addDays(1));
-    times.push_back(dt.addDays(2));
+		std::string dateString = getStringAttribute(mainFile, "/KaseStudy/TransientSections", "initial_date");
 
-    return times;
+		std::vector<QDateTime> times;
+
+		QDateTime dtInitial = sourSimDateTimeToQDateTime(dateString);
+
+		for (size_t i = 0; i < m_timeStepFiles.size(); i++)
+		{
+			std::string fileName      = m_timeStepFiles[i];
+			std::string timeStepGroup = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName);
+
+			H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
+
+			double timeStepValue = getDoubleAttribute(file, timeStepGroup, "timestep");				// Assumes only one time step per file
+			int	   timeStepDays  = (int)timeStepValue;												// NB: open question: unit of SourSimRL time step values, days?
+
+			QDateTime dt = dtInitial;
+
+			times.push_back(dt.addDays(timeStepDays));															// NB: open question: unit of SourSimRL time step values, days?
+		}
+
+		return times;
+	}
+
+	catch (...)		// catch any failure
+	{
+		std::vector<QDateTime> no_times;
+
+		return no_times;
+	}
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
+//std::string groupName = "/Timestep_00001/GridFunctions/GridPart_00000";
 //--------------------------------------------------------------------------------------------------
 QStringList RifHdf5Reader::propertyNames() const
 {
-    QStringList propNames;
-
-	std::string str = m_fileName.toStdString();   // her ligger tr�bbel mht Unicode or det smalt i H5File med direkte bruk av c_str()
-
-	H5::H5File file(str.c_str(), H5F_ACC_RDONLY);
-
-	std::string groupName = "/Timestep_00001/GridFunctions/GridPart_00000";
-
-	std::vector<std::string> resultNames = getResultNames(file, groupName);
-
-	for (std::vector<std::string>::iterator it = resultNames.begin(); it != resultNames.end(); it++)
+	try 
 	{
-		propNames.push_back(it->c_str());
+		QStringList propNames;
+
+		std::string fileName = m_timeStepFiles[0];		 // assume the result variables to be identical across time steps => extract names from first time step file 
+
+		std::string groupName = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName) + "/GridFunctions/GridPart_00000";
+
+		H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
+
+		std::vector<std::string> resultNames = getResultNames(file, groupName);
+
+		for (std::vector<std::string>::iterator it = resultNames.begin(); it != resultNames.end(); it++)
+		{
+			propNames.push_back(it->c_str());
+		}
+
+		return propNames;
 	}
 
-    return propNames;
+	catch (...)		// catch any failure
+	{
+		QStringList no_propNames;
+		return no_propNames;
+	}
 }
 
 
@@ -123,6 +170,91 @@ QStringList RifHdf5Reader::propertyNames() const
 //
 //
 //==================================================================================================
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifHdf5Reader::getSourSimTimeStepFiles(const QString& fileName) const
+{
+	QFileInfo fi(fileName);
+	QString name = fi.fileName();
+	QString dir = fi.path();
+
+	QDir baseDir(dir);
+	baseDir.setFilter(QDir::Files);
+
+
+	QStringList nameFilters;
+	nameFilters << name + ".?????";
+	baseDir.setNameFilters(nameFilters);
+
+	QStringList fileNames = baseDir.entryList();
+
+	std::vector<std::string> timeStepFileNames;
+
+	for (int i = 0; i < fileNames.size(); i++)
+	{
+		std::string fullPath = dir.toStdString() + "/" + fileNames[i].toStdString();
+
+		timeStepFileNames.push_back(fullPath);
+	}
+
+	return timeStepFileNames;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Build a QDateTime based on a SourSimRL HDF date attribute
+/// Did not succeed with QDateTime dt = QDateTime::fromString(dateString, "YYYY MM DD hh mm ss");
+/// Thus a conversion of substrings via integers
+//--------------------------------------------------------------------------------------------------
+QDateTime RifHdf5Reader::sourSimDateTimeToQDateTime(std::string dateString) const
+{
+	int year = std::stoi(dateString.substr(0, 4));
+	int month = std::stoi(dateString.substr(5, 2));
+	int day = std::stoi(dateString.substr(8, 2));
+
+	int hours = std::stoi(dateString.substr(11, 2));
+	int minutes = std::stoi(dateString.substr(14, 2));
+	int seconds = std::stoi(dateString.substr(17, 2));
+
+	QDate d(year, month, day);
+	QTime t(hours, minutes, seconds);
+
+	QDateTime dt;
+	dt.setDate(d);
+	dt.setTime(t);
+
+	return dt;
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Build a string based on an int that consists of exactly 5 characters for HDF5 numbering
+//--------------------------------------------------------------------------------------------------
+std::string RifHdf5Reader::getTimeStepNumberAs5DigitString(std::string fileName) const
+{
+	return fileName.substr(fileName.size() - 5);  // extract the 5 last characters/digits
+}
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Build a string based on an int that consists of exactly 5 characters for HDF5 numbering
+//--------------------------------------------------------------------------------------------------
+std::string RifHdf5Reader::IntTo5DigitString(int i) const
+{
+	std::string numString = "00000" + std::to_string(i);
+
+	return numString.substr(numString.size() - 5);  // extract the 5 last characters/digits
+}
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -143,7 +275,7 @@ int RifHdf5Reader::getIntAttribute(H5::H5File file, std::string groupName, std::
 		return value;
 	}
 
-	catch (H5::AttributeIException error)
+	catch (...)
 	{
 		return 0;
 	}
@@ -170,7 +302,7 @@ double RifHdf5Reader::getDoubleAttribute(H5::H5File file, std::string groupName,
 		return value;
 	}
 
-	catch (H5::AttributeIException error)
+	catch (...)
 	{
 		return 0.0;
 	}
@@ -196,7 +328,7 @@ std::string RifHdf5Reader::getStringAttribute(H5::H5File file, std::string group
 		return stringAttribute;
 	}
 
-	catch (H5::AttributeIException error)
+	catch (...)
 	{
 		return "";
 	}
@@ -233,7 +365,7 @@ std::vector<std::string> RifHdf5Reader::getSubGroupNames(H5::H5File file, std::s
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Intended for finding all timesteps of one SourSimRL result file
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifHdf5Reader::getStepTimeValues(H5::H5File file, std::string baseGroupName) const
 {
@@ -271,7 +403,7 @@ std::vector<std::string> RifHdf5Reader::getResultNames(H5::H5File file, std::str
 
 	for (std::vector<std::string>::iterator it = subGroupNames.begin(); it != subGroupNames.end(); it++)
 	{
-		std::string groupName = baseGroupName + "/" + *it;
+		std::string groupName = baseGroupName + "/" + *it;						// NB: possibly dangerous to hardcode separator /  (should use Qt separator?)
 
 		std::string name = getStringAttribute(file, groupName, "name");
 
