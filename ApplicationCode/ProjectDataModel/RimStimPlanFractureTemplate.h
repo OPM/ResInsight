@@ -35,7 +35,7 @@
 
 class RigStimPlanFractureDefinition;
 class RimStimPlanLegendConfig;
-class RimStimPlanCell;
+class RigStimPlanCell;
 
 //==================================================================================================
 ///  
@@ -76,7 +76,7 @@ public:
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
     
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
-    std::vector<RimStimPlanCell*>           getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex);
+    std::vector<RigStimPlanCell*>           getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex);
     std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 

@@ -27,15 +27,15 @@
 ///  
 ///  
 //==================================================================================================
-class RimStimPlanCell 
+class RigStimPlanCell 
 {
 
 public:
-    RimStimPlanCell();
-    RimStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, size_t i, size_t j);
+    RigStimPlanCell();
+    RigStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, size_t i, size_t j);
 
 
-    virtual ~RimStimPlanCell();
+    virtual ~RigStimPlanCell();
 
     std::vector<cvf::Vec3d> getPolygon() { return m_polygon; }
     double                  getValue() { return m_value; }

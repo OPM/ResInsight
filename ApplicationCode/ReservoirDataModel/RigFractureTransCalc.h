@@ -34,7 +34,7 @@
 
 class RimFracture;
 class RimEclipseCase;
-class RimStimPlanCell;
+class RigStimPlanCell;
 class RimStimPlanFractureTemplate;
 
 //==================================================================================================
@@ -51,8 +51,8 @@ public:
 
     void                        computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);  
     std::pair<double, double>   flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
-    double                      computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RimStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
-    double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RimStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
+    double                      computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
+    double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
 
     static double               arithmeticAverage(std::vector<double> values);
 
@@ -60,8 +60,8 @@ public:
     void                        computeFlowIntoTransverseWell();
 
 
-    static std::vector<RimStimPlanCell*>    getRowOfStimPlanCells(std::vector<RimStimPlanCell*> allStimPlanCells, size_t i);
-    static std::vector<RimStimPlanCell*>    getColOfStimPlanCells(std::vector<RimStimPlanCell*> allStimPlanCells, size_t j);
+    static std::vector<RigStimPlanCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanCell*> allStimPlanCells, size_t i);
+    static std::vector<RigStimPlanCell*>    getColOfStimPlanCells(std::vector<RigStimPlanCell*> allStimPlanCells, size_t j);
 
 
 private:

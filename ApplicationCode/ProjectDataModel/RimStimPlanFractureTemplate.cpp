@@ -26,7 +26,7 @@
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimProject.h"
-#include "RimStimPlanCell.h"
+#include "RigStimPlanCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
 
@@ -773,9 +773,9 @@ void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex)
+std::vector<RigStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex)
 {
-    std::vector<RimStimPlanCell*> stimPlanCells;
+    std::vector<RigStimPlanCell*> stimPlanCells;
 
     std::vector<std::vector<double>> propertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
@@ -796,7 +796,7 @@ std::vector<RimStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(cons
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
 
-            RimStimPlanCell* stimPlanCell = new RimStimPlanCell(cellPolygon, propertyValuesAtTimeStep[j + 1][i + 1], i, j);
+            RigStimPlanCell* stimPlanCell = new RigStimPlanCell(cellPolygon, propertyValuesAtTimeStep[j + 1][i + 1], i, j);
             stimPlanCells.push_back(stimPlanCell);
         }
     }

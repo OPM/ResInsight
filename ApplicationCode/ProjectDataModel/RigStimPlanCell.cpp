@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimStimPlanCell.h"
+#include "RigStimPlanCell.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStimPlanCell::RimStimPlanCell()
+RigStimPlanCell::RigStimPlanCell()
 {
 
 }
@@ -29,7 +29,7 @@ RimStimPlanCell::RimStimPlanCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStimPlanCell::RimStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, size_t i, size_t j)
+RigStimPlanCell::RigStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, size_t i, size_t j)
 {
     m_polygon = polygon;
     m_value = value;
@@ -40,7 +40,7 @@ RimStimPlanCell::RimStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStimPlanCell::~RimStimPlanCell()
+RigStimPlanCell::~RigStimPlanCell()
 {
 
 }
