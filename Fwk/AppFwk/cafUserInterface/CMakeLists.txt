@@ -141,7 +141,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
 )
 
-if (CAF_USE_COTIRE)
+if (COMMAND cotire)
     cotire(${PROJECT_NAME})
   
     # make sure the unity target is included in the active builds to trigger rebuild before debug
