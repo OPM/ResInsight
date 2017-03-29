@@ -561,7 +561,7 @@ QStringList RimEclipseCase::timeStepStrings()
 {
     QStringList stringList;
 
-    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepCount(0));
+    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->maxTimeStepCount());
     for (int i = 0; i < timeStepCount; i++)
     {
         stringList += this->timeStepName(i);
@@ -576,45 +576,37 @@ QStringList RimEclipseCase::timeStepStrings()
 
 QString RimEclipseCase::timeStepName(int frameIdx)
 {
+    std::vector<QDateTime> timeStepDates = this->timeStepDates();
+    CVF_ASSERT(frameIdx < timeStepDates.size());
+
     if (m_timeStepFormatString.isEmpty())
     {
-        std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
-
-        bool hasHrsAndMinutesInTimesteps = false;
+        bool hasHoursAndMinutesInTimesteps = false;
         for (size_t i = 0; i < timeStepDates.size(); i++)
         {
             if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
             {
-                hasHrsAndMinutesInTimesteps = true;
+                hasHoursAndMinutesInTimesteps = true;
                 break;
             }
         }
 
         m_timeStepFormatString = "dd.MMM yyyy";
-        if (hasHrsAndMinutesInTimesteps)
+        if (hasHoursAndMinutesInTimesteps)
         {
             m_timeStepFormatString += " - hh:mm";
         }
     }
 
+    QDateTime date = timeStepDates.at(frameIdx);
 
-    QDateTime date = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDate(0,frameIdx);
     return date.toString(m_timeStepFormatString);
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDateTime RimEclipseCase::timeStepDate(int frameIdx)
-{
-    return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDate(0,frameIdx);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimEclipseCase::timeStepDates() 
+std::vector<QDateTime> RimEclipseCase::timeStepDates()
 {
     return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();
 }
