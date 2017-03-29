@@ -107,6 +107,22 @@ void RimFlowCharacteristicsPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
+{
+    if (m_timeStepSelectionType() != ALL_AVAILABLE) return;
+    if (!m_flowDiagSolution()) return;
+
+    RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
+    std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+    
+    if (m_currentlyPlottedTimeSteps == calculatedTimesteps) return;
+
+    this->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -199,7 +215,8 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     if ( &m_case == changedField )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();    
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();  
+        m_currentlyPlottedTimeSteps.clear();  
     }
 
     // All fields update plot
@@ -251,6 +268,8 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
                  if (calculatedTimeStepsSet.count(tsIdx)) calculatedTimesteps.push_back(tsIdx);
             }
         }
+        
+        m_currentlyPlottedTimeSteps = calculatedTimesteps;
 
         std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
         std::vector<double> lorenzVals(timeStepDates.size(), HUGE_VAL);

@@ -53,7 +53,8 @@ public:
     RimFlowCharacteristicsPlot();
     virtual ~RimFlowCharacteristicsPlot();
 
-    void setFromFlowSolution(RimFlowDiagSolution* flowSolution);
+    void                                            setFromFlowSolution(RimFlowDiagSolution* flowSolution);
+    void                                            updateCurrentTimeStep();
 
     // RimViewWindow overrides
 
@@ -85,6 +86,8 @@ private:
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
     caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+
+    std::vector<int>                                m_currentlyPlottedTimeSteps;
 
     QPointer<RiuFlowCharacteristicsPlot>            m_flowCharPlotWidget;
 };
