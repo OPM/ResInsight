@@ -220,6 +220,21 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
 
                 RiaLogging::info(QString("%1 [%2]").arg(parameter, unit));
 
+                if (parameter == "CONDUCTIVITY")
+                {
+                    if (unit == "md-ft")
+                    {
+                        fractureTemplateUnit = RimDefines::UNITS_FIELD;
+                        RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(name));
+                    }
+                    if (unit == "md-m")
+                    {
+                        fractureTemplateUnit = RimDefines::UNITS_METRIC;
+                        RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(name));
+                    }
+                }
+
+
             }
             else if (xmlStream2.name() == "time")
             {
