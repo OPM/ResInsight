@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-
 #include "cvfBase.h"
 #include "cvfVector3.h"
 
@@ -29,9 +27,8 @@
 ///  
 ///  
 //==================================================================================================
-class RimStimPlanCell : public caf::PdmObject
+class RimStimPlanCell 
 {
-    CAF_PDM_HEADER_INIT;
 
 public:
     RimStimPlanCell();

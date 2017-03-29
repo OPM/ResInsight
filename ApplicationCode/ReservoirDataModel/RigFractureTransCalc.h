@@ -36,6 +36,7 @@
 class RimFracture;
 class RimEclipseCase;
 class RimStimPlanCell;
+class RimStimPlanFractureTemplate;
 
 //==================================================================================================
 /// 
@@ -52,7 +53,9 @@ public:
     void                    computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);
     void                    computeUpscaledPropertyFromStimPlanForEclipseCell(double &upscaledAritmStimPlanValue, double &upscaledHarmStimPlanValue, QString resultName, QString resultUnit, size_t timeStepIndex, caf::AppEnum< RimDefines::UnitSystem > unitSystem, size_t cellIndex);
     
-    double                  HAflowAcrossLayersUpscale(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
+    std::pair<double, double> flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
+    double                  computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RimStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
+    double                  computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RimStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
 
 
 

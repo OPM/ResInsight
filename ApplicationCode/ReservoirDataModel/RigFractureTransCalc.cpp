@@ -408,7 +408,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlanForEclipseCell(dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::HAflowAcrossLayersUpscale(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
+std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
 {
 
     //TODO: A lot of common code with function for calculating transmissibility... 
@@ -418,7 +418,7 @@ double RigFractureTransCalc::HAflowAcrossLayersUpscale(QString resultName, QStri
     {
         fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
     }
-    else return cvf::UNDEFINED_DOUBLE;
+    else return std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
     std::vector<RimStimPlanCell* > stimPlanCells = fracTemplateStimPlan->getStimPlanCells(resultName, resultUnit, timeStepIndex);
 
@@ -431,7 +431,7 @@ double RigFractureTransCalc::HAflowAcrossLayersUpscale(QString resultName, QStri
     cvf::Vec3d localZ;
     std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
     bool isPlanIntersected = planeCellIntersectionPolygons(eclipseCellIndex, planeCellPolygons, localX, localY, localZ);
-    if (!isPlanIntersected || planeCellPolygons.size() == 0) return cvf::UNDEFINED_DOUBLE;
+    if (!isPlanIntersected || planeCellPolygons.size() == 0) return  std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
     //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
     cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
@@ -458,79 +458,167 @@ double RigFractureTransCalc::HAflowAcrossLayersUpscale(QString resultName, QStri
     std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
     std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
 
-    std::vector<double> upscaledConductivities;
+    std::vector<double> upscaledConductivitiesHA;
+    std::vector<double> upscaledConductivitiesAH;
+
 
 
     //Harmonic weighted mean
     for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
     {
-        std::vector<double> DcolSum;
-        std::vector<double> lavgCol;
-        std::vector<double> CondHarmCol;
-        
-        for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfColums(); j++)
-        {
-            std::vector<double> conductivitiesInStimPlanCells;
-            std::vector<double> lengthsLiOfStimPlanCol;
-            std::vector<double> heightsDioFStimPlanCells;
+        double condHA = computeHAupscale(fracTemplateStimPlan, stimPlanCells, planeCellPolygon, directionAlongLayers, directionAcrossLayers);
+        upscaledConductivitiesHA.push_back(condHA);
 
-            std::vector<RimStimPlanCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
-            for (RimStimPlanCell* stimPlanCell : stimPlanCellsCol)
-            {
-                if (stimPlanCell->getValue() > 1e-7)
-                {
-                    std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
-                    if (clippedStimPlanPolygons.size() > 0)
-                    {
-                        for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
-                        {
-                            conductivitiesInStimPlanCells.push_back(stimPlanCell->getValue());
-                            lengthsLiOfStimPlanCol.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAlongLayers, clippedStimPlanPolygon));
-                            heightsDioFStimPlanCells.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAcrossLayers, clippedStimPlanPolygon));
-                        }
-                    }
-                }
-            }
-            //Regne ut average
-            double sumDiDivCondLi = 0.0;
-            double sumDi = 0.0;
-            double sumLiDi = 0.0;
-            for (int i = 0; i < conductivitiesInStimPlanCells.size(); i++)
-            {
-                sumDiDivCondLi += heightsDioFStimPlanCells[i] / (conductivitiesInStimPlanCells[i] * lengthsLiOfStimPlanCol[i]);
-                sumDi += heightsDioFStimPlanCells[i];
-                sumLiDi += heightsDioFStimPlanCells[i] * lengthsLiOfStimPlanCol[i];
-            }
-
-            if (sumDiDivCondLi != 0)
-            {
-                DcolSum.push_back(sumDi);
-                double lAvgValue = sumLiDi / sumDi;
-                lavgCol.push_back(lAvgValue);
-                CondHarmCol.push_back(1 / (sumLiDi*sumDiDivCondLi));
-            }
-        }
-        
-        //Do arithmetic upscaling based on harmonic upscaled values for coloums
-        double sumCondHLiDivDi = 0.0;
-        double sumLi = 0.0;
-        double sumDiLi = 0.0;
-        for (int i = 0; i < CondHarmCol.size(); i++)
-        {
-            sumLi += lavgCol[i];
-            sumDiLi += DcolSum[i] * lavgCol[i];
-            sumCondHLiDivDi += CondHarmCol[i] * lavgCol[i] / DcolSum[i];
-        }
-        double Davg = sumDiLi / sumLi;
-        double condHA = (Davg / sumLi) * sumCondHLiDivDi;
-
-        upscaledConductivities.push_back(condHA);
-
+        double condAH = computeAHupscale(fracTemplateStimPlan, stimPlanCells, planeCellPolygon, directionAlongLayers, directionAcrossLayers);
+        upscaledConductivitiesAH.push_back(condAH);
     }
 
     //TODO: Is this the right way of handling getting several values for each cell?
-    return arithmeticAverage(upscaledConductivities);
+    return std::make_pair(arithmeticAverage(upscaledConductivitiesHA), arithmeticAverage(upscaledConductivitiesAH));
     
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RimStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
+{
+    std::vector<double> DcolSum;
+    std::vector<double> lavgCol;
+    std::vector<double> CondHarmCol;
+
+    for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfColums(); j++)
+    {
+        std::vector<double> conductivitiesInStimPlanCells;
+        std::vector<double> lengthsLiOfStimPlanCol;
+        std::vector<double> heightsDiOfStimPlanCells;
+
+        std::vector<RimStimPlanCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
+        for (RimStimPlanCell* stimPlanCell : stimPlanCellsCol)
+        {
+            if (stimPlanCell->getValue() > 1e-7)
+            {
+                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
+                if (clippedStimPlanPolygons.size() > 0)
+                {
+                    for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
+                    {
+                        conductivitiesInStimPlanCells.push_back(stimPlanCell->getValue());
+                        lengthsLiOfStimPlanCol.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAlongLayers, clippedStimPlanPolygon));
+                        heightsDiOfStimPlanCells.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAcrossLayers, clippedStimPlanPolygon));
+                    }
+                }
+            }
+        }
+        //Regne ut average
+        double sumDiDivCondLi = 0.0;
+        double sumDi = 0.0;
+        double sumLiDi = 0.0;
+        for (int i = 0; i < conductivitiesInStimPlanCells.size(); i++)
+        {
+            sumDiDivCondLi += heightsDiOfStimPlanCells[i] / (conductivitiesInStimPlanCells[i] * lengthsLiOfStimPlanCol[i]);
+            sumDi += heightsDiOfStimPlanCells[i];
+            sumLiDi += heightsDiOfStimPlanCells[i] * lengthsLiOfStimPlanCol[i];
+        }
+
+        if (sumDiDivCondLi != 0)
+        {
+            DcolSum.push_back(sumDi);
+            double lAvgValue = sumLiDi / sumDi;
+            lavgCol.push_back(lAvgValue);
+            CondHarmCol.push_back(1 / (sumLiDi*sumDiDivCondLi));
+        }
+    }
+
+    //Do arithmetic upscaling based on harmonic upscaled values for coloums
+    double sumCondHLiDivDi = 0.0;
+    double sumLi = 0.0;
+    double sumDiLi = 0.0;
+    for (int i = 0; i < CondHarmCol.size(); i++)
+    {
+        sumLi += lavgCol[i];
+        sumDiLi += DcolSum[i] * lavgCol[i];
+        sumCondHLiDivDi += CondHarmCol[i] * lavgCol[i] / DcolSum[i];
+    }
+    double Davg = sumDiLi / sumLi;
+    double condHA = (Davg / sumLi) * sumCondHLiDivDi;
+
+    return condHA;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RimStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
+{
+    std::vector<double> DcolAvg;
+    std::vector<double> liColSum;
+    std::vector<double> CondAritCol;
+    
+    for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfColums(); j++)
+    {
+        std::vector<double> conductivitiesInStimPlanCells;
+        std::vector<double> lengthsLiOfStimPlanCol;
+        std::vector<double> heightsDiOfStimPlanCells;
+
+        std::vector<RimStimPlanCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
+        for (RimStimPlanCell* stimPlanCell : stimPlanCellsCol)
+        {
+            if (stimPlanCell->getValue() > 1e-7)
+            {
+                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
+                if (clippedStimPlanPolygons.size() > 0)
+                {
+                    for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
+                    {
+                        conductivitiesInStimPlanCells.push_back(stimPlanCell->getValue());
+                        lengthsLiOfStimPlanCol.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAlongLayers, clippedStimPlanPolygon));
+                        heightsDiOfStimPlanCells.push_back(RigCellGeometryTools::polygonAreaWeightedLength(directionAcrossLayers, clippedStimPlanPolygon));
+                    }
+                }
+            }
+        }
+        //Calculate sums needed for (arithmetic) average for coloum
+        double sumCondLiDivDi = 0.0;
+        double sumDi = 0.0;
+        double sumLiDi = 0.0;
+        double sumLi = 0.0;
+        for (int i = 0; i < conductivitiesInStimPlanCells.size(); i++)
+        {
+            sumCondLiDivDi += (conductivitiesInStimPlanCells[i] * lengthsLiOfStimPlanCol[i]) / heightsDiOfStimPlanCells[i];
+            sumDi += heightsDiOfStimPlanCells[i];
+            sumLiDi += heightsDiOfStimPlanCells[i] * lengthsLiOfStimPlanCol[i];
+            sumLi += lengthsLiOfStimPlanCol[i];
+        }
+
+        if (sumCondLiDivDi != 0)
+        {
+            //Calculating art avg
+            double dAvg = sumLiDi / sumLi;
+            DcolAvg.push_back(dAvg);
+            liColSum.push_back(sumLi);
+            CondAritCol.push_back(dAvg / sumLi * sumCondLiDivDi);
+        }
+    }
+
+    //Do harmonic upscaling based on arithmetric upscaled values for coloums
+    double sumDiDivCondALi = 0.0;
+    double sumDi = 0.0;
+    double sumDiLi = 0.0;
+    for (int i = 0; i < CondAritCol.size(); i++)
+    {
+        sumDi += DcolAvg[i];
+        sumDiLi += DcolAvg[i] * liColSum[i];
+        sumDiDivCondALi += DcolAvg[i] / (CondAritCol[i] * liColSum[i]);
+
+    }
+    double Lavg = sumDiLi / sumDi;
+    double condAH = (sumDi / Lavg) * (1 / sumDiDivCondALi);
+
+    return condAH;
+
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -803,4 +891,3 @@ double RigFractureTransCalc::convertConductivtyValue(double Kw, RimDefines::Unit
 
     return cvf::UNDEFINED_DOUBLE;
 }
-
