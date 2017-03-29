@@ -47,7 +47,7 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
         {
             RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(caf::SelectionManager::instance()->selectedItem());
 
-            if (flowPlotColl->defaultPlot() == wellAllocationPlot)
+            if (flowPlotColl->defaultWellAllocPlot() == wellAllocationPlot)
             {
                 return true;
             }
@@ -72,7 +72,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
             RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(sourceObject->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
             CVF_ASSERT(wellAllocationPlot);
 
-            flowPlotColl->addPlot(wellAllocationPlot);
+            flowPlotColl->addWellAllocPlotToStoredPlots(wellAllocationPlot);
             wellAllocationPlot->resolveReferencesRecursively();
             
             wellAllocationPlot->loadDataAndUpdate();

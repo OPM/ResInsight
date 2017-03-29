@@ -20,6 +20,8 @@ ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.h
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
@@ -39,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
+${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 )
@@ -59,6 +62,8 @@ ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.cpp
+${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.cpp
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.cpp
@@ -78,6 +83,7 @@ ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.cpp
+${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
 )
@@ -105,8 +111,10 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
+${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 )

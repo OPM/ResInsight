@@ -48,4 +48,6 @@ public:
     static const caf::ColorTable& summaryCurveNoneRedGreenBlueBrownPaletteColors();
     static const caf::ColorTable& wellLogPlotPaletteColors();
     static const caf::ColorTable& selectionPaletteColors();
+    static const caf::ColorTable& timestepsPaletteColors();
+
 };

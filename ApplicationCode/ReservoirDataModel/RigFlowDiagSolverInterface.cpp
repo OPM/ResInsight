@@ -39,7 +39,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
-    : m_activeCellCount(activeCellCount)
+    : m_activeCellCount(activeCellCount), m_lorenzCoefficient(HUGE_VAL)
 {
 
 }
@@ -107,12 +107,16 @@ void RigFlowDiagTimeStepResult::addResult(const RigFlowDiagResultAddress& resAdd
 class RigOpmFldStaticData : public cvf::Object
 {
 public:
-    RigOpmFldStaticData(const std::string& grid, const std::string& init) : eclGraph(Opm::ECLGraph::load(grid, init)), m_hasUnifiedRestartFile(false) {}
+    RigOpmFldStaticData(const std::string& grid, const std::string& init) : m_eclGraph(Opm::ECLGraph::load(grid, init)), m_hasUnifiedRestartFile(false) 
+    {
+        m_poreVolume = m_eclGraph.poreVolume();
+    }
 
-    Opm::ECLGraph eclGraph;
-    std::unique_ptr<Opm::FlowDiagnostics::Toolbox> fldToolbox;
-    bool m_hasUnifiedRestartFile;
-    QStringList restartFileNames;
+    Opm::ECLGraph                                   m_eclGraph;
+    std::vector<double>                             m_poreVolume;
+    std::unique_ptr<Opm::FlowDiagnostics::Toolbox>  m_fldToolbox;
+    bool                                            m_hasUnifiedRestartFile;
+    QStringList                                     m_restartFileNames;
 };
 
 
@@ -168,31 +172,31 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         progressInfo.setProgressDescription("Calculating Connectivities");
 
         const  Opm::FlowDiagnostics::ConnectivityGraph connGraph =
-            Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(m_opmFldData->eclGraph.numCells()),
-            m_opmFldData->eclGraph.neighbours() };
+            Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(m_opmFldData->m_eclGraph.numCells()),
+            m_opmFldData->m_eclGraph.neighbours() };
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Initialize Solver");
 
         // Create the Toolbox.
 
-        m_opmFldData->fldToolbox.reset(new Opm::FlowDiagnostics::Toolbox{ connGraph });
-        m_opmFldData->fldToolbox->assignPoreVolume( m_opmFldData->eclGraph.poreVolume());
+        m_opmFldData->m_fldToolbox.reset(new Opm::FlowDiagnostics::Toolbox{ connGraph });
+        m_opmFldData->m_fldToolbox->assignPoreVolume( m_opmFldData->m_poreVolume);
 
         // Look for unified restart file
 
         QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
         if ( !restartFileName.isEmpty() )
         {
-            m_opmFldData->eclGraph.assignFluxDataSource(restartFileName.toStdString());
+            m_opmFldData->m_eclGraph.assignFluxDataSource(restartFileName.toStdString());
             m_opmFldData->m_hasUnifiedRestartFile = true;
         }
         else
         {
 
-            m_opmFldData->restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
+            m_opmFldData->m_restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
 
-            size_t restartFileCount = static_cast<size_t>(m_opmFldData->restartFileNames.size());
+            size_t restartFileCount = static_cast<size_t>(m_opmFldData->m_restartFileNames.size());
             size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
 
             if (restartFileCount <= timeStepIndex &&  restartFileCount !=  maxTimeStepCount )
@@ -201,7 +205,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 return result;
             }
 
-            m_opmFldData->restartFileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
+            m_opmFldData->m_restartFileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
             m_opmFldData->m_hasUnifiedRestartFile = false;
         }
     }
@@ -211,8 +215,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     if ( ! m_opmFldData->m_hasUnifiedRestartFile  )
     {
-        QString restartFileName = m_opmFldData->restartFileNames[static_cast<int>(timeStepIndex)];
-        m_opmFldData->eclGraph.assignFluxDataSource(restartFileName.toStdString());
+        QString restartFileName = m_opmFldData->m_restartFileNames[static_cast<int>(timeStepIndex)];
+        m_opmFldData->m_eclGraph.assignFluxDataSource(restartFileName.toStdString());
     }
 
     size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
@@ -220,7 +224,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
 
-    if ( !  m_opmFldData->eclGraph.selectReportStep(reportStepNumber) )
+    if ( !  m_opmFldData->m_eclGraph.selectReportStep(reportStepNumber) )
     {
         QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: Could not find the requested timestep in the result file. Results will not be loaded.");
         return result;
@@ -231,20 +235,20 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
 
     {
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxField(m_opmFldData->eclGraph, false);
+        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxField(m_opmFldData->m_eclGraph, false);
 
-        m_opmFldData->fldToolbox->assignConnectionFlux(connectionsVals);
+        m_opmFldData->m_fldToolbox->assignConnectionFlux(connectionsVals);
 
         progressInfo.incrementProgress();
 
         Opm::ECLWellSolution wsol = Opm::ECLWellSolution{-1.0 , false};
 
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
-            wsol.solution(m_opmFldData->eclGraph.rawResultData(), m_opmFldData->eclGraph.numGrids());
+            wsol.solution(m_opmFldData->m_eclGraph.rawResultData(), m_opmFldData->m_eclGraph.numGrids());
 
-        sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->eclGraph, well_fluxes);
+        sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->m_eclGraph, well_fluxes);
 
-        m_opmFldData->fldToolbox->assignInflowFlux(sumWellFluxPrCell);
+        m_opmFldData->m_fldToolbox->assignInflowFlux(sumWellFluxPrCell);
 
         // Filter connection cells with inconsistent well in flow direction (Hack, we should do something better)
 
@@ -295,7 +299,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         std::unique_ptr<Toolbox::Forward> injectorSolution;
         try 
         {
-            injectorSolution.reset(new Toolbox::Forward( m_opmFldData->fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
+            injectorSolution.reset(new Toolbox::Forward( m_opmFldData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
         }
         catch (const std::exception& e)
         {
@@ -325,7 +329,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         std::unique_ptr<Toolbox::Reverse> producerSolution;
         try
         {
-            producerSolution.reset(new Toolbox::Reverse(m_opmFldData->fldToolbox->computeProductionDiagnostics(prodjCellSets)));
+            producerSolution.reset(new Toolbox::Reverse(m_opmFldData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
         }
         catch ( const std::exception& e )
         {
@@ -365,6 +369,21 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                                                   fluxPair);
                 }
             }
+        }
+
+        try
+        {
+            Graph flowCapStorCapCurve =  flowCapacityStorageCapacityCurve(*(injectorSolution.get()),
+                                                                          *(producerSolution.get()),
+                                                                           m_opmFldData->m_poreVolume);
+
+            result.setFlowCapStorageCapCurve(flowCapStorCapCurve);
+            result.setSweepEfficiencyCurve(sweepEfficiency(flowCapStorCapCurve));
+            result.setLorenzCoefficient(lorenzCoefficient(flowCapStorCapCurve));
+        }
+        catch ( const std::exception& e )
+        {
+            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
         }
     }
 

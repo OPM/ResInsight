@@ -33,14 +33,15 @@
 //   for more details.
 //
 //##################################################################################################
+
 #include "QMinimizePanel.h"
 
+#include <QApplication>
 #include <QFrame>
+#include <QLabel>
+#include <QPixmap>
 #include <QPushButton>
 #include <QResizeEvent>
-#include <QLabel>
-#include "QApplication"
-#include <QPixmap>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -128,6 +129,9 @@ QMinimizePanel::QMinimizePanel(const QString &title, QWidget* parent/*=0*/)
     this->initialize(title);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void QMinimizePanel::initialize(const QString &title)
 {
     m_titleFrame = new QFrame(this);
@@ -159,7 +163,6 @@ void QMinimizePanel::initialize(const QString &title)
 
     QPalette contentFramePalette = m_contentFrame->palette();
     contentFramePalette.setBrush(QPalette::Window, QColor(255,250,250,85));
-    //contentFramePalette.setBrush(QPalette::Foreground, contentFramePalette.dark());
     m_contentFrame->setPalette(contentFramePalette);
 
     connect(m_collapseButton, SIGNAL(clicked()),this, SLOT(toggleExpanded()) );
@@ -187,6 +190,29 @@ void QMinimizePanel::setTitle(const QString& title)
 QString QMinimizePanel::title() const
 {
     return m_titleLabel->text();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize QMinimizePanel::sizeHint() const
+{
+    QSize labelSize = m_titleLabel->sizeHint();
+    QSize titleBarHint = labelSize + QSize(4 + labelSize.height() + 8 - 2 + 1, 8);
+
+    if (!m_contentFrame->isHidden())
+    {
+        QSize titleBarMin(0, labelSize.height() + 8);
+        QSize contentsMin(m_contentFrame->sizeHint());
+        QSize total = contentsMin.expandedTo(titleBarMin);
+        total.rheight() += titleBarMin.height();
+        
+        return total;
+    }
+    else
+    {
+        return titleBarHint;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +251,7 @@ QSize QMinimizePanel::minimumSizeHint() const
         QSize contentsMin(m_contentFrame->minimumSizeHint());
         QSize total = contentsMin.expandedTo(titleBarMin);
         total.rheight() +=  titleBarMin.height();
+        
         return total;
     }
     else
@@ -254,7 +281,10 @@ void QMinimizePanel::resizeEvent(QResizeEvent *resizeEv )
     m_contentFrame->setGeometry(0, titleHeight-1, width, heigth - (titleHeight-1));
 }
 
-bool  QMinimizePanel::event(QEvent* event)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool QMinimizePanel::event(QEvent* event)
 {
     if (event->type() == QEvent::LayoutRequest)
     {

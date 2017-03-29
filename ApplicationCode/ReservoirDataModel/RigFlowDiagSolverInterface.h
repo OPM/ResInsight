@@ -41,16 +41,29 @@ public:
                                 const std::string& producerTracerName, 
                                 const std::pair<double, double>& injProdFluxes) ;
 
-    // Use to "steal" the data from this one using swap
-    std::map<RigFlowDiagResultAddress, std::vector<double> >&  nativeResults() { return m_nativeResults; }
+    using Curve = std::pair< std::vector<double>, std::vector<double> >;
+    void setFlowCapStorageCapCurve(const Curve& flCapStCapCurve) { m_flowCapStorageCapCurve = flCapStCapCurve;}
+    void setSweepEfficiencyCurve(const Curve& sweepEffCurve)     { m_sweepEfficiencyCurve = sweepEffCurve; }
+    void setLorenzCoefficient(double coeff)                      { m_lorenzCoefficient = coeff;}
+
+    // Used to "steal" the data from this one using swap
+    std::map<RigFlowDiagResultAddress, std::vector<double> >&                    nativeResults() { return m_nativeResults; }
     std::map<std::pair<std::string, std::string>, std::pair<double, double> > &  injProdWellPairFluxes() { return m_injProdWellPairFluxes; }
+
+    Curve& flowCapStorageCapCurve() { return m_flowCapStorageCapCurve; }
+    Curve& sweepEfficiencyCurve()   { return m_sweepEfficiencyCurve; }
+    double lorenzCoefficient()      { return m_lorenzCoefficient;}
 
 private:
 
     void addResult(const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues);
 
-    std::map<RigFlowDiagResultAddress, std::vector<double> > m_nativeResults;
+    std::map<RigFlowDiagResultAddress, std::vector<double> >                  m_nativeResults;
     std::map<std::pair<std::string, std::string>, std::pair<double, double> > m_injProdWellPairFluxes;
+
+    Curve m_flowCapStorageCapCurve;
+    Curve m_sweepEfficiencyCurve;
+    double m_lorenzCoefficient;
 
     size_t m_activeCellCount;
 };

@@ -282,6 +282,30 @@ bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setCategoriesFromTracerNames(const std::vector<QString>& tracerNames)
+{
+    std::vector<std::pair<QString, int>> tracerNameValuesSorted;
+
+    {
+        std::set<std::pair<QString, int>> tracerNameSet;
+
+        for (size_t i = 0; i < tracerNames.size(); i++)
+        {
+            tracerNameSet.insert(std::make_pair(tracerNames[i], static_cast<int>(i)));
+        }
+
+        for (auto it : tracerNameSet)
+        {
+            tracerNameValuesSorted.push_back(it);
+        }
+    }
+
+    setCategoryNamesAndValues(tracerNameValuesSorted);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateActiveState()
 {
     isActive.uiCapability()->setUiReadOnly(isPropertyFilterControlled());
@@ -337,7 +361,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
             if ( resultDefinition->hasCategoryResult() )
             {
-                setCategoryNames(resultDefinition->flowDiagSolution()->tracerNames());
+                setCategoriesFromTracerNames(resultDefinition->flowDiagSolution()->tracerNames());
             }
         }
     }
@@ -423,7 +447,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 
         if (resultDefinition->hasCategoryResult())
         {
-            setCategoryNames(resultDefinition->flowDiagSolution()->tracerNames());
+            setCategoriesFromTracerNames(resultDefinition->flowDiagSolution()->tracerNames());
         }
     }
 

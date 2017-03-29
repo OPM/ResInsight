@@ -101,6 +101,7 @@ protected:
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                          initAfterRead();
     virtual void                          defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 protected:
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
@@ -122,6 +123,8 @@ protected:
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
+    
+    caf::PdmField<QString>                                          m_selectedTracersUiFieldFilter;
     caf::PdmField<std::vector<QString> >                            m_selectedTracersUiField;
 
 
@@ -136,5 +139,7 @@ private:
     QList<caf::PdmOptionItemInfo>   calcOptionsForVariableUiFieldStandard();
     QStringList                     getResultNamesForCurrentUiResultType();
     static void                     removePerCellFaceOptionItems(QList<caf::PdmOptionItemInfo>& optionItems);
+
+    std::vector<QString>            tracerNamesMatchingFilter() const;
 };
 

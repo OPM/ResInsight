@@ -23,16 +23,20 @@
 #include "RimSummaryPlot.h"
 #include "RimView.h"
 #include "RimViewWindow.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RiuWellAllocationPlot.h"
 #include "RiuWellLogPlot.h"
 
 #include <QAction>
 #include <QClipboard>
 #include <QMdiSubWindow>
+#include "RiuFlowCharacteristicsPlot.h"
+#include "RimFlowCharacteristicsPlot.h"
 
 CAF_CMD_SOURCE_INIT(RicViewZoomAllFeature, "RicViewZoomAllFeature");
 
@@ -62,21 +66,53 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
         if (subwindows.size() > 0)
         {
-            RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
-            if (summaryQwtPlot)
             {
-                RimViewWindow* viewWindow = summaryQwtPlot->ownerPlotDefinition();
+                RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
+                if (summaryQwtPlot)
+                {
+                    RimViewWindow* viewWindow = summaryQwtPlot->ownerPlotDefinition();
 
-                viewWindow->zoomAll();
-                summaryQwtPlot->replot();
+                    viewWindow->zoomAll();
+                    summaryQwtPlot->replot();
+
+                    return;
+                }
             }
 
-            RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
-            if (wellLogPlot)
             {
-                RimViewWindow* viewWindow = wellLogPlot->ownerPlotDefinition();
-                viewWindow->zoomAll();
-                wellLogPlot->update();
+                RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
+                if (wellLogPlot)
+                {
+                    RimViewWindow* viewWindow = wellLogPlot->ownerPlotDefinition();
+                    viewWindow->zoomAll();
+                    wellLogPlot->update();
+
+                    return;
+                }
+            }
+
+            {
+                RiuWellAllocationPlot* wellAllocationPlot = dynamic_cast<RiuWellAllocationPlot*>(subwindows.back()->widget());
+                if (wellAllocationPlot)
+                {
+                    RimWellAllocationPlot* viewWindow = wellAllocationPlot->ownerPlotDefinition();
+                    viewWindow->zoomAll();
+                    wellAllocationPlot->update();
+
+                    return;
+                }
+            }
+
+            {
+                RiuFlowCharacteristicsPlot* flowCharPlot = dynamic_cast<RiuFlowCharacteristicsPlot*>(subwindows.back()->widget());
+                if (flowCharPlot)
+                {
+                    RimFlowCharacteristicsPlot* viewWindow = flowCharPlot->ownerPlotDefinition();
+                    viewWindow->zoomAll();
+                    flowCharPlot->update();
+
+                    return;
+                }
             }
         }
     }

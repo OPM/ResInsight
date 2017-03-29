@@ -86,6 +86,9 @@ public:
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings();
     virtual QString                             timeStepName(int frameIdx);
+    virtual QDateTime                           timeStepDate(int frameIdx);
+    std::vector<QDateTime>                      timeStepDates();
+
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
     virtual cvf::BoundingBox                    allCellsBoundingBox() const;

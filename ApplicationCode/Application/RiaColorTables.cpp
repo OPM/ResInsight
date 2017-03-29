@@ -402,3 +402,30 @@ const caf::ColorTable& RiaColorTables::selectionPaletteColors()
 
     return colorTable;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::ColorTable& RiaColorTables::timestepsPaletteColors()
+{
+    static std::vector<cvf::Color3ub> colors{
+        cvf::Color3ub( 56,  56, 255),   // Vivid Blue
+        cvf::Color3ub(  0, 143, 239),    // Dark Light Blue
+        cvf::Color3ub(  0, 112, 136),   // Dark Green-Blue
+        cvf::Color3ub( 51, 204, 255),   // Bluer Turquoise
+        cvf::Color3ub(  0, 221, 221),   // Turquoise
+        cvf::Color3ub(  0, 205,  68),   // Bluish Green
+        cvf::Color3ub( 78, 204,   0),   // Clear Green
+        cvf::Color3ub(164, 193,   0),   // Mid Yellowish Green
+        cvf::Color3ub(236, 188,   0),   // Mid Yellow
+        cvf::Color3ub(236, 118,   0),   // Orange
+        cvf::Color3ub(202,   0,   0),   // Red
+        cvf::Color3ub(248,   0, 170),   // Magenta
+        cvf::Color3ub(201, 168, 206),   // Light Violet
+        cvf::Color3ub(169,   2, 240),   // Purple
+    };
+
+    static caf::ColorTable colorTable = caf::ColorTable(colors);
+
+    return colorTable;
+}

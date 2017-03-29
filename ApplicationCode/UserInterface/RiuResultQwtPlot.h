@@ -40,8 +40,14 @@ public:
     explicit RiuResultQwtPlot(QWidget* parent = NULL);
     virtual ~RiuResultQwtPlot();
 
-    void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
-    void addCurve(const QString& curveName, const cvf::Color3f& curveColor, const std::vector<double>& frameTimes, const std::vector<double>& timeHistoryValues);
+    void addCurve(const QString& curveName, 
+                  const cvf::Color3f& curveColor, 
+                  const std::vector<QDateTime>& dateTimes, 
+                  const std::vector<double>& timeHistoryValues);
+    void addCurve(const QString& curveName, 
+                  const cvf::Color3f& curveColor, 
+                  const std::vector<double>& frameTimes, 
+                  const std::vector<double>& timeHistoryValues);
     
     void deleteAllCurves();
 
@@ -55,6 +61,5 @@ private:
 
 private:
     std::vector<QwtPlotCurve*>  m_plotCurves;
-    QwtPlotGrid*                m_grid;
 };
 

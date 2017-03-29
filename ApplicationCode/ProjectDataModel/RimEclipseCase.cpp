@@ -602,3 +602,19 @@ QString RimEclipseCase::timeStepName(int frameIdx)
     return date.toString(m_timeStepFormatString);
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RimEclipseCase::timeStepDate(int frameIdx)
+{
+    return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDate(0,frameIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimEclipseCase::timeStepDates() 
+{
+    return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();
+}
