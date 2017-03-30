@@ -100,6 +100,11 @@ void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
     setPdmRoot(RiaApplication::instance()->project());
     restoreTreeViewState();
 
+    if (m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject())
+    {
+        m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
+    }
+
     refreshToolbars();
 }
 

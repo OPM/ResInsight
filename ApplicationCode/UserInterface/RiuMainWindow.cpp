@@ -145,6 +145,11 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     refreshAnimationActions();
     refreshDrawStyleActions();
 
+    if (m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject())
+    {
+        m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
+    }
+
     m_processMonitor->slotClearTextEdit();
 }
 
