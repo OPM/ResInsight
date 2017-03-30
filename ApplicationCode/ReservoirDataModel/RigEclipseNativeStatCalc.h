@@ -20,10 +20,11 @@
 #pragma once
 
 #include "RigStatisticsCalculator.h"
+
+#include "RigCaseCellResultsData.h"
 #include "RigActiveCellInfo.h"
 
 class RigHistogramCalculator;
-class RigCaseCellResultsData;
 
 //==================================================================================================
 /// 
