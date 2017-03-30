@@ -55,6 +55,13 @@ private:
     void traverseCells(StatisticsAccumulator& accumulator, size_t timeStepIndex)
     {
         std::vector<double>& values = m_caseData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+
+        if (values.empty())
+        {
+            // Can happen if values do not exist for the current time step index.
+            return;
+        }
+
         const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
         size_t cellCount = actCellInfo->reservoirCellCount();
 
@@ -70,7 +77,10 @@ private:
 				cellResultIndex = actCellInfo->cellResultIndex(cIdx);
 			}
 
-            if (cellResultIndex != cvf::UNDEFINED_SIZE_T) accumulator.addValue(values[cellResultIndex]);
+            if (cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < values.size())
+            {
+                accumulator.addValue(values[cellResultIndex]);
+            }
         }
     }
 
