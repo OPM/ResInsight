@@ -63,6 +63,9 @@ void RimFlowPlotCollection::closeDefaultPlotWindowAndDeletePlots()
         m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
         delete m_defaultWellAllocPlot();
     }
+    
+    delete m_flowCharacteristicsPlot;
+
     m_storedWellAllocPlots.deleteAllChildObjects();
 }
 
