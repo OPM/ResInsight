@@ -187,8 +187,8 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 
         out << qSetFieldWidth(10);
         out << "cellIndex";
-        out << "Aritm. ";
-        out << "Harm. ";
+        out << "condHA. ";
+        out << "condAH. ";
 
         out << "\n";
 
@@ -218,8 +218,8 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 
             out << qSetFieldWidth(10);
             out << fracData.reservoirCellIndex;
-            out << QString::number(fracData.upscaledAritmStimPlanValue, 'f', 3);
-            out << QString::number(fracData.upscaledHarmStimPlanValue, 'f', 3);
+            out << QString::number(fracData.upscaledStimPlanValueHA, 'f', 3);
+            out << QString::number(fracData.upscaledStimPlanValueAH, 'f', 3);
 
             out << "\n";
         }

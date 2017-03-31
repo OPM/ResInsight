@@ -63,12 +63,16 @@ public:
     static std::vector<RigStimPlanCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanCell*> allStimPlanCells, size_t i);
     static std::vector<RigStimPlanCell*>    getColOfStimPlanCells(std::vector<RigStimPlanCell*> allStimPlanCells, size_t j);
 
+private: 
+    double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
 
 private:
     RimEclipseCase*         m_case;
     RimFracture*            m_fracture;
     RimDefines::UnitSystem  m_unitForCalculation;
 
-    double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
+    //TODO: Legge til rigFractureData vektor her... 
+    //TODO: Funksjoner for å sette / hente data basert på celleindex
+
 };
 

@@ -801,17 +801,17 @@ std::vector<RigStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(cons
     std::vector<double> depthCoords;
     for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
 
-    for (int i = 0; i < xCoords.size() - 1; i++)
+    for (int j = 0; j < xCoords.size() - 1; j++)
     {
-        for (int j = 0; j < depthCoords.size() - 1; j++)
+        for (int i = 0; i < depthCoords.size() - 1; i++)
         {
             std::vector<cvf::Vec3d> cellPolygon;
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j + 1]), static_cast<float>(depthCoords[i]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j + 1]), static_cast<float>(depthCoords[i + 1]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i + 1]), 0.0));
 
-            RigStimPlanCell* stimPlanCell = new RigStimPlanCell(cellPolygon, propertyValuesAtTimeStep[j + 1][i + 1], i, j);
+            RigStimPlanCell* stimPlanCell = new RigStimPlanCell(cellPolygon, propertyValuesAtTimeStep[i + 1][j + 1], i, j);
             stimPlanCells.push_back(stimPlanCell);
         }
     }

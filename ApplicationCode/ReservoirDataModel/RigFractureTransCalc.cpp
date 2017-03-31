@@ -351,12 +351,13 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 
     cvf::Vec3d directionAcrossLayers;
     cvf::Vec3d directionAlongLayers;
-    //TODO: Get these vectors properly...
-    directionAcrossLayers = cvf::Vec3d(0, -1, 0);
-    directionAlongLayers = cvf::Vec3d(1, 0, 0);
+    directionAcrossLayers = cvf::Vec3d(0.0, -1.0, 0.0);
+    directionAlongLayers = cvf::Vec3d(1.0, 0.0, 0.0);
 
-    directionAcrossLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
-    directionAlongLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+    //TODO: Rotate if dip, tilt != 0 Or is this already handled when transforming to frature plane???
+
+    //directionAcrossLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+    //directionAlongLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
 
     std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
     std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
@@ -427,7 +428,8 @@ double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracT
             DcolSum.push_back(sumDi);
             double lAvgValue = sumLiDi / sumDi;
             lavgCol.push_back(lAvgValue);
-            CondHarmCol.push_back(1 / (sumLiDi*sumDiDivCondLi));
+            double harmMeanForCol = (sumDi / lAvgValue) * (1 / sumDiDivCondLi);
+            CondHarmCol.push_back(harmMeanForCol); 
         }
     }
 
@@ -577,13 +579,13 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
             
         std::pair<double, double> upscaledCondFlowAcrossLayers = flowAcrossLayersUpscaling(resultName, resultUnit, timeStepIndex, m_unitForCalculation, fracCell);
                 
-        double upscaledAritmStimPlanValue = upscaledCondFlowAcrossLayers.first;
-        double upscaledHarmStimPlanValue = upscaledCondFlowAcrossLayers.second;
+        double upscaledStimPlanValueHA = upscaledCondFlowAcrossLayers.first;
+        double upscaledStimPlanValueAH = upscaledCondFlowAcrossLayers.second;
         
-        if (upscaledAritmStimPlanValue != cvf::UNDEFINED_DOUBLE)
+        if (upscaledStimPlanValueHA != cvf::UNDEFINED_DOUBLE)
         {
-            fracData.upscaledAritmStimPlanValue = upscaledAritmStimPlanValue;
-            fracData.upscaledHarmStimPlanValue = upscaledHarmStimPlanValue;
+            fracData.upscaledStimPlanValueHA = upscaledStimPlanValueHA;
+            fracData.upscaledStimPlanValueAH = upscaledStimPlanValueAH;
 
             fracDataVec.push_back(fracData);
         }
