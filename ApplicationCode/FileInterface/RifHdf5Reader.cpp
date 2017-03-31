@@ -158,9 +158,14 @@ QStringList RifHdf5Reader::propertyNames() const
 
 	if (m_fileStrategy != 1) return propNames;          // NB: currently incapable of handling all results in one sourres file
 
-	std::string fileName = m_timeStepFileNames[0];      // assume the result variables to be identical across time steps => extract names from first time step file 
+    if (m_timeStepFileNames.empty())
+    {
+        RiaLogging::error(QString("Failed to read properties. Transient data does not exist."));
+        return propNames;
+    }
 
-	std::string groupName = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName) + "/GridFunctions/GridPart_00000";
+    std::string fileName  = m_timeStepFileNames[0];      // assume the result variables to be identical across time steps => extract names from first time step file 
+    std::string groupName = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName) + "/GridFunctions/GridPart_00000";
 
 	try 
 	{
