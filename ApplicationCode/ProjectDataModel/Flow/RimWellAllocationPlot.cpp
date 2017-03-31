@@ -175,7 +175,11 @@ void RimWellAllocationPlot::updateFromWell()
 
     CVF_ASSERT(accumulatedWellFlowPlot()->trackCount() == 0);
 
-    accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
+    QString description;
+    if (m_flowType() == ACCUMULATED)  description = "Accumulated Flow";
+    if (m_flowType() == INFLOW)  description = "Inflow Rates";
+
+    accumulatedWellFlowPlot()->setDescription(description + " (" + m_wellName + ")");
 
     if (!m_case) return;
 
@@ -296,8 +300,8 @@ void RimWellAllocationPlot::updateFromWell()
 
     QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
     
-    QString flowTypeText = m_flowType().uiText();
-    setDescription(flowTypeText + " : " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
+    QString flowTypeText = m_flowDiagSolution() ? "Well Allocation": "Well Flow";
+    setDescription(flowTypeText + ": " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
  
     /// Pie chart
 
