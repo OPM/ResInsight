@@ -81,6 +81,7 @@ private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    buildCellSearchTree();
+    bool                                    hasFaultWithName(const QString& name) const;
 
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
