@@ -208,7 +208,16 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QStrin
     {
         if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
         {
-            QString fileName = viewWindow->userDescriptionField()->uiCapability()->uiValue().toString();
+            QString fileName;
+            if ( viewWindow->userDescriptionField())
+            {
+                fileName = viewWindow->userDescriptionField()->uiCapability()->uiValue().toString();
+            }
+            else
+            {
+                fileName = viewWindow->uiCapability()->uiName();
+            }
+
             fileName = caf::Utils::makeValidFileBasename(fileName);
 
             QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
