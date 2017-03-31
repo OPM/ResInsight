@@ -577,7 +577,7 @@ QStringList RimEclipseCase::timeStepStrings()
 QString RimEclipseCase::timeStepName(int frameIdx)
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
-    CVF_ASSERT(frameIdx < timeStepDates.size());
+    CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
 
     if (m_timeStepFormatString.isEmpty())
     {
