@@ -57,6 +57,12 @@ public:
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
+protected:
+    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+private:
+    void                        loadAndUpdateSourSimData();
+
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
@@ -77,4 +83,5 @@ private:
 
     bool                        m_gridAndWellDataIsReadFromFile;
     bool                        m_activeCellInfoIsReadFromFile;
+
 };

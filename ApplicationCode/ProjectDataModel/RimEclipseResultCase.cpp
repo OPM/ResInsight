@@ -39,6 +39,7 @@
 #include "RigFlowDiagSolverInterface.h"
 
 #include "cafPdmSettings.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 
@@ -71,7 +72,7 @@ RimEclipseResultCase::RimEclipseResultCase()
     //flipYAxis.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_sourSimFileName, "SourSimFileName", QString(), "SourSim File Name", "", "", "");
-    //m_sourSimFileName.uiCapability()->setUiReadOnly(true);
+    m_sourSimFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -207,6 +208,20 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
     m_activeCellInfoIsReadFromFile = true;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::loadAndUpdateSourSimData()
+{
+    if (!results(RifReaderInterface::MATRIX_RESULTS)) return;
+
+    RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(results(RifReaderInterface::MATRIX_RESULTS)->readerInterface());
+    if (rifReaderOutput)
+    {
+        rifReaderOutput->setHdf5FileName(m_sourSimFileName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -421,11 +436,7 @@ void RimEclipseResultCase::setSourSimFileName(const QString& fileName)
 {
     m_sourSimFileName = fileName;
 
-    RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(results(RifReaderInterface::FRACTURE_RESULTS)->readerInterface());
-    if (rifReaderOutput)
-    {
-        rifReaderOutput->setHdf5FileName(fileName);
-    }
+    loadAndUpdateSourSimData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,5 +464,18 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add(&caseUserDescription);
     uiOrdering.add(&caseId);
     uiOrdering.add(&caseFileName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_sourSimFileName)
+    {
+        loadAndUpdateSourSimData();
+    }
+
+    return RimEclipseCase::fieldChangedByUi(changedField, oldValue, newValue);
 }
 

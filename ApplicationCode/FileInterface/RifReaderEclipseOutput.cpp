@@ -454,12 +454,27 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
     CVF_ASSERT(matrixModelResults);
 
+    RiaLogging::info(QString("HDF: Start import of data from : ").arg(fileName));
+
+    RiaLogging::info("HDF: Removing all existing Sour Sim data ...");
+    matrixModelResults->eraseAllSourSimData();
+
+    if (m_dynamicResultsAccess.isNull())
+    {
+        m_timeSteps.clear();
+    }
+
     std::unique_ptr<RifHdf5ReaderInterface> myReader;
 #ifdef USE_HDF5
     myReader = std::unique_ptr<RifHdf5ReaderInterface>(new RifHdf5Reader(fileName));
 #endif // USE_HDF5
 
-    if (!myReader) return;
+    if (!myReader)
+    {
+        RiaLogging::error("HDF: Failed to import Sour Sim data ");
+
+        return;
+    }
 
     std::vector<QDateTime> hdfTimeSteps = myReader->timeSteps();
     if (m_timeSteps.size() > 0)
@@ -505,6 +520,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     {
         size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, resultNames[i], false);
         matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
+        matrixModelResults->setSourSimData(resIndex);
     }
 
     m_hdfReaderInterface = std::move(myReader);
