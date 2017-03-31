@@ -18,30 +18,44 @@
 
 #include "RifHdf5Reader.h"
 
-#include <QStringList>
-#include <QDateTime>
+#include "RiaLogging.h"
 
 #include "H5Cpp.h"
-#include <H5Exception.h>
-#include "QDir"
+#include "H5Exception.h"
 
 #include "cvfAssert.h"
+#include "cvfMath.h"
+
+#include <QStringList>
+#include <QDateTime>
+#include <QDir>
 
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// May reduce constructor content upon discussion of overlying framework. 
+///
 ///std::string dateString = getStringAttribute(file, "/KaseStudy/TransientSections", "initial_date");
 ///QDateTime initalDateTime = sourSimDateTimeToQDateTime(dateString);   // may rearrange/change to be a call in timeSteps()
 //--------------------------------------------------------------------------------------------------
 RifHdf5Reader::RifHdf5Reader(const QString& fileName)
-    : m_fileName(fileName)
+    : m_fileName(fileName), m_fileStrategy(0)
 {
-	H5::H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);     // evt fileName.toLatin1().data()
+	try
+	{
+		H5::H5File file(fileName.toStdString().c_str(), H5F_ACC_RDONLY);     // evt fileName.toLatin1().data()
 
-	int fileStrategy = getIntAttribute(file, "/", "file_strategy");		 // fileStrategy == 1 means one time step per file
+		m_fileStrategy = getIntAttribute(file, "/", "file_strategy");		 // fileStrategy == 1 means one time step per file
 
-	m_timeStepFiles = getSourSimTimeStepFiles(fileName);
+		if (m_fileStrategy == 1)
+		{
+			m_timeStepFileNames = getSourSimTimeStepFileNames(fileName);
+		}
+	}
+
+	catch (...)		// catch any failure
+	{
+	}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +63,6 @@ RifHdf5Reader::RifHdf5Reader(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 RifHdf5Reader::~RifHdf5Reader()
 {
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,17 +70,19 @@ RifHdf5Reader::~RifHdf5Reader()
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5Reader::dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) const
 {
-    QStringList props = propertyNames();
+	if (m_fileStrategy != 1) return false;	// NB: currently incapable of handling all results in one sourres file
 
-	QStringList::iterator it = std::find(props.begin(), props.end(), result);
-
-	int propIdx = (it != props.end()) ? it - props.begin() : 0;      // index to 'result' in QStringList props (usually size_t but int gave no warning)
-	
 	try
 	{
+		QStringList props = propertyNames();
+
+		QStringList::iterator it = std::find(props.begin(), props.end(), result);
+
+		int propIdx = (it != props.end()) ? it - props.begin() : 0;      // index to 'result' in QStringList props (usually size_t but int gave no warning)
+	
 		H5::Exception::dontPrint();								     // Turn off auto-printing of failures to handle the errors appropriately
 
-		std::string fileName      = m_timeStepFiles[stepIndex];       
+		std::string fileName      = m_timeStepFileNames[stepIndex];       
 		std::string timeStepGroup = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName);
 
 		H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
@@ -81,83 +96,92 @@ bool RifHdf5Reader::dynamicResult(const QString& result, size_t stepIndex, std::
 
 	catch (...)		// catch any failure
 	{
+		RiaLogging::error(QString("Failed to read SourSimRL dynamic results"));
+
 		return false;
 	}
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Qt alternative fileName.toLatin1().data()
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 {
-	try 
+	std::vector<QDateTime> times;
+
+	if (m_fileStrategy != 1) return times;										// NB: currently incapable of handling all results in one sourres file
+
+	try
 	{
-		H5::H5File mainFile(m_fileName.toStdString().c_str(), H5F_ACC_RDONLY);     // initial date part is an attribute of SourSimRL main file [Qt alternative fileName.toLatin1().data()]
+		H5::H5File mainFile(m_fileName.toStdString().c_str(), H5F_ACC_RDONLY);		// initial date part is an attribute of SourSimRL main file
 
 		std::string dateString = getStringAttribute(mainFile, "/KaseStudy/TransientSections", "initial_date");
 
-		std::vector<QDateTime> times;
 
 		QDateTime dtInitial = sourSimDateTimeToQDateTime(dateString);
 
-		for (size_t i = 0; i < m_timeStepFiles.size(); i++)
+		for (size_t i = 0; i < m_timeStepFileNames.size(); i++)
 		{
-			std::string fileName      = m_timeStepFiles[i];
+			std::string fileName      = m_timeStepFileNames[i];
 			std::string timeStepGroup = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName);
 
 			H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
 
 			double timeStepValue = getDoubleAttribute(file, timeStepGroup, "timestep");				// Assumes only one time step per file
-			int	   timeStepDays  = (int)timeStepValue;												// NB: open question: unit of SourSimRL time step values, days?
+			int	   timeStepDays  = cvf::Math::floor(timeStepValue);									// NB: open question: unit of SourSimRL time step values, days?
 
 			QDateTime dt = dtInitial;
 
-			times.push_back(dt.addDays(timeStepDays));															// NB: open question: unit of SourSimRL time step values, days?
+			times.push_back(dt.addDays(timeStepDays));												// NB: open question: unit of SourSimRL time step values, days?
 		}
-
-		return times;
 	}
 
 	catch (...)		// catch any failure
 	{
-		std::vector<QDateTime> no_times;
+		times.clear();
 
-		return no_times;
+		RiaLogging::error(QString("Failed to read SourSimRL time steps"));
 	}
+
+	return times;
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//std::string groupName = "/Timestep_00001/GridFunctions/GridPart_00000";
-//--------------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
+/// Result variables of first timestep listed by HDF5 subgroups to the following base group: 
+/// "/Timestep_00001/GridFunctions/GridPart_00000"
+/// According to sourres file description, it seems safe to assume equal presence for all time steps.
+//---------------------------------------------------------------------------------------------------
 QStringList RifHdf5Reader::propertyNames() const
 {
+	QStringList propNames;
+
+	if (m_fileStrategy != 1) return propNames;          // NB: currently incapable of handling all results in one sourres file
+
+	std::string fileName = m_timeStepFileNames[0];      // assume the result variables to be identical across time steps => extract names from first time step file 
+
+	std::string groupName = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName) + "/GridFunctions/GridPart_00000";
+
 	try 
 	{
-		QStringList propNames;
-
-		std::string fileName = m_timeStepFiles[0];		 // assume the result variables to be identical across time steps => extract names from first time step file 
-
-		std::string groupName = "/Timestep_" + getTimeStepNumberAs5DigitString(fileName) + "/GridFunctions/GridPart_00000";
-
 		H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
 
 		std::vector<std::string> resultNames = getResultNames(file, groupName);
 
-		for (std::vector<std::string>::iterator it = resultNames.begin(); it != resultNames.end(); it++)
+        for (const std::string& s : resultNames)
 		{
-			propNames.push_back(it->c_str());
+			propNames.push_back(s.c_str());
 		}
-
-		return propNames;
 	}
 
 	catch (...)		// catch any failure
 	{
-		QStringList no_propNames;
-		return no_propNames;
+		propNames.clear();
+
+		RiaLogging::error(QString("Failed to read properties from file : '%1'").arg(fileName.c_str()));
 	}
+
+	return propNames;
 }
 
 
@@ -175,7 +199,7 @@ QStringList RifHdf5Reader::propertyNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifHdf5Reader::getSourSimTimeStepFiles(const QString& fileName) const
+std::vector<std::string> RifHdf5Reader::getSourSimTimeStepFileNames(const QString& fileName) const
 {
 	QFileInfo fi(fileName);
 	QString name = fi.fileName();
@@ -403,7 +427,7 @@ std::vector<std::string> RifHdf5Reader::getResultNames(H5::H5File file, std::str
 
 	for (std::vector<std::string>::iterator it = subGroupNames.begin(); it != subGroupNames.end(); it++)
 	{
-		std::string groupName = baseGroupName + "/" + *it;						// NB: possibly dangerous to hardcode separator /  (should use Qt separator?)
+		std::string groupName = baseGroupName + "/" + *it;
 
 		std::string name = getStringAttribute(file, groupName, "name");
 

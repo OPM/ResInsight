@@ -40,7 +40,7 @@ public:
     bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) const override;
 
 private:
-	std::vector<std::string> getSourSimTimeStepFiles(const QString& fileName) const;
+	std::vector<std::string> getSourSimTimeStepFileNames(const QString& fileName) const;
 	QDateTime                sourSimDateTimeToQDateTime(std::string dateString) const;
 
 	std::string              getTimeStepNumberAs5DigitString(std::string fileName) const;
@@ -56,7 +56,7 @@ private:
 	void                     getElementResultValues(H5::H5File file, std::string groupName, std::vector<double>* resultValues) const;
 
 private:
-    QString m_fileName;       // name of SourSimRL main file given by user
-
-	std::vector<std::string> m_timeStepFiles;     // files containing transient SourSimRL results, one time step per file
+    QString					 m_fileName;       // name of SourSimRL main file given by user
+	int						 m_fileStrategy;   // SourSimRL file strategy, fileStrategy == 1 means one time step per file  
+	std::vector<std::string> m_timeStepFileNames;  // files containing transient SourSimRL results, one time step per file
 };
