@@ -36,6 +36,7 @@
 #include "RiaColorTables.h"
 #include "qwt_plot_zoneitem.h"
 #include "qwt_date.h"
+#include "RiuQwtPlotZoomer.h"
 
 
 
@@ -86,7 +87,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
 
 void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
 {
-    auto zoomer = new QwtPlotZoomer(plot->canvas());
+    auto zoomer = new RiuQwtPlotZoomer(plot->canvas());
     zoomer->setRubberBandPen(QColor(Qt::black));
     zoomer->setTrackerMode(QwtPicker::AlwaysOff);
     zoomer->setTrackerPen(QColor(Qt::black));

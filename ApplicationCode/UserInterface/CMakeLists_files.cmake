@@ -23,6 +23,7 @@ ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
