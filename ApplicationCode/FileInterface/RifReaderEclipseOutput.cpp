@@ -27,6 +27,7 @@
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderOpmParserInput.h"
+#include "RifHdf5ReaderInterface.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5Reader.h"
