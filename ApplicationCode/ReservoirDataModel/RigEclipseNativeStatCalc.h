@@ -58,8 +58,9 @@ private:
         }
 
         const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
+        size_t cellCount = actCellInfo->reservoirCellCount();
 
-        for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+        for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
         {
             // Filter out inactive cells
             if (!actCellInfo->isActive(cIdx)) continue;
