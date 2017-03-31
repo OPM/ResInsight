@@ -72,7 +72,6 @@ public:
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
-    RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
 
     void                tileWindows();
     bool                isAnyMdiSubWindowVisible();

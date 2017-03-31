@@ -96,14 +96,7 @@ public:
     RimView*                activeReservoirView();
     const RimView*          activeReservoirView() const;
 
-    void                    setActiveWellLogPlot(RimWellLogPlot*);
-    RimWellLogPlot*         activeWellLogPlot();
-
-    void                    setActiveSummaryPlot(RimSummaryPlot*);
-    RimSummaryPlot*         activeSummaryPlot();
-
-    void                    setActiveWellAllocationPlot(RimWellAllocationPlot*);
-    RimWellAllocationPlot*  activeWellAllocationPlot();
+    RimViewWindow*          activePlotWindow() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -228,9 +221,6 @@ private slots:
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
-    caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
-    caf::PdmPointer<RimSummaryPlot>     m_activeSummaryPlot;
-    caf::PdmPointer<RimWellAllocationPlot> m_activeWellAllocationPlot;
 
     caf::PdmPointer<RimProject>         m_project;
 

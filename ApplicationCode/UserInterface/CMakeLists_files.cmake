@@ -53,6 +53,7 @@ ${CEE_CURRENT_LIST_DIR}RiuCursors.cpp
 ${CEE_CURRENT_LIST_DIR}RiuDragDrop.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFemResultTextBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGeoQuestNavigation.cpp
+${CEE_CURRENT_LIST_DIR}RiuInterfaceToViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RiuLineSegmentQwtPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.cpp

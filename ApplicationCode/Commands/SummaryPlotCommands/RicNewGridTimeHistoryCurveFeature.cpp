@@ -101,7 +101,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
         if (!defaultSelectedPlot)
         {
-            defaultSelectedPlot = RiaApplication::instance()->activeSummaryPlot();
+            defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>( RiaApplication::instance()->activePlotWindow() );
         }
 
         if (!defaultSelectedPlot && summaryPlotColl->summaryPlots().size() > 0)

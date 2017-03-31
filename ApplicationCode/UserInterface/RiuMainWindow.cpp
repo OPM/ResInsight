@@ -1640,30 +1640,10 @@ RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
     {
-        return windowGeometryForWidget(mdiWindow);
+        return RiuMdiSubWindow::windowGeometryForWidget(mdiWindow);
     }
 
     RimMdiWindowGeometry geo;
-    return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindow::windowGeometryForWidget(QWidget* widget)
-{
-    RimMdiWindowGeometry geo;
-
-    if (widget)
-    {
-        geo.mainWindowID = 0;
-        geo.x = widget->pos().x();
-        geo.y = widget->pos().y();
-        geo.width = widget->size().width();
-        geo.height = widget->size().height();
-        geo.isMaximized = widget->isMaximized();
-    }
-
     return geo;
 }
 

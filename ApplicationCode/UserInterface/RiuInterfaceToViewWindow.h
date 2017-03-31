@@ -19,6 +19,7 @@
 #pragma once
 
 class RimViewWindow;
+class QWidget;
 
 //==================================================================================================
 //
@@ -29,5 +30,6 @@ class RiuInterfaceToViewWindow
 {
 public:
     virtual RimViewWindow* ownerViewWindow() const = 0;
+    static RimViewWindow* viewWindowFromWidget( QWidget* possibleViewWindowWidget);
 };
 
