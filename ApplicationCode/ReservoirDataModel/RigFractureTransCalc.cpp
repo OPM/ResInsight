@@ -332,7 +332,7 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 //     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
 
 
-    cvf::Vec3d localX;
+    cvf::Vec3d localX; //NOt used in this calculation...
     cvf::Vec3d localY;
     cvf::Vec3d localZ;
     std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
@@ -365,9 +365,19 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
     std::vector<double> upscaledConductivitiesHA;
     std::vector<double> upscaledConductivitiesAH;
 
-    //Harmonic weighted mean
     for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
     {
+//         //For debug only, to compare with results in Excel: 
+//         std::vector<cvf::Vec3d> planeCellPolygonHacked;
+//         if (eclipseCellIndex == 134039)
+//         {
+//             planeCellPolygonHacked.push_back(cvf::Vec3d(-12.0, -3.5, 0.0));
+//             planeCellPolygonHacked.push_back(cvf::Vec3d(12.0, -3.5, 0.0));
+//             planeCellPolygonHacked.push_back(cvf::Vec3d(12.0, 19.0, 0.0));
+//             planeCellPolygonHacked.push_back(cvf::Vec3d(-12.0, 19.0, 0.0));
+//             planeCellPolygon = planeCellPolygonHacked;
+//         }
+
         double condHA = computeHAupscale(fracTemplateStimPlan, stimPlanCells, planeCellPolygon, directionAlongLayers, directionAcrossLayers);
         upscaledConductivitiesHA.push_back(condHA);
 
@@ -454,17 +464,17 @@ double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracT
 //--------------------------------------------------------------------------------------------------
 double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell *> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
 {
-    std::vector<double> DcolAvg;
-    std::vector<double> liColSum;
-    std::vector<double> CondAritCol;
+    std::vector<double> DrowAvg;
+    std::vector<double> liRowSum;
+    std::vector<double> CondAritRow;
     
-    for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfColums(); j++)
+    for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows(); j++)
     {
         std::vector<double> conductivitiesInStimPlanCells;
         std::vector<double> lengthsLiOfStimPlanCol;
         std::vector<double> heightsDiOfStimPlanCells;
 
-        std::vector<RigStimPlanCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
+        std::vector<RigStimPlanCell*> stimPlanCellsCol = getRowOfStimPlanCells(stimPlanCells, j);
         for (RigStimPlanCell* stimPlanCell : stimPlanCellsCol)
         {
             if (stimPlanCell->getValue() > 1e-7)
@@ -498,9 +508,9 @@ double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracT
         {
             //Calculating art avg
             double dAvg = sumLiDi / sumLi;
-            DcolAvg.push_back(dAvg);
-            liColSum.push_back(sumLi);
-            CondAritCol.push_back(dAvg / sumLi * sumCondLiDivDi);
+            DrowAvg.push_back(dAvg);
+            liRowSum.push_back(sumLi);
+            CondAritRow.push_back(dAvg / sumLi * sumCondLiDivDi);
         }
     }
 
@@ -508,11 +518,11 @@ double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracT
     double sumDiDivCondALi = 0.0;
     double sumDi = 0.0;
     double sumDiLi = 0.0;
-    for (int i = 0; i < CondAritCol.size(); i++)
+    for (int i = 0; i < CondAritRow.size(); i++)
     {
-        sumDi += DcolAvg[i];
-        sumDiLi += DcolAvg[i] * liColSum[i];
-        sumDiDivCondALi += DcolAvg[i] / (CondAritCol[i] * liColSum[i]);
+        sumDi += DrowAvg[i];
+        sumDiLi += DrowAvg[i] * liRowSum[i];
+        sumDiDivCondALi += DrowAvg[i] / (CondAritRow[i] * liRowSum[i]);
 
     }
     double Lavg = sumDiLi / sumDi;
