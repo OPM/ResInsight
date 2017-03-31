@@ -622,6 +622,33 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setSourSimData(size_t scalarResultIndex)
+{
+    CVF_ASSERT(scalarResultIndex < m_resultInfos.size());
+
+    m_resultInfos[scalarResultIndex].m_isSourSimData = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::eraseAllSourSimData()
+{
+    std::vector<size_t> sourSimIndices;
+
+    for (size_t i = 0; i < m_resultInfos.size(); i++)
+    {
+        ResultInfo& ri = m_resultInfos[i];
+        if (ri.m_isSourSimData)
+        {
+            ri.m_resultType = RimDefines::REMOVED;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
     // SOIL

@@ -109,7 +109,13 @@ public:
     {
     public:
         ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
-            : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex), m_mustBeCalculated(mustBeCalculated) { }
+            : m_resultType(resultType),
+            m_needsToBeStored(needsToBeStored), 
+            m_resultName(resultName), 
+            m_gridScalarResultIndex(gridScalarResultIndex), 
+            m_mustBeCalculated(mustBeCalculated),
+            m_isSourSimData(false)
+        { }
 
     public:
         RimDefines::ResultCatType   m_resultType;
@@ -119,12 +125,15 @@ public:
         size_t                      m_gridScalarResultIndex;
         std::vector<QDateTime>      m_timeStepDates;
         std::vector<int>            m_timeStepReportNumbers;
+        bool                        m_isSourSimData;
     };
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
 
     bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
     void                                                    setMustBeCalculated(size_t scalarResultIndex);
+    void                                                    setSourSimData(size_t scalarResultIndex);
+    void                                                    eraseAllSourSimData();
 
     
 public:
