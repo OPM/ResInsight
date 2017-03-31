@@ -109,6 +109,14 @@ RimSummaryPlot* RiuSummaryQwtPlot::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::currentVisibleWindow(QwtInterval* leftAxis, QwtInterval* rightAxis, QwtInterval* timeAxis) const
 {
     *leftAxis  = axisScaleDiv(yLeft).interval();

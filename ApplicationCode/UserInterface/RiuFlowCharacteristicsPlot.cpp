@@ -225,6 +225,14 @@ RimFlowCharacteristicsPlot* RiuFlowCharacteristicsPlot::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuFlowCharacteristicsPlot::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QSize RiuFlowCharacteristicsPlot::minimumSizeHint() const
 {
     return QSize(0, 100);

@@ -24,6 +24,7 @@
 
 #include <QPointer>
 #include <QFrame>
+#include "RiuInterfaceToViewWindow.h"
 
 class RimFlowCharacteristicsPlot;
 class RiuNightchartsWidget;
@@ -41,7 +42,7 @@ namespace cvf {
 //
 //
 //==================================================================================================
-class RiuFlowCharacteristicsPlot : public QFrame
+class RiuFlowCharacteristicsPlot : public QFrame, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
@@ -56,6 +57,7 @@ public:
     void zoomAll();
 
     RimFlowCharacteristicsPlot*     ownerPlotDefinition();
+    virtual RimViewWindow*          ownerViewWindow() const override;
 
     static void                        addWindowZoom(QwtPlot* plot);
     static RiuLineSegmentQwtPlotCurve* createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor);

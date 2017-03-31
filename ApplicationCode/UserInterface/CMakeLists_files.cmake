@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RiuCursors.h
 ${CEE_CURRENT_LIST_DIR}RiuDragDrop.h
 ${CEE_CURRENT_LIST_DIR}RiuFemResultTextBuilder.h
 ${CEE_CURRENT_LIST_DIR}RiuGeoQuestNavigation.h
+${CEE_CURRENT_LIST_DIR}RiuInterfaceToViewWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuLineSegmentQwtPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.h

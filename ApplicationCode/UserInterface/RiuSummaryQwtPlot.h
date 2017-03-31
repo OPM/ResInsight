@@ -22,6 +22,7 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
+#include "RiuInterfaceToViewWindow.h"
 
 class QwtPlotCurve;
 class QwtPlotGrid;
@@ -37,7 +38,7 @@ class RimSummaryPlot;
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public QwtPlot
+class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
@@ -45,6 +46,7 @@ public:
     virtual ~RiuSummaryQwtPlot();
 
     RimSummaryPlot*                 ownerPlotDefinition();
+    virtual RimViewWindow*          ownerViewWindow() const override;
 
     void                            useDateBasedTimeAxis();
     void                            useTimeBasedTimeAxis();
