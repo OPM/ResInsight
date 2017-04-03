@@ -24,7 +24,6 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifReaderOpmParserInput.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -391,7 +390,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     {
         cvf::Collection<RigFault> faults;
 
-        //importFaultsOpmParser(fileSet, &faults);
         importFaults(fileSet, &faults);
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
@@ -436,20 +434,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     progInfo.incrementProgress();
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const
-{
-    foreach(QString fname, fileSet)
-    {
-        if (fname.endsWith(".DATA"))
-        {
-            RifReaderOpmParserInput::readFaults(fname, faults);
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
