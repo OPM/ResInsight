@@ -423,14 +423,18 @@ void RimEclipseView::createDisplayModel()
 */
     // Well path model
 
-    RigMainGrid* mainGrid = this->mainGrid();
 
     m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel(m_wellPathPipeVizModel.p(),
-                        mainGrid->displayModelOffset(),
-                        mainGrid->characteristicIJCellSize(),
-                        currentActiveCellInfo()->geometryBoundingBox(),
-                        m_reservoirGridPartManager->scaleTransform());
+
+    RigMainGrid* mainGrid = this->mainGrid();
+    if (mainGrid)
+    {
+        addWellPathsToModel(m_wellPathPipeVizModel.p(),
+            mainGrid->displayModelOffset(),
+            mainGrid->characteristicIJCellSize(),
+            currentActiveCellInfo()->geometryBoundingBox(),
+            m_reservoirGridPartManager->scaleTransform());
+    }
 
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
