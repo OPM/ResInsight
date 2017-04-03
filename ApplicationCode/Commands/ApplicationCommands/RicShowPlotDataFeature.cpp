@@ -31,13 +31,143 @@
 #include <QBoxLayout>
 #include <QClipboard>
 #include <QMenu>
-#include <QPlainTextEdit>
+
 
 CAF_CMD_SOURCE_INIT(RicShowPlotDataFeature, "RicShowPlotDataFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+/// 
+///  RiuQPlainTextEdit
+/// 
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuQPlainTextEdit::keyPressEvent(QKeyEvent *e)
+{
+    if ( e->key() == Qt::Key_C && e->modifiers() == Qt::ControlModifier )
+    {
+        slotCopyContentToClipboard();
+        e->setAccepted(true);
+    }
+    else
+    {
+        QPlainTextEdit::keyPressEvent(e);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuQPlainTextEdit::slotCopyContentToClipboard()
+{
+    QTextCursor cursor(this->textCursor());
+
+    QString textForClipboard;
+
+    QString selText = cursor.selectedText();
+    if (!selText.isEmpty())
+    {
+        QTextDocument doc;
+        doc.setPlainText(selText);
+
+        textForClipboard = doc.toPlainText();
+    }
+
+    if (textForClipboard.isEmpty())
+    {
+        textForClipboard = this->toPlainText();
+    }
+
+    if (!textForClipboard.isEmpty())
+    {
+        QClipboard* clipboard = QApplication::clipboard();
+        if (clipboard)
+        {
+            clipboard->setText(textForClipboard);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuQPlainTextEdit::slotSelectAll()
+{
+    this->selectAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+/// 
+/// RicTextWidget
+/// 
+/// 
+//--------------------------------------------------------------------------------------------------
+RicTextWidget::RicTextWidget(QWidget* parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint)
+{
+    m_textEdit = new RiuQPlainTextEdit(this);
+    m_textEdit->setReadOnly(true);
+    m_textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
+
+    QFont font("Courier", 8);
+    m_textEdit->setFont(font);
+
+    m_textEdit->setContextMenuPolicy(Qt::NoContextMenu);
+
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(m_textEdit);
+    setLayout(layout);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicTextWidget::setText(const QString& text)
+{
+    m_textEdit->setPlainText(text);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicTextWidget::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+
+    {
+        QAction* actionToSetup = new QAction(this);
+
+        actionToSetup->setText("Copy");
+        actionToSetup->setIcon(QIcon(":/Copy.png"));
+        actionToSetup->setShortcuts(QKeySequence::Copy);
+
+        connect(actionToSetup, SIGNAL(triggered()), m_textEdit, SLOT(slotCopyContentToClipboard()));
+
+        menu.addAction(actionToSetup);
+    }
+
+    {
+        QAction* actionToSetup = new QAction(this);
+
+        actionToSetup->setText("Select All");
+        actionToSetup->setShortcuts(QKeySequence::SelectAll);
+
+        connect(actionToSetup, SIGNAL(triggered()), m_textEdit, SLOT(slotSelectAll()));
+
+        menu.addAction(actionToSetup);
+    }
+
+    menu.exec(event->globalPos());
+}
 
 
 
 //--------------------------------------------------------------------------------------------------
+///
+///
+/// RicShowPlotDataFeature
+/// 
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RicShowPlotDataFeature::isCommandEnabled()
@@ -128,105 +258,4 @@ void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString&
 
 
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RicTextWidget::RicTextWidget(QWidget* parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint)
-{
-    m_textEdit = new QPlainTextEdit(this);
-    m_textEdit->setReadOnly(true);
-    m_textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
-
-    QFont font("Courier", 8);
-    m_textEdit->setFont(font);
-
-    m_textEdit->setContextMenuPolicy(Qt::NoContextMenu);
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(m_textEdit);
-    setLayout(layout);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicTextWidget::setText(const QString& text)
-{
-    m_textEdit->setPlainText(text);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicTextWidget::slotCopyContentToClipboard()
-{
-    QTextCursor cursor(m_textEdit->textCursor());
-    
-    QString textForClipboard;
-    
-    QString selText = cursor.selectedText();
-    if (!selText.isEmpty())
-    {
-        QTextDocument doc;
-        doc.setPlainText(selText);
-
-        textForClipboard = doc.toPlainText();
-    }
-
-    if (textForClipboard.isEmpty())
-    {
-        textForClipboard = m_textEdit->toPlainText();
-    }
-
-    if (!textForClipboard.isEmpty())
-    {
-        QClipboard* clipboard = QApplication::clipboard();
-        if (clipboard)
-        {
-            clipboard->setText(textForClipboard);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicTextWidget::slotSelectAll()
-{
-    m_textEdit->selectAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicTextWidget::contextMenuEvent(QContextMenuEvent* event)
-{
-    QMenu menu;
-
-    {
-        QAction* actionToSetup = new QAction(this);
-
-        actionToSetup->setText("Copy");
-        actionToSetup->setIcon(QIcon(":/Copy.png"));
-        actionToSetup->setShortcuts(QKeySequence::Copy);
-
-        connect(actionToSetup, SIGNAL(triggered()), this, SLOT(slotCopyContentToClipboard()));
-
-        menu.addAction(actionToSetup);
-    }
-
-    {
-        QAction* actionToSetup = new QAction(this);
-
-        actionToSetup->setText("Select All");
-        actionToSetup->setShortcuts(QKeySequence::SelectAll);
-
-        connect(actionToSetup, SIGNAL(triggered()), this, SLOT(slotSelectAll()));
-
-        menu.addAction(actionToSetup);
-    }
-
-    menu.exec(event->globalPos());
-}
 
