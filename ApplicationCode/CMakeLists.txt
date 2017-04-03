@@ -358,7 +358,6 @@ if(RESINSIGHT_ENABLE_COTIRE)
     set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
 
     # opm parser
-    set_source_files_properties (FileInterface/RifReaderOpmParserInput.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/opm-Test.cpp                                 PROPERTIES COTIRE_EXCLUDED TRUE)
