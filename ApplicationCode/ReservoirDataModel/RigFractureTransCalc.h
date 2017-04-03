@@ -71,8 +71,5 @@ private:
     RimFracture*            m_fracture;
     RimDefines::UnitSystem  m_unitForCalculation;
 
-    //TODO: Legge til rigFractureData vektor her... 
-    //TODO: Funksjoner for å sette / hente data basert på celleindex
-
 };
 

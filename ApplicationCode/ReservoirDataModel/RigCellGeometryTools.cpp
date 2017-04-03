@@ -202,6 +202,7 @@ void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d 
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
+//TODO: Suggested rename: polygonLengthWeightedByArea. polygonAverageLengthWeightedByArea
 double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygonToCalcLengthOf)
 {
     //TODO: Check that polygon is in xy plane

@@ -69,9 +69,14 @@ public:
     void setFractureData(const std::vector<RigFractureData>& data);
     const std::vector<RigFractureData>& fractureData() const; //Access frac data
 
+    RigFractureData* fractureData(size_t eclipseCellIndex);
+
+    std::vector<RigFractureData> m_fractureData;
+
 private:
     std::vector<cvf::uint>  m_triangleIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
-    std::vector<RigFractureData> m_fractureData;
+
+
 };
 

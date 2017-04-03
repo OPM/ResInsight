@@ -71,18 +71,16 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
     }
 
 
-
 }
 
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// TODO: Document equation
 //--------------------------------------------------------------------------------------------------
 //TODO: Make static and move to another class
 void RigFractureTransCalc::computeTransmissibility()
 {
-
     if (m_fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
     {
         RiaLogging::warning(QString("Transimssibility for finite conductity in fracture not yet implemented."));
@@ -316,9 +314,6 @@ bool RigFractureTransCalc::planeCellIntersectionPolygons(size_t cellindex, std::
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
 {
-
-    //TODO: A lot of common code with function for calculating transmissibility... 
-
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
     {
@@ -328,13 +323,7 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 
     std::vector<RigStimPlanCell* > stimPlanCells = fracTemplateStimPlan->getStimPlanCells(resultName, resultUnit, timeStepIndex);
 
-//     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-//     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
-
-
-    cvf::Vec3d localX; //NOt used in this calculation...
-    cvf::Vec3d localY;
-    cvf::Vec3d localZ;
+    cvf::Vec3d localX, localY, localZ; //Not used in calculation here, but needed for function to find planCellPolygons
     std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
     bool isPlanIntersected = planeCellIntersectionPolygons(eclipseCellIndex, planeCellPolygons, localX, localY, localZ);
     if (!isPlanIntersected || planeCellPolygons.size() == 0) return  std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
@@ -353,11 +342,6 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
     cvf::Vec3d directionAlongLayers;
     directionAcrossLayers = cvf::Vec3d(0.0, -1.0, 0.0);
     directionAlongLayers = cvf::Vec3d(1.0, 0.0, 0.0);
-
-    //TODO: Rotate if dip, tilt != 0 Or is this already handled when transforming to frature plane???
-
-    //directionAcrossLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
-    //directionAlongLayers.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
 
     std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
     std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
@@ -385,7 +369,6 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
         upscaledConductivitiesAH.push_back(condAH);
     }
 
-    //TODO: Is this the right way of handling getting several values for each cell?
     return std::make_pair(arithmeticAverage(upscaledConductivitiesHA), arithmeticAverage(upscaledConductivitiesAH));
     
 }
@@ -601,6 +584,9 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
         }
     }
 
+
+    //TODO: Hvis fracture allerede har en sånn vektor, trenger vi vel ikke en til for RigFractureTransCalc...? 
+    //Trenger bare funksjoner for å sette / hente ut data for en gitt Eclipse celle... 
     m_fracture->setFractureData(fracDataVec);
 
 
