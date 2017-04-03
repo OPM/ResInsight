@@ -190,10 +190,8 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
     reservoirViews().push_back(rimEclipseView);
 
     // Resolve references after reservoir view has been inserted into Rim structures
-    // Intersections referencing a well path/ simulation well requires this
-    // TODO: initAfterReadRecursively can probably be removed
-    rimEclipseView->initAfterReadRecursively();
     rimEclipseView->resolveReferencesRecursively();
+    rimEclipseView->initAfterReadRecursively();
 
     return rimEclipseView;
 }

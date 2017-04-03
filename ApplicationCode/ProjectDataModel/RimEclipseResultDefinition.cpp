@@ -672,7 +672,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     }
     else
     {
-        RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
+        RimFlowDiagSolution* flowSol = m_flowSolution();
         if (flowSol)
         {
             std::vector<QString> tracerNames = flowSol->tracerNames();

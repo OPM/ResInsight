@@ -21,6 +21,8 @@
 
 #include "RiaApplication.h"
 
+#include "RiuMainWindow.h"
+
 #include "RicPasteFeatureImpl.h"
 
 #include "RimEclipseCase.h"
@@ -83,6 +85,8 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
     std::vector<caf::PdmPointer<RimEclipseView> > eclipseViews;
     objectGroup.objectsByType(&eclipseViews);
 
+    RimEclipseView* lastViewCopy = nullptr;
+
     // Add cases to case group
     for (size_t i = 0; i < eclipseViews.size(); i++)
     {
@@ -97,16 +101,18 @@ void RicPasteEclipseViewsFeature::onActionTriggered(bool isChecked)
 
         // Resolve references after reservoir view has been inserted into Rim structures
         // Intersections referencing a well path/ simulation well requires this
-        // TODO: initAfterReadRecursively can probably be removed
-        rimReservoirView->initAfterReadRecursively();
         rimReservoirView->resolveReferencesRecursively();
+        rimReservoirView->initAfterReadRecursively();
 
         rimReservoirView->loadDataAndUpdate();
 
         caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
         eclipseCase->updateConnectedEditors();
+        lastViewCopy = rimReservoirView;
     }
+
+    if (lastViewCopy) RiuMainWindow::instance()->selectAsCurrentItem(lastViewCopy);
 }
 
 //--------------------------------------------------------------------------------------------------

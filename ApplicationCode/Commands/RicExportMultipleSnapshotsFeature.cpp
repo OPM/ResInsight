@@ -152,10 +152,8 @@ void RicExportMultipleSnapshotsFeature::exportMultipleSnapshots(const QString& f
                 copyOfGeoMechView->setGeoMechCase(geomCase);
 
                 // Resolve references after reservoir view has been inserted into Rim structures
-                // Intersections referencing a well path/ simulation well requires this
-                // TODO: initAfterReadRecursively can probably be removed
-                copyOfGeoMechView->initAfterReadRecursively();
                 copyOfGeoMechView->resolveReferencesRecursively();
+                copyOfGeoMechView->initAfterReadRecursively();
 
                 copyOfGeoMechView->loadDataAndUpdate();
 
