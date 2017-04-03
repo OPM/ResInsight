@@ -322,7 +322,6 @@ void RiuMainWindow::createMenus()
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    //importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
@@ -384,8 +383,6 @@ void RiuMainWindow::createMenus()
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
     // Debug menu
-    testMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
-
     testMenu->addAction(m_mockModelAction);
     testMenu->addAction(m_mockResultsModelAction);
     testMenu->addAction(m_mockLargeResultsModelAction);
