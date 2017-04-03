@@ -301,7 +301,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::P
         timeGroup->add(&m_visibleTimeRangeMin);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

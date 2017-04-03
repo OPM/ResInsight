@@ -9,6 +9,7 @@
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -301,6 +302,10 @@ void RimView::setCurrentTimeStepAndUpdate(int frameIndex)
     setCurrentTimeStep(frameIndex);
 
     this->updateCurrentTimeStep();
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,7 +329,11 @@ void RimView::setCurrentTimeStep(int frameIndex)
 void RimView::updateCurrentTimeStepAndRedraw()
 {
     this->updateCurrentTimeStep();
-    
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+
     if (m_viewer) m_viewer->update();
 }
 

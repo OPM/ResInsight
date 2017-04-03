@@ -36,6 +36,7 @@ list (APPEND EXAMPLE_SOURCE_FILES
         examples/computeLocalSolutions.cpp
         examples/computeToFandTracers.cpp
         examples/computeTracers.cpp
+        examples/extractFromRestart.cpp
         tests/runAcceptanceTest.cpp
         tests/runLinearisedCellDataTest.cpp
         tests/runTransTest.cpp

@@ -46,7 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicShowContributingWellsFeatureImpl::showViewSelection(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
+RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
 {
     const QString lastUsedViewKey("lastUsedViewKey");
 

@@ -19,15 +19,16 @@
 
 #include "RigFlowDiagResultAddress.h"
 
+#include "RimFlowDiagSolution.h"
+
+#include "cafPdmPointer.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <vector>
 #include <map>
 #include <string>
-
-#include "cafPdmPointer.h"
-#include "RimFlowDiagSolution.h"
 
 class RigFlowDiagResultFrames;
 class RigStatisticsDataCache;
@@ -62,6 +63,21 @@ public:
     std::pair<double, double>                injectorProducerPairFluxes(const std::string& injTracername, const std::string& prodTracerName, int frameIndex);
     double                                   maxAbsPairFlux(int frameIndex);
 
+    std::vector<int>                         calculatedTimeSteps();
+        
+    struct FlowCharacteristicsResultFrame
+    {
+        FlowCharacteristicsResultFrame();
+
+        using Curve = std::pair< std::vector<double>, std::vector<double> >;
+
+        Curve m_flowCapStorageCapCurve;
+        Curve m_sweepEfficiencyCurve;
+        double m_lorenzCoefficient;
+    };
+
+    const FlowCharacteristicsResultFrame&    flowCharacteristicsResults(int frameIndex) { return m_flowCharResultFrames[frameIndex];}
+
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     void                                     calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex);
@@ -81,6 +97,12 @@ private:
                                                                            size_t frameIndex,
                                                                            const std::string& nativeResultName,
                                                                            RimFlowDiagSolution::TracerStatusType wantedTracerType);
+    std::vector< std::pair<std::string, const std::vector<double>*> > 
+                                             findNamedResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr, 
+                                                                                size_t frameIndex, 
+                                                                                const std::string& nativeResultName, 
+                                                                                RimFlowDiagSolution::TracerStatusType wantedTracerType);
+
     void                                     calculateSumOfFractionAndFractionMultTOF(size_t activeCellCount,
                                                                                       const std::vector<const std::vector<double> *>& injectorFractions,
                                                                                       const std::vector<const std::vector<double> *>& injectorTOFs,
@@ -109,8 +131,12 @@ private:
     std::map< RigFlowDiagResultAddress, cvf::ref<RigFlowDiagResultFrames> >  m_resultSets;
     std::map< RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>  >  m_resultStatistics;
 
-    using InjectorProducerCommunicationMap = std::map<std::pair<std::string, std::string>, std::pair<double, double> >;
+    using InjectorProducerCommunicationMap = std::map< std::pair<std::string, std::string>, std::pair<double, double> >;
     std::vector<InjectorProducerCommunicationMap> m_injProdPairFluxCommunicationTimesteps;
+
+
+
+    std::vector<FlowCharacteristicsResultFrame> m_flowCharResultFrames;
 
 };
 

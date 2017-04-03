@@ -20,11 +20,13 @@
 
 #include "RigMainGrid.h"
 
-#include "cvfAssert.h"
+#include "RiaLogging.h"
 #include "RimDefines.h"
 #include "RigFault.h"
-#include "cvfBoundingBoxTree.h"
 #include "RigActiveCellInfo.h"
+
+#include "cvfBoundingBoxTree.h"
+#include "cvfAssert.h"
 
 
 RigMainGrid::RigMainGrid(void)
@@ -215,12 +217,32 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigMainGrid::hasFaultWithName(const QString& name) const
+{
+    for (auto fault : m_faults)
+    {
+        if (fault->name() == name)
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
 {
+    if (hasFaultWithName(RimDefines::undefinedGridFaultName())
+        && hasFaultWithName(RimDefines::undefinedGridFaultWithInactiveName()))
+    {
+        RiaLogging::debug(QString("Calculate faults already run for grid."));
+        return;
+    }
     m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
     // Spread fault idx'es on the cells from the faults

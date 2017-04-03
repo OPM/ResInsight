@@ -35,6 +35,8 @@
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFault.h"
+#include "RimFlowDiagSolution.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimEllipseFractureTemplate.h"
@@ -144,6 +146,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
 
             commandIds << "RicNewViewFeature";
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
@@ -306,8 +309,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "Separator";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
         {
@@ -317,8 +318,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "Separator";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
@@ -371,6 +370,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
         }
+        else if (dynamic_cast<RimFlowDiagSolution*>(uiItem))
+        {
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
+        }
+        else if (dynamic_cast<RimFlowPlotCollection*>(uiItem))
+        {
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
+        }
         else if (dynamic_cast<RimWellPathFracture*>(uiItem))
         {
             commandIds << "RicNewWellPathFractureFeature";
@@ -418,7 +425,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
+        commandIds << "RicPasteTimeHistoryCurveFeature";
         commandIds << "RicCopyReferencesToClipboardFeature";
+        
+        commandIds << "RicShowPlotDataFeature";
+        commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         // Work in progress -- End
 
@@ -434,12 +445,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
             commandIds << "RicExecuteScriptForCasesFeature";
-        }
-        else if (dynamic_cast<RimSummaryCurve*>(uiItem) ||
-                 dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
-        {
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
-
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
@@ -534,15 +539,29 @@ void RimContextCommandBuilder::appendCommandsToMenu(const QStringList& commandId
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
     {
-        caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-        CVF_ASSERT(feature);
-
-        if (feature->canFeatureBeExecuted())
+        if (commandIds[i] == "Separator")
         {
-            QAction* act = commandManager->action(commandIds[i]);
-            CVF_ASSERT(act);
+            menu->addSeparator();
+        }
+        else
+        {
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            CVF_ASSERT(feature);
 
-            menu->addAction(act);
+            if (feature->canFeatureBeExecuted())
+            {
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
+
+                for (QAction* existingAct : menu->actions())
+                {
+                    // If action exist, continue to make sure the action is positioned at the first
+                    // location of a command ID
+                    if (existingAct == act) continue;
+                }
+
+                menu->addAction(act);
+            }
         }
     }
 }

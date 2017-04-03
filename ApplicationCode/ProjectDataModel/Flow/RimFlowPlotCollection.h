@@ -23,6 +23,7 @@
 #include "cafPdmChildField.h"
 
 class RimWellAllocationPlot;
+class RimFlowCharacteristicsPlot;
 
 //==================================================================================================
 ///  
@@ -39,10 +40,12 @@ public:
     void loadDataAndUpdate();
     size_t plotCount() const;
     
-    void addPlot(RimWellAllocationPlot* plot);
-    RimWellAllocationPlot* defaultPlot();
+    void addWellAllocPlotToStoredPlots(RimWellAllocationPlot* plot);
+    RimWellAllocationPlot* defaultWellAllocPlot();
+    RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
 
 private:
-    caf::PdmChildField<RimWellAllocationPlot*>      m_defaultPlot;
-    caf::PdmChildArrayField<RimWellAllocationPlot*> m_flowPlots;
+    caf::PdmChildField<RimFlowCharacteristicsPlot*> m_flowCharacteristicsPlot;
+    caf::PdmChildField<RimWellAllocationPlot*>      m_defaultWellAllocPlot;
+    caf::PdmChildArrayField<RimWellAllocationPlot*> m_storedWellAllocPlots;
 };

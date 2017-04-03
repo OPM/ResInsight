@@ -89,7 +89,7 @@ void RicShowContributingWellsFeature::onActionTriggered(bool isChecked)
     RimEclipseResultCase* eclipseResultCase = nullptr;
     well->firstAncestorOrThisOfTypeAsserted(eclipseResultCase);
 
-    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::showViewSelection(eclipseResultCase, well->name(), eclipseView->currentTimeStep());
+    RimEclipseView* modifiedView = RicShowContributingWellsFeatureImpl::maniuplateSelectedView(eclipseResultCase, well->name(), eclipseView->currentTimeStep());
     if (modifiedView)
     {
         modifiedView->createDisplayModelAndRedraw();

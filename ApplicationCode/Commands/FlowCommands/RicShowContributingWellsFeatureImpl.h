@@ -34,7 +34,7 @@ class RimFlowDiagSolution;
 class RicShowContributingWellsFeatureImpl
 {
 public:
-    static RimEclipseView* showViewSelection(RimEclipseResultCase* wellAllocationResultCase, QString wellName, int timeStep);
+    static RimEclipseView* maniuplateSelectedView(RimEclipseResultCase* wellAllocationResultCase, QString wellName, int timeStep);
 
 private:
     static void modifyViewToShowContributingWells(RimEclipseView* viewToModify, const QString& wellName, int timeStep);

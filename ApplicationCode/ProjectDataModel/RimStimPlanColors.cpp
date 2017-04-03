@@ -300,7 +300,7 @@ void RimStimPlanColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrder
         uiTreeOrdering.add(activeLegend());
     }
 
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ void RimStimPlanColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add(&m_resultNameAndUnit);
     uiOrdering.add(&m_defaultColor);
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

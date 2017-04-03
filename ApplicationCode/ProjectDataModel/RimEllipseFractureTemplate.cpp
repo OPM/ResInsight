@@ -225,6 +225,6 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     propertyGroup->add(&perforationLength);
 
     uiOrdering.add(&fractureTemplateUnit);
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 

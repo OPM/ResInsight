@@ -44,9 +44,9 @@ CAF_PDM_SOURCE_INIT(RimTotalWellAllocationPlot, "TotalWellAllocationPlot");
 //--------------------------------------------------------------------------------------------------
 RimTotalWellAllocationPlot::RimTotalWellAllocationPlot()
 {
-    CAF_PDM_InitObject("Total Well Allocation Plot", ":/WellAllocPie16x16.png", "", "");
+    CAF_PDM_InitObject("Total Allocation", ":/WellAllocPie16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Total Well Allocation Plot"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Total Allocation"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");

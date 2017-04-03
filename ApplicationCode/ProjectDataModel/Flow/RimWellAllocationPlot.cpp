@@ -175,7 +175,11 @@ void RimWellAllocationPlot::updateFromWell()
 
     CVF_ASSERT(accumulatedWellFlowPlot()->trackCount() == 0);
 
-    accumulatedWellFlowPlot()->setDescription("Accumulated Well Flow (" + m_wellName + ")");
+    QString description;
+    if (m_flowType() == ACCUMULATED)  description = "Accumulated Flow";
+    if (m_flowType() == INFLOW)  description = "Inflow Rates";
+
+    accumulatedWellFlowPlot()->setDescription(description + " (" + m_wellName + ")");
 
     if (!m_case) return;
 
@@ -223,12 +227,6 @@ void RimWellAllocationPlot::updateFromWell()
                                                             pipeBranchesCellIds,
                                                             smallContributionThreshold));
         }
-    }
-
-    m_contributingTracerNames.clear();
-    if (wfCalculator)
-    {
-        m_contributingTracerNames = wfCalculator->tracerNames();
     }
 
     auto depthType = accumulatedWellFlowPlot()->depthType();
@@ -302,7 +300,8 @@ void RimWellAllocationPlot::updateFromWell()
 
     QString wellStatusText = QString("(%1)").arg(RimWellAllocationPlot::wellStatusTextForTimeStep(m_wellName, m_case, m_timeStep));
     
-    setDescription("Well Allocation: " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
+    QString flowTypeText = m_flowDiagSolution() ? "Well Allocation": "Well Flow";
+    setDescription(flowTypeText + ": " + m_wellName + " " + wellStatusText + ", " +  m_case->timeStepStrings()[m_timeStep] + " (" + m_case->caseUserDescription() + ")");
  
     /// Pie chart
 
@@ -364,7 +363,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
             {
                 RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
                 const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
-                tracerCellFractionValues[tracerName] = tracerCellFractions;
+                if (tracerCellFractions) tracerCellFractionValues[tracerName] = tracerCellFractions;
             }
         }
     }
@@ -497,6 +496,7 @@ QWidget* RimWellAllocationPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::zoomAll()
 {
+    m_accumulatedWellFlowPlot()->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -614,14 +614,6 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 QString RimWellAllocationPlot::wellName() const
 {
     return m_wellName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<QString> RimWellAllocationPlot::contributingTracerNames() const
-{
-    return m_contributingTracerNames;
 }
 
 //--------------------------------------------------------------------------------------------------

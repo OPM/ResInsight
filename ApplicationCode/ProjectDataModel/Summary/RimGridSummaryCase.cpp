@@ -37,7 +37,8 @@ CAF_PDM_SOURCE_INIT(RimGridSummaryCase,"GridSummaryCase");
 //--------------------------------------------------------------------------------------------------
 RimGridSummaryCase::RimGridSummaryCase()
 {
-    CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "Associated3DCase", "Main View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "Associated3DCase", "Eclipse Case", "", "", "");
+    m_eclipseCase.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_eclipseGridFileName, "Associated3DCaseGridFileName", "Grid File Name", "", "", "");
     m_eclipseGridFileName.registerGetMethod(this, &RimGridSummaryCase::eclipseGridFileName);

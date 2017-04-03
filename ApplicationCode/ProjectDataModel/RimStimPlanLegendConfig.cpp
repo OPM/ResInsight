@@ -88,6 +88,6 @@ void RimStimPlanLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanLegendConfig::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 

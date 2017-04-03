@@ -186,7 +186,6 @@ void RimEclipseWell::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* to
 
     const RigWellResultFrame& wellResultFrame = this->wellResults()->wellResultFrame(frameIndex);
     const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
-    double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
 
@@ -365,7 +364,7 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,7 +376,7 @@ void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     {
         uiTreeOrdering.add(fracture);
     }
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);

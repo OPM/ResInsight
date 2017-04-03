@@ -61,7 +61,7 @@ void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered(bool isChecke
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Save Property To File");
+    actionToSetup->setText("Export Property To File");
 }
 
 

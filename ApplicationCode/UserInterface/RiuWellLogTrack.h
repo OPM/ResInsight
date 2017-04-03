@@ -58,20 +58,12 @@ protected:
     virtual void                            focusInEvent(QFocusEvent* event);
     virtual QSize                           sizeHint() const;
     virtual QSize                           minimumSizeHint() const;
-    virtual void                            leaveEvent(QEvent *) override;
 
 private:
-    friend class RiuWellLogTrackQwtPicker;
-    QPointF                                 closestCurvePoint(const QPoint& pos, QString* valueString, QString* depthString) const;
-    void                                    updateClosestCurvePointMarker(const QPointF& pos);
-
     void                                    setDefaults();
     void                                    selectClosestCurve(const QPoint& pos);
 
 private:
     caf::PdmPointer<RimWellLogTrack>        m_plotTrackDefinition;
-    QwtPlotGrid*                            m_grid;
-    QwtPicker*                              m_plotPicker;
-    QwtPlotMarker*                          m_plotMarker;
 };
 

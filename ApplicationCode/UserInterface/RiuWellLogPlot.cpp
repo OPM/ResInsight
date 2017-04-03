@@ -19,20 +19,25 @@
 
 #include "RiuWellLogPlot.h"
 
+#include "RimContextCommandBuilder.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
 #include "RiuMainWindow.h"
 #include "RiuWellLogTrack.h"
 
-#include "qwt_legend.h"
+#include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
+
+#include "qwt_legend.h"
 
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QScrollBar>
 #include <QTimer>
+#include <QMenu>
 
 #include <math.h>
 
@@ -206,6 +211,27 @@ QSize RiuWellLogPlot::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
+
+    commandIds << "RicShowPlotDataFeature";
+    commandIds << "RicShowContributingWellsFromPlotFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateScrollBar(double minDepth, double maxDepth)
 {
     double availableMinDepth;
@@ -243,6 +269,14 @@ void RiuWellLogPlot::slotSetMinDepth(int value)
 /// 
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RiuWellLogPlot::ownerPlotDefinition()
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuWellLogPlot::ownerViewWindow() const
 {
     return m_plotDefinition;
 }

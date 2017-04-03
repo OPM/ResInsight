@@ -160,11 +160,14 @@ void RimViewWindow::updateMdiWindowTitle()
 {
     if ( viewWidget() )
     {
-        caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
-        if ( uiFieldHandle )
+        if ( this->userDescriptionField() )
         {
-            QVariant v = uiFieldHandle->uiValue();
-            viewWidget()->setWindowTitle(v.toString());
+            caf::PdmUiFieldHandle* uiFieldHandle = this->userDescriptionField()->uiCapability();
+            if ( uiFieldHandle )
+            {
+                QVariant v = uiFieldHandle->uiValue();
+                viewWidget()->setWindowTitle(v.toString());
+            }
         }
     }
 }

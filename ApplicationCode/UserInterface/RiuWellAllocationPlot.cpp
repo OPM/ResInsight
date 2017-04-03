@@ -106,6 +106,14 @@ RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuWellAllocationPlot::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuWellAllocationPlot::showTitle(const QString& title)
 {
     m_titleLabel->show();
@@ -154,6 +162,7 @@ void RiuWellAllocationPlot::clearLegend()
 {
     m_legendWidget->clear();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

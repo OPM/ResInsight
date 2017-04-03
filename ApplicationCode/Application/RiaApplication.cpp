@@ -51,6 +51,7 @@
 #include "RimFaultCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -85,6 +86,7 @@
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
 #include "RiuWellAllocationPlot.h"
+#include "RiuFlowCharacteristicsPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
 #include "RicSnapshotViewToClipboardFeature.h"
@@ -1142,57 +1144,28 @@ RimView* RiaApplication::activeReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiaApplication::activePlotWindow() const
+{
+    RimViewWindow* viewWindow = nullptr;
+
+    if ( m_mainPlotWindow )
+    {
+        QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
+        if ( subwindows.size() > 0 )
+        {
+            viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
+        }
+    }
+
+    return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setActiveReservoirView(RimView* rv)
 {
     m_activeReservoirView = rv;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveWellLogPlot(RimWellLogPlot* wlp)
-{
-    m_activeWellLogPlot = wlp;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RiaApplication::activeWellLogPlot()
-{
-   return m_activeWellLogPlot;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveSummaryPlot(RimSummaryPlot* sp)
-{
-    m_activeSummaryPlot = sp;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RiaApplication::activeSummaryPlot()
-{
-    return m_activeSummaryPlot;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveWellAllocationPlot(RimWellAllocationPlot* wap)
-{
-    m_activeWellAllocationPlot = wap;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellAllocationPlot* RiaApplication::activeWellAllocationPlot()
-{
-    return m_activeWellAllocationPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1643,36 +1616,20 @@ RimViewWindow* RiaApplication::activeViewWindow()
 {
     RimViewWindow* viewWindow = NULL;
 
-    QWidget* topLevelWidget = RiaApplication::activeWindow();
+    QWidget* mainWindowWidget = RiaApplication::activeWindow();
 
-    if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
+    if (dynamic_cast<RiuMainWindow*>(mainWindowWidget))
     {
         viewWindow = RiaApplication::instance()->activeReservoirView();
     }
-
-    if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
+    else if (dynamic_cast<RiuMainPlotWindow*>(mainWindowWidget))
     {
-        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(mainWindowWidget);
+
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
         if (subwindows.size() > 0)
         {
-            RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
-            if (summaryQwtPlot)
-            {
-                viewWindow = summaryQwtPlot->ownerPlotDefinition();
-            }
-
-            RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
-            if (wellLogPlot)
-            {
-                viewWindow = wellLogPlot->ownerPlotDefinition();
-            }
-
-            RiuWellAllocationPlot* wellAllocationPlot = dynamic_cast<RiuWellAllocationPlot*>(subwindows.back()->widget());
-            if (wellAllocationPlot)
-            {
-                viewWindow = wellAllocationPlot->ownerPlotDefinition();
-            }
+            viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
         }
     }
 

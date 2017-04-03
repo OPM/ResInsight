@@ -35,7 +35,11 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFromPlotFeature, "RicShowContributin
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
-    return true;
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(RiaApplication::instance()->activePlotWindow());
+
+    if (wellAllocationPlot) return true;
+    
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +47,8 @@ bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(RiaApplication::instance()->activePlotWindow());
+
     if (!wellAllocationPlot) return;
 
     int timeStep = wellAllocationPlot->timeStep();
@@ -52,7 +57,7 @@ void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
     RimEclipseResultCase* wellAllocationResultCase = nullptr;
     wellAllocationPlot->flowDiagSolution()->firstAncestorOrThisOfTypeAsserted(wellAllocationResultCase);
 
-    RicShowContributingWellsFeatureImpl::showViewSelection(wellAllocationResultCase, wellName, timeStep);
+    RicShowContributingWellsFeatureImpl::maniuplateSelectedView(wellAllocationResultCase, wellName, timeStep);
 }
 
 //--------------------------------------------------------------------------------------------------

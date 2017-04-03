@@ -105,6 +105,20 @@ void RimPropertyFilter::setCategoryNames(const std::vector<QString>& categoryNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPropertyFilter::setCategoryNamesAndValues(const std::vector<std::pair<QString, int>>& categoryNamesAndValues)
+{
+    clearCategories();
+
+    for (auto it : categoryNamesAndValues)
+    {
+        m_categoryNames.push_back(it.first);
+        m_categoryValues.push_back(it.second);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPropertyFilter::clearCategories()
 {
     m_categoryValues.clear();

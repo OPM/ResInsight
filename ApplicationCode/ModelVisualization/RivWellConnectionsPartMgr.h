@@ -23,6 +23,7 @@
 
 #include "cafPdmPointer.h"
 #include "cvfVector3.h"
+#include "cvfColor4.h"
 
 #include <list>
 #include <vector>
@@ -32,6 +33,7 @@ namespace cvf
 {
     class ModelBasicList;
     class DrawableGeo;
+    class Part;
 }
 
 class RivPipeGeometryGenerator;
@@ -48,14 +50,24 @@ public:
     ~RivWellConnectionsPartMgr();
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
-    
+
+
+
 private:
-    cvf::ref< cvf::DrawableGeo> createArrow(const cvf::Vec3f& startPoint, 
+    cvf::ref<cvf::Part>  createArrowPart(const cvf::Vec3f& startPoint, 
+                                         const cvf::Vec3f& endPoint, 
+                                         float width, 
+                                         bool isProducer, 
+                                         const cvf::Color4f& arrowColor, 
+                                         bool enableLighting);
+    cvf::ref< cvf::DrawableGeo> createArrowGeometry(const cvf::Vec3f& startPoint, 
                                             const cvf::Vec3f& endPoint, 
                                             double width, 
                                             bool useArrowEnd);
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimEclipseWell>            m_rimWell;
+    caf::PdmPointer<RimEclipseWell>   m_rimWell;
+
+    bool                              m_useCurvedArrows;
 };

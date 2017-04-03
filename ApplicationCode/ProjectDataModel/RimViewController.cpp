@@ -145,7 +145,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions(const caf
 void RimViewController::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     updateDisplayNameAndIcon();
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------

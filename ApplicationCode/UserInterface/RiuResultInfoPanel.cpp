@@ -79,6 +79,6 @@ void RiuResultInfoPanel::convertStringToHTML(QString* str)
 //--------------------------------------------------------------------------------------------------
 QSize RiuResultInfoPanel::sizeHint () const
 {
-    // As small as possible fow now
+    // As small as possible for now
     return QSize(20, 20);
 }

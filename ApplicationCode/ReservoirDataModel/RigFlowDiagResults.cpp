@@ -29,6 +29,8 @@
 #include "RigFlowDiagResultFrames.h"
 #include "RigStatisticsDataCache.h"
 
+#include <cmath> // Needed for HUGE_VAL on Linux
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -39,6 +41,7 @@ RigFlowDiagResults::RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t
     m_timeStepCount = timeStepCount;
     m_hasAtemptedNativeResults.resize(timeStepCount, false);
     m_injProdPairFluxCommunicationTimesteps.resize(timeStepCount);
+    m_flowCharResultFrames.resize(timeStepCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +120,12 @@ void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t f
         }
 
         m_injProdPairFluxCommunicationTimesteps[frameIndex].swap(nativeTimestepResults.injProdWellPairFluxes());
+
+        m_flowCharResultFrames[frameIndex].m_lorenzCoefficient = nativeTimestepResults.lorenzCoefficient();
+        m_flowCharResultFrames[frameIndex].m_flowCapStorageCapCurve.first.swap(nativeTimestepResults.flowCapStorageCapCurve().first);
+        m_flowCharResultFrames[frameIndex].m_flowCapStorageCapCurve.second.swap(nativeTimestepResults.flowCapStorageCapCurve().second);
+        m_flowCharResultFrames[frameIndex].m_sweepEfficiencyCurve.first.swap(nativeTimestepResults.sweepEfficiencyCurve().first);
+        m_flowCharResultFrames[frameIndex].m_sweepEfficiencyCurve.second.swap(nativeTimestepResults.sweepEfficiencyCurve().second);
 
         m_hasAtemptedNativeResults[frameIndex] = true;
     }
@@ -275,19 +284,24 @@ std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult(const Rig
 //--------------------------------------------------------------------------------------------------
 std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(const RigFlowDiagResultAddress &resVarAddr, size_t frameIndex)
 {
-    std::vector<int> selectedTracerIdxToGlobalTracerIdx;
+    std::vector< std::pair<std::string, const std::vector<double>* > > fractions = findNamedResultsForSelectedTracers(resVarAddr,
+                                                                                                                      frameIndex,
+                                                                                                                      RIG_FLD_CELL_FRACTION_RESNAME,
+                                                                                                                      RimFlowDiagSolution::UNDEFINED);
+
+    std::vector<int> resultTracerIdxToGlobalTracerIdx;
     {
-        selectedTracerIdxToGlobalTracerIdx.resize(resVarAddr.selectedTracerNames.size(), -1);
+        resultTracerIdxToGlobalTracerIdx.resize(fractions.size(), -1);
 
         std::vector<QString> allTracerNames = m_flowDiagSolution->tracerNames();
         int selTracerIdx = 0;
-        for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+        for ( const auto& trNameFractionPair: fractions )
         {
             for ( size_t globIdx = 0; globIdx < allTracerNames.size(); ++globIdx )
             {
-                if ( allTracerNames[globIdx].toStdString() == tracerName )
+                if ( allTracerNames[globIdx].toStdString() == trNameFractionPair.first )
                 {
-                    selectedTracerIdxToGlobalTracerIdx[selTracerIdx] = static_cast<int>(globIdx);
+                    resultTracerIdxToGlobalTracerIdx[selTracerIdx] = static_cast<int>(globIdx);
                     break;
                 }
             }
@@ -302,10 +316,6 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
     std::vector<double>& maxFractionTracerIdx = maxFractionTracerIdxFrames->frameData(frameIndex);
     {
 
-        std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
-                                                                                           frameIndex,
-                                                                                           RIG_FLD_CELL_FRACTION_RESNAME,
-                                                                                           RimFlowDiagSolution::UNDEFINED);
         maxFractionTracerIdx.resize(activeCellCount, HUGE_VAL);
 
         std::vector<double> maxFraction;
@@ -313,7 +323,9 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
 
         for ( size_t frIdx = 0; frIdx < fractions.size(); ++frIdx )
         {
-            const std::vector<double> * fr = fractions[frIdx];
+            const std::vector<double> * fr = fractions[frIdx].second;
+
+            if (!fr) continue;
 
             for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
             {
@@ -322,18 +334,10 @@ std::vector<double>* RigFlowDiagResults::calculateTracerWithMaxFractionResult(co
                 if ( maxFraction[acIdx] < (*fr)[acIdx] )
                 {
                     maxFraction[acIdx] =  (*fr)[acIdx];
-                    maxFractionTracerIdx[acIdx] = frIdx;
+                    maxFractionTracerIdx[acIdx] = resultTracerIdxToGlobalTracerIdx[frIdx];
                 }
             }
         }
-    }
-
-    for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-    {
-        if ( maxFractionTracerIdx[acIdx] == HUGE_VAL ) continue;
-
-        double selectedTracerIdx = static_cast<int>(maxFractionTracerIdx[acIdx]);
-        maxFractionTracerIdx[acIdx] = selectedTracerIdxToGlobalTracerIdx[selectedTracerIdx];
     }
 
     return &maxFractionTracerIdx;
@@ -402,6 +406,32 @@ std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelec
     return selectedTracersResults;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector< std::pair<std::string, const std::vector<double>*> > 
+RigFlowDiagResults::findNamedResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr,
+                                                       size_t frameIndex,
+                                                       const std::string& nativeResultName,
+                                                       RimFlowDiagSolution::TracerStatusType wantedTracerType)
+{
+
+    std::vector<std::pair<std::string, const std::vector<double>* > > selectedTracersResults;
+
+    for ( const std::string& tracerName: resVarAddr.selectedTracerNames )
+    {
+        RimFlowDiagSolution::TracerStatusType tracerType = m_flowDiagSolution->tracerStatusInTimeStep(QString::fromStdString(tracerName), frameIndex);
+
+        if (tracerType != RimFlowDiagSolution::CLOSED 
+            && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
+        {
+            selectedTracersResults.push_back(std::make_pair(tracerName, findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, tracerName), frameIndex)));
+        }
+    }
+
+    return selectedTracersResults;
+}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -625,9 +655,32 @@ double RigFlowDiagResults::maxAbsPairFlux(int frameIndex)
 
     for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[frameIndex])
     {
-        if (fabs(commPair.second.first) > maxFlux ) maxFlux = commPair.second.first;
-        if (fabs(commPair.second.second) > maxFlux ) maxFlux = commPair.second.second;
+        if (fabs(commPair.second.first)  > maxFlux ) maxFlux = fabs(commPair.second.first);
+        if (fabs(commPair.second.second) > maxFlux ) maxFlux = fabs(commPair.second.second);
     }
 
     return maxFlux;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigFlowDiagResults::calculatedTimeSteps()
+{
+    std::vector<int> timestepIndices;
+    for (size_t tsIdx = 0; tsIdx < m_timeStepCount; ++tsIdx)
+    {
+        if (m_hasAtemptedNativeResults[tsIdx]) timestepIndices.push_back(static_cast<int>(tsIdx));
+    }
+
+    return timestepIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagResults::FlowCharacteristicsResultFrame::FlowCharacteristicsResultFrame()
+    : m_lorenzCoefficient(HUGE_VAL)
+{
+
 }

@@ -137,7 +137,6 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
             m_customCurveName = createCurveAutoName();
         }
 
-        updateOptionSensitivity();
         updateCurveName();
     }
 
@@ -240,15 +239,6 @@ bool RimPlotCurve::isCurveVisible() const
 {
     return m_showCurve;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimPlotCurve::initAfterRead()
-{
-    updateOptionSensitivity();
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

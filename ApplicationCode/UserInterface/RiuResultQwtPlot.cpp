@@ -21,6 +21,8 @@
 
 #include "RigCurveDataTools.h"
 
+#include "RimContextCommandBuilder.h"
+
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cvfBase.h"
@@ -35,6 +37,10 @@
 #include "qwt_plot_layout.h"
 #include "qwt_scale_engine.h"
 
+#include <QMenu>
+#include <QContextMenuEvent>
+#include "RiuSummaryQwtPlot.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -42,9 +48,6 @@
 RiuResultQwtPlot::RiuResultQwtPlot(QWidget* parent)
     : QwtPlot(parent)
 {
-    m_grid = new QwtPlotGrid;
-    m_grid->attach(this);
-
     setDefaults();
 }
 
@@ -54,9 +57,6 @@ RiuResultQwtPlot::RiuResultQwtPlot(QWidget* parent)
 RiuResultQwtPlot::~RiuResultQwtPlot()
 {
     deleteAllCurves();
-
-    m_grid->detach();
-    delete m_grid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,61 +127,40 @@ QSize RiuResultQwtPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiuResultQwtPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    commandIds << "RicNewGridTimeHistoryCurveFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuResultQwtPlot::setDefaults()
 {
-    QPalette newPalette(palette());
-    newPalette.setColor(QPalette::Background, Qt::white);
-    setPalette(newPalette);
-
-    setAutoFillBackground(true);
-    setCanvasBackground(Qt::white);
-
-    QFrame* canvasFrame = dynamic_cast<QFrame*>(canvas());
-    if (canvasFrame)
-    {
-        canvasFrame->setFrameShape(QFrame::NoFrame);
-    }
-
-    canvas()->setMouseTracking(true);
-    canvas()->installEventFilter(this);
-
-    QPen gridPen(Qt::SolidLine);
-    gridPen.setColor(Qt::lightGray);
-    m_grid->setPen(gridPen);
+    RiuSummaryQwtPlot::setCommonPlotBehaviour(this);
 
     enableAxis(QwtPlot::xBottom, true);
     enableAxis(QwtPlot::yLeft, true);
     enableAxis(QwtPlot::xTop, false);
     enableAxis(QwtPlot::yRight, false);
 
-    plotLayout()->setAlignCanvasToScales(true);
-
-    QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw(Qt::UTC);
-    scaleDraw->setDateFormat(QwtDate::Year, QString("dd-MM-yyyy"));
- 
-    QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine(Qt::UTC);
-    setAxisScaleEngine(QwtPlot::xBottom, scaleEngine);
-    setAxisScaleDraw(QwtPlot::xBottom, scaleDraw);
-
-    QFont xAxisFont = axisFont(QwtPlot::xBottom);
-    xAxisFont.setPixelSize(9);
-    setAxisFont(QwtPlot::xBottom, xAxisFont);
-
-    QFont yAxisFont = axisFont(QwtPlot::yLeft);
-    yAxisFont.setPixelSize(9);
-    setAxisFont(QwtPlot::yLeft, yAxisFont);
-
-    QwtText axisTitleY = axisTitle(QwtPlot::yLeft);
-    QFont yAxisTitleFont = axisTitleY.font();
-    yAxisTitleFont.setPixelSize(9);
-    yAxisTitleFont.setBold(false);
-    axisTitleY.setFont(yAxisTitleFont);
-    axisTitleY.setRenderFlags(Qt::AlignRight);
-    setAxisTitle(QwtPlot::yLeft, axisTitleY);
-
+    RiuSummaryQwtPlot::enableDateBasedBottomXAxis(this);
     
-    QwtLegend* legend = new QwtLegend(this);
+    setAxisMaxMinor(QwtPlot::xBottom, 2);
+    setAxisMaxMinor(QwtPlot::yLeft, 3);
+
     // The legend will be deleted in the destructor of the plot or when 
     // another legend is inserted.
+    QwtLegend* legend = new QwtLegend(this);
     this->insertLegend(legend, BottomLegend);
 }

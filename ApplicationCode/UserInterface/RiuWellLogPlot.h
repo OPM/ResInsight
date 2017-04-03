@@ -25,6 +25,8 @@
 #include <QPointer>
 #include <QWidget>
 
+#include "RiuInterfaceToViewWindow.h"
+
 class RimWellLogPlot;
 class RiuWellLogTrack;
 
@@ -38,7 +40,7 @@ class QwtLegend;
 // RiuWellLogPlot
 //
 //==================================================================================================
-class RiuWellLogPlot : public QWidget
+class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
@@ -47,6 +49,7 @@ public:
     virtual ~RiuWellLogPlot();
 
     RimWellLogPlot*                 ownerPlotDefinition();
+    virtual RimViewWindow*          ownerViewWindow() const override;
 
     void                            addTrackPlot(RiuWellLogTrack* trackPlot);
     void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
@@ -62,6 +65,7 @@ protected:
     virtual void                    showEvent(QShowEvent *);
     virtual void                    changeEvent(QEvent *);
     virtual QSize                   sizeHint() const override;
+    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);

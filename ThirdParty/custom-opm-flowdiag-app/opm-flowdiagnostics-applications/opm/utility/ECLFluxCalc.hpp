@@ -48,8 +48,13 @@ namespace Opm
         std::vector<double> flux(const PhaseIndex phase) const;
 
     private:
+        struct DynamicData
+        {
+            std::vector<double> pressure;
+        };
+
         double singleFlux(const int connection,
-                          const std::vector<double>& pressure) const;
+                          const DynamicData& dyn_data) const;
 
         const ECLGraph& graph_;
         std::vector<int> neighbours_;

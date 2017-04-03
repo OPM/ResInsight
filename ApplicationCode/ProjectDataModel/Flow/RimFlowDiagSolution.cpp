@@ -35,20 +35,22 @@
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 
+#define CROSS_FLOW_ENDING "-XF"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool hasCrossFlowEnding(const QString& tracerName)
+bool RimFlowDiagSolution::hasCrossFlowEnding(const QString& tracerName)
 {
-    return tracerName.endsWith("-Xf");
+    return tracerName.endsWith(CROSS_FLOW_ENDING);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString removeCrossFlowEnding(const QString& tracerName)
+QString RimFlowDiagSolution::removeCrossFlowEnding(const QString& tracerName)
 {
-    if (tracerName.endsWith("-Xf"))
+    if (tracerName.endsWith(CROSS_FLOW_ENDING))
     {
         return tracerName.left(tracerName.size() - 3);
     }
@@ -61,9 +63,9 @@ QString removeCrossFlowEnding(const QString& tracerName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString addCrossFlowEnding(const QString& wellName)
+QString RimFlowDiagSolution::addCrossFlowEnding(const QString& wellName)
 {
-    return wellName + "-Xf";
+    return wellName + CROSS_FLOW_ENDING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,10 +181,10 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
             bool isInjectorWell =  (   wellResFrame.m_productionType != RigWellResultFrame::PRODUCER
                                     && wellResFrame.m_productionType != RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE);
 
-            std::string wellname   = wellResults[wIdx]->m_wellName.toStdString();
+            std::string wellName   = wellResults[wIdx]->m_wellName.toStdString();
             std::string wellNameXf = addCrossFlowEnding(wellResults[wIdx]->m_wellName).toStdString();
 
-            std::vector<int>& tracerCells = tracersWithCells[wellname];
+            std::vector<int>& tracerCells = tracersWithCells[wellName];
             std::vector<int>& tracerCellsCrossFlow = tracersWithCells[wellNameXf];
 
             for (const RigWellResultBranch& wBr: wellResFrame.m_wellResultBranches)
@@ -208,6 +210,9 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
                     }
                 }
             }
+
+            if (tracerCells.empty()) tracersWithCells.erase(wellName);
+            if (tracerCellsCrossFlow.empty()) tracersWithCells.erase(wellNameXf);
         }
     }
 

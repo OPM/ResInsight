@@ -24,13 +24,13 @@
 
 
 class RigEclipseCaseData;
-class RimEclipseCellColors;
+class RimEclipseResultDefinition;
 
 
 class RigTimeHistoryResultAccessor
 {
 public:
     static QString             topologyText(RigEclipseCaseData* eclipseCaseData,  size_t m_gridIndex, size_t m_cellIndex);
-    static std::vector<double> timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseCellColors* cellColors, size_t gridIndex, size_t cellIndex, size_t timeStepCount);
+    static std::vector<double> timeHistoryValues(RigEclipseCaseData* eclipseCaseData, RimEclipseResultDefinition* resultDefinition, size_t gridIndex, size_t cellIndex, size_t timeStepCount);
 };
 

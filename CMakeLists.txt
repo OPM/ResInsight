@@ -104,9 +104,6 @@ if(RESINSIGHT_ENABLE_COTIRE)
     set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
     include(cotire)
-  
-    set(CAF_USE_COTIRE TRUE CACHE INTERNAL "CAF: Use cotire")
-    
 endif()
 
 
