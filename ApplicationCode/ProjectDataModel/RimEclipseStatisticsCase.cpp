@@ -701,7 +701,7 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 
     if (reservoirViews.size() == 0)
     {
-        RicNewViewFeature::addReservoirView();
+        RicNewViewFeature::addReservoirView(this, nullptr);
     }
 }
 

@@ -26,6 +26,7 @@
 #include "RimView.h"
 
 #include "RiuMainWindow.h"
+#include "RiaLogging.h"
 
 #include "cafSelectionManager.h"
 
@@ -36,9 +37,9 @@ CAF_CMD_SOURCE_INIT(RicNewViewFeature, "RicNewViewFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewViewFeature::addReservoirView()
+void RicNewViewFeature::addReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
-    RimView* newView = createReservoirView();
+    RimView* newView = createReservoirView(eclipseCase, geomCase);
 
     if (newView)
     {
@@ -62,7 +63,18 @@ bool RicNewViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewViewFeature::onActionTriggered(bool isChecked)
 {
-    addReservoirView();
+    // Establish type of selected object
+    RimEclipseCase* eclipseCase = selectedEclipseCase();
+    RimGeoMechCase* geomCase = selectedGeoMechCase();
+    RimGeoMechView* geoMechView = selectedGeoMechView();
+    RimEclipseView* reservoirView = selectedEclipseView();
+    
+
+    // Find case to insert into
+    if (geoMechView) geomCase = geoMechView->geoMechCase();   
+    if (reservoirView) eclipseCase = reservoirView->eclipseCase();
+
+    addReservoirView(eclipseCase, geomCase);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,18 +89,8 @@ void RicNewViewFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RicNewViewFeature::createReservoirView()
+RimView* RicNewViewFeature::createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase)
 {
-    // Establish type of selected object
-    RimEclipseCase* eclipseCase = selectedEclipseCase();
-    RimGeoMechCase* geomCase = selectedGeoMechCase();
-    RimGeoMechView* geoMechView = selectedGeoMechView();
-    RimEclipseView* reservoirView = selectedEclipseView();
-
-    // Find case to insert into
-    if (geoMechView) geomCase = geoMechView->geoMechCase();   
-    if (reservoirView) eclipseCase = reservoirView->eclipseCase();
-
     RimView* insertedView = NULL;
 
     if (eclipseCase)

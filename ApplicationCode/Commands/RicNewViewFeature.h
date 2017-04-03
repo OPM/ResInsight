@@ -35,7 +35,7 @@ class RicNewViewFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addReservoirView();
+    static void addReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase);
 
 protected:
     // Overrides
@@ -44,7 +44,7 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    static RimView*        createReservoirView();
+    static RimView*        createReservoirView(RimEclipseCase* eclipseCase, RimGeoMechCase* geomCase);
 
     static RimEclipseCase* selectedEclipseCase();
     static RimGeoMechCase* selectedGeoMechCase();
