@@ -1,6 +1,0 @@
-{"name" : "UDADIMS" , "sections" : ["RUNSPEC"],
-"size" : 1 ,
-"items" : [
-    {"name" : "NUM_UDQ_REPLACE" , "value_type" : "INT" , "default": 0},
-    {"name" : "IGNORED" , "value_type" : "INT" , "default": 0},
-    {"name" : "TOTAL_UDQ_UNIQUE" , "value_type" : "INT" , "default": 100}]}

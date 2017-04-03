@@ -1,3 +1,0 @@
-{"name" : "VAPPARS" , "sections" : ["SOLUTION", "SCHEDULE"], "size" : 1 , "items" : [
-        {"name" : "OIL_VAP_PROPENSITY" , "value_type" : "DOUBLE"},
-        {"name" : "OIL_DENSITY_PROPENSITY" , "value_type" : "DOUBLE"}]}

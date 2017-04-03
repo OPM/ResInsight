@@ -1,4 +1,0 @@
-{"name" : "WHISTCTL", "sections" : ["SCHEDULE"], "size" : 1, "items" : [
-    {"name" : "CMODE" , "value_type" : "STRING" , "default" : "NONE" },
-    {"name" : "BPH_TERMINATE" , "value_type" : "STRING" , "default" : "NO"}
-]}

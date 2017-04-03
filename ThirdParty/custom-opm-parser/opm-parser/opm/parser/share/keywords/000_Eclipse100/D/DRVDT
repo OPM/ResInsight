@@ -1,3 +1,0 @@
-{"name" : "DRVDT", "sections" : ["SCHEDULE"], "size" : 1, "items" :
- [{"name" : "DRVDT_MAX" , "value_type" : "DOUBLE", "dimension" : "OilDissolutionFactor/Time"}]
-}

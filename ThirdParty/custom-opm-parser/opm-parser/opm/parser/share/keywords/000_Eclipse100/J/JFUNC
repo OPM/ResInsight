@@ -1,8 +1,0 @@
-{"name" : "JFUNC" , "sections" : ["GRID"], "size" : 1 , "items" : [
-        {"name" : "FLAG" , "value_type" : "STRING", "default": "BOTH"},
-        {"name" : "OW_SURFACE_TENSION" , "value_type" : "DOUBLE", "dimension":"SurfaceTension", "default": -1.0},
-        {"name" : "GO_SURFACE_TENSION" , "value_type" : "DOUBLE", "dimension":"SurfaceTension", "default": -1.0},
-        {"name" : "ALPHA_FACTOR" , "value_type" : "DOUBLE", "default": 0.5},
-        {"name" : "BETA_FACTOR" , "value_type" : "DOUBLE", "default": 0.5},
-        {"name" : "DIRECTION" , "value_type" : "STRING", "default": "XY" }
-]}

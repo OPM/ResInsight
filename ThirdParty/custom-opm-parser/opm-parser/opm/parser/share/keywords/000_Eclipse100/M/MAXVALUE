@@ -1,9 +1,0 @@
-{"name" : "MAXVALUE", "sections" : ["GRID", "EDIT", "PROPS"], "items" : [
-        {"name" : "field" , "value_type" : "STRING"},
-        {"name" : "value" , "value_type" : "DOUBLE"},
-        {"name" : "I1" , "value_type" : "INT"},
-        {"name" : "I2" , "value_type" : "INT"},
-        {"name" : "J1" , "value_type" : "INT"},
-        {"name" : "J2" , "value_type" : "INT"},
-        {"name" : "K1" , "value_type" : "INT"},
-        {"name" : "K2" , "value_type" : "INT"}]}

@@ -1,8 +1,0 @@
-{"name" : "VFPPDIMS" , "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
-        {"name" : "MAX_FLOW_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_THP_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_WCT_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_GCT_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_ALQ_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_PROD_VFP_TABLE" , "value_type" : "INT" , "default" : 0}]}
-

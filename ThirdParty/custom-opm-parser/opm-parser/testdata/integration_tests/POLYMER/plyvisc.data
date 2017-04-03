@@ -1,8 +1,0 @@
-TABDIMS
--- NTSFUN  NTPVT   NSSFUN   NPPVT   NTFIP   NRPVT
-    1       1        100     50       1           /
-
-
-PLYVISC
-   0.0    1.0
-   1.25   30.0  /

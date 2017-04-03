@@ -1,4 +1,0 @@
-{"name" : "DRSDT", "sections" : ["SCHEDULE"], "size" : 1, "items" :
- [{"name" : "DRSDT_MAX" , "value_type" : "DOUBLE", "dimension" : "GasDissolutionFactor/Time"},
-  {"name" : "Option" , "value_type" : "STRING", "default" : "ALL"}]
-}

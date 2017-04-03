@@ -1,6 +1,0 @@
-{"name" : "GDORIENT" , "sections" : ["GRID"] , "size" : 1 , "items" : [
-   {"name" : "I"    , "value_type" : "STRING" , "default" : "INC"},
-   {"name" : "J"    , "value_type" : "STRING" , "default" : "INC"},
-   {"name" : "K"    , "value_type" : "STRING" , "default" : "INC"},
-   {"name" : "Z"    , "value_type" : "STRING" , "default" : "DOWN"},
-   {"name" : "HAND" , "value_type" : "STRING" , "default" : "RIGHT"}]}

@@ -1,7 +1,0 @@
-{"name" : "ROCKCOMP" , "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
- {"name" : "HYSTERESIS" , "value_type" : "STRING" , "default" : "REVERS"},
- {"name" : "NTROCC" , "value_type" : "INT" , "default" : 1},
- {"name" : "WATER_COMPACTION" , "value_type" : "STRING" , "default" : "NO"}]}
-
-   
-   

@@ -1,5 +1,0 @@
-{"name" : "ENKRVD" , "sections" : ["PROPS"], "size" : {"keyword" : "ENDSCALE" , "item" : "NUM_TABLES"},
-        "items" : [
-            {"name":"DATA", "value_type":"DOUBLE", "default" : -1 , "size_type" : "ALL" , "dimension" : ["Length","1","1","1","1","1","1","1"]}
-         ]
-}

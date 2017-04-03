@@ -1,8 +1,0 @@
-{
- "name": "TRANX",
- "sections": ["EDIT"],
- "data": {
-  "value_type": "DOUBLE",
-  "dimension" : "Transmissibility"
- }
-}
