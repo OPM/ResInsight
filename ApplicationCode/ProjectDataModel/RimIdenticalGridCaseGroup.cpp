@@ -387,6 +387,7 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
     
     newStatisticsCase->populateResultSelectionAfterLoadingGrid();
     newStatisticsCase->openEclipseGridFile();
+    newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
 
     return newStatisticsCase;
 }
