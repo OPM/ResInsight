@@ -70,6 +70,11 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
 
     QString selectedDir = QFileDialog::getExistingDirectory(NULL, tr("Select Directory"), defaultDir);
 
+    if (selectedDir.isNull()) {
+        // Stop if folder selection was cancelled.
+        return;
+    }
+
     for (RimFault* rimFault : selectedFaults)
     {
         RimEclipseCase* eclCase = nullptr;
