@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimEclipseTopologyItem.h"
+#include "RimEclipseGeometrySelectionItem.h"
 
 #include "RigTimeHistoryResultAccessor.h"
 
@@ -26,34 +26,33 @@
 #include "RiuSelectionManager.h"
 
 
-CAF_PDM_SOURCE_INIT(RimEclipseTopologyItem, "RimEclipseTopologyItem");
+CAF_PDM_SOURCE_INIT(RimEclipseGeometrySelectionItem, "EclipseGeometrySelectionItem");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseTopologyItem::RimEclipseTopologyItem()
+RimEclipseGeometrySelectionItem::RimEclipseGeometrySelectionItem()
 {
-    CAF_PDM_InitObject("Eclipse Topoloty Item", "", "", "");
+    CAF_PDM_InitObject("Eclipse Geometry Selection Item", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_eclipseCase, "EclipseCase", "Eclipse Case", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_gridIndex, "m_gridIndex", "m_gridIndex", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_cellIndex, "m_cellIndex", "m_cellIndex", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_localIntersectionPoint, "m_localIntersectionPoint", "m_localIntersectionPoint", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_eclipseCase,            "EclipseCase",            "Eclipse Case",             "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_gridIndex,              "GridIndex",              "m_gridIndex",              "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellIndex,              "CellIndex",              "m_cellIndex",              "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_localIntersectionPoint, "LocalIntersectionPoint", "m_localIntersectionPoint", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseTopologyItem::~RimEclipseTopologyItem()
+RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseTopologyItem::setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem)
+void RimEclipseGeometrySelectionItem::setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem)
 {
     m_gridIndex = selectionItem->m_gridIndex;
     m_cellIndex = selectionItem->m_cellIndex;
@@ -65,7 +64,7 @@ void RimEclipseTopologyItem::setFromSelectionItem(const RiuEclipseSelectionItem*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseTopologyItem::topologyText() const
+QString RimEclipseGeometrySelectionItem::geometrySelectionText() const
 {
     QString text;
 
@@ -81,7 +80,7 @@ QString RimEclipseTopologyItem::topologyText() const
     text += ", ";
     text += QString("Grid index %1").arg(m_gridIndex);
     text += ", ";
-    text += RigTimeHistoryResultAccessor::topologyText(m_eclipseCase->eclipseCaseData(), m_gridIndex, m_cellIndex);
+    text += RigTimeHistoryResultAccessor::geometrySelectionText(m_eclipseCase->eclipseCaseData(), m_gridIndex, m_cellIndex);
 
     return text;
 }
@@ -89,7 +88,7 @@ QString RimEclipseTopologyItem::topologyText() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimEclipseTopologyItem::eclipseCase() const
+RimEclipseCase* RimEclipseGeometrySelectionItem::eclipseCase() const
 {
     return m_eclipseCase;
 }
@@ -97,7 +96,7 @@ RimEclipseCase* RimEclipseTopologyItem::eclipseCase() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimEclipseTopologyItem::gridIndex() const
+size_t RimEclipseGeometrySelectionItem::gridIndex() const
 {
     return m_gridIndex;
 }
@@ -105,7 +104,7 @@ size_t RimEclipseTopologyItem::gridIndex() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimEclipseTopologyItem::cellIndex() const
+size_t RimEclipseGeometrySelectionItem::cellIndex() const
 {
     return m_cellIndex;
 }

@@ -16,23 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimPickingTopologyItem.h"
+#pragma once
 
+#include "cafPdmObject.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimPickingTopologyItem, "RimPickingTopologyItem");
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimPickingTopologyItem::RimPickingTopologyItem()
+class RimGeometrySelectionItem : public caf::PdmObject
 {
-}
+    CAF_PDM_HEADER_INIT;
+public:
+    RimGeometrySelectionItem();
+    virtual ~RimGeometrySelectionItem();
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimPickingTopologyItem::~RimPickingTopologyItem()
-{
+    virtual QString geometrySelectionText() const = 0;
+};
 
-}

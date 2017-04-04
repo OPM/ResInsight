@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimPickingTopologyItem.h"
+#include "RimGeometrySelectionItem.h"
 
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -31,16 +31,16 @@ class RiuEclipseSelectionItem;
 ///  
 ///  
 //==================================================================================================
-class RimEclipseTopologyItem : public RimPickingTopologyItem
+class RimEclipseGeometrySelectionItem : public RimGeometrySelectionItem
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimEclipseTopologyItem();
-    virtual ~RimEclipseTopologyItem() override;
+    RimEclipseGeometrySelectionItem();
+    virtual ~RimEclipseGeometrySelectionItem() override;
 
     void            setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem);
 
-    virtual QString topologyText() const override;
+    virtual QString geometrySelectionText() const override;
 
     RimEclipseCase* eclipseCase() const;
     size_t          gridIndex() const;

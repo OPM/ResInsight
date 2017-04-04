@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimGeoMechTopologyItem.h"
+#include "RimGeoMechGeometrySelectionItem.h"
 
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
@@ -25,40 +25,39 @@
 #include "RiuSelectionManager.h"
 
 
-CAF_PDM_SOURCE_INIT(RimGeoMechTopologyItem, "RimGeoMechTopologyItem");
+CAF_PDM_SOURCE_INIT(RimGeoMechGeometrySelectionItem, "GeoMechGeometrySelectionItem");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechTopologyItem::RimGeoMechTopologyItem()
+RimGeoMechGeometrySelectionItem::RimGeoMechGeometrySelectionItem()
 {
     CAF_PDM_InitObject("GeoMech Topology Item", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_geoMechCase, "GeoMechCase", "Geo Mech Case", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_gridIndex, "m_gridIndex", "m_gridIndex", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_cellIndex, "m_cellIndex", "m_cellIndex", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_elementFace, "m_elementFace", "m_elementFace", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_hasIntersectionTriangle, "m_hasIntersectionTriangle", "m_hasIntersectionTriangle", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_intersectionTriangle_0, "m_intersectionTriangle_0", "m_intersectionTriangle_0", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_intersectionTriangle_1, "m_intersectionTriangle_1", "m_intersectionTriangle_1", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_intersectionTriangle_2, "m_intersectionTriangle_2", "m_intersectionTriangle_2", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_localIntersectionPoint, "m_localIntersectionPoint", "m_localIntersectionPoint", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_gridIndex,               "m_gridIndex",               "GridIndex",               "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellIndex,               "m_cellIndex",               "CellIndex",               "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_elementFace,             "m_elementFace",             "ElementFace",             "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_hasIntersectionTriangle, "m_hasIntersectionTriangle", "HasIntersectionTriangle", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_intersectionTriangle_0,  "m_intersectionTriangle_0",  "IntersectionTriangle_0",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_intersectionTriangle_1,  "m_intersectionTriangle_1",  "IntersectionTriangle_1",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_intersectionTriangle_2,  "m_intersectionTriangle_2",  "IntersectionTriangle_2",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_localIntersectionPoint,  "m_localIntersectionPoint",  "LocalIntersectionPoint", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechTopologyItem::~RimGeoMechTopologyItem()
+RimGeoMechGeometrySelectionItem::~RimGeoMechGeometrySelectionItem()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechTopologyItem::setFromSelectionItem(const RiuGeoMechSelectionItem* selectionItem)
+void RimGeoMechGeometrySelectionItem::setFromSelectionItem(const RiuGeoMechSelectionItem* selectionItem)
 {
     m_geoMechCase = selectionItem->m_view->geoMechCase();
 
@@ -76,7 +75,7 @@ void RimGeoMechTopologyItem::setFromSelectionItem(const RiuGeoMechSelectionItem*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechTopologyItem::topologyText() const
+QString RimGeoMechGeometrySelectionItem::geometrySelectionText() const
 {
     QString text;
 
@@ -93,7 +92,7 @@ QString RimGeoMechTopologyItem::topologyText() const
     text += ", ";
     text += QString("Grid index %1").arg(m_gridIndex);
     text += ", ";
-    text += RigTimeHistoryResultAccessor::topologyText(m_geoMechCase->eclipseCaseData(), m_gridIndex, m_cellIndex);
+    text += RigTimeHistoryResultAccessor::geometrySelectionText(m_geoMechCase->eclipseCaseData(), m_gridIndex, m_cellIndex);
 */
 
     return text;
@@ -102,7 +101,7 @@ QString RimGeoMechTopologyItem::topologyText() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase* RimGeoMechTopologyItem::geoMechCase() const
+RimGeoMechCase* RimGeoMechGeometrySelectionItem::geoMechCase() const
 {
     return m_geoMechCase;
 }

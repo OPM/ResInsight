@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimPickingTopologyItem.h"
+#include "RimGeometrySelectionItem.h"
 
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -31,16 +31,16 @@ class RimGeoMechCase;
 ///  
 ///  
 //==================================================================================================
-class RimGeoMechTopologyItem : public RimPickingTopologyItem
+class RimGeoMechGeometrySelectionItem : public RimGeometrySelectionItem
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimGeoMechTopologyItem();
-    virtual ~RimGeoMechTopologyItem() override;
+    RimGeoMechGeometrySelectionItem();
+    virtual ~RimGeoMechGeometrySelectionItem() override;
 
     void            setFromSelectionItem(const RiuGeoMechSelectionItem* selectionItem);
 
-    virtual QString topologyText() const override;
+    virtual QString geometrySelectionText() const override;
     RimGeoMechCase* geoMechCase() const;
 
 public:

@@ -123,7 +123,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         curveName += ", ";
         curveName += QString("Grid index %1").arg(eclipseSelectionItem->m_gridIndex);
         curveName += ", ";
-        curveName += RigTimeHistoryResultAccessor::topologyText(eclipseView->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex);
+        curveName += RigTimeHistoryResultAccessor::geometrySelectionText(eclipseView->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex);
 
 
         std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->eclipseCase()->eclipseCaseData(), eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex, timeStepDates.size());
@@ -191,7 +191,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
         }
         curveName.append("\n");
 
-        curveName.append(timeHistResultAccessor->topologyText());
+        curveName.append(timeHistResultAccessor->geometrySelectionText());
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor->timeHistoryValues();
 
@@ -274,7 +274,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
 
             resultInfo = textBuilder.mainResultText();
 
-            pickInfo = textBuilder.topologyText(", ");
+            pickInfo = textBuilder.geometrySelectionText(", ");
         }
         else if (itemAdded->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
         {
@@ -288,7 +288,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
 
             resultInfo = textBuilder.mainResultText();
 
-            pickInfo = textBuilder.topologyText(", ");
+            pickInfo = textBuilder.geometrySelectionText(", ");
         }
     }
 
