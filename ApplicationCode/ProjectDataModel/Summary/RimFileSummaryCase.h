@@ -34,10 +34,9 @@ public:
 
     void                   setSummaryHeaderFilename(const QString& fileName);
     virtual QString        summaryHeaderFilename() const  override;
-    virtual QString        caseName() const override;
+    virtual QString        caseName() override;
 
 private:
-    caf::PdmField<QString> m_summaryHeaderFilename;
 };
 
 
