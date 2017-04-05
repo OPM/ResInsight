@@ -49,49 +49,6 @@ endif()
 ################################################################################
 include (ResInsightVersion.cmake)
 
-################################################################################
-# Boost
-################################################################################
-
-# if we are building shared libraries ourselves, then don't include Boost in them
-if (BUILD_SHARED_LIBS)
-   set(Boost_USE_STATIC_LIBS    OFF)
-elseif (DEFINED BUILD_SHARED_LIBS)
-   set(Boost_USE_STATIC_LIBS    ON)
-endif ()
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-
-if (MSVC)
-  ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
-endif()
-
-
-# Requires BOOST filesystem version 3, thus 1.44 is necessary.
-add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
-
-if(MSVC)
-	set(BUILD_SHARED_LIBS OFF)
-    set(Boost_USE_STATIC_LIBS    ON)
-	set(RESINSIGHT_BOOST_ROOT "" CACHE PATH "Path to installed boost directories" )
-	set(RESINSIGHT_BOOST_LIBRARYDIR "" CACHE PATH "Path to boost binary libraries" )
-	set(BOOST_ROOT ${RESINSIGHT_BOOST_ROOT})
-	set(BOOST_LIBRARYDIR ${RESINSIGHT_BOOST_LIBRARYDIR})
-	
-	if (RESINSIGHT_BOOST_ROOT AND RESINSIGHT_BOOST_LIBRARYDIR)
-		find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
-	else()
-		message (FATAL_ERROR "You need to set RESINSIGHT_BOOST_ROOT and RESINSIGHT_BOOST_LIBRARYDIR")
-	endif()
-
-else()
-	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
-endif()
-
-# Boost < 1.57 has c++11 name mangling issues in boost::filesystem
-if(Boost_VERSION VERSION_LESS 105700)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_NO_CXX11_SCOPED_ENUMS")
-endif()
 
 ################################################################################
 # cotire 
@@ -197,6 +154,21 @@ else()
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
+
+################################################################################ 
+# Subset of Boost, used by NRLib and flow diagnostics application 
+################################################################################ 
+ 
+if(MSVC)
+    # stop MSVC from trying to auto-link libs
+    add_definitions("-DBOOST_ALL_NO_LIB") 
+endif() 
+ 
+add_subdirectory(ThirdParty/boost-Subset) 
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    boost-Subset
+)
 
 ################################################################################
 # Opm

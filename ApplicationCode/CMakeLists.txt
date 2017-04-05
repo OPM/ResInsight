@@ -29,7 +29,7 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
 	${ERT_INCLUDE_DIRS}
 
-    ${Boost_INCLUDE_DIRS}
+    ${boost-Subset_SOURCE_DIR}
     ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
     ${custom-opm-flowdiag-app_SOURCE_DIR}/opm-flowdiagnostics-applications/
     ${custom-opm-flowdiag-app_SOURCE_DIR}/opmCore
@@ -276,20 +276,6 @@ endif ()
 # Set up libraries and dependent projects to link with
 #############################################################################
 
-if (MSVC)
-  set (RI_BOOST_LIBRARIES
-    debug     ${Boost_SYSTEM_LIBRARY_DEBUG}
-    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
-    debug     ${Boost_FILESYSTEM_LIBRARY_DEBUG}
-    optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-    debug     ${Boost_REGEX_LIBRARY_DEBUG}
-    optimized ${Boost_REGEX_LIBRARY_RELEASE}
-  )
-else()
-  set (RI_BOOST_LIBRARIES ${Boost_LIBRARIES})
-endif()
-
-
 set( LINK_LIBRARIES
     ${OPM_LIBRARIES}
         
@@ -307,9 +293,8 @@ set( LINK_LIBRARIES
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
-    
-    ${RI_BOOST_LIBRARIES}
 )
+
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
