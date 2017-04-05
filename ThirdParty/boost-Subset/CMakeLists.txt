@@ -8,7 +8,6 @@ cmake_minimum_required (VERSION 2.8)
 #
 # 2) Delete the following include folders, as they are large and not required
 #    It is probably possible to exclude more folders, but the dependencies for the remaining folders are quite complex
-#      boost-Subset/boost/preprocessor
 #      boost-Subset/boost/test
 #      boost-Subset/boost/typeof
 
