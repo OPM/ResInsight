@@ -42,12 +42,20 @@ public:
     size_t                  getI() { return m_i; }
     size_t                  getJ() { return m_j; }
 
+    //TODO:  set-funksjoner...
+
+    void                    addContributingEclipseCell(size_t fracCell, double transmissibility);
+    std::vector<size_t>     getContributingEclipseCells() { return contributingEclipseCells; }
+    std::vector<double>     getContributingEclipseCellTransmisibilities() { return contributingEclipseCellTransmisibilities; }
 
 private:
     std::vector<cvf::Vec3d> m_polygon;
     double                  m_value;
+//     double                  m_concutivityValue;
     size_t                  m_i;
     size_t                  m_j;
 
-};
+    std::vector<size_t>     contributingEclipseCells;
+    std::vector<double>     contributingEclipseCellTransmisibilities;
 
+};

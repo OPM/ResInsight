@@ -811,6 +811,7 @@ std::vector<RigStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(cons
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j + 1]), static_cast<float>(depthCoords[i + 1]), 0.0));
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i + 1]), 0.0));
 
+            //TODO: ikke bruke new, returner objekt i stedet for pekeren... 
             RigStimPlanCell* stimPlanCell = new RigStimPlanCell(cellPolygon, propertyValuesAtTimeStep[i + 1][j + 1], i, j);
             stimPlanCells.push_back(stimPlanCell);
         }

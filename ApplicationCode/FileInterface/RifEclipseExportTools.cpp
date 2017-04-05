@@ -40,6 +40,9 @@
 #include <QString>
 #include <QTextStream>
 #include "RigFractureTransCalc.h"
+#include "RimFractureTemplate.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RigStimPlanCell.h"
 
 
 
@@ -100,12 +103,12 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "\n";
 
     //Included for debug / prototyping only
-    performStimPlanUpscalingAndPrintResults(fractures, caseToApply, out, wellPath, simWell, mainGrid);
+    printStimPlanCellsMatrixTransContributions(fractures, caseToApply, out, wellPath, simWell, mainGrid);
     
 
+
     printBackgroundDataHeaderLine(out);
-
-
+    
     RiaLogging::debug(QString("Writing intermediate results from COMPDAT calculation"));
 
     for (RimFracture* fracture : fractures)
@@ -224,6 +227,88 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
             out << "\n";
         }
     }    
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+{
+    out << "StimPlan cells' matrix transmissibility and contributing \n";
+    for (RimFracture* fracture : fractures)
+    {
+        RimStimPlanFractureTemplate* fracTemplateStimPlan;
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+        {
+            fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+        }
+        else continue;
+
+        RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+
+        //TODO: Get these more generally: 
+        QString resultName = "CONDUCTIVITY";
+        QString resultUnit = "md-m";
+        size_t timeStepIndex = 0;
+        std::vector<RigStimPlanCell*> stimPlanCells = fracTemplateStimPlan->getStimPlanCells(resultName, resultUnit, timeStepIndex);
+
+        for (RigStimPlanCell* stimPlanCell : stimPlanCells)
+        {
+            if (stimPlanCell->getValue() < 1e-7) continue;
+
+            transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(stimPlanCell);
+
+
+            std::vector<size_t> stimPlanContributingEclipseCells = stimPlanCell->getContributingEclipseCells();
+            std::vector<double> stimPlanContributingEclipseCellTransmisibilities = stimPlanCell->getContributingEclipseCellTransmisibilities();
+
+            for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
+            {
+                out << qSetFieldWidth(4);
+                out << "-- ";
+
+                out << qSetFieldWidth(12);
+                wellPath, simWell = nullptr;
+                fracture->firstAncestorOrThisOfType(simWell);
+                if (simWell) out << simWell->name + " ";    // 1. Well name 
+                fracture->firstAncestorOrThisOfType(wellPath);
+                if (wellPath) out << wellPath->name + " ";  // 1. Well name 
+
+                out << qSetFieldWidth(16);
+                out << fracture->name().left(15) + " ";
+
+
+                out << qSetFieldWidth(5);
+                size_t ii, jj, kk;
+                mainGrid->ijkFromCellIndex(stimPlanContributingEclipseCells[i], &ii, &jj, &kk);
+                out << ii + 1;         
+                out << jj + 1;         
+                out << kk + 1;          
+
+                out << qSetFieldWidth(10);
+                out << stimPlanContributingEclipseCells[i];
+
+                out << qSetFieldWidth(5);
+                size_t spi = stimPlanCell->getI();
+                size_t spj = stimPlanCell->getJ();
+
+                out << spi;          
+                out << spj;         
+
+                out << qSetFieldWidth(10);
+                out << QString::number(stimPlanContributingEclipseCellTransmisibilities[i], 'e', 3);
+
+                out << "\n";
+
+            }
+
+        }
+
+
+
+
+    }
     return;
 }
 

@@ -45,3 +45,13 @@ RigStimPlanCell::~RigStimPlanCell()
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStimPlanCell::addContributingEclipseCell(size_t eclipseCell, double transmissibility)
+{
+    contributingEclipseCells.push_back(eclipseCell);
+    contributingEclipseCellTransmisibilities.push_back(transmissibility);
+
+}
+

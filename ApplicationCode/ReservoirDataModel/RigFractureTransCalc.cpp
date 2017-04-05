@@ -78,7 +78,6 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
 //--------------------------------------------------------------------------------------------------
 /// TODO: Document equation
 //--------------------------------------------------------------------------------------------------
-//TODO: Make static and move to another class
 void RigFractureTransCalc::computeTransmissibility()
 {
     if (m_fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
@@ -155,18 +154,6 @@ void RigFractureTransCalc::computeTransmissibility()
         RigFractureData fracData;
         fracData.reservoirCellIndex = fracCell;
 
-        double transmissibility;
-        double fractureArea = 0.0;
-        double fractureAreaWeightedlength = 0.0;
-        double Ax = 0.0;
-        double Ay = 0.0;
-        double Az = 0.0;
-        double skinfactor = 0.0;
-        double transmissibility_X = 0.0;
-        double transmissibility_Y = 0.0;
-        double transmissibility_Z = 0.0;
-
-
         std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(m_unitForCalculation);
 
         std::vector<cvf::Vec3d> fracPolygonDouble;
@@ -188,6 +175,9 @@ void RigFractureTransCalc::computeTransmissibility()
         std::vector<double> areaOfFractureParts;
         double length;
         std::vector<double> lengthXareaOfFractureParts;
+        double Ax = 0.0;
+        double Ay = 0.0;
+        double Az = 0.0;
 
         for (std::vector<cvf::Vec3d> fracturePartPolygon : polygonsDescribingFractureInCell)
         {
@@ -210,27 +200,20 @@ void RigFractureTransCalc::computeTransmissibility()
             //TODO: resulting values have only been checked for vertical fracture...
         }
 
-        fractureArea = 0.0;
+        double fractureArea = 0.0;
         for (double area : areaOfFractureParts) fractureArea += area;
 
         double totalAreaXLength = 0.0;
         for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
-        fractureAreaWeightedlength = totalAreaXLength / fractureArea;
+        
+        double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
+        double skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
 
-        double c = cvf::UNDEFINED_DOUBLE;
-        if (m_unitForCalculation == RimDefines::UNITS_METRIC) c = 0.00852702;
-        if (m_unitForCalculation == RimDefines::UNITS_FIELD)  c = 0.00112712;
-        // TODO: Use value from RimReservoirCellResultsStorage?       
+        double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength);
+        double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength);
+        double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, skinfactor, fractureAreaWeightedlength);
 
-        skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
-
-        double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
-
-        transmissibility_X = 8 * c * (permY * NTG) * Ay / (dx + slDivPi);
-        transmissibility_Y = 8 * c * (permX * NTG) * Ax / (dy + slDivPi);
-        transmissibility_Z = 8 * c * permZ * Az / (dz + slDivPi);
-
-        transmissibility = sqrt(transmissibility_X * transmissibility_X
+        double transmissibility = sqrt(transmissibility_X * transmissibility_X
             + transmissibility_Y * transmissibility_Y
             + transmissibility_Z * transmissibility_Z);
 
@@ -256,6 +239,147 @@ void RigFractureTransCalc::computeTransmissibility()
     }
 
     m_fracture->setFractureData(fracDataVec);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell)
+{
+
+    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
+
+    size_t scalarSetIndex;
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
+
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+    cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
+
+    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+
+
+    std::vector<cvf::Vec3d> stimPlanPolygon = stimPlanCell->getPolygon();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
+
+    for (size_t fracCell : fracCells)
+    {
+        bool cellIsActive = activeCellInfo->isActive(fracCell);
+        if (!cellIsActive) continue;
+
+        double permX = dataAccessObjectPermX->cellScalarGlobIdx(fracCell);
+        double permY = dataAccessObjectPermY->cellScalarGlobIdx(fracCell);
+        double permZ = dataAccessObjectPermZ->cellScalarGlobIdx(fracCell);
+
+        double dx = dataAccessObjectDx->cellScalarGlobIdx(fracCell);
+        double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
+        double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
+
+        double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
+
+        cvf::Vec3d localX;
+        cvf::Vec3d localY;
+        cvf::Vec3d localZ;
+        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
+        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
+        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
+
+        //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
+        cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
+        for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
+        {
+            for (cvf::Vec3d& v : planeCellPolygon)
+            {
+                v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
+            }
+        }
+
+        cvf::Vec3d localZinFracPlane;
+        localZinFracPlane = localZ;
+        localZinFracPlane.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+        cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
+        directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
+        directionOfLength.normalize();
+
+        std::vector<std::vector<cvf::Vec3d> > polygonsForStimPlanCellInEclipseCell;
+        cvf::Vec3d areaVector;
+
+        for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
+        {
+            std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::clipPolygons(planeCellPolygon, stimPlanPolygon);
+            for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
+            {
+                polygonsForStimPlanCellInEclipseCell.push_back(clippedPolygon);
+            }
+        }
+
+        if (polygonsForStimPlanCellInEclipseCell.size() == 0) continue;
+
+        double area;
+        std::vector<double> areaOfFractureParts;
+        double length;
+        std::vector<double> lengthXareaOfFractureParts;
+        double Ax = 0.0, Ay = 0.0, Az = 0.0;
+
+        for (std::vector<cvf::Vec3d> fracturePartPolygon : polygonsForStimPlanCellInEclipseCell)
+        {
+            areaVector = cvf::GeometryTools::polygonAreaNormal3D(fracturePartPolygon);
+            area = areaVector.length();
+            areaOfFractureParts.push_back(area);
+
+            //TODO: the l in the sl/pi term in the denominator of the Tmj expression should be the length of the full Eclipse cell
+            //In the current form the implementation gives correct result only if s=0 (fracture templte skin factor). 
+            length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, fracturePartPolygon);
+            lengthXareaOfFractureParts.push_back(length * area);
+
+            cvf::Plane fracturePlane;
+            cvf::Mat4f m = m_fracture->transformMatrix();
+            bool isCellIntersected = false;
+
+            fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
+                static_cast<cvf::Vec3d>(m.col(2)));
+
+            Ax += abs(area*(fracturePlane.normal().dot(localY)));
+            Ay += abs(area*(fracturePlane.normal().dot(localX)));
+            Az += abs(area*(fracturePlane.normal().dot(localZ)));
+        }
+
+        double fractureArea = 0.0;
+        for (double area : areaOfFractureParts) fractureArea += area;
+
+        double totalAreaXLength = 0.0;
+        for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
+
+        double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
+        double skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
+
+
+
+        double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength);
+        double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength);
+        double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, skinfactor, fractureAreaWeightedlength);
+
+        double transmissibility = sqrt(transmissibility_X * transmissibility_X
+            + transmissibility_Y * transmissibility_Y
+            + transmissibility_Z * transmissibility_Z);
+
+        stimPlanCell->addContributingEclipseCell(fracCell, transmissibility);
+    }
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -658,15 +782,12 @@ void RigFractureTransCalc::computeFlowInFracture()
         }
 
         Kw = convertConductivtyValue(Kw, fracTemplateEllipse->fractureTemplateUnit(), m_unitForCalculation);
-
-
     }
 
 
     m_fracture->setFractureData(fracDataVec);
 
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -683,8 +804,6 @@ void RigFractureTransCalc::computeFlowIntoTransverseWell()
     {
         areaScalingFactor = 1 / cvf::Math::cos((m_fracture->azimuth() - (m_fracture->wellAzimuthAtFracturePosition()-90) ));
     }
-
-
 
 }
 
@@ -742,4 +861,23 @@ double RigFractureTransCalc::convertConductivtyValue(double Kw, RimDefines::Unit
     }
 
     return cvf::UNDEFINED_DOUBLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::calculateMatrixTransmissibility(double perm, double NTG, double A, double cellSizeLength, double skinfactor, double fractureAreaWeightedlength)
+{
+    double transmissibility; 
+
+    double c = cvf::UNDEFINED_DOUBLE;
+    if (m_unitForCalculation == RimDefines::UNITS_METRIC) c = 0.00852702;
+    if (m_unitForCalculation == RimDefines::UNITS_FIELD)  c = 0.00112712;
+    // TODO: Use value from RimReservoirCellResultsStorage?       
+
+
+    double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
+    transmissibility = 8 * c * (perm * NTG) * A / (cellSizeLength + slDivPi);
+
+    return transmissibility;
 }

@@ -74,20 +74,4 @@ const std::vector<RigFractureData>& RigFracture::fractureData() const
     return m_fractureData;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigFractureData* RigFracture::fractureData(size_t eclipseCellIndex)
-{
-    for (RigFractureData fracData : m_fractureData)
-    {
-        if (fracData.reservoirCellIndex == eclipseCellIndex)
-        {
-            return &fracData;
-        }
-    }
-
-    RigFractureData newFractureData;
-    return &newFractureData;
-}
 

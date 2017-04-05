@@ -56,6 +56,8 @@ public:
 
     static double               arithmeticAverage(std::vector<double> values);
 
+    void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell);
+    
     void                        computeFlowInFracture();
     void                        computeFlowIntoTransverseWell();
 
@@ -71,5 +73,6 @@ private:
     RimFracture*            m_fracture;
     RimDefines::UnitSystem  m_unitForCalculation;
 
+    double calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
 };
 
