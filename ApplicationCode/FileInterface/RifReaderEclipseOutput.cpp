@@ -730,7 +730,12 @@ void RifReaderEclipseOutput::buildMetaData()
                 staticDate.push_back(m_timeSteps.front());
             }
 
-            std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+            std::vector<int> reportNumbers;
+            if (m_dynamicResultsAccess.notNull())
+            {
+                reportNumbers = m_dynamicResultsAccess->reportNumbers();
+            }
+
             if ( reportNumbers.size() > 0 )
             {
                 staticReportNumber.push_back(reportNumbers.front());
