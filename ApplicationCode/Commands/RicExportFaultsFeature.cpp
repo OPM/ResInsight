@@ -157,7 +157,9 @@ QString RicExportFaultsFeature::faceText(cvf::StructGridInterface::FaceType face
      case cvf::StructGridInterface::NEG_J: return QString("-J");
      case cvf::StructGridInterface::POS_K: return QString(" K");
      case cvf::StructGridInterface::NEG_K: return QString("-K");
+     default: CVF_ASSERT(false);
     }
+    return "";
 }
 
 //--------------------------------------------------------------------------------------------------
