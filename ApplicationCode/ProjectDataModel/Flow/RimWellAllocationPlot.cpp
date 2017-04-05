@@ -80,15 +80,13 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "");
-    CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_flowType, "FlowType", "Flow Type", "", "", "");
-
-    CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
-    CAF_PDM_InitField(&m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "");
+    CAF_PDM_InitField(&m_timeStep,                         "PlotTimeStep",                0,               "Time Step",                 "", "", "");
+    CAF_PDM_InitField(&m_wellName,                         "WellName",                    QString("None"), "Well",                      "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution,        "FlowDiagSolution",                             "Flow Diag Solution",        "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowType,                "FlowType",                                     "Flow Type",                 "", "", "");
+    CAF_PDM_InitField(&m_groupSmallContributions,          "GroupSmallContributions",     true,            "Group Small Contributions", "", "", "");
+    CAF_PDM_InitField(&m_smallContributionsThreshold,      "SmallContributionsThreshold", 0.005,           "Threshold",                 "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);

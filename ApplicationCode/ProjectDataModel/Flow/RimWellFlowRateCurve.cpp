@@ -40,7 +40,7 @@
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "RimWellFlowRateCurve");
+CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "WellFlowRateCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -37,10 +37,10 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "", "", "", "");
     m_flowCharacteristicsPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_defaultWellAllocPlot, "DefaultFlowPlot", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "", "", "", "");
     m_defaultWellAllocPlot.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_storedWellAllocPlots, "FlowPlots", "Stored Plots",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_storedWellAllocPlots, "StoredWellAllocationPlots", "Stored Plots",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
