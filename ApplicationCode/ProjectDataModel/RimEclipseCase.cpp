@@ -579,12 +579,24 @@ QString RimEclipseCase::timeStepName(int frameIdx)
     if (m_timeStepFormatString.isEmpty())
     {
         bool hasHoursAndMinutesInTimesteps = false;
+        bool hasSecondsInTimesteps = false;
+        bool hasMillisecondsInTimesteps = false;
         for (size_t i = 0; i < timeStepDates.size(); i++)
         {
-            if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            if (timeStepDates[i].time().msec() != 0.0)
             {
+                hasMillisecondsInTimesteps = true;
+                hasSecondsInTimesteps = true;
                 hasHoursAndMinutesInTimesteps = true;
                 break;
+            }
+            else if (timeStepDates[i].time().second() != 0.0) {
+                hasHoursAndMinutesInTimesteps = true;
+                hasSecondsInTimesteps = true;
+            }
+            else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            {
+                hasHoursAndMinutesInTimesteps = true;
             }
         }
 
@@ -592,6 +604,14 @@ QString RimEclipseCase::timeStepName(int frameIdx)
         if (hasHoursAndMinutesInTimesteps)
         {
             m_timeStepFormatString += " - hh:mm";
+            if (hasSecondsInTimesteps)
+            {
+                m_timeStepFormatString += ":ss";
+                if (hasMillisecondsInTimesteps)
+                {
+                    m_timeStepFormatString += ".zzz";
+                }
+            }
         }
     }
 

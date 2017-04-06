@@ -162,9 +162,12 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
             CVF_ASSERT(reportDateTime.isValid());
 
             double dayFraction = dayFractions[i];
-            int seconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0);
+            int milliseconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0 * 1000.0);
+            int seconds = milliseconds % 1000;
+            milliseconds -= seconds * 1000;
             QTime time(0, 0);
             time = time.addSecs(seconds);
+            time = time.addMSecs(milliseconds);
 
             reportDateTime.setTime(time);
 
