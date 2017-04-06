@@ -76,9 +76,8 @@ public:
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
     
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
-    std::vector<RigStimPlanCell*>           getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex);
-    //const std::vector<RigStimPlanCell>&     getStimPlanCells();
-    //TODO: replace by new get-function returning pointer to m_stimPlanCells
+    void                                    setupStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex);
+    const std::vector<RigStimPlanCell>&     getStimPlanCells();
     std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
@@ -112,8 +111,5 @@ private:
 
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
-
-    //TODO add
-//     std::vector<RigStimPlanCell>                m_stimPlanConductivityCells;
-//     std::vector<RigStimPlanCell>                m_stimPlanVisibleCells;
+    std::vector<RigStimPlanCell>                m_stimPlanCells;
 };

@@ -284,20 +284,14 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
 {
-
-    //TODO: Get these more generally: 
-    QString resultName = "CONDUCTIVITY";
-    QString resultUnit = "md-m";
-    size_t timeStepIndex = 0;
-
-    std::vector<RigStimPlanCell* > stimPlanCells = stimPlanFracTemplate->getStimPlanCells(resultName, resultUnit, timeStepIndex);
+    std::vector<RigStimPlanCell> stimPlanCells = stimPlanFracTemplate->getStimPlanCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
-    for (RigStimPlanCell* stimPlanCell : stimPlanCells)
+    for (RigStimPlanCell stimPlanCell : stimPlanCells)
     {
-        if (stimPlanCell->getValue() > 1e-7)
+        if (stimPlanCell.getDisplayValue() > 1e-7)
         {
-            std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell->getPolygon();
+            std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell.getPolygon();
             for (cvf::Vec3d cellCorner : stimPlanCellPolygon)
             {
                 stimPlanMeshVertices.push_back(static_cast<cvf::Vec3f>(cellCorner));

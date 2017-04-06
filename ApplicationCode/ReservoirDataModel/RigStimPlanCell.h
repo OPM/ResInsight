@@ -32,17 +32,19 @@ class RigStimPlanCell
 
 public:
     RigStimPlanCell();
-    RigStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, size_t i, size_t j);
+    RigStimPlanCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j);
 
 
     virtual ~RigStimPlanCell();
 
     std::vector<cvf::Vec3d> getPolygon() { return m_polygon; }
-    double                  getValue() { return m_value; }
+    double                  getConductivtyValue() { return m_concutivityValue; }
+    double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() { return m_i; }
     size_t                  getJ() { return m_j; }
 
-    //TODO:  set-funksjoner...
+    void setConductivityValue(double cond) { m_concutivityValue = cond; }
+    void setDisplayValue(double value) { m_displayValue = value; };
 
     void                    addContributingEclipseCell(size_t fracCell, double transmissibility);
     std::vector<size_t>     getContributingEclipseCells() { return contributingEclipseCells; }
@@ -50,8 +52,8 @@ public:
 
 private:
     std::vector<cvf::Vec3d> m_polygon;
-    double                  m_value;
-//     double                  m_concutivityValue;
+    double                  m_displayValue;
+    double                  m_concutivityValue;
     size_t                  m_i;
     size_t                  m_j;
 

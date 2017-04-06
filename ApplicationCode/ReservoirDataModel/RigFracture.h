@@ -49,9 +49,22 @@ public:
     //TODO: Used for upscaling - should be moved?
     double upscaledStimPlanValueHA;
     double upscaledStimPlanValueAH;
+};
 
+
+class RigFractureStimPlanCellData
+{
+public:
+    RigFractureStimPlanCellData();
+
+    size_t                  m_i;
+    size_t                  m_j;
+
+//     std::vector<size_t>     contributingEclipseCells;
+//     std::vector<double>     contributingEclipseCellTransmisibilities;
 
 };
+
 
 //==================================================================================================
 /// 

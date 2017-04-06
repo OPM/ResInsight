@@ -327,6 +327,12 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     readStimPlanXMLFile(&errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
+    //TODO: Get these more generally: 
+    QString resultName = "CONDUCTIVITY";
+    QString resultUnit = "md-m";
+    size_t timeStepIndex = 0;
+    setupStimPlanCells(resultName, resultUnit, timeStepIndex);
+
     updateConnectedEditors();
 }
 
@@ -788,11 +794,17 @@ void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex)
+void RimStimPlanFractureTemplate::setupStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex)
 {
-    std::vector<RigStimPlanCell*> stimPlanCells;
+    std::vector<RigStimPlanCell> stimPlanCells;
 
-    std::vector<std::vector<double>> propertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+
+    std::vector<std::vector<double>> conductivityValuesAtTimeStep = getMirroredDataAtTimeIndex("CONDUCTIVITY", unitName, timeStepIndex);
+    //TODO: Handle units
+    //TODO: Handle not having cond in files!!!
+
+
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
     std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
 
@@ -811,13 +823,22 @@ std::vector<RigStimPlanCell*> RimStimPlanFractureTemplate::getStimPlanCells(cons
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j + 1]), static_cast<float>(depthCoords[i + 1]), 0.0));
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i + 1]), 0.0));
 
-            //TODO: ikke bruke new, returner objekt i stedet for pekeren... 
-            RigStimPlanCell* stimPlanCell = new RigStimPlanCell(cellPolygon, propertyValuesAtTimeStep[i + 1][j + 1], i, j);
+            RigStimPlanCell stimPlanCell(cellPolygon, i, j);
+            stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[i + 1][j + 1]);
+            stimPlanCell.setDisplayValue(displayPropertyValuesAtTimeStep[i + 1][j + 1]);
             stimPlanCells.push_back(stimPlanCell);
         }
     }
 
-    return stimPlanCells;
+    m_stimPlanCells = stimPlanCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigStimPlanCell>& RimStimPlanFractureTemplate::getStimPlanCells()
+{
+    return m_stimPlanCells;
 }
 
 //--------------------------------------------------------------------------------------------------

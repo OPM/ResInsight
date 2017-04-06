@@ -248,20 +248,17 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
 
         //TODO: Get these more generally: 
-        QString resultName = "CONDUCTIVITY";
-        QString resultUnit = "md-m";
-        size_t timeStepIndex = 0;
-        std::vector<RigStimPlanCell*> stimPlanCells = fracTemplateStimPlan->getStimPlanCells(resultName, resultUnit, timeStepIndex);
+        std::vector<RigStimPlanCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
-        for (RigStimPlanCell* stimPlanCell : stimPlanCells)
+        for (RigStimPlanCell stimPlanCell : stimPlanCells)
         {
-            if (stimPlanCell->getValue() < 1e-7) continue;
+            if (stimPlanCell.getConductivtyValue() < 1e-7) continue;
 
-            transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(stimPlanCell);
+            transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(&stimPlanCell);
 
 
-            std::vector<size_t> stimPlanContributingEclipseCells = stimPlanCell->getContributingEclipseCells();
-            std::vector<double> stimPlanContributingEclipseCellTransmisibilities = stimPlanCell->getContributingEclipseCellTransmisibilities();
+            std::vector<size_t> stimPlanContributingEclipseCells = stimPlanCell.getContributingEclipseCells();
+            std::vector<double> stimPlanContributingEclipseCellTransmisibilities = stimPlanCell.getContributingEclipseCellTransmisibilities();
 
             for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {
@@ -290,8 +287,8 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
                 out << stimPlanContributingEclipseCells[i];
 
                 out << qSetFieldWidth(5);
-                size_t spi = stimPlanCell->getI();
-                size_t spj = stimPlanCell->getJ();
+                size_t spi = stimPlanCell.getI();
+                size_t spj = stimPlanCell.getJ();
 
                 out << spi;          
                 out << spj;         

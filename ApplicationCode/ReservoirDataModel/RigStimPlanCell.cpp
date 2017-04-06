@@ -29,10 +29,9 @@ RigStimPlanCell::RigStimPlanCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanCell::RigStimPlanCell(std::vector<cvf::Vec3d> polygon, double value, size_t i, size_t j)
+RigStimPlanCell::RigStimPlanCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
 {
     m_polygon = polygon;
-    m_value = value;
     m_i = i;
     m_j = j;
 }
