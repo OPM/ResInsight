@@ -151,30 +151,27 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
         CVF_ASSERT(kwINTEHEAD);
-        if (kwINTEHEAD)
+        int day = 0;
+        int month = 0;
+        int year = 0;
+        getDayMonthYear(kwINTEHEAD, &day, &month, &year);
+
+        QDateTime reportDateTime(QDate(year, month, day));
+        CVF_ASSERT(reportDateTime.isValid());
+
+        double dayFraction = dayFractions[i];
+        int milliseconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0 * 1000.0);
+        int seconds = milliseconds % 1000;
+        milliseconds -= seconds * 1000;
+        QTime time(0, 0);
+        time = time.addSecs(seconds);
+        time = time.addMSecs(milliseconds);
+
+        reportDateTime.setTime(time);
+
+        if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
         {
-            int day = 0;
-            int month = 0;
-            int year = 0;
-            getDayMonthYear(kwINTEHEAD, &day, &month, &year);
-            
-            QDateTime reportDateTime(QDate(year, month, day));
-            CVF_ASSERT(reportDateTime.isValid());
-
-            double dayFraction = dayFractions[i];
-            int milliseconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0 * 1000.0);
-            int seconds = milliseconds % 1000;
-            milliseconds -= seconds * 1000;
-            QTime time(0, 0);
-            time = time.addSecs(seconds);
-            time = time.addMSecs(milliseconds);
-
-            reportDateTime.setTime(time);
-
-            if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
-            {
-                timeSteps->push_back(reportDateTime);
-            }
+            timeSteps->push_back(reportDateTime);
         }
     }
 }
