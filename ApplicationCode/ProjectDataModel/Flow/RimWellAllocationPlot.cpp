@@ -594,9 +594,9 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
         if (m_case)
         {
             //std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
+            // options.push_back(caf::PdmOptionItemInfo("None", nullptr));
             //for (RimFlowDiagSolution* flowSol : flowSols)
             //{
-            //    options.push_back(caf::PdmOptionItemInfo("None", nullptr));
             //    options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
             //}
 

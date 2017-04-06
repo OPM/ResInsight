@@ -140,7 +140,10 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
 
             for ( RimEclipseResultCase* c : cases )
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                if ( c->defaultFlowDiagSolution() )
+                {
+                    options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                }
             }
         }
     }
@@ -150,9 +153,9 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         {
             std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
 
+            options.push_back(caf::PdmOptionItemInfo("None", nullptr));
             for ( RimFlowDiagSolution* flowSol : flowSols )
             {
-                options.push_back(caf::PdmOptionItemInfo("None", nullptr));
                 options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
             }
         }
