@@ -21,12 +21,14 @@
 #include "RimEclipseCase.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -131,6 +133,48 @@ RigEclipseCaseData* RimEclipseCase::eclipseCaseData()
 const RigEclipseCaseData* RimEclipseCase::eclipseCaseData() const
 {
     return m_rigEclipseCase.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEclipseCase::defaultWellColor(const QString& wellName)
+{
+    if ( m_wellToColorMap.empty() )
+    {
+        const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
+        cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+        cvf::Color3ubArray interpolatedWellColors = wellColors;
+
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = this->eclipseCaseData()->wellResults();
+        if ( wellResults.size() > 1 )
+        {
+            interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellResults.size());
+        }
+
+        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        {
+            m_wellToColorMap[wellResults[wIdx]->m_wellName] = cvf::Color3f::BLACK;
+        }
+
+        size_t wIdx = 0;
+        for ( auto & wNameColorPair: m_wellToColorMap )
+        {
+            wNameColorPair.second = cvf::Color3f(interpolatedWellColors[wIdx]);
+
+            ++wIdx;
+        }
+    }
+
+    auto nmColor = m_wellToColorMap.find(wellName);
+    if (nmColor != m_wellToColorMap.end()) 
+    {
+        return nmColor->second;
+    }
+    else
+    {
+        return cvf::Color3f::LIGHT_GRAY;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

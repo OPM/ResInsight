@@ -538,16 +538,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 
     if (fieldNeedingOptions == &m_wellName)
     {
-        std::set<QString> sortedWellNames;
-        if ( m_case && m_case->eclipseCaseData() )
-        {
-            const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->eclipseCaseData()->wellResults();
-
-            for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
-            {
-                sortedWellNames.insert(wellRes[wIdx]->m_wellName);
-            }
-        }
+        std::set<QString> sortedWellNames = this->findSortedWellNames();
 
         QIcon simWellIcon(":/Well.png");
         for ( const QString& wname: sortedWellNames )
@@ -649,8 +640,30 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         updateWidgetTitleWindowTitle();
     }
+    else if ( changedField == &m_case)
+    {
+        if ( m_flowDiagSolution && m_case )
+        {
+            m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        }
+        else
+        {
+            m_flowDiagSolution = nullptr;
+        }
+
+        if (!m_case) m_timeStep = 0;
+        else if (m_timeStep >= m_case->timeStepDates().size())
+        {
+            m_timeStep =  std::max(0, ((int)m_case->timeStepDates().size()) - 1);
+        }
+
+        std::set<QString> sortedWellNames = findSortedWellNames();
+        if (!sortedWellNames.size()) m_wellName = "";
+        else if ( sortedWellNames.count(m_wellName()) == 0 ){ m_wellName = *sortedWellNames.begin();}
+
+        loadDataAndUpdate();
+    }
     else if (   changedField == &m_wellName
-             || changedField == &m_case
              || changedField == &m_timeStep
              || changedField == &m_flowDiagSolution
              || changedField == &m_groupSmallContributions
@@ -659,6 +672,25 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimWellAllocationPlot::findSortedWellNames()
+{
+    std::set<QString> sortedWellNames;
+    if ( m_case && m_case->eclipseCaseData() )
+    {
+        const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->eclipseCaseData()->wellResults();
+
+        for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
+        {
+            sortedWellNames.insert(wellRes[wIdx]->m_wellName);
+        }
+    }
+
+    return sortedWellNames;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -317,43 +317,19 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimFlowDiagSolution::tracerColor(const QString& tracerName) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType(eclCase);
-
     QString wellName = removeCrossFlowEnding(tracerName);
-
-    if ( eclCase )
-    {
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-
-        if (activeView)
-        {
-            RimEclipseWell* well = activeView->wellCollection->findWell(wellName);
-            if (well)
-            {
-                return well->wellPipeColor();
-            }
-        }
-        else
-        {
-            // If we do not find a well color, use index in well result data to be able to get variation of tracer colors
-            // This can be the case if we do not have any views at all
-
-            const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
-
-            for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
-            {
-                if ( wellResults[wIdx]->m_wellName == wellName )
-                {
-                    return RiaColorTables::wellsPaletteColors().cycledColor3f(wIdx);
-                }
-            }
-        }
-    }
 
     if (wellName == RIG_FLOW_TOTAL_NAME)        return cvf::Color3f::LIGHT_GRAY;
     if (wellName == RIG_RESERVOIR_TRACER_NAME)  return cvf::Color3f::LIGHT_GRAY;
     if (wellName == RIG_TINY_TRACER_GROUP_NAME) return cvf::Color3f::DARK_GRAY;
+
+    RimEclipseResultCase* eclCase;
+    this->firstAncestorOrThisOfType(eclCase);
+
+    if ( eclCase )
+    {
+        return eclCase->defaultWellColor(wellName);
+    }
 
     return cvf::Color3f::LIGHT_GRAY;
 }
