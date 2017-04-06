@@ -186,24 +186,26 @@ void RimEclipsePropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
     resultDefinition->uiOrdering(uiConfigName, *group1);
     
+    caf::PdmUiGroup& group2 = *(uiOrdering.addNewGroup("Filter Settings"));
+
     // Fields declared in RimCellFilter
-    uiOrdering.add(&filterMode);
+    group2.add(&filterMode);
     
-    uiOrdering.add(&m_rangeLabelText);
+    group2.add(&m_rangeLabelText);
 
     if (resultDefinition->hasCategoryResult())
     {
-        uiOrdering.add(&m_useCategorySelection);
+        group2.add(&m_useCategorySelection);
     }
 
     if ( resultDefinition->hasCategoryResult() && m_useCategorySelection() )
     {
-        uiOrdering.add(&m_selectedCategoryValues);
+        group2.add(&m_selectedCategoryValues);
     }
     else
     {
-        uiOrdering.add(&m_lowerBound);
-        uiOrdering.add(&m_upperBound);
+        group2.add(&m_lowerBound);
+        group2.add(&m_upperBound);
     }
 
     uiOrdering.skipRemainingFields(true);

@@ -61,8 +61,9 @@ public:
 
     virtual void                                updateFormationNamesData() = 0;
 
-private:
+protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+private:
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
 };
 

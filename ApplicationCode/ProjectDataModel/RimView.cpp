@@ -263,6 +263,26 @@ void RimView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    viewGroup->add(&name);
+    viewGroup->add(&backgroundColor);
+    viewGroup->add(&showGridBox);
+    viewGroup->add(&isPerspectiveView);
+    viewGroup->add(&m_disableLighting);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
+    gridGroup->add(&scaleZ);
+    gridGroup->add(&meshMode);
+    gridGroup->add(&surfaceMode);
+
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QImage RimView::snapshotWindowContent()
 {
     if (m_viewer)

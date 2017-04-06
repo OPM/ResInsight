@@ -135,17 +135,18 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
     resultDefinition->uiOrdering(uiConfigName, *group1);
 
-    uiOrdering.add(&isActive);
-    uiOrdering.add(&filterMode);
+    caf::PdmUiGroup& group2 = *(uiOrdering.addNewGroup("Filter Settings"));
+
+    group2.add(&filterMode);
 
     if ( resultDefinition->hasCategoryResult() )
     {
-        uiOrdering.add(&m_selectedCategoryValues);
+        group2.add(&m_selectedCategoryValues);
     }
     else
     {
-        uiOrdering.add(&lowerBound);
-        uiOrdering.add(&upperBound);
+        group2.add(&lowerBound);
+        group2.add(&upperBound);
     }
 
     updateReadOnlyStateOfAllFields();

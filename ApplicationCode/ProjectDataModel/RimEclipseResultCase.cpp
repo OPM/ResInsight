@@ -55,7 +55,7 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
-    CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
+    CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case File Name", "", "" ,"");
     caseFileName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault (&m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "");
@@ -435,5 +435,11 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add(&caseUserDescription);
     uiOrdering.add(&caseId);
     uiOrdering.add(&caseFileName);
+
+    auto group = uiOrdering.addNewGroup("Case Options");
+    group->add(&activeFormationNames);
+    group->add(&flipXAxis);
+    group->add(&flipYAxis);
+
 }
 

@@ -60,6 +60,9 @@ public:
 
     virtual void                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
 
+protected:
+    virtual void                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 

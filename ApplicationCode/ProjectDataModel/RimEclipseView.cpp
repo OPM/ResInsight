@@ -1291,15 +1291,7 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
-    viewGroup->add(&name);
-    viewGroup->add(&backgroundColor);
-    viewGroup->add(&showGridBox);
-
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
-    gridGroup->add(&scaleZ);
-    gridGroup->add(&meshMode);
-    gridGroup->add(&surfaceMode);
+    RimView::defineUiOrdering(uiConfigName, uiOrdering);
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
     cellGroup->add(&showMainGrid);
