@@ -59,6 +59,9 @@ RimEclipseResultCase::RimEclipseResultCase()
     caseFileName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault (&m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "");
+    m_flowDiagSolutions.uiCapability()->setUiHidden(true);
+    m_flowDiagSolutions.uiCapability()->setUiTreeHidden(true);
+    m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");

@@ -100,7 +100,8 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "");
     m_flowSolutionUiField.xmlCapability()->setIOReadable(false);
     m_flowSolutionUiField.xmlCapability()->setIOWritable(false);
-
+    m_flowSolutionUiField.uiCapability()->setUiHidden(true); // For now since there are only one to choose from
+ 
     CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiField, "MSelectedTracers", " ", "", "", "");
     m_selectedTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedTracersUiField.xmlCapability()->setIOWritable(false);

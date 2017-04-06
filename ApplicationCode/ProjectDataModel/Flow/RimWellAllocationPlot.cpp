@@ -82,7 +82,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
 
     CAF_PDM_InitField(&m_timeStep,                         "PlotTimeStep",                0,               "Time Step",                 "", "", "");
     CAF_PDM_InitField(&m_wellName,                         "WellName",                    QString("None"), "Well",                      "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution,        "FlowDiagSolution",                             "Flow Diag Solution",        "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution,        "FlowDiagSolution",                             "Plot Type",                 "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_flowType,                "FlowType",                                     "Flow Type",                 "", "", "");
     CAF_PDM_InitField(&m_groupSmallContributions,          "GroupSmallContributions",     true,            "Group Small Contributions", "", "", "");
     CAF_PDM_InitField(&m_smallContributionsThreshold,      "SmallContributionsThreshold", 0.005,           "Threshold",                 "", "", "");
@@ -593,12 +593,18 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     {
         if (m_case)
         {
-            std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
+            //std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
+            //for (RimFlowDiagSolution* flowSol : flowSols)
+            //{
+            //    options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+            //    options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+            //}
 
-            for (RimFlowDiagSolution* flowSol : flowSols)
+            RimFlowDiagSolution* defaultFlowSolution =  m_case->defaultFlowDiagSolution();
+            options.push_back(caf::PdmOptionItemInfo("Well Flow", nullptr));
+            if (defaultFlowSolution)
             {
-                options.push_back(caf::PdmOptionItemInfo("None", nullptr));
-                options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo("Allocation", defaultFlowSolution ));
             }
         }
     }
