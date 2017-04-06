@@ -59,7 +59,6 @@ RiuWellLogTrack::RiuWellLogTrack(RimWellLogTrack* plotTrackDefinition, QWidget* 
     Q_ASSERT(plotTrackDefinition);
     m_plotTrackDefinition = plotTrackDefinition;
    
-    setFocusPolicy(Qt::ClickFocus);
     setDefaults();
 }
 
@@ -195,18 +194,6 @@ bool RiuWellLogTrack::eventFilter(QObject* watched, QEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::focusInEvent(QFocusEvent* event)
-{
-    if (m_plotTrackDefinition)
-    {
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(m_plotTrackDefinition);
-        clearFocus();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
 {
     QwtPlotCurve* closestCurve = NULL;
@@ -234,8 +221,12 @@ void RiuWellLogTrack::selectClosestCurve(const QPoint& pos)
         if (selectedCurve)
         {
             RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
+
+            return;
         }
     }
+
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(m_plotTrackDefinition);
 }
 
 //--------------------------------------------------------------------------------------------------
