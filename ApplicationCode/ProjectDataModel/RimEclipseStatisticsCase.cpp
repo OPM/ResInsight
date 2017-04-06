@@ -75,7 +75,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.xmlCapability()->setIOReadable(false);
     m_selectionSummary.uiCapability()->setUiReadOnly(true);
     m_selectionSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
     m_resultType.xmlCapability()->setIOWritable(false);
@@ -114,6 +114,11 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitField(&m_useZeroAsInactiveCellValue, "UseZeroAsInactiveCellValue", false, "Use Zero as Inactive Cell Value", "", "", "");
 
     m_populateSelectionAfterLoadingGrid = false;
+
+    // These does not work properly for statistics case, so hide for now
+    flipXAxis.uiCapability()->setUiHidden(true);
+    flipYAxis.uiCapability()->setUiHidden(true);
+    activeFormationNames.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,12 +344,16 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     updatePercentileUiVisibility();
 
     uiOrdering.add(&caseUserDescription);
-    
     uiOrdering.add(&caseId);
-    uiOrdering.add(&m_calculateEditCommand);
-    uiOrdering.add(&m_selectionSummary);
 
-    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Properties to consider");
+    uiOrdering.add(&m_calculateEditCommand);
+
+    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Summary of Calculation Setup");
+    group->add(&m_useZeroAsInactiveCellValue);
+    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden(hasComputedStatistics());
+    group->add(&m_selectionSummary);
+
+    group = uiOrdering.addNewGroup("Properties to consider");
     group->setUiHidden(hasComputedStatistics());
     group->add(&m_resultType);
     group->add(&m_porosityModel);
@@ -357,8 +366,6 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_selectedFractureGeneratedProperties);
     group->add(&m_selectedFractureInputProperties);
     
-    uiOrdering.add(&m_useZeroAsInactiveCellValue);
-    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden(hasComputedStatistics());
 
     group = uiOrdering.addNewGroup("Percentile setup");
     group->setUiHidden(hasComputedStatistics());
@@ -368,6 +375,11 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_midPercentile);
     group->add(&m_highPercentile);
 
+    group = uiOrdering.addNewGroup("Case Options");
+    group->add(&m_wellDataSourceCase);
+    group->add(&activeFormationNames);
+    group->add(&flipXAxis);
+    group->add(&flipYAxis);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
@@ -451,6 +463,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
         return toOptionList(sourceCaseNames);
     }
 
+    if (!options.size()) options = RimEclipseCase::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
     return options;
 }
@@ -460,6 +473,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimEclipseCase::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (&m_resultType == changedField || &m_porosityModel == changedField)
     {
     }
