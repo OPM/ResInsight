@@ -180,8 +180,8 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 
 # 
 # HDF5  
-# 
-option(RESINSIGHT_ENABLE_HDF5 "Use HDF5" OFF)
+#option(RESINSIGHT_ENABLE_HDF5 "Use HDF5" OFF)
+set(RESINSIGHT_ENABLE_HDF5 true)
 if(RESINSIGHT_ENABLE_HDF5)
 	add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
     find_package(HDF5 REQUIRED COMPONENTS CXX)
