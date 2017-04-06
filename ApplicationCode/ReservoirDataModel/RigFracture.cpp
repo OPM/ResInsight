@@ -29,9 +29,19 @@ RigFractureData::RigFractureData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFractureStimPlanCellData::RigFractureStimPlanCellData()
+RigFractureStimPlanCellData::RigFractureStimPlanCellData(size_t i, size_t j)
 {
+    m_i = i;
+    m_j = j;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFractureStimPlanCellData::addContributingEclipseCell(size_t eclipseCell, double transmissibility)
+{
+    contributingEclipseCells.push_back(eclipseCell);
+    contributingEclipseCellTransmisibilities.push_back(transmissibility);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,4 +92,11 @@ const std::vector<RigFractureData>& RigFracture::fractureData() const
     return m_fractureData;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFracture::addStimPlanCellFractureCell(RigFractureStimPlanCellData fracStimPlanCellData)
+{
+    m_stimPlanCellsFractureData.push_back(fracStimPlanCellData);
+}
 

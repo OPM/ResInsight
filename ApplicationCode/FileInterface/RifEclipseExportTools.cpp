@@ -252,13 +252,19 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 
         for (RigStimPlanCell stimPlanCell : stimPlanCells)
         {
-            if (stimPlanCell.getConductivtyValue() < 1e-7) continue;
+            if (stimPlanCell.getConductivtyValue() < 1e-7)
+            {
+                //Adding empty fracStimPlanCell to get vectors of same length
+            }
 
-            transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(&stimPlanCell);
+            RigFractureStimPlanCellData fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
 
 
-            std::vector<size_t> stimPlanContributingEclipseCells = stimPlanCell.getContributingEclipseCells();
-            std::vector<double> stimPlanContributingEclipseCellTransmisibilities = stimPlanCell.getContributingEclipseCellTransmisibilities();
+            transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(&stimPlanCell, &fracStimPlanCellData);
+
+
+            std::vector<size_t> stimPlanContributingEclipseCells = fracStimPlanCellData.getContributingEclipseCells();
+            std::vector<double> stimPlanContributingEclipseCellTransmisibilities = fracStimPlanCellData.getContributingEclipseCellTransmisibilities();
 
             for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {

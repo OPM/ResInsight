@@ -29,6 +29,7 @@
 #include "cvfGeometryTools.h"
 #include "RigCellGeometryTools.h"
 #include "RigActiveCellInfo.h"
+#include "RigFracture.h"
 #include "RimStimPlanFractureTemplate.h"
 
 #include <QString>
@@ -244,8 +245,11 @@ void RigFractureTransCalc::computeTransmissibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell)
+void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData)
 {
+
+    //Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
+    if (stimPlanCell->getConductivtyValue() < 1e-7) return;
 
     RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
@@ -376,9 +380,11 @@ void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimP
             + transmissibility_Y * transmissibility_Y
             + transmissibility_Z * transmissibility_Z);
 
-        stimPlanCell->addContributingEclipseCell(fracCell, transmissibility);
-    }
 
+
+
+        fracStimPlanCellData->addContributingEclipseCell(fracCell, transmissibility);
+    }
 
 }
 

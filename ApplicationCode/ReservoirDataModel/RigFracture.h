@@ -55,13 +55,18 @@ public:
 class RigFractureStimPlanCellData
 {
 public:
-    RigFractureStimPlanCellData();
+    RigFractureStimPlanCellData(size_t i, size_t j);
 
     size_t                  m_i;
     size_t                  m_j;
 
-//     std::vector<size_t>     contributingEclipseCells;
-//     std::vector<double>     contributingEclipseCellTransmisibilities;
+    std::vector<size_t>     getContributingEclipseCells() { return contributingEclipseCells; }
+    std::vector<double>     getContributingEclipseCellTransmisibilities() { return contributingEclipseCellTransmisibilities; }
+    void                    addContributingEclipseCell(size_t eclipseCell, double transmissibility);
+
+private:
+    std::vector<size_t>     contributingEclipseCells;
+    std::vector<double>     contributingEclipseCellTransmisibilities;
 
 };
 
@@ -84,10 +89,11 @@ public:
 
     std::vector<RigFractureData> m_fractureData;
 
+    void addStimPlanCellFractureCell(RigFractureStimPlanCellData fracStimPlanCellData);
 private:
     std::vector<cvf::uint>  m_triangleIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
 
-
+    std::vector<RigFractureStimPlanCellData>  m_stimPlanCellsFractureData;
 };
 

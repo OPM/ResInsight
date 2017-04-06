@@ -36,6 +36,7 @@ class RimFracture;
 class RimEclipseCase;
 class RigStimPlanCell;
 class RimStimPlanFractureTemplate;
+class RigFractureStimPlanCellData;
 
 //==================================================================================================
 /// 
@@ -56,7 +57,7 @@ public:
 
     static double               arithmeticAverage(std::vector<double> values);
 
-    void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell);
+    void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData);
     
     void                        computeFlowInFracture();
     void                        computeFlowIntoTransverseWell();

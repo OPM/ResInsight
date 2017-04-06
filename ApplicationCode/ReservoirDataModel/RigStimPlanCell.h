@@ -46,9 +46,7 @@ public:
     void setConductivityValue(double cond) { m_concutivityValue = cond; }
     void setDisplayValue(double value) { m_displayValue = value; };
 
-    void                    addContributingEclipseCell(size_t fracCell, double transmissibility);
-    std::vector<size_t>     getContributingEclipseCells() { return contributingEclipseCells; }
-    std::vector<double>     getContributingEclipseCellTransmisibilities() { return contributingEclipseCellTransmisibilities; }
+//     void                    addContributingEclipseCell(size_t fracCell, double transmissibility);
 
 private:
     std::vector<cvf::Vec3d> m_polygon;
@@ -57,7 +55,7 @@ private:
     size_t                  m_i;
     size_t                  m_j;
 
-    std::vector<size_t>     contributingEclipseCells;
-    std::vector<double>     contributingEclipseCellTransmisibilities;
+//     std::vector<size_t>     contributingEclipseCells;
+//     std::vector<double>     contributingEclipseCellTransmisibilities;
 
 };
