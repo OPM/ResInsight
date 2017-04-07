@@ -520,7 +520,6 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
     appearanceGroup->add(&m_showWellCommunicationLines);
     
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
-    filterGroup->add(&obsoleteField_wellCellsToRangeFilterMode);
     filterGroup->add(&m_showWellCells);
     filterGroup->add(&m_showWellCellFence);
     filterGroup->add(&wellCellFenceType);

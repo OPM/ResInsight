@@ -57,8 +57,8 @@ RimEclipseWell::RimEclipseWell()
     CAF_PDM_InitField(&showWellPipe,            "ShowWellPipe",         true,   "Pipe", "", "", "");
     CAF_PDM_InitField(&showWellSpheres,         "ShowWellSpheres",      false,  "Spheres", "", "", "");
 
-    CAF_PDM_InitField(&wellHeadScaleFactor,     "WellHeadScaleFactor",  1.0,    "Well Head Scale Factor", "", "", "");
-    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Scale Factor", "", "", "");
+    CAF_PDM_InitField(&wellHeadScaleFactor,     "WellHeadScaleFactor",  1.0,    "Well Head Scale", "", "", "");
+    CAF_PDM_InitField(&pipeScaleFactor,         "WellPipeRadiusScale",  1.0,    "Pipe Radius Scale", "", "", "");
     CAF_PDM_InitField(&wellPipeColor,           "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Pipe Color", "", "", "");
 
     CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
@@ -342,16 +342,17 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     appearanceGroup->add(&showWellPipe);
     appearanceGroup->add(&showWellSpheres);
     
-    caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
-    sizeScalingGroup->add(&pipeScaleFactor);
-    sizeScalingGroup->add(&wellHeadScaleFactor);
-    
-    uiOrdering.add(&wellPipeColor);
-
-    uiOrdering.add(&showWellCells);
-    uiOrdering.add(&showWellCellFence);
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well Cells and Fence");
+    filterGroup->add(&showWellCells);
+    filterGroup->add(&showWellCellFence);
 
     showWellCellFence.uiCapability()->setUiReadOnly(!showWellCells());
+    caf::PdmUiGroup* sizeScalingGroup = uiOrdering.addNewGroup("Size Scaling");
+    sizeScalingGroup->add(&wellHeadScaleFactor);
+    sizeScalingGroup->add(&pipeScaleFactor);
+
+    caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup("Colors");
+    colorGroup->add(&wellPipeColor);
 
     uiOrdering.skipRemainingFields(true);
 }
