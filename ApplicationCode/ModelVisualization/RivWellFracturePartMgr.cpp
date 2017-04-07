@@ -284,6 +284,8 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
 {
+    //TODO: This is needed to avoid errors when loading project with stimPlan fractures with multipled timesteps. 
+    //Should probably be moved, since it now is called twice in some cases... 
     stimPlanFracTemplate->setupStimPlanCells();
 
     std::vector<RigStimPlanCell> stimPlanCells = stimPlanFracTemplate->getStimPlanCells();
