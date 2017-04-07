@@ -97,6 +97,8 @@ protected:
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual caf::PdmFieldHandle*    userDescriptionField();
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
+    void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
 
 protected:
     QPointer<QwtPlot>               m_parentQwtPlot;

@@ -152,6 +152,19 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_curveName);
+    m_curveName.uiCapability()->setUiReadOnly(true);
+    uiOrdering.add(&m_curveColor);
+    m_curveColor.uiCapability()->setUiReadOnly(true);
+
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellFlowRateCurve::updateStackedPlotData()
 {
     RimWellLogPlot* wellLogPlot;

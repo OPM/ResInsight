@@ -448,17 +448,11 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     uiOrdering.add(&m_plotAxis);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    appearanceGroup->add(&m_curveColor);
-    appearanceGroup->add(&m_pointSymbol);
-    appearanceGroup->add(&m_symbolSkipPixelDistance);
-    appearanceGroup->add(&m_curveThickness);
-    appearanceGroup->add(&m_lineStyle);
-
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
     nameGroup->setCollapsedByDefault(true);
-    nameGroup->add(&m_isUsingAutoName);
-    nameGroup->add(&m_curveName);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
 
     if (m_isUsingAutoName)
     {

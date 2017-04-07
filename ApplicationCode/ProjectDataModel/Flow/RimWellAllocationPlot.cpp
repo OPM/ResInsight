@@ -722,6 +722,19 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_userName);
+    uiOrdering.add(&m_showPlotTitle);
+
+    caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup("Plot Data");
+    dataGroup.add(&m_case);
+    dataGroup.add(&m_timeStep);
+    dataGroup.add(&m_wellName);
+
+    caf::PdmUiGroup& optionGroup = *uiOrdering.addNewGroup("Options");
+    optionGroup.add(&m_flowDiagSolution);
+    optionGroup.add(&m_flowType);
+    optionGroup.add(&m_groupSmallContributions);
+    optionGroup.add(&m_smallContributionsThreshold);
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly(!m_groupSmallContributions());
 }
 

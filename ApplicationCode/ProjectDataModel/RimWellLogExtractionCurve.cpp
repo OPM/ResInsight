@@ -385,9 +385,7 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
 
     if (eclipseCase)
     {
-        curveDataGroup->add(&(m_eclipseResultDefinition->m_resultTypeUiField));
-        curveDataGroup->add(&(m_eclipseResultDefinition->m_porosityModelUiField));
-        curveDataGroup->add(&(m_eclipseResultDefinition->m_resultVariableUiField));
+        m_eclipseResultDefinition->uiOrdering(uiConfigName, *curveDataGroup);
 
         if (m_eclipseResultDefinition->hasDynamicResult())
         {
@@ -396,27 +394,25 @@ void RimWellLogExtractionCurve::defineUiOrdering(QString uiConfigName, caf::PdmU
     }
     else if (geomCase)
     {
-        curveDataGroup->add(&(m_geomResultDefinition->m_resultPositionTypeUiField));
-        curveDataGroup->add(&(m_geomResultDefinition->m_resultVariableUiField));
-
+        m_geomResultDefinition->uiOrdering(uiConfigName, *curveDataGroup);
+        
         curveDataGroup->add(&m_timeStep);
     }
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    appearanceGroup->add(&m_curveColor);
-    appearanceGroup->add(&m_curveThickness);
-    appearanceGroup->add(&m_pointSymbol);
-    appearanceGroup->add(&m_symbolSkipPixelDistance);
-    appearanceGroup->add(&m_lineStyle);
-    appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_isUsingAutoName);
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->setCollapsedByDefault(true);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
+
     if (m_isUsingAutoName)
     {
-        appearanceGroup->add(&m_addWellNameToCurveName);
-        appearanceGroup->add(&m_addCaseNameToCurveName);
-        appearanceGroup->add(&m_addPropertyToCurveName);
-        appearanceGroup->add(&m_addDateToCurveName);
-        appearanceGroup->add(&m_addTimestepToCurveName);
+        nameGroup->add(&m_addWellNameToCurveName);
+        nameGroup->add(&m_addCaseNameToCurveName);
+        nameGroup->add(&m_addPropertyToCurveName);
+        nameGroup->add(&m_addDateToCurveName);
+        nameGroup->add(&m_addTimestepToCurveName);
     }
 
 

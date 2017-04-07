@@ -476,12 +476,13 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.add(&m_depthUnit);
     }
 
+    uiOrdering.add(&m_showTrackLegends);
+
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
     gridGroup->add(&m_isAutoScaleDepthEnabled);
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
 
-    uiOrdering.add(&m_showTrackLegends);
 
     uiOrdering.skipRemainingFields(true);
 }
