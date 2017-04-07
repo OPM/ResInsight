@@ -52,7 +52,7 @@ public:
     caf::PdmField<double>                   wellPathDepthAtFracture;
 
     caf::PdmField<QString>                  parameterForPolygon;
-    caf::PdmField<int>                      timestepForPolygon;
+    caf::PdmField<int>                      activeTimeStepIndex;
     caf::PdmField<bool>                     showStimPlanMesh;
     
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -76,7 +76,7 @@ public:
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
     
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
-    void                                    setupStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex);
+    void                                    setupStimPlanCells();
     const std::vector<RigStimPlanCell>&     getStimPlanCells();
     std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);

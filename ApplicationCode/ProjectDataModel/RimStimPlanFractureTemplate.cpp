@@ -62,7 +62,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
     wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&parameterForPolygon, "parameterForPolyton", QString(""), "Parameter", "", "", "");
-    CAF_PDM_InitField(&timestepForPolygon, "timestepForPolygon", 0, "TimeStep", "", "", "");
+    CAF_PDM_InitField(&activeTimeStepIndex, "activeTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
     CAF_PDM_InitField(&showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "")
 
 }
@@ -88,7 +88,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         setDefaultsBasedOnXMLfile();
     }
 
-    if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &timestepForPolygon == changedField || &showStimPlanMesh == changedField)
+    if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &activeTimeStepIndex == changedField || &showStimPlanMesh == changedField)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -109,13 +109,6 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
         proj->createDisplayModelAndRedrawAllViews();
     }
-
-//     if (&parameterForPolygon == changedField || &timestepForPolygon == changedField)
-//     {
-//         fracturePolygon();
-//     }
-
-
 }
 
 
@@ -285,10 +278,10 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 {
     setDepthOfWellPathAtFracture();
     RiaLogging::info(QString("Setting well/fracture intersection depth at %1").arg(wellPathDepthAtFracture));
-    timestepForPolygon = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
+    activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
     bool polygonPropertySet = setPropertyForPolygonDefault();
 
-    if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(parameterForPolygon).arg(m_stimPlanFractureDefinitionData->timeSteps[timestepForPolygon]));
+    if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(parameterForPolygon).arg(m_stimPlanFractureDefinitionData->timeSteps[activeTimeStepIndex]));
     else                    RiaLogging::info(QString("Property for polygon calculation not set."));
 }
 
@@ -327,11 +320,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     readStimPlanXMLFile(&errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
-    //TODO: Get these more generally: 
-    QString resultName = "CONDUCTIVITY";
-    QString resultUnit = "md-m";
-    size_t timeStepIndex = 0;
-    setupStimPlanCells(resultName, resultUnit, timeStepIndex);
+    setupStimPlanCells();
 
     updateConnectedEditors();
 }
@@ -378,7 +367,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
         }
     }
 
-    else if (fieldNeedingOptions == &timestepForPolygon)
+    else if (fieldNeedingOptions == &activeTimeStepIndex)
     {
         std::vector<double> timeValues = getStimPlanTimeValues();
         int index = 0;
@@ -794,16 +783,21 @@ void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::setupStimPlanCells(const QString& resultName, const QString& unitName, size_t timeStepIndex)
+void RimStimPlanFractureTemplate::setupStimPlanCells()
 {
+    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    if (!activeView) return;
+    QString resultNameFromColors = activeView->stimPlanColors->resultName();
+    QString resultUnitFromColors = activeView->stimPlanColors->unit();
+
     std::vector<RigStimPlanCell> stimPlanCells;
 
-    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, activeTimeStepIndex);
 
-    std::vector<std::vector<double>> conductivityValuesAtTimeStep = getMirroredDataAtTimeIndex("CONDUCTIVITY", unitName, timeStepIndex);
-    //TODO: Handle units
-    //TODO: Handle not having cond in files!!!
-
+    QString condUnit;
+    if (fractureTemplateUnit == RimDefines::UNITS_METRIC) condUnit = "md-m";
+    if (fractureTemplateUnit == RimDefines::UNITS_FIELD)  condUnit = "md-ft";
+    std::vector<std::vector<double>> conductivityValuesAtTimeStep = getMirroredDataAtTimeIndex("CONDUCTIVITY", condUnit, activeTimeStepIndex);
 
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
     std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
@@ -824,8 +818,24 @@ void RimStimPlanFractureTemplate::setupStimPlanCells(const QString& resultName, 
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i + 1]), 0.0));
 
             RigStimPlanCell stimPlanCell(cellPolygon, i, j);
-            stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[i + 1][j + 1]);
-            stimPlanCell.setDisplayValue(displayPropertyValuesAtTimeStep[i + 1][j + 1]);
+            if (conductivityValuesAtTimeStep.size() > 0) //Assuming vector to be of correct length, or no values
+            {
+                stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[i + 1][j + 1]);
+            }
+            else
+            {
+                stimPlanCell.setConductivityValue(cvf::UNDEFINED_DOUBLE);
+            }
+
+            if (displayPropertyValuesAtTimeStep.size() > 0)
+            {
+                stimPlanCell.setDisplayValue(displayPropertyValuesAtTimeStep[i + 1][j + 1]);
+            }
+            else
+            {
+                stimPlanCell.setDisplayValue(cvf::UNDEFINED_DOUBLE);
+            }
+
             stimPlanCells.push_back(stimPlanCell);
         }
     }
@@ -897,7 +907,7 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
     QString parameterName = parameterForPolygon;
     QString parameterUnit = getUnitForStimPlanParameter(parameterName);
   
-    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(parameterName, parameterUnit, timestepForPolygon);
+    std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(parameterName, parameterUnit, activeTimeStepIndex);
 
     for (int k = 0; k < dataAtTimeStep.size(); k++)
     {
@@ -1049,7 +1059,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* polygonGroup = uiOrdering.addNewGroup("Fracture Polygon Basis");
     polygonGroup->add(&parameterForPolygon);
-    polygonGroup->add(&timestepForPolygon);
+    polygonGroup->add(&activeTimeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
