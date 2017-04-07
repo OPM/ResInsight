@@ -64,6 +64,7 @@
 RiuMainPlotWindow::RiuMainPlotWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
+    m_activePlotViewWindow(nullptr),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
@@ -484,7 +485,6 @@ void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow) return;
-    if (m_blockSlotSubWindowActivated) return;
 
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
@@ -493,9 +493,10 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subWindow->widget());
 
-    if (viewWindow)
+    if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        projectTreeView()->selectAsCurrentItem(viewWindow);
+        if (!m_blockSlotSubWindowActivated) projectTreeView()->selectAsCurrentItem(viewWindow);
+        m_activePlotViewWindow = viewWindow;
     }
 }
 
