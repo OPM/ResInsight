@@ -73,6 +73,8 @@
 #include <QUndoStack>
 
 
+#define DOCK_PANEL_NAME_PROCESS_MONITOR "dockProcessMonitor"
+
 
 
 //==================================================================================================
@@ -571,7 +573,7 @@ void RiuMainWindow::createDockPanels()
 
     {
         QDockWidget* dockPanel = new QDockWidget("Process Monitor", this);
-        dockPanel->setObjectName("dockProcessMonitor");
+        dockPanel->setObjectName(DOCK_PANEL_NAME_PROCESS_MONITOR);
         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_processMonitor = new RiuProcessMonitor(dockPanel);
         dockPanel->setWidget(m_processMonitor);
@@ -1442,6 +1444,31 @@ void RiuMainWindow::restoreTreeViewState()
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showDockPanel(const QString &dockPanelName)
+{
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    foreach (QDockWidget* dock, dockWidgets)
+    {
+        if (dock && dock->objectName() == dockPanelName)
+        {
+            dock->show();
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showProcessMonitorDockPanel()
+{
+    showDockPanel(DOCK_PANEL_NAME_PROCESS_MONITOR);
 }
 
 //--------------------------------------------------------------------------------------------------
