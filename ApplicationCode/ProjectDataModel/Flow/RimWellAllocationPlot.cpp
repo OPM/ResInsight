@@ -516,6 +516,14 @@ RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmObject* RimWellAllocationPlot::plotLegend()
+{
+    return m_wellAllocationPlotLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution* RimWellAllocationPlot::flowDiagSolution()
 {
     return m_flowDiagSolution();

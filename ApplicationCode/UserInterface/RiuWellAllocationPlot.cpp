@@ -27,6 +27,7 @@
 #include "RimWellLogTrack.h"
 
 #include "RiuNightchartsWidget.h"
+#include "RiuPlotObjectPicker.h"
 
 #include "cvfColor3.h"
 
@@ -52,6 +53,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     this->layout()->setSpacing(2);
 
     m_titleLabel = new QLabel(this);
+    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->accumulatedWellFlowPlot());
 
     QFont font = m_titleLabel->font();
     font.setPointSize(14);
@@ -73,14 +75,19 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
     m_legendWidget = new RiuNightchartsWidget(this);
+    new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
+
     rightColumnLayout->addWidget(m_legendWidget);
     m_legendWidget->showPie(false);
 
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
+    new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
+
     rightColumnLayout->addWidget(totalFlowAllocationWidget);
     rightColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
+
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }
 

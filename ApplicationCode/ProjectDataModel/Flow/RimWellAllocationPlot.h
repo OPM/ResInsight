@@ -68,6 +68,7 @@ public:
 
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
+    caf::PdmObject*                                 plotLegend();
     RimFlowDiagSolution*                            flowDiagSolution();
     int                                             timeStep();
 
