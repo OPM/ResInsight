@@ -88,6 +88,28 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
         setDefaultsBasedOnXMLfile();
     }
 
+    if (&activeTimeStepIndex == changedField)
+    {
+        //Changes to this parameters should change all fractures with this fracture template attached. 
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            std::vector<RimFracture*> fractures;
+            proj->descendantsIncludingThisOfType(fractures);
+            for (RimFracture* fracture : fractures)
+            {
+                if (fracture->attachedFractureDefinition() == this)
+                {
+                        fracture->stimPlanTimeIndexToPlot = activeTimeStepIndex;
+                        fracture->setRecomputeGeometryFlag();
+                }
+            }
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+    }
+
+
     if (&wellPathDepthAtFracture == changedField || &parameterForPolygon == changedField || &activeTimeStepIndex == changedField || &showStimPlanMesh == changedField)
     {
         RimProject* proj;

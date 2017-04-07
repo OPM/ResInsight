@@ -186,7 +186,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
         if (stimPlanFracTemplate)
         {
-            stimPlanTimeIndexToPlot = static_cast<int>(stimPlanFracTemplate->getStimPlanTimeValues().size() - 1);
+            stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex;
         }
     }
 
@@ -397,6 +397,7 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
+            stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly(true);
         }
         else
         {
@@ -497,7 +498,7 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
     if (stimPlanFracTemplate)
     {
-        stimPlanTimeIndexToPlot = static_cast<int>(stimPlanFracTemplate->getStimPlanTimeValues().size() - 1);
+        stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex;
     }
 
     this->updateAzimuthFromFractureDefinition();

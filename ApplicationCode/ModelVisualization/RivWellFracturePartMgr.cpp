@@ -284,7 +284,6 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
 {
-    //TODO: Kjør setupStimPlanCells igjen, siden parametere  kan ha endre seg...
     stimPlanFracTemplate->setupStimPlanCells();
 
     std::vector<RigStimPlanCell> stimPlanCells = stimPlanFracTemplate->getStimPlanCells();
@@ -301,7 +300,6 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
             }
         }
     }
-
 
     cvf::Mat4f m = m_rimFracture->transformMatrix();
     std::vector<cvf::Vec3f> stimPlanMeshVerticesDisplayCoords = transfromToFractureDisplayCoords(stimPlanMeshVertices, m, displayCoordTransform);
