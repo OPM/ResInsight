@@ -23,6 +23,7 @@
 #include "RimLegendConfig.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimStimPlanFractureTemplate.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiItem.h"
@@ -165,6 +166,26 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     if (sourceView)
     {
         sourceView->scheduleCreateDisplayModelAndRedraw();
+    }
+
+    if (changedField == &m_resultNameAndUnit)
+    {
+        //Get all frac templates and re-generate stimplan cells
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            std::vector<RimStimPlanFractureTemplate*> stimPlanFracTemplates;
+            proj->descendantsIncludingThisOfType(stimPlanFracTemplates);
+            for (RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates)
+            {
+                stimPlanFracTemplate->setupStimPlanCells();
+            }
+            proj->createDisplayModelAndRedrawAllViews();
+        }
+
+
+
     }
 }
 

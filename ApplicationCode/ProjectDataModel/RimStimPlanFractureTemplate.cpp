@@ -90,6 +90,8 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
     if (&activeTimeStepIndex == changedField)
     {
+        setupStimPlanCells();
+
         //Changes to this parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -1067,8 +1069,9 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     uiOrdering.add(&name);
     uiOrdering.add(&showStimPlanMesh);
 
-    caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("File");
+    caf::PdmUiGroup* fileGroup = uiOrdering.addNewGroup("Input");
     fileGroup->add(&m_stimPlanFileName);
+    fileGroup->add(&activeTimeStepIndex);
     fileGroup->add(&wellPathDepthAtFracture);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
@@ -1081,7 +1084,6 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 
     caf::PdmUiGroup* polygonGroup = uiOrdering.addNewGroup("Fracture Polygon Basis");
     polygonGroup->add(&parameterForPolygon);
-    polygonGroup->add(&activeTimeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
