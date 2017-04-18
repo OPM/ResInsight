@@ -155,6 +155,8 @@ protected:
 QWidget* PdmUiComboBoxEditor::createEditorWidget(QWidget * parent)
 {
     m_comboBox = new CustomQComboBox(parent);
+    m_comboBox->setFocusPolicy(Qt::StrongFocus);
+
     connect(m_comboBox, SIGNAL(activated(int)), this, SLOT(slotIndexActivated(int)));
 
     return m_comboBox;
