@@ -53,13 +53,4 @@ void RigStimPlanCell::setTransmissibilityInFracture(double valueHorizontal, doub
     m_transmissibilityInFractureVertical = valueVertical;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-// void RigStimPlanCell::addContributingEclipseCell(size_t eclipseCell, double transmissibility)
-// {
-//     contributingEclipseCells.push_back(eclipseCell);
-//     contributingEclipseCellTransmisibilities.push_back(transmissibility);
-// 
-// }
 

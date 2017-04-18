@@ -727,7 +727,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeFlowInFracture(RigStimPlanCell* stimPlanCell)
+void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell)
 {
     std::vector<cvf::Vec3d> polygon = stimPlanCell->getPolygon();
 

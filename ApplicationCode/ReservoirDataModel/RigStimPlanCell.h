@@ -42,12 +42,13 @@ public:
     double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() { return m_i; }
     size_t                  getJ() { return m_j; }
+    double                  getVerticalTransmissibilityInFracture()   { return m_transmissibilityInFractureVertical; }
+    double                  getHorizontalTransmissibilityInFracture() { return m_transmissibilityInFractureHorizontal; }
+        
 
     void setConductivityValue(double cond) { m_concutivityValue = cond; }
     void setDisplayValue(double value) { m_displayValue = value; };
     void setTransmissibilityInFracture(double valueHorizontal, double valueVertical);
-
-//     void                    addContributingEclipseCell(size_t fracCell, double transmissibility);
 
 private:
     std::vector<cvf::Vec3d> m_polygon;

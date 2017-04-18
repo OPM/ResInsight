@@ -103,8 +103,8 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "\n";
 
     //Included for debug / prototyping only
+    printStimPlanFractureTrans(fractures, out);
     printStimPlanCellsMatrixTransContributions(fractures, caseToApply, out, wellPath, simWell, mainGrid);
-    
 
 
     printBackgroundDataHeaderLine(out);
@@ -235,7 +235,36 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
-    out << "StimPlan cells' matrix transmissibility and contributing \n";
+    out << "StimPlan cells' matrix transmissibility and Eclipse Cell contributions \n";
+
+    out << qSetFieldWidth(4);
+    out << "-- ";
+
+    out << qSetFieldWidth(12);
+    out << "Well name ";    // 1. Well name 
+
+    out << qSetFieldWidth(16);
+    out << "Fracture name ";
+
+    out << qSetFieldWidth(5);
+    out << "Ec i";
+    out << "Ec j";
+    out << "Ec k";
+
+    out << qSetFieldWidth(10);
+    out << "Ecl cell";
+
+    out << qSetFieldWidth(5);
+    out << "SP i";
+    out << "SP j";
+
+    out << qSetFieldWidth(10);
+    out << "Tm contr";
+
+    out << "\n";
+
+
+
     for (RimFracture* fracture : fractures)
     {
         RimStimPlanFractureTemplate* fracTemplateStimPlan;
@@ -247,14 +276,14 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
 
-        //TODO: Get these more generally: 
         std::vector<RigStimPlanCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
         for (RigStimPlanCell stimPlanCell : stimPlanCells)
         {
             if (stimPlanCell.getConductivtyValue() < 1e-7)
             {
-                //Adding empty fracStimPlanCell to get vectors of same length
+                //If conductivity in stimPlanCell is 0, contributions might not be relevant...
+                //continue;
             }
 
             RigFractureStimPlanCellData fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
@@ -281,7 +310,6 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
                 out << qSetFieldWidth(16);
                 out << fracture->name().left(15) + " ";
 
-
                 out << qSetFieldWidth(5);
                 size_t ii, jj, kk;
                 mainGrid->ijkFromCellIndex(stimPlanContributingEclipseCells[i], &ii, &jj, &kk);
@@ -303,16 +331,70 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
                 out << QString::number(stimPlanContributingEclipseCellTransmisibilities[i], 'e', 3);
 
                 out << "\n";
-
             }
-
         }
-
-
-
-
     }
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::printStimPlanFractureTrans(const std::vector<RimFracture *>& fractures, QTextStream &out)
+{
+    out << "StimPlan cells' fracture transmissibility \n";
+
+    out << qSetFieldWidth(4);
+    out << "-- ";
+
+    out << qSetFieldWidth(5);
+    out << "SP i";
+    out << "SP j";
+
+    out << qSetFieldWidth(10);
+    out << "Tf_hor";
+    out << "Tf_vert";
+
+    out << "\n";
+
+    if (fractures.size() < 1) return;
+    RimFracture* fracture = fractures[0];
+
+    RimStimPlanFractureTemplate* fracTemplateStimPlan;
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+    {
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+    }
+    else return;
+
+    std::vector<RigStimPlanCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
+
+    for (RigStimPlanCell stimPlanCell : stimPlanCells)
+    {
+        if (stimPlanCell.getConductivtyValue() < 1e-7)
+        {
+            //If conductivity in stimPlanCell is 0, contributions might not be relevant...
+            continue;
+        }
+
+        RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(&stimPlanCell);
+
+        out << qSetFieldWidth(5);
+        size_t spi = stimPlanCell.getI();
+        size_t spj = stimPlanCell.getJ();
+
+        out << spi;
+        out << spj;
+
+        out << qSetFieldWidth(10);
+        out << QString::number(stimPlanCell.getVerticalTransmissibilityInFracture(), 'e', 3);
+        out << QString::number(stimPlanCell.getHorizontalTransmissibilityInFracture(), 'e', 3);
+
+        out << "\n";
+    }
+
+return;
+
 }
 
 //--------------------------------------------------------------------------------------------------

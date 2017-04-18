@@ -59,7 +59,7 @@ public:
 
     void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData);
     
-    void                        computeFlowInFracture(RigStimPlanCell* stimPlanCell);
+    static void                 computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell);
     void                        computeFlowIntoTransverseWell();
 
 
