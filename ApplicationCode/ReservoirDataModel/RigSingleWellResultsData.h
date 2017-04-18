@@ -40,7 +40,10 @@ struct RigWellResultPoint
         m_ertBranchId(-1),
         m_ertSegmentId(-1),
         m_bottomPosition(cvf::Vec3d::UNDEFINED),
-        m_flowRate(0.0)
+        m_flowRate(0.0),
+        m_oilRate(0.0),
+        m_gasRate(0.0),
+        m_waterRate(0.0)
     { }
     
     bool isPointValid() const
@@ -70,6 +73,42 @@ struct RigWellResultPoint
         }
     }
 
+    double oilRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_oilRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
+    double gasRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_gasRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
+    double waterRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_waterRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
     bool isEqual(const RigWellResultPoint& other ) const 
     {
         return ( m_gridIndex == other.m_gridIndex 
@@ -90,6 +129,9 @@ struct RigWellResultPoint
 
     cvf::Vec3d                        m_bottomPosition;    //< The estimated bottom position of the well segment, when we have no grid cell connections for the segment.
     double                            m_flowRate;
+    double                            m_oilRate;  
+    double                            m_gasRate;
+    double                            m_waterRate;
 };
 
 //==================================================================================================

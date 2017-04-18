@@ -46,6 +46,8 @@ size_t RigEclCellIndexCalculator::resultCellIndex(size_t gridIndex, size_t gridC
 /// 
 //==================================================================================================
 
+//#define USE_WELL_PHASE_RATES
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -93,8 +95,14 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
     m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
     m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesCellIds.size());
 
+#ifdef USE_WELL_PHASE_RATES
+    m_tracerNames.push_back(RIG_FLOW_OIL_NAME);
+    m_tracerNames.push_back(RIG_FLOW_GAS_NAME);
+    m_tracerNames.push_back(RIG_FLOW_WATER_NAME);
+#else
     m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
-    
+#endif
+
     calculateAccumulatedFlowPrConnection(0, 1);
     calculateFlowPrPseudoLength(0, 0.0);
 }
@@ -107,13 +115,6 @@ const std::vector<double>& RigAccWellFlowCalculator::connectionNumbersFromTop(si
     return m_connectionFlowPrBranch[branchIdx].depthValuesFromTop;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::accumulatedFlowPrConnection(size_t branchIdx) const
-{
-    return accumulatedTracerFlowPrConnection(RIG_FLOW_TOTAL_NAME, branchIdx);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -133,13 +134,6 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConn
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::flowPrConnection(size_t branchIdx) const
-{
-    return tracerFlowPrConnection(RIG_FLOW_TOTAL_NAME, branchIdx);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -176,13 +170,6 @@ const std::vector<double>& RigAccWellFlowCalculator::trueVerticalDepth(size_t br
     return m_pseudoLengthFlowPrBranch[branchIdx].trueVerticalDepth;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::accumulatedFlowPrPseudoLength(size_t branchIdx) const
-{
-    return accumulatedTracerFlowPrPseudoLength(RIG_FLOW_TOTAL_NAME, branchIdx);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -202,13 +189,6 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrPseu
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RigAccWellFlowCalculator::flowPrPseudoLength(size_t branchIdx) const
-{
-    return tracerFlowPrPseudoLength(RIG_FLOW_TOTAL_NAME, branchIdx);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -273,7 +253,7 @@ std::vector<std::pair<QString, double> > RigAccWellFlowCalculator::totalTracerFr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool  RigAccWellFlowCalculator::isWellFlowConsistent( bool isProducer) const
+bool  RigAccWellFlowCalculator::isWellFlowConsistent() const
 {
     bool isConsistent = true;
     for (const std::vector <RigWellResultPoint> & branch :  m_pipeBranchesCellIds)
@@ -332,6 +312,8 @@ bool RigAccWellFlowCalculator::isConnectionFlowConsistent(const RigWellResultPoi
 //--------------------------------------------------------------------------------------------------
 bool RigAccWellFlowCalculator::isFlowRateConsistent(double flowRate) const
 {
+    if (!m_tracerCellFractionValues) return true; // No flow diagnostics. 
+
     return  (flowRate >= 0.0 && m_isProducer) ||  (flowRate <= 0.0 && !m_isProducer);
 }
 
@@ -674,7 +656,13 @@ std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer(cons
     }
     else
     {
+        #ifdef USE_WELL_PHASE_RATES
+        flowPrTracer[0] = wellCell.oilRate();
+        flowPrTracer[1] = wellCell.gasRate();
+        flowPrTracer[2] = wellCell.waterRate();
+        #else
         flowPrTracer[0] = wellCell.flowRate();
+        #endif
     }
  
     return flowPrTracer;
@@ -787,7 +775,7 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
     std::vector<QString> tracersToGroup;
     {
-        bool hasConsistentWellFlow = isWellFlowConsistent(m_isProducer);
+        bool hasConsistentWellFlow = isWellFlowConsistent();
 
         std::vector<std::pair<QString, double> > totalTracerFractions = this->totalTracerFractions();
 

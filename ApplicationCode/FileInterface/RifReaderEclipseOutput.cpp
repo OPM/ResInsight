@@ -908,6 +908,9 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     int cellK = well_conn_get_k( ert_connection );
     bool isCellOpen = well_conn_open( ert_connection );
     double volumeRate = well_conn_get_volume_rate( ert_connection);
+    double oilRate   = well_conn_get_oil_rate(ert_connection) ;
+    double gasRate   = well_conn_get_gas_rate(ert_connection);
+    double waterRate = well_conn_get_water_rate(ert_connection);
 
     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
     // Adjust K so index is always in valid grid region
@@ -960,6 +963,9 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         resultPoint.m_ertBranchId = ertBranchId;
         resultPoint.m_ertSegmentId = ertSegmentId;
         resultPoint.m_flowRate = volumeRate; 
+        resultPoint.m_oilRate   =   oilRate;
+        resultPoint.m_gasRate   =   gasRate;
+        resultPoint.m_waterRate = waterRate;
     }
 
     return resultPoint;

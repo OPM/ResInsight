@@ -250,7 +250,6 @@ void RimWellAllocationPlot::updateFromWell()
                                                  depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth(brIdx) :
                                                  std::vector<double>();
         
-        if ( m_flowDiagSolution )
         {
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for (const QString& tracerName: tracerNames)
@@ -273,24 +272,7 @@ void RimWellAllocationPlot::updateFromWell()
                 //TODO: THIs is the data to be plotted...
             }
         }
-        else
-        {
-            const std::vector<double>* accFlow = nullptr;
-            if (depthType == RimWellLogPlot::CONNECTION_NUMBER)
-            {
-                accFlow = &(m_flowType == ACCUMULATED ?
-                            wfCalculator->accumulatedFlowPrConnection(brIdx):
-                            wfCalculator->flowPrConnection( brIdx));
-            }
-            else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH || depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
-            {
-                accFlow = &(m_flowType == ACCUMULATED ?
-                            wfCalculator->accumulatedFlowPrPseudoLength(brIdx):
-                            wfCalculator->flowPrPseudoLength( brIdx));
-            }
 
-            addStackedCurve("Total", depthValues, *accFlow, plotTrack);
-        }
 
         updateWellFlowPlotXAxisTitle(plotTrack);
 
@@ -407,10 +389,20 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
     curve->setFlowValuesPrDepthValue(tracerName, depthValues, accFlow);
 
     if ( m_flowDiagSolution )
+    {
         curve->setColor(m_flowDiagSolution->tracerColor(tracerName));
+    }
     else
-        curve->setColor(cvf::Color3f::DARK_GRAY);
-    
+    {
+        cvf::Color3f color = cvf::Color3f::DARK_GRAY;
+
+        if (tracerName == RIG_FLOW_OIL_NAME)   color = cvf::Color3f::DARK_GREEN;
+        if (tracerName == RIG_FLOW_GAS_NAME)   color = cvf::Color3f::DARK_RED;
+        if (tracerName == RIG_FLOW_WATER_NAME) color = cvf::Color3f::BLUE;
+
+        curve->setColor(color);
+    }
+
     plotTrack->addCurve(curve);
 
     curve->loadDataAndUpdate();
