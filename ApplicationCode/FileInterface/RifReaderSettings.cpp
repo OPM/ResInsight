@@ -39,6 +39,8 @@ RifReaderSettings::RifReaderSettings()
 
     CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import advanced MSW data", "", "", "");
     importAdvancedMswData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&faultIncludeFileAbsolutePathPrefix, "faultIncludeFileAbsolutePathPrefix", QString(), "Fault Include File Absolute Path Prefix", "", "Path used to prefix absolute UNIX paths in fault include statements on Windows", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,5 +58,15 @@ void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, 
             myAttr->m_useNativeCheckBoxLabel = true;
         }
     }
+}
+
+void RifReaderSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&importFaults);
+    uiOrdering.add(&importNNCs);
+    uiOrdering.add(&importAdvancedMswData);
+#ifdef WIN32
+    uiOrdering.add(&faultIncludeFileAbsolutePathPrefix);
+#endif
 }
 

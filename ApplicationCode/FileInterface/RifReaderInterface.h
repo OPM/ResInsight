@@ -59,6 +59,7 @@ public:
     bool                        isFaultImportEnabled();
     bool                        isImportOfCompleteMswDataEnabled();
     bool                        isNNCsEnabled();
+    const QString               faultIncludeFileAbsolutePathPrefix();
 
     virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) = 0;
     virtual void                close() = 0;

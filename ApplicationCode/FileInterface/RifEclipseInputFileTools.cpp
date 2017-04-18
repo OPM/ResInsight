@@ -649,7 +649,7 @@ void RifEclipseInputFileTools::parseAndReadFaults(const QString& fileName, cvf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults)
+void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults, const QString& faultIncludeFileAbsolutePathPrefix)
 {
     QFile data(fileName);
     if (!data.open(QFile::ReadOnly))
@@ -669,7 +669,7 @@ void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, 
     std::vector< std::pair<QString, QString> > pathAliasDefinitions;
     parseAndReadPathAliasKeyword(fileName, &pathAliasDefinitions);
 
-    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, pathAliasDefinitions, faults, filenamesWithFaults, &isEditKeywordDetected);
+    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, pathAliasDefinitions, faults, filenamesWithFaults, &isEditKeywordDetected, faultIncludeFileAbsolutePathPrefix);
 }
 
 
@@ -758,7 +758,8 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(  
                                                                                 const std::vector< std::pair<QString, QString> >& pathAliasDefinitions, 
                                                                                 cvf::Collection<RigFault>* faults, 
                                                                                 std::vector<QString>* filenamesWithFaults, 
-                                                                                bool* isEditKeywordDetected)
+                                                                                bool* isEditKeywordDetected,
+                                                                                const QString& faultIncludeFileAbsolutePathPrefix)
 {
     QString line;
 
@@ -819,6 +820,14 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(  
                     includeFilename.replace(textToReplace, entry.second);
                 }
 
+#ifdef WIN32
+                if (includeFilename.startsWith('/'))
+                {
+                    // Absolute UNIX path, prefix on Windows
+                    includeFilename = faultIncludeFileAbsolutePathPrefix + includeFilename;
+                }
+#endif
+
                 QFileInfo fi(currentFileFolder, includeFilename);
                 if (fi.exists())
                 {
@@ -828,7 +837,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(  
                     {
                         //qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
 
-                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, pathAliasDefinitions, faults, filenamesWithFaults, isEditKeywordDetected))
+                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, pathAliasDefinitions, faults, filenamesWithFaults, isEditKeywordDetected, faultIncludeFileAbsolutePathPrefix))
                         {
                             qDebug() << "Error when parsing include file : " << absoluteFilename;
                         }

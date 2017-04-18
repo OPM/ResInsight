@@ -457,7 +457,7 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
             if (fname.endsWith(".DATA"))
             {
                 std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults);
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix());
 
                 std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
                 std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());

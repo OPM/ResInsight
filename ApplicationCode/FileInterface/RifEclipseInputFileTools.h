@@ -65,7 +65,7 @@ public:
     static std::map<QString, QString> readProperties(const QString& fileName, RigEclipseCaseData* eclipseCase);
     static bool                       readProperty  (const QString& fileName, RigEclipseCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
 
-    static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults);
+    static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>* faults, std::vector<QString>* filenamesWithFaults, const QString& faultIncludeFileAbsolutePathPrefix);
     static void                       readFaults(const QString& fileName, const std::vector< RifKeywordAndFilePos >& fileKeywords, cvf::Collection<RigFault>* faults);
     static void                       parseAndReadFaults(const QString& fileName, cvf::Collection<RigFault>* faults);
 
@@ -83,7 +83,8 @@ public:
                                                                     const std::vector< std::pair<QString, QString> >& pathAliasDefinitions,
                                                                     cvf::Collection<RigFault>* faults, 
                                                                     std::vector<QString>* filenamesWithFaults, 
-                                                                    bool* isEditKeywordDetected);
+                                                                    bool* isEditKeywordDetected,
+                                                                    const QString& faultIncludeFileAbsolutePathPrefix);
 
     static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 
