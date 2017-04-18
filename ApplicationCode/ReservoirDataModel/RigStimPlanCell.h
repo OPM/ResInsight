@@ -45,6 +45,7 @@ public:
 
     void setConductivityValue(double cond) { m_concutivityValue = cond; }
     void setDisplayValue(double value) { m_displayValue = value; };
+    void setTransmissibilityInFracture(double valueHorizontal, double valueVertical);
 
 //     void                    addContributingEclipseCell(size_t fracCell, double transmissibility);
 
@@ -55,7 +56,7 @@ private:
     size_t                  m_i;
     size_t                  m_j;
 
-//     std::vector<size_t>     contributingEclipseCells;
-//     std::vector<double>     contributingEclipseCellTransmisibilities;
+    double                  m_transmissibilityInFractureVertical;
+    double                  m_transmissibilityInFractureHorizontal;
 
 };

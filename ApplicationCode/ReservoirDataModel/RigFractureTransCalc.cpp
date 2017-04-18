@@ -727,72 +727,18 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeFlowInFracture()
+void RigFractureTransCalc::computeFlowInFracture(RigStimPlanCell* stimPlanCell)
 {
+    std::vector<cvf::Vec3d> polygon = stimPlanCell->getPolygon();
 
-    //TODO: A lot of common code with function for calculating transmissibility... 
+    //The polygon corners are always stored in the same order
+    double verticalSideLength = (polygon[1] - polygon[0]).length();
+    double horisontalSideLength = (polygon[2] - polygon[1]).length();
 
-    RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    RimEllipseFractureTemplate* fracTemplateEllipse;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
-    {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
-    }
-    else if (dynamic_cast<RimEllipseFractureTemplate*>(m_fracture->attachedFractureDefinition()))
-    {
-        fracTemplateEllipse = dynamic_cast<RimEllipseFractureTemplate*>(m_fracture->attachedFractureDefinition());
-    }
-    else return;
+    double verticalTrans = stimPlanCell->getConductivtyValue() * verticalSideLength / (horisontalSideLength / 2);
+    double horizontalTrans = stimPlanCell->getConductivtyValue() * horisontalSideLength / (verticalSideLength / 2);
 
-    //TODO: A lot of common code with function above... Can be cleaned up...?
-    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
-
-
-    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
-
-    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
-    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
-
-
-    std::vector<RigFractureData> fracDataVec;
-
-    for (size_t fracCell : fracCells)
-    {
-        double Kw;  // Conductivity (Permeability K times width w)
-
-        if (fracTemplateEllipse)
-        {
-            double K = fracTemplateEllipse->fractureConductivity();     // Permeability
-            double w = fracTemplateEllipse->width();                    // Width
-
-            //TODO: UNit handling...
-            if (fracTemplateEllipse->fractureTemplateUnit() == RimDefines::UNITS_FIELD)
-            {
-                w = RimDefines::inchToFeet(w);
-            }
-    
-            Kw = K * w;
-        }
-        else if (fracTemplateStimPlan)
-        {
-            QString resultName = "CONDUCTIVITY";
-            QString resultUnit;
-            if (fracTemplateStimPlan->fractureTemplateUnit() == RimDefines::UNITS_METRIC) resultUnit = "md-m";
-            if (fracTemplateStimPlan->fractureTemplateUnit() == RimDefines::UNITS_FIELD)  resultUnit = "md-ft";
-
-            size_t timeStepIndex = 0; //TODO... 
-            caf::AppEnum< RimDefines::UnitSystem > unitSystem = RimDefines::UNITS_METRIC;
-            std::pair<double, double> upscaledValues = flowAcrossLayersUpscaling(resultName, resultUnit, timeStepIndex, unitSystem, fracCell);
-            Kw = (upscaledValues.first + upscaledValues.second) / 2;
-        }
-
-        Kw = convertConductivtyValue(Kw, fracTemplateEllipse->fractureTemplateUnit(), m_unitForCalculation);
-    }
-
-
-    m_fracture->setFractureData(fracDataVec);
-
+    stimPlanCell->setTransmissibilityInFracture(verticalTrans, horizontalTrans);
 }
 
 //--------------------------------------------------------------------------------------------------
