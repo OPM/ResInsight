@@ -20,10 +20,10 @@
 
 
 #include <QObject>
+#include <QStringList>
 
 class QEvent;
 class QWidget;
-class QStringList;
 
 
 //--------------------------------------------------------------------------------------------------
