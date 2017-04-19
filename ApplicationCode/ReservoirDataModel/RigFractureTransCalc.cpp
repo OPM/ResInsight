@@ -767,6 +767,26 @@ double RigFractureTransCalc::computeRadialTransmissibilityToWell(RigStimPlanCell
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::computeLinearTransmissibilityToWell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
+{
+    double TcPrefix = 8 * cDarcy() * stimPlanCell->getConductivtyValue();
+
+    double DzPerf = perforationLengthVertical * m_fracture->perforationEfficiency();
+    double DxPerf = perforationLengthHorizontal * m_fracture->perforationEfficiency();
+
+    double TcZ = TcPrefix * DzPerf /
+        (stimPlanCell->cellSizeX() + m_fracture->attachedFractureDefinition()->skinFactor() * DzPerf / cvf::PI_D);
+
+    double TcX = TcPrefix * DxPerf /
+        (stimPlanCell->cellSizeZ() + m_fracture->attachedFractureDefinition()->skinFactor() * DxPerf / cvf::PI_D);
+
+    double Tc = cvf::Math::sqrt(pow(TcX, 2) + pow(TcZ, 2));
+    return Tc;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RigFractureTransCalc::cDarcy()
 {
     double c = cvf::UNDEFINED_DOUBLE;

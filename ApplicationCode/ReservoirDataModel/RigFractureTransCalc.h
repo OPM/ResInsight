@@ -62,6 +62,7 @@ public:
     
     static void                 computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell);
     double                      computeRadialTransmissibilityToWell(RigStimPlanCell* stimPlanCell);
+    double                      computeLinearTransmissibilityToWell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);
 
 
 
