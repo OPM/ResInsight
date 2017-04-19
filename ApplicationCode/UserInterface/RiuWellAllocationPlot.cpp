@@ -79,7 +79,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
 
     QStringList commandIds;
-    commandIds << "RicShowWellAllocationDataFeature";
+    commandIds << "RicShowTotalAllocationDataFeature";
     new RiuContextMenuLauncher(m_legendWidget, commandIds);
 
     rightColumnLayout->addWidget(m_legendWidget);

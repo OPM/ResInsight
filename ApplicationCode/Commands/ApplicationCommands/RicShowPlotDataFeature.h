@@ -73,7 +73,7 @@ protected:
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
 
-private:
+public:
     static void showTextWindow(const QString& title, const QString& text);
 };
 

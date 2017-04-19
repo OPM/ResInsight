@@ -390,6 +390,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicCopyReferencesToClipboardFeature";
         
         commandIds << "RicShowPlotDataFeature";
+        commandIds << "RicShowTotalAllocationDataFeature";
+        
         commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         // Work in progress -- End

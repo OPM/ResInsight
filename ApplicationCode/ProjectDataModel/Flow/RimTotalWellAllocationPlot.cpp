@@ -141,6 +141,24 @@ QString RimTotalWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimTotalWellAllocationPlot::totalAllocationAsText() const
+{
+    QString txt;
+
+    for (auto a : m_sliceInfo)
+    {
+        txt += a.first;
+        txt += "\t";
+        txt += QString::number(a.second);
+        txt += "\n";
+    }
+
+    return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimTotalWellAllocationPlot::addSlice(const QString& name, const cvf::Color3f& color, float value)
 {
     if ( m_wellTotalAllocationPlotWidget )
@@ -150,6 +168,8 @@ void RimTotalWellAllocationPlot::addSlice(const QString& name, const cvf::Color3
         m_wellTotalAllocationPlotWidget->addItem(name, sliceColor, value);
         m_wellTotalAllocationPlotWidget->update();
     }
+
+    m_sliceInfo.push_back(std::make_pair(name, value));
 }
 
 
@@ -163,6 +183,8 @@ void RimTotalWellAllocationPlot::clearSlices()
         m_wellTotalAllocationPlotWidget->clear();
         m_wellTotalAllocationPlotWidget->update();
     }
+
+    m_sliceInfo.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

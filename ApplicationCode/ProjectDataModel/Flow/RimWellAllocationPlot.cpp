@@ -660,9 +660,9 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         }
 
         if (!m_case) m_timeStep = 0;
-        else if (m_timeStep >= m_case->timeStepDates().size())
+        else if (m_timeStep >= static_cast<int>(m_case->timeStepDates().size()))
         {
-            m_timeStep =  std::max(0, ((int)m_case->timeStepDates().size()) - 1);
+            m_timeStep = std::max(0, ((int)m_case->timeStepDates().size()) - 1);
         }
 
         std::set<QString> sortedWellNames = findSortedWellNames();
