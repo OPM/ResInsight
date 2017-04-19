@@ -26,6 +26,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
 #include "RiuPlotObjectPicker.h"
 
@@ -77,11 +78,16 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     m_legendWidget = new RiuNightchartsWidget(this);
     new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
 
+    QStringList commandIds;
+    commandIds << "RicShowWellAllocationDataFeature";
+    new RiuContextMenuLauncher(m_legendWidget, commandIds);
+
     rightColumnLayout->addWidget(m_legendWidget);
     m_legendWidget->showPie(false);
 
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
     new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
+    new RiuContextMenuLauncher(totalFlowAllocationWidget, commandIds);
 
     rightColumnLayout->addWidget(totalFlowAllocationWidget);
     rightColumnLayout->addStretch();
