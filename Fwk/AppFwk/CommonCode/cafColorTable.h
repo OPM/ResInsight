@@ -65,6 +65,8 @@ public:
     cvf::Color3ubArray  color3ubArray() const;
     cvf::Color3fArray   color3fArray() const;
 
+    const size_t        size() const { return m_colors.size(); }
+
     static cvf::Color3ub        fromQColor(const QColor& color);
     static cvf::Color3ubArray   interpolateColorArray(const cvf::Color3ubArray& colorArray, size_t targetColorCount); 
 private:

@@ -511,7 +511,7 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
 {
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
-    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefinitions);
+    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefinitions, getAllSummaryCaseNames(), getAllSummaryWellNames());
 
     if (!m_useAutoAppearanceAssignment())
     {
@@ -655,4 +655,58 @@ std::set<RifEclipseSummaryAddress> RimSummaryCurveFilter::findPossibleSummaryAdd
     }
 
     return addrUnion;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveFilter::getAllSummaryCaseNames()
+{
+    std::set<std::string> summaryCaseHashes;
+    RimProject* proj = RiaApplication::instance()->project();
+    std::vector<RimSummaryCase*> cases;
+
+    proj->allSummaryCases(cases);
+
+    for (RimSummaryCase* rimCase : cases)
+    {
+        summaryCaseHashes.insert(rimCase->summaryHeaderFilename().toUtf8().constData());
+    }
+
+    return summaryCaseHashes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveFilter::getAllSummaryWellNames()
+{
+    std::set<std::string> summaryWellNames;
+    RimProject* proj = RiaApplication::instance()->project();
+    std::vector<RimSummaryCase*> cases;
+
+    proj->allSummaryCases(cases);
+    for (RimSummaryCase* rimCase : cases)
+    {
+        RifReaderEclipseSummary* reader = nullptr;
+        if (rimCase && rimCase->caseData())
+        {
+            reader = rimCase->caseData()->summaryReader();
+        }
+
+        if (reader)
+        {
+            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+
+            for (size_t i = 0; i < allAddresses.size(); i++)
+            {
+                if (allAddresses[i].category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                {
+                    summaryWellNames.insert(allAddresses[i].wellName());
+                }
+            }
+        }
+    }
+    return summaryWellNames;
 }

@@ -98,6 +98,9 @@ private:
     void                                    updatePlotAxisForCurves();
     void                                    loadDataAndUpdatePlot();
 
+    std::set<std::string>                   getAllSummaryCaseNames();
+    std::set<std::string>                   getAllSummaryWellNames();
+
 private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
 
@@ -128,5 +131,7 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >  m_regionAppearanceType;
 
     std::vector< caf::PdmPointer<RimSummaryCase> > m_selectionCache;
+
+    std::vector< std::set<RimSummaryCase*> > m_caseIndices;
 };
 
