@@ -56,11 +56,13 @@ public:
     double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
 
     static double               arithmeticAverage(std::vector<double> values);
+    double                      cDarcy();
 
     void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData);
     
     static void                 computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell);
-    void                        computeFlowIntoTransverseWell();
+    double                      computeRadialTransmissibilityToWell(RigStimPlanCell* stimPlanCell);
+
 
 
     static std::vector<RigStimPlanCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanCell> allStimPlanCells, size_t i);

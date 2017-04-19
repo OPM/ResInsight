@@ -53,4 +53,20 @@ void RigStimPlanCell::setTransmissibilityInFracture(double valueHorizontal, doub
     m_transmissibilityInFractureVertical = valueVertical;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanCell::cellSizeX()
+{
+    //The polygon corners are always stored in the same order
+    return (m_polygon[1] - m_polygon[0]).length();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanCell::cellSizeZ()
+{
+    return (m_polygon[2] - m_polygon[1]).length();
+}
 

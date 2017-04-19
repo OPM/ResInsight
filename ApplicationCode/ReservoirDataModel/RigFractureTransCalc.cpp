@@ -40,6 +40,7 @@
 #include "cvfMath.h"
 #include "RimDefines.h"
 #include "RigStimPlanCell.h"
+#include <cmath> //Used for log 
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -729,11 +730,9 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell)
 {
-    std::vector<cvf::Vec3d> polygon = stimPlanCell->getPolygon();
 
-    //The polygon corners are always stored in the same order
-    double verticalSideLength = (polygon[1] - polygon[0]).length();
-    double horisontalSideLength = (polygon[2] - polygon[1]).length();
+    double verticalSideLength = stimPlanCell->cellSizeX();
+    double horisontalSideLength = stimPlanCell->cellSizeZ();
 
     double verticalTrans = stimPlanCell->getConductivtyValue() * verticalSideLength / (horisontalSideLength / 2);
     double horizontalTrans = stimPlanCell->getConductivtyValue() * horisontalSideLength / (verticalSideLength / 2);
@@ -744,12 +743,9 @@ void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(RigStim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeFlowIntoTransverseWell()
+double RigFractureTransCalc::computeRadialTransmissibilityToWell(RigStimPlanCell* stimPlanCell)
 {
-
-    //TODO: A lot of common code with function for calculating transmissibility... 
-
-    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return;
+    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return cvf::UNDEFINED_DOUBLE;
 
     double areaScalingFactor = 1.0;
     if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
@@ -757,6 +753,29 @@ void RigFractureTransCalc::computeFlowIntoTransverseWell()
         areaScalingFactor = 1 / cvf::Math::cos((m_fracture->azimuth() - (m_fracture->wellAzimuthAtFracturePosition()-90) ));
     }
 
+    double ro = 0.14 * cvf::Math::sqrt(
+        pow(stimPlanCell->cellSizeX(), 2.0) + pow(stimPlanCell->cellSizeZ(), 2)); 
+
+    double Tc = 2 * cvf::PI_D * cDarcy() * stimPlanCell->getConductivtyValue() / 
+        (log(ro / m_fracture->wellRadius()) + m_fracture->attachedFractureDefinition()->skinFactor() );
+
+    Tc = Tc * areaScalingFactor;
+
+    return Tc;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransCalc::cDarcy()
+{
+    double c = cvf::UNDEFINED_DOUBLE;
+    if (m_unitForCalculation == RimDefines::UNITS_METRIC) c = 0.00852702;
+    if (m_unitForCalculation == RimDefines::UNITS_FIELD)  c = 0.00112712;
+
+    // TODO: Use value from RimReservoirCellResultsStorage?
+
+    return c;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -822,14 +841,8 @@ double RigFractureTransCalc::calculateMatrixTransmissibility(double perm, double
 {
     double transmissibility; 
 
-    double c = cvf::UNDEFINED_DOUBLE;
-    if (m_unitForCalculation == RimDefines::UNITS_METRIC) c = 0.00852702;
-    if (m_unitForCalculation == RimDefines::UNITS_FIELD)  c = 0.00112712;
-    // TODO: Use value from RimReservoirCellResultsStorage?       
-
-
     double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
-    transmissibility = 8 * c * (perm * NTG) * A / (cellSizeLength + slDivPi);
+    transmissibility = 8 * cDarcy() * (perm * NTG) * A / (cellSizeLength + slDivPi);
 
     return transmissibility;
 }

@@ -46,10 +46,12 @@ public:
     double                  getHorizontalTransmissibilityInFracture() { return m_transmissibilityInFractureHorizontal; }
         
 
-    void setConductivityValue(double cond) { m_concutivityValue = cond; }
-    void setDisplayValue(double value) { m_displayValue = value; };
-    void setTransmissibilityInFracture(double valueHorizontal, double valueVertical);
+    void                    setConductivityValue(double cond) { m_concutivityValue = cond; }
+    void                    setDisplayValue(double value) { m_displayValue = value; };
+    void                    setTransmissibilityInFracture(double valueHorizontal, double valueVertical);
 
+    double                  cellSizeX();
+    double                  cellSizeZ();
 private:
     std::vector<cvf::Vec3d> m_polygon;
     double                  m_displayValue;
