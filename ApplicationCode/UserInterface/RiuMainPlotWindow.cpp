@@ -495,7 +495,11 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        if (!m_blockSlotSubWindowActivated) projectTreeView()->selectAsCurrentItem(viewWindow);
+        if (!m_blockSlotSubWindowActivated)
+        {
+            selectAsCurrentItem(viewWindow);
+        }
+
         m_activePlotViewWindow = viewWindow;
     }
 }
