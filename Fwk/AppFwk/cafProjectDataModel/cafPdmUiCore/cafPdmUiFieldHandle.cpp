@@ -2,7 +2,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
-
+#include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiObjectHandle.h"
 
 namespace caf
@@ -38,6 +38,8 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
 
         // Update field editors
         this->updateConnectedEditors();
+
+        PdmUiModelChangeDetector::instance()->setModelIsChanged();
     }
 }
 
