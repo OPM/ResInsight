@@ -39,13 +39,21 @@ RiuPlotObjectPicker::RiuPlotObjectPicker(QWidget* widget, caf::PdmObject* associ
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotObjectPicker::eventFilter(QObject* watchedObject, QEvent* event)
 {
-    if (event->type() == QEvent::MouseButtonRelease)
+    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+    if (mainPlotWindow && m_associatedObject.notNull())
     {
-        QMouseEvent* me = static_cast<QMouseEvent*>(event);
-        if (me->button() == Qt::LeftButton)
+        if (event->type() == QEvent::MouseButtonPress)
         {
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-            if (mainPlotWindow && m_associatedObject.notNull())
+            QMouseEvent* me = static_cast<QMouseEvent*>(event);
+            if (me->button() == Qt::RightButton)
+            {
+                mainPlotWindow->selectAsCurrentItem(m_associatedObject);
+            }
+        }
+        else if (event->type() == QEvent::MouseButtonRelease)
+        {
+            QMouseEvent* me = static_cast<QMouseEvent*>(event);
+            if (me->button() == Qt::LeftButton)
             {
                 mainPlotWindow->selectAsCurrentItem(m_associatedObject);
                 return true;
