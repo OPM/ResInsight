@@ -191,6 +191,7 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     propertyGroup->add(&stimPlanTimeIndexToPlot);
     propertyGroup->add(&perforationLength);
     propertyGroup->add(&perforationEfficiency);
+    propertyGroup->add(&wellRadius);
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);

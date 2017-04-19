@@ -56,6 +56,7 @@ public:
     caf::PdmField<double>           azimuth;
     caf::PdmField<double>           perforationLength;
     caf::PdmField<double>           perforationEfficiency;
+    caf::PdmField<double>           wellRadius;
 
     caf::PdmField<double>           dip;
     caf::PdmField<double>           tilt;

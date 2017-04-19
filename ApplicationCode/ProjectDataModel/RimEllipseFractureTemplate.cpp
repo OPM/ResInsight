@@ -45,7 +45,6 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&halfLength,  "HalfLength",       650.0f,  "Halflength X<sub>f</sub>", "", "", "");
     CAF_PDM_InitField(&height,      "Height",           75.0f,   "Height", "", "", "");
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
-    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0f, "Perforation Length", "", "", ""); //Is this correct description?
 
     CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability [mD]", "", "", "");
 }
@@ -65,7 +64,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 {
     RimFractureTemplate::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &halfLength || changedField == &height || changedField == &perforationLength)
+    if (changedField == &halfLength || changedField == &height)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -80,16 +79,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
             {
                 if (fracture->attachedFractureDefinition() == this)
                 {
-                    if (changedField == &halfLength || changedField == &height)
-                    {
-                        fracture->setRecomputeGeometryFlag();
-                    }
-
-                    if (changedField == &perforationLength && (abs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
-                    {
-                        fracture->perforationLength = perforationLength;
-                    }
-
+                    fracture->setRecomputeGeometryFlag();
                 }
             }
 
@@ -167,7 +157,7 @@ void RimEllipseFractureTemplate::changeUnits()
         halfLength = RimDefines::meterToFeet(halfLength);
         height = RimDefines::meterToFeet(height);
         width = RimDefines::meterToInch(width);
-        perforationLength = RimDefines::meterToFeet(perforationLength);
+        //perforationLength = RimDefines::meterToFeet(perforationLength);
         fractureTemplateUnit = RimDefines::UNITS_FIELD;
         //TODO: Darcy unit?
     }
@@ -176,7 +166,7 @@ void RimEllipseFractureTemplate::changeUnits()
         halfLength = RimDefines::feetToMeter(halfLength);
         height = RimDefines::feetToMeter(height);
         width = RimDefines::inchToMeter(width);
-        perforationLength = RimDefines::feetToMeter(perforationLength);
+        //perforationLength = RimDefines::feetToMeter(perforationLength);
         fractureTemplateUnit = RimDefines::UNITS_METRIC;
     }
 
@@ -195,14 +185,14 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         height.uiCapability()->setUiName("Height [m]");
         width.uiCapability()->setUiName("Width [m]");
-        perforationLength.uiCapability()->setUiName("Perforation Length [m]");
+        //perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
     else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         height.uiCapability()->setUiName("Height [Ft]");
         width.uiCapability()->setUiName("Width [inches]");
-        perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
+        //perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
     }
 
     
@@ -223,6 +213,8 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     }
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
+    propertyGroup->add(&perforationEfficiency);
+    propertyGroup->add(&wellRadius);
 
     uiOrdering.add(&fractureTemplateUnit);
     uiOrdering.skipRemainingFields(true);

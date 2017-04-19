@@ -46,7 +46,6 @@ public:
     
     caf::PdmField<float>     halfLength;
     caf::PdmField<float>     height;
-    caf::PdmField<float>     perforationLength;
 
     caf::PdmField<float>     width;
     caf::PdmField<float>     permeability;

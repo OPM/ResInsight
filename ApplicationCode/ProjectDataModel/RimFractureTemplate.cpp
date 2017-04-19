@@ -24,6 +24,7 @@
 #include "RimProject.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfVector3.h"
 
@@ -67,10 +68,14 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Units System", "", "", "");
     fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
-
     CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
     CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&skinFactor, "SkinFactor", 1.0f, "Skin Factor", "", "", "");
+
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
+    CAF_PDM_InitField(&perforationEfficiency, "perforationEfficiency", 1.0, "perforation Efficiency", "", "", "");
+    perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&wellRadius, "wellRadius", 0.0, "Well Radius at Fracture", "", "", "");
 
     CAF_PDM_InitField(&fractureConductivity, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(INFINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
@@ -130,8 +135,35 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
             proj->createDisplayModelAndRedrawAllViews();
         }
     }
-}
 
+    if (changedField == &perforationLength || changedField == &perforationEfficiency || changedField == &wellRadius)
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (!proj) return;
+        std::vector<RimFracture*> fractures;
+        proj->descendantsIncludingThisOfType(fractures);
+
+        for (RimFracture* fracture : fractures)
+        {
+            if (fracture->attachedFractureDefinition() == this)
+            {
+                if (changedField == &perforationLength && (abs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
+                {
+                    fracture->perforationLength = perforationLength;
+                }
+                if (changedField == &perforationEfficiency && (abs(oldValue.toDouble() - fracture->perforationEfficiency()) < 1e-5))
+                {
+                    fracture->perforationEfficiency = perforationEfficiency;
+                }
+                if (changedField == &wellRadius && (abs(oldValue.toDouble() - fracture->wellRadius()) < 1e-5))
+                {
+                    fracture->wellRadius = wellRadius;
+                }
+            }
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -147,5 +179,21 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     else if (orientation == RimFractureTemplate::AZIMUTH)
     {
         azimuthAngle.uiCapability()->setUiHidden(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &perforationEfficiency)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_minimum = 0;
+            myAttr->m_maximum = 1.0;
+        }
     }
 }

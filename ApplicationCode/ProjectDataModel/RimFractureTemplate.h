@@ -49,6 +49,10 @@ public:
     caf::PdmField<float>     azimuthAngle;
     caf::PdmField<float>     skinFactor;
 
+    caf::PdmField<double>           perforationLength;
+    caf::PdmField<double>           perforationEfficiency;
+    caf::PdmField<double>           wellRadius;
+
     enum FracOrientationEnum
     {
         AZIMUTH,
@@ -73,4 +77,7 @@ public:
     virtual std::vector<cvf::Vec3f> fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureTemplateUnit) = 0;
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
+    virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+
 };

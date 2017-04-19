@@ -1081,6 +1081,9 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureConductivity);
     propertyGroup->add(&skinFactor);
+    propertyGroup->add(&perforationLength);
+    propertyGroup->add(&perforationEfficiency);
+    propertyGroup->add(&wellRadius);
 
     caf::PdmUiGroup* polygonGroup = uiOrdering.addNewGroup("Fracture Polygon Basis");
     polygonGroup->add(&parameterForPolygon);
@@ -1091,6 +1094,8 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
+    RimFractureTemplate::defineEditorAttribute(field, uiConfigName, attribute);
+
     if (field == &m_stimPlanFileName)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
