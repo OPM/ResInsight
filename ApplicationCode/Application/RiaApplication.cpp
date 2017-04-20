@@ -2262,6 +2262,18 @@ void removeDirectoryWithContent(QDir dirToDelete )
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
+{
+    double timeRunning = time.elapsed() / 1000.0;
+
+    QString timeText = QString("(%1 s) ").arg(timeRunning, 0, 'f', 1);
+
+    RiaLogging::info(timeText + msg);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::runRegressionTest(const QString& testRootPath)
 {
     m_runningRegressionTests = true;
@@ -2315,6 +2327,11 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         }
     }
 
+    QTime timeStamp;
+    timeStamp.start();
+
+    logInfoTextWithTimeInSeconds(timeStamp, "Starting regression tests\n");
+
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
@@ -2351,43 +2368,50 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
         if (!projectFileName.isEmpty())
         {
-             loadProject(testCaseFolder.filePath(projectFileName));
+            logInfoTextWithTimeInSeconds(timeStamp, "Initializing test :" + testCaseFolder.absolutePath());
 
-             // Wait until all command objects have completed
-             while (!m_commandQueueLock.tryLock())
-             {
-                 processEvents();
-             }
-             m_commandQueueLock.unlock();
+            loadProject(testCaseFolder.filePath(projectFileName));
 
-             regressionTestConfigureProject();
+            // Wait until all command objects have completed
+            while (!m_commandQueueLock.tryLock())
+            {
+                processEvents();
+            }
+            m_commandQueueLock.unlock();
 
-             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-             saveSnapshotForAllViews(fullPathGeneratedFolder);
+            regressionTestConfigureProject();
 
-             RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
+            QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
+            saveSnapshotForAllViews(fullPathGeneratedFolder);
 
-             QDir baseDir(testCaseFolder.filePath(baseFolderName));
-             QDir genDir(testCaseFolder.filePath(generatedFolderName));
-             QDir diffDir(testCaseFolder.filePath(diffFolderName));
-             if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
-             baseDir.setFilter(QDir::Files);
-             QStringList baseImageFileNames = baseDir.entryList();
+            RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
 
-             for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
-             {
-                 QString fileName = baseImageFileNames[fIdx];
-                 RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
-                 bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
-                 if (!ok)
-                 {
+            QDir baseDir(testCaseFolder.filePath(baseFolderName));
+            QDir genDir(testCaseFolder.filePath(generatedFolderName));
+            QDir diffDir(testCaseFolder.filePath(diffFolderName));
+            if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
+            baseDir.setFilter(QDir::Files);
+            QStringList baseImageFileNames = baseDir.entryList();
+
+            for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
+            {
+                QString fileName = baseImageFileNames[fIdx];
+                RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
+                bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
+                if (!ok)
+                {
                     qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
-                 }
-             }
+                }
+            }
 
-             closeProject();
+            closeProject();
+        
+            logInfoTextWithTimeInSeconds(timeStamp, "Completed test :" + testCaseFolder.absolutePath());
         }
     }
+
+    RiaLogging::info("\n");
+    logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
 
     m_runningRegressionTests = false;
 }
