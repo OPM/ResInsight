@@ -1,6 +1,0 @@
-{"name" : "SPECGRID" , "sections" : ["GRID"], "size" : 1 , "items" : [
-    {"name" : "NX" , "value_type" : "INT" , "default" : 1},
-    {"name" : "NY" , "value_type" : "INT" , "default" : 1},
-    {"name" : "NZ" , "value_type" : "INT" , "default" : 1},
-    {"name" : "NUMRES" , "value_type" : "INT" , "default" : 1},
-    {"name" : "COORD_TYPE" , "value_type" : "STRING" , "default" : "F"}]}

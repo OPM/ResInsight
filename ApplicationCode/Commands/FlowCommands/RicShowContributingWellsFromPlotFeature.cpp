@@ -35,7 +35,8 @@ CAF_CMD_SOURCE_INIT(RicShowContributingWellsFromPlotFeature, "RicShowContributin
 //--------------------------------------------------------------------------------------------------
 bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
-    RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(RiaApplication::instance()->activePlotWindow());
+
     if (wellAllocationPlot) return true;
     
     return false;
@@ -46,7 +47,8 @@ bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
 {
-    RimWellAllocationPlot* wellAllocationPlot = RiaApplication::instance()->activeWellAllocationPlot();
+    RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(RiaApplication::instance()->activePlotWindow());
+
     if (!wellAllocationPlot) return;
 
     int timeStep = wellAllocationPlot->timeStep();

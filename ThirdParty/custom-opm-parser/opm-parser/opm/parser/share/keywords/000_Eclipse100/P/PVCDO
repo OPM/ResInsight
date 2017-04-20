@@ -1,7 +1,0 @@
-{"name" : "PVCDO" , "sections" : ["PROPS"], "size" : {"keyword":"TABDIMS" , "item":"NTPVT"}, "items":
-    [   {"name":"P_REF", "value_type" : "DOUBLE", "dimension":"Pressure" },
-        {"name":"OIL_VOL_FACTOR", "value_type" : "DOUBLE","dimension":"1"},
-        {"name":"OIL_COMPRESSIBILITY", "value_type" : "DOUBLE","dimension":"1/Pressure"},
-        {"name":"OIL_VISCOSITY", "value_type" : "DOUBLE","dimension":"Viscosity"},
-        {"name":"OIL_VISCOSIBILITY", "value_type" : "DOUBLE","dimension":"1/Pressure"}
-]}

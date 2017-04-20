@@ -113,7 +113,7 @@ QString RiuResultTextBuilder::mainResultText()
         text += "\n";
     }
 
-    QString topoText = this->topologyText("\n");
+    QString topoText = this->geometrySelectionText("\n");
     text += topoText;
     appendDetails(text, formationDetails());
     text += "\n";
@@ -134,7 +134,7 @@ QString RiuResultTextBuilder::mainResultText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::topologyText(QString itemSeparator)
+QString RiuResultTextBuilder::geometrySelectionText(QString itemSeparator)
 {
     QString text;
 

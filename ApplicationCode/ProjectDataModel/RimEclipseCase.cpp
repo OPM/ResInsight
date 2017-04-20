@@ -21,12 +21,14 @@
 #include "RimEclipseCase.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -136,6 +138,48 @@ const RigEclipseCaseData* RimEclipseCase::eclipseCaseData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEclipseCase::defaultWellColor(const QString& wellName)
+{
+    if ( m_wellToColorMap.empty() )
+    {
+        const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
+        cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+        cvf::Color3ubArray interpolatedWellColors = wellColors;
+
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = this->eclipseCaseData()->wellResults();
+        if ( wellResults.size() > 1 )
+        {
+            interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellResults.size());
+        }
+
+        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        {
+            m_wellToColorMap[wellResults[wIdx]->m_wellName] = cvf::Color3f::BLACK;
+        }
+
+        size_t wIdx = 0;
+        for ( auto & wNameColorPair: m_wellToColorMap )
+        {
+            wNameColorPair.second = cvf::Color3f(interpolatedWellColors[wIdx]);
+
+            ++wIdx;
+        }
+    }
+
+    auto nmColor = m_wellToColorMap.find(wellName);
+    if (nmColor != m_wellToColorMap.end()) 
+    {
+        return nmColor->second;
+    }
+    else
+    {
+        return cvf::Color3f::LIGHT_GRAY;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseCase::initAfterRead()
 {
     size_t j;
@@ -190,10 +234,8 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
     reservoirViews().push_back(rimEclipseView);
 
     // Resolve references after reservoir view has been inserted into Rim structures
-    // Intersections referencing a well path/ simulation well requires this
-    // TODO: initAfterReadRecursively can probably be removed
-    rimEclipseView->initAfterReadRecursively();
     rimEclipseView->resolveReferencesRecursively();
+    rimEclipseView->initAfterReadRecursively();
 
     return rimEclipseView;
 }
@@ -573,7 +615,6 @@ QStringList RimEclipseCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 QString RimEclipseCase::timeStepName(int frameIdx)
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
@@ -582,12 +623,24 @@ QString RimEclipseCase::timeStepName(int frameIdx)
     if (m_timeStepFormatString.isEmpty())
     {
         bool hasHoursAndMinutesInTimesteps = false;
+        bool hasSecondsInTimesteps = false;
+        bool hasMillisecondsInTimesteps = false;
         for (size_t i = 0; i < timeStepDates.size(); i++)
         {
-            if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            if (timeStepDates[i].time().msec() != 0.0)
             {
+                hasMillisecondsInTimesteps = true;
+                hasSecondsInTimesteps = true;
                 hasHoursAndMinutesInTimesteps = true;
                 break;
+            }
+            else if (timeStepDates[i].time().second() != 0.0) {
+                hasHoursAndMinutesInTimesteps = true;
+                hasSecondsInTimesteps = true;
+            }
+            else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            {
+                hasHoursAndMinutesInTimesteps = true;
             }
         }
 
@@ -595,6 +648,14 @@ QString RimEclipseCase::timeStepName(int frameIdx)
         if (hasHoursAndMinutesInTimesteps)
         {
             m_timeStepFormatString += " - hh:mm";
+            if (hasSecondsInTimesteps)
+            {
+                m_timeStepFormatString += ":ss";
+                if (hasMillisecondsInTimesteps)
+                {
+                    m_timeStepFormatString += ".zzz";
+                }
+            }
         }
     }
 

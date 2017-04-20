@@ -33,6 +33,7 @@ try {
     auto& fdTool = setup.toolbox;
 
     // Create start sets from injector wells.
+    using ID = Opm::FlowDiagnostics::CellSetID;
     std::vector<Opm::FlowDiagnostics::CellSet> start;
     for (const auto& well : setup.well_fluxes) {
         if (!well.is_injector_well) {
@@ -48,19 +49,24 @@ try {
                 completion_cells.push_back(cell_index);
             }
         }
-        start.emplace_back(Opm::FlowDiagnostics::CellSetID(well.name), completion_cells);
+        start.emplace_back(ID(well.name), completion_cells);
     }
 
 
     // Solve for injection time of flight and tracers.
     auto sol = fdTool.computeInjectionDiagnostics(start);
 
-    // Get local tof for first injector.
-    const auto& tof = sol.fd.timeOfFlight(start.front().id());
+    // Choose injector id, default to first injector.
+    const std::string id_string = setup.param.getDefault("id", start.front().id().to_string());
+    const ID id(id_string);
+
+    // Get local data for injector.
+    const bool tracer = setup.param.getDefault("tracer", false);
+    const auto& data = tracer ? sol.fd.concentration(id) : sol.fd.timeOfFlight(id);
 
     // Write it to standard out.
     std::cout.precision(16);
-    for (auto item : tof) {
+    for (auto item : data) {
         std::cout << item.first << "   " << item.second << '\n';
     }
 }

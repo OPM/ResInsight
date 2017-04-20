@@ -21,6 +21,10 @@
 
 #include "RiaApplication.h"
 
+#include "RigWellLogCurveData.h"
+
+#include "RimWellAllocationPlot.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainPlotWindow.h"
@@ -30,9 +34,6 @@
 #include "cvfAssert.h"
 
 #include <math.h>
-#include "RimWellAllocationPlot.h"
-#include "RimWellLogCurve.h"
-#include "RigWellLogCurveData.h"
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0
@@ -392,6 +393,18 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 {
     QString out;
 
+    RimWellAllocationPlot* wellAllocPlot = nullptr;
+    this->firstAncestorOrThisOfType(wellAllocPlot);
+    if (wellAllocPlot)
+    {
+        out += wellAllocPlot->description();
+    }
+    else
+    {
+        out += description();
+    }
+    out += "\n";
+
     for (RimWellLogTrack* track : m_tracks)
     {
         if (!track->isVisible()) continue;
@@ -476,12 +489,13 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         uiOrdering.add(&m_depthUnit);
     }
 
+    uiOrdering.add(&m_showTrackLegends);
+
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
     gridGroup->add(&m_isAutoScaleDepthEnabled);
     gridGroup->add(&m_minVisibleDepth);
     gridGroup->add(&m_maxVisibleDepth);
 
-    uiOrdering.add(&m_showTrackLegends);
 
     uiOrdering.skipRemainingFields(true);
 }

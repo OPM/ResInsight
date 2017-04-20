@@ -1,6 +1,0 @@
-{"name" : "START", "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
-{"name" : "DAY"   , "value_type" : "INT", "default":1},
-{"name" : "MONTH" , "value_type" : "STRING", "default":"JAN"},
-{"name" : "YEAR"  , "value_type" : "INT", "default":1983 },
-{"name" : "TIME" , "value_type" : "STRING", "default":"00:00:00.000"}]
-}

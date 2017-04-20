@@ -1,4 +1,0 @@
-{"name" : "THPRES" , "sections" : ["SOLUTION"], "items" : [
-        {"name" : "REGION1" , "value_type" : "INT"},
-        {"name" : "REGION2" , "value_type" : "INT"},
-        {"name" : "VALUE"   , "value_type" : "DOUBLE", "dimension" : "Pressure"}]}

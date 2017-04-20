@@ -64,6 +64,7 @@
 RiuMainPlotWindow::RiuMainPlotWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
+    m_activePlotViewWindow(nullptr),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
@@ -100,6 +101,11 @@ void RiuMainPlotWindow::initializeGuiNewProjectLoaded()
     setPdmRoot(RiaApplication::instance()->project());
     restoreTreeViewState();
 
+    if (m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject())
+    {
+        m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
+    }
+
     refreshToolbars();
 }
 
@@ -131,11 +137,18 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->askUserToSaveModifiedProject())
+    {
+        event->ignore();
+        return;
+    }
+
     saveWinGeoAndDockToolBarLayout();
 
-    if (!RiaApplication::instance()->tryCloseMainWindow()) return;
+    if (!app->tryCloseMainWindow()) return;
 
-    RiaApplication::instance()->closeProject();
+    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,7 +179,6 @@ void RiuMainPlotWindow::createMenus()
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    //importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
@@ -480,63 +492,22 @@ void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow) return;
-    if (m_blockSlotSubWindowActivated) return;
 
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
 
+    // Select in Project Tree
+
+    RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subWindow->widget());
+
+    if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        RiuWellLogPlot* wellLogPlotViewer = dynamic_cast<RiuWellLogPlot*>(subWindow->widget());
-        if (wellLogPlotViewer)
+        if (!m_blockSlotSubWindowActivated)
         {
-            RimWellLogPlot* wellLogPlot = wellLogPlotViewer->ownerPlotDefinition();
+            selectAsCurrentItem(viewWindow);
+        }
 
-            if (wellLogPlot != RiaApplication::instance()->activeWellLogPlot())
-            {
-                RiaApplication::instance()->setActiveWellLogPlot(wellLogPlot);
-                projectTreeView()->selectAsCurrentItem(wellLogPlot);
-            }
-        }
-        else
-        {
-            RiaApplication::instance()->setActiveWellLogPlot(NULL);
-        }
-    }
-
-    {
-        RiuSummaryQwtPlot* summaryPlotViewer = dynamic_cast<RiuSummaryQwtPlot*>(subWindow->widget());
-        if (summaryPlotViewer)
-        {
-            RimSummaryPlot* summaryPlot = summaryPlotViewer->ownerPlotDefinition();
-
-            if (summaryPlot != RiaApplication::instance()->activeSummaryPlot())
-            {
-                RiaApplication::instance()->setActiveSummaryPlot(summaryPlot);
-                projectTreeView()->selectAsCurrentItem(summaryPlot);
-            }
-        }
-        else
-        {
-            RiaApplication::instance()->setActiveSummaryPlot(NULL);
-        }
-    }
-
-    {
-        RiuWellAllocationPlot* wellAllocationPlotWidget = dynamic_cast<RiuWellAllocationPlot*>(subWindow->widget());
-        if (wellAllocationPlotWidget)
-        {
-            RimWellAllocationPlot* wellAllocationPlot = wellAllocationPlotWidget->ownerPlotDefinition();
-
-            if (wellAllocationPlot != RiaApplication::instance()->activeWellAllocationPlot())
-            {
-                RiaApplication::instance()->setActiveWellAllocationPlot(wellAllocationPlot);
-                projectTreeView()->selectAsCurrentItem(wellAllocationPlot);
-            }
-        }
-        else
-        {
-            RiaApplication::instance()->setActiveWellAllocationPlot(nullptr);
-        }
+        m_activePlotViewWindow = viewWindow;
     }
 }
 
@@ -613,66 +584,28 @@ void RiuMainPlotWindow::selectedObjectsChanged()
 
         if (!firstSelectedObject) return;
 
-        // Well log plot
-
-        bool isActiveObjectChanged = false;
-        
-        RimWellLogPlot* selectedWellLogPlot = dynamic_cast<RimWellLogPlot*>(firstSelectedObject);
-        if (!selectedWellLogPlot)
+        RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>(firstSelectedObject);
+        if (!selectedWindow)
         {
-            firstSelectedObject->firstAncestorOrThisOfType(selectedWellLogPlot);
+            firstSelectedObject->firstAncestorOrThisOfType(selectedWindow);
         }
 
-        if (selectedWellLogPlot)
+        // If we cant find the view window as an MDI sub window, we search higher in the 
+        // project tree to find a possible parent view window that has.
+        if (selectedWindow && !findMdiSubWindow(selectedWindow->viewWidget())) 
         {
-            if (selectedWellLogPlot->viewWidget())
+            if (selectedWindow->parentField() && selectedWindow->parentField()->ownerObject())
             {
-                setActiveViewer(selectedWellLogPlot->viewWidget());
+                selectedWindow->parentField()->ownerObject()->firstAncestorOrThisOfType(selectedWindow);
             }
-            isActiveObjectChanged = true;
-            RiaApplication::instance()->setActiveWellLogPlot(selectedWellLogPlot);
         }
 
-        // Summary plot
-
-        RimSummaryPlot* selectedSummaryPlot = dynamic_cast<RimSummaryPlot*>(firstSelectedObject);
-        if (!selectedSummaryPlot)
+        if (selectedWindow)
         {
-            firstSelectedObject->firstAncestorOrThisOfType(selectedSummaryPlot);
-        }
-
-        if (selectedSummaryPlot)
-        {
-            if (selectedSummaryPlot->viewWidget())
+            if (selectedWindow->viewWidget())
             {
-                setActiveViewer(selectedSummaryPlot->viewWidget());
+                setActiveViewer(selectedWindow->viewWidget());
             }
-
-            isActiveObjectChanged = true;
-            RiaApplication::instance()->setActiveSummaryPlot(selectedSummaryPlot);
-        }
-
-        // Flow plot
-
-        RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(firstSelectedObject);
-        if (!wellAllocationPlot)
-        {
-            firstSelectedObject->firstAncestorOrThisOfType(wellAllocationPlot);
-        }
-
-        if (wellAllocationPlot)
-        {
-            if (wellAllocationPlot->viewWidget())
-            {
-                setActiveViewer(wellAllocationPlot->viewWidget());
-            }
-
-            isActiveObjectChanged = true;
-            RiaApplication::instance()->setActiveWellAllocationPlot(wellAllocationPlot);
-        }
-
-        if (isActiveObjectChanged)
-        {
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
@@ -770,33 +703,12 @@ RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForViewer(QWidget* viewer)
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
     {
-        return windowGeometryForWidget(mdiWindow);
+        return RiuMdiSubWindow::windowGeometryForWidget(mdiWindow);
     }
 
     RimMdiWindowGeometry geo;
     return geo;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainPlotWindow::windowGeometryForWidget(QWidget* widget)
-{
-    RimMdiWindowGeometry geo;
-
-    if (widget)
-    {
-        geo.mainWindowID = 1;
-        geo.x = widget->pos().x();
-        geo.y = widget->pos().y();
-        geo.width = widget->size().width();
-        geo.height = widget->size().height();
-        geo.isMaximized = widget->isMaximized();
-    }
-
-    return geo;
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

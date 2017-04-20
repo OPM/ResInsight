@@ -96,14 +96,7 @@ public:
     RimView*                activeReservoirView();
     const RimView*          activeReservoirView() const;
 
-    void                    setActiveWellLogPlot(RimWellLogPlot*);
-    RimWellLogPlot*         activeWellLogPlot();
-
-    void                    setActiveSummaryPlot(RimSummaryPlot*);
-    RimSummaryPlot*         activeSummaryPlot();
-
-    void                    setActiveWellAllocationPlot(RimWellAllocationPlot*);
-    RimWellAllocationPlot*  activeWellAllocationPlot();
+    RimViewWindow*          activePlotWindow() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -133,7 +126,11 @@ public:
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
+    static bool         hasValidProjectFileExtension(const QString& fileName);
+    
+    bool                askUserToSaveModifiedProject();
     void                closeProject();
+    
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
@@ -215,6 +212,8 @@ private:
     void                    deleteMainPlotWindow();
     
     void                    loadAndUpdatePlotData();
+    
+    void                    storeTreeViewState();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -228,9 +227,6 @@ private slots:
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
-    caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
-    caf::PdmPointer<RimSummaryPlot>     m_activeSummaryPlot;
-    caf::PdmPointer<RimWellAllocationPlot> m_activeWellAllocationPlot;
 
     caf::PdmPointer<RimProject>         m_project;
 

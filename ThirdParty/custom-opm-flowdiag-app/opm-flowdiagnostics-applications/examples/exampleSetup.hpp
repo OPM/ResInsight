@@ -124,7 +124,12 @@ namespace example {
                 const auto& ijk = completion.ijk;
                 const int cell_index = G.activeCell(ijk, grid_index);
                 if (cell_index >= 0) {
-                    inflow.emplace(cell_index, completion.reservoir_inflow_rate);
+                    // Since inflow is a std::map, if the key was not
+                    // already present operator[] will insert a
+                    // value-initialized value (as in T() for a type
+                    // T), which is zero for built-in numerical types,
+                    // including double.
+                    inflow[cell_index] += completion.reservoir_inflow_rate;
                 }
             }
         }

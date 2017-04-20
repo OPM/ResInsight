@@ -19,6 +19,7 @@
 #pragma once
 
 #include <QMdiSubWindow>
+#include "RimViewWindow.h"
 
 
 class RiuMdiSubWindow : public QMdiSubWindow
@@ -27,6 +28,8 @@ public:
     RiuMdiSubWindow(QWidget* parent = 0, Qt::WindowFlags flags = 0);
 
     ~RiuMdiSubWindow();
+
+    static RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
 
 protected:
     virtual void closeEvent(QCloseEvent* event);

@@ -31,7 +31,7 @@ class RifEclipseSummaryAddress;
 class RimSummaryCurveAppearanceCalculator
 {
 public:
-    explicit RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
+    explicit RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions, const std::set<std::string> allSummaryCaseNames, const std::set<std::string> allSummaryWellNames);
     enum CurveAppearanceType
     {
         NONE,
@@ -59,6 +59,8 @@ private:
  
 
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);
+    void                           updateApperanceIndices();
+    std::map<std::string, size_t>  mapNameToAppearanceIndex(CurveAppearanceType & appearance, const std::set<std::string>& names);
 
     cvf::Color3f                   cycledPaletteColor(int colorIndex);
     cvf::Color3f                   cycledNoneRGBBrColor(int colorIndex);
@@ -97,6 +99,9 @@ private:
     std::map<int            , int> m_regToAppearanceIdxMap;
 
     std::map<char, std::map< std::string, int> > m_secondCharToVarToAppearanceIdxMap;
+
+    std::set<std::string>          m_allSummaryCaseNames;
+    std::set<std::string>          m_allSummaryWellNames;
 
 };
 

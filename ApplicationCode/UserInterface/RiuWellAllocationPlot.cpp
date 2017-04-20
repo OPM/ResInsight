@@ -26,7 +26,9 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
+#include "RiuPlotObjectPicker.h"
 
 #include "cvfColor3.h"
 
@@ -52,6 +54,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     this->layout()->setSpacing(2);
 
     m_titleLabel = new QLabel(this);
+    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->accumulatedWellFlowPlot());
 
     QFont font = m_titleLabel->font();
     font.setPointSize(14);
@@ -73,14 +76,24 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
     m_legendWidget = new RiuNightchartsWidget(this);
+    new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
+
+    QStringList commandIds;
+    commandIds << "RicShowTotalAllocationDataFeature";
+    new RiuContextMenuLauncher(m_legendWidget, commandIds);
+
     rightColumnLayout->addWidget(m_legendWidget);
     m_legendWidget->showPie(false);
 
     QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
+    new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
+    new RiuContextMenuLauncher(totalFlowAllocationWidget, commandIds);
+
     rightColumnLayout->addWidget(totalFlowAllocationWidget);
     rightColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
+
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }
 
@@ -99,6 +112,14 @@ RiuWellAllocationPlot::~RiuWellAllocationPlot()
 /// 
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RiuWellAllocationPlot::ownerPlotDefinition()
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuWellAllocationPlot::ownerViewWindow() const
 {
     return m_plotDefinition;
 }
@@ -154,6 +175,7 @@ void RiuWellAllocationPlot::clearLegend()
 {
     m_legendWidget->clear();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

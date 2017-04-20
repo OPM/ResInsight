@@ -1,5 +1,0 @@
-{"name" : "PARALLEL" , "sections" : ["RUNSPEC"],
-"size" : 1 ,
-"items" : [
-    {"name" : "NDMAIN" , "value_type" : "INT" , "default": 1},
-    {"name" : "MACHINE_TYPE" , "value_type" : "STRING" , "default": "DISTRIBUTED"}]}

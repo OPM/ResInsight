@@ -52,6 +52,8 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_case, "FlowCase", "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
+    m_flowDiagSolution.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "");
 
@@ -107,6 +109,22 @@ void RimFlowCharacteristicsPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
+{
+    if (m_timeStepSelectionType() != ALL_AVAILABLE) return;
+    if (!m_flowDiagSolution()) return;
+
+    RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
+    std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+    
+    if (m_currentlyPlottedTimeSteps == calculatedTimesteps) return;
+
+    this->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -122,7 +140,10 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
 
             for ( RimEclipseResultCase* c : cases )
             {
-                options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                if ( c->defaultFlowDiagSolution() )
+                {
+                    options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                }
             }
         }
     }
@@ -132,9 +153,9 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         {
             std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
 
+            options.push_back(caf::PdmOptionItemInfo("None", nullptr));
             for ( RimFlowDiagSolution* flowSol : flowSols )
             {
-                options.push_back(caf::PdmOptionItemInfo("None", nullptr));
                 options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
             }
         }
@@ -199,7 +220,8 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     if ( &m_case == changedField )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();    
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();  
+        m_currentlyPlottedTimeSteps.clear();  
     }
 
     // All fields update plot
@@ -251,6 +273,8 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
                  if (calculatedTimeStepsSet.count(tsIdx)) calculatedTimesteps.push_back(tsIdx);
             }
         }
+        
+        m_currentlyPlottedTimeSteps = calculatedTimesteps;
 
         std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
         std::vector<double> lorenzVals(timeStepDates.size(), HUGE_VAL);

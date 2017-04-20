@@ -36,6 +36,7 @@
 #include "RiaColorTables.h"
 #include "qwt_plot_zoneitem.h"
 #include "qwt_date.h"
+#include "RiuQwtPlotZoomer.h"
 
 
 
@@ -86,7 +87,7 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
 
 void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
 {
-    auto zoomer = new QwtPlotZoomer(plot->canvas());
+    auto zoomer = new RiuQwtPlotZoomer(plot->canvas());
     zoomer->setRubberBandPen(QColor(Qt::black));
     zoomer->setTrackerMode(QwtPicker::AlwaysOff);
     zoomer->setTrackerPen(QColor(Qt::black));
@@ -191,8 +192,11 @@ void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve(const QDateTime& dateTi
 void RiuFlowCharacteristicsPlot::removeAllCurves()
 {
     m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_lorenzPlot->replot();
     m_sweepEffPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_sweepEffPlot->replot();
     m_flowCapVsStorageCapPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
+    m_flowCapVsStorageCapPlot->replot();
     m_dateToColorMap.clear();
 }
 
@@ -221,6 +225,14 @@ RimFlowCharacteristicsPlot* RiuFlowCharacteristicsPlot::ownerPlotDefinition()
     return m_plotDefinition;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuFlowCharacteristicsPlot::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

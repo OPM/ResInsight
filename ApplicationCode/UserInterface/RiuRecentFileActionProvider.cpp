@@ -122,18 +122,24 @@ void RiuRecentFileActionProvider::slotOpenRecentFile()
     QAction* action = qobject_cast<QAction *>(sender());
     if (action)
     {
-        QString filename = action->data().toString();
-        bool loadingSucceded = RiaApplication::instance()->openFile(filename);
+        QString fileName = action->data().toString();
 
+        RiaApplication* app = RiaApplication::instance();
+        if (RiaApplication::hasValidProjectFileExtension(fileName))
+        {
+            if (!app->askUserToSaveModifiedProject()) return;
+        }
+
+        bool loadingSucceded = RiaApplication::instance()->openFile(fileName);
         if (loadingSucceded)
         {
-            addFileName(filename);
+            addFileName(fileName);
         }
         else
         {
-            QMessageBox::warning(NULL, "File open", "Failed to import file located at\n" + filename);
+            QMessageBox::warning(NULL, "File open", "Failed to import file located at\n" + fileName);
 
-            removeFileName(filename);
+            removeFileName(fileName);
         }
     }
 }

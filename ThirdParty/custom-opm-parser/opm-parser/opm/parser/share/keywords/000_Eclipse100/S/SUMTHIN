@@ -1,2 +1,0 @@
-{"name" : "SUMTHIN" , "sections" : ["SUMMARY" , "SCHEDULE"] , "size" : 1, "items" : [
-  {"name" : "TIME" , "value_type" : "DOUBLE" , "dimension" : "Time"}]}

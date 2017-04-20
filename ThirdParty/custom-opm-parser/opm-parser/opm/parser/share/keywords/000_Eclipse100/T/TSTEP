@@ -1,8 +1,0 @@
-{"name" : "TSTEP" ,
- "sections" : ["SCHEDULE"],
- "size" : 1,
- "items" : [{
-   "name" : "step_list" ,
-   "value_type" : "DOUBLE" ,
-   "dimension" : "Timestep",
-   "size_type" : "ALL"}]}

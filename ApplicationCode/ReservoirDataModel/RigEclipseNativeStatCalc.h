@@ -21,8 +21,10 @@
 
 #include "RigStatisticsCalculator.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigActiveCellInfo.h"
+
 class RigHistogramCalculator;
-class RigCaseCellResultsData;
 
 //==================================================================================================
 /// 
@@ -43,4 +45,36 @@ public:
 private:
     RigCaseCellResultsData* m_resultsData;
     size_t                  m_scalarResultIndex;
+
+    template <typename StatisticsAccumulator>
+    void traverseCells(StatisticsAccumulator& accumulator, size_t timeStepIndex)
+    {
+        std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
+
+        if (values.empty())
+        {
+            // Can happen if values do not exist for the current time step index.
+            return;
+        }
+
+        const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
+        size_t cellCount = actCellInfo->reservoirCellCount();
+
+        for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
+        {
+            // Filter out inactive cells
+            if (!actCellInfo->isActive(cIdx)) continue;
+
+			size_t cellResultIndex = cIdx;
+			if (m_resultsData->isUsingGlobalActiveIndex(m_scalarResultIndex))
+			{
+				cellResultIndex = actCellInfo->cellResultIndex(cIdx);
+			}
+
+            if (cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < values.size())
+            {
+                accumulator.addValue(values[cellResultIndex]);
+            }
+        }
+    }
 };

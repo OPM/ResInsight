@@ -28,10 +28,10 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimEclipseTopologyItem.h"
+#include "RimEclipseGeometrySelectionItem.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
-#include "RimGeoMechTopologyItem.h"
+#include "RimGeoMechGeometrySelectionItem.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
@@ -45,7 +45,7 @@
 
 #include "qwt_plot.h"
 
-CAF_PDM_SOURCE_INIT(RimGridTimeHistoryCurve, "TimeHistoryCurve");
+CAF_PDM_SOURCE_INIT(RimGridTimeHistoryCurve, "GridTimeHistoryCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,9 +54,9 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 {
     CAF_PDM_InitObject("Grid Time History Curve", ":/SummaryCurve16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_topologyText, "TopologyText", "Topology Reference", "", "", "");
-    m_topologyText.registerGetMethod(this, &RimGridTimeHistoryCurve::topologyText);
-    m_topologyText.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault(&m_geometrySelectionText, "GeometrySelectionText", "Cell Reference", "", "", "");
+    m_geometrySelectionText.registerGetMethod(this, &RimGridTimeHistoryCurve::geometrySelectionText);
+    m_geometrySelectionText.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result definition", "", "", "");
     m_eclipseResultDefinition.uiCapability()->setUiHidden(true);
@@ -66,9 +66,9 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     m_geoMechResultDefinition.uiCapability()->setUiHidden(true);
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_pickingTopologyItem, "PickingTopologyItem", "Picking Topology Item", "", "", "");
-    m_pickingTopologyItem.uiCapability()->setUiTreeHidden(true);
-    m_pickingTopologyItem.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection", "", "", "");
+    m_geometrySelectionItem.uiCapability()->setUiTreeHidden(true);
+    m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitField(&m_plotAxis, "PlotAxis", caf::AppEnum< RimDefines::PlotAxis >(RimDefines::PLOT_AXIS_LEFT), "Axis", "", "", "");
 }
@@ -85,9 +85,9 @@ RimGridTimeHistoryCurve::~RimGridTimeHistoryCurve()
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::setFromSelectionItem(const RiuSelectionItem* selectionItem)
 {
-    if (m_pickingTopologyItem())
+    if (m_geometrySelectionItem())
     {
-        delete m_pickingTopologyItem();
+        delete m_geometrySelectionItem();
     }
 
     if (m_eclipseResultDefinition())
@@ -103,10 +103,10 @@ void RimGridTimeHistoryCurve::setFromSelectionItem(const RiuSelectionItem* selec
     const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(selectionItem);
     if (eclSelectionItem)
     {
-        RimEclipseTopologyItem* topologyItem = new RimEclipseTopologyItem;
-        m_pickingTopologyItem = topologyItem;
+        RimEclipseGeometrySelectionItem* geomSelectionItem = new RimEclipseGeometrySelectionItem;
+        m_geometrySelectionItem = geomSelectionItem;
 
-        topologyItem->setFromSelectionItem(eclSelectionItem);
+        geomSelectionItem->setFromSelectionItem(eclSelectionItem);
 
         if (eclSelectionItem->m_view)
         {
@@ -118,10 +118,10 @@ void RimGridTimeHistoryCurve::setFromSelectionItem(const RiuSelectionItem* selec
     const RiuGeoMechSelectionItem* geoMechSelectionItem = dynamic_cast<const RiuGeoMechSelectionItem*>(selectionItem);
     if (geoMechSelectionItem)
     {
-        RimGeoMechTopologyItem* topologyItem = new RimGeoMechTopologyItem;
-        m_pickingTopologyItem = topologyItem;
+        RimGeoMechGeometrySelectionItem* geomSelectionItem = new RimGeoMechGeometrySelectionItem;
+        m_geometrySelectionItem = geomSelectionItem;
 
-        topologyItem->setFromSelectionItem(geoMechSelectionItem);
+        geomSelectionItem->setFromSelectionItem(geoMechSelectionItem);
 
         if (geoMechSelectionItem->m_view)
         {
@@ -159,7 +159,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
 {
     std::vector<double> values;
 
-    RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if (eclTopItem && eclTopItem->eclipseCase())
     {
         size_t cellIndex = eclTopItem->cellIndex();
@@ -176,7 +176,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         values = RigTimeHistoryResultAccessor::timeHistoryValues(eclTopItem->eclipseCase()->eclipseCaseData(), m_eclipseResultDefinition(), gridIndex, cellIndex, timeStepDates.size());
     }
 
-    if (geoMechTopologyItem() && geoMechTopologyItem()->geoMechCase())
+    if (geoMechGeomSelectionItem() && geoMechGeomSelectionItem()->geoMechCase())
     {
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor = femTimeHistoryResultAccessor();
 
@@ -194,7 +194,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
 //--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::quantityName() const
 {
-    RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if (eclTopItem)
     {
         CVF_ASSERT(m_eclipseResultDefinition());
@@ -202,11 +202,11 @@ QString RimGridTimeHistoryCurve::quantityName() const
         return m_eclipseResultDefinition->resultVariableUiName();
     }
 
-    if (geoMechTopologyItem())
+    if (geoMechGeomSelectionItem())
     {
         CVF_ASSERT(m_geoMechResultDefinition());
 
-        RimGeoMechTopologyItem* geoMechTopItem = geoMechTopologyItem();
+        RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor = femTimeHistoryResultAccessor();
 
         QString text;
@@ -239,13 +239,13 @@ QString RimGridTimeHistoryCurve::quantityName() const
 //--------------------------------------------------------------------------------------------------
 QString RimGridTimeHistoryCurve::caseName() const
 {
-    RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if (eclTopItem && eclTopItem->eclipseCase())
     {
         return eclTopItem->eclipseCase()->caseUserDescription();
     }
 
-    RimGeoMechTopologyItem* geoMechTopItem = geoMechTopologyItem();
+    RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
     if (geoMechTopItem && geoMechTopItem->geoMechCase())
     {
         return geoMechTopItem->geoMechCase()->caseUserDescription();
@@ -263,7 +263,7 @@ QString RimGridTimeHistoryCurve::createCurveAutoName()
 
     text += quantityName();
 
-    QString topoText = topologyText();
+    QString topoText = geometrySelectionText();
 
     if (!topoText.isEmpty())
     {
@@ -297,13 +297,13 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate()
         std::vector<time_t> dateTimes;
         std::vector<double> values;
 
-        RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
+        RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
         if (eclTopItem && eclTopItem->eclipseCase())
         {
             m_eclipseResultDefinition->loadResult();
         }
 
-        RimGeoMechTopologyItem* geoMechTopItem = geoMechTopologyItem();
+        RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
         if (geoMechTopItem && geoMechTopItem->geoMechCase())
         {
             m_geoMechResultDefinition->loadResult();
@@ -360,7 +360,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
 {
     std::vector<time_t> dateTimes;
 
-    RimEclipseTopologyItem* eclTopItem = eclipseTopologyItem();
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if (eclTopItem && eclTopItem->eclipseCase())
     {
         RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
@@ -374,7 +374,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
         }
     }
 
-    RimGeoMechTopologyItem* geoMechTopItem = geoMechTopologyItem();
+    RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
     if (geoMechTopItem && geoMechTopItem->geoMechCase())
     {
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor = femTimeHistoryResultAccessor();
@@ -411,23 +411,31 @@ void RimGridTimeHistoryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiO
 {
     RimPlotCurve::updateOptionSensitivity();
 
-    uiOrdering.add(&m_topologyText);
+    uiOrdering.add(&m_geometrySelectionText);
 
     // Fields declared in RimResultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    if (eclipseTopologyItem())
+    if (eclipseGeomSelectionItem())
     {
         CVF_ASSERT(m_eclipseResultDefinition());
         m_eclipseResultDefinition->uiOrdering(uiConfigName, *group1);
     }
 
-    if (geoMechTopologyItem())
+    if (geoMechGeomSelectionItem())
     {
         CVF_ASSERT(m_geoMechResultDefinition());
         m_geoMechResultDefinition->uiOrdering(uiConfigName, *group1);
     }
 
     uiOrdering.add(&m_plotAxis);
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->setCollapsedByDefault(true);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -463,9 +471,9 @@ void RimGridTimeHistoryCurve::fieldChangedByUi(const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimGridTimeHistoryCurve::mainGrid()
 {
-    if (eclipseTopologyItem() && eclipseTopologyItem()->eclipseCase() && eclipseTopologyItem()->eclipseCase()->eclipseCaseData())
+    if (eclipseGeomSelectionItem() && eclipseGeomSelectionItem()->eclipseCase() && eclipseGeomSelectionItem()->eclipseCase()->eclipseCaseData())
     {
-        return eclipseTopologyItem()->eclipseCase()->eclipseCaseData()->mainGrid();
+        return eclipseGeomSelectionItem()->eclipseCase()->eclipseCaseData()->mainGrid();
     }
 
     return nullptr;
@@ -474,21 +482,21 @@ RigMainGrid* RimGridTimeHistoryCurve::mainGrid()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseTopologyItem* RimGridTimeHistoryCurve::eclipseTopologyItem() const
+RimEclipseGeometrySelectionItem* RimGridTimeHistoryCurve::eclipseGeomSelectionItem() const
 {
-    RimPickingTopologyItem* pickItem = m_pickingTopologyItem();
+    RimGeometrySelectionItem* pickItem = m_geometrySelectionItem();
 
-    return dynamic_cast<RimEclipseTopologyItem*>(pickItem);
+    return dynamic_cast<RimEclipseGeometrySelectionItem*>(pickItem);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGeoMechTopologyItem* RimGridTimeHistoryCurve::geoMechTopologyItem() const
+RimGeoMechGeometrySelectionItem* RimGridTimeHistoryCurve::geoMechGeomSelectionItem() const
 {
-    RimPickingTopologyItem* pickItem = m_pickingTopologyItem();
+    RimGeometrySelectionItem* pickItem = m_geometrySelectionItem();
 
-    return dynamic_cast<RimGeoMechTopologyItem*>(pickItem);
+    return dynamic_cast<RimGeoMechGeometrySelectionItem*>(pickItem);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,43 +504,43 @@ RimGeoMechTopologyItem* RimGridTimeHistoryCurve::geoMechTopologyItem() const
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateResultDefinitionFromCase()
 {
-    if (eclipseTopologyItem())
+    if (eclipseGeomSelectionItem())
     {
         CVF_ASSERT(m_eclipseResultDefinition());
 
-        m_eclipseResultDefinition->setEclipseCase(eclipseTopologyItem()->eclipseCase());
+        m_eclipseResultDefinition->setEclipseCase(eclipseGeomSelectionItem()->eclipseCase());
     }
 
-    if (geoMechTopologyItem())
+    if (geoMechGeomSelectionItem())
     {
         CVF_ASSERT(m_geoMechResultDefinition());
 
-        m_geoMechResultDefinition->setGeoMechCase(geoMechTopologyItem()->geoMechCase());
+        m_geoMechResultDefinition->setGeoMechCase(geoMechGeomSelectionItem()->geoMechCase());
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGridTimeHistoryCurve::topologyText() const
+QString RimGridTimeHistoryCurve::geometrySelectionText() const
 {
     QString text;
 
-    if (eclipseTopologyItem() && m_pickingTopologyItem())
+    if (eclipseGeomSelectionItem() && m_geometrySelectionItem())
     {
-        text = m_pickingTopologyItem->topologyText();
+        text = m_geometrySelectionItem->geometrySelectionText();
     }
-    else if (geoMechTopologyItem())
+    else if (geoMechGeomSelectionItem())
     {
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor = femTimeHistoryResultAccessor();
         if (timeHistResultAccessor)
         {
-            text = timeHistResultAccessor->topologyText();
+            text = timeHistResultAccessor->geometrySelectionText();
         }
     }
     else
     {
-        text = "No topology";
+        text = "No Geometry";
     }
 
     return text;
@@ -563,11 +571,11 @@ std::unique_ptr<RiuFemTimeHistoryResultAccessor> RimGridTimeHistoryCurve::femTim
 {
     std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor;
 
-    if (   geoMechTopologyItem()
-        && geoMechTopologyItem()->geoMechCase() 
-        && geoMechTopologyItem()->geoMechCase()->geoMechData())
+    if (   geoMechGeomSelectionItem()
+        && geoMechGeomSelectionItem()->geoMechCase() 
+        && geoMechGeomSelectionItem()->geoMechCase()->geoMechData())
     {
-        RimGeoMechTopologyItem* geoMechTopItem = geoMechTopologyItem();
+        RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
         if (geoMechTopItem->m_hasIntersectionTriangle)
         {
             std::array<cvf::Vec3f, 3> intersectionTriangle;

@@ -47,6 +47,7 @@
 #include <float.h>
 #include "qwt_plot_magnifier.h"
 #include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,14 +60,14 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot(RimSummaryPlot* plotDefinition, QWidget* pa
     setDefaults();
 
     // LeftButton for the zooming
-    m_zoomerLeft = new QwtPlotZoomer(canvas());
+    m_zoomerLeft = new RiuQwtPlotZoomer(canvas());
     m_zoomerLeft->setRubberBandPen(QColor(Qt::black));
     m_zoomerLeft->setTrackerMode(QwtPicker::AlwaysOff);
     m_zoomerLeft->setTrackerPen(QColor(Qt::black));
     m_zoomerLeft->initMousePattern(1);
 
     // Attach a zoomer for the right axis
-    m_zoomerRight = new QwtPlotZoomer(canvas());
+    m_zoomerRight = new RiuQwtPlotZoomer(canvas());
     m_zoomerRight->setAxis(xTop, yRight);
     m_zoomerRight->setTrackerMode(QwtPicker::AlwaysOff);
     m_zoomerRight->initMousePattern(1);
@@ -102,6 +103,14 @@ RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
 /// 
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RiuSummaryQwtPlot::ownerPlotDefinition()
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuSummaryQwtPlot::ownerViewWindow() const
 {
     return m_plotDefinition;
 }

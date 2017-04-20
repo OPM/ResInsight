@@ -31,6 +31,7 @@ class QMdiSubWindow;
 class RiuViewer;
 
 struct RimMdiWindowGeometry;
+class RimViewWindow;
 
 namespace caf
 {
@@ -72,7 +73,6 @@ public:
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
-    RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
 
     void                tileWindows();
     bool                isAnyMdiSubWindowVisible();
@@ -115,7 +115,8 @@ private:
 
     QMdiArea*           m_mdiArea;
     RiuViewer*          m_mainViewer;
-    
+    RimViewWindow*      m_activePlotViewWindow;
+
     QMenu*              m_windowMenu;
 
     caf::PdmUiTreeView* m_projectTreeView;

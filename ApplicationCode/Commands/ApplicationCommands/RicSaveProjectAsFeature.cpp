@@ -40,9 +40,9 @@ bool RicSaveProjectAsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveProjectAsFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
+    this->disableModelChangeContribution();
 
-    RicSaveProjectFeature::storeTreeViewState();
+    RiaApplication* app = RiaApplication::instance();
 
     app->saveProjectPromptForFileName();
 }

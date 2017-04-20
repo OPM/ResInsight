@@ -7,7 +7,7 @@ include_directories(
     opm-flowdiagnostics-applications
 	opmCore
     ${ERT_INCLUDE_DIRS}
-    ${Boost_INCLUDE_DIRS}
+    ${boost-Subset_SOURCE_DIR}
 )
 
 include (opm-flowdiagnostics-applications/CMakeLists_files.cmake)

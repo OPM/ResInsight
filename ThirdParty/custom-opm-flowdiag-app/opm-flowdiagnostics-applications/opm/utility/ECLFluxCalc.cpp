@@ -18,6 +18,7 @@
 */
 
 #include <opm/utility/ECLFluxCalc.hpp>
+#include <opm/parser/eclipse/Units/Units.hpp>
 
 namespace Opm
 {
@@ -35,14 +36,15 @@ namespace Opm
 
     std::vector<double> ECLFluxCalc::flux(const PhaseIndex /* phase */) const
     {
-        // Obtain pressure vector.
-        std::vector<double> pressure = graph_.linearisedCellData("PRESSURE", &ECLUnits::UnitSystem::pressure);
+        // Obtain dynamic data.
+        DynamicData dyn_data;
+        dyn_data.pressure = graph_.linearisedCellData("PRESSURE", &ECLUnits::UnitSystem::pressure);
 
         // Compute fluxes per connection.
         const int num_conn = transmissibility_.size();
         std::vector<double> fluxvec(num_conn);
         for (int conn = 0; conn < num_conn; ++conn) {
-            fluxvec[conn] = singleFlux(conn, pressure);
+            fluxvec[conn] = singleFlux(conn, dyn_data);
         }
         return fluxvec;
     }
@@ -52,12 +54,15 @@ namespace Opm
 
 
     double ECLFluxCalc::singleFlux(const int connection,
-                                   const std::vector<double>& pressure) const
+                                   const DynamicData& dyn_data) const
     {
         const int c1 = neighbours_[2*connection];
         const int c2 = neighbours_[2*connection + 1];
-        const double t = transmissibility_[connection];
-        return t * (pressure[c1] - pressure[c2]);
+        const double transmissibility = transmissibility_[connection];
+        const double viscosity = 1.0 * prefix::centi * unit::Poise;
+        const double mobility = 1.0 / viscosity;
+        const auto& pressure = dyn_data.pressure;
+        return mobility * transmissibility * (pressure[c1] - pressure[c2]);
     }
 
 

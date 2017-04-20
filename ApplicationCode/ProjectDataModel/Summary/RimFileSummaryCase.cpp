@@ -32,8 +32,7 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 //--------------------------------------------------------------------------------------------------
 RimFileSummaryCase::RimFileSummaryCase()
 {
-    CAF_PDM_InitFieldNoDefault(&m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "");
-    m_summaryHeaderFilename.uiCapability()->setUiReadOnly(true);
+ 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +65,7 @@ QString RimFileSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimFileSummaryCase::caseName() const
+QString RimFileSummaryCase::caseName()
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 

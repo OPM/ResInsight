@@ -163,12 +163,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         newCaseBehaviourGroup->add(&loadAndShowSoil);
         newCaseBehaviourGroup->add(&showLasCurveWithoutTvdWarning);
     
-        std::vector<caf::PdmFieldHandle*> readerSettingsFields;
-        readerSettings->fields(readerSettingsFields);
-        for (size_t i = 0; i < readerSettingsFields.size(); i++)
-        {
-            newCaseBehaviourGroup->add(readerSettingsFields[i]);
-        }
+        readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
 
         caf::PdmUiGroup* ssihubGroup = uiOrdering.addNewGroup("SSIHUB");
         ssihubGroup->add(&ssihubAddress);

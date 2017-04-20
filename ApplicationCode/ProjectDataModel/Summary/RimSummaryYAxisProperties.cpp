@@ -116,6 +116,25 @@ QList<caf::PdmOptionItemInfo> RimSummaryYAxisProperties::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryYAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
+    titleGroup.add(&isAutoTitle);
+    titleGroup.add(&customTitle);
+    titleGroup.add(&titlePositionEnum);
+    titleGroup.add(&fontSize);
+
+    caf::PdmUiGroup& scaleGroup =  *(uiOrdering.addNewGroup("Axis Values"));
+    scaleGroup.add(&isLogarithmicScaleEnabled);
+    scaleGroup.add(&numberFormat);
+    scaleGroup.add(&visibleRangeMin);
+    scaleGroup.add(&visibleRangeMax);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryYAxisProperties::setNameAndAxis(const QString& name, QwtPlot::Axis axis)
 {
     m_name = name;

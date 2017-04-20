@@ -55,7 +55,6 @@ public:
 
 protected:
     virtual bool                            eventFilter(QObject* watched, QEvent* event);
-    virtual void                            focusInEvent(QFocusEvent* event);
     virtual QSize                           sizeHint() const;
     virtual QSize                           minimumSizeHint() const;
 

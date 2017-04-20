@@ -26,7 +26,7 @@ CAF_PDM_SOURCE_INIT(RimWellAllocationPlotLegend, "WellAllocationPlotLegend");
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlotLegend::RimWellAllocationPlotLegend()
 {
-    CAF_PDM_InitObject("Well Allocation Plot Legend", ":/WellAllocLegend16x16.png", "", "");
+    CAF_PDM_InitObject("Legend", ":/WellAllocLegend16x16.png", "", "");
     CAF_PDM_InitField(&m_showLegend, "ShowPlotLegend", true, "Show Plot Legend", "", "", "");
 
 }

@@ -1,6 +1,0 @@
-{"name" : "RESTART", "sections" : ["SOLUTION"], "size"  : 1 , "items" : [
-    {"name" : "ROOTNAME"         , "value_type" : "STRING" , "default" : "BASE"       },
-    {"name" : "REPORTNUMBER"     , "value_type" : "INT"                               },
-    {"name" : "SAVEFILE"         , "value_type" : "STRING"                            },
-    {"name" : "SAVEFILE_FORMAT"  , "value_type" : "STRING" , "default" : "UNFORMATTED"}
-]}

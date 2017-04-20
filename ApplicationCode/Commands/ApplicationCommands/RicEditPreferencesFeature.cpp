@@ -42,6 +42,8 @@ bool RicEditPreferencesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicEditPreferencesFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
 
     QStringList tabNames = app->preferences()->tabNames();

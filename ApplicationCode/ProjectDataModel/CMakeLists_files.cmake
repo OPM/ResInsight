@@ -81,7 +81,6 @@ ${CEE_CURRENT_LIST_DIR}RimIntersectionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.h
 ${CEE_CURRENT_LIST_DIR}RimGridCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.h
-${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.h
 ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.h
 ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimMdiWindowController.h
@@ -89,8 +88,8 @@ ${CEE_CURRENT_LIST_DIR}RimPropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
-${CEE_CURRENT_LIST_DIR}RimPickingTopologyItem.h
-${CEE_CURRENT_LIST_DIR}RimEclipseTopologyItem.h
+${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.h
+${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -170,7 +169,6 @@ ${CEE_CURRENT_LIST_DIR}RimIntersectionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPlotCurve.cpp
-${CEE_CURRENT_LIST_DIR}RimEclipseInputCaseOpm.cpp
 ${CEE_CURRENT_LIST_DIR}RimIntersectionBox.cpp
 ${CEE_CURRENT_LIST_DIR}RimMultiSnapshotDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimMdiWindowController.cpp
@@ -178,8 +176,8 @@ ${CEE_CURRENT_LIST_DIR}RimPropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
-${CEE_CURRENT_LIST_DIR}RimPickingTopologyItem.cpp
-${CEE_CURRENT_LIST_DIR}RimEclipseTopologyItem.cpp
+${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.cpp
+${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

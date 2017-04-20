@@ -48,6 +48,8 @@ bool RicHelpAboutFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     caf::AboutDialog dlg(NULL);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
@@ -100,6 +102,8 @@ bool RicHelpCommandLineFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHelpCommandLineFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
     QString text = app->commandLineParameterHelp();
     app->showFormattedTextInMessageBox(text);
@@ -131,6 +135,8 @@ bool RicHelpOpenUsersGuideFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHelpOpenUsersGuideFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     QString usersGuideUrl = "http://resinsight.org/docs/home";
 
     if (!QDesktopServices::openUrl(usersGuideUrl))

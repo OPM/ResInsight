@@ -42,7 +42,30 @@
 
 #include <QTcpSocket>
 
+//--------------------------------------------------------------------------------------------------
+/// Convert internal ResInsight representation of cells with negative depth to positive depth.
+//--------------------------------------------------------------------------------------------------
+static inline void convertVec3dToPositiveDepth(cvf::Vec3d* vec)
+{
+    double& z = vec->z();
+    z *= -1;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// Retrieve a cell corner where the depth is represented as negative converted to positive depth.
+//--------------------------------------------------------------------------------------------------
+static inline double getCellCornerWithPositiveDepth(const cvf::Vec3d *cornerVerts, size_t cornerIndexMapping, int coordIdx)
+{
+    if (coordIdx == 2)
+    {
+        // Z-value aka depth
+        return -1 * cornerVerts[cornerIndexMapping][coordIdx];
+    }
+    else
+    {
+        return cornerVerts[cornerIndexMapping][coordIdx];
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -107,6 +130,8 @@ public:
                     {
                         size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
                         cvf::Vec3d center = rigGrid->cell(gridLocalCellIndex).center();
+
+                        convertVec3dToPositiveDepth(&center);
 
                         doubleValues[valueIndex++] = center[coordIdx];
                     }
@@ -186,6 +211,8 @@ public:
                 if (!actCellInfo->isActive(reservoirCellIndex)) continue;
 
                 cvf::Vec3d center = mainGrid->globalCellArray()[reservoirCellIndex].center();
+
+                convertVec3dToPositiveDepth(&center);
 
                 doubleValues[valueIndex++] = center[coordIdx];
             }
@@ -275,7 +302,7 @@ public:
                             size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
                             rigGrid->cellCornerVertices(gridLocalCellIndex, cornerVerts);
 
-                            doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
+                            doubleValues[valueIndex++] = getCellCornerWithPositiveDepth(cornerVerts, cornerIndexMapping, coordIdx);
                         }
                     }
                 }
@@ -361,7 +388,7 @@ public:
 
                     mainGrid->cellCornerVertices(reservoirCellIndex, cornerVerts);
 
-                    doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
+                    doubleValues[valueIndex++] = getCellCornerWithPositiveDepth(cornerVerts, cornerIndexMapping, coordIdx);
                 }
 
                 CVF_ASSERT(valueIndex == activeCellCount);

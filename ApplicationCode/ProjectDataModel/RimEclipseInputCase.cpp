@@ -51,7 +51,7 @@ RimEclipseInputCase::RimEclipseInputCase()
     : RimEclipseCase()
 {
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
-    CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
+    CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case File Name", "", "" ,"");
     m_gridFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "" ,"");
     m_additionalFileNames.uiCapability()->setUiReadOnly(true);
@@ -373,6 +373,23 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelN
     this->setReservoirData( reservoir.p() );
 
     return mockFileInterface.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&caseUserDescription);
+    uiOrdering.add(&caseId);
+    uiOrdering.add(&m_gridFileName);
+    uiOrdering.add(&m_additionalFileNames);
+
+    auto group = uiOrdering.addNewGroup("Case Options");
+    group->add(&activeFormationNames);
+    group->add(&flipXAxis);
+    group->add(&flipYAxis);
+
 }
 
 //--------------------------------------------------------------------------------------------------

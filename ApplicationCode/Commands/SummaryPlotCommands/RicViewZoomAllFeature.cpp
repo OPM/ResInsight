@@ -53,6 +53,8 @@ bool RicViewZoomAllFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     QWidget* topLevelWidget = RiaApplication::activeWindow();
 
     if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
@@ -66,53 +68,11 @@ void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
         if (subwindows.size() > 0)
         {
+            RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
+
+            if (viewWindow)
             {
-                RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
-                if (summaryQwtPlot)
-                {
-                    RimViewWindow* viewWindow = summaryQwtPlot->ownerPlotDefinition();
-
-                    viewWindow->zoomAll();
-                    summaryQwtPlot->replot();
-
-                    return;
-                }
-            }
-
-            {
-                RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
-                if (wellLogPlot)
-                {
-                    RimViewWindow* viewWindow = wellLogPlot->ownerPlotDefinition();
-                    viewWindow->zoomAll();
-                    wellLogPlot->update();
-
-                    return;
-                }
-            }
-
-            {
-                RiuWellAllocationPlot* wellAllocationPlot = dynamic_cast<RiuWellAllocationPlot*>(subwindows.back()->widget());
-                if (wellAllocationPlot)
-                {
-                    RimWellAllocationPlot* viewWindow = wellAllocationPlot->ownerPlotDefinition();
-                    viewWindow->zoomAll();
-                    wellAllocationPlot->update();
-
-                    return;
-                }
-            }
-
-            {
-                RiuFlowCharacteristicsPlot* flowCharPlot = dynamic_cast<RiuFlowCharacteristicsPlot*>(subwindows.back()->widget());
-                if (flowCharPlot)
-                {
-                    RimFlowCharacteristicsPlot* viewWindow = flowCharPlot->ownerPlotDefinition();
-                    viewWindow->zoomAll();
-                    flowCharPlot->update();
-
-                    return;
-                }
+                viewWindow->zoomAll();
             }
         }
     }

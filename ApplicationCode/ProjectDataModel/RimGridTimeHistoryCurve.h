@@ -30,10 +30,10 @@
 class RigMainGrid;
 class RimEclipseCase;
 class RimEclipseResultDefinition;
-class RimEclipseTopologyItem;
+class RimEclipseGeometrySelectionItem;
 class RimGeoMechResultDefinition;
-class RimGeoMechTopologyItem;
-class RimPickingTopologyItem;
+class RimGeoMechGeometrySelectionItem;
+class RimGeometrySelectionItem;
 class RiuFemTimeHistoryResultAccessor;
 class RiuSelectionItem;
 
@@ -72,21 +72,21 @@ protected:
 
 private:
     RigMainGrid*            mainGrid();
-    RimEclipseTopologyItem* eclipseTopologyItem() const;
-    RimGeoMechTopologyItem* geoMechTopologyItem() const;
+    RimEclipseGeometrySelectionItem* eclipseGeomSelectionItem() const;
+    RimGeoMechGeometrySelectionItem* geoMechGeomSelectionItem() const;
     void                    updateResultDefinitionFromCase();
-    QString                 topologyText() const;
+    QString                 geometrySelectionText() const;
     void                    updateQwtPlotAxis();
 
     std::unique_ptr<RiuFemTimeHistoryResultAccessor> femTimeHistoryResultAccessor() const;
 
 private:
-    caf::PdmProxyValueField<QString>                m_topologyText;
+    caf::PdmProxyValueField<QString>                m_geometrySelectionText;
     
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geoMechResultDefinition;
 
-    caf::PdmChildField<RimPickingTopologyItem*>     m_pickingTopologyItem;
+    caf::PdmChildField<RimGeometrySelectionItem*>     m_geometrySelectionItem;
     caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
 };
 

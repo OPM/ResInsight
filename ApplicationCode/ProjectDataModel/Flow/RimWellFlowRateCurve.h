@@ -49,6 +49,8 @@ protected:
     virtual void onLoadDataAndUpdate() override;
     virtual void updateCurveAppearance() override;
 
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
     bool isUsingConnectionNumberDepthType() const;
     RimWellAllocationPlot* wellAllocationPlot() const;

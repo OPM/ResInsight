@@ -19,7 +19,6 @@ ${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
-${CEE_CURRENT_LIST_DIR}RifReaderOpmParserInput.h
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
@@ -41,7 +40,6 @@ ${CEE_CURRENT_LIST_DIR}RifReaderInterface.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderOpmParserInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt

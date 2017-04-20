@@ -1,8 +1,0 @@
-{"name" : "TRACERS" , "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
-        {"name" : "MAX_OIL_TRACERS"   , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_WATER_TRACERS" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_GAS_TRACERS"   , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_ENV_TRACERS"   , "value_type" : "INT" , "default" : 0},
-        {"name" : "NUMERIC_DIFF"      , "value_type" : "STRING" , "default" : "NODIFF"},
-        {"name" : "MAX_ITER"          , "value_type" : "INT" , "default" : 12},
-        {"name" : "MIN_ITER"          , "value_type" : "INT" , "default" :  1}]}

@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RiuCursors.h
 ${CEE_CURRENT_LIST_DIR}RiuDragDrop.h
 ${CEE_CURRENT_LIST_DIR}RiuFemResultTextBuilder.h
 ${CEE_CURRENT_LIST_DIR}RiuGeoQuestNavigation.h
+${CEE_CURRENT_LIST_DIR}RiuInterfaceToViewWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuLineSegmentQwtPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.h
@@ -22,6 +23,7 @@ ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
@@ -44,6 +46,8 @@ ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
+${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.h
+${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -52,6 +56,7 @@ ${CEE_CURRENT_LIST_DIR}RiuCursors.cpp
 ${CEE_CURRENT_LIST_DIR}RiuDragDrop.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFemResultTextBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGeoQuestNavigation.cpp
+${CEE_CURRENT_LIST_DIR}RiuInterfaceToViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RiuLineSegmentQwtPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.cpp
@@ -86,6 +91,8 @@ ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
+${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.cpp
+${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -1,5 +1,0 @@
-{"name" : "EXTRAPMS" , 
- "sections" : ["RUNSPEC" , "GRID" , "PROPS" , "REGIONS" , "SOLUTION" , "SUMMARY" , "EDIT" , "SCHEDULE" ],
- "size" : 1 , 
- "items" : [{"name" : "LEVEL" , "value_type" : "INT" , "default" : 0 }]
-}

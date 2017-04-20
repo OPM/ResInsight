@@ -422,6 +422,10 @@ void PdmUiListEditor::pasteFromString(const QString& content)
 //--------------------------------------------------------------------------------------------------
 bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
 {
+    if (!m_listView)
+    {
+        return false;
+    }
     if (object == m_listView->viewport() && event->type() == QEvent::MouseMove)
     {
         QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);

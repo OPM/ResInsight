@@ -1,7 +1,0 @@
-// This file contains #define symols which come from feature tests
-// during the configure phase. This file should not be part of the
-// public api of opm-parser, and it should *only* be included in .cpp
-// files.
-
-#cmakedefine OPM_PARSER_BUILD_HAVE_SYMLINK
-

@@ -1,5 +1,0 @@
-{"name" : "MISCIBLE", "sections" : ["RUNSPEC"], "size"  : 1, "items" : [
-        {"name" : "NTMISC" , "value_type" : "INT" , "default" : 1},
-        {"name" : "NSMISC"  , "value_type" : "INT" , "default" : 20},
-        {"name" : "TWOPOINT" , "value_type" : "STRING" , "default" : "NONE"}
-     ]}

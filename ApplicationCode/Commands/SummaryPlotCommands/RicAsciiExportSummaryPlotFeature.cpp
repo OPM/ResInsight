@@ -56,6 +56,8 @@ bool RicAsciiExportSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
     QString projectFolder = app->currentProjectPath();
 

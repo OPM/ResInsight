@@ -283,11 +283,13 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&showTitle);
-    uiOrdering.add(&title);
-    uiOrdering.add(&titlePositionEnum);
-    uiOrdering.add(&fontSize);
-    caf::PdmUiGroup* timeGroup =  uiOrdering.addNewGroup("Time");
+    caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));
+    titleGroup.add(&showTitle);
+    titleGroup.add(&title);
+    titleGroup.add(&titlePositionEnum);
+    titleGroup.add(&fontSize);
+
+    caf::PdmUiGroup* timeGroup =  uiOrdering.addNewGroup("Time Values");
     timeGroup->add(&m_timeMode);
     if (m_timeMode() == DATE)
     {

@@ -26,7 +26,6 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifReaderOpmParserInput.h"
 #include "RifHdf5ReaderInterface.h"
 
 #ifdef USE_HDF5
@@ -398,7 +397,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     {
         cvf::Collection<RigFault> faults;
 
-        //importFaultsOpmParser(fileSet, &faults);
         importFaults(fileSet, &faults);
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
@@ -530,20 +528,6 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const
-{
-    foreach(QString fname, fileSet)
-    {
-        if (fname.endsWith(".DATA"))
-        {
-            RifReaderOpmParserInput::readFaults(fname, faults);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults)
 {
     if (this->filenamesWithFaults().size() > 0)
@@ -562,7 +546,7 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
             if (fname.endsWith(".DATA"))
             {
                 std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults);
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix());
 
                 std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
                 std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
@@ -835,7 +819,12 @@ void RifReaderEclipseOutput::buildMetaData()
                 staticDate.push_back(m_timeSteps.front());
             }
 
-            std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+            std::vector<int> reportNumbers;
+            if (m_dynamicResultsAccess.notNull())
+            {
+                reportNumbers = m_dynamicResultsAccess->reportNumbers();
+            }
+
             if ( reportNumbers.size() > 0 )
             {
                 staticReportNumber.push_back(reportNumbers.front());

@@ -1,5 +1,0 @@
-{"name" : "WELTARG" , "sections" : ["SCHEDULE"], "items" : [
-    {"name" : "WELL"         , "value_type" : "STRING" },
-    {"name" : "CMODE"        , "value_type" : "STRING" },
-    {"name" : "NEW_VALUE" , "value_type" : "DOUBLE"}
-]}

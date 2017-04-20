@@ -98,6 +98,9 @@ private:
     void                                    updatePlotAxisForCurves();
     void                                    loadDataAndUpdatePlot();
 
+    std::set<std::string>                   getAllSummaryCaseNames();
+    std::set<std::string>                   getAllSummaryWellNames();
+
 private:
     QPointer<QwtPlot>                       m_parentQwtPlot;
 

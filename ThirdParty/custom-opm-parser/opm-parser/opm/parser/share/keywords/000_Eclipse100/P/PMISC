@@ -1,5 +1,0 @@
-{"name" : "PMISC" , "sections" : ["PROPS"], "size" : {"keyword" : "MISCIBLE" , "item" : "NTMISC"},
-        "items" : [
-            {"name":"DATA", "value_type":"DOUBLE", "size_type" : "ALL" , "dimension" : ["Pressure","1"]}
-         ]
-}

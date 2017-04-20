@@ -441,26 +441,23 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
+    curveVarSelectionGroup->setCollapsedByDefault(true);
     m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
-
     curveVarSelectionGroup->add(&m_uiFilterResultSelection);
 
+    uiOrdering.add(&m_plotAxis);
+
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    appearanceGroup->add(&m_curveColor);
-    appearanceGroup->add(&m_curveThickness);
-    appearanceGroup->add(&m_pointSymbol);
-    appearanceGroup->add(&m_symbolSkipPixelDistance);
-    appearanceGroup->add(&m_lineStyle);
-    appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_isUsingAutoName);
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->setCollapsedByDefault(true);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
 
     if (m_isUsingAutoName)
     {
-        caf::PdmUiGroup* autoNameGroup = appearanceGroup->addNewGroup("Auto Name Config");
-        m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
+        m_curveNameConfig->uiOrdering(uiConfigName, *nameGroup);
     }
-
-    uiOrdering.add(&m_plotAxis);
 
     uiOrdering.skipRemainingFields(); // For now. 
 }

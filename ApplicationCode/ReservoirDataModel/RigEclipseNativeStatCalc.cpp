@@ -41,26 +41,10 @@ RigEclipseNativeStatCalc::RigEclipseNativeStatCalc(RigCaseCellResultsData* cellR
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max)
 {
-    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
-
-    size_t i;
-    for (i = 0; i < values.size(); i++)
-    {
-        if (values[i] == HUGE_VAL)
-        {
-            continue;
-        }
-
-        if (values[i] < min)
-        {
-            min = values[i];
-        }
-
-        if (values[i] > max)
-        {
-            max = values[i];
-        }
-    }
+    MinMaxAccumulator acc(min, max);
+    traverseCells(acc, timeStepIndex);
+    min = acc.min;
+    max = acc.max;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,9 +52,10 @@ void RigEclipseNativeStatCalc::minMaxCellScalarValues(size_t timeStepIndex, doub
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg)
 {
-    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
-
-    RigStatisticsCalculator::posNegClosestToZero(values, pos, neg);
+    PosNegAccumulator acc(pos, neg);
+    traverseCells(acc, timeStepIndex);
+    pos = acc.pos;
+    neg = acc.neg;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,9 +63,7 @@ void RigEclipseNativeStatCalc::posNegClosestToZero(size_t timeStepIndex, double&
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex, RigHistogramCalculator& histogramCalculator)
 {
-    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
-
-    histogramCalculator.addData(values);
+    traverseCells(histogramCalculator, timeStepIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,12 +71,9 @@ void RigEclipseNativeStatCalc::addDataToHistogramCalculator(size_t timeStepIndex
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>& values)
 {
-    std::vector<double>& doubleValues = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
-
-    for (size_t cIdx = 0; cIdx < doubleValues.size(); ++cIdx)
-    {
-        values.insert(std::floor(doubleValues[cIdx]));
-    }
+    UniqueValueAccumulator acc;
+    traverseCells(acc, timeStepIndex);
+    values = acc.uniqueValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,22 +81,10 @@ void RigEclipseNativeStatCalc::uniqueValues(size_t timeStepIndex, std::set<int>&
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::valueSumAndSampleCount(size_t timeStepIndex, double& valueSum, size_t& sampleCount)
 {
-    std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, timeStepIndex);
-    size_t undefValueCount = 0;
-    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
-    {
-        double value = values[cIdx];
-        if (value == HUGE_VAL || value != value)
-        {
-            ++undefValueCount;
-            continue;
-        }
-
-        valueSum += value;
-    }
-
-    sampleCount += values.size();
-    sampleCount -= undefValueCount;
+    SumCountAccumulator acc(valueSum, sampleCount);
+    traverseCells(acc, timeStepIndex);
+    valueSum = acc.valueSum;
+    sampleCount = acc.sampleCount;
 }
 
 //--------------------------------------------------------------------------------------------------

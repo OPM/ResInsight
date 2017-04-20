@@ -1,5 +1,0 @@
-{"name" : "SGFN" , "sections" : ["PROPS"], "size" : {"keyword" : "TABDIMS" , "item" : "NTSFUN"},
-        "items" : [
-            {"name":"DATA", "value_type":"DOUBLE", "size_type" : "ALL" , "dimension" : ["1","1","Pressure"]}
-         ]
-}

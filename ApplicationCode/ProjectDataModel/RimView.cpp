@@ -9,6 +9,7 @@
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -262,6 +263,26 @@ void RimView::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    viewGroup->add(&name);
+    viewGroup->add(&backgroundColor);
+    viewGroup->add(&showGridBox);
+    viewGroup->add(&isPerspectiveView);
+    viewGroup->add(&m_disableLighting);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
+    gridGroup->add(&scaleZ);
+    gridGroup->add(&meshMode);
+    gridGroup->add(&surfaceMode);
+
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QImage RimView::snapshotWindowContent()
 {
     if (m_viewer)
@@ -301,6 +322,10 @@ void RimView::setCurrentTimeStepAndUpdate(int frameIndex)
     setCurrentTimeStep(frameIndex);
 
     this->updateCurrentTimeStep();
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,7 +349,11 @@ void RimView::setCurrentTimeStep(int frameIndex)
 void RimView::updateCurrentTimeStepAndRedraw()
 {
     this->updateCurrentTimeStep();
-    
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+
     if (m_viewer) m_viewer->update();
 }
 

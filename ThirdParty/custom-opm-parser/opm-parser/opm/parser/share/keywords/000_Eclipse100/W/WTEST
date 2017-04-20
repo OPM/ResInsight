@@ -1,7 +1,0 @@
-{"name" : "WTEST" , "sections" : ["SCHEDULE"], "items" : [
-        {"name" : "well" , "value_type" : "STRING"},
-        {"name" : "interval" , "value_type" : "DOUBLE" },
-        {"name" : "reason" , "value_type" : "STRING"},
-        {"name" : "TEST_NUM" , "value_type" : "INT" , "default" : 0},
-        {"name" : "START_TIME" , "value_type" : "DOUBLE" , "default" : 0}]}
-

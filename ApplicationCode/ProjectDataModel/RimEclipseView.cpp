@@ -423,14 +423,18 @@ void RimEclipseView::createDisplayModel()
 */
     // Well path model
 
-    RigMainGrid* mainGrid = this->mainGrid();
 
     m_wellPathPipeVizModel->removeAllParts();
-    addWellPathsToModel(m_wellPathPipeVizModel.p(),
-                        mainGrid->displayModelOffset(),
-                        mainGrid->characteristicIJCellSize(),
-                        currentActiveCellInfo()->geometryBoundingBox(),
-                        m_reservoirGridPartManager->scaleTransform());
+
+    RigMainGrid* mainGrid = this->mainGrid();
+    if (mainGrid)
+    {
+        addWellPathsToModel(m_wellPathPipeVizModel.p(),
+            mainGrid->displayModelOffset(),
+            mainGrid->characteristicIJCellSize(),
+            currentActiveCellInfo()->geometryBoundingBox(),
+            m_reservoirGridPartManager->scaleTransform());
+    }
 
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
@@ -1287,15 +1291,7 @@ const std::vector<RivCellSetEnum>& RimEclipseView::visibleGridParts() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
-    viewGroup->add(&name);
-    viewGroup->add(&backgroundColor);
-    viewGroup->add(&showGridBox);
-
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
-    gridGroup->add(&scaleZ);
-    gridGroup->add(&meshMode);
-    gridGroup->add(&surfaceMode);
+    RimView::defineUiOrdering(uiConfigName, uiOrdering);
 
     caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
     cellGroup->add(&showMainGrid);

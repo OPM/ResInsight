@@ -105,7 +105,6 @@ public:
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
     RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
-    RimMdiWindowGeometry    windowGeometryForWidget(QWidget* widget);
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
@@ -114,6 +113,8 @@ public:
 
     RiuResultQwtPlot*   resultPlot();
     RiuMessagePanel*    messagePanel();
+
+    void            showProcessMonitorDockPanel();
 
 protected:
     virtual void    closeEvent(QCloseEvent* event);
@@ -125,6 +126,8 @@ private:
     void            createDockPanels();
 
     void            restoreTreeViewState();
+
+    void            showDockPanel(const QString& dockPanelName);
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;

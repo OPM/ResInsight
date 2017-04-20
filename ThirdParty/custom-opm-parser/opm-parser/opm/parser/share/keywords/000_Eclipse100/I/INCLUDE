@@ -1,1 +1,0 @@
-{"name" : "INCLUDE"  , "sections" : ["RUNSPEC", "GRID", "EDIT", "PROPS", "REGIONS", "SOLUTION", "SUMMARY", "SCHEDULE"], "size" : 1, "items" : [{"name" : "IncludeFile" , "value_type" : "STRING"}]}

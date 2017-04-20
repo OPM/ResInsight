@@ -1,6 +1,0 @@
-{"name" : "WTRACER" , "sections" : ["SCHEDULE"], "items" : [
-    {"name" : "WELL" , "value_type" : "STRING"},
-    {"name" : "TRACER" , "value_type" : "STRING"},
-    {"name" : "CONCENTRATION" , "value_type" : "DOUBLE"},
-    {"name" : "CUM_TRACER_FACTOR" , "value_type" : "DOUBLE"},
-    {"name" : "PRODUCTION_GROUP" , "value_type" : "STRING" , "comment" : "Defaulted means: use the concentration from the CONCENTRATION item"}]}

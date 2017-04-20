@@ -1,3 +1,0 @@
- {"name" : "WPITAB" , "sections" : ["SCHEDULE"], "items" : [
-    {"name" : "WELL" , "value_type" : "STRING" },
-    {"name" : "PI" , "value_type" : "DOUBLE" , "default" : 0}]}

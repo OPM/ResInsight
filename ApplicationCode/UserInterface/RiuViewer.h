@@ -27,6 +27,7 @@
 
 #include "cafMouseState.h"
 #include "cvfStructGrid.h"
+#include "RiuInterfaceToViewWindow.h"
 
 class RicCommandFeature;
 class RimView;
@@ -52,7 +53,7 @@ namespace cvf
 // RiuViewer
 //
 //==================================================================================================
-class RiuViewer : public caf::Viewer
+class RiuViewer : public caf::Viewer, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
@@ -65,6 +66,7 @@ public:
     void            setPointOfInterest(cvf::Vec3d poi);
     void            setOwnerReservoirView(RimView * owner);
     RimView*        ownerReservoirView();
+    RimViewWindow*  ownerViewWindow() const override;
     void            setEnableMask(unsigned int mask);
 
     void            showInfoText(bool enable);

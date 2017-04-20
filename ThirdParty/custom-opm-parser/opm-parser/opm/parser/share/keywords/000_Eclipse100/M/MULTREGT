@@ -1,9 +1,0 @@
-{"name" : "MULTREGT" , "sections" : ["GRID", "EDIT", "SCHEDULE"], "items" : [
-    {"name" : "SRC_REGION" , "value_type" : "INT"},
-    {"name" : "TARGET_REGION" , "value_type" : "INT" },
-    {"name" : "TRAN_MULT" , "value_type" : "DOUBLE" },
-    {"name" : "DIRECTIONS" , "value_type" : "STRING" , "default" : "XYZ"},
-    {"name" : "NNC_MULT"  , "value_type" : "STRING" , "default" : "ALL"},
-    {"name" : "REGION_DEF" , "value_type" : "STRING" , "default" : "M"}]}
-
-

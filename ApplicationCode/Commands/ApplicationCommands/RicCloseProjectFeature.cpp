@@ -37,7 +37,11 @@ bool RicCloseProjectFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseProjectFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
+
+    if (!app->askUserToSaveModifiedProject()) return;
 
     app->closeProject();
 }

@@ -53,30 +53,58 @@ void RiuMdiSubWindow::closeEvent(QCloseEvent* event)
 {
     QWidget* mainWidget = widget();
 
-    RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(mainWidget);
-    RiuSummaryQwtPlot* summaryPlot = dynamic_cast<RiuSummaryQwtPlot*>(mainWidget);
-    if (wellLogPlot)
+    RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(mainWidget);
+    if ( viewWindow )
     {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-        CVF_ASSERT(mainPlotWindow);
-
-        wellLogPlot->ownerPlotDefinition()->setMdiWindowGeometry(mainPlotWindow->windowGeometryForWidget(this));
-    }
-    else if (summaryPlot)
-    {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-        CVF_ASSERT(mainPlotWindow);
-
-        summaryPlot->ownerPlotDefinition()->setMdiWindowGeometry(mainPlotWindow->windowGeometryForWidget(this));
+        viewWindow->setMdiWindowGeometry(windowGeometryForWidget(this));
     }
     else
     {
         RiuViewer* viewer = mainWidget->findChild<RiuViewer*>();
         if (viewer)
         {
-            viewer->ownerReservoirView()->setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForWidget(this));
+            viewer->ownerReservoirView()->setMdiWindowGeometry(windowGeometryForWidget(this));
+        }
+    }
+    QMdiSubWindow::closeEvent(event);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimMdiWindowGeometry RiuMdiSubWindow::windowGeometryForWidget(QWidget* widget)
+{
+    RimMdiWindowGeometry geo;
+
+    // Find topmost parent
+
+    QWidget* nextParent = widget->parentWidget();
+    QWidget* parent = nullptr;
+    while(nextParent)
+    {
+        parent = nextParent;
+        nextParent = nextParent->parentWidget();
+    }
+
+    int mainWinID = 0;
+    if (parent)
+    {
+        if (parent == RiaApplication::instance()->mainPlotWindow())
+        {
+            mainWinID = 1;
         }
     }
 
-    QMdiSubWindow::closeEvent(event);
+    if (widget)
+    {
+        geo.mainWindowID = mainWinID;
+        geo.x = widget->pos().x();
+        geo.y = widget->pos().y();
+        geo.width = widget->size().width();
+        geo.height = widget->size().height();
+        geo.isMaximized = widget->isMaximized();
+    }
+
+    return geo;
 }

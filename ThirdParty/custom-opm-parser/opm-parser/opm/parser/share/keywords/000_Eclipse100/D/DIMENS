@@ -1,4 +1,0 @@
-{"name" : "DIMENS", "sections" : ["RUNSPEC"], "size" : 1 , "items" :
- [{"name": "NX" , "value_type" : "INT"},
-  {"name": "NY" , "value_type" : "INT"},
-  {"name": "NZ" , "value_type" : "INT"}]}

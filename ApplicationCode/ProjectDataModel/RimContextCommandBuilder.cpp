@@ -165,7 +165,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
         {
             commandIds << "RicAddEclipseInputPropertyFeature";
-            commandIds << "RicAddOpmInputPropertyFeature";
         }
         else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
         {
@@ -391,6 +390,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicCopyReferencesToClipboardFeature";
         
         commandIds << "RicShowPlotDataFeature";
+        commandIds << "RicShowTotalAllocationDataFeature";
+        
         commandIds << "RicSummaryCurveSwitchAxisFeature";
 
         // Work in progress -- End

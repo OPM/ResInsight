@@ -54,6 +54,8 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
 
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();

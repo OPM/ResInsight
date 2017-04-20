@@ -19,6 +19,7 @@
 #include "RicSnapshotViewToClipboardFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -51,6 +52,8 @@ bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
 
     if (viewWindow)
@@ -119,6 +122,17 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
 
+    // Get active view window before displaying the file selection dialog
+    // If this is done after the file save dialog is displayed (and closed)
+    // app->activeViewWindow() returns NULL on Linux
+    RimViewWindow* viewWindow = app->activeViewWindow();
+    if (!viewWindow)
+    {
+        RiaLogging::error("No view window is available, nothing to do");
+        
+        return;
+    }
+
     QString startPath;
     if (!proj->fileName().isEmpty())
     {
@@ -141,7 +155,6 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     // Remember the directory to next time
     app->setLastUsedDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
 
-    RimViewWindow* viewWindow = app->activeViewWindow();
     RicSnapshotViewToFileFeature::saveSnapshotAs(fileName, viewWindow);
 }
 
@@ -208,7 +221,16 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QStrin
     {
         if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
         {
-            QString fileName = viewWindow->userDescriptionField()->uiCapability()->uiValue().toString();
+            QString fileName;
+            if ( viewWindow->userDescriptionField())
+            {
+                fileName = viewWindow->userDescriptionField()->uiCapability()->uiValue().toString();
+            }
+            else
+            {
+                fileName = viewWindow->uiCapability()->uiName();
+            }
+
             fileName = caf::Utils::makeValidFileBasename(fileName);
 
             QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");

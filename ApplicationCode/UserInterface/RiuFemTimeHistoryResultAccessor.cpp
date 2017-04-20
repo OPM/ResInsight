@@ -74,7 +74,7 @@ RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor(RigGeoMechCaseD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuFemTimeHistoryResultAccessor::topologyText() const
+QString RiuFemTimeHistoryResultAccessor::geometrySelectionText() const
 {
     QString text;
 

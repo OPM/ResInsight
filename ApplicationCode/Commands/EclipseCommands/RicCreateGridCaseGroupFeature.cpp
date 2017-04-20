@@ -34,10 +34,7 @@ CAF_CMD_SOURCE_INIT(RicCreateGridCaseGroupFeature, "RicCreateGridCaseGroupFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicCreateGridCaseGroupFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseCaseCollection*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-
-    return selection.size() > 0;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
