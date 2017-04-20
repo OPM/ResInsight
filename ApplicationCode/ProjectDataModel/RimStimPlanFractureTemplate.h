@@ -81,6 +81,13 @@ public:
     std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
+    RigStimPlanCell*                         getStimPlanCellAtWell();
+
+    //TODO: Functions for finding perforated stimPlanCells
+    //Radial flow: Single cell (at 0,0) 
+
+
+
 
     void                                    loadDataAndUpdate(); //TODO: Update m_stimPlanCells
     void                                    setDefaultsBasedOnXMLfile();
@@ -112,4 +119,5 @@ private:
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
     std::vector<RigStimPlanCell>                m_stimPlanCells;
+    RigStimPlanCell*                            wellCenterStimPlanCell;
 };

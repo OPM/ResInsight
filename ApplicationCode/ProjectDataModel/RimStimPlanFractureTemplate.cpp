@@ -43,6 +43,8 @@
 
 #include <algorithm>
 #include <vector>
+#include <cmath>
+#include "RigFractureTransCalc.h"
 
 
 
@@ -816,6 +818,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     QString resultUnitFromColors = activeView->stimPlanColors->unit();
 
     std::vector<RigStimPlanCell> stimPlanCells;
+    wellCenterStimPlanCell = nullptr;
 
     std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, activeTimeStepIndex);
 
@@ -859,6 +862,14 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
             else
             {
                 stimPlanCell.setDisplayValue(cvf::UNDEFINED_DOUBLE);
+            }
+
+            if (cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0)
+            {
+                if (cellPolygon[1].y() < 0.0 && cellPolygon[2].y() > 0.0)
+                {
+                    wellCenterStimPlanCell = &stimPlanCell;
+                }
             }
 
             stimPlanCells.push_back(stimPlanCell);
@@ -920,6 +931,14 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
     colPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords.back()), 0.0));
     
     return colPolygon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigStimPlanCell* RimStimPlanFractureTemplate::getStimPlanCellAtWell()
+{
+    return wellCenterStimPlanCell;
 }
 
 //--------------------------------------------------------------------------------------------------

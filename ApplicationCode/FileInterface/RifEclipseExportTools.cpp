@@ -103,10 +103,12 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "\n";
 
     //Included for debug / prototyping only
+    //printTransmissibilityFractureToWell(fractures, out, caseToApply);
+    
     printStimPlanFractureTrans(fractures, out);
+    
     printStimPlanCellsMatrixTransContributions(fractures, caseToApply, out, wellPath, simWell, mainGrid);
-
-
+    
     printBackgroundDataHeaderLine(out);
     
     RiaLogging::debug(QString("Writing intermediate results from COMPDAT calculation"));
@@ -582,5 +584,55 @@ void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* 
     }
 
     out << "\n";
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, QTextStream &out, RimEclipseCase* caseToApply)
+{
+    out << "Transmissibility From Fracture To Well \n";
+
+    for (RimFracture* fracture : fractures)
+    {
+        out << qSetFieldWidth(12);
+        RimEclipseWell* simWell = nullptr;
+        RimWellPath* wellPath = nullptr;
+        fracture->firstAncestorOrThisOfType(simWell);
+        if (simWell) out << simWell->name + " ";    // 1. Well name 
+        fracture->firstAncestorOrThisOfType(wellPath);
+        if (wellPath) out << wellPath->name + " ";  // 1. Well name 
+
+        out << qSetFieldWidth(16);
+        out << fracture->name().left(15) + " ";
+
+        if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        {
+            out << "Transverse Fracture";
+
+            RimStimPlanFractureTemplate* fracTemplateStimPlan;
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+            {
+                fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+            }
+            else continue;
+
+            RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtWell();
+            //TODO: Error in getting the StimPlanWellCell here!!!
+
+            out << stimPlanCell->getI();
+            out << stimPlanCell->getJ();
+
+            RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+            double RadTransInStimPlanCell = transmissibilityCalculator.computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell);
+
+            out << RadTransInStimPlanCell;
+            
+        }
+
+
+
+    }
 
 }

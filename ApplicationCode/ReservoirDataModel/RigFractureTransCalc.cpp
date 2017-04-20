@@ -730,7 +730,6 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell)
 {
-
     double verticalSideLength = stimPlanCell->cellSizeX();
     double horisontalSideLength = stimPlanCell->cellSizeZ();
 
@@ -743,7 +742,7 @@ void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(RigStim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeRadialTransmissibilityToWell(RigStimPlanCell* stimPlanCell)
+double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(RigStimPlanCell* stimPlanCell)
 {
     if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return cvf::UNDEFINED_DOUBLE;
 
@@ -754,9 +753,9 @@ double RigFractureTransCalc::computeRadialTransmissibilityToWell(RigStimPlanCell
     }
 
     double ro = 0.14 * cvf::Math::sqrt(
-        pow(stimPlanCell->cellSizeX(), 2.0) + pow(stimPlanCell->cellSizeZ(), 2)); 
+        pow(stimPlanCell->cellSizeX(), 2.0) + pow(stimPlanCell->cellSizeZ(), 2));
 
-    double Tc = 2 * cvf::PI_D * cDarcy() * stimPlanCell->getConductivtyValue() / 
+    double Tc = 2 * cvf::PI_D * cDarcy() * stimPlanCell->getConductivtyValue() /
         (log(ro / m_fracture->wellRadius()) + m_fracture->attachedFractureDefinition()->skinFactor() );
 
     Tc = Tc * areaScalingFactor;
@@ -767,7 +766,7 @@ double RigFractureTransCalc::computeRadialTransmissibilityToWell(RigStimPlanCell
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeLinearTransmissibilityToWell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
+double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
 {
     double TcPrefix = 8 * cDarcy() * stimPlanCell->getConductivtyValue();
 
@@ -801,7 +800,7 @@ double RigFractureTransCalc::cDarcy()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::vector<RigStimPlanCell> allStimPlanCells, size_t i)
+std::vector<RigStimPlanCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t i)
 {
     std::vector<RigStimPlanCell*> stimPlanCellRow;
 
@@ -819,7 +818,7 @@ std::vector<RigStimPlanCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanCell*> RigFractureTransCalc::getColOfStimPlanCells(std::vector<RigStimPlanCell> allStimPlanCells, size_t j)
+std::vector<RigStimPlanCell*> RigFractureTransCalc::getColOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t j)
 {
     std::vector<RigStimPlanCell*> stimPlanCellCol;
 

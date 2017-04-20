@@ -61,13 +61,13 @@ public:
     void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData);
     
     static void                 computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell);
-    double                      computeRadialTransmissibilityToWell(RigStimPlanCell* stimPlanCell);
-    double                      computeLinearTransmissibilityToWell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);
+    double                      computeRadialTransmissibilityToWellinStimPlanCell(RigStimPlanCell* stimPlanCell);
+    double                      computeLinearTransmissibilityToWellinStimPlanCell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);
 
 
 
-    static std::vector<RigStimPlanCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanCell> allStimPlanCells, size_t i);
-    static std::vector<RigStimPlanCell*>    getColOfStimPlanCells(std::vector<RigStimPlanCell> allStimPlanCells, size_t j);
+    static std::vector<RigStimPlanCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t i);
+    static std::vector<RigStimPlanCell*>    getColOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t j);
 
 private: 
     double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
