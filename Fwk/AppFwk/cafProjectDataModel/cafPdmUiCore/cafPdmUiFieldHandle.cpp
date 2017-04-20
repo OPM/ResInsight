@@ -39,7 +39,7 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
         // Update field editors
         this->updateConnectedEditors();
 
-        PdmUiModelChangeDetector::instance()->setModelIsChanged();
+        PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 }
 

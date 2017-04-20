@@ -43,7 +43,7 @@ namespace caf {
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmUiModelChangeDetector::PdmUiModelChangeDetector()
-    : m_modelIsChanged(false)
+    : m_isModelChanged(false)
 {
 }
 
@@ -60,9 +60,9 @@ PdmUiModelChangeDetector* PdmUiModelChangeDetector::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiModelChangeDetector::setModelIsChanged()
+void PdmUiModelChangeDetector::setModelChanged()
 {
-    m_modelIsChanged = true;
+    m_isModelChanged = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void PdmUiModelChangeDetector::setModelIsChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiModelChangeDetector::reset()
 {
-    m_modelIsChanged = false;
+    m_isModelChanged = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void PdmUiModelChangeDetector::reset()
 //--------------------------------------------------------------------------------------------------
 bool PdmUiModelChangeDetector::isModelChanged() const
 {
-    return m_modelIsChanged;
+    return m_isModelChanged;
 }
 
 } // end namespace caf

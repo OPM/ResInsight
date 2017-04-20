@@ -43,7 +43,7 @@ class PdmUiModelChangeDetector
 public:
     static PdmUiModelChangeDetector* instance();
 
-    void setModelIsChanged();
+    void setModelChanged();
     void reset();
     bool isModelChanged() const;
 
@@ -51,7 +51,7 @@ private:
     PdmUiModelChangeDetector();
 
 private:
-    bool m_modelIsChanged;
+    bool m_isModelChanged;
 };
 
 } // End of namespace caf
