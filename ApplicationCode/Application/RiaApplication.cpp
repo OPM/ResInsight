@@ -98,10 +98,12 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
+
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -716,6 +718,55 @@ bool RiaApplication::saveProjectPromptForFileName()
     return bSaveOk;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::hasValidProjectFileExtension(const QString& fileName)
+{
+    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::askUserToSaveModifiedProject()
+{
+    if (caf::PdmUiModelChangeDetector::instance()->isModelChanged())
+    {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Question);
+
+        QString questionText;
+        questionText = QString("The current project is modified.\n\nDo you want to save the changes?");
+
+        msgBox.setText(questionText);
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Cancel)
+        {
+            return false;
+        }
+        else if (ret == QMessageBox::Yes)
+        {
+            if (!saveProject())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            caf::PdmUiModelChangeDetector::instance()->reset();
+        }
+    }
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -736,9 +787,10 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 
     m_recentFileActionProvider->addFileName(fileName);
 
+    caf::PdmUiModelChangeDetector::instance()->reset();
+
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -2022,7 +2074,7 @@ bool RiaApplication::openFile(const QString& fileName)
 
     bool loadingSucceded = false;
 
-    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    if (RiaApplication::hasValidProjectFileExtension(fileName))
     {
         loadingSucceded = loadProject(fileName);
     }
@@ -2055,6 +2107,11 @@ bool RiaApplication::openFile(const QString& fileName)
 
             m_project->updateConnectedEditors();
         }
+    }
+
+    if (loadingSucceded && !RiaApplication::hasValidProjectFileExtension(fileName))
+    {
+        caf::PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 
     return loadingSucceded;

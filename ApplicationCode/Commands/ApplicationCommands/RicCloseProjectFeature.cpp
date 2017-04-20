@@ -39,6 +39,8 @@ void RicCloseProjectFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
 
+    if (!app->askUserToSaveModifiedProject()) return;
+
     app->closeProject();
 }
 

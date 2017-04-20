@@ -197,15 +197,18 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
-    saveWinGeoAndDockToolBarLayout();
-
     RiaApplication* app = RiaApplication::instance();
+    if (!app->askUserToSaveModifiedProject())
+    {
+        event->ignore();
+        return;
+    }
+
+    saveWinGeoAndDockToolBarLayout();
 
     if (!app->tryClosePlotWindow()) return;
 
-    RiaApplication::instance()->closeProject();
-        
-    event->accept();
+    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------

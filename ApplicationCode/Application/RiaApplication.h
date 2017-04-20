@@ -126,7 +126,11 @@ public:
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
+    static bool         hasValidProjectFileExtension(const QString& fileName);
+    
+    bool                askUserToSaveModifiedProject();
     void                closeProject();
+    
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
