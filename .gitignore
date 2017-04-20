@@ -57,10 +57,6 @@ CTest*.cmake
 *.opensdf
 *.unsuccessfulbuild
 ipch/
-[Oo]bj/
-[Bb]in
-[Dd]ebug*/
-[Rr]elease*/
 Ankh.NoLoad
 
 #Temp files

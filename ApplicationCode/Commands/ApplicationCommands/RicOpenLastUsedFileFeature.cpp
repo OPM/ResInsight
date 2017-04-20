@@ -41,6 +41,9 @@ bool RicOpenLastUsedFileFeature::isCommandEnabled()
 void RicOpenLastUsedFileFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
+
+    if (!app->askUserToSaveModifiedProject()) return;
+
     QString fileName = app->preferences()->lastUsedProjectFileName;
 
     if (app->loadProject(fileName))

@@ -1,4 +1,0 @@
-{"name" : "WTEMP" , "sections" : ["SCHEDULE"] ,
-"items" : [
-   {"name" : "WELL" , "value_type" : "STRING"},
-   {"name" : "TEMP" , "value_type" : "DOUBLE", "dimension" : "Temperature"}]}

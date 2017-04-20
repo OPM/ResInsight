@@ -49,9 +49,9 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFlowCharacteristicsPlot.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -69,6 +69,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimTreeViewStateSerializer.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellAllocationPlot.h"
@@ -100,10 +101,12 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
+
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -115,6 +118,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QUrl>
+#include <QTreeView>
 
 #include "gtest/gtest.h"
 
@@ -621,6 +625,47 @@ void RiaApplication::loadAndUpdatePlotData()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::storeTreeViewState()
+{
+    {
+        if (mainPlotWindow() && mainPlotWindow()->projectTreeView())
+        {
+            caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
+
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            project()->plotWindowTreeViewState = treeViewState;
+            project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
+    }
+
+    {
+        caf::PdmUiTreeView* projectTreeView = RiuMainWindow::instance()->projectTreeView();
+        if (projectTreeView)
+        {
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            project()->mainWindowTreeViewState = treeViewState;
+            project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
@@ -720,6 +765,55 @@ bool RiaApplication::saveProjectPromptForFileName()
     return bSaveOk;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::hasValidProjectFileExtension(const QString& fileName)
+{
+    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::askUserToSaveModifiedProject()
+{
+    if (caf::PdmUiModelChangeDetector::instance()->isModelChanged())
+    {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Question);
+
+        QString questionText;
+        questionText = QString("The current project is modified.\n\nDo you want to save the changes?");
+
+        msgBox.setText(questionText);
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Cancel)
+        {
+            return false;
+        }
+        else if (ret == QMessageBox::Yes)
+        {
+            if (!saveProject())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            caf::PdmUiModelChangeDetector::instance()->reset();
+        }
+    }
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -727,6 +821,8 @@ bool RiaApplication::saveProjectPromptForFileName()
 bool RiaApplication::saveProjectAs(const QString& fileName)
 {
     m_project->fileName = fileName;
+
+    storeTreeViewState();
 
     if (!m_project->writeFile())
     {
@@ -740,9 +836,10 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 
     m_recentFileActionProvider->addFileName(fileName);
 
+    caf::PdmUiModelChangeDetector::instance()->reset();
+
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -2047,7 +2144,7 @@ bool RiaApplication::openFile(const QString& fileName)
 
     bool loadingSucceded = false;
 
-    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    if (RiaApplication::hasValidProjectFileExtension(fileName))
     {
         loadingSucceded = loadProject(fileName);
     }
@@ -2080,6 +2177,11 @@ bool RiaApplication::openFile(const QString& fileName)
 
             m_project->updateConnectedEditors();
         }
+    }
+
+    if (loadingSucceded && !RiaApplication::hasValidProjectFileExtension(fileName))
+    {
+        caf::PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 
     return loadingSucceded;

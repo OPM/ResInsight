@@ -126,7 +126,11 @@ public:
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
+    static bool         hasValidProjectFileExtension(const QString& fileName);
+    
+    bool                askUserToSaveModifiedProject();
     void                closeProject();
+    
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
@@ -208,6 +212,8 @@ private:
     void                    deleteMainPlotWindow();
     
     void                    loadAndUpdatePlotData();
+    
+    void                    storeTreeViewState();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

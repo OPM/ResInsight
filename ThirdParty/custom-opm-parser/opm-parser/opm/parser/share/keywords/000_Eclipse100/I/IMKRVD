@@ -1,6 +1,0 @@
-{"name" : "IMKRVD" , "size" : {"keyword" : "ENDSCALE" , "item" : "NUM_TABLES"},
- "sections" : [ "PROPS" ],
-        "items" : [
-            {"name":"DATA", "value_type":"DOUBLE", "size_type" : "ALL" , "dimension" : ["Length","1","1","1","1","1","1","1"]}
-         ]
-}

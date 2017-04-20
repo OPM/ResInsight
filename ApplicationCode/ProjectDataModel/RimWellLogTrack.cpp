@@ -395,9 +395,9 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
     gridGroup->add(&m_isAutoScaleXEnabled);
+    gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
-    gridGroup->add(&m_isLogarithmicScaleEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------

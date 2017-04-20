@@ -6,7 +6,6 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicAddEclipseInputPropertyFeature.h
-${CEE_CURRENT_LIST_DIR}RicAddOpmInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.h
@@ -18,7 +17,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.h
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.h
-${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
@@ -28,7 +26,6 @@ ${CEE_CURRENT_LIST_DIR}RicApplyPropertyFilterAsCellResultFeature.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicAddEclipseInputPropertyFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicAddOpmInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicComputeStatisticsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCreateGridCaseGroupFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipseCaseNewGroupExec.cpp
@@ -40,7 +37,6 @@ ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicEclipsePropertyFilterNewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportEclipseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicImportInputEclipseCaseOpmFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewStatisticsCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp

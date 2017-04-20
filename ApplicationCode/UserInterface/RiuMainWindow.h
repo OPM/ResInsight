@@ -114,6 +114,8 @@ public:
     RiuResultQwtPlot*   resultPlot();
     RiuMessagePanel*    messagePanel();
 
+    void            showProcessMonitorDockPanel();
+
 protected:
     virtual void    closeEvent(QCloseEvent* event);
 
@@ -124,6 +126,8 @@ private:
     void            createDockPanels();
 
     void            restoreTreeViewState();
+
+    void            showDockPanel(const QString& dockPanelName);
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;

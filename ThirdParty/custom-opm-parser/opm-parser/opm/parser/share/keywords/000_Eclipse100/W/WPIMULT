@@ -1,8 +1,0 @@
-{"name" : "WPIMULT" , "sections" : ["SCHEDULE"] , "items" : 
-  [{"name" : "WELL" , "value_type" : "STRING"},
-   {"name" : "WELLPI" , "value_type" : "DOUBLE" , "default" : 1.0},
-   {"name" : "I"  , "value_type" : "INT" },
-   {"name" : "J"  , "value_type" : "INT" },
-   {"name" : "K"  , "value_type" : "INT" },
-   {"name" : "FIRST", "value_type" : "INT"},
-   {"name" : "LAST", "value_type" : "INT"}]}

@@ -47,6 +47,8 @@ bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     if (selection.size() == 1)

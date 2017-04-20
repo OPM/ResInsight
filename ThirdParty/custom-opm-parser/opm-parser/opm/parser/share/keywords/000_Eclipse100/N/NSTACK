@@ -1,2 +1,0 @@
-{"name" : "NSTACK" , "sections" : ["RUNSPEC", "SCHEDULE"], "size" : 1 , "items" : [
-    {"name" : "LINEAR_SOLVER_SIZE", "value_type" : "INT" , "default" : 10}]}

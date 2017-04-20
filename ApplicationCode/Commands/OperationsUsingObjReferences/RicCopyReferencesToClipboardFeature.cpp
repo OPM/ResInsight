@@ -57,6 +57,8 @@ bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     if (!isAnyCopyableObjectSelected()) return;
 
     std::vector<QString> referenceList;

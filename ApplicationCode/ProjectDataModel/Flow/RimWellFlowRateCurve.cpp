@@ -40,7 +40,7 @@
 ///  
 //==================================================================================================
 
-CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "RimWellFlowRateCurve");
+CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "WellFlowRateCurve");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -147,6 +147,19 @@ void RimWellFlowRateCurve::updateCurveAppearance()
     m_qwtPlotCurve->setOrientation(Qt::Horizontal);
     m_qwtPlotCurve->setBaseline(0.0);
     m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_curveName);
+    m_curveName.uiCapability()->setUiReadOnly(true);
+    uiOrdering.add(&m_curveColor);
+    m_curveColor.uiCapability()->setUiReadOnly(true);
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

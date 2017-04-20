@@ -64,6 +64,7 @@
 RiuMainPlotWindow::RiuMainPlotWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
+    m_activePlotViewWindow(nullptr),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
@@ -136,11 +137,18 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainPlotWindow::closeEvent(QCloseEvent* event)
 {
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->askUserToSaveModifiedProject())
+    {
+        event->ignore();
+        return;
+    }
+
     saveWinGeoAndDockToolBarLayout();
 
-    if (!RiaApplication::instance()->tryCloseMainWindow()) return;
+    if (!app->tryCloseMainWindow()) return;
 
-    RiaApplication::instance()->closeProject();
+    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,7 +179,6 @@ void RiuMainPlotWindow::createMenus()
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    //importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
@@ -485,7 +492,6 @@ void RiuMainPlotWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
     if (!subWindow) return;
-    if (m_blockSlotSubWindowActivated) return;
 
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
@@ -494,9 +500,14 @@ void RiuMainPlotWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 
     RimViewWindow* viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subWindow->widget());
 
-    if (viewWindow)
+    if (viewWindow && viewWindow != m_activePlotViewWindow)
     {
-        projectTreeView()->selectAsCurrentItem(viewWindow);
+        if (!m_blockSlotSubWindowActivated)
+        {
+            selectAsCurrentItem(viewWindow);
+        }
+
+        m_activePlotViewWindow = viewWindow;
     }
 }
 

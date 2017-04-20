@@ -1,4 +1,0 @@
-{"name" : "PIMTDIMS" , "sections" : ["RUNSPEC"], "size" : 1, "items" : [
-    {"name" : "NTPIMT" , "value_type" : "INT", "default" : 0},
-    {"name" : "NPPIMT" , "value_type" : "INT", "default" : 0}]}
-

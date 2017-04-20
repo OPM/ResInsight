@@ -1,7 +1,0 @@
-{"name" : "ENDSCALE", "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
-        {"name" : "DIRECT"     , "value_type" : "STRING" , "default" : "NODIR"},
-        {"name" : "IRREVERS"   , "value_type" : "STRING" , "default" : "REVER"},
-        {"name" : "NUM_TABLES" , "value_type" : "INT"  , "default" : 1},
-        {"name" : "NUM_NODES"  , "value_type" : "INT" , "default" : 20},
-        {"name" : "COMB_MODE"  , "value_type" : "INT" , "default" : 0}
-     ]}

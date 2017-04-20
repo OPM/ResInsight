@@ -31,6 +31,7 @@ class QMdiSubWindow;
 class RiuViewer;
 
 struct RimMdiWindowGeometry;
+class RimViewWindow;
 
 namespace caf
 {
@@ -114,7 +115,8 @@ private:
 
     QMdiArea*           m_mdiArea;
     RiuViewer*          m_mainViewer;
-    
+    RimViewWindow*      m_activePlotViewWindow;
+
     QMenu*              m_windowMenu;
 
     caf::PdmUiTreeView* m_projectTreeView;

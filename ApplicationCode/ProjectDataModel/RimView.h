@@ -216,6 +216,7 @@ protected:
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 
     virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 

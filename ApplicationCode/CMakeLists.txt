@@ -29,9 +29,7 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
 	${ERT_INCLUDE_DIRS}
 
-    ${Boost_INCLUDE_DIRS}
-    ${ResInsight_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common/
-    ${custom-opm-parser_SOURCE_DIR}/opm-parser/
+    ${boost-Subset_SOURCE_DIR}
     ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
     ${custom-opm-flowdiag-app_SOURCE_DIR}/opm-flowdiagnostics-applications/
     ${custom-opm-flowdiag-app_SOURCE_DIR}/opmCore
@@ -278,20 +276,6 @@ endif ()
 # Set up libraries and dependent projects to link with
 #############################################################################
 
-if (MSVC)
-  set (RI_BOOST_LIBRARIES
-    debug     ${Boost_SYSTEM_LIBRARY_DEBUG}
-    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
-    debug     ${Boost_FILESYSTEM_LIBRARY_DEBUG}
-    optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-    debug     ${Boost_REGEX_LIBRARY_DEBUG}
-    optimized ${Boost_REGEX_LIBRARY_RELEASE}
-  )
-else()
-  set (RI_BOOST_LIBRARIES ${Boost_LIBRARIES})
-endif()
-
-
 set( LINK_LIBRARIES
     ${OPM_LIBRARIES}
         
@@ -309,9 +293,8 @@ set( LINK_LIBRARIES
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
-    
-    ${RI_BOOST_LIBRARIES}
 )
+
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
@@ -340,9 +323,6 @@ if(RESINSIGHT_ENABLE_COTIRE)
   
     # multiple QRC files are not supported
     set_source_files_properties (qrc_cafAnimControl.cxx                                     PROPERTIES COTIRE_EXCLUDED TRUE)
-
-    # TODO: Revisit why opm-parser is not working
-    set_source_files_properties (UnitTests/opm-parser-Test.cpp                              PROPERTIES COTIRE_EXCLUDED TRUE)
  
     # variables at global file scope
     set_source_files_properties (ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
@@ -355,13 +335,9 @@ if(RESINSIGHT_ENABLE_COTIRE)
     # using namespace cvf
     set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
 
     # opm parser
-    set_source_files_properties (FileInterface/RifReaderOpmParserInput.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/opm-Test.cpp                                 PROPERTIES COTIRE_EXCLUDED TRUE)
     
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    

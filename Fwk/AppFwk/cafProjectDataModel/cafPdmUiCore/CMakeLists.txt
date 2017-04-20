@@ -28,6 +28,8 @@ set( PROJECT_FILES
     cafPdmUiFieldSpecialization.h
     cafPdmUiItem.cpp
     cafPdmUiItem.h
+    cafPdmUiModelChangeDetector.cpp
+    cafPdmUiModelChangeDetector.h
     cafPdmUiObjectEditorHandle.cpp
     cafPdmUiObjectEditorHandle.h
     cafPdmUiObjectHandle.cpp

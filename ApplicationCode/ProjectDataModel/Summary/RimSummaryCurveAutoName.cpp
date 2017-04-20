@@ -47,10 +47,6 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(&m_completion,        "Completion",         true, "I, J, K", "", "", "");
     
     CAF_PDM_InitField(&m_caseName,          "CaseName",           true, "Case Name", "", "", "");
-
-    CAF_PDM_InitField(&m_showAdvancedProperties, "ShowAdvancedProperties", false, "Show Advanced Properties", "", "", "");
-    m_showAdvancedProperties.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_showAdvancedProperties.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -208,8 +204,6 @@ void RimSummaryCurveAutoName::applySettings(const RimSummaryCurveAutoName& other
     m_wellSegmentNumber = other.m_wellSegmentNumber;
     m_lgrName           = other.m_lgrName;
     m_completion        = other.m_completion;
-
-    m_showAdvancedProperties = other.m_showAdvancedProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,39 +263,14 @@ void RimSummaryCurveAutoName::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     uiOrdering.add(&m_wellGroupName);
     uiOrdering.add(&m_wellName);
     
-    if (m_showAdvancedProperties)
-    {
-        uiOrdering.add(&m_regionNumber);
-        uiOrdering.add(&m_lgrName);
-        uiOrdering.add(&m_completion);
-        uiOrdering.add(&m_wellSegmentNumber);
-        uiOrdering.add(&m_unit);
-    }
-
-    uiOrdering.add(&m_showAdvancedProperties);
+    caf::PdmUiGroup& advanced = *(uiOrdering.addNewGroup("Advanced"));
+    advanced.setCollapsedByDefault(true);
+    advanced.add(&m_regionNumber);
+    advanced.add(&m_lgrName);
+    advanced.add(&m_completion);
+    advanced.add(&m_wellSegmentNumber);
+    advanced.add(&m_unit);
 
     uiOrdering.skipRemainingFields();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
-{
-    if (&m_showAdvancedProperties == field)
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        if (attrib)
-        {
-            if (m_showAdvancedProperties)
-            {
-                attrib->m_buttonText = "Hide Advanced Options";
-            }
-            else
-            {
-                attrib->m_buttonText = "Show Advanced Options";
-            }
-        }
-    }
 }
 

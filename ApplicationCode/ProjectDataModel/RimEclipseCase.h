@@ -31,6 +31,7 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfColor3.h"
 
 class QString;
 
@@ -69,6 +70,7 @@ public:
                                                       
     RigEclipseCaseData*                         eclipseCaseData();
     const RigEclipseCaseData*                   eclipseCaseData() const;
+    cvf::Color3f                                defaultWellColor(const QString& wellName);
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -108,12 +110,14 @@ protected:
     void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigEclipseCaseData>            m_rigEclipseCase;
+    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
     QString                                     m_timeStepFormatString;
+
+    std::map<QString , cvf::Color3f>            m_wellToColorMap;
 
     // Obsolete fields
 protected:

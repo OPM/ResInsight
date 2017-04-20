@@ -1,7 +1,0 @@
-{"name" : "TLMIXPAR" , "sections" : ["PROPS"], "size" : {"keyword" : "MISCIBLE" , "item" : "NTMISC"} , "items" :
-    [
-        {"name" : "TL_VISCOSITY_PARAMETER" , "value_type" : "DOUBLE"  , "dimension" : "1"},
-        {"name" : "TL_DENSITY_PARAMETER" , "value_type" : "DOUBLE" , "dimension" : "1"}
-    ]
-}
-

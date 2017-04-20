@@ -1,7 +1,0 @@
-{"name" : "WGRUPCON", "sections" : ["SCHEDULE"], "items" : [
-    {"name" : "WELL" , "value_type" : "STRING"},
-    {"name" : "GROUP_CONTROLLED" , "value_type" : "STRING" , "default" : "YES"},
-    {"name" : "GUIDE_RATE"  , "value_type" : "DOUBLE" , "default" : -1},
-    {"name" : "PHASE"  , "value_type" : "STRING"},
-    {"name" : "SCALING_FACTOR" , "value_type" : "DOUBLE" , "default" : 1.0}
-]}

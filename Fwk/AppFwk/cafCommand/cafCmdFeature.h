@@ -73,27 +73,30 @@ class CmdFeature : public QObject
 {
     Q_OBJECT
 public:
-    CmdFeature() {}
-    virtual ~CmdFeature() {}
+    CmdFeature();
+    virtual ~CmdFeature();
 
-    QAction*            action();
-    QAction*            action(QString customText);
-    void                refreshEnabledState();
-    void                refreshCheckedState();
+    QAction*        action();
+    QAction*        action(QString customText);
+    void            refreshEnabledState();
+    void            refreshCheckedState();
 
-    bool                canFeatureBeExecuted() { return this->isCommandEnabled(); }
+    bool            canFeatureBeExecuted();
 
 public slots:
-    void actionTriggered(bool isChecked) { this->onActionTriggered(isChecked); }
+    void            actionTriggered(bool isChecked);
 
 protected:
-    virtual void onActionTriggered(bool isChecked) = 0;
-    virtual void setupActionLook(QAction* actionToSetup) =  0;
-    virtual bool isCommandEnabled() = 0;
-    virtual bool isCommandChecked() { return false; }
+    virtual void    onActionTriggered(bool isChecked) = 0;
+    virtual void    setupActionLook(QAction* actionToSetup) =  0;
+    virtual bool    isCommandEnabled() = 0;
+    virtual bool    isCommandChecked();
+    
+    void            disableModelChangeContribution();
 
 private:
     std::map<QString, QAction*> m_customTextToActionMap;
+    bool                        m_triggerModelChange;
 };
 
 

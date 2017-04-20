@@ -73,6 +73,8 @@
 #include <QUndoStack>
 
 
+#define DOCK_PANEL_NAME_PROCESS_MONITOR "dockProcessMonitor"
+
 
 
 //==================================================================================================
@@ -195,15 +197,18 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
-    saveWinGeoAndDockToolBarLayout();
-
     RiaApplication* app = RiaApplication::instance();
+    if (!app->askUserToSaveModifiedProject())
+    {
+        event->ignore();
+        return;
+    }
+
+    saveWinGeoAndDockToolBarLayout();
 
     if (!app->tryClosePlotWindow()) return;
 
-    RiaApplication::instance()->closeProject();
-        
-    event->accept();
+    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,7 +327,6 @@ void RiuMainWindow::createMenus()
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    //importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
@@ -384,8 +388,6 @@ void RiuMainWindow::createMenus()
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
     // Debug menu
-    testMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
-
     testMenu->addAction(m_mockModelAction);
     testMenu->addAction(m_mockResultsModelAction);
     testMenu->addAction(m_mockLargeResultsModelAction);
@@ -574,7 +576,7 @@ void RiuMainWindow::createDockPanels()
 
     {
         QDockWidget* dockPanel = new QDockWidget("Process Monitor", this);
-        dockPanel->setObjectName("dockProcessMonitor");
+        dockPanel->setObjectName(DOCK_PANEL_NAME_PROCESS_MONITOR);
         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_processMonitor = new RiuProcessMonitor(dockPanel);
         dockPanel->setWidget(m_processMonitor);
@@ -1445,6 +1447,31 @@ void RiuMainWindow::restoreTreeViewState()
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showDockPanel(const QString &dockPanelName)
+{
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    foreach (QDockWidget* dock, dockWidgets)
+    {
+        if (dock && dock->objectName() == dockPanelName)
+        {
+            dock->show();
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showProcessMonitorDockPanel()
+{
+    showDockPanel(DOCK_PANEL_NAME_PROCESS_MONITOR);
 }
 
 //--------------------------------------------------------------------------------------------------

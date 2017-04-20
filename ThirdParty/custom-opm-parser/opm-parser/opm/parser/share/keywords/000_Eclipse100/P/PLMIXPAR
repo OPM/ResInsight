@@ -1,9 +1,0 @@
-{"name" : "PLMIXPAR" , "sections" : ["PROPS"], "size" : {"keyword" : "REGDIMS" , "item" : "NPLMIX"} , "items" :
-    [
-        {"name" : "TODD_LONGSTAFF" ,
-         "value_type" : "DOUBLE" ,
-         "size_type" : "ALL" ,
-         "dimension" : "1"}
-    ]
-}
-

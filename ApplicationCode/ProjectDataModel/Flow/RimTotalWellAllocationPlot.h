@@ -27,6 +27,8 @@
 
 #include <QPointer>
 
+#include <vector>
+
 class RiuWellAllocationPlot;
 class RimEclipseWell;
 class RimWellLogPlot;
@@ -55,6 +57,7 @@ public:
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
+    QString                                         totalAllocationAsText() const;
 
     void                                            addSlice(const QString& name, const cvf::Color3f& color, float value);
     void                                            clearSlices();
@@ -80,4 +83,6 @@ private:
     caf::PdmField<QString>                          m_userName;
 
     QPointer<RiuNightchartsWidget>                  m_wellTotalAllocationPlotWidget;
+
+    std::vector<std::pair<QString, float> >         m_sliceInfo;
 };

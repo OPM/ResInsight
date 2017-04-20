@@ -53,6 +53,8 @@ bool RicViewZoomAllFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicViewZoomAllFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     QWidget* topLevelWidget = RiaApplication::activeWindow();
 
     if (dynamic_cast<RiuMainWindow*>(topLevelWidget))

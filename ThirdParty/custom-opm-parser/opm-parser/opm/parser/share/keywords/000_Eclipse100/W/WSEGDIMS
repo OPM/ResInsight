@@ -1,5 +1,0 @@
-{"name" : "WSEGDIMS" , "sections" : ["RUNSPEC"] , "size" : 1 , "items" : 
- [{"name" : "NSWLMX" , "value_type" : "INT" , "default" : 0},
-  {"name" : "NSEGMX" , "value_type" : "INT" , "default" : 1},
-  {"name" : "NLBRMX" , "value_type" : "INT" , "default" : 1},
-  {"name" : "NCRDMX" , "value_type" : "INT" , "default" : 0}]}

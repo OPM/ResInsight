@@ -54,6 +54,8 @@ bool RicAsciiExportWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
     QString projectFolder = app->currentProjectPath();
 

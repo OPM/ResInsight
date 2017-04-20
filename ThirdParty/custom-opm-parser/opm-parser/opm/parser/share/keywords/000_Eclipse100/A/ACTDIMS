@@ -1,7 +1,0 @@
-{"name" : "ACTDIMS" , "sections" : ["RUNSPEC"],
- "size" : 1,
-      "items" : [
-          {"name" : "MAX_ACTION", "value_type" : "INT" , "default" : 2},
-          {"name" : "MAX_ACTION_LINES", "value_type" : "INT" , "default" : 50},
-          {"name" : "MAX_ACTION_LINE_CHARACTERS" , "value_type" : "INT" , "default" : 80},
-          {"name" : "MAX_ACTION_COND", "value_type" : "INT" , "default" : 3}]}

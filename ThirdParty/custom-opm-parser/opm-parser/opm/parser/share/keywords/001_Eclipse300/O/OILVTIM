@@ -1,8 +1,0 @@
-{
- "name" : "OILVTIM" ,
- "sections" : ["PROPS"],
-
- "items" : [
-  {"name": "INTERPOLATION_METHOD" , "value_type" : "STRING"}
- ]
-}

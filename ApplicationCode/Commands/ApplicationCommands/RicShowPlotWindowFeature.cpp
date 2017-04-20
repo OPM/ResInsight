@@ -37,6 +37,8 @@ bool RicShowPlotWindowFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotWindowFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
 }
 

@@ -79,14 +79,14 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Thickness", "", "", "");
+    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
     caf::AppEnum< RimPlotCurve::LineStyleEnum > lineStyle = STYLE_SOLID;
-    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line style", "", "", "");
+    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line Style", "", "", "");
 
     caf::AppEnum< RimPlotCurve::PointSymbolEnum > pointSymbol = SYMBOL_NONE;
-    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Point style", "", "", "");
+    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Symbol", "", "", "");
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
 
@@ -263,6 +263,28 @@ void RimPlotCurve::updateCurveName()
 void RimPlotCurve::updateOptionSensitivity()
 {
     m_curveName.uiCapability()->setUiReadOnly(m_isUsingAutoName);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_curveColor);
+    uiOrdering.add(&m_pointSymbol);
+    uiOrdering.add(&m_symbolSkipPixelDistance);
+    uiOrdering.add(&m_curveThickness);
+    uiOrdering.add(&m_lineStyle);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_isUsingAutoName);
+    uiOrdering.add(&m_curveName);
 }
 
 //--------------------------------------------------------------------------------------------------

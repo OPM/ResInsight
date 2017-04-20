@@ -57,7 +57,7 @@ std::vector<double> RigTimeHistoryResultAccessor::timeHistoryValues(RigEclipseCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigTimeHistoryResultAccessor::topologyText(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex)
+QString RigTimeHistoryResultAccessor::geometrySelectionText(RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t cellIndex)
 {
     QString text;
 

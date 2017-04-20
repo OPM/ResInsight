@@ -39,6 +39,8 @@ bool RicLaunchUnitTestsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLaunchUnitTestsFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication::instance()->launchUnitTestsWithConsole();
 }
 

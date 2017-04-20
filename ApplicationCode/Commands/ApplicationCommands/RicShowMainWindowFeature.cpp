@@ -39,6 +39,8 @@ bool RicShowMainWindowFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowMainWindowFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
     if (mainWnd->isMinimized())

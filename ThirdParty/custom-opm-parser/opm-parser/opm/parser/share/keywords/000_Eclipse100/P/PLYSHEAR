@@ -1,8 +1,0 @@
-{"name" : "PLYSHEAR" , "sections" : ["SPECIAL", "PROPS"], "size" : {"keyword" : "TABDIMS" , "item" : "NTPVT"} , "items" :
-    [
-        {"name" : "WATER_VELOCITY" , "value_type" : "DOUBLE"  , "dimension" : "Length/Time"},
-        {"name" : "VRF" , "value_type" : "DOUBLE", "dimension" : "1"}
-    ]
-}
-
-

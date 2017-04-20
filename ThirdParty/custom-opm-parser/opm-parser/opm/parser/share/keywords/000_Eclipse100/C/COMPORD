@@ -1,3 +1,0 @@
-{"name" : "COMPORD" , "sections" : ["SCHEDULE"] , "items" : [
-  {"name" : "WELL" , "value_type" : "STRING"},
-  {"name" : "ORDER_TYPE" , "value_type" : "STRING" , "default" : "TRACK"}]}

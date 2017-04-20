@@ -1,8 +1,0 @@
-{"name": "MULTREGP",
- "sections": ["GRID", "EDIT"],
- "items": [
-    {"name": "REGION", "value_type": "INT"},
-    {"name": "MULTIPLIER", "value_type": "DOUBLE"},
-    {"name": "REGION_TYPE", "value_type": "STRING", "default": "M"}
-  ]
-}

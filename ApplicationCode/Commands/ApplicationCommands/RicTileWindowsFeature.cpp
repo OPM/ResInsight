@@ -47,6 +47,8 @@ bool RicTileWindowsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTileWindowsFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if (mainWindow)
     {

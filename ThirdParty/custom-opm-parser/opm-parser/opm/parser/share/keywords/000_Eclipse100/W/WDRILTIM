@@ -1,5 +1,0 @@
-{"name" : "WDRILTIM" , "sections" : ["SCHEDULE"], "items": 
-  [{"name" : "WELL"         , "value_type" : "STRING"},
-   {"name" : "DRILL_TIME" , "value_type" : "DOUBLE" , "dimension" : "Time" , "default_value" : 0.0},
-   {"name" : "WORKOVER_CLOSE" , "value_type" : "STRING" , "default_value" : "NO"},
-   {"name" : "COMPARTMENT" , "value_type" : "INT" , "default_value" : 0}]}

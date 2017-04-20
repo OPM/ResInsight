@@ -1,8 +1,0 @@
-{"name"     : "AQUIFER_PROBE_ANALYTIC" ,
- "sections" : ["SUMMARY"],
-  "data" :  {"value_type" : "INT"},
-  "deck_name_regex" : "AA.+"}
-  
-
-
- 

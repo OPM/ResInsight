@@ -138,26 +138,27 @@ void RimViewLinker::updateCellResult()
             if (viewLink->managedView())
             {
                 RimView* rimView = viewLink->managedView();
-                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
-                if (eclipeView)
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
+                if (eclipseView)
                 {
                     if (viewLink->isResultColorControlled())
                     {
-                        eclipeView->cellResult()->simpleCopy(eclipseCellResultDefinition);
+                        eclipseView->cellResult()->simpleCopy(eclipseCellResultDefinition);
+                        eclipseView->cellResult()->loadResult();
 
                         if (viewLink->isLegendDefinitionsControlled())
                         {
-                            eclipeView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
-                            eclipeView->cellResult()->legendConfig()->updateLegend();
+                            eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
+                            eclipseView->cellResult()->legendConfig()->updateLegend();
 
-                            eclipeView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
-                            eclipeView->cellResult()->ternaryLegendConfig()->updateLegend();
+                            eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
+                            eclipseView->cellResult()->ternaryLegendConfig()->updateLegend();
                         }
 
-                        eclipeView->scheduleCreateDisplayModelAndRedraw();
+                        eclipseView->scheduleCreateDisplayModelAndRedraw();
                     }
                     
-                    eclipeView->cellResult()->updateIconState();
+                    eclipseView->cellResult()->updateIconState();
                 }
             }
         }

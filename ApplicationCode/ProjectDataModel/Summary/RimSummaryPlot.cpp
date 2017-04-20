@@ -203,6 +203,8 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 {
     QString out;
 
+    out += description();
+
     {
         std::vector<RimSummaryCurve*> curves;
         this->descendantsIncludingThisOfType(curves);

@@ -80,15 +80,13 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "");
-    CAF_PDM_InitField(&m_wellName, "WellName", QString("None"), "Well", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_flowType, "FlowType", "Flow Type", "", "", "");
-
-    CAF_PDM_InitField(&m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "");
-    CAF_PDM_InitField(&m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold", "", "", "");
-
-    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "");
+    CAF_PDM_InitField(&m_timeStep,                         "PlotTimeStep",                0,               "Time Step",                 "", "", "");
+    CAF_PDM_InitField(&m_wellName,                         "WellName",                    QString("None"), "Well",                      "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowDiagSolution,        "FlowDiagSolution",                             "Plot Type",                 "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_flowType,                "FlowType",                                     "Flow Type",                 "", "", "");
+    CAF_PDM_InitField(&m_groupSmallContributions,          "GroupSmallContributions",     true,            "Group Small Contributions", "", "", "");
+    CAF_PDM_InitField(&m_smallContributionsThreshold,      "SmallContributionsThreshold", 0.005,           "Threshold",                 "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
@@ -518,6 +516,14 @@ RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+caf::PdmObject* RimWellAllocationPlot::plotLegend()
+{
+    return m_wellAllocationPlotLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution* RimWellAllocationPlot::flowDiagSolution()
 {
     return m_flowDiagSolution();
@@ -540,16 +546,7 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
 
     if (fieldNeedingOptions == &m_wellName)
     {
-        std::set<QString> sortedWellNames;
-        if ( m_case && m_case->eclipseCaseData() )
-        {
-            const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->eclipseCaseData()->wellResults();
-
-            for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
-            {
-                sortedWellNames.insert(wellRes[wIdx]->m_wellName);
-            }
-        }
+        std::set<QString> sortedWellNames = this->findSortedWellNames();
 
         QIcon simWellIcon(":/Well.png");
         for ( const QString& wname: sortedWellNames )
@@ -595,12 +592,18 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions(const
     {
         if (m_case)
         {
-            std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
+            //std::vector<RimFlowDiagSolution*> flowSols = m_case->flowDiagSolutions();
+            // options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+            //for (RimFlowDiagSolution* flowSol : flowSols)
+            //{
+            //    options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+            //}
 
-            for (RimFlowDiagSolution* flowSol : flowSols)
+            RimFlowDiagSolution* defaultFlowSolution =  m_case->defaultFlowDiagSolution();
+            options.push_back(caf::PdmOptionItemInfo("Well Flow", nullptr));
+            if (defaultFlowSolution)
             {
-                options.push_back(caf::PdmOptionItemInfo("None", nullptr));
-                options.push_back(caf::PdmOptionItemInfo(flowSol->userDescription(), flowSol, false, flowSol->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo("Allocation", defaultFlowSolution ));
             }
         }
     }
@@ -645,8 +648,30 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         updateWidgetTitleWindowTitle();
     }
+    else if ( changedField == &m_case)
+    {
+        if ( m_flowDiagSolution && m_case )
+        {
+            m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        }
+        else
+        {
+            m_flowDiagSolution = nullptr;
+        }
+
+        if (!m_case) m_timeStep = 0;
+        else if (m_timeStep >= static_cast<int>(m_case->timeStepDates().size()))
+        {
+            m_timeStep = std::max(0, ((int)m_case->timeStepDates().size()) - 1);
+        }
+
+        std::set<QString> sortedWellNames = findSortedWellNames();
+        if (!sortedWellNames.size()) m_wellName = "";
+        else if ( sortedWellNames.count(m_wellName()) == 0 ){ m_wellName = *sortedWellNames.begin();}
+
+        loadDataAndUpdate();
+    }
     else if (   changedField == &m_wellName
-             || changedField == &m_case
              || changedField == &m_timeStep
              || changedField == &m_flowDiagSolution
              || changedField == &m_groupSmallContributions
@@ -655,6 +680,25 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RimWellAllocationPlot::findSortedWellNames()
+{
+    std::set<QString> sortedWellNames;
+    if ( m_case && m_case->eclipseCaseData() )
+    {
+        const cvf::Collection<RigSingleWellResultsData>& wellRes = m_case->eclipseCaseData()->wellResults();
+
+        for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
+        {
+            sortedWellNames.insert(wellRes[wIdx]->m_wellName);
+        }
+    }
+
+    return sortedWellNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -678,6 +722,19 @@ QImage RimWellAllocationPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_userName);
+    uiOrdering.add(&m_showPlotTitle);
+
+    caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup("Plot Data");
+    dataGroup.add(&m_case);
+    dataGroup.add(&m_timeStep);
+    dataGroup.add(&m_wellName);
+
+    caf::PdmUiGroup& optionGroup = *uiOrdering.addNewGroup("Options");
+    optionGroup.add(&m_flowDiagSolution);
+    optionGroup.add(&m_flowType);
+    optionGroup.add(&m_groupSmallContributions);
+    optionGroup.add(&m_smallContributionsThreshold);
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly(!m_groupSmallContributions());
 }
 
