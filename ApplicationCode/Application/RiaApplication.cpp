@@ -143,7 +143,7 @@ namespace RegTestNames
     const QString generatedFolderName   = "RegTestGeneratedImages";
     const QString diffFolderName        = "RegTestDiffImages";
     const QString baseFolderName        = "RegTestBaseImages";
-    const QString testProjectName       = "RegressionTest.rip";
+    const QString testProjectName       = "RegressionTest";
     const QString testFolderFilter      = "TestCase*";
     const QString imageCompareExeName   = "compare";
     const QString reportFileName        = "ResInsightRegressionTestReport.html";
@@ -2336,9 +2336,22 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
-        if (testCaseFolder.exists(regTestProjectName))
+
+        QString projectFileName;
+        
+        if (testCaseFolder.exists(regTestProjectName + ".rip"))
         {
-             loadProject(testCaseFolder.filePath(regTestProjectName));
+            projectFileName = regTestProjectName + ".rip";
+        }
+
+        if (testCaseFolder.exists(regTestProjectName + ".rsp"))
+        {
+            projectFileName = regTestProjectName + ".rsp";
+        }
+
+        if (!projectFileName.isEmpty())
+        {
+             loadProject(testCaseFolder.filePath(projectFileName));
 
              // Wait until all command objects have completed
              while (!m_commandQueueLock.tryLock())
