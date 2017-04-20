@@ -48,8 +48,9 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
-#include "RimFormationNamesCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
+#include "RimFlowPlotCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -66,13 +67,13 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimTreeViewStateSerializer.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
-#include "RimFlowPlotCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RiuMainPlotWindow.h"
@@ -115,6 +116,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QUrl>
+#include <QTreeView>
 
 #include "gtest/gtest.h"
 
@@ -619,6 +621,47 @@ void RiaApplication::loadAndUpdatePlotData()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::storeTreeViewState()
+{
+    {
+        if (mainPlotWindow() && mainPlotWindow()->projectTreeView())
+        {
+            caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
+
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            project()->plotWindowTreeViewState = treeViewState;
+            project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
+    }
+
+    {
+        caf::PdmUiTreeView* projectTreeView = RiuMainWindow::instance()->projectTreeView();
+        if (projectTreeView)
+        {
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            project()->mainWindowTreeViewState = treeViewState;
+            project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
@@ -774,6 +817,8 @@ bool RiaApplication::askUserToSaveModifiedProject()
 bool RiaApplication::saveProjectAs(const QString& fileName)
 {
     m_project->fileName = fileName;
+
+    storeTreeViewState();
 
     if (!m_project->writeFile())
     {

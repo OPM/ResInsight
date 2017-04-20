@@ -212,6 +212,8 @@ private:
     void                    deleteMainPlotWindow();
     
     void                    loadAndUpdatePlotData();
+    
+    void                    storeTreeViewState();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

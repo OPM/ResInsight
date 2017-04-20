@@ -44,8 +44,6 @@ void RicSaveProjectAsFeature::onActionTriggered(bool isChecked)
 
     RiaApplication* app = RiaApplication::instance();
 
-    RicSaveProjectFeature::storeTreeViewState();
-
     app->saveProjectPromptForFileName();
 }
 
