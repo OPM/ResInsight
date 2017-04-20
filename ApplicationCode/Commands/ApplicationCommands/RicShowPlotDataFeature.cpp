@@ -188,6 +188,8 @@ bool RicShowPlotDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     std::vector<RimSummaryPlot*> selectedSummaryPlots;
     caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
 

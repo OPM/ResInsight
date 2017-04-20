@@ -68,6 +68,8 @@ bool RicExportMultipleSnapshotsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RimProject* proj = RiaApplication::instance()->project();
 
     if (proj)

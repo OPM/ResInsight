@@ -57,6 +57,8 @@ bool RicExportFaultsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportFaultsFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     std::vector<RimFault*> selectedFaults;
 
     caf::SelectionManager::instance()->objectsByType(&selectedFaults);

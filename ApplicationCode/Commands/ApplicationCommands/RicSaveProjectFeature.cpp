@@ -46,6 +46,8 @@ bool RicSaveProjectFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveProjectFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
 
     RicSaveProjectFeature::storeTreeViewState();

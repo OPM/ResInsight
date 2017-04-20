@@ -52,6 +52,8 @@ bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
 
     if (viewWindow)

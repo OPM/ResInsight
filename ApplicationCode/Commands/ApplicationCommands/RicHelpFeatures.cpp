@@ -48,6 +48,8 @@ bool RicHelpAboutFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicHelpAboutFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     caf::AboutDialog dlg(NULL);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
