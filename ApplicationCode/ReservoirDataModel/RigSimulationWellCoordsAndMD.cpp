@@ -138,7 +138,7 @@ double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& posit
     size_t closestIndex = findClosestIndex(position);
 
      //For vertical well (x-component of direction = 0) returned angle will be 0. 
-    double AzimuthAngle = 0.0;
+    double azimuthAngle = 0.0;
 
     if (closestIndex != cvf::UNDEFINED_DOUBLE)
     {
@@ -162,13 +162,55 @@ double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& posit
         if (abs(direction.x()) > 1e-5) 
          {
              double atanValue = direction.y() / direction.x();
-             AzimuthAngle = atan(atanValue);
-             AzimuthAngle = cvf::Math::toDegrees(AzimuthAngle);
-             AzimuthAngle = -AzimuthAngle;
+             azimuthAngle = atan(atanValue);
+             azimuthAngle = cvf::Math::toDegrees(azimuthAngle);
+             azimuthAngle = -azimuthAngle;
          }
      }
 
-    return AzimuthAngle;
+    return azimuthAngle;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigSimulationWellCoordsAndMD::simWellDipAngle(const cvf::Vec3d& position) const
+{
+    size_t closestIndex = findClosestIndex(position);
+
+    double dipAngle = 0.0;
+
+    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    {
+        cvf::Vec3d p1;
+        cvf::Vec3d p2;
+
+        if (closestIndex > 0)
+        {
+            p1 = m_wellPathPoints[closestIndex - 1];
+            p2 = m_wellPathPoints[closestIndex - 0];
+        }
+        else
+        {
+            p1 = m_wellPathPoints[closestIndex + 1];
+            p2 = m_wellPathPoints[closestIndex + 0];
+        }
+
+        cvf::Vec3d direction = p1 - p2;
+
+        double horizonal = sqrt(pow(direction.x(), 2) + pow(direction.y(), 2));
+        double vertical = direction.z();
+
+        if (abs(vertical) > 1e-5)
+        {
+            double atanValue =  vertical / horizonal;
+            dipAngle = atan(atanValue);
+            dipAngle = cvf::Math::toDegrees(dipAngle);
+        }
+    }
+
+    return dipAngle;
+
 }
 
 //--------------------------------------------------------------------------------------------------

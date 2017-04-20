@@ -43,6 +43,7 @@
 #include "RimFractureTemplate.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RigStimPlanCell.h"
+#include "RimSimWellFracture.h"
 
 
 
@@ -103,7 +104,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     out << "\n";
 
     //Included for debug / prototyping only
-    //printTransmissibilityFractureToWell(fractures, out, caseToApply);
+    printTransmissibilityFractureToWell(fractures, out, caseToApply);
     
     printStimPlanFractureTrans(fractures, out);
     
@@ -607,9 +608,55 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
         out << qSetFieldWidth(16);
         out << fracture->name().left(15) + " ";
 
-        if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+
+
+
+        if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH)
         {
-            out << "Transverse Fracture";
+            out << "Linear inflow";
+
+            RimStimPlanFractureTemplate* fracTemplateStimPlan;
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+            {
+                fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+            }
+            else continue;
+
+            //TODO: Can be removed when implementation of dip angle is more general: 
+            RimSimWellFracture* simWellFrac;
+            if (dynamic_cast<RimSimWellFracture*>(fracture))
+            {
+                simWellFrac = dynamic_cast<RimSimWellFracture*>(fracture);
+            }
+            else continue;
+
+            double wellDip = simWellFrac->wellDipAtFracturePosition();
+
+            double perforationLengthVert = fracture->perforationLength * cos(wellDip);
+            double perforationLengthHor  = fracture->perforationLength * sin(wellDip);
+                
+            RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtWell();
+            //TODO: Error in getting the StimPlanWellCell here!!!
+
+            out << stimPlanCell->getI();
+            out << stimPlanCell->getJ();
+
+            //TODO: Check if perforation length is larger than cell - expand to neightbour cells if needed!
+
+            RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+            double RadTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell, perforationLengthVert, perforationLengthHor);
+
+            out << RadTransInStimPlanCell;
+
+        }
+
+
+
+
+        if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH
+            || fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+        {
+            out << "Radial inflow";
 
             RimStimPlanFractureTemplate* fracTemplateStimPlan;
             if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))

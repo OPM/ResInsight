@@ -45,6 +45,7 @@ public:
     void                                            updateAzimuthFromFractureDefinition() override;
 
     double                                          wellAzimuthAtFracturePosition() override;
+    double                                          wellDipAtFracturePosition();
 
 
 protected:

@@ -44,7 +44,7 @@ public:
     size_t findClosestIndex(const cvf::Vec3d& position) const;
 
     double                          simWellAzimuthAngle(const cvf::Vec3d& position) const;
-
+    double                          simWellDipAngle(const cvf::Vec3d& position) const;
 
 private:
     void                            computeMeasuredDepths();

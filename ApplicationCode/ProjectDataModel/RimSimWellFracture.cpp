@@ -113,6 +113,15 @@ double RimSimWellFracture::wellAzimuthAtFracturePosition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimSimWellFracture::wellDipAtFracturePosition()
+{
+    updateBranchGeometry();
+    double simWellDip = m_branchCenterLines[m_branchIndex].simWellDipAngle(fracturePosition());
+    return simWellDip;
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimFracture::fieldChangedByUi(changedField, oldValue, newValue);
