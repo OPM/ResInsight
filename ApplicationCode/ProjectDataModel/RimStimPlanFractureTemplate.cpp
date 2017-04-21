@@ -722,6 +722,7 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
     for (const double& depth : m_stimPlanFractureDefinitionData->depths)
     {
         double adjustedDepth = depth - wellPathDepthAtFracture();
+        adjustedDepth = -adjustedDepth;
         depthRelativeToWellPath.push_back(adjustedDepth);
     }
     return depthRelativeToWellPath;
@@ -933,6 +934,8 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
   
     std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(parameterName, parameterUnit, activeTimeStepIndex);
 
+    std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
+
     for (int k = 0; k < dataAtTimeStep.size(); k++)
     {
         for (int i = 0; i < dataAtTimeStep[k].size(); i++)
@@ -942,17 +945,17 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnu
                 if ((i > 0) && ((dataAtTimeStep[k])[(i - 1)] > 1e-7)) //side neighbour cell different from 0
                 {
                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
+                        static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
                 else if ((k < dataAtTimeStep.size() - 1) && ((dataAtTimeStep[k + 1])[(i)] > 1e-7))//cell below different from 0
                 {
                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
+                        static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
                 else if ((k > 0) && ((dataAtTimeStep[k - 1 ])[(i)] > 1e-7))//cell above different from 0
                 {
                     polygon.push_back(cvf::Vec3f(static_cast<float>(m_stimPlanFractureDefinitionData->gridXs[i]),
-                        static_cast<float>(m_stimPlanFractureDefinitionData->depths[k]) - wellPathDepthAtFracture, 0.0f));
+                        static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
             }
         }
