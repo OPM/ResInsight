@@ -64,7 +64,7 @@ public:
     caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
     
-    void                                            loadDataAndUpdate();
+    virtual void                                    loadDataAndUpdate() override;
 
     void                                            detachAllCurves();
     void                                            updateCaseNameHasChanged();

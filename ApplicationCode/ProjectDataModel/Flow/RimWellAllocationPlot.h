@@ -61,7 +61,7 @@ public:
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    void                                            loadDataAndUpdate();
+    virtual void                                    loadDataAndUpdate() override;
 
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;

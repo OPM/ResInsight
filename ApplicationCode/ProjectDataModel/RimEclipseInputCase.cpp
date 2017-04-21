@@ -234,7 +234,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
 void RimEclipseInputCase::reloadEclipseGridFile()
 {
     setReservoirData(nullptr);
-    openEclipseGridFile();
+    openReserviorCase();
 }
 
 #define for_all(stdVector, indexName) for (size_t indexName = 0; indexName < stdVector.size(); ++indexName)

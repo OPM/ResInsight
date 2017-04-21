@@ -155,7 +155,8 @@ void RimEclipseResultCase::reloadEclipseGridFile()
 {
     m_gridAndWellDataIsReadFromFile = false;
     m_activeCellInfoIsReadFromFile = false;
-    openEclipseGridFile();
+    setReservoirData(nullptr);
+    openReserviorCase();
 }
 
 //--------------------------------------------------------------------------------------------------

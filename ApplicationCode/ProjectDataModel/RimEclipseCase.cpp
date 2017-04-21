@@ -42,6 +42,12 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimFlowPlotCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimSummaryPlot.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimWellAllocationPlot.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -658,6 +664,36 @@ void RimEclipseCase::releaseResultData()
             RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT(reservoirView);
             reservoirView->loadDataAndUpdate();
+        }
+
+        RimProject* project = RiaApplication::instance()->project();
+        if (project)
+        {
+            if (project->mainPlotCollection())
+            {
+                RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+                RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
+                RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
+
+                if (wellPlotCollection)
+                {
+                    for (size_t i = 0; i < wellPlotCollection->wellLogPlots().size(); ++i)
+                    {
+                        wellPlotCollection->wellLogPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (summaryPlotCollection)
+                {
+                    for (size_t i = 0; i < summaryPlotCollection->summaryPlots().size(); ++i)
+                    {
+                        summaryPlotCollection->summaryPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (flowPlotCollection)
+                {
+                    flowPlotCollection->loadDataAndUpdate();
+                }
+            }
         }
     }
 }
