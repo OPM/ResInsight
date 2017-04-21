@@ -407,6 +407,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
+            commandIds << "RicReloadCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))

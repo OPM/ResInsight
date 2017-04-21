@@ -53,6 +53,7 @@ public:
 
     // RimCase overrides
     virtual bool                openEclipseGridFile(); // Find grid file among file set. Read, Find read and validate property date. Syncronize child property sets.
+    virtual void                reloadEclipseGridFile();
 
     // Overrides from RimCase
     virtual QString             locationOnDisc() const;

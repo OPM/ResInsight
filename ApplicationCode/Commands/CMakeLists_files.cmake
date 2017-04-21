@@ -45,6 +45,8 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
+
+${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -83,6 +85,8 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.cpp
+
+${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

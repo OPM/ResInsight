@@ -149,6 +149,16 @@ bool RimEclipseResultCase::openEclipseGridFile()
  }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::reloadEclipseGridFile()
+{
+    m_gridAndWellDataIsReadFromFile = false;
+    m_activeCellInfoIsReadFromFile = false;
+    openEclipseGridFile();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase)

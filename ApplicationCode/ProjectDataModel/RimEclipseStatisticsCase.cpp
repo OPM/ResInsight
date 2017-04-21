@@ -177,6 +177,15 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::reloadEclipseGridFile()
+{
+    setReservoirData(nullptr);
+    openEclipseGridFile();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
