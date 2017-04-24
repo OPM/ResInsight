@@ -55,7 +55,7 @@ void RicReloadCaseFeature::onActionTriggered(bool isChecked)
 
     for (RimEclipseCase* selectedCase : selectedEclipseCases)
     {
-        selectedCase->releaseResultData();
+        selectedCase->reloadDataAndUpdate();
     }
 }
 

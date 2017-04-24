@@ -303,7 +303,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &releaseResultMemory)
     {
-        releaseResultData();
+        reloadDataAndUpdate();
 
         releaseResultMemory = oldValue.toBool();
     }
@@ -640,7 +640,7 @@ QString RimEclipseCase::timeStepName(int frameIdx)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::releaseResultData()
+void RimEclipseCase::reloadDataAndUpdate()
 {
     if (this->eclipseCaseData())
     {
@@ -654,7 +654,6 @@ void RimEclipseCase::releaseResultData()
         if (fractureModelResults)
         {
             fractureModelResults->clearAllResults();
-
         }
 
         reloadEclipseGridFile();
