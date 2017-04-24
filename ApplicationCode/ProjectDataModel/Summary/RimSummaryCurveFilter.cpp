@@ -112,6 +112,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType,   "RegionAppearanceType",   "Region", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
     m_curveNameConfig.uiCapability()->setUiHidden(true);
@@ -197,6 +198,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
     uiOrdering.add(&m_plotAxis);
+    uiOrdering.add(&m_showLegend);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance settings");
     appearanceGroup->setCollapsedByDefault(true);
@@ -270,6 +272,13 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         }
 
         plotNeedsRedraw = true;
+    }
+    else if (changedField == &m_showLegend)
+    {
+        for (size_t i = 0; i < m_curves().size(); ++i)
+        {
+            m_curves()[i]->showLegend(m_showLegend());
+        }
     }
     else
     {

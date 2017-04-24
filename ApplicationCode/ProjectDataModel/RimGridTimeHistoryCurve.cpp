@@ -428,6 +428,7 @@ void RimGridTimeHistoryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiO
     }
 
     uiOrdering.add(&m_plotAxis);
+    uiOrdering.add(&m_showLegend);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);

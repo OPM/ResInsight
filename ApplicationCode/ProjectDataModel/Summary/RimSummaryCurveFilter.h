@@ -110,6 +110,7 @@ private:
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
     caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+    caf::PdmField<bool>                       m_showLegend;
 
 
     // Filter fields

@@ -90,6 +90,8 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
 
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Show Legend", "", "", "");
+
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
 
     m_parentQwtPlot = NULL;
@@ -138,6 +140,10 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
         }
 
         updateCurveName();
+    }
+    else if (changedField == &m_showLegend)
+    {
+        updateLegendVisibility();
     }
 
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
@@ -255,6 +261,7 @@ void RimPlotCurve::updateCurveName()
     }
 
     m_qwtPlotCurve->setTitle(m_curveName);
+    updateLegendVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -420,3 +427,37 @@ void RimPlotCurve::setLineThickness(int thickness)
     m_curveThickness = thickness;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::showLegend(bool show)
+{
+    m_showLegend = show;
+    updateLegendVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendVisibility()
+{
+    if (m_showLegend()) {
+        if (m_curveName().isEmpty())
+        {
+            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+        }
+        else
+        {
+            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
+        }
+    }
+    else
+    {
+        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+    }
+
+    if (m_parentQwtPlot != nullptr)
+    {
+        m_parentQwtPlot->updateLegend();
+    }
+}

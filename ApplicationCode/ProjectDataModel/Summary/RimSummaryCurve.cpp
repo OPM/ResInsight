@@ -446,6 +446,7 @@ void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     curveVarSelectionGroup->add(&m_uiFilterResultSelection);
 
     uiOrdering.add(&m_plotAxis);
+    uiOrdering.add(&m_showLegend);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
