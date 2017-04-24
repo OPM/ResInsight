@@ -213,9 +213,11 @@ private:
     
     void                    storeTreeViewState();
 
+    void                    resizeMaximizedPlotWindows();
     void                    updateRegressionTest(const QString& testRootPath);
     void                    regressionTestConfigureProject();
     static QSize            regressionDefaultImageSize();
+
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                slotUpdateScheduledDisplayModels();

@@ -2381,6 +2381,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
             regressionTestConfigureProject();
 
+            resizeMaximizedPlotWindows();
+
             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
             saveSnapshotForAllViews(fullPathGeneratedFolder);
 
@@ -2414,6 +2416,36 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
 
     m_runningRegressionTests = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::resizeMaximizedPlotWindows()
+{
+    std::vector<RimViewWindow*> viewWindows;
+    for (auto viewWindow : viewWindows)
+    {
+        if (viewWindow->isMdiWindow())
+        {
+            RimMdiWindowGeometry wndGeo = viewWindow->mdiWindowGeometry();
+            if (wndGeo.isMaximized)
+            {
+                QWidget* viewWidget = viewWindow->viewWidget();
+
+                if (viewWidget)
+                {
+                    QMdiSubWindow* mdiWindow = m_mainPlotWindow->findMdiSubWindow(viewWidget);
+                    if (mdiWindow)
+                    {
+                        mdiWindow->showNormal();
+
+                        viewWidget->resize(RiaApplication::regressionDefaultImageSize());
+                    }
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2809,7 +2841,6 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
         mainWnd->loadWinGeoAndDockToolBarLayout();
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
