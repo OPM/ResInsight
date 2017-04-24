@@ -150,7 +150,7 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
         int idx = 0;
         for (auto& pair : m_caseToAppearanceIdxMap)
         {
-            pair.second = static_cast<int>(caseAppearanceIndices[pair.first->caseName().toUtf8().constData()]);
+            pair.second = static_cast<int>(caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()]);
         }
     }
     {
