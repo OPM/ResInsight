@@ -137,8 +137,6 @@ public:
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
-    void                updateRegressionTest(const QString& testRootPath );
-    void                regressionTestConfigureProject();
 
     void                processNonGuiEvents();
 
@@ -215,6 +213,8 @@ private:
     
     void                    storeTreeViewState();
 
+    void                    updateRegressionTest(const QString& testRootPath);
+    void                    regressionTestConfigureProject();
     static QSize            regressionDefaultImageSize();
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
