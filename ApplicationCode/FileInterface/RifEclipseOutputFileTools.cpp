@@ -382,8 +382,9 @@ void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_t
                         int namedKeywordCount = ecl_file_get_num_named_kw(ecl_file, kw);
                         for (int iOcc = 0; iOcc < namedKeywordCount; iOcc++)
                         {
-                            ecl_type_enum dataType = ecl_file_iget_named_type(ecl_file, kw, iOcc);
-                            if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE)
+                            ecl_data_type dataType = ecl_file_iget_named_data_type(ecl_file, kw, iOcc);
+                            ecl_type_enum dataTypeEmum = ecl_type_get_type(dataType);
+                            if (dataTypeEmum != ECL_DOUBLE_TYPE && dataTypeEmum != ECL_FLOAT_TYPE && dataTypeEmum != ECL_INT_TYPE)
                             {
                                 continue;
                             }
