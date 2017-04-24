@@ -27,9 +27,9 @@
 #include <ert/util/int_vector.h>
 
 #include <ert/ecl/ecl_kw.h>
-#include <ert/ecl/ecl_util.h>
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_type.h>
 
 
 #define ECL_KW_TYPE_ID  6111098
@@ -41,8 +41,7 @@
 struct ecl_kw_struct {
   UTIL_TYPE_ID_DECLARATION;
   int               size;
-  int               sizeof_ctype;
-  ecl_type_enum     ecl_type;
+  ecl_data_type     data_type;
   char            * header8;              /* Header which is right padded with ' ' to become exactly 8 characters long. Should only be used internally.*/
   char            * header;               /* Header which is trimmed to no-space. */
   char            * data;                 /* The actual data vector. */
@@ -159,9 +158,11 @@ UTIL_IS_INSTANCE_FUNCTION(ecl_kw , ECL_KW_TYPE_ID )
 #define BOOL_FALSE_CHAR      'F'
 
 
+ecl_type_enum  ecl_kw_get_type(const ecl_kw_type *);
+void ecl_kw_set_data_type(ecl_kw_type * ecl_kw, ecl_data_type data_type);
 
-static const char * get_read_fmt( ecl_type_enum ecl_type ) {
-  switch(ecl_type) {
+static const char * get_read_fmt(const ecl_data_type data_type ) {
+  switch(ecl_type_get_type(data_type)) {
   case(ECL_CHAR_TYPE):
     return READ_FMT_CHAR;
     break;
@@ -184,14 +185,14 @@ static const char * get_read_fmt( ecl_type_enum ecl_type ) {
     return READ_FMT_MESS;
     break;
   default:
-    util_abort("%s: invalid ecl_type:%d \n",__func__ , ecl_type);
+    util_abort("%s: invalid ecl_type:%d \n",__func__ , ecl_type_get_type(data_type));
     return NULL;
   }
 }
 
 
-const char * ecl_kw_get_write_fmt( ecl_type_enum ecl_type ) {
-  switch(ecl_type) {
+static const char * ecl_kw_get_write_fmt(const ecl_data_type data_type) {
+  switch(ecl_type_get_type(data_type)) {
   case(ECL_CHAR_TYPE):
     return WRITE_FMT_CHAR;
     break;
@@ -214,27 +215,27 @@ const char * ecl_kw_get_write_fmt( ecl_type_enum ecl_type ) {
     return WRITE_FMT_MESS;
     break;
   default:
-    util_abort("%s: invalid ecl_type:%d \n",__func__ , ecl_type);
+    util_abort("%s: invalid ecl_type:%d \n",__func__ , ecl_type_get_type(data_type));
     return NULL;
   }
 }
 
-static int get_blocksize( ecl_type_enum ecl_type ) {
-  if (ecl_type == ECL_CHAR_TYPE)
+static int get_blocksize( ecl_data_type data_type ) {
+  if (ecl_type_is_char(data_type))
     return BLOCKSIZE_CHAR;
 
-  if (ecl_type == ECL_MESS_TYPE)
+  if (ecl_type_is_mess(data_type))
     return BLOCKSIZE_CHAR;
 
-  if (ecl_type == ECL_C010_TYPE)
+  if (ecl_type_is_C010(data_type))
     return BLOCKSIZE_C010;
 
-    return BLOCKSIZE_NUMERIC;
+  return BLOCKSIZE_NUMERIC;
 }
 
 
-static int get_columns( ecl_type_enum ecl_type ) {
-  switch(ecl_type) {
+static int get_columns(const ecl_data_type data_type) {
+  switch(ecl_type_get_type(data_type)) {
   case(ECL_CHAR_TYPE):
     return COLUMNS_CHAR;
     break;
@@ -254,7 +255,7 @@ static int get_columns( ecl_type_enum ecl_type ) {
     return COLUMNS_MESSAGE;
     break;
   default:
-    util_abort("%s: invalid ecl_type:%d \n",__func__ , ecl_type);
+    util_abort("%s: invalid ecl_type:%d \n",__func__ , ecl_type_get_type(data_type));
     return -1;
   }
 }
@@ -271,8 +272,8 @@ static void ecl_kw_assert_index(const ecl_kw_type *ecl_kw , int index, const cha
 
 
 static void ecl_kw_endian_convert_data(ecl_kw_type *ecl_kw) {
-  if (ecl_kw->ecl_type != ECL_CHAR_TYPE && ecl_kw->ecl_type != ECL_MESS_TYPE)
-    util_endian_flip_vector(ecl_kw->data , ecl_kw->sizeof_ctype , ecl_kw->size);
+  if (ecl_type_is_numeric(ecl_kw->data_type) || ecl_type_is_bool(ecl_kw->data_type))
+    util_endian_flip_vector(ecl_kw->data , ecl_kw_get_sizeof_ctype(ecl_kw) , ecl_kw->size);
 }
 
 
@@ -294,35 +295,35 @@ bool ecl_kw_name_equal( const ecl_kw_type * ecl_kw , const char * name) {
 
 
 void ecl_kw_get_memcpy_data(const ecl_kw_type *ecl_kw , void *target) {
-  memcpy(target , ecl_kw->data , ecl_kw->size * ecl_kw->sizeof_ctype);
+  memcpy(target , ecl_kw->data , ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw));
 }
 
 void ecl_kw_get_memcpy_int_data(const ecl_kw_type *ecl_kw , int * target) {
-  if (ecl_kw->ecl_type == ECL_INT_TYPE)
+  if (ecl_type_is_int(ecl_kw->data_type))
     ecl_kw_get_memcpy_data( ecl_kw , target );
 }
 
 void ecl_kw_get_memcpy_float_data(const ecl_kw_type *ecl_kw , float *target) {
-  if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  if (ecl_type_is_float(ecl_kw->data_type))
     ecl_kw_get_memcpy_data( ecl_kw , target );
 }
 
 void ecl_kw_get_memcpy_double_data(const ecl_kw_type *ecl_kw , double *target) {
-if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+if (ecl_type_is_double(ecl_kw->data_type))
     ecl_kw_get_memcpy_data( ecl_kw , target );
 }
 
 
 /** Allocates a untyped buffer with exactly the same content as the ecl_kw instances data. */
 void * ecl_kw_alloc_data_copy(const ecl_kw_type * ecl_kw) {
-  void * buffer = util_alloc_copy( ecl_kw->data , ecl_kw->size * ecl_kw->sizeof_ctype );
+  void * buffer = util_alloc_copy( ecl_kw->data , ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw) );
   return buffer;
 }
 
 
 void ecl_kw_set_memcpy_data(ecl_kw_type *ecl_kw , const void *src) {
   if (src != NULL)
-    memcpy(ecl_kw->data , src , ecl_kw->size * ecl_kw->sizeof_ctype);
+    memcpy(ecl_kw->data , src , ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw));
 }
 
 
@@ -358,14 +359,8 @@ bool ecl_kw_ichar_eq(const ecl_kw_type *ecl_kw , int i , const char *value) {
 
 
 bool ecl_kw_size_and_type_equal( const ecl_kw_type *ecl_kw1 , const ecl_kw_type * ecl_kw2 ) {
-  bool equal = true;
-
-  if (ecl_kw1->size != ecl_kw2->size)
-    equal = false;
-  else if (ecl_kw1->ecl_type != ecl_kw2->ecl_type)
-    equal = false;
-
-  return equal;
+  return (ecl_kw1->size == ecl_kw2->size &&
+          ecl_type_is_equal(ecl_kw1->data_type, ecl_kw2->data_type));
 }
 
 
@@ -381,7 +376,7 @@ bool ecl_kw_header_eq(const ecl_kw_type *ecl_kw1 , const ecl_kw_type * ecl_kw2) 
 }
 
 static bool ecl_kw_data_equal__( const ecl_kw_type * ecl_kw , const void * data , int cmp_elements) {
-  int cmp = memcmp( ecl_kw->data , data , cmp_elements * ecl_kw->sizeof_ctype);
+  int cmp = memcmp( ecl_kw->data , data , cmp_elements * ecl_kw_get_sizeof_ctype(ecl_kw));
   if (cmp == 0)
     return true;
   else
@@ -455,22 +450,15 @@ ECL_KW_NUMERIC_CMP( double )
 */
 
 bool ecl_kw_numeric_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2 , double abs_diff , double rel_diff) {
-  bool equal = true;
-  if ( ecl_kw1->ecl_type != ecl_kw2->ecl_type)
-    equal = false;
+  if(!ecl_kw_size_and_type_equal(ecl_kw1, ecl_kw2))
+    return false;
 
-  if ( ecl_kw1->size != ecl_kw2->size)
-    equal = false;
-
-  if (equal) {
-    if (ecl_kw1->ecl_type == ECL_FLOAT_TYPE)
-      equal = ecl_kw_numeric_equal_float( ecl_kw1 , ecl_kw2 , abs_diff , rel_diff );
-    else if (ecl_kw1->ecl_type == ECL_DOUBLE_TYPE)
-      equal = ecl_kw_numeric_equal_double( ecl_kw1 , ecl_kw2 , abs_diff , rel_diff );
-    else
-      equal = ecl_kw_data_equal( ecl_kw1 , ecl_kw2->data );
-  }
-  return equal;
+  if (ecl_type_is_float(ecl_kw1->data_type))
+    return ecl_kw_numeric_equal_float( ecl_kw1 , ecl_kw2 , abs_diff , rel_diff );
+  else if (ecl_type_is_double(ecl_kw1->data_type))
+    return ecl_kw_numeric_equal_double( ecl_kw1 , ecl_kw2 , abs_diff , rel_diff );
+  else
+    return ecl_kw_data_equal( ecl_kw1 , ecl_kw2->data );
 }
 
 
@@ -498,9 +486,8 @@ static void ecl_kw_set_shared_ref(ecl_kw_type * ecl_kw , void *data_ptr) {
 
 
 
-static void ecl_kw_initialize(ecl_kw_type * ecl_kw , const char *header ,  int size , ecl_type_enum ecl_type) {
-  ecl_kw->ecl_type     = ecl_type;
-  ecl_kw->sizeof_ctype = ecl_util_get_sizeof_ctype(ecl_kw->ecl_type);
+static void ecl_kw_initialize(ecl_kw_type * ecl_kw , const char *header ,  int size , ecl_data_type data_type) {
+  ecl_kw_set_data_type(ecl_kw, data_type);
   if (strlen(header) > ECL_STRING8_LENGTH)
     util_abort("%s: Fatal error: ecl_header_name:%s is longer than eight characters - aborting \n",__func__,header);
 
@@ -509,11 +496,11 @@ static void ecl_kw_initialize(ecl_kw_type * ecl_kw , const char *header ,  int s
 }
 
 static size_t ecl_kw_fortio_data_size( const ecl_kw_type * ecl_kw) {
-  const int blocksize  = get_blocksize( ecl_kw->ecl_type );
+  const int blocksize  = get_blocksize( ecl_kw->data_type );
   const int num_blocks = ecl_kw->size / blocksize + (ecl_kw->size % blocksize == 0 ? 0 : 1);
 
   return num_blocks * (4 + 4) +                                           // Fortran fluff for each block
-    ecl_kw->size * ecl_util_get_sizeof_ctype_fortio( ecl_kw->ecl_type );  // Actual data
+    ecl_kw->size * ecl_type_get_sizeof_ctype_fortio( ecl_kw->data_type );  // Actual data
 }
 
 
@@ -534,10 +521,10 @@ size_t ecl_kw_fortio_size( const ecl_kw_type * ecl_kw ) {
 /**
    The data is copied from the input argument to the ecl_kw; data can be NULL.
 */
-ecl_kw_type * ecl_kw_alloc_new(const char * header ,  int size, ecl_type_enum ecl_type , const void * data) {
+ecl_kw_type * ecl_kw_alloc_new(const char * header ,  int size, ecl_data_type data_type , const void * data) {
   ecl_kw_type *ecl_kw;
   ecl_kw = ecl_kw_alloc_empty();
-  ecl_kw_initialize(ecl_kw , header , size , ecl_type);
+  ecl_kw_initialize(ecl_kw , header , size , data_type);
   if (data != NULL) {
     ecl_kw_alloc_data(ecl_kw);
     ecl_kw_set_memcpy_data(ecl_kw , data);
@@ -547,14 +534,14 @@ ecl_kw_type * ecl_kw_alloc_new(const char * header ,  int size, ecl_type_enum ec
 
 
 
-ecl_kw_type * ecl_kw_alloc( const char * header , int size , ecl_type_enum ecl_type ) {
-  if (ecl_type == ECL_C010_TYPE)
+ecl_kw_type * ecl_kw_alloc( const char * header , int size , ecl_data_type data_type ) {
+  if (ecl_type_is_C010(data_type))
     return NULL;
   {
     ecl_kw_type *ecl_kw;
 
     ecl_kw = ecl_kw_alloc_empty();
-    ecl_kw_initialize(ecl_kw , header , size , ecl_type);
+    ecl_kw_initialize(ecl_kw , header , size , data_type);
     ecl_kw_alloc_data(ecl_kw);
 
     return ecl_kw;
@@ -563,10 +550,10 @@ ecl_kw_type * ecl_kw_alloc( const char * header , int size , ecl_type_enum ecl_t
 
 
 
-ecl_kw_type * ecl_kw_alloc_new_shared(const char * header ,  int size, ecl_type_enum ecl_type , void * data) {
+ecl_kw_type * ecl_kw_alloc_new_shared(const char * header ,  int size, ecl_data_type data_type , void * data) {
   ecl_kw_type *ecl_kw;
   ecl_kw = ecl_kw_alloc_empty();
-  ecl_kw_initialize(ecl_kw , header , size , ecl_type);
+  ecl_kw_initialize(ecl_kw , header , size , data_type);
   ecl_kw_set_shared_ref(ecl_kw , data);
   return ecl_kw;
 }
@@ -582,7 +569,6 @@ ecl_kw_type * ecl_kw_alloc_empty() {
   ecl_kw->data           = NULL;
   ecl_kw->shared_data    = false;
   ecl_kw->size           = 0;
-  ecl_kw->sizeof_ctype   = 0;
 
   UTIL_TYPE_ID_INIT(ecl_kw , ECL_KW_TYPE_ID);
 
@@ -604,19 +590,17 @@ void ecl_kw_free__(void *void_ecl_kw) {
 
 
 void ecl_kw_memcpy_data( ecl_kw_type * target , const ecl_kw_type * src) {
-  if (!ecl_kw_assert_binary( target , src ))
+  if (!ecl_kw_size_and_type_equal( target , src ))
     util_abort("%s: type/size mismatch \n",__func__);
 
-  memcpy(target->data , src->data , target->size * target->sizeof_ctype);
+  memcpy(target->data , src->data , target->size * ecl_kw_get_sizeof_ctype(target));
 }
 
 
 
 void ecl_kw_memcpy(ecl_kw_type *target, const ecl_kw_type *src) {
   target->size                = src->size;
-  target->sizeof_ctype        = src->sizeof_ctype;
-  target->ecl_type            = src->ecl_type;
-
+  ecl_kw_set_data_type(target, src->data_type);
 
   ecl_kw_set_header_name( target , src->header );
   ecl_kw_alloc_data(target);
@@ -664,7 +648,7 @@ ecl_kw_type * ecl_kw_alloc_slice_copy( const ecl_kw_type * src, int index1, int 
       }
       if (new_size > 0) {
         new_kw = ecl_kw_alloc_empty();
-        ecl_kw_initialize(new_kw , src->header , new_size , src->ecl_type);
+        ecl_kw_initialize(new_kw , src->header , new_size , src->data_type);
         ecl_kw_alloc_data(new_kw);
 
         /* 2: Copy over the elements. */
@@ -673,7 +657,7 @@ ecl_kw_type * ecl_kw_alloc_slice_copy( const ecl_kw_type * src, int index1, int 
           int target_index = 0;
           const char * src_ptr = src->data;
           char * new_ptr = new_kw->data;
-          int sizeof_ctype = new_kw->sizeof_ctype;
+          int sizeof_ctype = ecl_kw_get_sizeof_ctype(new_kw);
 
           while ( src_index < index2 ) {
             memcpy( &new_ptr[ target_index * sizeof_ctype ] , &src_ptr[ src_index * sizeof_ctype ] , sizeof_ctype );
@@ -694,8 +678,8 @@ void ecl_kw_resize( ecl_kw_type * ecl_kw, int new_size) {
     util_abort("%s: trying to allocate data for ecl_kw object which has been declared with shared storage - aborting \n",__func__);
 
   if (new_size != ecl_kw->size) {
-    size_t old_byte_size = ecl_kw->size * ecl_kw->sizeof_ctype;
-    size_t new_byte_size = new_size * ecl_kw->sizeof_ctype;
+    size_t old_byte_size = ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw);
+    size_t new_byte_size = new_size * ecl_kw_get_sizeof_ctype(ecl_kw);
 
     ecl_kw->data = util_realloc(ecl_kw->data , new_byte_size );
     if (new_byte_size > old_byte_size) {
@@ -727,7 +711,7 @@ ecl_kw_type * ecl_kw_alloc_sub_copy( const ecl_kw_type * src, const char * new_k
 
   {
     void * src_data = ecl_kw_iget_ptr( src , offset );
-    return ecl_kw_alloc_new( new_kw , count , src->ecl_type , src_data );
+    return ecl_kw_alloc_new( new_kw , count , src->data_type , src_data );
   }
 }
 
@@ -739,18 +723,18 @@ const void * ecl_kw_copyc__(const void * void_kw) {
 
 static void * ecl_kw_iget_ptr_static(const ecl_kw_type *ecl_kw , int i) {
   ecl_kw_assert_index(ecl_kw , i , __func__);
-  return &ecl_kw->data[i * ecl_kw->sizeof_ctype];
+  return &ecl_kw->data[i * ecl_kw_get_sizeof_ctype(ecl_kw)];
 }
 
 
 static void ecl_kw_iget_static(const ecl_kw_type *ecl_kw , int i , void *iptr) {
-  memcpy(iptr , ecl_kw_iget_ptr_static(ecl_kw , i) , ecl_kw->sizeof_ctype);
+  memcpy(iptr , ecl_kw_iget_ptr_static(ecl_kw , i) , ecl_kw_get_sizeof_ctype(ecl_kw));
 }
 
 
 static void ecl_kw_iset_static(ecl_kw_type *ecl_kw , int i , const void *iptr) {
   ecl_kw_assert_index(ecl_kw , i , __func__);
-  memcpy(&ecl_kw->data[i * ecl_kw->sizeof_ctype] , iptr, ecl_kw->sizeof_ctype);
+  memcpy(&ecl_kw->data[i * ecl_kw_get_sizeof_ctype(ecl_kw)] , iptr, ecl_kw_get_sizeof_ctype(ecl_kw));
 }
 
 
@@ -764,11 +748,11 @@ void ecl_kw_iget(const ecl_kw_type *ecl_kw , int i , void *iptr) {
    float and int.
 */
 double ecl_kw_iget_as_double(const ecl_kw_type * ecl_kw , int index) {
-  if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  if (ecl_type_is_float(ecl_kw->data_type))
     return ecl_kw_iget_float( ecl_kw , index); /* Here the compiler will silently insert a float -> double conversion. */
-  else if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+  else if (ecl_type_is_double(ecl_kw->data_type))
     return ecl_kw_iget_double( ecl_kw, index);
-  else if (ecl_kw->ecl_type == ECL_INT_TYPE)
+  else if (ecl_type_is_int(ecl_kw->data_type))
     return ecl_kw_iget_int( ecl_kw, index); /*  */
   else {
     util_abort("%s: can not be converted to double - no data for you! \n",__func__);
@@ -781,9 +765,9 @@ double ecl_kw_iget_as_double(const ecl_kw_type * ecl_kw , int index) {
 */
 
 float ecl_kw_iget_as_float(const ecl_kw_type * ecl_kw , int i) {
-  if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  if (ecl_type_is_float(ecl_kw->data_type))
     return ecl_kw_iget_float( ecl_kw , i);
-  else if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+  else if (ecl_type_is_double(ecl_kw->data_type))
     return (float) ecl_kw_iget_double( ecl_kw, i);
   else {
     util_abort("%s: can not be converted to float - no data for you! \n",__func__);
@@ -1091,10 +1075,10 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
   const char null_char         = '\0';
   bool fmt_file                = fortio_fmt_file( fortio );
   if (ecl_kw->size > 0) {
-    const int blocksize = get_blocksize( ecl_kw->ecl_type );
+    const int blocksize = get_blocksize( ecl_kw->data_type );
     if (fmt_file) {
       const int blocks      = ecl_kw->size / blocksize + (ecl_kw->size % blocksize == 0 ? 0 : 1);
-      const char * read_fmt = get_read_fmt( ecl_kw->ecl_type );
+      const char * read_fmt = get_read_fmt( ecl_kw->data_type );
       FILE * stream         = fortio_get_FILE(fortio);
       int    offset         = 0;
       int    index          = 0;
@@ -1102,7 +1086,7 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
       for (ib = 0; ib < blocks; ib++) {
         int read_elm = util_int_min((ib + 1) * blocksize , ecl_kw->size) - ib * blocksize;
         for (ir = 0; ir < read_elm; ir++) {
-          switch(ecl_kw->ecl_type) {
+          switch(ecl_kw_get_type(ecl_kw)) {
           case(ECL_CHAR_TYPE):
             ecl_kw_fscanf_qstring(&ecl_kw->data[offset] , read_fmt , 8, stream);
             break;
@@ -1110,7 +1094,7 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
             {
               int iread = fscanf(stream , read_fmt , (int *) &ecl_kw->data[offset]);
               if (iread != 1)
-                util_abort("%s: after reading %d values reading of keyword:%s from:%s failed - aborting \n",__func__ , offset / ecl_kw->sizeof_ctype , ecl_kw->header8 , fortio_filename_ref(fortio));
+                util_abort("%s: after reading %d values reading of keyword:%s from:%s failed - aborting \n",__func__ , offset / ecl_kw_get_sizeof_ctype(ecl_kw) , ecl_kw->header8 , fortio_filename_ref(fortio));
             }
             break;
           case(ECL_FLOAT_TYPE):
@@ -1118,7 +1102,7 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
               int iread = fscanf(stream , read_fmt , (float *) &ecl_kw->data[offset]);
               if (iread != 1) {
                 util_abort("%s: after reading %d values reading of keyword:%s from:%s failed - aborting \n",__func__ ,
-                           offset / ecl_kw->sizeof_ctype ,
+                           offset / ecl_kw_get_sizeof_ctype(ecl_kw) ,
                            ecl_kw->header8 ,
                            fortio_filename_ref(fortio));
               }
@@ -1148,9 +1132,9 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
             ecl_kw_fscanf_qstring(&ecl_kw->data[offset] , read_fmt , 8 , stream);
             break;
           default:
-            util_abort("%s: Internal error: internal eclipse_type: %d not recognized - aborting \n",__func__ , ecl_kw->ecl_type);
+            util_abort("%s: Internal error: internal eclipse_type: %d not recognized - aborting \n",__func__ , ecl_kw_get_type(ecl_kw));
           }
-          offset += ecl_kw->sizeof_ctype;
+          offset += ecl_kw_get_sizeof_ctype(ecl_kw);
           index++;
         }
       }
@@ -1160,7 +1144,7 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
       return true;
     } else {
       bool read_ok = true;
-      if (ecl_kw->ecl_type == ECL_CHAR_TYPE || ecl_kw->ecl_type == ECL_MESS_TYPE) {
+      if (ecl_type_is_char(ecl_kw->data_type) || ecl_type_is_mess(ecl_kw->data_type)) {
         const int blocks = ecl_kw->size / blocksize + (ecl_kw->size % blocksize == 0 ? 0 : 1);
         int ib = 0;
         while (true) {
@@ -1174,8 +1158,8 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
           if (record_size >= 0) {
             int ir;
             for (ir = 0; ir < read_elm; ir++) {
-              util_fread( &ecl_kw->data[(ib * blocksize + ir) * ecl_kw->sizeof_ctype] , 1 , ECL_STRING8_LENGTH , stream , __func__);
-              ecl_kw->data[(ib * blocksize + ir) * ecl_kw->sizeof_ctype + ECL_STRING8_LENGTH] = null_char;
+              util_fread( &ecl_kw->data[(ib * blocksize + ir) * ecl_kw_get_sizeof_ctype(ecl_kw)] , 1 , ECL_STRING8_LENGTH , stream , __func__);
+              ecl_kw->data[(ib * blocksize + ir) * ecl_kw_get_sizeof_ctype(ecl_kw) + ECL_STRING8_LENGTH] = null_char;
             }
             read_ok = fortio_complete_read(fortio , record_size);
           } else
@@ -1193,7 +1177,7 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
            This function handles the fuc***g blocks transparently at a
            low level.
         */
-        read_ok = fortio_fread_buffer(fortio , ecl_kw->data , ecl_kw->size * ecl_kw->sizeof_ctype);
+        read_ok = fortio_fread_buffer(fortio , ecl_kw->data , ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw));
         if (read_ok && ECL_ENDIAN_FLIP)
           ecl_kw_endian_convert_data(ecl_kw);
       }
@@ -1205,13 +1189,13 @@ bool ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
 }
 
 
-void ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_type_enum ecl_type, int element_count, const int_vector_type* index_map, char* buffer) {
-    const int block_size = get_blocksize( ecl_type );
+void ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_data_type data_type, int element_count, const int_vector_type* index_map, char* buffer) {
+    const int block_size = get_blocksize(data_type);
     FILE *stream  = fortio_get_FILE( fortio );
     int index;
-    int element_size = ecl_util_get_sizeof_ctype(ecl_type);
+    int element_size = ecl_type_get_sizeof_ctype(data_type);
 
-    if(ecl_type == ECL_CHAR_TYPE || ecl_type == ECL_MESS_TYPE) {
+    if(ecl_type_is_char(data_type) || ecl_type_is_mess(data_type)) {
         element_size = ECL_STRING8_LENGTH;
     }
 
@@ -1243,26 +1227,26 @@ bool ecl_kw_fread_realloc_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
    Static method without a class instance.
 */
 
-bool ecl_kw_fskip_data__( ecl_type_enum ecl_type , const int element_count , fortio_type * fortio) {
+bool ecl_kw_fskip_data__( ecl_data_type data_type , const int element_count , fortio_type * fortio) {
   bool fmt_file = fortio_fmt_file(fortio);
   bool skip_ok = true;
   if (element_count > 0) {
     if (fmt_file) {
       /* Formatted skipping actually involves reading the data - nice ??? */
       ecl_kw_type * tmp_kw = ecl_kw_alloc_empty( );
-      ecl_kw_initialize( tmp_kw , "WORK" , element_count , ecl_type );
+      ecl_kw_initialize( tmp_kw , "WORK" , element_count , data_type );
       ecl_kw_alloc_data(tmp_kw);
       ecl_kw_fread_data(tmp_kw , fortio);
       ecl_kw_free( tmp_kw );
     } else {
-      const int blocksize = get_blocksize( ecl_type );
+      const int blocksize = get_blocksize( data_type );
       const int block_count = element_count / blocksize + (element_count % blocksize == 0 ? 0 : 1);
 
-      int element_size = ecl_util_get_sizeof_ctype(ecl_type );
-      if(ecl_type == ECL_CHAR_TYPE)
+      int element_size = ecl_type_get_sizeof_ctype(data_type);
+      if(ecl_type_is_char(data_type))
         element_size = ECL_STRING8_LENGTH;
 
-      if(ecl_type == ECL_C010_TYPE)
+      if(ecl_type_is_C010(data_type))
         element_size = ECL_STRING10_LENGTH;
 
       skip_ok = fortio_data_fskip(fortio, element_size, element_count, block_count);
@@ -1273,7 +1257,7 @@ bool ecl_kw_fskip_data__( ecl_type_enum ecl_type , const int element_count , for
 
 
 bool ecl_kw_fskip_data(ecl_kw_type *ecl_kw, fortio_type *fortio) {
-  return ecl_kw_fskip_data__( ecl_kw->ecl_type , ecl_kw->size , fortio );
+  return ecl_kw_fskip_data__( ecl_kw_get_data_type(ecl_kw) , ecl_kw->size , fortio );
 }
 
 
@@ -1341,10 +1325,10 @@ ecl_read_status_enum ecl_kw_fread_header(ecl_kw_type *ecl_kw , fortio_type * for
   }
 
   if (OK) {
-    ecl_type_enum ecl_type = ecl_util_get_type_from_name( ecl_type_str );
-    ecl_kw_initialize( ecl_kw , header , size , ecl_type);
+    ecl_data_type data_type = ecl_type_create_from_name( ecl_type_str );
+    ecl_kw_initialize( ecl_kw , header , size , data_type);
 
-    if (ecl_type == ECL_C010_TYPE)
+    if (ecl_type_is_C010(data_type))
       return ECL_KW_READ_SKIP;
 
     return ECL_KW_READ_OK;
@@ -1456,7 +1440,7 @@ void ecl_kw_alloc_data(ecl_kw_type *ecl_kw) {
     util_abort("%s: trying to allocate data for ecl_kw object which has been declared with shared storage - aborting \n",__func__);
 
   {
-    size_t byte_size = ecl_kw->size * ecl_kw->sizeof_ctype;
+    size_t byte_size = ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw);
     ecl_kw->data = util_realloc(ecl_kw->data , byte_size );
     memset(ecl_kw->data , 0 , byte_size);
   }
@@ -1483,6 +1467,9 @@ void ecl_kw_set_header_name(ecl_kw_type * ecl_kw , const char * header) {
 }
 
 
+void ecl_kw_set_data_type(ecl_kw_type * ecl_kw, ecl_data_type data_type) {
+    memcpy(&ecl_kw->data_type, &data_type, sizeof data_type);
+}
 
 
 bool ecl_kw_fread_realloc(ecl_kw_type *ecl_kw , fortio_type *fortio) {
@@ -1533,13 +1520,13 @@ static void ecl_kw_fwrite_data_unformatted( ecl_kw_type * ecl_kw , fortio_type *
     ecl_kw_endian_convert_data(ecl_kw);
 
   {
-    const int blocksize  = get_blocksize( ecl_kw->ecl_type );
+    const int blocksize  = get_blocksize( ecl_kw->data_type );
     const int num_blocks = ecl_kw->size / blocksize + (ecl_kw->size % blocksize == 0 ? 0 : 1);
     int block_nr;
 
     for (block_nr = 0; block_nr < num_blocks; block_nr++) {
       int this_blocksize = util_int_min((block_nr + 1)*blocksize , ecl_kw->size) - block_nr*blocksize;
-      if (ecl_kw->ecl_type == ECL_CHAR_TYPE || ecl_kw->ecl_type == ECL_MESS_TYPE) {
+      if (ecl_type_is_char(ecl_kw->data_type) || ecl_type_is_mess(ecl_kw->data_type)) {
         /*
            Due to the terminating \0 characters there is not a
            continous file/memory mapping - the \0 characters arel
@@ -1550,11 +1537,11 @@ static void ecl_kw_fwrite_data_unformatted( ecl_kw_type * ecl_kw , fortio_type *
         int   i;
         fortio_init_write(fortio , record_size );
         for (i = 0; i < this_blocksize; i++)
-          fwrite(&ecl_kw->data[(block_nr * blocksize + i) * ecl_kw->sizeof_ctype] , 1 , ECL_STRING8_LENGTH , stream);
+          fwrite(&ecl_kw->data[(block_nr * blocksize + i) * ecl_kw_get_sizeof_ctype(ecl_kw)] , 1 , ECL_STRING8_LENGTH , stream);
         fortio_complete_write(fortio , record_size);
       } else {
-        int   record_size = this_blocksize * ecl_kw->sizeof_ctype;  /* The total size in bytes of the record written by the fortio layer. */
-        fortio_fwrite_record(fortio , &ecl_kw->data[block_nr * blocksize * ecl_kw->sizeof_ctype] , record_size);
+        int   record_size = this_blocksize * ecl_kw_get_sizeof_ctype(ecl_kw);  /* The total size in bytes of the record written by the fortio layer. */
+        fortio_fwrite_record(fortio , &ecl_kw->data[block_nr * blocksize * ecl_kw_get_sizeof_ctype(ecl_kw)] , record_size);
       }
     }
   }
@@ -1606,9 +1593,9 @@ static void ecl_kw_fwrite_data_formatted( ecl_kw_type * ecl_kw , fortio_type * f
   {
 
     FILE * stream           = fortio_get_FILE( fortio );
-    const int blocksize     = get_blocksize( ecl_kw->ecl_type );
-    const  int columns      = get_columns( ecl_kw->ecl_type );
-    const  char * write_fmt = ecl_kw_get_write_fmt( ecl_kw->ecl_type );
+    const int blocksize     = get_blocksize( ecl_kw->data_type );
+    const  int columns      = get_columns( ecl_kw->data_type );
+    const  char * write_fmt = ecl_kw_get_write_fmt( ecl_kw->data_type );
     const int num_blocks    = ecl_kw->size / blocksize + (ecl_kw->size % blocksize == 0 ? 0 : 1);
     int block_nr;
 
@@ -1622,7 +1609,7 @@ static void ecl_kw_fwrite_data_formatted( ecl_kw_type * ecl_kw , fortio_type * f
         for (col_nr =0; col_nr < num_columns; col_nr++) {
           int data_index  = block_nr * blocksize + line_nr * columns + col_nr;
           void * data_ptr = ecl_kw_iget_ptr_static( ecl_kw , data_index );
-          switch (ecl_kw->ecl_type) {
+          switch (ecl_kw_get_type(ecl_kw)) {
           case(ECL_CHAR_TYPE):
             fprintf(stream , write_fmt , data_ptr);
             break;
@@ -1684,7 +1671,7 @@ void ecl_kw_fwrite_header(const ecl_kw_type *ecl_kw , fortio_type *fortio) {
   FILE *stream  = fortio_get_FILE(fortio);
   bool fmt_file = fortio_fmt_file(fortio);
   if (fmt_file)
-    fprintf(stream , WRITE_HEADER_FMT , ecl_kw->header8 , ecl_kw->size , ecl_util_get_type_name( ecl_kw->ecl_type ));
+    fprintf(stream , WRITE_HEADER_FMT , ecl_kw->header8 , ecl_kw->size , ecl_type_get_name( ecl_kw->data_type ));
   else {
     int size = ecl_kw->size;
     if (ECL_ENDIAN_FLIP)
@@ -1694,7 +1681,7 @@ void ecl_kw_fwrite_header(const ecl_kw_type *ecl_kw , fortio_type *fortio) {
 
     fwrite(ecl_kw->header8                            , sizeof(char)    , ECL_STRING8_LENGTH  , stream);
     fwrite(&size                                      , sizeof(int)     , 1                  , stream);
-    fwrite(ecl_util_get_type_name( ecl_kw->ecl_type ) , sizeof(char)    , ECL_TYPE_LENGTH    , stream);
+    fwrite(ecl_type_get_name( ecl_kw->data_type ) , sizeof(char)    , ECL_TYPE_LENGTH    , stream);
 
     fortio_complete_write(fortio , ECL_KW_HEADER_DATA_SIZE);
 
@@ -1724,7 +1711,17 @@ int ecl_kw_get_size(const ecl_kw_type * ecl_kw) {
   return ecl_kw->size;
 }
 
-ecl_type_enum ecl_kw_get_type(const ecl_kw_type * ecl_kw) { return ecl_kw->ecl_type; }
+ecl_type_enum ecl_kw_get_type(const ecl_kw_type * ecl_kw) {
+  return ecl_type_get_type(ecl_kw->data_type);
+}
+
+ecl_data_type ecl_kw_get_data_type(const ecl_kw_type * ecl_kw) {
+  return ecl_kw->data_type;
+}
+
+size_t ecl_kw_get_sizeof_ctype(const ecl_kw_type * ecl_kw) {
+  return ecl_type_get_sizeof_ctype(ecl_kw->data_type);
+}
 
 
 /******************************************************************/
@@ -1734,37 +1731,39 @@ ecl_kw_type * ecl_kw_buffer_alloc(buffer_type * buffer) {
   const char * header    = buffer_fread_string( buffer );
   int size               = buffer_fread_int( buffer );
   ecl_type_enum ecl_type = buffer_fread_int( buffer );
-  {
-    ecl_kw_type * ecl_kw = ecl_kw_alloc_empty();
-    ecl_kw_initialize( ecl_kw , header , size , ecl_type );
-    ecl_kw_alloc_data(ecl_kw);
-    buffer_fread(buffer , ecl_kw->data , ecl_kw->sizeof_ctype , ecl_kw->size);
-    return ecl_kw;
-  }
+  size_t element_size    = buffer_fread_int( buffer );
+
+  ecl_data_type data_type = ecl_type_create(ecl_type, element_size);
+  ecl_kw_type * ecl_kw = ecl_kw_alloc_empty();
+  ecl_kw_initialize( ecl_kw , header , size , data_type );
+  ecl_kw_alloc_data(ecl_kw);
+  buffer_fread(buffer , ecl_kw->data , ecl_kw_get_sizeof_ctype(ecl_kw) , ecl_kw->size);
+  return ecl_kw;
 }
 
 
 void ecl_kw_buffer_store(const ecl_kw_type * ecl_kw , buffer_type * buffer) {
   buffer_fwrite_string( buffer , ecl_kw->header8 );
   buffer_fwrite_int( buffer , ecl_kw->size );
-  buffer_fwrite_int( buffer , ecl_kw->ecl_type );
-  buffer_fwrite( buffer , ecl_kw->data , ecl_kw->sizeof_ctype , ecl_kw->size);
+  buffer_fwrite_int( buffer , ecl_type_get_type(ecl_kw->data_type) );
+  buffer_fwrite_int( buffer , ecl_type_get_sizeof_ctype(ecl_kw->data_type));
+  buffer_fwrite( buffer , ecl_kw->data , ecl_kw_get_sizeof_ctype(ecl_kw) , ecl_kw->size);
 }
 
 
 
 
-void ecl_kw_fwrite_param_fortio(fortio_type * fortio, const char * header ,  ecl_type_enum ecl_type , int size, void * data) {
-  ecl_kw_type   * ecl_kw = ecl_kw_alloc_new_shared(header , size , ecl_type , data);
+void ecl_kw_fwrite_param_fortio(fortio_type * fortio, const char * header ,  ecl_data_type data_type , int size, void * data) {
+  ecl_kw_type   * ecl_kw = ecl_kw_alloc_new_shared(header , size , data_type , data);
   ecl_kw_fwrite(ecl_kw , fortio);
   ecl_kw_free(ecl_kw);
 }
 
 
 
-void ecl_kw_fwrite_param(const char * filename , bool fmt_file , const char * header ,  ecl_type_enum ecl_type , int size, void * data) {
+void ecl_kw_fwrite_param(const char * filename , bool fmt_file , const char * header ,  ecl_data_type data_type , int size, void * data) {
   fortio_type   * fortio = fortio_open_writer(filename , fmt_file , ECL_ENDIAN_FLIP);
-  ecl_kw_fwrite_param_fortio(fortio , header , ecl_type , size , data);
+  ecl_kw_fwrite_param_fortio(fortio , header , data_type , size , data);
   fortio_fclose(fortio);
 }
 
@@ -1772,14 +1771,14 @@ void ecl_kw_fwrite_param(const char * filename , bool fmt_file , const char * he
 
 void ecl_kw_get_data_as_double(const ecl_kw_type * ecl_kw , double * double_data) {
 
-  if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+  if (ecl_type_is_double(ecl_kw->data_type))
     // Direct memcpy - no conversion
     ecl_kw_get_memcpy_data(ecl_kw , double_data);
   else {
-    if (ecl_kw->ecl_type == ECL_FLOAT_TYPE) {
+    if (ecl_type_is_float(ecl_kw->data_type)) {
       const float * float_data = (const float *) ecl_kw->data;
       util_float_to_double(double_data , float_data  , ecl_kw->size);
-    } else if (ecl_kw->ecl_type == ECL_INT_TYPE) {
+    } else if (ecl_type_is_int(ecl_kw->data_type)) {
       const int * int_data = (const int *) ecl_kw->data;
       int i;
       for (i=0; i < ecl_kw->size; i++)
@@ -1795,14 +1794,14 @@ void ecl_kw_get_data_as_double(const ecl_kw_type * ecl_kw , double * double_data
 
 void ecl_kw_get_data_as_float(const ecl_kw_type * ecl_kw , float * float_data) {
 
-  if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  if (ecl_type_is_float(ecl_kw->data_type))
     // Direct memcpy - no conversion
     ecl_kw_get_memcpy_data(ecl_kw , float_data);
   else {
-    if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE) {
+    if (ecl_type_is_double(ecl_kw->data_type)) {
       const double * double_data = (const double *) ecl_kw->data;
       util_double_to_float(float_data , double_data  , ecl_kw->size);
-    } else if (ecl_kw->ecl_type == ECL_INT_TYPE) {
+    } else if (ecl_type_is_int(ecl_kw->data_type)) {
       const int * int_data = (const int *) ecl_kw->data;
       int i;
       for (i=0; i < ecl_kw->size; i++)
@@ -1838,13 +1837,13 @@ ecl_kw_type * ecl_kw_alloc_scatter_copy( const ecl_kw_type * src_kw , int target
   float default_float       = 0;
   int   default_bool        = ECL_BOOL_FALSE_INT;
   const char * default_char = "";
-  ecl_kw_type * new_kw = ecl_kw_alloc( src_kw->header , target_size , src_kw->ecl_type );
+  ecl_kw_type * new_kw = ecl_kw_alloc( src_kw->header , target_size , src_kw->data_type );
 
   if (def_value != NULL)
     ecl_kw_scalar_set__( new_kw , def_value );
   else {
     /** Initialize with defaults .*/
-    switch (src_kw->ecl_type) {
+    switch (ecl_kw_get_type(src_kw)) {
     case(ECL_INT_TYPE):
       ecl_kw_scalar_set__( new_kw , &default_int );
       break;
@@ -1861,12 +1860,12 @@ ecl_kw_type * ecl_kw_alloc_scatter_copy( const ecl_kw_type * src_kw , int target
       ecl_kw_scalar_set__( new_kw , default_char );
       break;
     default:
-      util_abort("%s: unsupported type:%d \n", __func__ , src_kw->ecl_type);
+      util_abort("%s: unsupported type:%d \n", __func__ , ecl_kw_get_type(src_kw));
     }
   }
 
   {
-    int sizeof_ctype = ecl_util_get_sizeof_ctype( src_kw->ecl_type );
+    int sizeof_ctype = ecl_type_get_sizeof_ctype( src_kw->data_type );
     int i;
         for( i =0; i < src_kw->size; i++) {
       int target_index = mapping[i];
@@ -1895,7 +1894,7 @@ void ecl_kw_fread_double_param(const char * filename , bool fmt_file , double * 
 void ecl_kw_summarize(const ecl_kw_type * ecl_kw) {
   printf("%8s   %10d:%4s \n",ecl_kw_get_header8(ecl_kw),
          ecl_kw_get_size(ecl_kw),
-         ecl_util_get_type_name( ecl_kw->ecl_type));
+         ecl_type_get_name( ecl_kw->data_type));
 }
 
 
@@ -1906,7 +1905,7 @@ void ecl_kw_summarize(const ecl_kw_type * ecl_kw) {
 
 #define ECL_KW_SCALAR_SET_TYPED( ctype , ECL_TYPE ) \
 void ecl_kw_scalar_set_ ## ctype( ecl_kw_type * ecl_kw , ctype value){  \
- if (ecl_kw->ecl_type == ECL_TYPE) {                                    \
+ if (ecl_kw_get_type(ecl_kw) == ECL_TYPE) {                                    \
     ctype * data = ecl_kw_get_data_ref(ecl_kw);                         \
     int i;                                                              \
     for (i=0;i < ecl_kw->size; i++)                                     \
@@ -1952,7 +1951,7 @@ void ecl_kw_scalar_set_float_or_double( ecl_kw_type * ecl_kw , double value ) {
   Untyped - low level alternative.
 */
 void ecl_kw_scalar_set__(ecl_kw_type * ecl_kw , const void * value) {
-  int sizeof_ctype = ecl_util_get_sizeof_ctype( ecl_kw->ecl_type );
+  int sizeof_ctype = ecl_type_get_sizeof_ctype( ecl_kw->data_type );
   int i;
   for (i=0;i < ecl_kw->size; i++)
     memcpy( &ecl_kw->data[ i * sizeof_ctype ] , value , sizeof_ctype);
@@ -1965,12 +1964,12 @@ void ecl_kw_scalar_set__(ecl_kw_type * ecl_kw , const void * value) {
 
 void ecl_kw_alloc_double_data(ecl_kw_type * ecl_kw , double * values) {
   ecl_kw_alloc_data(ecl_kw);
-  memcpy(ecl_kw->data , values , ecl_kw->size * ecl_kw->sizeof_ctype);
+  memcpy(ecl_kw->data , values , ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw));
 }
 
 void ecl_kw_alloc_float_data(ecl_kw_type * ecl_kw , float * values) {
   ecl_kw_alloc_data(ecl_kw);
-  memcpy(ecl_kw->data , values , ecl_kw->size * ecl_kw->sizeof_ctype);
+  memcpy(ecl_kw->data , values , ecl_kw->size * ecl_kw_get_sizeof_ctype(ecl_kw));
 }
 
 /*****************************************************************/
@@ -2034,40 +2033,17 @@ void ecl_kw_shift_float_or_double( ecl_kw_type * ecl_kw , double shift_value ) {
     util_abort("%s: wrong type \n",__func__);
 }
 
-
-
-bool ecl_kw_assert_numeric( const ecl_kw_type * kw ) {
-  if ((kw->ecl_type == ECL_INT_TYPE) || (kw->ecl_type == ECL_FLOAT_TYPE) || (kw->ecl_type == ECL_DOUBLE_TYPE))
-    return true;
-  else
-    return false;
-}
-
-
-bool ecl_kw_assert_binary( const ecl_kw_type * kw1, const ecl_kw_type * kw2) {
-  if (kw1->size != kw2->size)
-    return false;   /* Size mismatch */
-  if (kw1->ecl_type != kw2->ecl_type)
-    return false;   /* Type mismatch */
-
-  return true;
-}
-
-
-bool ecl_kw_assert_binary_numeric( const ecl_kw_type * kw1, const ecl_kw_type * kw2) {
-  if (!ecl_kw_assert_binary( kw1 , kw2))
-    return false;
-  else
-    return ecl_kw_assert_numeric( kw1 );
+bool ecl_kw_size_and_numeric_type_equal( const ecl_kw_type * kw1, const ecl_kw_type * kw2) {
+  return ecl_kw_size_and_type_equal(kw1, kw2) && ecl_type_is_numeric(kw1->data_type);
 }
 
 
 
 #define ECL_KW_ASSERT_TYPED_BINARY_OP( ctype , ECL_TYPE ) \
 bool ecl_kw_assert_binary_ ## ctype( const ecl_kw_type * kw1 , const ecl_kw_type * kw2) { \
- if (!ecl_kw_assert_binary_numeric( kw1 , kw2))                                                \
+ if (!ecl_kw_size_and_numeric_type_equal( kw1 , kw2))                                                \
     return false;                                                                         \
- if (kw1->ecl_type != ECL_TYPE)                                                           \
+ if (ecl_kw_get_type(kw1) != ECL_TYPE)                                                           \
     return false;   /* Type mismatch */                                                   \
  return true;                                                                             \
 }
@@ -2079,12 +2055,12 @@ ECL_KW_ASSERT_TYPED_BINARY_OP( double , ECL_DOUBLE_TYPE )
 
 
 void ecl_kw_copy_indexed( ecl_kw_type * target_kw , const int_vector_type * index_set , const ecl_kw_type * src_kw) {
-  if (!ecl_kw_assert_binary( target_kw , src_kw ))
+  if (!ecl_kw_size_and_type_equal( target_kw , src_kw ))
     util_abort("%s: type/size  mismatch\n",__func__);
   {
     char * target_data = ecl_kw_get_data_ref( target_kw );
     const char * src_data = ecl_kw_get_data_ref( src_kw );
-    int sizeof_ctype = ecl_util_get_sizeof_ctype(target_kw->ecl_type);
+    int sizeof_ctype = ecl_type_get_sizeof_ctype(target_kw->data_type);
     int set_size     = int_vector_size( index_set );
     const int * index_data = int_vector_get_const_ptr( index_set );
     int i;
@@ -2133,7 +2109,7 @@ void ecl_kw_inplace_add_indexed( ecl_kw_type * target_kw , const int_vector_type
     ecl_kw_inplace_add_indexed_int( target_kw , index_set , add_kw );
     break;
   default:
-    util_abort("%s: inplace add not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace add not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2171,7 +2147,7 @@ void ecl_kw_inplace_add( ecl_kw_type * target_kw , const ecl_kw_type * add_kw) {
     ecl_kw_inplace_add_int( target_kw , add_kw );
     break;
   default:
-    util_abort("%s: inplace add not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace add not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2210,7 +2186,7 @@ void ecl_kw_inplace_sub( ecl_kw_type * target_kw , const ecl_kw_type * sub_kw) {
     ecl_kw_inplace_sub_int( target_kw , sub_kw );
     break;
   default:
-    util_abort("%s: inplace sub not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace sub not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2250,7 +2226,7 @@ void ecl_kw_inplace_sub_indexed( ecl_kw_type * target_kw , const int_vector_type
     ecl_kw_inplace_sub_indexed_int( target_kw , index_set , sub_kw );
     break;
   default:
-    util_abort("%s: inplace sub not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace sub not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2285,7 +2261,7 @@ void ecl_kw_inplace_abs( ecl_kw_type * kw ) {
     ecl_kw_inplace_abs_int( kw );
     break;
   default:
-    util_abort("%s: inplace abs not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace abs not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(kw) ));
   }
 }
 
@@ -2322,7 +2298,7 @@ void ecl_kw_inplace_mul( ecl_kw_type * target_kw , const ecl_kw_type * mul_kw) {
     ecl_kw_inplace_mul_int( target_kw , mul_kw );
     break;
   default:
-    util_abort("%s: inplace mul not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace mul not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2362,7 +2338,7 @@ void ecl_kw_inplace_mul_indexed( ecl_kw_type * target_kw , const int_vector_type
     ecl_kw_inplace_mul_indexed_int( target_kw , index_set , mul_kw );
     break;
   default:
-    util_abort("%s: inplace mul not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace mul not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2400,7 +2376,7 @@ void ecl_kw_inplace_div( ecl_kw_type * target_kw , const ecl_kw_type * div_kw) {
     ecl_kw_inplace_div_int( target_kw , div_kw );
     break;
   default:
-    util_abort("%s: inplace div not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace div not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2441,7 +2417,7 @@ void ecl_kw_inplace_div_indexed( ecl_kw_type * target_kw , const int_vector_type
     ecl_kw_inplace_div_indexed_int( target_kw , index_set , div_kw );
     break;
   default:
-    util_abort("%s: inplace div not implemented for type:%s \n",__func__ , ecl_util_get_type_name( type ));
+    util_abort("%s: inplace div not implemented for type:%s \n",__func__ , ecl_type_get_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
 
@@ -2496,7 +2472,7 @@ void ecl_kw_inplace_update_file(const ecl_kw_type * ecl_kw , const char * filena
         ecl_kw_fread_header(file_kw , fortio);
         fortio_fseek( fortio , current_pos , SEEK_SET );
 
-        if (!((file_kw->size == ecl_kw->size) && (file_kw->ecl_type == ecl_kw->ecl_type)))
+        if (!ecl_kw_size_and_type_equal(ecl_kw, file_kw))
           util_abort("%s: header mismatch when trying to update:%s in %s \n",__func__ , ecl_kw_get_header8(ecl_kw) , filename);
         ecl_kw_free(file_kw);
       }
@@ -2544,14 +2520,14 @@ bool ecl_kw_is_kw_file(fortio_type * fortio) {
   int i;                                                       \
   for (i=1; i < ecl_kw_get_size(ecl_kw); i++)                  \
       util_update_ ## type ## _max_min(data[i] , &max , &min); \
-  memcpy(_max , &max , ecl_kw->sizeof_ctype);                  \
-  memcpy(_min , &min , ecl_kw->sizeof_ctype);                  \
+  memcpy(_max , &max , ecl_kw_get_sizeof_ctype(ecl_kw));       \
+  memcpy(_min , &min , ecl_kw_get_sizeof_ctype(ecl_kw));       \
 }
 
 
 
 void ecl_kw_max_min(const ecl_kw_type * ecl_kw , void * _max , void *_min) {
-  switch (ecl_kw->ecl_type) {
+  switch (ecl_kw_get_type(ecl_kw)) {
   case(ECL_FLOAT_TYPE):
     KW_MAX_MIN(float);
     break;
@@ -2609,20 +2585,20 @@ ECL_KW_MIN( double )
 
 
 
-#define KW_SUM(type)                           \
-{                                              \
-  type * data = ecl_kw_get_data_ref(ecl_kw);   \
-  type sum = 0;                                \
-  int i;                                       \
-  for (i=0; i < ecl_kw_get_size(ecl_kw); i++)  \
-     sum += data[i];                           \
-  memcpy(_sum , &sum , ecl_kw->sizeof_ctype);  \
+#define KW_SUM(type)                                        \
+{                                                           \
+  type * data = ecl_kw_get_data_ref(ecl_kw);                \
+  type sum = 0;                                             \
+  int i;                                                    \
+  for (i=0; i < ecl_kw_get_size(ecl_kw); i++)               \
+     sum += data[i];                                        \
+  memcpy(_sum , &sum , ecl_kw_get_sizeof_ctype(ecl_kw));    \
 }
 
 
 
 void ecl_kw_element_sum(const ecl_kw_type * ecl_kw , void * _sum) {
-  switch (ecl_kw->ecl_type) {
+  switch (ecl_kw_get_type(ecl_kw)) {
   case(ECL_FLOAT_TYPE):
     KW_SUM(float);
     break;
@@ -2644,18 +2620,18 @@ double ecl_kw_element_sum_float( const ecl_kw_type * ecl_kw ) {
   double double_sum;
   void * sum_ptr = NULL;
 
-  if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+  if (ecl_type_is_double(ecl_kw->data_type))
     sum_ptr = &double_sum;
-  else if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  else if (ecl_type_is_float(ecl_kw->data_type))
     sum_ptr = &float_sum;
   else
     util_abort("%s: invalid type: \n",__func__);
 
   ecl_kw_element_sum( ecl_kw , sum_ptr );
 
-  if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+  if (ecl_type_is_double(ecl_kw->data_type))
     return double_sum;
-  else if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  else if (ecl_type_is_float(ecl_kw->data_type))
     return float_sum;
   else
     return 0;
@@ -2700,20 +2676,20 @@ static void ecl_kw_fprintf_data_bool( const ecl_kw_type * ecl_kw , const char * 
 static void ecl_kw_fprintf_data_char( const ecl_kw_type * ecl_kw , const char * fmt , FILE * stream) {
   int i;
   for (i=0; i < ecl_kw->size; i++)
-    fprintf(stream , fmt , &ecl_kw->data[ i * ecl_kw->sizeof_ctype]);
+    fprintf(stream , fmt , &ecl_kw->data[ i * ecl_kw_get_sizeof_ctype(ecl_kw)]);
 }
 
 
 void ecl_kw_fprintf_data( const ecl_kw_type * ecl_kw , const char * fmt , FILE * stream) {
-  if (ecl_kw->ecl_type == ECL_DOUBLE_TYPE)
+  if (ecl_type_is_double(ecl_kw->data_type))
     ecl_kw_fprintf_data_double( ecl_kw , fmt , stream );
-  else if (ecl_kw->ecl_type == ECL_FLOAT_TYPE)
+  else if (ecl_type_is_float(ecl_kw->data_type))
     ecl_kw_fprintf_data_float( ecl_kw , fmt , stream );
-  else if (ecl_kw->ecl_type == ECL_INT_TYPE)
+  else if (ecl_type_is_int(ecl_kw->data_type))
     ecl_kw_fprintf_data_int( ecl_kw , fmt , stream );
-  else if (ecl_kw->ecl_type == ECL_BOOL_TYPE)
+  else if (ecl_type_is_bool(ecl_kw->data_type))
     ecl_kw_fprintf_data_bool( ecl_kw , fmt , stream );
-  else if (ecl_kw->ecl_type == ECL_CHAR_TYPE)
+  else if (ecl_type_is_char(ecl_kw->data_type))
     ecl_kw_fprintf_data_char( ecl_kw , fmt , stream );
 }
 
@@ -2727,8 +2703,8 @@ static bool ecl_kw_elm_equal_numeric__( const ecl_kw_type * ecl_kw1 , const ecl_
 
 
 static bool ecl_kw_elm_equal__( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , int offset) {
-  size_t data_offset = ecl_kw1->sizeof_ctype * offset;
-  int cmp = memcmp( &ecl_kw1->data[ data_offset ] , &ecl_kw2->data[ data_offset ] , ecl_kw1->sizeof_ctype);
+  size_t data_offset = ecl_kw_get_sizeof_ctype(ecl_kw1) * offset;
+  int cmp = memcmp( &ecl_kw1->data[ data_offset ] , &ecl_kw2->data[ data_offset ] , ecl_kw_get_sizeof_ctype(ecl_kw1));
   if (cmp == 0)
     return true;
   else
@@ -2766,6 +2742,5 @@ int ecl_kw_first_different( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ec
     }
   }
 }
-
 
 #include "ecl_kw_functions.c"

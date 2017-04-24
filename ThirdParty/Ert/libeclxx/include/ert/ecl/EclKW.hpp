@@ -28,10 +28,10 @@
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_util.h>
 
 #include <ert/util/ert_unique_ptr.hpp>
 #include <ert/ecl/FortIO.hpp>
-
 
 namespace ERT {
     template< typename > struct ecl_type {};
@@ -55,7 +55,7 @@ namespace ERT {
     class EclKW_ref {
     public:
         explicit EclKW_ref( ecl_kw_type* kw ) : m_kw( kw ) {
-            if( ecl_kw_get_type( kw ) != ecl_type< T >::type )
+            if( ecl_type_get_type(ecl_kw_get_data_type( kw )) != ecl_type< T >::type )
                 throw std::invalid_argument("Type error");
         }
 
@@ -132,7 +132,7 @@ class EclKW : public EclKW_ref< T > {
         }
 
         EclKW( const std::string& kw, int size_ ) :
-            base( ecl_kw_alloc( kw.c_str(), size_, ecl_type< T >::type ) )
+            base( ecl_kw_alloc( kw.c_str(), size_, ecl_type_create_from_type(ecl_type< T >::type) ) )
         {}
 
         EclKW( const std::string& kw, const std::vector< T >& data ) :

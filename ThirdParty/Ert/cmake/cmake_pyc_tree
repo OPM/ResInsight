@@ -24,7 +24,7 @@ for (root , dir_list , file_list) in os.walk( root_path ):
             try:
                 print "Compiling: %s" % py_file
                 py_compile.compile( py_file , doraise = True )
-            except Exception,error:
+            except Exception as error:
                 sys.exit("py_compile(%s) failed:%s" % (py_file , error))
         
 

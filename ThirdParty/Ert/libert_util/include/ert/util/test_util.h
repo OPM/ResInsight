@@ -26,6 +26,7 @@ extern "C" {
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <setjmp.h>
 #include <ert/util/ert_api_config.h>
 
 #if defined(__APPLE__)
@@ -122,6 +123,11 @@ extern "C" {
   void test_assert_file_content__( const char * input_file , const char * expected, const char * src_file , int line);
 
   void test_install_SIGNALS(void);
+
+  jmp_buf * util_abort_test_jump_buffer();
+  void   test_util_addr2line();
+  void   test_assert_util_abort(const char * function_name , void call_func (void *) , void * arg);
+
 
 #ifdef __cplusplus
 }

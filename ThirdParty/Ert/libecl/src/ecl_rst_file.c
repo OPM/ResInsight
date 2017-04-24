@@ -37,6 +37,7 @@
 #include <ert/ecl/ecl_file_kw.h>
 #include <ert/ecl/ecl_rst_file.h>
 #include <ert/ecl/ecl_rsthead.h>
+#include <ert/ecl/ecl_type.h>
 
 struct ecl_rst_file_struct {
   fortio_type * fortio;
@@ -101,7 +102,7 @@ ecl_rst_file_type * ecl_rst_file_open_write_seek( const char * filename , int re
 
   fortio_fseek( rst_file->fortio , 0 , SEEK_SET );
   {
-    ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT_TYPE , NULL);
+    ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT, NULL);
 
     while (true) {
       offset_type current_offset = fortio_ftell( rst_file->fortio );
@@ -157,20 +158,20 @@ void ecl_rst_file_close( ecl_rst_file_type * rst_file ) {
 /*****************************************************************/
 
 static void ecl_rst_file_fwrite_SEQNUM( ecl_rst_file_type * rst_file , int seqnum ) {
-  ecl_kw_type * seqnum_kw = ecl_kw_alloc( SEQNUM_KW , 1 , ECL_INT_TYPE );
+  ecl_kw_type * seqnum_kw = ecl_kw_alloc( SEQNUM_KW , 1 , ECL_INT );
   ecl_kw_iset_int( seqnum_kw , 0 , seqnum );
   ecl_kw_fwrite( seqnum_kw , rst_file->fortio );
   ecl_kw_free( seqnum_kw );
 }
 
 void ecl_rst_file_start_solution( ecl_rst_file_type * rst_file ) {
-  ecl_kw_type * startsol_kw = ecl_kw_alloc( STARTSOL_KW , 0 , ECL_MESS_TYPE );
+  ecl_kw_type * startsol_kw = ecl_kw_alloc( STARTSOL_KW , 0 , ECL_MESS );
   ecl_kw_fwrite( startsol_kw , rst_file->fortio );
   ecl_kw_free( startsol_kw );
 }
 
 void ecl_rst_file_end_solution( ecl_rst_file_type * rst_file ) {
-  ecl_kw_type * endsol_kw = ecl_kw_alloc( ENDSOL_KW , 0 , ECL_MESS_TYPE );
+  ecl_kw_type * endsol_kw = ecl_kw_alloc( ENDSOL_KW , 0 , ECL_MESS );
   ecl_kw_fwrite( endsol_kw , rst_file->fortio );
   ecl_kw_free( endsol_kw );
 }
@@ -180,7 +181,7 @@ void ecl_rst_file_end_solution( ecl_rst_file_type * rst_file ) {
 static ecl_kw_type * ecl_rst_file_alloc_INTEHEAD( ecl_rst_file_type * rst_file,
                                                   ecl_rsthead_type * rsthead,
                                                   int simulator ) {
-  ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_RESTART_SIZE , ECL_INT_TYPE );
+  ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_RESTART_SIZE , ECL_INT );
   ecl_kw_scalar_set_int( intehead_kw , 0 );
 
   ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , rsthead->unit_system );
@@ -230,7 +231,7 @@ static ecl_kw_type * ecl_rst_file_alloc_LOGIHEAD( int simulator ) {
   bool radial_grid_ECLIPSE100 = false;
   bool radial_grid_ECLIPSE300 = false;
 
-  ecl_kw_type * logihead_kw = ecl_kw_alloc( LOGIHEAD_KW , LOGIHEAD_RESTART_SIZE , ECL_BOOL_TYPE );
+  ecl_kw_type * logihead_kw = ecl_kw_alloc( LOGIHEAD_KW , LOGIHEAD_RESTART_SIZE , ECL_BOOL );
 
   ecl_kw_scalar_set_bool( logihead_kw , false );
 
@@ -245,7 +246,7 @@ static ecl_kw_type * ecl_rst_file_alloc_LOGIHEAD( int simulator ) {
 
 
 static ecl_kw_type * ecl_rst_file_alloc_DOUBHEAD( ecl_rst_file_type * rst_file , double days) {
-  ecl_kw_type * doubhead_kw = ecl_kw_alloc( DOUBHEAD_KW , DOUBHEAD_RESTART_SIZE , ECL_DOUBLE_TYPE );
+  ecl_kw_type * doubhead_kw = ecl_kw_alloc( DOUBHEAD_KW , DOUBHEAD_RESTART_SIZE , ECL_DOUBLE );
 
   ecl_kw_scalar_set_double( doubhead_kw , 0);
   ecl_kw_iset_double( doubhead_kw , DOUBHEAD_DAYS_INDEX , days );

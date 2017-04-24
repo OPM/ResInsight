@@ -1,9 +1,7 @@
 set(PYTHON_SOURCES
     __init__.py
-    ecl.py
     ecl_3d_file.py
     ecl_3dkw.py
-    ecl_case.py
     ecl_file.py
     ecl_file_view.py
     ecl_grav.py
@@ -28,6 +26,8 @@ set(PYTHON_SOURCES
     ecl_sum_keyword_vector.py
     ecl_cmp.py
     ecl_sum_var_type.py
+    ecl_type.py
+    ecl_grid_generator.py
 )
 
 add_python_package("python.ert.ecl" ${PYTHON_INSTALL_PREFIX}/ert/ecl "${PYTHON_SOURCES}" True)

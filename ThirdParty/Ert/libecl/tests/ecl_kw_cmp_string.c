@@ -21,11 +21,12 @@
 
 #include <ert/util/test_util.h>
 #include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_type.h>
 
 
 
 void test_cmp_string() {
-  ecl_kw_type * ecl_kw = ecl_kw_alloc( "HEADER" , 1 , ECL_CHAR_TYPE );
+  ecl_kw_type * ecl_kw = ecl_kw_alloc( "HEADER" , 1 , ECL_CHAR);
 
   ecl_kw_iset_string8( ecl_kw , 0 , "ABCD");
 

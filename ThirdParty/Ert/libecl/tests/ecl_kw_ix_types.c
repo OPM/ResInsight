@@ -31,7 +31,7 @@
 
 
 void test_create_ECL_C010_TYPE() {
-  ecl_kw_type * ecl_kw = ecl_kw_alloc("TEST" , 1000 , ECL_C010_TYPE );
+  ecl_kw_type * ecl_kw = ecl_kw_alloc("TEST" , 1000 , ECL_C010 );
   test_assert_NULL( ecl_kw );
 }
 

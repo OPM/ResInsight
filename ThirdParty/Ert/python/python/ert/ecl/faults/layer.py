@@ -54,7 +54,7 @@ class Layer(BaseCClass):
     @classmethod
     def copy(cls , src):
         layer = Layer( src.getNX() , src.getNY())
-        self._copy( layer , src )
+        layer._copy( layer , src )
         return layer
 
 
@@ -184,10 +184,10 @@ class Layer(BaseCClass):
             i2,j2 = p2
             if i1 == i2 or j1 == j2:
                 if not 0 <= i2 <= nx:
-                    raise ValueError("i value:%d invalid. Valid range: [0,%d] " % (i , i2))
+                    raise ValueError("i value:%d invalid. Valid range: [0,%d] " % (i1 , i2))
 
                 if not 0 <= j2 <= ny:
-                    raise ValueError("i value:%d invalid. Valid range: [0,%d] " % (j , j2))
+                    raise ValueError("i value:%d invalid. Valid range: [0,%d] " % (j1 , j2))
 
                 self._add_ijbarrier( i1 , j1 , i2 , j2 )
                 p1 = p2

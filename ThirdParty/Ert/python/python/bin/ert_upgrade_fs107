@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+import sys
+import os
+import os.path
+
+from ert.config import ConfigParser, ContentTypeEnum, UnrecognizedEnum
+from ert.enkf import TimeMap,EnkfFs
+from ert.ecl import EclSum
+
+#TimeMap._upgrade107 = 
+
+
+def parse(config_file):
+    parser = ConfigParser( )
+    item = parser.add("REFCASE", False )
+    item.iset_type(0 , ContentTypeEnum.CONFIG_PATH )
+
+    item = parser.add("ENSPATH" , False )
+    item.iset_type(0 , ContentTypeEnum.CONFIG_EXISTING_PATH )
+
+    content = parser.parse( config_file , unrecognized = UnrecognizedEnum.CONFIG_UNRECOGNIZED_IGNORE )
+    if "REFCASE" in content:
+        refcase = EclSum( content.getValue( "REFCASE" ))
+    else:
+        refcase = None
+
+    if "ENSPATH" in content:
+        path = content["ENSPATH"]
+        enspath = path[0].getPath( )
+    else:
+        enspath = "storage"
+
+    
+    return enspath , refcase
+    
+
+def upgrade(ens_path, refcase):
+    for case in os.listdir( ens_path ):
+        full_case = os.path.join( ens_path , case )
+        if os.path.isdir( full_case ):
+            version = EnkfFs.diskVersion( full_case )
+            try:
+                version = EnkfFs.diskVersion( full_case )
+            except IOError:
+                print "The case:%s was ignored" % full_case
+                continue
+
+            if version < 105:
+                print "Very old case: %s ignored - you should probably delete this" % full_case
+                continue
+            
+            if version < 107:
+                print "Upgrading %s to version 107" % full_case
+
+                time_map_file = os.path.join( full_case , "files/time-map")
+                if os.path.isfile( time_map_file ):
+                    time_map = TimeMap( time_map_file)
+                    assert( isinstance( refcase , EclSum ))
+                    time_map.upgrade107( refcase )
+                    time_map.fwrite( time_map_file )
+                else:
+                    print "No time-map file found"
+
+                EnkfFs.updateVersion( full_case, version , 107 )
+                fs = EnkfFs( full_case )
+
+                
+if len(sys.argv) != 2:
+    sys.exit("Script must have exactly one argument: config_file")
+
+config_file = sys.argv[1]
+ens_path , refcase = parse( config_file )
+if refcase:
+    print "Upgrading storage:%s with refcase:%s" % (ens_path , refcase.case )
+upgrade( ens_path , refcase )
+    

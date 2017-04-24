@@ -39,7 +39,7 @@ import re
 import types
 import datetime
 import ctypes
-import warnings
+
 from cwrap import BaseCClass
 from ert.ecl import EclPrototype, EclKW, EclFileEnum, EclFileView
 from ert.util import CTime
@@ -87,7 +87,7 @@ class EclFile(BaseCClass):
     @classmethod
     def restart_block( cls , filename , dtime = None , report_step = None):
         raise NotImplementedError("The restart_block implementation has been removed - open file normally and use EclFileView.")
-        
+
 
 
     @classmethod
@@ -174,8 +174,7 @@ class EclFile(BaseCClass):
     def __repr__(self):
         fn = self.getFilename()
         wr = ', read/write' if self._writable() else ''
-        ad = self._ad_str()
-        return 'EclFile("%s"%s) %s' % (fn,wr,ad)
+        return self._create_repr('"%s"%s' % (fn,wr))
 
 
     def __init__( self , filename , flags = 0):
@@ -209,7 +208,7 @@ class EclFile(BaseCClass):
             super(EclFile , self).__init__(c_ptr)
             self.global_view = self._get_global_view( )
             self.global_view.setParent( self )
-            
+
 
     def save_kw( self , kw ):
         """
@@ -254,8 +253,16 @@ class EclFile(BaseCClass):
         self.close()
 
 
-    def blockView(self, kw , kw_index):
-        return self.global_view.blockView( kw , kw_index )
+    def blockView(self, kw, kw_index):
+        if not kw in self:
+            raise KeyError('No such keyword "%s".' % kw)
+        ls = self.global_view.numKeywords(kw)
+        idx = kw_index
+        if idx < 0:
+            idx += ls
+        if 0 <= idx < ls:
+            return self.global_view.blockView(kw, idx)
+        raise IndexError('Index out of range, must be in [0, %d), was %d.' % (ls, kw_index))
 
 
     def blockView2(self, start_kw , stop_kw , start_index):
@@ -264,9 +271,9 @@ class EclFile(BaseCClass):
 
     def restartView( self, seqnum_index = None, report_step = None , sim_time = None , sim_days = None):
         return self.global_view.restartView( seqnum_index, report_step , sim_time, sim_days )
-    
 
-    
+
+
     def select_block( self, kw , kw_index):
         raise NotImplementedError("The select_block implementation has been removed - use EclFileView")
 
@@ -311,7 +318,7 @@ class EclFile(BaseCClass):
         is a non-unified restart file (or not a restart file at all),
         the method will do nothing and return False.
         """
-        
+
 
 
 
@@ -343,8 +350,16 @@ class EclFile(BaseCClass):
            for swat in restart_file["SWAT"]:
                ....
         """
+        if isinstance(index, int):
+            ls = len(self)
+            idx = index
+            if idx < 0:
+                idx += ls
+            if 0 <= idx < ls:
+                return self.global_view[idx]
+            else:
+                raise IndexError('Index must be in [0, %d), was: %d.' % (ls, index))
         return self.global_view[index]
-
 
 
     def iget_kw( self , index , copy = False):
@@ -394,7 +409,7 @@ class EclFile(BaseCClass):
     def iget_named_kw( self , kw_name , index , copy = False):
         return self.global_view.iget_named_kw( kw_name , index )
 
-    
+
 
     def restart_get_kw( self , kw_name , dtime , copy = False):
         """Will return EclKW @kw_name from restart file at time @dtime.
@@ -493,7 +508,7 @@ class EclFile(BaseCClass):
         header_dict = {}
         for index in range(len(self)):
             kw = self[index]
-            header_dict[ kw.name ] = True
+            header_dict[ kw.getName() ] = True
         return header_dict.keys()
 
 
@@ -534,11 +549,12 @@ class EclFile(BaseCClass):
         probably be tricked by other file types also containing an
         INTEHEAD keyword.
         """
-        dates = []
         if self.has_kw('SEQNUM'):
+            dates = []
             for index in range( self.num_named_kw( 'SEQNUM' )):
                 dates.append( self.iget_restart_sim_time( index ))
-        else:
+            return dates
+        elif 'INTEHEAD' in self:
             # This is a uber-hack; should export the ecl_rsthead
             # object as ctypes structure.
             intehead = self["INTEHEAD"][0]
@@ -546,8 +562,8 @@ class EclFile(BaseCClass):
             month = intehead[65]
             day = intehead[64]
             date = datetime.datetime( year , month , day )
-            dates = [ date ]
-        return dates
+            return [ date ]
+        return None
 
 
     @property
@@ -564,7 +580,7 @@ class EclFile(BaseCClass):
         """
         return self.global_view.numKeywords( kw )
 
-    
+
     def has_kw( self , kw , num = 0):
         """
         Check if current EclFile instance has a keyword @kw.
@@ -572,11 +588,8 @@ class EclFile(BaseCClass):
         If the optional argument @num is given it will check if the
         EclFile has at least @num occurences of @kw.
         """
-        num_named_kw = self.num_named_kw( kw )
-        if num_named_kw > num:
-            return True
-        else:
-            return False
+
+        return self.num_named_kw( kw ) > num
 
     def __contains__(self , kw):
         """
@@ -644,14 +657,8 @@ class EclFile(BaseCClass):
         """
         Name of the file currently loaded.
         """
-        return self._get_src_file( )
-
-
-    @property
-    def name(self):
-        warnings.warn("The name property is deprecated - use getFilename( )" , DeprecationWarning)
-        return self.getFilename()
-
+        fn = self._get_src_file()
+        return str(fn) if fn else ''
 
     def fwrite( self , fortio ):
         """

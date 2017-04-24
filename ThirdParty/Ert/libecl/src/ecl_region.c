@@ -306,7 +306,7 @@ void ecl_region_deselect_cell( ecl_region_type * region , int i , int j , int k)
 static void ecl_region_select_equal__( ecl_region_type * region , const ecl_kw_type * ecl_kw, int value , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
-  if (ecl_kw_get_type( ecl_kw ) != ECL_INT_TYPE)
+  if (!ecl_type_is_int(ecl_kw_get_data_type( ecl_kw )))
     util_abort("%s: sorry - select by equality is only supported for integer keywords \n",__func__);
   {
     const int * kw_data = ecl_kw_get_int_ptr( ecl_kw );
@@ -344,7 +344,7 @@ void ecl_region_deselect_equal( ecl_region_type * region , const ecl_kw_type * e
 static void ecl_region_select_bool_equal__( ecl_region_type * region , const ecl_kw_type * ecl_kw, bool value , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
-  if (ecl_kw_get_type( ecl_kw ) != ECL_BOOL_TYPE)
+  if (!ecl_type_is_bool(ecl_kw_get_data_type( ecl_kw )))
     util_abort("%s: sorry - select by equality is only supported for boolean keywords \n",__func__);
   {
     if (global_kw) {
@@ -392,7 +392,7 @@ void ecl_region_deselect_false( ecl_region_type * region , const ecl_kw_type * e
 static void ecl_region_select_in_interval__( ecl_region_type * region , const ecl_kw_type * ecl_kw, float min_value , float max_value , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
-  if (ecl_kw_get_type( ecl_kw ) != ECL_FLOAT_TYPE)
+  if (!ecl_type_is_float(ecl_kw_get_data_type( ecl_kw )))
     util_abort("%s: sorry - select by in_interval is only supported for float keywords \n",__func__);
   {
     const float * kw_data = ecl_kw_get_float_ptr( ecl_kw );
@@ -439,13 +439,13 @@ void ecl_region_deselect_in_interval( ecl_region_type * region , const ecl_kw_ty
 */
 static void ecl_region_select_with_limit__( ecl_region_type * region , const ecl_kw_type * ecl_kw, float limit , bool select_less , bool select) {
   bool global_kw;
-  ecl_type_enum ecl_type = ecl_kw_get_type( ecl_kw );
+  ecl_data_type data_type = ecl_kw_get_data_type( ecl_kw );
   ecl_region_assert_kw( region , ecl_kw , &global_kw);
-  if (!((ecl_type == ECL_FLOAT_TYPE) || (ecl_type == ECL_INT_TYPE) || (ecl_type == ECL_DOUBLE_TYPE)))
+  if (!ecl_type_is_numeric(data_type))
     util_abort("%s: sorry - select by in_interval is only supported for float and integer keywords \n",__func__);
 
   {
-    if (ecl_type == ECL_FLOAT_TYPE) {
+    if (ecl_type_is_float(data_type)) {
       const float * kw_data = ecl_kw_get_float_ptr( ecl_kw );
       float float_limit = limit;
       if (global_kw) {
@@ -475,7 +475,7 @@ static void ecl_region_select_with_limit__( ecl_region_type * region , const ecl
           }
         }
       }
-    } else if (ecl_type == ECL_INT_TYPE) {
+    } else if (ecl_type_is_int(data_type)) {
       const int * kw_data = ecl_kw_get_int_ptr( ecl_kw );
       int int_limit = (int) limit;
       if (global_kw) {
@@ -505,7 +505,7 @@ static void ecl_region_select_with_limit__( ecl_region_type * region , const ecl
           }
         }
       }
-    } else if (ecl_type == ECL_DOUBLE_TYPE) {
+    } else if (ecl_type_is_double(data_type)) {
       const double * kw_data = ecl_kw_get_double_ptr( ecl_kw );
       double double_limit = (double) limit;
       if (global_kw) {
@@ -566,11 +566,10 @@ void ecl_region_deselect_larger( ecl_region_type * ecl_region , const ecl_kw_typ
 static void ecl_region_cmp_select__( ecl_region_type * region , const ecl_kw_type * kw1 , const ecl_kw_type * kw2 , bool select_less , bool select) {
   bool global_kw;
   ecl_region_assert_kw( region , kw1 , &global_kw);
-  if (ecl_kw_get_type( kw1 ) != ECL_FLOAT_TYPE)
+  if (!ecl_type_is_float(ecl_kw_get_data_type( kw1 )))
     util_abort("%s: sorry - select by cmp() is only supported for float keywords \n",__func__);
   {
-    if ((ecl_kw_get_size( kw1 ) == ecl_kw_get_size( kw2 )) &&
-        (ecl_kw_get_type( kw1 ) == ecl_kw_get_type( kw2 ))) {
+    if (ecl_kw_size_and_type_equal(kw1, kw2)) {
 
       const float * kw1_data = ecl_kw_get_float_ptr( kw1 );
       const float * kw2_data = ecl_kw_get_float_ptr( kw2 );

@@ -20,8 +20,8 @@ def compile_file(src_file , target_file):
         os.makedirs( path )
     try:
         py_compile.compile( src_file , cfile = target_file , doraise = True)
-    except Exception,error:
-        sys.exit(1)
+    except Exception as error:
+        sys.exit(str(error))
 
 
 target_path = sys.argv[-1]

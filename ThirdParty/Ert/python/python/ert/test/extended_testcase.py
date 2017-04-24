@@ -2,6 +2,7 @@ import numbers
 import os
 import os.path
 import traceback
+import sys
 
 try:
     from unittest2 import TestCase
@@ -12,6 +13,21 @@ from .source_enumerator import SourceEnumerator
 from ert.util import installAbortSignals
 from ert.util import Version
 
+TESTDATA_ROOT = None
+SHARE_ROOT = None
+SOURCE_ROOT = None
+BUILD_ROOT = None
+try:
+    from test_env import *
+    assert( os.path.isdir( TESTDATA_ROOT ))
+    assert( os.path.isdir( SOURCE_ROOT ))
+    assert( os.path.isdir( BUILD_ROOT ))
+    if not SHARE_ROOT is None:
+        assert( os.path.isdir( SHARE_ROOT ))
+except ImportError:
+    sys.stderr.write("Warning: could not import file test_env.py - this might lead to test failures.")
+
+    
 class _AssertNotRaisesContext(object):
 
     def __init__(self, test_class):
@@ -42,19 +58,17 @@ class ExtendedTestCase(TestCase):
         super(ExtendedTestCase , self).__init__(*args , **kwargs)
 
 
-    def assertFloatEqual(self, first, second, msg=None):
-
-        if msg is None:
-            msg = "Value %f and %f are not almost equal!" % (first, second)
-
-        if isinstance(first, numbers.Number) and isinstance(second, numbers.Number):
-            tolerance = 1e-6
-            diff = abs(first - second)
+    def assertFloatEqual(self, first, second, msg=None, tolerance=1e-6):
+        try:
+            f_first, f_second = float(first), float(second)
+            diff = abs(f_first - f_second)
             scale = max(1, abs(first) + abs(second))
-
+            if msg is None:
+                msg = "Floats not equal: |%f - %f| > %g" % (f_first, f_second, tolerance)
             self.assertTrue(diff < tolerance * scale, msg=msg)
-        else:
-            self.fail("Elements not comparable as float: %s and %s" % (first, second))
+        except TypeError:
+            self.fail("Cannot compare as floats: %s (%s) and %s (%s)" %
+                      (first, type(first), second, type(second)))
 
 
     def assertAlmostEqualList(self, first, second, msg=None):
@@ -108,7 +122,7 @@ class ExtendedTestCase(TestCase):
         return buffer1 == buffer2
 
     def assertEnumIsFullyDefined(self, enum_class, enum_name, source_path, verbose=False):
-        enum_values = SourceEnumerator.findEnumerators(enum_name, source_path)
+        enum_values = SourceEnumerator.findEnumerators(enum_name, os.path.join( SOURCE_ROOT , source_path))
 
         for identifier, value in enum_values:
             if verbose:
@@ -119,82 +133,15 @@ class ExtendedTestCase(TestCase):
             self.assertEqual(class_value, value, "Enum value for identifier: %s does not match: %s != %s" % (identifier, class_value, value))
 
 
-    def setTestDataRoot(self, testdata_root):
-        self.__testdata_root = testdata_root
-        if not os.path.exists(self.__testdata_root):
-            raise IOError("Path:%s not found" % self.__testdata_root)
-
-    def setShareRoot(self, share_root):
-        self.__share_root = share_root
-        if not os.path.exists(self.__share_root):
-            raise IOError("Path: %s not found" % self.__share_root)
-
-
-    def createTestPath(self, path, testdata_root=None):
-        if testdata_root is None and self.__testdata_root is None:
-            file_path = os.path.realpath(__file__)
-            build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../test-data/"))
-            site_packages_build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../../../test-data/"))
-            src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../test-data/"))
-            env_root = os.getenv("ERT_TEST_ROOT_PATH")
-
-            if env_root is not None and os.path.exists(env_root):
-                root = os.path.realpath(env_root)
-            elif os.path.exists(build_root):
-                root = os.path.realpath(build_root)
-            elif os.path.exists(site_packages_build_root):
-                root = os.path.realpath(site_packages_build_root)
-            elif os.path.exists(src_root):
-                root = os.path.realpath(src_root)
-            else:
-                root = None
-
-            self.setTestDataRoot(root)
-
-        root_path = self.__testdata_root 
-        if testdata_root is not None:
-            if not os.path.exists(testdata_root):
-                raise IOError("Path: %s not found" % testdata_root)
-
-            root_path = testdata_root
-
-        return os.path.realpath(os.path.join(root_path , path))
-
-
-    def createSharePath(self, path, share_root=None):
-        if share_root is None and self.__share_root is None:
-            self.setShareRoot(ExtendedTestCase.findShareRoot())
-
-        root_path = self.__share_root
-        if share_root is not None:
-            if not os.path.exists(share_root):
-                raise IOError("Path: %s not found" % share_root)
-
-            root_path = share_root
-
-        return os.path.realpath(os.path.join(root_path , path))
-
+    @staticmethod
+    def createSharePath(path):
+        return os.path.realpath(os.path.join(SHARE_ROOT , path))
+    
 
     @staticmethod
-    def findShareRoot():
-        file_path = os.path.realpath(__file__)
-        build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../share/"))
-        site_packages_build_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../../../share/"))
-        src_root = os.path.realpath(os.path.join(os.path.dirname(file_path), "../../../../share/"))
-        env_root = os.getenv("ERT_SHARE_PATH")
+    def createTestPath(path):
+        return os.path.realpath(os.path.join(TESTDATA_ROOT , path))
 
-        if env_root is not None and os.path.exists(env_root):
-            root = os.path.realpath(env_root)
-        elif os.path.exists(build_root):
-            root = os.path.realpath(build_root)
-        elif os.path.exists(site_packages_build_root):
-            root = os.path.realpath(site_packages_build_root)
-        elif os.path.exists(src_root):
-            root = os.path.realpath(src_root)
-        else:
-            root = None
-
-        return root
 
     def assertNotRaises(self, func=None):
 

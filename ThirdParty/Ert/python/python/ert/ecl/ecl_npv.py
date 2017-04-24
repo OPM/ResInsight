@@ -29,7 +29,7 @@ class NPVParseKey(object):
     def __call__(self , matchObject):
         key = matchObject.group(1)
         smspecNode = self.baseCase.smspec_node( key )
-        if smspecNode.is_total:
+        if smspecNode.isTotal():
             var = key.replace(":" , "_")
             self.NPV.addKey( key , var )
             return var + "[i]"

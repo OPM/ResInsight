@@ -3,6 +3,7 @@ set(TEST_SOURCES
     ctest_import.py
     ctest_run.py
     import_tester.py
+    test_pylint.py
 )
 
 set(TEST_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
@@ -31,25 +32,9 @@ function (addPythonTest TEST_NAME TEST_CLASS)
 endfunction(addPythonTest)
 
 
-add_subdirectory(core)
+add_subdirectory(geometry)
+add_subdirectory(util)
+add_subdirectory(ecl)
+add_subdirectory(well)
 add_subdirectory(cwrap)
-add_subdirectory(share)
-
-if(BUILD_ERT)
-    add_subdirectory(ert)
-
-    add_test( NAME python.tests.ert.import
-              WORKING_DIRECTORY ${INSTALL_DIRECTORY}
-              COMMAND tests/ctest_import.py ${INSTALL_DIRECTORY} "ert")
-
-    if (ERT_BUILD_GUI)
-        add_subdirectory(gui)
-
-        add_test( NAME python.tests.ert_gui.import
-                  WORKING_DIRECTORY ${INSTALL_DIRECTORY}
-                  COMMAND tests/ctest_import.py ${INSTALL_DIRECTORY} "ert_gui")
-    endif()
-
-
-endif()
-
+addPythonTest(lint test_pylint.LintErt)

@@ -7,8 +7,8 @@ set(RESINSIGHT_INCREMENT_VERSION "flow.13")
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
-# https://github.com/Ensembles/ert
-set(ERT_GITHUB_SHA "e2a5a9cc20705537d07822958d925e092a323367") 
+# https://github.com/Statoil/libecl
+set(ERT_GITHUB_SHA "f39d2e7fd196350ab1db86bb1bd5a3faca72d75d") 
 
 # https://github.com/OPM/opm-flowdiagnostics
 set(OPM_FLOWDIAGNOSTICS_SHA "a14dc4ba1302bcc1e0aeb35c5de6b4bd39bce98")

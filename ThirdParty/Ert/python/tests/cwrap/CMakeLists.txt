@@ -7,11 +7,11 @@ set(TEST_SOURCES
     test_cfile.py
 )
 
-add_python_package("python.tests.core.cwrap" ${PYTHON_INSTALL_PREFIX}/tests/core/cwrap "${TEST_SOURCES}" False)
+add_python_package("python.tests.cwrap" ${PYTHON_INSTALL_PREFIX}/tests/cwrap "${TEST_SOURCES}" False)
 
-addPythonTest(core.cwrap.basecclass tests.core.cwrap.test_basecclass.BaseCClassTest)
-addPythonTest(core.cwrap.basecenum tests.core.cwrap.test_basecenum.BaseCEnumTest)
-addPythonTest(core.cwrap.basecvalue tests.core.cwrap.test_basecvalue.BaseCValueTest)
-addPythonTest(core.cwrap.metacwrap tests.core.cwrap.test_metawrap.MetaWrapTest)
-addPythonTest(core.cwrap.cfile tests.core.cwrap.test_cfile.CFILETest)
+addPythonTest(cwrap.basecclass tests.cwrap.test_basecclass.BaseCClassTest)
+addPythonTest(cwrap.basecenum tests.cwrap.test_basecenum.BaseCEnumTest)
+addPythonTest(cwrap.basecvalue tests.cwrap.test_basecvalue.BaseCValueTest)
+addPythonTest(cwrap.metacwrap tests.cwrap.test_metawrap.MetaWrapTest)
+addPythonTest(cwrap.cfile tests.cwrap.test_cfile.CFILETest)
 

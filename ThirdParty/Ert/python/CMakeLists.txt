@@ -1,5 +1,5 @@
 include(cmake/find_python_module.cmake)
-include(cmake/python_module_versions.cmake) # finds version
+include(cmake/python_package_versions.cmake) # finds version
 
 FIND_PACKAGE(PythonInterp 2.7 EXACT)
 if (NOT DEFINED PYTHON_EXECUTABLE)
@@ -8,21 +8,10 @@ if (NOT DEFINED PYTHON_EXECUTABLE)
 endif()
 
 
-python_module(numpy 1.7.1)
+python_package(numpy 1.7.1)
 if (NOT DEFINED PY_numpy)
    message("numpy module not found - Python wrappers not enabled")
    return()
-endif()
-
-
-if (ERT_BUILD_GUI)
-   python_module(PyQt4 4.8.0)
-   if(NOT DEFINED PY_PyQt4)
-     message(SEND_ERROR "Cannot build GUI without PyQt4")
-   endif()
-   python_module( matplotlib 1.2.0  )
-   python_module( pandas     0.15.1 )
-   python_module( scipy      0.16.1 )
 endif()
 
 if (EXISTS "/etc/debian_version")

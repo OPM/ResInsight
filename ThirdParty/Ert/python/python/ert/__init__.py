@@ -57,7 +57,10 @@ before giving up completely.
 """
 import os.path
 import sys
+
 import warnings
+warnings.simplefilter('always', DeprecationWarning) # see #1437
+
 from cwrap import load as cwrapload
 
 try:

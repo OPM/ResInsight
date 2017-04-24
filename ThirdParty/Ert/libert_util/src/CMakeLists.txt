@@ -33,6 +33,7 @@ set(source_files
     ert_version.c
     struct_vector.c
     perm_vector.c
+    test_util.c
 )
 
 set(header_files
@@ -71,10 +72,9 @@ set(header_files
     buffer_string.h
     perm_vector.h
     ert_version.h
+    test_util.h
 )
 
-set( test_source test_util.c )
-set( test_headers test_util.h )
 
 
 # Add compile time variable values to ert_version.c
@@ -162,11 +162,6 @@ if (ERT_BUILD_CXX)
 endif()
 
 add_library( ert_util   ${LIBRARY_TYPE}  ${source_files} )
-if (BUILD_TESTS)
-   add_library( test_util  ${LIBRARY_TYPE}  ${test_source} )
-   target_link_libraries( test_util ert_util )
-   set_target_properties( test_util PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )
-endif()
 
 message(STATUS "Linking with: ${ERT_EXTERNAL_UTIL_LIBS}")
 set_target_properties( ert_util PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )

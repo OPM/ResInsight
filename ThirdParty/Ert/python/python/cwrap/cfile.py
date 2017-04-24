@@ -15,7 +15,8 @@
 #  for more details.
 
 import ctypes
-from .prototype import Prototype
+import six
+from .prototype import Prototype, PrototypeError
 from .basecclass import BaseCClass
 
 class CFILE(BaseCClass):

@@ -19,7 +19,6 @@ Simple package for working with 2D geometry.
 """
 import ert
 from cwrap import Prototype
-import ert.util
 
 class GeoPrototype(Prototype):
     lib = ert.load("libert_geometry")
@@ -28,7 +27,8 @@ class GeoPrototype(Prototype):
         super(GeoPrototype, self).__init__(GeoPrototype.lib, prototype, bind=bind)
 
 
-        
+from .geo_pointset import GeoPointset
+from .geo_region import GeoRegion
 from .cpolyline import CPolyline
 from .cpolyline_collection import CPolylineCollection
 from .polyline import Polyline

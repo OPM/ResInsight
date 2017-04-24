@@ -1,6 +1,23 @@
-import types
+#  Copyright (C) 2017  Statoil ASA, Norway.
+#
+#  This file is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+from six import string_types
 from cwrap import BaseCClass
-from ert.ecl import EclPrototype, EclKW
+from ert.ecl import EclPrototype
 from ert.util import CTime
 
 class EclFileView(BaseCClass):
@@ -13,7 +30,7 @@ class EclFileView(BaseCClass):
     _create_block_view    = EclPrototype("ecl_file_view_ref ecl_file_view_add_blockview( ecl_file_view , char*, int )")
     _create_block_view2   = EclPrototype("ecl_file_view_ref ecl_file_view_add_blockview2( ecl_file_view , char*, char*, int )")
     _restart_view         = EclPrototype("ecl_file_view_ref ecl_file_view_add_restart_view( ecl_file_view , int, int, time_t, double )")
-    
+
 
     def __init__(self):
         raise NotImplementedError("Can not instantiate directly")
@@ -23,7 +40,8 @@ class EclFileView(BaseCClass):
         return self._iget_kw( index ).setParent( parent = self )
 
 
-    
+    def __repr__(self):
+        return 'EclFileView(size = %d) %s' % (len(self), self._ad_str())
 
     def iget_named_kw(self, kw_name , index):
         if not kw_name in self:
@@ -31,7 +49,7 @@ class EclFileView(BaseCClass):
 
         if index >= self.numKeywords( kw_name ):
             raise IndexError("Too large index: %d" % index)
-        
+
         return self._iget_named_kw( kw_name , index ).setParent( parent = self )
 
 
@@ -64,12 +82,15 @@ class EclFileView(BaseCClass):
                ....
         """
 
-        if isinstance( index , types.IntType):
-            if index < 0 or index >= len(self):
-                raise IndexError
+        if isinstance( index , int):
+            ls = len(self)
+            idx = index
+            if idx < 0:
+                idx += ls
+            if 0 <= idx < ls:
+                return self.__iget(idx)
             else:
-                kw = self.__iget( index )
-                return kw
+                raise IndexError('Index must be in [0, %d), was: %d.' % (ls, index))
 
         if isinstance( index , slice ):
             indices = index.indices( len(self) )
@@ -78,7 +99,9 @@ class EclFileView(BaseCClass):
                 kw_list.append( self[i] )
             return kw_list
         else:
-            if isinstance( index , types.StringType):
+            if isinstance( index , bytes):
+                index = index.decode('ascii')
+            if isinstance( index , string_types):
                 if index in self:
                     kw_index = index
                     kw_list = []
@@ -93,55 +116,61 @@ class EclFileView(BaseCClass):
 
     def __len__(self):
         return self._get_size( )
-            
-            
+
+
     def __contains__(self , kw):
         if self.numKeywords(kw) > 0:
             return True
         else:
             return False
 
-            
+
     def numKeywords(self , kw):
         return self._get_num_named_kw( kw )
 
-    
+
     def uniqueSize(self):
         return self._get_unique_size( )
 
     def blockView2(self , start_kw , stop_kw, start_index):
+        idx = start_index
         if start_kw:
             if not start_kw in self:
                 raise KeyError("The keyword:%s is not in file" % start_kw)
 
-            if start_index >= self.numKeywords( start_kw ):
-                raise IndexError("Index too high")
-            
+            ls = self.numKeywords(start_kw)
+            if idx < 0:
+                idx += ls
+            if not (0 <= idx < ls):
+                raise IndexError('Index must be in [0, %d), was: %d.' % (ls, start_index))
+
         if stop_kw:
             if not stop_kw in self:
                 raise KeyError("The keyword:%s is not in file" % stop_kw)
 
-        view = self._create_block_view2( start_kw , stop_kw , start_index )
+        view = self._create_block_view2(start_kw, stop_kw, idx)
         view.setParent( parent = self )
         return view
 
-    
-        
+
     def blockView(self , kw , kw_index):
         num = self.numKeywords( kw )
 
         if num == 0:
             raise KeyError("Unknown keyword: %s" % kw)
 
-        if kw_index >= num:
-            raise IndexError("Index too high")
-        
+        idx = kw_index
+        if idx < 0:
+            idx += num
+
+        if not (0 <= idx < num):
+            raise IndexError('Index must be in [0, %d), was: %d.' % (num, kw_index))
+
         view = self._create_block_view( kw , kw_index )
         view.setParent( parent = self )
         return view
 
 
-    
     def restartView(self , seqnum_index = None, report_step = None , sim_time = None , sim_days = None):
         if report_step is None:
             report_step = -1
@@ -154,7 +183,7 @@ class EclFileView(BaseCClass):
 
         if seqnum_index is None:
             seqnum_index = -1
-        
+
         view = self._restart_view( seqnum_index , report_step , CTime( sim_time ) , sim_days )
         if view is None:
             raise ValueError("No such restart block could be identiefied")

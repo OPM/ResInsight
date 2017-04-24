@@ -35,6 +35,7 @@
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/smspec_node.h>
 #include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_type.h>
 
 #ifdef HAVE_FNMATCH
 #include <fnmatch.h>
@@ -344,7 +345,7 @@ void ecl_smspec_lock( ecl_smspec_type * smspec ) {
 static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_type * fortio) {
   int num_nodes           = ecl_smspec_num_nodes( smspec );
   {
-    ecl_kw_type * restart_kw = ecl_kw_alloc( RESTART_KW , SUMMARY_RESTART_SIZE , ECL_CHAR_TYPE );
+    ecl_kw_type * restart_kw = ecl_kw_alloc( RESTART_KW , SUMMARY_RESTART_SIZE , ECL_CHAR );
     int i;
     for (i=0; i < SUMMARY_RESTART_SIZE; i++)
       ecl_kw_iset_string8( restart_kw , i , "");
@@ -353,7 +354,7 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
     ecl_kw_free( restart_kw );
   }
   {
-    ecl_kw_type * dimens_kw = ecl_kw_alloc( DIMENS_KW , DIMENS_SIZE , ECL_INT_TYPE );
+    ecl_kw_type * dimens_kw = ecl_kw_alloc( DIMENS_KW , DIMENS_SIZE , ECL_INT );
     ecl_kw_iset_int( dimens_kw , DIMENS_SMSPEC_SIZE_INDEX , num_nodes );
     ecl_kw_iset_int( dimens_kw , DIMENS_SMSPEC_NX_INDEX   , smspec->grid_dims[0] );
     ecl_kw_iset_int( dimens_kw , DIMENS_SMSPEC_NY_INDEX   , smspec->grid_dims[1] );
@@ -369,13 +370,13 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
 
 
   {
-    ecl_kw_type * keywords_kw = ecl_kw_alloc( KEYWORDS_KW , num_nodes , ECL_CHAR_TYPE );
-    ecl_kw_type * wgnames_kw  = ecl_kw_alloc( WGNAMES_KW  , num_nodes , ECL_CHAR_TYPE );
-    ecl_kw_type * units_kw    = ecl_kw_alloc( UNITS_KW    , num_nodes , ECL_CHAR_TYPE );
+    ecl_kw_type * keywords_kw = ecl_kw_alloc( KEYWORDS_KW , num_nodes , ECL_CHAR );
+    ecl_kw_type * wgnames_kw  = ecl_kw_alloc( WGNAMES_KW  , num_nodes , ECL_CHAR );
+    ecl_kw_type * units_kw    = ecl_kw_alloc( UNITS_KW    , num_nodes , ECL_CHAR );
     ecl_kw_type * nums_kw     = NULL;
 
     if (smspec->need_nums)
-      nums_kw = ecl_kw_alloc( NUMS_KW , num_nodes , ECL_INT_TYPE);
+      nums_kw = ecl_kw_alloc( NUMS_KW , num_nodes , ECL_INT);
     {
       int i;
       for (i=0; i < ecl_smspec_num_nodes( smspec ); i++) {
@@ -435,7 +436,7 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
   }
 
   {
-    ecl_kw_type * startdat_kw = ecl_kw_alloc( STARTDAT_KW , STARTDAT_SIZE , ECL_INT_TYPE );
+    ecl_kw_type * startdat_kw = ecl_kw_alloc( STARTDAT_KW , STARTDAT_SIZE , ECL_INT );
     int day,month,year;
     ecl_util_set_date_values( smspec->sim_start_time , &day, &month , &year);
 

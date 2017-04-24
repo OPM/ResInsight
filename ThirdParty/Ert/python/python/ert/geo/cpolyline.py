@@ -41,7 +41,7 @@ class CPolyline(BaseCClass):
     _equal              = GeoPrototype("bool     geo_polygon_equal( geo_polygon , geo_polygon )")
 
 
-    def __init__(self, name = None , init_points = []):
+    def __init__(self, name = None , init_points = ()):
         c_ptr = self._alloc_new( name )
         super(CPolyline , self).__init__( c_ptr )
         for (xc, yc) in init_points:

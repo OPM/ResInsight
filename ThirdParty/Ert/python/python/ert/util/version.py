@@ -46,6 +46,15 @@ class Version(object):
     def __str__(self):
         return self.versionString()
 
+    def __repr__(self):
+        major, minor, micro = self.versionTuple()
+        commit = self._git_commit_short()
+        status = 'production'
+        if self.isDevelVersion():
+            status = 'development'
+        fmt = 'Version(major=%d, minor=%d, micro="%s", commit="%s", status="%s")'
+        return fmt % (major, minor, micro, commit, status)
+
     @cmp_method
     def __eq__(self, other):
         return self.versionTuple() == other.versionTuple()

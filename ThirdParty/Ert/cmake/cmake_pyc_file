@@ -9,7 +9,7 @@ import os.path
 for file in sys.argv[1:]:
     try:
         py_compile.compile( file , doraise = True )
-    except Exception,error:
+    except Exception as error:
         sys.exit("py_compile(%s) failed:%s" % (file , error))
         
 

@@ -17,8 +17,8 @@
 Module for loading ECLIPSE RFT files.
 """
 
-import types
-import warnings
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from cwrap import BaseCClass
 from ert.ecl import EclRFTCell, EclPLTCell, EclPrototype
 from ert.util import CTime
@@ -74,7 +74,22 @@ class EclRFT(BaseCClass):
 
     def free(self):
         self._free( )
-    
+
+    def __repr__(self):
+        rs = []
+        rs.append('completed_cells = %d' % len(self))
+        rs.append('date = %s' % self.getDate())
+        if self.is_RFT():
+            rs.append('RFT')
+        if self.is_PLT():
+            rs.append('PLT')
+        if self.is_SEGMENT():
+            rs.append('SEGMENT')
+        if self.is_MSW():
+            rs.append('MSW')
+        rstr = ', '.join(rs)
+        return self._create_repr(rstr)
+
     def __len__(self):
         """
         The number of completed cells in this RFT.
@@ -106,53 +121,18 @@ class EclRFT(BaseCClass):
         return self._is_MSW( )
 
 
-    @property
-    def type(self):
-        # Enum: ecl_rft_enum from ecl_rft_node.h
-        # RFT     = 1
-        # PLT     = 2
-        # Segment = 3  -- Not properly implemented
-        """
-        Deprecated - use query methods: is_RFT(), is_PLT() and is_SEGMENT() instead.
-        """
-        warnings.warn("The property type is deprecated, use the query methods is_RFT(), is_PLT() and is_SEGMENT() instead." , DeprecationWarning)
-        return self._get_type( )
-
-
     def getWellName(self):
         """
         The name of the well we are considering.
         """
         return self._get_well( )
     
-    @property
-    def well(self):
-        warnings.warn("The property well is deprecated, use the getWellName() method instead." , DeprecationWarning)
-        return self.getWellName( )
-        
-
     def getDate(self):
         """
         The date when this RFT/PLT/... was recorded. 
         """
         ct = CTime(self._get_date( ))
         return ct.date()
-
-    
-    @property
-    def date(self):
-        warnings.warn("The property date is deprecated, use the getDate() instead." , DeprecationWarning)
-        return self.getDate()
-    
-        
-    @property
-    def size(self):
-        """
-        The number of completed cells.
-        """
-        warnings.warn("The property size is deprecated, use the built in len( ) function instead." , DeprecationWarning)
-        return len(self)
-
 
     def __cell_ref( self , cell_ptr ):
         if self.is_RFT():
@@ -164,7 +144,7 @@ class EclRFT(BaseCClass):
 
 
     def assert_cell_index( self , index ):
-        if isinstance( index , types.IntType):
+        if isinstance( index , int):
             length = self.__len__()
             if index < 0 or index >= length:
                 raise IndexError
@@ -325,13 +305,8 @@ class EclRFTFile(BaseCClass):
         Returns the total number of distinct wells in the RFT file.
         """
         return self._get_num_wells( )
-        
-    @property
-    def num_wells( self ):
-        warnings.warn("The property num_wells is deprecated, use the getNumWells() instead." , DeprecationWarning)
-        return self.getNumWells()
 
-    
+
     def getHeaders(self):
         """
         Returns a list of two tuples (well_name , date) for the whole file.
@@ -339,14 +314,9 @@ class EclRFTFile(BaseCClass):
         header_list = []
         for i in (range(self._get_size( None , CTime(-1)))):
             rft = self.iget( i )
-            header_list.append( (rft.well , rft.date) )
+            header_list.append( (rft.getWellName() , rft.getDate()) )
         return header_list
 
-    @property
-    def headers(self):
-        warnings.warn("The property headers is deprecated, use the getHeaders() instead." , DeprecationWarning)
-        return self.getHeaders()
-    
 
     def iget(self , index):
         """
@@ -370,13 +340,7 @@ class EclRFTFile(BaseCClass):
 
     def free(self):
         self._free( )
-    
 
-
-
-
-
-
-
-
-
+    def __repr__(self):
+        w = len(self)
+        return self._create_repr('wells = %d' % w)

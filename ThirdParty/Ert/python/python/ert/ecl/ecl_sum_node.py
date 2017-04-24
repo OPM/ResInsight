@@ -1,4 +1,5 @@
-class EclSumNode:
+class EclSumNode(object):
+
     def __init__(self, mini_step, report_step, days, date, mpl_date, value):
         """
         EclSumNode is a 'struct' with a summary value and time.
@@ -23,5 +24,5 @@ class EclSumNode:
         self.date = date
         self.mpl_date = mpl_date
 
-    def __str__(self):
-        return "<EclSumNode: days:%g  value:%g>" % ( self.days, self.value )
+    def __repr__(self):
+        return "EclSumNode(days=%d, value=%g)" % (self.days, self.value)

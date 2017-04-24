@@ -14,9 +14,6 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-
-import warnings
-
 from ert.util import VectorTemplate, UtilPrototype
 
 
@@ -96,25 +93,6 @@ class BoolVector(VectorTemplate):
         The empty list will evaluate to false
         @rtype: BoolVector
         """
-        return cls._create_active_mask(range_string)
-
-    @classmethod
-    def active_mask(cls, range_string):
-        """
-        Will create a BoolVector instance with the values from @range_string.
-
-        The range_string input should be of the type "1,3-5,9,17",
-        i.e. integer values separated by commas, and dashes to
-        represent ranges. If the input string contains ANY invalid
-        characters the returned active list will be empty:
-
-           "1,4-7,10"  =>  {F,T,F,F,T,T,T,T,F,F,T}
-           "1,4-7,10X" =>  {}
-
-        The empty list will evaluate to false
-        @rtype: BoolVector
-        """
-        warnings.warn("The active_mask(cls, rangs_string) method has been renamed: createActiveMask(cls, rangs_string)", DeprecationWarning)
         return cls._create_active_mask(range_string)
 
     def updateActiveMask(self, range_string):

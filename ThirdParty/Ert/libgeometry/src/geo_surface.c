@@ -60,31 +60,6 @@ static void geo_surface_copy_header( const geo_surface_type * src , geo_surface_
   }
 }
 
-
-/*
-static int geo_surface_cornerindex( const geo_surface_type * geo_surface , int cell_ix , int cell_iy) {
-  return (geo_surface->nx + 1) * cell_iy + cell_ix;
-}
-
-
-static void geo_surface_init_cells( geo_surface_type * geo_surface ) {
-  int ix,iy;
-  geo_surface->cells = util_malloc( geo_surface->nx * geo_surface->ny * sizeof * geo_surface->cells , __func__);
-  for (iy = 0; iy < geo_surface->ny; iy++) {
-    for (ix = 0; ix < geo_surface->nx; ix++) {
-      int cell_index = iy * geo_surface->nx + ix;
-
-      geo_surface->cells[ cell_index ].index_list[0] = geo_surface_cornerindex( geo_surface , ix     , iy    );
-      geo_surface->cells[ cell_index ].index_list[1] = geo_surface_cornerindex( geo_surface , ix + 1 , iy    );
-      geo_surface->cells[ cell_index ].index_list[2] = geo_surface_cornerindex( geo_surface , ix + 1 , iy + 1);
-      geo_surface->cells[ cell_index ].index_list[3] = geo_surface_cornerindex( geo_surface , ix     , iy + 1);
-
-    }
-  }
-}
-*/
-
-
 static geo_surface_type * geo_surface_alloc_empty( bool internal_z ) {
   geo_surface_type * surface = util_malloc( sizeof * surface );
   UTIL_TYPE_ID_INIT( surface , GEO_SURFACE_TYPE_ID )
@@ -116,28 +91,20 @@ static void geo_surface_init_regular( geo_surface_type * surface , const double 
 
 
 static bool geo_surface_fscanf_zcoord( const geo_surface_type * surface , FILE * stream , double * zcoord) {
-  bool OK = false;
   int index = 0;
 
   while (true) {
     if (fscanf(stream , "%lg" , &zcoord[index]) == 1)
       index++;
     else
-      /* File is too short */
-      break;
+      return false; // File is too short
 
     if (index == surface->nx * surface->ny) {
       double extra_value;
       int fscanf_return = fscanf( stream , "%lg" , &extra_value);
-
-      /* Check that there is not more data dangling at the end of the file. */
-      if (fscanf_return == EOF)
-        OK = true;
-      break;
+      return (fscanf_return == EOF); // no more data dangling at the end of the file.
     }
   }
-
-  return OK;
 }
 
 

@@ -75,7 +75,7 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
         }
 
         /* 2: Parse stdout output */
-        {
+        if (util_file_exists( stdout_file )) {
           bool at_eof;
           FILE * stream = util_fopen(stdout_file , "r");
           char * tmp_fname = util_fscanf_alloc_line(stream , &at_eof);
@@ -293,7 +293,7 @@ void util_abort__(const char * file , const char * function , int line , const c
       }
       fprintf(stderr, "\nSee file: %s for more details of the crash.\nSetting the environment variable \"ERT_SHOW_BACKTRACE\" will show the backtrace on stderr.\n", filename);
     }
-
+    chmod(filename, 00644); // -rw-r--r--
     free(filename);
   }
 
@@ -304,4 +304,3 @@ void util_abort__(const char * file , const char * function , int line , const c
 
 
 /*****************************************************************/
-

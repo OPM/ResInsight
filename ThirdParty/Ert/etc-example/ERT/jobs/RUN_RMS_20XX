@@ -1,8 +1,0 @@
-STDERR        rms.stderr
-STDOUT        rms.stdout
-
-PORTABLE_EXE  /project/res/etc/ERT/Scripts/run_RMS_20xx
--- RMS_PROJECT should be the full path to the rms project
-ARGLIST       <RUNPATH>  <IENS>  <RMS_VERSION>  <RMS_PROJECT>   /ROXAR  <RMS_WORKFLOW>
-TARGET_FILE   <RMS_TARGET_FILE>
-ENV           LM_LICENSE_FILE  /prog/roxar/licensing/geomaticLM.lic

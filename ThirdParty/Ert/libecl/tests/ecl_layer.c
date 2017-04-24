@@ -19,7 +19,6 @@
 #include <stdbool.h>
 
 #include <ert/util/test_util.h>
-#include <ert/util/test_util_abort.h>
 #include <ert/util/util.h>
 #include <ert/util/struct_vector.h>
 

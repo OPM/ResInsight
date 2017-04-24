@@ -70,24 +70,6 @@ EclPhaseEnum.addEnum("ECL_WATER_PHASE" , 4 )
 
 #-----------------------------------------------------------------
 
-class EclTypeEnum(BaseCEnum):
-    TYPE_NAME="ecl_type_enum"
-    ECL_CHAR_TYPE   = None
-    ECL_FLOAT_TYPE  = None
-    ECL_DOUBLE_TYPE = None
-    ECL_INT_TYPE    = None
-    ECL_BOOL_TYPE   = None
-    ECL_MESS_TYPE   = None
-  
-EclTypeEnum.addEnum("ECL_CHAR_TYPE" , 0 )
-EclTypeEnum.addEnum("ECL_FLOAT_TYPE" , 1 )
-EclTypeEnum.addEnum("ECL_DOUBLE_TYPE" , 2 )
-EclTypeEnum.addEnum("ECL_INT_TYPE" , 3 )
-EclTypeEnum.addEnum("ECL_BOOL_TYPE" , 4 )
-EclTypeEnum.addEnum("ECL_MESS_TYPE" , 5 )
-
-#-----------------------------------------------------------------
-
 class EclUnitTypeEnum(BaseCEnum):
     TYPE_NAME = "ecl_unit_enum"
 
@@ -119,7 +101,6 @@ EclFileFlagEnum.addEnum("ECL_FILE_WRITABLE" , 2 )
 class EclUtil(object):
     _get_num_cpu    = EclPrototype("int ecl_util_get_num_cpu( char* )", bind = False)
     _get_file_type  = EclPrototype("ecl_file_enum ecl_util_get_file_type( char* , bool* , int*)" , bind = False)
-    _get_type_name  = EclPrototype("char* ecl_util_get_type_name( int )" , bind = False)
     _get_start_date = EclPrototype("time_t ecl_util_get_start_date( char* )" , bind = False)
     _get_report_step = EclPrototype("int ecl_util_filename_report_nr( char* )" , bind = False)
 
@@ -143,10 +124,6 @@ class EclUtil(object):
         file_type , fmt , step = EclUtil.inspectExtension( filename )
         return file_type
     
-    @staticmethod
-    def type_name(ecl_type):
-        return EclUtil._get_type_name(ecl_type)
-
     @staticmethod
     def get_start_date(datafile):
         return EclUtil._get_start_date(datafile).datetime()
@@ -180,5 +157,4 @@ class EclUtil(object):
 
 get_num_cpu = EclUtil.get_num_cpu
 get_file_type = EclUtil.get_file_type
-type_name = EclUtil.type_name
 get_start_date = EclUtil.get_start_date

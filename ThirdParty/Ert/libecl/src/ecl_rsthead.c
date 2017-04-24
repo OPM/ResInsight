@@ -88,8 +88,7 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
       // The only derived quantity
       rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );
   }
-  if (doubhead_kw) 
-      rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX ); 
+  rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
   if (logihead_kw)
     rsthead->dualp    = ecl_kw_iget_bool( logihead_kw , LOGIHEAD_DUALP_INDEX);
 
@@ -110,14 +109,11 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
 
 ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_view_type * rst_view, int report_step) {
   const ecl_kw_type * intehead_kw = ecl_file_view_iget_named_kw( rst_view , INTEHEAD_KW , 0);
-  const ecl_kw_type * doubhead_kw = NULL;
+  const ecl_kw_type * doubhead_kw = ecl_file_view_iget_named_kw( rst_view , DOUBHEAD_KW , 0);
   const ecl_kw_type * logihead_kw = NULL;
 
   if (ecl_file_view_has_kw(rst_view, LOGIHEAD_KW))
     logihead_kw = ecl_file_view_iget_named_kw( rst_view , LOGIHEAD_KW , 0);
-
-  if (ecl_file_view_has_kw(rst_view, DOUBHEAD_KW)) 
-      doubhead_kw = ecl_file_view_iget_named_kw(rst_view, DOUBHEAD_KW, 0); 
 
   if (ecl_file_view_has_kw( rst_view , SEQNUM_KW)) {
     const ecl_kw_type * seqnum_kw = ecl_file_view_iget_named_kw( rst_view , SEQNUM_KW , 0);

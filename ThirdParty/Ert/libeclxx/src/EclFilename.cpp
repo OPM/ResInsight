@@ -16,6 +16,7 @@
    for more details.
 */
 
+#include <string>
 #include <stdexcept>
 
 #include <ert/ecl/EclFilename.hpp>
@@ -23,11 +24,17 @@
 namespace ERT {
 
 std::string EclFilename( const std::string& path, const std::string& base, ecl_file_enum file_type , int report_step, bool fmt_file) {
-    return ecl_util_alloc_filename( path.c_str(), base.c_str(), file_type, fmt_file , report_step );
+    char* tmp = ecl_util_alloc_filename( path.c_str(), base.c_str(), file_type, fmt_file , report_step );
+    std::string retval = tmp;
+    free(tmp);
+    return retval;
 }
 
 std::string EclFilename( const std::string& base, ecl_file_enum file_type , int report_step, bool fmt_file) {
-    return ecl_util_alloc_filename( nullptr, base.c_str(), file_type, fmt_file , report_step );
+    char* tmp = ecl_util_alloc_filename( nullptr, base.c_str(), file_type, fmt_file , report_step );
+    std::string retval = tmp;
+    free(tmp);
+    return retval;
 }
 
 namespace {
@@ -42,16 +49,24 @@ namespace {
 std::string EclFilename( const std::string& path, const std::string& base, ecl_file_enum file_type , bool fmt_file) {
     if (require_report_step( file_type ))
         throw std::runtime_error("Must use overload with report step for this file type");
-    else
-        return ecl_util_alloc_filename( path.c_str(), base.c_str(), file_type, fmt_file , -1);
+    else {
+        char* tmp = ecl_util_alloc_filename( path.c_str(), base.c_str(), file_type, fmt_file , -1);
+        std::string retval = tmp;
+        free(tmp);
+        return retval;
+    }
 }
 
 
 std::string EclFilename( const std::string& base, ecl_file_enum file_type , bool fmt_file) {
     if (require_report_step( file_type ))
         throw std::runtime_error("Must use overload with report step for this file type");
-    else
-        return ecl_util_alloc_filename( nullptr , base.c_str(), file_type, fmt_file , -1);
+    else {
+        char* tmp = ecl_util_alloc_filename( nullptr , base.c_str(), file_type, fmt_file , -1);
+        std::string retval = tmp;
+        free(tmp);
+        return retval;
+    }
 }
 
 

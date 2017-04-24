@@ -1,5 +1,6 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+from six import string_types
 import ctypes
-from types import StringType, IntType
 
 import ert
 from cwrap import BaseCClass, Prototype, PrototypeError
@@ -33,13 +34,15 @@ class StringList(BaseCClass):
 
         if initial:
             for s in initial:
-                if isinstance(s, StringType):
+                if isinstance(s, bytes):
+                    s.decode('ascii')
+                if isinstance(s, string_types):
                     self.append(s)
                 else:
                     raise TypeError("Item: %s not a string" % s)
 
     def __getitem__(self, index):
-        if isinstance(index, IntType):
+        if isinstance(index, int):
             length = len(self)
             if index < 0:
                 index += length
@@ -51,7 +54,9 @@ class StringList(BaseCClass):
             raise TypeError("Index should be integer type")
 
     def append(self, string):
-        if isinstance(string, StringType):
+        if isinstance(string, bytes):
+            s.decode('ascii')
+        if isinstance(string, string_types):
             self._append(self, string)
         else:
             self._append(self, str(string))
@@ -109,10 +114,10 @@ class MetaWrapTest(ExtendedTestCase):
             char_ptr = ctypes.c_char_p(c_ptr)
             python_string = char_ptr.value
             TestUtilPrototype.lib.free(c_ptr)
-            return python_string
+            return python_string.decode('ascii')
 
         Prototype.registerType("string_obj", stringObj)
 
         dateStamp  = TestUtilPrototype("string_obj util_alloc_date_stamp_utc()")
         date_stamp = dateStamp()
-        self.assertIsInstance(date_stamp, str)
+        self.assertIsInstance(date_stamp, string_types)

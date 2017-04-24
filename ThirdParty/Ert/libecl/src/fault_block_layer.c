@@ -130,7 +130,7 @@ bool fault_block_layer_scan_kw( fault_block_layer_type * layer , const ecl_kw_ty
 
   if (ecl_kw_get_size( fault_block_kw) != ecl_grid_get_global_size(layer->grid))
     return false;
-  else if (ecl_kw_get_type( fault_block_kw ) != ECL_INT_TYPE)
+  else if (!ecl_type_is_int(ecl_kw_get_data_type( fault_block_kw )))
     return false;
   else {
     int i,j;
@@ -171,7 +171,7 @@ bool fault_block_layer_scan_kw( fault_block_layer_type * layer , const ecl_kw_ty
 bool fault_block_layer_load_kw( fault_block_layer_type * layer , const ecl_kw_type * fault_block_kw) {
   if (ecl_kw_get_size( fault_block_kw) != ecl_grid_get_global_size(layer->grid))
     return false;
-  else if (ecl_kw_get_type( fault_block_kw ) != ECL_INT_TYPE)
+  else if (!ecl_type_is_int(ecl_kw_get_data_type( fault_block_kw )))
     return false;
   else {
     int i,j;
@@ -316,7 +316,7 @@ void fault_block_layer_insert_block_content( fault_block_layer_type * layer , co
 
 
 bool fault_block_layer_export( const fault_block_layer_type * layer , ecl_kw_type * faultblock_kw) {
-  if ((ecl_kw_get_type( faultblock_kw ) == ECL_INT_TYPE) && (ecl_kw_get_size( faultblock_kw ) == ecl_grid_get_global_size( layer->grid ))) {
+  if (ecl_type_is_int(ecl_kw_get_data_type( faultblock_kw )) && (ecl_kw_get_size( faultblock_kw ) == ecl_grid_get_global_size( layer->grid ))) {
     int i,j;
 
     for (j=0; j < ecl_grid_get_ny( layer->grid ); j++) {

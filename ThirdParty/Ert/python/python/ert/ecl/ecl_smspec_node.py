@@ -1,4 +1,18 @@
-import warnings
+#  Copyright (C) 2016  Statoil ASA, Norway.
+#
+#  This file is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 
 from cwrap import BaseCClass
 from ert.ecl import EclPrototype
@@ -31,21 +45,6 @@ class EclSMSPECNode(BaseCClass):
     def __init__(self):
         super(EclSMSPECNode, self).__init__(0) # null pointer
         raise NotImplementedError("Class can not be instantiated directly!")
-
-    @property
-    def is_total(self):
-        warnings.warn("The is_total property is deprecated - use method isTotal()" , DeprecationWarning)
-        return self.isTotal( )
-
-    @property
-    def is_rate(self):
-        warnings.warn("The is_rate property is deprecated - use method isRate()" , DeprecationWarning)
-        return self.isRate()
-
-    @property
-    def is_historical(self):
-        warnings.warn("The is_historical property is deprecated - use method isHistorical()" , DeprecationWarning)
-        return self.isHistorical( )
 
     @property
     def unit(self):

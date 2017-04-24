@@ -51,6 +51,7 @@ class FaultBlock(BaseCClass):
     _get_global_index_list = EclPrototype("int_vector_ref fault_block_get_global_index_list(fault_block)")
     _trace_edge            = EclPrototype("void           fault_block_trace_edge( fault_block, double_vector , double_vector , int_vector)")
     _get_neighbours        = EclPrototype("void           fault_block_list_neighbours( fault_block , bool , geo_polygon_collection , int_vector)")
+    _free                  = EclPrototype("void           fault_block_free__(fault_block)")
 
 
     def __init__(self , *args , **kwargs):

@@ -1,3 +1,19 @@
+#  Copyright (C) 2017  Statoil ASA, Norway.
+#
+#  This file is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
+
 from __future__ import print_function
 import warnings
 from ert.ecl.ecl_sum_node import EclSumNode
@@ -24,7 +40,7 @@ class EclSumVector(object):
         self.parent = parent
         self.key = key
         self.report_only = report_only
-        
+
         if report_only:
             warnings.warn("The report_only flag to the EclSumVector will be removed" , DeprecationWarning)
 
@@ -109,7 +125,7 @@ class EclSumVector(object):
         return self.__report_step
 
 
-    def __iget__( self, index ):
+    def __iget( self, index ):
         """
         Will return an EclSumNode for element @index; should be called
         through the [] operator, otherwise you can come across
@@ -151,7 +167,7 @@ class EclSumVector(object):
             if index < 0 or index > length:
                 raise KeyError("Invalid index:%d out of range [0:%d)" % ( index, length))
             else:
-                return self.__iget__(index)
+                return self.__iget(index)
         elif isinstance(index, slice):
             # Observe that the slice based lookup does __not__ return
             # a proper EclSumVector instance; it will merely return
@@ -160,7 +176,7 @@ class EclSumVector(object):
             index = start
             sub_vector = []
             while index < stop:
-                sub_vector.append(self.__iget__(index))
+                sub_vector.append(self.__iget(index))
                 index += step
             return sub_vector
 
@@ -172,7 +188,7 @@ class EclSumVector(object):
         Will return the first EclSumNode in this vector.
         """
         self.assert_values()
-        return self.__iget__(0)
+        return self.__iget(0)
 
     @property
     def last( self ):
@@ -182,7 +198,7 @@ class EclSumVector(object):
         self.assert_values()
 
         index = len(self.__values) - 1
-        return self.__iget__(index)
+        return self.__iget(index)
 
     @property
     def last_value( self ):
@@ -192,7 +208,7 @@ class EclSumVector(object):
         self.assert_values()
 
         index = len(self.__values) - 1
-        return self.__iget__(index).value
+        return self.__iget(index).value
 
 
     def get_interp( self, days=None, date=None):
@@ -258,7 +274,7 @@ class EclSumVector(object):
         time_index = self.first_gt_index(limit)
         print(time_index)
         if time_index >= 0:
-            return self.__iget__(time_index)
+            return self.__iget(time_index)
         else:
             return None
 
@@ -283,6 +299,6 @@ class EclSumVector(object):
         """
         time_index = self.first_lt_index(limit)
         if time_index >= 0:
-            return self.__iget__(time_index)
+            return self.__iget(time_index)
         else:
             return None

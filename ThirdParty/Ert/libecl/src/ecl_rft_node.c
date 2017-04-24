@@ -34,6 +34,7 @@
 #include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_rft_node.h>
 #include <ert/ecl/ecl_rft_cell.h>
+#include <ert/ecl/ecl_type.h>
 
 
 /**
@@ -537,14 +538,14 @@ void ecl_rft_node_fwrite(const ecl_rft_node_type * rft_node, fortio_type * forti
     util_abort("%s: sorry - only writing of simple RFT is currently implemented",__func__);
   
   {
-    ecl_kw_type * time = ecl_kw_alloc(TIME_KW, 1, ECL_FLOAT_TYPE);
+    ecl_kw_type * time = ecl_kw_alloc(TIME_KW, 1, ECL_FLOAT);
     ecl_kw_iset_float(time, 0, ecl_rft_node_get_days(rft_node));
     ecl_kw_fwrite(time, fortio);
     ecl_kw_free(time);
   }
 
   {
-    ecl_kw_type * datevalue = ecl_kw_alloc(DATE_KW, 3, ECL_INT_TYPE);
+    ecl_kw_type * datevalue = ecl_kw_alloc(DATE_KW, 3, ECL_INT);
     time_t date = ecl_rft_node_get_date(rft_node);
     int day;
     int month;
@@ -558,7 +559,7 @@ void ecl_rft_node_fwrite(const ecl_rft_node_type * rft_node, fortio_type * forti
   }
 
   {
-    ecl_kw_type * welletc = ecl_kw_alloc(WELLETC_KW, 16, ECL_CHAR_TYPE);
+    ecl_kw_type * welletc = ecl_kw_alloc(WELLETC_KW, 16, ECL_CHAR);
     ecl_rft_enum type = ecl_rft_node_get_type(rft_node);
 
     ecl_kw_iset_string8(welletc, 1, ecl_rft_node_get_well_name(rft_node));
@@ -577,14 +578,14 @@ void ecl_rft_node_fwrite(const ecl_rft_node_type * rft_node, fortio_type * forti
 
   {
     int size_cells = ecl_rft_node_get_size(rft_node);
-    ecl_kw_type * conipos = ecl_kw_alloc(CONIPOS_KW, size_cells, ECL_INT_TYPE);
-    ecl_kw_type * conjpos = ecl_kw_alloc(CONJPOS_KW, size_cells, ECL_INT_TYPE);
-    ecl_kw_type * conkpos = ecl_kw_alloc(CONKPOS_KW, size_cells, ECL_INT_TYPE);
-    ecl_kw_type * hostgrid = ecl_kw_alloc(HOSTGRID_KW, size_cells, ECL_CHAR_TYPE);
-    ecl_kw_type * depth = ecl_kw_alloc(DEPTH_KW, size_cells, ECL_FLOAT_TYPE);
-    ecl_kw_type * pressure = ecl_kw_alloc(PRESSURE_KW, size_cells, ECL_FLOAT_TYPE);
-    ecl_kw_type * swat = ecl_kw_alloc(SWAT_KW, size_cells, ECL_FLOAT_TYPE);
-    ecl_kw_type * sgas = ecl_kw_alloc(SGAS_KW, size_cells, ECL_FLOAT_TYPE);
+    ecl_kw_type * conipos = ecl_kw_alloc(CONIPOS_KW, size_cells, ECL_INT);
+    ecl_kw_type * conjpos = ecl_kw_alloc(CONJPOS_KW, size_cells, ECL_INT);
+    ecl_kw_type * conkpos = ecl_kw_alloc(CONKPOS_KW, size_cells, ECL_INT);
+    ecl_kw_type * hostgrid = ecl_kw_alloc(HOSTGRID_KW, size_cells, ECL_CHAR);
+    ecl_kw_type * depth = ecl_kw_alloc(DEPTH_KW, size_cells, ECL_FLOAT);
+    ecl_kw_type * pressure = ecl_kw_alloc(PRESSURE_KW, size_cells, ECL_FLOAT);
+    ecl_kw_type * swat = ecl_kw_alloc(SWAT_KW, size_cells, ECL_FLOAT);
+    ecl_kw_type * sgas = ecl_kw_alloc(SGAS_KW, size_cells, ECL_FLOAT);
     int i;
 
     for(i =0;i<size_cells;i++){

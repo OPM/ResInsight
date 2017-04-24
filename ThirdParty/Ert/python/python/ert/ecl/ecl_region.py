@@ -1,18 +1,18 @@
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
-#  The file 'ecl_region.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
+#  The file 'ecl_region.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 """
 Module used to select cells based on many different criteria.
 
@@ -26,10 +26,10 @@ When the selection process is complete the region instance can be
 queried for the corresponding list of indices.
 """
 import ctypes
-import warnings
+
 from cwrap import BaseCClass
 from ert.ecl.faults import Layer
-from ert.ecl import EclKW, EclTypeEnum, EclPrototype
+from ert.ecl import EclKW, EclDataType, EclPrototype
 from ert.geo import CPolyline
 from ert.util import IntVector
 
@@ -87,7 +87,7 @@ class EclRegion(BaseCClass):
     _scale_kw_float             = EclPrototype("void ecl_region_scale_kw_float( ecl_region , ecl_kw , float, bool ) ")
     _scale_kw_double            = EclPrototype("void ecl_region_scale_kw_double( ecl_region , ecl_kw , double , bool) ")
 
-    _free                       = EclPrototype("void ecl_region_free( ecl_region )")     
+    _free                       = EclPrototype("void ecl_region_free( ecl_region )")
     _reset                      = EclPrototype("void ecl_region_reset( ecl_region )")
     _select_all                 = EclPrototype("void ecl_region_select_all( ecl_region )")
     _deselect_all               = EclPrototype("void ecl_region_deselect_all( ecl_region )")
@@ -101,8 +101,8 @@ class EclRegion(BaseCClass):
     _deselect_in_interval       = EclPrototype("void ecl_region_deselect_in_interval( ecl_region, ecl_kw, float , float )")
     _invert_selection           = EclPrototype("void ecl_region_invert_selection( ecl_region )")
 
-    _select_box                 = EclPrototype("void ecl_region_select_from_ijkbox(ecl_region , int , int , int , int , int , int)")     
-    _deselect_box               = EclPrototype("void ecl_region_deselect_from_ijkbox(ecl_region , int , int , int , int , int , int)")     
+    _select_box                 = EclPrototype("void ecl_region_select_from_ijkbox(ecl_region , int , int , int , int , int , int)")
+    _deselect_box               = EclPrototype("void ecl_region_deselect_from_ijkbox(ecl_region , int , int , int , int , int , int)")
     _imul_kw                    = EclPrototype("void  ecl_region_kw_imul( ecl_region , ecl_kw , ecl_kw , bool)")
     _idiv_kw                    = EclPrototype("void  ecl_region_kw_idiv( ecl_region , ecl_kw , ecl_kw , bool)")
     _iadd_kw                    = EclPrototype("void  ecl_region_kw_iadd( ecl_region , ecl_kw , ecl_kw , bool)")
@@ -163,7 +163,7 @@ class EclRegion(BaseCClass):
     _select_from_layer          = EclPrototype("void ecl_region_select_from_layer( ecl_region , layer , int , int)")
     _deselect_from_layer        = EclPrototype("void ecl_region_deselect_from_layer( ecl_region , layer , int , int)")
 
-    
+
     def __init__(self , grid , preselect):
         """
         Create a new region selector for cells in @grid.
@@ -216,14 +216,14 @@ class EclRegion(BaseCClass):
         inplace & operator, i.e.
 
            reg1 &= reg2
-           
+
         will eventually call this method.
         """
         if isinstance(other , EclRegion):
             self._intersect(  other)
         else:
             raise TypeError("Ecl region can only intersect with other EclRegion instances")
-            
+
         return self
 
 
@@ -239,7 +239,7 @@ class EclRegion(BaseCClass):
             raise TypeError("Ecl region can only subtract with other EclRegion instances")
 
         return self
-        
+
 
     def __ior__(self , other):
         """
@@ -257,7 +257,7 @@ class EclRegion(BaseCClass):
             self._combine(  other)
         else:
             raise TypeError("Ecl region can only be combined with other EclRegion instances")
-            
+
         return self
 
     def __iadd__(self , other):
@@ -276,7 +276,7 @@ class EclRegion(BaseCClass):
         operator:
 
             new_reg = reg1 | reg2
-            
+
         """
         new_region = self.copy()
         new_region.__ior__( other )
@@ -316,19 +316,19 @@ class EclRegion(BaseCClass):
     def union_with( self, other):
         """
         Will update self with the union of @self and @other.
-        
-        See doscumentation of __ior__(). 
+
+        See doscumentation of __ior__().
         """
         return self.__ior__( other )
 
     def intersect_with( self, other):
         """
         Will update self with the intersection of @self and @other.
-        
-        See doscumentation of __iand__(). 
+
+        See doscumentation of __iand__().
         """
         return self.__iand__( other )
-    
+
 
     def copy( self ):
         return self.__deep_copy__( {} )
@@ -346,7 +346,7 @@ class EclRegion(BaseCClass):
 
     ##################################################################
 
-            
+
     @select_method
     def select_more( self , ecl_kw , limit , intersect = False):
         """
@@ -365,13 +365,13 @@ class EclRegion(BaseCClass):
            swat_kw = restart_file["SWAT"][0]
            grid = ecl.EclGrid( "ECLIPSE.EGRID" )
            region = ecl.EclRegion( grid , False )
-           
+
            region.select_more( swat_kw , 0.85 )
 
         """
         self._select_more( ecl_kw , limit )
 
-        
+
 
     def deselect_more( self , ecl_kw , limit):
         """
@@ -385,7 +385,7 @@ class EclRegion(BaseCClass):
     def select_less( self , ecl_kw , limit , intersect = False):
         """
         Select all cells where keyword @ecl_kw is below @limit.
-        
+
         See select_more() for further documentation.
         """
         self._select_less( ecl_kw , limit )
@@ -393,7 +393,7 @@ class EclRegion(BaseCClass):
     def deselect_less( self , ecl_kw , limit):
         """
         Deselect all cells where keyword @ecl_kw is below @limit.
-        
+
         See select_more() for further documentation.
         """
         self._deselect_less( ecl_kw , limit )
@@ -412,11 +412,13 @@ class EclRegion(BaseCClass):
            pvtnum_kw = init_file.iget_named_kw( "PVTNUM" , 0 )
            grid = ecl.EclGrid( "ECLIPSE.GRID" )
            region = ecl.EclRegion( grid , False )
-           
+
            region.select_equal( pvtnum_kw , 2 )
            region.select_equal( pvtnum_kw , 4 )
 
         """
+        if not ecl_kw.data_type.is_int():
+            raise ValueError("The select_equal method must have an integer valued keyword - got:%s" % ecl_kw.typeName( ))
         self._select_equal( ecl_kw , value )
 
 
@@ -426,6 +428,8 @@ class EclRegion(BaseCClass):
 
         See select_equal() for further documentation.
         """
+        if not ecl_kw.data_type.is_int():
+            raise ValueError("The select_equal method must have an integer valued keyword - got:%s" % ecl_kw.typeName( ))
         self._deselect_equal( ecl_kw , value )
 
     @select_method
@@ -436,8 +440,8 @@ class EclRegion(BaseCClass):
         Will select all the cells where EclKW instance @ecl_kw has
         value in the half-open interval [@lower_limit ,
         @upper_limit). The input argument @ecl_kw must have size
-        nactive or nx*ny*nz, and it must be of type ECL_FLOAT_TYPE. 
-        
+        nactive or nx*ny*nz, and it must be of type ECL_FLOAT_TYPE.
+
         The following example will select all cells with porosity in
         the range [0.15,0.20):
 
@@ -445,9 +449,9 @@ class EclRegion(BaseCClass):
            poro_kw = init_file.iget_named_kw( "PORO" , 0 )
            grid = ecl.EclGrid( "ECLIPSE.GRID" )
            region = ecl.EclRegion( grid , False )
-           
+
            region.select_in_range( poro_kw , 0.15, 0.20 )
-          
+
         """
         self._select_in_interval( ecl_kw , lower_limit , upper_limit)
 
@@ -494,7 +498,7 @@ class EclRegion(BaseCClass):
     def select_cmp_more( self , kw1 , kw2 , intersect = False):
         """
         Will select all cells where kw2 > kw1.
-        
+
         See select_cmp_less() for further documentation.
         """
         self._select_cmp_more( kw1 , kw2 )
@@ -502,7 +506,7 @@ class EclRegion(BaseCClass):
     def deselect_cmp_more( self , kw1 , kw2):
         """
         Will deselect all cells where kw2 > kw1.
-        
+
         See select_cmp_less() for further documentation.
         """
         self._deselect_cmp_more( kw1 , kw2 )
@@ -553,7 +557,7 @@ class EclRegion(BaseCClass):
         """
         self.deselect_all()
 
-    @select_method 
+    @select_method
     def select_deep( self , depth , intersect = False):
         """
         Will select all cells below @depth.
@@ -566,7 +570,7 @@ class EclRegion(BaseCClass):
         """
         self._deselect_deep_cells(depth)
 
-    @select_method 
+    @select_method
     def select_shallow( self, depth , intersect = False):
         """
         Will select all cells above @depth.
@@ -650,7 +654,7 @@ class EclRegion(BaseCClass):
     def deselect_box( self , ijk1 , ijk2 ):
         """
         Will deselect all elements in box.
-        
+
         See select_box() for further documentation.
         """
         self._deselect_box( ijk1[0] , ijk2[0] , ijk1[1] , ijk2[1] , ijk1[2] , ijk2[2])
@@ -684,7 +688,7 @@ class EclRegion(BaseCClass):
     @select_method
     def select_kslice( self , k1 , k2 , intersect = False):
         """
-        Will select all cells with k in [@k1, @k2]. @i1 and @i2 are zero offset. 
+        Will select all cells with k in [@k1, @k2]. @i1 and @i2 are zero offset.
         """
         self._select_kslice( k1,k2)
 
@@ -745,7 +749,7 @@ class EclRegion(BaseCClass):
     def deselect_below_plane( self , n , p):
         """
         Will deselect all the cells 'below' the plane defined by n & p.
-        
+
         See method 'select_above_plane' for further documentation.
         """
         (n_vec , p_vec) = self.__init_plane_select( n , p )
@@ -763,7 +767,7 @@ class EclRegion(BaseCClass):
         (100,100) the @points list should be:
 
            points = [(0,0) , (0,100) , (100,100) ,  (100,0)]
-        
+
         The elements in the points list should be (utm_x, utm_y)
         values. These values will be compared with the centerpoints of
         the cells in the grid. The selection is based the top k=0
@@ -798,7 +802,7 @@ class EclRegion(BaseCClass):
         """
         self._deselect_outside_polygon( CPolyline( init_points = points ))
 
-        
+
     @select_method
     def selectTrue( self , ecl_kw , intersect = False):
         """
@@ -814,7 +818,7 @@ class EclRegion(BaseCClass):
         """
         self._select_false( ecl_kw )
 
-        
+
     @select_method
     def selectFromLayer(self , layer , k , value, intersect = False):
         """Will select all the cells in in @layer with value @value - at
@@ -834,10 +838,10 @@ class EclRegion(BaseCClass):
 
         if grid.getNY() != layer.getNY():
             raise ValueError("NY dimension mismatch. Grid:%d  layer:%d" % (grid.getNY() , layer.getNY()))
-        
+
         self._select_from_layer( layer , k , value )
 
-    
+
 
     #################################################################
 
@@ -846,13 +850,13 @@ class EclRegion(BaseCClass):
         """
         Helper function to apply a function with one scalar arg on target_kw.
         """
-        type = target_kw.getEclType( )
-        if func_dict.has_key( type ):
-            func = func_dict[ type ]
+        data_type = target_kw.data_type
+        if func_dict.has_key( data_type ):
+            func = func_dict[ data_type ]
             func( target_kw, scalar , force_active )
         else:
             raise Exception("scalar_apply_kw() only supported for INT/FLOAT/DOUBLE")
-        
+
     def iadd_kw( self , target_kw , delta_kw , force_active = False):
         """
         The functions iadd_kw(), copy_kw(), set_kw(), scale_kw() and
@@ -877,9 +881,9 @@ class EclRegion(BaseCClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , shift , {EclTypeEnum.ECL_INT_TYPE    : self._shift_kw_int,
-                                                EclTypeEnum.ECL_FLOAT_TYPE  : self._shift_kw_float ,
-                                                EclTypeEnum.ECL_DOUBLE_TYPE : self._shift_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , shift , {EclDataType.ECL_INT    : self._shift_kw_int,
+                                                EclDataType.ECL_FLOAT  : self._shift_kw_float ,
+                                                EclDataType.ECL_DOUBLE : self._shift_kw_double} , force_active)
 
     def isub_kw( self , target_kw , delta_kw , force_active = False):
         if isinstance(delta_kw , EclKW):
@@ -889,15 +893,15 @@ class EclRegion(BaseCClass):
                 raise TypeError("Type mismatch")
         else:
             self.shift_kw( target_kw , -delta_kw , force_active = force_active)
-        
+
 
     def scale_kw( self , ecl_kw , scale , force_active = False):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , scale , {EclTypeEnum.ECL_INT_TYPE    : self._scale_kw_int,
-                                                EclTypeEnum.ECL_FLOAT_TYPE  : self._scale_kw_float ,
-                                                EclTypeEnum.ECL_DOUBLE_TYPE : self._scale_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , scale , {EclDataType.ECL_INT    : self._scale_kw_int,
+                                                EclDataType.ECL_FLOAT  : self._scale_kw_float ,
+                                                EclDataType.ECL_DOUBLE : self._scale_kw_double} , force_active)
 
     def imul_kw(self, target_kw , other , force_active = False):
         if isinstance(other , EclKW):
@@ -927,21 +931,21 @@ class EclRegion(BaseCClass):
             self._copy_kw( target_kw , src_kw , force_active )
         else:
             raise TypeError("Type mismatch")
-        
+
     def set_kw( self , ecl_kw , value , force_active = False):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , value , {EclTypeEnum.ECL_INT_TYPE    : self._set_kw_int,
-                                                EclTypeEnum.ECL_FLOAT_TYPE  : self._set_kw_float ,
-                                                EclTypeEnum.ECL_DOUBLE_TYPE : self._set_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , value , {EclDataType.ECL_INT    : self._set_kw_int,
+                                                EclDataType.ECL_FLOAT  : self._set_kw_float ,
+                                                EclDataType.ECL_DOUBLE : self._set_kw_double} , force_active)
 
-    
+
 
 
     #################################################################
 
-    def ecl_region_instance(  ):
+    def ecl_region_instance(self):
         """
         Helper function (attribute) to support run-time typechecking.
         """
@@ -965,7 +969,7 @@ class EclRegion(BaseCClass):
         global_list.setParent(self)
         return global_list
 
-        
+
     def getIJKList(self):
         """
         WIll return a Python list of (ij,k) tuples for the region.
@@ -974,39 +978,8 @@ class EclRegion(BaseCClass):
         ijk_list = []
         for g in global_list:
             ijk_list.append( self.grid.get_ijk( global_index = g ) )
-        
+
         return ijk_list
-                            
-        
-
-
-    @property
-    def active_list(self):
-        warnings.warn("The active_list property is deprecated - use method \'getActiveList()\' instead." , DeprecationWarning)
-        return self.getActiveList()
-
-
-    @property
-    def global_list(self):
-        warnings.warn("The global_list property is deprecated - use method \'getGlobalList()\' instead." , DeprecationWarning)
-        return self.getGlobalList()
-
-
-    @property
-    def active_size( self ):
-        """
-        Number of active cells in region.
-        """
-        warnings.warn("The active_size property is deprecated - use \'len(getActiveList())\' instead." , DeprecationWarning)
-        return len(self.getActiveList())
-
-    @property
-    def global_size( self ):
-        """
-        Number of global cells in region.
-        """
-        warnings.warn("The global_size property is deprecated - use \'len(getGlobalList())\' instead." , DeprecationWarning)
-        return len(self.getGlobalList())
 
     def contains_ijk( self , i,j,k):
         """
@@ -1028,7 +1001,7 @@ class EclRegion(BaseCClass):
         """
         return self._contains_active( active_index )
 
-    
+
     def kw_index_list(self , ecl_kw , force_active):
         c_ptr = self._get_kw_index_list( ecl_kw , force_active)
         index_list = IntVector.createCReference( c_ptr, self )
@@ -1040,18 +1013,3 @@ class EclRegion(BaseCClass):
 
     def setName(self , name):
         self._set_name( name )
-
-
-    def set_name( self , name ):
-        warnings.warn("The name property / set_name method is deprecated - use method \'setName()\' instead." , DeprecationWarning)
-        self.setName( name )
-
-
-    def get_name( self ):
-        warnings.warn("The name property / get_name method is deprecated - use method \'getName()\' instead." , DeprecationWarning)
-        return self.getName( )
-
-        
-    name = property( get_name , set_name )
-
-

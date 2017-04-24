@@ -18,10 +18,11 @@ Create a polygon
 """
 import os.path
 import ctypes
+from numpy import zeros
 
 from cwrap import BaseCClass
 from ert.geo import GeoPrototype
-
+from ert.geo import GeoPointset
 
 class Surface(BaseCClass):
     TYPE_NAME = "surface"
@@ -44,7 +45,8 @@ class Surface(BaseCClass):
     _imul         = GeoPrototype("void   geo_surface_imul( surface , surface )")
     _isub         = GeoPrototype("void   geo_surface_isub( surface , surface )")
     _isqrt        = GeoPrototype("void   geo_surface_isqrt( surface )")
-    _iget_xy       = GeoPrototype("void   geo_surface_iget_xy(surface, int, double*, double*)")
+    _iget_xy      = GeoPrototype("void   geo_surface_iget_xy(surface, int, double*, double*)")
+    _get_pointset = GeoPrototype("geo_pointset_ref geo_surface_get_pointset(surface)")
 
 
     def __init__(self, filename=None, nx=None, ny=None, xinc=None, yinc=None,
@@ -158,7 +160,6 @@ class Surface(BaseCClass):
         self._isqrt( )
         return self
 
-    
 
     def sqrt(self):
         """
@@ -183,7 +184,7 @@ class Surface(BaseCClass):
         """
         self._write(  filename )
 
-    
+
 
     def assign(self , value):
         """
@@ -201,28 +202,32 @@ class Surface(BaseCClass):
 
             self._iset_zvalue(index , value)
         else:
-             raise TypeError("Invalid index type:%s - must be integer" % index)
+            raise TypeError("Invalid index type:%s - must be integer" % index)
 
-         
 
     def __getitem__(self , index):
         if isinstance(index , int):
-            if index >= len(self):
+            idx = index
+            ls = len(self)
+            if idx < 0:
+                idx += ls
+            if 0 <= idx < ls:
+                return self._iget_zvalue(idx)
+            else:
                 raise IndexError("Invalid index:%d - valid range [0,%d)" % (index , len(self)))
-            if index < 0:
-                index += len(self)
-
-            return self._iget_zvalue( index)
         else:
-             raise TypeError("Invalid index type:%s - must be integer" % index)
+            raise TypeError("Invalid index type:%s - must be integer" % index)
 
 
     def getXY(self, index):
+        """Gets the index'th (x,y) coordinate"""
         if isinstance(index, int):
-            if index < 0:
-                index += len(self)
-            if index >= len(self) or index < 0:
+            idx = index
+            if idx < 0:
+                idx += len(self)
+            if not 0 <= idx < len(self):
                 raise IndexError("Invalid index:%d - valid range [0,%d)" % (index, len(self)))
+            index = idx
         else:
             raise TypeError("Invalid index type:%s - must be integer" % index)
 
@@ -234,12 +239,47 @@ class Surface(BaseCClass):
 
 
     def getNX(self):
-        return self._get_nx(  )
+        return self._get_nx()
 
 
     def getNY(self):
-        return self._get_ny(  )
+        return self._get_ny()
+
+    def getPointset(self):
+        return self._get_pointset()
+
+    def _assert_idx_or_i_and_j(self, idx, i, j):
+        if idx is None:
+            if i is None or j is None:
+                raise ValueError('idx is None, i and j must be ints, was %s and %s.' % (i, j))
+        else:
+            if i is not None or j is not None:
+                raise ValueError('idx is set, i and j must be None, was %s and %s.' % (i, j))
+
+
+    def getXYZ(self, idx=None, i=None, j=None):
+        """Returns a tuple of 3 floats, (x,y,z) for given global index, or i and j."""
+        self._assert_idx_or_i_and_j(idx, i, j)
+        if idx is None:
+            nx, ny = self.getNX(), self.getNY()
+            i_idx, j_idx = i,j
+            if i_idx < 0:
+                i_idx += self.getNX()
+            if j_idx < 0:
+                j_idx += self.getNY()
+            if 0 <= i_idx < self.getNX() and 0 <= j_idx < self.getNY():
+                idx = j_idx * self.getNX() + i_idx
+            else:
+                fmt = 'Index error: i=%d not in [0,nx=%d) or j=%d not in [0,ny=%d).'
+                raise IndexError(fmt % (i, nx, j, ny))
+        x,y = self.getXY(idx)
+        z = self[idx]
+        return (x,y,z)
 
 
     def free(self):
-        self._free( )
+        self._free()
+
+    def __repr__(self):
+        cnt = 'nx=%d, ny=%d' % (self.getNX(), self.getNY())
+        return self._create_repr(cnt)

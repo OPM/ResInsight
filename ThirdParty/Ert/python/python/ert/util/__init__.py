@@ -36,6 +36,9 @@ The modules included in the util package are:
    
 """
 
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 import ert
 from cwrap import Prototype
 

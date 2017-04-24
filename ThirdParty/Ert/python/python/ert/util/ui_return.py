@@ -14,10 +14,13 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
 from cwrap import BaseCClass
 from ert.util import UtilPrototype
-from enums import UIReturnStatusEnum
-    
+from .enums import UIReturnStatusEnum
+
 
 class UIReturn(BaseCClass):
     TYPE_NAME = "ui_return"

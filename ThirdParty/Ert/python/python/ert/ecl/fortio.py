@@ -51,17 +51,17 @@ class FortIO(BaseCClass):
     READ_AND_WRITE_MODE = 3
     APPEND_MODE = 4
 
-    _open_reader    = EclPrototype("void* fortio_open_reader(char*, bool, bool)" , bind = False)
-    _open_writer    = EclPrototype("void* fortio_open_writer(char*, bool, bool)" , bind = False)
-    _open_readwrite = EclPrototype("void* fortio_open_readwrite(char*, bool, bool)" , bind = False)
-    _open_append    = EclPrototype("void* fortio_open_append(char*, bool, bool)" , bind = False)
-    _guess_fortran  = EclPrototype("bool fortio_looks_like_fortran_file(char* , bool)" , bind = False)
+    _open_reader    = EclPrototype("void* fortio_open_reader(char*, bool, bool)", bind=False)
+    _open_writer    = EclPrototype("void* fortio_open_writer(char*, bool, bool)", bind=False)
+    _open_readwrite = EclPrototype("void* fortio_open_readwrite(char*, bool, bool)", bind=False)
+    _open_append    = EclPrototype("void* fortio_open_append(char*, bool, bool)", bind=False)
+    _guess_fortran  = EclPrototype("bool fortio_looks_like_fortran_file(char*, bool)", bind=False)
 
     _write_record   = EclPrototype("void fortio_fwrite_record(fortio, char*, int)")
     _get_position   = EclPrototype("long fortio_ftell(fortio)")
     _seek           = EclPrototype("void fortio_fseek(fortio, long, int)")
     _close          = EclPrototype("bool fortio_fclose(fortio)")
-    _truncate       = EclPrototype("bool fortio_ftruncate(fortio , long)")
+    _truncate       = EclPrototype("bool fortio_ftruncate(fortio, long)")
     _filename       = EclPrototype("char* fortio_filename_ref(fortio)")
 
 
@@ -85,14 +85,14 @@ class FortIO(BaseCClass):
         all the pressure keywords to another file:
 
            import sys
-           from ert.ecl import FortIO,ElcFile
+           from ert.ecl import FortIO, EclFile
 
            rst_file = EclFile(sys.argv[1])
-           fortio = FortIO( "PRESSURE" , mode=FortIO.WRITE_MODE)
+           fortio = FortIO("PRESSURE", mode=FortIO.WRITE_MODE)
 
            for kw in rst_file:
                if kw.name() == "PRESSURE":
-                  kw.write( fortio )
+                  kw.write(fortio)
 
            fortio.close()
 
@@ -100,10 +100,9 @@ class FortIO(BaseCClass):
         method based on a context manager and the with statement.
 
         """
-        if mode == FortIO.READ_MODE or mode == FortIO.APPEND_MODE or mode == FortIO.READ_AND_WRITE_MODE:
-            if not os.path.exists(file_name):
-                raise IOError("File '%s' does not exist!" % file_name)
-
+        read_modes = (FortIO.READ_MODE, FortIO.APPEND_MODE, FortIO.READ_AND_WRITE_MODE)
+        if mode in read_modes and not os.path.exists(file_name):
+            raise IOError('No such file "%s".' % file_name)
         if mode == FortIO.READ_MODE:
             c_pointer = self._open_reader(file_name, fmt_file, endian_flip_header)
         elif mode == FortIO.WRITE_MODE:
@@ -116,48 +115,49 @@ class FortIO(BaseCClass):
             raise UserWarning("Unknown mode: %d" % mode)
 
         self.__mode = mode
-
+        if not c_pointer:
+            raise IOError('Failed to open FortIO file "%s".' % file_name)
         super(FortIO, self).__init__(c_pointer)
 
 
 
     def close(self):
         if self:
-            self._close( )
-            self._invalidateCPointer( )
+            self._close()
+            self._invalidateCPointer()
 
 
     def getPosition(self):
         """ @rtype: long """
-        return self._get_position( )
+        return self._get_position()
 
 
-    def truncate(self , size = None):
+    def truncate(self, size=None):
         """Will truncate the file to new size.
 
         If the method is called without a size argument the stream
         will be truncated to the current position.
         """
         if size is None:
-            size = self.getPosition( )
+            size = self.getPosition()
 
-        if not self._truncate( size ):
-            raise IOError("Truncate of fortran filehandle:%s failed" % self.filename() )
+        if not self._truncate(size):
+            raise IOError("Truncate of fortran filehandle:%s failed" % self.filename())
 
 
     def filename(self):
-        return self._filename( )
+        return self._filename()
 
 
-    def seek(self, position , whence = 0):
+    def seek(self, position, whence=0):
         # SEEK_SET = 0
         # SEEK_CUR = 1
         # SEEK_END = 2
-        self._seek(position , whence)
+        self._seek(position, whence)
 
 
     @classmethod
-    def isFortranFile(cls , filename , endian_flip = True):
+    def isFortranFile(cls, filename, endian_flip=True):
 
         """@rtype: bool
         @type filename: str
@@ -167,7 +167,7 @@ class FortIO(BaseCClass):
         file written in fortran style. ASCII files will return false,
         even if they are structured as ECLIPSE keywords.
         """
-        return cls._guess_fortran( filename , endian_flip )
+        return cls._guess_fortran(filename, endian_flip)
 
 
     def free(self):
@@ -176,7 +176,7 @@ class FortIO(BaseCClass):
 
 class FortIOContextManager(object):
 
-    def __init__(self , fortio):
+    def __init__(self, fortio):
         self.__fortio = fortio
 
     def __enter__(self):
@@ -184,29 +184,24 @@ class FortIOContextManager(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.__fortio.close()
-        return False
+        return exc_type is not None
 
 
-def openFortIO( file_name , mode = FortIO.READ_MODE , fmt_file = False , endian_flip_header = True):
+def openFortIO(file_name, mode=FortIO.READ_MODE, fmt_file=False, endian_flip_header=True):
     """Will create FortIO based context manager for use with with.
 
     The with: statement and context managers is a good alternative in
     the situation where you need to ensure resource cleanup.
 
        import sys
-       from ert.ecl import FortIO,ElcFile
+       from ert.ecl import FortIO, EclFile
 
        rst_file = EclFile(sys.argv[1])
-       with openFortIO( "PRESSURE" , mode = FortIO.WRITE_MODE) as fortio:
+       with openFortIO("PRESSURE", mode=FortIO.WRITE_MODE) as fortio:
           for kw in rst_file:
               if kw.name() == "PRESSURE":
-                 kw.write( fortio )
+                 kw.write(fortio)
 
     """
-    return FortIOContextManager( FortIO( file_name , mode = mode , fmt_file = fmt_file , endian_flip_header = endian_flip_header ))
-
-
-
-
-
-
+    return FortIOContextManager(FortIO(file_name, mode=mode, fmt_file=fmt_file,
+                                       endian_flip_header=endian_flip_header))

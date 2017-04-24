@@ -8,7 +8,7 @@ endif()
 #-----------------------------------------------------------------
 
 set( ERT_VERSION_MAJOR 2 )   # Remember to update release notes whenever
-set( ERT_VERSION_MINOR 1 )   # you change the ERT_VERSION_MINOR or MAJOR
+set( ERT_VERSION_MINOR 2 )   # you change the ERT_VERSION_MINOR or MAJOR
 set( ERT_VERSION_MICRO git ) # with "new in Ert Version X.X.X"!
 
 # If the micro version is not integer, that should be interpreted as a
@@ -16,14 +16,12 @@ set( ERT_VERSION_MICRO git ) # with "new in Ert Version X.X.X"!
 
 #-----------------------------------------------------------------
 
-option( BUILD_ERT           "Build the full ERT application - Linux only"             OFF)
 option( BUILD_TESTS         "Should the tests be built"                               OFF)
 option( BUILD_APPLICATIONS  "Should we build small utility applications"              OFF)
 option( BUILD_ECL_SUMMARY   "Build the commandline application ecl_summary"           OFF)
 option( BUILD_PYTHON        "Run py_compile on the python wrappers"                   ON )
 option( BUILD_SHARED_LIBS   "Build shared libraries"                                  ON )
 option( INSTALL_ERT         "Should anything be installed when issuing make install?" ON )
-option( ERT_BUILD_GUI       "Should the PyQt based GUI be compiled and installed"     OFF)
 option( ERT_USE_OPENMP      "Use OpenMP"                                              OFF )
 option( ERT_DOC             "Build ERT documantation"                                 OFF)
 option( ERT_BUILD_CXX       "Build some CXX wrappers"                                 ON)
@@ -180,38 +178,6 @@ endif()
 
 include_directories( ${PROJECT_SOURCE_DIR}/libecl_well/include )
 add_subdirectory( libecl_well )
-
-
-#-----------------------------------------------------------------
-if (BUILD_ERT)
-#-----------------------------------------------------------------
-   if (BUILD_TESTS)
-      option( ERT_LSF_SUBMIT_TEST "Build and run tests of LSF submit" OFF)
-   endif()
-   add_subdirectory( bin )
-
-   include(cmake/ert_module_name.cmake)
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libconfig/include )
-   add_subdirectory( libconfig )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libsched/include )
-   add_subdirectory( libsched )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/librms/include )
-   add_subdirectory( librms )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libanalysis/include )
-   add_subdirectory( libanalysis )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libjob_queue/include )
-   add_subdirectory( libjob_queue )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libenkf/include )
-   add_subdirectory( libenkf )
-
-   install(DIRECTORY ${PROJECT_SOURCE_DIR}/share DESTINATION ${CMAKE_INSTALL_PREFIX})
-endif()
 
 
 if (BUILD_PYTHON)

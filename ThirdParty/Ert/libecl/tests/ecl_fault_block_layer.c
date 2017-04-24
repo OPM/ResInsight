@@ -26,6 +26,7 @@
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/fault_block_layer.h>
+#include <ert/ecl/ecl_type.h>
 
 
 
@@ -62,7 +63,7 @@ void test_create( const ecl_grid_type * grid , ecl_kw_type * fault_block_kw) {
 
 
 void test_create_invalid( const ecl_grid_type * grid ) {
-  ecl_kw_type * fault_blk_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid ) - 1, ECL_INT_TYPE );
+  ecl_kw_type * fault_blk_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid ) - 1, ECL_INT);
   
   test_assert_NULL( fault_block_layer_alloc( grid , 7 ));
   
@@ -105,9 +106,9 @@ void test_trace_edge( const ecl_grid_type * grid) {
 
 void test_export( const ecl_grid_type * grid) {
   fault_block_layer_type * layer = fault_block_layer_alloc( grid , 0 );
-  ecl_kw_type * ecl_kw1 = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_INT_TYPE );
-  ecl_kw_type * ecl_kw2 = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid ) + 1 , ECL_INT_TYPE );
-  ecl_kw_type * ecl_kw3 = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_FLOAT_TYPE );
+  ecl_kw_type * ecl_kw1 = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_INT);
+  ecl_kw_type * ecl_kw2 = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid ) + 1 , ECL_INT);
+  ecl_kw_type * ecl_kw3 = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_FLOAT);
   fault_block_type * block = fault_block_layer_add_block( layer , 10 );
   
   fault_block_add_cell( block , 0 , 0 );
@@ -141,7 +142,7 @@ void test_neighbours( const ecl_grid_type * grid) {
   const int k = 0;
   fault_block_layer_type * layer = fault_block_layer_alloc( grid , k );
   geo_polygon_collection_type * polylines = geo_polygon_collection_alloc();
-  ecl_kw_type * ecl_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_INT_TYPE );
+  ecl_kw_type * ecl_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( grid )     , ECL_INT);
 
   ecl_kw_iset_int( ecl_kw , 0 , 1);
   ecl_kw_iset_int( ecl_kw , ecl_grid_get_global_index3( grid , 3,3,k) , 2);
@@ -181,7 +182,7 @@ void test_neighbours( const ecl_grid_type * grid) {
 
 int main(int argc , char ** argv) {
   ecl_grid_type * ecl_grid = ecl_grid_alloc_rectangular( 9 , 9 , 2 , 1 , 1 , 1 , NULL );
-  ecl_kw_type * fault_blk_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( ecl_grid ) , ECL_INT_TYPE );
+  ecl_kw_type * fault_blk_kw = ecl_kw_alloc("FAULTBLK" , ecl_grid_get_global_size( ecl_grid ) , ECL_INT);
 
   test_create( ecl_grid , fault_blk_kw );
   test_create_invalid( ecl_grid );
