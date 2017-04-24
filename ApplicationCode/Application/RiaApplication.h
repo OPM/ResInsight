@@ -215,6 +215,7 @@ private:
     
     void                    storeTreeViewState();
 
+    static QSize            regressionDefaultImageSize();
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                slotUpdateScheduledDisplayModels();

@@ -2845,8 +2845,16 @@ void RiaApplication::regressionTestConfigureProject()
                 }
 
                 // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize(1000, 745);
+                riv->viewer()->setFixedSize(RiaApplication::regressionDefaultImageSize());
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize RiaApplication::regressionDefaultImageSize()
+{
+    return QSize(1000, 745);
 }
