@@ -137,6 +137,8 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
 void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
      m_eclipseCase = eclipseCase;
+   
+     assignFlowSolutionFromCase();
 }
 
 
@@ -323,16 +325,15 @@ void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 {
-    RimEclipseResultCase* eclCase = nullptr;
-    this->firstAncestorOrThisOfType(eclCase);
+    RimFlowDiagSolution* defaultFlowDiagSolution = nullptr;
+
+    RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
+
     if (eclCase)
     {
-        RimFlowDiagSolution* defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
-        if (defaultFlowDiagSolution)
-        {
-            this->setFlowSolution(defaultFlowDiagSolution);
-        }
+        defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
     }
+    this->setFlowSolution(defaultFlowDiagSolution);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,8 +465,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
-            RimEclipseResultCase* eclCase;
-            this->firstAncestorOrThisOfType(eclCase);
+            RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
             if (eclCase)
             {
                 std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
