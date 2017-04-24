@@ -46,11 +46,27 @@
 #include <ert/ecl/ecl_util.h>
 #include <ert/util/ert_unique_ptr.hpp>
 
+#if defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+#include <ert/ecl/ecl_type.h>
+#endif // defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+
 /// \file
 ///
 /// Implementation of ECL Result-Set Interface.
 
 namespace {
+    inline ecl_type_enum
+    getKeywordElementType(const ecl_kw_type* kw)
+    {
+#if defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+        return ecl_type_get_type(ecl_kw_get_data_type(kw));
+
+#else // ! (defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H)
+
+        return ecl_kw_get_type(kw);
+#endif // defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+    }
+
     namespace ECLImpl {
         using FilePtr = ::ERT::ert_unique_ptr<ecl_file_type, ecl_file_close>;
 
@@ -294,7 +310,7 @@ namespace {
             static std::vector<T>
             as(const ecl_kw_type* kw, std::false_type)
             {
-                assert (ecl_kw_get_type(kw) == Input);
+                assert (getKeywordElementType(kw) == Input);
 
                 return Details::getData<
                         T, typename Details::ElementType<Input>::type
@@ -352,7 +368,7 @@ namespace {
             static std::vector<std::string>
             as(const ecl_kw_type* kw, std::true_type)
             {
-                assert (ecl_kw_get_type(kw) == ECL_CHAR_TYPE);
+                assert (getKeywordElementType(kw) == ECL_CHAR_TYPE);
 
                 auto result = std::vector<std::string>{};
                 result.reserve(ecl_kw_get_size(kw));
@@ -758,7 +774,7 @@ namespace Opm {
         const auto makeStringVector =
             typename std::is_same<T, std::string>::type{};
 
-        switch (ecl_kw_get_type(kw)) {
+        switch (getKeywordElementType(kw)) {
         case ECL_CHAR_TYPE:
             return ECLImpl::GetKeywordData<ECL_CHAR_TYPE>::
                 as<T>(kw, makeStringVector);
