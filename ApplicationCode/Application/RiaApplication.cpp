@@ -2424,6 +2424,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 void RiaApplication::resizeMaximizedPlotWindows()
 {
     std::vector<RimViewWindow*> viewWindows;
+    m_project->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+
     for (auto viewWindow : viewWindows)
     {
         if (viewWindow->isMdiWindow())
