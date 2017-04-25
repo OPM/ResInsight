@@ -185,6 +185,9 @@ public:
 
     static RimViewWindow* activeViewWindow();
 
+    bool                isMain3dWindowVisible() const;
+    bool                isMainPlotWindowVisible() const;
+
     bool                tryCloseMainWindow();
     bool                tryClosePlotWindow();
 

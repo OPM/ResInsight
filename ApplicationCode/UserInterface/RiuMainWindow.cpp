@@ -198,6 +198,12 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
     RiaApplication* app = RiaApplication::instance();
+
+    if (app->isMainPlotWindowVisible())
+    {
+        return;
+    }
+
     if (!app->askUserToSaveModifiedProject())
     {
         event->ignore();

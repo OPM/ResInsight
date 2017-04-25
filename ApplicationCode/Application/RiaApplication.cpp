@@ -1711,6 +1711,24 @@ RimViewWindow* RiaApplication::activeViewWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RiaApplication::isMain3dWindowVisible() const
+{
+    return RiuMainWindow::instance()->isVisible();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::isMainPlotWindowVisible() const
+{
+    if (!m_mainPlotWindow) return false;
+
+    return m_mainPlotWindow->isVisible();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RiaApplication::tryCloseMainWindow()
 {
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
