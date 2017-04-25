@@ -65,6 +65,9 @@ public:
     void                    addContributingEclipseCell(size_t eclipseCell, double transmissibility);
 
 private:
+    double                  performationLenghtVertical;
+    double                  performationLenghtHorizontal;
+
     std::vector<size_t>     contributingEclipseCells;
     std::vector<double>     contributingEclipseCellTransmisibilities;
 
@@ -90,10 +93,12 @@ public:
     std::vector<RigFractureData> m_fractureData;
 
     void addStimPlanCellFractureCell(RigFractureStimPlanCellData fracStimPlanCellData);
+
 private:
     std::vector<cvf::uint>  m_triangleIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
 
-    std::vector<RigFractureStimPlanCellData>  m_stimPlanCellsFractureData;
+    std::vector<RigFractureStimPlanCellData>    m_stimPlanCellsFractureData;
+    std::vector<size_t>                         m_perforatedStimPlanCellsIndex;
 };
 

@@ -38,7 +38,7 @@ public:
     virtual ~RigStimPlanCell();
 
     std::vector<cvf::Vec3d> getPolygon() { return m_polygon; }
-    double                  getConductivtyValue() { return m_concutivityValue; }
+    double                  getConductivtyValue() const { return m_concutivityValue; }
     double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() { return m_i; }
     size_t                  getJ() { return m_j; }
@@ -50,8 +50,8 @@ public:
     void                    setDisplayValue(double value) { m_displayValue = value; };
     void                    setTransmissibilityInFracture(double valueHorizontal, double valueVertical);
 
-    double                  cellSizeX();
-    double                  cellSizeZ();
+    double                  cellSizeX() const;
+    double                  cellSizeZ() const;
 private:
     std::vector<cvf::Vec3d> m_polygon;
     double                  m_displayValue;

@@ -119,7 +119,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
 
         //TODO: Check that there is a fracture template available for given fracture....
-        transmissibilityCalculator.computeTransmissibility();
+        transmissibilityCalculator.computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
         std::vector<RigFractureData> fracDataVector = fracture->attachedRigFracture()->fractureData();
 
         for (RigFractureData fracData : fracDataVector)
@@ -335,6 +335,8 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 
                 out << "\n";
             }
+
+            //TODO: add RigFractureStimPlanCellData to m_StimPlanCellsFractureData i RigFracture???
         }
     }
     return;
@@ -380,7 +382,7 @@ void RifEclipseExportTools::printStimPlanFractureTrans(const std::vector<RimFrac
             continue;
         }
 
-        RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(&stimPlanCell);
+        RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(stimPlanCell);
 
         out << qSetFieldWidth(5);
         size_t spi = stimPlanCell.getI();
@@ -593,7 +595,21 @@ void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* 
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, QTextStream &out, RimEclipseCase* caseToApply)
 {
-    out << "Transmissibility From Fracture To Well \n";
+    out << "-- Transmissibility From Fracture To Well \n";
+
+    out << qSetFieldWidth(12);
+    out << "Well name ";   
+
+    out << qSetFieldWidth(16);
+    out << "Fracture name ";
+    out << "Inflow type ";
+
+    out << qSetFieldWidth(5);
+    out << " i ";
+    out << " j ";
+
+    out << "Tw";
+    out << "\n";
 
     for (RimFracture* fracture : fractures)
     {
@@ -609,11 +625,10 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
         out << fracture->name().left(15) + " ";
 
 
-
-
         if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH)
         {
             out << "Linear inflow";
+            out << qSetFieldWidth(5);
 
             RimStimPlanFractureTemplate* fracTemplateStimPlan;
             if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
@@ -634,23 +649,22 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
 
             double perforationLengthVert = fracture->perforationLength * cos(wellDip);
             double perforationLengthHor  = fracture->perforationLength * sin(wellDip);
-                
-            RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtWell();
-            //TODO: Error in getting the StimPlanWellCell here!!!
+            
+            std::pair<size_t, size_t> wellCenterStimPlanCellIJ = fracTemplateStimPlan->getStimPlanCellAtWellCenter();
+            out << qSetFieldWidth(5);
+            out << wellCenterStimPlanCellIJ.first;
+            out << wellCenterStimPlanCellIJ.second;
 
-            out << stimPlanCell->getI();
-            out << stimPlanCell->getJ();
 
-            //TODO: Check if perforation length is larger than cell - expand to neightbour cells if needed!
+            //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
+            const RigStimPlanCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
             double RadTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell, perforationLengthVert, perforationLengthHor);
 
             out << RadTransInStimPlanCell;
-
+            out << "\n";
         }
-
-
 
 
         if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH
@@ -665,16 +679,22 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
             }
             else continue;
 
-            RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtWell();
-            //TODO: Error in getting the StimPlanWellCell here!!!
+            std::pair<size_t, size_t> wellCenterStimPlanCellIJ = fracTemplateStimPlan->getStimPlanCellAtWellCenter();
+            out << qSetFieldWidth(5);
+            out << wellCenterStimPlanCellIJ.first;
+            out << wellCenterStimPlanCellIJ.second;
 
-            out << stimPlanCell->getI();
-            out << stimPlanCell->getJ();
+            //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
+            const RigStimPlanCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
+
+            //TODO: Error - stimPlanCell blir ikke riktig... Har ikke polygon!?!
 
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
             double RadTransInStimPlanCell = transmissibilityCalculator.computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell);
 
             out << RadTransInStimPlanCell;
+            out << "\n";
+
             
         }
 
@@ -682,4 +702,5 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
 
     }
 
+    out << "\n";
 }

@@ -65,8 +65,10 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 
     CAF_PDM_InitField(&parameterForPolygon, "parameterForPolyton", QString(""), "Parameter", "", "", "");
     CAF_PDM_InitField(&activeTimeStepIndex, "activeTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
-    CAF_PDM_InitField(&showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "")
+    CAF_PDM_InitField(&showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
 
+    //TODO: Is this correct way of doing this...?
+    wellCenterStimPlanCellIJ = std::make_pair(0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -818,7 +820,8 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     QString resultUnitFromColors = activeView->stimPlanColors->unit();
 
     std::vector<RigStimPlanCell> stimPlanCells;
-    wellCenterStimPlanCell = nullptr;
+
+    bool wellCenterStimPlanCellFound = false;
 
     std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, activeTimeStepIndex);
 
@@ -835,20 +838,20 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     std::vector<double> depthCoords;
     for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
 
-    for (int j = 0; j < xCoords.size() - 1; j++)
+    for (int i = 0; i < xCoords.size() - 1; i++)
     {
-        for (int i = 0; i < depthCoords.size() - 1; i++)
+        for (int j = 0; j < depthCoords.size() - 1; j++)
         {
             std::vector<cvf::Vec3d> cellPolygon;
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j + 1]), static_cast<float>(depthCoords[i]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j + 1]), static_cast<float>(depthCoords[i + 1]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[j]), static_cast<float>(depthCoords[i + 1]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
 
             RigStimPlanCell stimPlanCell(cellPolygon, i, j);
             if (conductivityValuesAtTimeStep.size() > 0) //Assuming vector to be of correct length, or no values
             {
-                stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[i + 1][j + 1]);
+                stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[j + 1][i + 1]);
             }
             else
             {
@@ -857,7 +860,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 
             if (displayPropertyValuesAtTimeStep.size() > 0)
             {
-                stimPlanCell.setDisplayValue(displayPropertyValuesAtTimeStep[i + 1][j + 1]);
+                stimPlanCell.setDisplayValue(displayPropertyValuesAtTimeStep[j + 1][i + 1]);
             }
             else
             {
@@ -866,15 +869,25 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 
             if (cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0)
             {
-                if (cellPolygon[1].y() < 0.0 && cellPolygon[2].y() > 0.0)
+                if (cellPolygon[1].y() > 0.0 && cellPolygon[2].y() < 0.0)
                 {
-                    wellCenterStimPlanCell = &stimPlanCell;
+                    wellCenterStimPlanCellIJ = std::make_pair(stimPlanCell.getI(), stimPlanCell.getJ());
+                    RiaLogging::debug(QString("Setting wellCenterStimPlanCell at cell %1, %2").
+                        arg(QString::number(stimPlanCell.getI()), QString::number(stimPlanCell.getJ())));
+                    
+                    wellCenterStimPlanCellFound = true;
                 }
             }
 
             stimPlanCells.push_back(stimPlanCell);
         }
     }
+
+    if (!wellCenterStimPlanCellFound)
+    {
+        RiaLogging::error("Did not find stim plan cell at well crossing!");
+    }
+
 
     m_stimPlanCells = stimPlanCells;
 }
@@ -936,9 +949,40 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanCell* RimStimPlanFractureTemplate::getStimPlanCellAtWell()
+std::pair<size_t, size_t> RimStimPlanFractureTemplate::getStimPlanCellAtWellCenter()
 {
-    return wellCenterStimPlanCell;
+    return wellCenterStimPlanCellIJ;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j)
+{
+    size_t length_I = stimPlanGridNumberOfRows() - 1;
+    size_t globIndex = j * length_I + i;
+
+    return globIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigStimPlanCell& RimStimPlanFractureTemplate::stimPlanCellFromIndex(size_t index) const
+{
+    if (index < m_stimPlanCells.size())
+    {
+        const RigStimPlanCell& cell = m_stimPlanCells[index];
+        return cell;
+    }
+    else
+    {
+        //TODO: Better error handling?
+        RiaLogging::error("Requesting non-existent StimPlanCell");
+        RiaLogging::error("Returning cell 0, results will be invalid");
+        const RigStimPlanCell& cell = m_stimPlanCells[0];
+        return cell;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

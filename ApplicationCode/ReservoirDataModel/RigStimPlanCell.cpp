@@ -56,17 +56,19 @@ void RigStimPlanCell::setTransmissibilityInFracture(double valueHorizontal, doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanCell::cellSizeX()
+double RigStimPlanCell::cellSizeX() const
 {
     //The polygon corners are always stored in the same order
-    return (m_polygon[1] - m_polygon[0]).length();
+    if (m_polygon.size()>1) return (m_polygon[1] - m_polygon[0]).length();
+    return cvf::UNDEFINED_DOUBLE;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanCell::cellSizeZ()
+double RigStimPlanCell::cellSizeZ() const
 {
-    return (m_polygon[2] - m_polygon[1]).length();
+    if (m_polygon.size()>2) return (m_polygon[2] - m_polygon[1]).length();
+    return cvf::UNDEFINED_DOUBLE;
 }
 

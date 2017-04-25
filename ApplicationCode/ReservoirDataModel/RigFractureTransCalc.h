@@ -46,25 +46,23 @@ class RigFractureTransCalc
 public:
     explicit RigFractureTransCalc(RimEclipseCase* caseToApply, RimFracture* fracture);
 
-    void                        computeTransmissibility();
+    // Calculations based on fracture polygon and eclipse grid cells
+    void                        computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
     bool                        planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons, cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ);
 
-
+    // Functions needed for upscaling from StimPlan grid to Eclipse Grid, for transmissibility calculations on eclipse grid
+    // Obsolete if final calculations will be done on the stimPlan grid
     void                        computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);  
     std::pair<double, double>   flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
     double                      computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
     double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
-
     static double               arithmeticAverage(std::vector<double> values);
-    double                      cDarcy();
 
+    // Calculations based on StimPlan grid
     void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData);
-    
-    static void                 computeStimPlanCellTransmissibilityInFracture(RigStimPlanCell* stimPlanCell);
-    double                      computeRadialTransmissibilityToWellinStimPlanCell(RigStimPlanCell* stimPlanCell);
-    double                      computeLinearTransmissibilityToWellinStimPlanCell(RigStimPlanCell* stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);
-
-
+    static void                 computeStimPlanCellTransmissibilityInFracture(const RigStimPlanCell&  stimPlanCell);
+    double                      computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanCell&  stimPlanCell);
+    double                      computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);
 
     static std::vector<RigStimPlanCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t i);
     static std::vector<RigStimPlanCell*>    getColOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t j);
@@ -77,6 +75,7 @@ private:
     RimFracture*            m_fracture;
     RimDefines::UnitSystem  m_unitForCalculation;
 
-    double calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
+    double                  calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
+    double                  cDarcy();
 };
 

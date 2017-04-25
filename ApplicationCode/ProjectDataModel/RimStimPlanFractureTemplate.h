@@ -81,7 +81,10 @@ public:
     std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
-    RigStimPlanCell*                         getStimPlanCellAtWell();
+    std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
+
+    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j); //TODO: should be const?
+    const RigStimPlanCell&                  stimPlanCellFromIndex(size_t index) const;
 
     //TODO: Functions for finding perforated stimPlanCells
     //Radial flow: Single cell (at 0,0) 
@@ -95,6 +98,7 @@ public:
     std::vector<std::vector<double>>        getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -119,5 +123,5 @@ private:
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
     std::vector<RigStimPlanCell>                m_stimPlanCells;
-    RigStimPlanCell*                            wellCenterStimPlanCell;
+    std::pair<size_t, size_t>                   wellCenterStimPlanCellIJ;
 };
