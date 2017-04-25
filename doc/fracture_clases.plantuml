@@ -1,0 +1,103 @@
+@startuml
+
+Title Classes related to fractures
+
+note as N1
+ Updated 2017-04-21
+end note
+
+class RimFracture {
+  todo...()
+}
+
+class RimSimWellFracture {
+}
+class RimWellPathFracture {
+}
+
+
+RimFracture <|-- RimSimWellFracture
+RimFracture <|-- RimWellPathFracture
+
+class RigFracture{
+    std::vector<cvf::uint>  m_triangleIndices;
+    std::vector<cvf::Vec3f> m_nodeCoords;
+
+    std::vector<RigFractureStimPlanCellData>  m_stimPlanCellsFractureData;
+}
+
+class RigFractureStimPlanCellData{
+    size_t                  m_i;
+    size_t                  m_j;
+    std::vector<size_t>     contributingEclipseCells;
+    std::vector<double>     contributingEclipseCellTransmisibilities;
+}
+
+RimFracture *-- RigFracture
+RigFracture "1" *-- "n" RigFractureStimPlanCellData
+
+class RimFractureTemplate {
+  todo...()
+}
+
+class RimEllipseFractureTemplate {
+}
+class RimStimPlanFractureTemplate {
+}
+
+
+RimFractureTemplate <|-- RimEllipseFractureTemplate
+RimFractureTemplate <|-- RimStimPlanFractureTemplate
+
+class RigStimPlanFractureDefinition{
+    std::vector<double>          gridXs;
+    std::vector<double>          gridYs;
+    std::vector<double>          timeSteps;
+    std::vector<double>          depths;
+    std::vector<RigStimPlanData> stimPlanData;
+
+}
+class RigStimPlanCell{
+    std::vector<cvf::Vec3d> m_polygon;
+    double   m_displayValue;
+    double   m_conductivityValue;
+    size_t     m_i;
+    size_t     m_j;
+    double   m_transmissibilityInFractureVertical;
+    double   m_transmissibilityInFractureHorizontal;
+
+}
+
+RimStimPlanFractureTemplate "1" *-- "1" RigStimPlanFractureDefinition
+RimStimPlanFractureTemplate "1" *-- "many" RigStimPlanCell
+
+RigFractureStimPlanCellData <..> RigStimPlanCell
+
+class RigStimPlanData{
+    QString resultName;
+    QString unit;
+    std::vector<std::vector<std::vector<double>>> parameterValues;
+    //Vector for each time step, for each depth and for each x-value
+
+}
+
+RigStimPlanFractureDefinition "1" *-- "1 for each property in StimPlan File" RigStimPlanData
+
+
+class RigFractureTransCalc{
+    RimEclipseCase*         m_case;
+    RimFracture*            m_fracture;
+    RimDefines::UnitSystem  m_unitForCalculation;
+}
+
+RimFracture ..|> RigFractureTransCalc
+RigStimPlanCell ..|> RigFractureTransCalc
+RigFractureStimPlanCellData ..|> RigFractureTransCalc
+
+
+class RifEclipseExportTools{
+}
+
+RigFractureTransCalc ..|> RifEclipseExportTools
+
+@enduml
