@@ -613,13 +613,19 @@ void RimEclipseStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* 
     if (&m_selectionSummary == field)
     {
         caf::PdmUiTextEditorAttribute* textEditAttrib = dynamic_cast<caf::PdmUiTextEditorAttribute*> (attribute);
-        textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        if (textEditAttrib)
+        {
+            textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
     }
 
     if (&m_calculateEditCommand == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)": "Compute";
+        if (attrib)
+        {
+            attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)": "Compute";
+        }
     }
 }
 

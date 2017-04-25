@@ -52,7 +52,7 @@ void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, 
         field == &importAdvancedMswData ||
         field == &importNNCs)
     {
-        caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
+        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_useNativeCheckBoxLabel = true;

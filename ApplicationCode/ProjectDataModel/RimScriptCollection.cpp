@@ -187,7 +187,10 @@ void RimScriptCollection::defineEditorAttribute(const caf::PdmFieldHandle* field
 {
     if (field == &directory)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
-        myAttr->m_selectDirectory = true;
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_selectDirectory = true;
+        }
     }
 }

@@ -553,13 +553,16 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (inputPolyLineFromViewerEnabled)
+        if (attrib)
         {
-            attrib->m_buttonText = "Stop picking points";
-        }
-        else
-        {
-            attrib->m_buttonText = "Start picking points";
+            if (inputPolyLineFromViewerEnabled)
+            {
+                attrib->m_buttonText = "Stop picking points";
+            }
+            else
+            {
+                attrib->m_buttonText = "Start picking points";
+            }
         }
     }
     else if (field == &m_userPolyline)
@@ -574,13 +577,16 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (inputExtrusionPointsFromViewerEnabled)
+        if (attrib)
         {
-            attrib->m_buttonText = "Stop picking points";
-        }
-        else
-        {
-            attrib->m_buttonText = "Start picking points";
+            if (inputExtrusionPointsFromViewerEnabled)
+            {
+                attrib->m_buttonText = "Stop picking points";
+            }
+            else
+            {
+                attrib->m_buttonText = "Start picking points";
+            }
         }
     }
     else if (field == &m_customExtrusionPoints)

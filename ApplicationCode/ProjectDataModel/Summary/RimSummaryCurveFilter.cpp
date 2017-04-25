@@ -423,7 +423,10 @@ void RimSummaryCurveFilter::defineEditorAttribute(const caf::PdmFieldHandle* fie
     if(&m_applyButtonField == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        attrib->m_buttonText = "Apply";
+        if (attrib)
+        {
+            attrib->m_buttonText = "Apply";
+        }
     }
 }
 
