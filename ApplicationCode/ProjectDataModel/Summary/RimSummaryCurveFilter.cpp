@@ -275,9 +275,9 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     }
     else if (changedField == &m_showLegend)
     {
-        for (size_t i = 0; i < m_curves().size(); ++i)
+        for (auto curve : m_curves)
         {
-            m_curves()[i]->showLegend(m_showLegend());
+            curve->showLegend(m_showLegend());
         }
     }
     else
