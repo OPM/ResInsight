@@ -21,6 +21,10 @@
 
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimWellPath.h"
+
+#include "RivSimWellPipeSourceInfo.h"
+#include "RivWellPathSourceInfo.h"
 
 #include "RiuSelectionChangedHandler.h"
 
@@ -61,6 +65,24 @@ void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, i
     const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
     items = s;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuSelectionItem* RiuSelectionManager::selectedItem(int role /*= RUI_APPLICATION_GLOBAL*/) const
+{
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    if (s.size() == 1)
+    {
+        if (s[0])
+        {
+            return s[0];
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,4 +202,28 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
     m_intersectionTriangle(intersectionTriangle)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
+                                                   const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
+                                                   double measuredDepth)
+    : m_pipeCenterlineIntersectionInDomainCoords(pipeCenterLineIntersectionInDomainCoords),
+    m_measuredDepth(measuredDepth)
+{
+    m_wellpath = wellPathSourceInfo->wellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimEclipseWell* simwell, 
+                                                  cvf::Vec3d m_domainCoord,
+                                                  size_t m_branchIndex)
+    : m_simWell(simwell),
+    m_domainCoord(m_domainCoord),
+    m_branchIndex(m_branchIndex)
+{
 }

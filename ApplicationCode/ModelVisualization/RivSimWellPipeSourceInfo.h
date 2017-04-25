@@ -32,6 +32,8 @@ public:
 
     RimEclipseWell* well() const;
 
+    size_t branchIndex() const; 
+
 private:    
     caf::PdmPointer<RimEclipseWell> m_eclipseWell;
     size_t m_branchIndex;
