@@ -59,6 +59,7 @@
 #include "cafUtils.h"
 
 #include <cmath>
+#include "RimEclipseWell.h"
 
 //==================================================================================================
 ///  
@@ -145,6 +146,18 @@ void RimWellLogExtractionCurve::setWellPath(RimWellPath* wellPath)
 RimWellPath* RimWellLogExtractionCurve::wellPath() const
 {
     return m_wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setFromSimulationWellName(const QString& simWellName, int branchIndex)
+{
+    m_trajectoryType = SIMULATION_WELL;
+    m_simWellName = simWellName;
+    m_branchIndex = branchIndex;
+
+    clearGeneratedSimWellPaths();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -675,8 +688,10 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
     if (m_addWellNameToCurveName )
     {
         generatedCurveName += wellName();
-
-        // Todo: Branch 
+        if (m_trajectoryType == SIMULATION_WELL && m_generatedSimulationWellPathBranches.size() > 1)
+        {
+           generatedCurveName += " Br" + QString::number(m_branchIndex + 1); 
+        }
     }
 
     if (m_addCaseNameToCurveName && m_case())

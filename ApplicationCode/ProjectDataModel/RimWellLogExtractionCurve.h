@@ -48,6 +48,8 @@ public:
     void setWellPath(RimWellPath* wellPath);
     RimWellPath* wellPath() const;
 
+    void setFromSimulationWellName(const QString& simWellName, int branchIndex);
+
     void setCase(RimCase* rimCase);
     RimCase* rimCase() const;
 
