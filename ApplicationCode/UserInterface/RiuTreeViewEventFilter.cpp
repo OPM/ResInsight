@@ -21,12 +21,16 @@
 
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
+#include "RiaApplication.h"
+
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
+
 #include "RiuMainWindow.h"
+#include "RiuMainPlotWindow.h"
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
@@ -85,7 +89,18 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
             }
         }
 
-        if (!RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
+        // Do not toggle state if currently editing a name in the tree view
+        bool toggleStateForSelection = true;
+        if (RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive())
+        {
+            toggleStateForSelection = false;
+        }
+        else if (RiaApplication::instance()->mainPlotWindow() && RiaApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive())
+        {
+            toggleStateForSelection = false;
+        }
+
+        if (toggleStateForSelection)
         {
             switch (keyEvent->key())
             {
