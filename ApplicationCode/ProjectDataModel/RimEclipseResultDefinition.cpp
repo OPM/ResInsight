@@ -428,9 +428,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
         }
 
-        // Do not include flow diag results if not available
+        RimGridTimeHistoryCurve* timeHistoryCurve;
+        this->firstAncestorOrThisOfType(timeHistoryCurve);
 
-        if ( !hasFlowDiagFluxes )
+        // Do not include flow diagnostics results if not available or is a time history curve
+        if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr )
         {
             using ResCatEnum = caf::AppEnum< RimDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
