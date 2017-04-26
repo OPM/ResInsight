@@ -30,7 +30,7 @@
 #include <QDateTime>
 #include <QDir>
 
-
+#include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
 /// May reduce constructor content upon discussion of overlying framework. 
