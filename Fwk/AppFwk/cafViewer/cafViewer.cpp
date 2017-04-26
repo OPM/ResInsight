@@ -461,6 +461,14 @@ void caf::Viewer::setNavigationPolicy(caf::NavigationPolicy* navigationPolicy)
     if (m_navigationPolicy.notNull())  m_navigationPolicy->setViewer(this);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::NavigationPolicy* caf::Viewer::getNavigationPolicy() const
+{
+    return m_navigationPolicy.p();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
