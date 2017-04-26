@@ -93,6 +93,7 @@ private:
     RigEclipseCaseData*                            m_eclipseCase;
 
     std::vector<QDateTime>                  m_timeSteps;
+    std::vector<double>                     m_daysSinceSimulationStart;
 
     ecl_file_type*                          m_ecl_init_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results

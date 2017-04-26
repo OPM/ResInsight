@@ -137,6 +137,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                 cacheEntry->m_resultType = resInfo[rIdx].m_resultType;
                 cacheEntry->m_resultName = resInfo[rIdx].m_resultName;
                 cacheEntry->m_timeStepDates = resInfo[rIdx].m_timeStepDates;
+                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].m_daysSinceSimulationStart;
 
                 // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
@@ -1436,7 +1437,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
         size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
 
-        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates(), std::vector<int>()); // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
+        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates(), resInfo->m_daysSinceSimulationStart(), std::vector<int>()); // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
 
         progress.setProgressDescription(resInfo->m_resultName);
 
@@ -1556,6 +1557,7 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
     CAF_PDM_InitField(&m_resultType, "ResultType",  caf::AppEnum<RimDefines::ResultCatType>(RimDefines::REMOVED), "ResultType", "", "" ,"");
     CAF_PDM_InitField(&m_resultName, "ResultName",  QString(), "ResultName", "", "" ,"");
     CAF_PDM_InitFieldNoDefault(&m_timeStepDates, "TimeSteps", "TimeSteps", "", "" ,"");
+    CAF_PDM_InitFieldNoDefault(&m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart", "", "", "");
     CAF_PDM_InitField(&m_filePosition, "FilePositionDataStart",  qint64(-1), "FilePositionDataStart", "", "" ,"");
 
 }
