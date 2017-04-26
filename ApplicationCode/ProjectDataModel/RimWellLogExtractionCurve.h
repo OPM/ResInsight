@@ -63,6 +63,8 @@ public:
     QString caseName() const;
     double rkbDiff() const;
 
+    int currentTimeStep() const;
+
 protected:
     virtual QString createCurveAutoName();
     virtual void onLoadDataAndUpdate();

@@ -899,3 +899,11 @@ double RimWellLogExtractionCurve::rkbDiff() const
 
     return HUGE_VAL;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimWellLogExtractionCurve::currentTimeStep() const
+{
+    return m_timeStep();
+}

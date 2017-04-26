@@ -37,6 +37,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -662,6 +664,18 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     {
         timeStep = rimView->currentTimeStep();
     }
+    RimWellLogExtractionCurve* wellLogExtractionCurve = nullptr;
+    this->firstAncestorOrThisOfType(wellLogExtractionCurve);
+    if (wellLogExtractionCurve)
+    {
+        timeStep = static_cast<size_t>(wellLogExtractionCurve->currentTimeStep());
+    }
+
+    // Time history curves are not supported, since it requires the time 
+    // step to access to be supplied.
+    RimGridTimeHistoryCurve* timeHistoryCurve = nullptr;
+    this->firstAncestorOrThisOfType(timeHistoryCurve);
+    CVF_ASSERT(timeHistoryCurve == nullptr);
 
     std::set<std::string> selTracerNames;
     if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
