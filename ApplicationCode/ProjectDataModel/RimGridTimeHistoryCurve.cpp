@@ -294,7 +294,6 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate()
 
     if (isCurveVisible())
     {
-        std::vector<time_t> dateTimes;
         std::vector<double> values;
 
         RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
@@ -309,39 +308,43 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate()
             m_geoMechResultDefinition->loadResult();
         }
 
-        dateTimes = timeStepValues();
         values = yValues();
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType(plot);
         bool isLogCurve = plot->isLogarithmicScaleEnabled(this->yAxis());
 
-        if (dateTimes.size() > 0 && dateTimes.size() == values.size())
+        if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
         {
-            if (plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE)
+            std::vector<time_t> dateTimes = timeStepValues();
+            if (dateTimes.size() > 0 && dateTimes.size() == values.size())
             {
                 m_qwtPlotCurve->setSamplesFromTimeTAndValues(dateTimes, values, isLogCurve);
             }
             else
             {
-                double timeScale = plot->timeAxisProperties()->fromTimeTToDisplayUnitScale();
-
-                std::vector<double> times;
-                if (dateTimes.size())
-                {
-                    time_t startDate = dateTimes[0];
-                    for (time_t& date : dateTimes)
-                    {
-                        times.push_back(timeScale*(date - startDate));
-                    }
-                }
-
-                m_qwtPlotCurve->setSamplesFromTimeAndValues(times, values, isLogCurve);
+                m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
             }
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
+            std::vector<double> days = daysSinceSimulationStart();
+            if (days.size() > 0 && days.size() == values.size())
+            {
+                double timeScale = plot->timeAxisProperties()->fromDaysToDisplayUnitScale();
+
+                std::vector<double> times;
+                for (double day : days)
+                {
+                    times.push_back(timeScale * day);
+                }
+
+                m_qwtPlotCurve->setSamplesFromTimeAndValues(times, values, isLogCurve);
+            }
+            else
+            {
+                m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
+            }
         }
 
         updateZoomInParentPlot();
@@ -402,6 +405,56 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
     }
 
     return dateTimes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimGridTimeHistoryCurve::daysSinceSimulationStart() const
+{
+    std::vector<double> daysSinceSimulationStart;
+    RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
+    if (eclTopItem && eclTopItem->eclipseCase())
+    {
+        RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
+        RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
+
+        daysSinceSimulationStart = cellResultsData->daysSinceSimulationStart();
+    }
+
+    RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
+    if (geoMechTopItem && geoMechTopItem->geoMechCase())
+    {
+        std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor = femTimeHistoryResultAccessor();
+        if (timeHistResultAccessor)
+        {
+            std::vector<double> values = timeHistResultAccessor->timeHistoryValues();
+
+            QStringList stepNames = geoMechTopItem->geoMechCase()->timeStepStrings();
+            std::vector<QDateTime> dates = RimGeoMechCase::dateTimeVectorFromTimeStepStrings(stepNames);
+            if (dates.size() == values.size())
+            {
+                if (!dates.empty()) {
+                    time_t startDate = dates[0].toTime_t();
+                    double secondsToDaysConversion = (24.0 * 60.0 * 60.0);
+                    for (QDateTime dt : dates)
+                    {
+                        double timeDifference = static_cast<double>(dt.toTime_t() - startDate);
+                        daysSinceSimulationStart.push_back(timeDifference / secondsToDaysConversion);
+                    }
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < values.size(); i++)
+                {
+                    daysSinceSimulationStart.push_back(i);
+                }
+            }
+        }
+    }
+
+    return daysSinceSimulationStart;
 }
 
 //--------------------------------------------------------------------------------------------------

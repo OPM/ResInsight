@@ -69,6 +69,7 @@ public:
     TimeModeType                            timeMode() const              { return m_timeMode(); }
     void                                    setTimeMode(TimeModeType val) { m_timeMode = val; }
     double                                  fromTimeTToDisplayUnitScale();
+    double                                  fromDaysToDisplayUnitScale();
 
     double visibleRangeMin() const;
     double visibleRangeMax() const;

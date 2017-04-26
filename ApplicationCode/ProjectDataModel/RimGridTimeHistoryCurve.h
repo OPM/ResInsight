@@ -56,6 +56,7 @@ public:
 
     std::vector<double>     yValues() const;
     std::vector<time_t>     timeStepValues() const;
+    std::vector<double>     daysSinceSimulationStart() const;
 
     QString                 quantityName() const;
     QString                 caseName() const;
