@@ -198,7 +198,6 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
     uiOrdering.add(&m_plotAxis);
-    uiOrdering.add(&m_showLegend);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance settings");
     appearanceGroup->setCollapsedByDefault(true);
@@ -219,6 +218,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroup("Curve Name Configuration");
     autoNameGroup->setCollapsedByDefault(true);
+    autoNameGroup->add(&m_showLegend);
     m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
     uiOrdering.add(&m_autoApplyChangesToPlot);
