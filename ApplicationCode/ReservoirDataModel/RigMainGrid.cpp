@@ -240,7 +240,7 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
     if (hasFaultWithName(RimDefines::undefinedGridFaultName())
         && hasFaultWithName(RimDefines::undefinedGridFaultWithInactiveName()))
     {
-        RiaLogging::debug(QString("Calculate faults already run for grid."));
+        //RiaLogging::debug(QString("Calculate faults already run for grid."));
         return;
     }
     m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());

@@ -20,6 +20,7 @@
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
 #include "cvfTrace.h"
+#include "RiaLogging.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -202,7 +203,7 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
                     }
                     else
                     {
-                        cvf::Trace::show(cvf::String("Well log from :") + m_wellCaseErrorMsgName + (" Discards a point at MD:  ") + cvf::String::number((double)(it1->first.measuredDepth)));
+                        RiaLogging::warning(QString("Well Log Extraction : ") + QString::fromStdString(m_wellCaseErrorMsgName) + (" Discards a point at MD:  ") + QString::number((double)(it1->first.measuredDepth)));
 
                         // Found that 8 to 10 is not connected, after finding 7 to 9
                         it1 = it21; // Discard 8 by Jumping to 10
@@ -211,7 +212,7 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
                 }
                 else
                 {
-                    cvf::Trace::show(cvf::String("Well log from :") + m_wellCaseErrorMsgName + (" Discards a point at MD:  ") + cvf::String::number((double)(it1->first.measuredDepth)));
+                    RiaLogging::warning(QString("Well Log Extraction : ") + QString::fromStdString(m_wellCaseErrorMsgName) + (" Discards a point at MD:  ") + QString::number((double)(it1->first.measuredDepth)));
 
                     // Found that 10 to 11 is not connected, and not 10 to 12 either
                     ++it1; // Discard 10 and jump to 11 and hope that recovers us 
