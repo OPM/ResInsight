@@ -31,13 +31,13 @@ RifReaderSettings::RifReaderSettings()
 {
     CAF_PDM_InitObject("RifReaderSettings", "", "", "");
 
-    CAF_PDM_InitField(&importFaults, "importFaults", true, "Import faults", "", "", "");
+    CAF_PDM_InitField(&importFaults, "importFaults", true, "Import Faults", "", "", "");
     importFaults.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "");
     importNNCs.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import advanced MSW data", "", "", "");
+    CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "");
     importAdvancedMswData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&faultIncludeFileAbsolutePathPrefix, "faultIncludeFileAbsolutePathPrefix", QString(), "Fault Include File Absolute Path Prefix", "", "Path used to prefix absolute UNIX paths in fault include statements on Windows", "");
