@@ -356,6 +356,15 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
 
     // Update filename and folder paths when opening project from a different file location
     caseFileName = RimTools::relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+
+    std::vector<QString> relocatedFaultFiles;
+    for (auto faultFileName : filesContainingFaults())
+    {
+        QString relocatedFaultFile = RimTools::relocateFile(faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        relocatedFaultFiles.push_back(relocatedFaultFile);
+    }
+
+    filesContainingFaults = relocatedFaultFiles;
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)
