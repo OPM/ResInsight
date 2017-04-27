@@ -130,7 +130,15 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     int firstDiffIdx = 0;
     for (firstDiffIdx = 0; firstDiffIdx < gridPathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx)
     {
-        if (gridPathElements[firstDiffIdx] == oldProjPathElements[firstDiffIdx])
+#ifdef WIN32
+        // When comparing parts of a file path, the drive letter has been seen to be a mix of
+        // upper and lower cases. Always use case insensitive compare on Windows, as this is a valid approach
+        // for all parts for a file path
+        Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+#else
+        Qt::CaseSensitivity cs = Qt::CaseSensitive;
+#endif
+        if (gridPathElements[firstDiffIdx].compare(oldProjPathElements[firstDiffIdx], cs) == 0)
         {
             pathStartsAreEqual = pathStartsAreEqual || !gridPathElements[firstDiffIdx].isEmpty();
         }
