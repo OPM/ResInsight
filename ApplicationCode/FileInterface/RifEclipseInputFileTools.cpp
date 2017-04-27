@@ -474,30 +474,23 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 /// Create and write a result vector with values for all cells.
 /// undefinedValue is used for cells with no result
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, 
-                                                           RigEclipseCaseData* eclipseCase, 
-                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
-                                                           size_t timeStep, 
-                                                           const QString& resultName, 
-                                                           const QString& eclipseKeyWord, 
+bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName,
+                                                           RigEclipseCaseData* eclipseCase,
+                                                           size_t timeStep,
+                                                           RimEclipseResultDefinition* resultDefinition,
+                                                           const QString& eclipseKeyWord,
                                                            const double undefinedValue)
 {
     CVF_ASSERT(eclipseCase);
 
-    size_t resultIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(resultName);
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
+    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, eclipseCase->mainGrid()->gridIndex(), timeStep, resultDefinition);
+    if (resultAccessor.isNull())
     {
         return false;
     }
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return false;
-    }
-
-    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, eclipseCase->mainGrid()->gridIndex(), porosityModel, timeStep, resultName);
-    if (resultAccessor.isNull())
     {
         return false;
     }
