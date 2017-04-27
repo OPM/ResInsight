@@ -98,7 +98,7 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
 
-    CAF_PDM_InitField(&m_autoApplyChangesToPlot, "AutoApplyFilterChanges", false, "Auto Apply Changes", "", "", "");
+    CAF_PDM_InitField(&m_autoApplyChangesToPlot, "AutoApplyFilterChanges", true, "Auto Apply Changes", "", "", "");
 
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
