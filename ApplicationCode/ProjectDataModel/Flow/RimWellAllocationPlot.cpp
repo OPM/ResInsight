@@ -516,9 +516,9 @@ caf::PdmObject* RimWellAllocationPlot::plotLegend()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution* RimWellAllocationPlot::flowDiagSolution()
+RimEclipseResultCase* RimWellAllocationPlot::rimCase()
 {
-    return m_flowDiagSolution();
+    return m_case();
 }
 
 //--------------------------------------------------------------------------------------------------

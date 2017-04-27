@@ -69,7 +69,7 @@ public:
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
     caf::PdmObject*                                 plotLegend();
-    RimFlowDiagSolution*                            flowDiagSolution();
+    RimEclipseResultCase*                           rimCase();
     int                                             timeStep();
 
     QString                                         wellName() const;

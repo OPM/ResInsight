@@ -54,8 +54,7 @@ void RicShowContributingWellsFromPlotFeature::onActionTriggered(bool isChecked)
     int timeStep = wellAllocationPlot->timeStep();
     QString wellName = wellAllocationPlot->wellName();
 
-    RimEclipseResultCase* wellAllocationResultCase = nullptr;
-    wellAllocationPlot->flowDiagSolution()->firstAncestorOrThisOfTypeAsserted(wellAllocationResultCase);
+    RimEclipseResultCase* wellAllocationResultCase = wellAllocationPlot->rimCase();
 
     RicShowContributingWellsFeatureImpl::maniuplateSelectedView(wellAllocationResultCase, wellName, timeStep);
 }
