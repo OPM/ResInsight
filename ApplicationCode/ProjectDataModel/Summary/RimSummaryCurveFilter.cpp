@@ -199,7 +199,7 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     uiOrdering.add(&m_plotAxis);
 
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance settings");
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance Settings");
     appearanceGroup->setCollapsedByDefault(true);
     appearanceGroup->add(&m_useAutoAppearanceAssignment);
     appearanceGroup->add(&m_caseAppearanceType);
