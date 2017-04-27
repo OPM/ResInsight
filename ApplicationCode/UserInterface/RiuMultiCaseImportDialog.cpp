@@ -76,7 +76,7 @@ private:
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMultiCaseImportDialog::RiuMultiCaseImportDialog(QWidget *parent /*= 0*/)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     ui = new Ui::RiuMultiCaseImportDialog;
     ui->setupUi(this);

@@ -103,7 +103,8 @@ void RiuQPlainTextEdit::slotSelectAll()
 /// 
 /// 
 //--------------------------------------------------------------------------------------------------
-RicTextWidget::RicTextWidget(QWidget* parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowCloseButtonHint)
+RicTextWidget::RicTextWidget(QWidget* parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_textEdit = new RiuQPlainTextEdit(this);
     m_textEdit->setReadOnly(true);
