@@ -62,16 +62,16 @@ RimMultiSnapshotDefinition::RimMultiSnapshotDefinition()
     CAF_PDM_InitFieldNoDefault(&view,                   "View",                     "View", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&eclipseResultType,      "EclipseResultType",        "Result Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Result Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&selectedEclipseResults, "SelectedEclipseResults",   "Properties", "", "", "");
 
-    CAF_PDM_InitField(&timeStepStart,                   "TimeStepStart", 0,         "Timestep Start", "", "", "");
-    CAF_PDM_InitField(&timeStepEnd,                     "TimeStepEnd", 0,           "Timestep End", "", "", "");
+    CAF_PDM_InitField(&timeStepStart,                   "TimeStepStart", 0,         "Start Time", "", "", "");
+    CAF_PDM_InitField(&timeStepEnd,                     "TimeStepEnd", 0,           "End Time", "", "", "");
 
-    CAF_PDM_InitField(&sliceDirection,                  "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter direction", "", "", "");
-    CAF_PDM_InitField(&startSliceIndex,                 "RangeFilterStart", 1,      "RangeFilter Start", "", "", "");
-    CAF_PDM_InitField(&endSliceIndex,                   "RangeFilterEnd", 1,        "RangeFilter End", "", "", "");
+    CAF_PDM_InitField(&sliceDirection,                  "SnapShotDirection",    caf::AppEnum<SnapShotDirectionEnum>(NO_RANGEFILTER), "Range Filter Slice", "", "", "");
+    CAF_PDM_InitField(&startSliceIndex,                 "RangeFilterStart", 1,      "Range Start", "", "", "");
+    CAF_PDM_InitField(&endSliceIndex,                   "RangeFilterEnd", 1,        "Range End", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&additionalCases,        "AdditionalCases",          "Case List", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&additionalCases,        "AdditionalCases",          "Cases", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
