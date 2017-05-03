@@ -47,6 +47,8 @@ public:
 
     QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
 
+    void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+
 private:
 
 private:

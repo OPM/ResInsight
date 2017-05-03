@@ -264,3 +264,14 @@ QString RimSummaryCaseCollection::uniqueShortNameForCase(RimSummaryCase* summary
     return shortName;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+{
+    for (auto summaryCase : m_cases)
+    {
+        summaryCase->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+    }
+}
+

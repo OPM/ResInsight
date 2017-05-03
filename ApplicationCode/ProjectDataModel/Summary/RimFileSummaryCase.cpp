@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFileSummaryCase.h"
+#include "RimTools.h"
+
 #include "QFileInfo"
 
 
@@ -70,4 +72,12 @@ QString RimFileSummaryCase::caseName()
     QFileInfo caseFileName(this->summaryHeaderFilename());
 
     return caseFileName.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+{
+    m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }

@@ -417,19 +417,19 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
     }
 
     // Update path to well path file cache
-    for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
-    {
-        RimOilField* oilField = oilFields[oilFieldIdx];
-        if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
-        oilField->wellPathCollection->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
-    }
-
     for(RimOilField* oilField: oilFields)
     {
-        if(oilField == NULL) continue;
-        if(oilField->formationNamesCollection() != NULL)
+        if (oilField == NULL) continue;
+        if (oilField->wellPathCollection() != NULL)
+        {
+            oilField->wellPathCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+        if (oilField->formationNamesCollection() != NULL)
         {
             oilField->formationNamesCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+        if (oilField->summaryCaseCollection() != NULL) {
+            oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
     }
 
