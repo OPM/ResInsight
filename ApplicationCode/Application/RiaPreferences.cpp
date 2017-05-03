@@ -152,6 +152,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         defaultSettingsGroup->add(&defaultFaultGridLineColors);
         defaultSettingsGroup->add(&defaultWellLabelColor);
         defaultSettingsGroup->add(&fontSizeInScene);
+        defaultSettingsGroup->add(&defaultScaleFactorZ);
 
         caf::PdmUiGroup* viewsGroup = uiOrdering.addNewGroup("3D Views");
         viewsGroup->add(&navigationPolicy);
@@ -168,7 +169,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     else if (uiConfigName == m_tabNames[1])
     {
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup("Behavior When Loading Data");
-        newCaseBehaviourGroup->add(&defaultScaleFactorZ);
         newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
         newCaseBehaviourGroup->add(&loadAndShowSoil);
     
