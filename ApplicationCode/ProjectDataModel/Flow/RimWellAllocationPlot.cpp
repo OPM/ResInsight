@@ -295,10 +295,10 @@ void RimWellAllocationPlot::updateFromWell()
         for ( const auto& tracerVal : totalTracerFractions )
         {
             cvf::Color3f color;
-            if ( m_flowDiagSolution )
+            if (m_flowDiagSolution)
                 color = m_flowDiagSolution->tracerColor(tracerVal.first);
             else
-                color = cvf::Color3f::DARK_GRAY;
+                color = getTracerColor(tracerVal.first);
 
             double tracerPercent = 100*tracerVal.second;
 
@@ -394,13 +394,7 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
     }
     else
     {
-        cvf::Color3f color = cvf::Color3f::DARK_GRAY;
-
-        if (tracerName == RIG_FLOW_OIL_NAME)   color = cvf::Color3f::DARK_GREEN;
-        if (tracerName == RIG_FLOW_GAS_NAME)   color = cvf::Color3f::DARK_RED;
-        if (tracerName == RIG_FLOW_WATER_NAME) color = cvf::Color3f::BLUE;
-
-        curve->setColor(color);
+        curve->setColor(getTracerColor(tracerName));
     }
 
     plotTrack->addCurve(curve);
@@ -767,4 +761,15 @@ QWidget* RimWellAllocationPlot::createViewWidget(QWidget* mainWindowParent)
     return m_wellAllocationPlotWidget;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellAllocationPlot::getTracerColor(const QString& tracerName)
+{
+
+    if (tracerName == RIG_FLOW_OIL_NAME)   return cvf::Color3f::DARK_GREEN;
+    if (tracerName == RIG_FLOW_GAS_NAME)   return cvf::Color3f::DARK_RED;
+    if (tracerName == RIG_FLOW_WATER_NAME) return cvf::Color3f::BLUE;
+    return cvf::Color3f::DARK_GRAY;
+}
 

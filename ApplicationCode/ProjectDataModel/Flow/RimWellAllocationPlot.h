@@ -37,6 +37,10 @@ class RiuWellAllocationPlot;
 class RimWellLogTrack;
 class RigSingleWellResultsData;
 
+namespace cvf {
+    class Color3f;
+}
+
 namespace caf {
     class PdmOptionItemInfo;
 }
@@ -110,6 +114,8 @@ private:
 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+
+    cvf::Color3f                                    getTracerColor(const QString& tracerName);
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
