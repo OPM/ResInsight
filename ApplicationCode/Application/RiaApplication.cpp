@@ -1399,7 +1399,8 @@ bool RiaApplication::parseArguments()
             std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
 
-            closeProject();
+            closeAllWindows();
+            processEvents();
 
             return false;
         }
@@ -1552,7 +1553,8 @@ bool RiaApplication::parseArguments()
                 }
             }
             
-            closeProject();
+            closeAllWindows();
+            processEvents();
         }
 
         // Returning false will exit the application
