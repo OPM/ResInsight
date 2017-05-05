@@ -77,6 +77,8 @@ private:
     caf::PdmField<double>               m_lateralExitAngle;
     caf::PdmField<double>               m_lateralBuildAngle;
 
+    caf::PdmField<double>               m_skinFactor;
+
     caf::PdmField<double>               m_lateralHoleRadius;
     caf::PdmField<double>               m_lateralTubingRadius;
 

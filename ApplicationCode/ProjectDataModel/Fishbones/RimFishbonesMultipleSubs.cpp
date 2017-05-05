@@ -35,7 +35,7 @@ namespace caf {
     template<>
     void AppEnum<RimFishbonesMultipleSubs::LocationType>::setUp()
     {
-        addItem(RimFishbonesMultipleSubs::FB_SUB_COUNT_END,     "FB_SUB_COUNT",     "Start/End/Count");
+        addItem(RimFishbonesMultipleSubs::FB_SUB_COUNT_END,     "FB_SUB_COUNT",     "Start/End/Number of Subs");
         addItem(RimFishbonesMultipleSubs::FB_SUB_SPACING_END,   "FB_SUB_SPACING",   "Start/End/Spacing");
         addItem(RimFishbonesMultipleSubs::FB_SUB_USER_DEFINED,  "FB_SUB_CUSTOM",    "User Specification");
         setDefault(RimFishbonesMultipleSubs::FB_SUB_USER_DEFINED);
@@ -58,7 +58,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
     CAF_PDM_InitObject("FishbonesMultipleSubs", ":/Default.png", "", "");
 
-    CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Count Per Sub", "", "", "");
+    CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Laterals Per Sub", "", "", "");
     CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("12.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
 
     CAF_PDM_InitField(&m_lateralExitAngle,              "LateralExitAngle", 35.0,           "Exit Angle [deg]", "", "", "");
@@ -70,8 +70,9 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001,   "Open Hole Roghness Factor [m]", "", "", "");
     CAF_PDM_InitField(&m_lateralTubingRoghnessFactor,   "LateralTubingRoghnessFactor", 1e-5,      "Tubing Roghness Factor [m]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralLengthFraction,         "LateralLengthFraction", 100.0,     "Length Fraction [0..1]", "", "", "");
-    CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 100.0,    "Install Fraction [0..1]", "", "", "");
+    CAF_PDM_InitField(&m_lateralLengthFraction,         "LateralLengthFraction", 0.8,       "Length Fraction [0..1]", "", "", "");
+    CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 0.7,      "Install Fraction [0..1]", "", "", "");
+    CAF_PDM_InitField(&m_skinFactor,                    "SkinFactor", 1.0,                  "Skin Factor [0..1]", "", "", "");
 
     CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICD Count", "", "", "");
     CAF_PDM_InitField(&m_icdOrificeRadius,              "IcdOrificeRadius", 8.0,            "ICD Orifice Radius [mm]", "", "", "");
@@ -80,10 +81,10 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_locationOfSubs.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_USER_DEFINED), "Location Defined By", "", "", "");
-    CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start [m]", "", "", "");
-    CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End [m]", "", "", "");
+    CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
+    CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeSubSpacing,               "RangeSubSpacing",  40.0,           "Spacing [m]", "", "", "");
-    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    size_t(25),     "Count", "", "", "");
+    CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    size_t(25),     "Number of Subs", "", "", "");
 
     CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
     
@@ -279,27 +280,37 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
     }
     
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Lateral Configuration");
+        caf::PdmUiGroup* lateralConfigGroup = uiOrdering.addNewGroup("Lateral Configuration");
 
-        group->add(&m_lateralCountPerSub);
-        group->add(&m_lateralLength);
+        lateralConfigGroup->add(&m_lateralCountPerSub);
+        lateralConfigGroup->add(&m_lateralLength);
 
-        group->add(&m_lateralExitAngle);
-        group->add(&m_lateralBuildAngle);
+        lateralConfigGroup->add(&m_lateralExitAngle);
+        lateralConfigGroup->add(&m_lateralBuildAngle);
         
-        group->add(&m_subsOrientationMode);
+        lateralConfigGroup->add(&m_subsOrientationMode);
         if (m_subsOrientationMode == FB_LATERAL_ORIENTATION_FIXED)
         {
-            group->add(&m_fixedInstallationRotationAngle);
+            lateralConfigGroup->add(&m_fixedInstallationRotationAngle);
         }
 
-        caf::PdmUiGroup* successGroup = group->addNewGroup("Installation Success Factors");
-        successGroup->add(&m_lateralLengthFraction);
-        successGroup->add(&m_lateralInstallFraction);
-        
-        caf::PdmUiGroup* mswGroup = group->addNewGroup("Multi Segment Wells");
+        {
+            caf::PdmUiGroup* wellGroup = lateralConfigGroup->addNewGroup("Well Properties");
+
+            wellGroup->add(&m_lateralHoleRadius);
+            wellGroup->add(&m_skinFactor);
+        }
+
+        {
+            caf::PdmUiGroup* successGroup = lateralConfigGroup->addNewGroup("Installation Success Fractions");
+            successGroup->add(&m_lateralLengthFraction);
+            successGroup->add(&m_lateralInstallFraction);
+        }
+    }
+
+    {
+        caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
         mswGroup->setCollapsedByDefault(true);
-        mswGroup->add(&m_lateralHoleRadius);
         mswGroup->add(&m_lateralTubingRadius);
         mswGroup->add(&m_lateralOpenHoleRoghnessFactor);
         mswGroup->add(&m_lateralTubingRoghnessFactor);
