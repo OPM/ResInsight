@@ -61,6 +61,8 @@ private:
     
     static void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius);
 
+    static cvf::Vec3d closestMainAxis(const cvf::Vec3d& vec);
+
 private:
     caf::PdmPointer<RimFishbonesMultipleSubs>   m_rimFishbonesSubs;
     cvf::Collection<cvf::Part>                  m_parts;

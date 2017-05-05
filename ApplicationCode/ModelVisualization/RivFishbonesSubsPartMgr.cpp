@@ -90,10 +90,10 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
     m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted(wellPath);
 
     RigWellPath* rigWellPath = wellPath->wellPathGeometry();
-    
+
     RivPipeGeometryGenerator geoGenerator;
     geoGenerator.setRadius(m_rimFishbonesSubs->tubingRadius());
-    
+
     for (size_t instanceIndex = 0; instanceIndex < locationOfSubs.size(); instanceIndex++)
     {
         double measuredDepth = locationOfSubs[instanceIndex];
@@ -114,7 +114,15 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
                 cvf::Vec3d lateralDirection;
                 {
                     cvf::Vec3d alongWellPath = (p2 - p1).getNormalized();
+
                     cvf::Vec3d lateralInitialDirection = cvf::Vec3d::Z_AXIS;
+
+                    if (RivFishbonesSubsPartMgr::closestMainAxis(alongWellPath) == cvf::Vec3d::Z_AXIS)
+                    {
+                        // Use x-axis if well path is heading close to z-axis
+                        lateralInitialDirection = cvf::Vec3d::X_AXIS;
+                    }
+
                     {
                         double intialRotationAngle = m_rimFishbonesSubs->rotationAngle(instanceIndex);
                         double lateralOffsetDegrees = 360.0 / lateralLengths.size();
@@ -228,6 +236,39 @@ void RivFishbonesSubsPartMgr::cylinderWithCenterLineParts(cvf::Collection<cvf::P
         part->setEffect(eff.p());
 
         destinationParts->push_back(part);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RivFishbonesSubsPartMgr::closestMainAxis(const cvf::Vec3d& vec)
+{
+    size_t maxComponent = 0;
+    double maxValue = cvf::Math::abs(vec.x());
+    if (cvf::Math::abs(vec.y()) > maxValue)
+    {
+        maxComponent = 1;
+        maxValue = cvf::Math::abs(vec.y());
+    }
+
+    if (cvf::Math::abs(vec.z()) > maxValue)
+    {
+        maxComponent = 2;
+        maxValue = cvf::Math::abs(vec.z());
+    }
+
+    if (maxComponent == 0)
+    {
+        return cvf::Vec3d::X_AXIS;
+    }
+    else if (maxComponent == 1)
+    {
+        return cvf::Vec3d::Y_AXIS;
+    }
+    else if (maxComponent == 2)
+    {
+        return cvf::Vec3d::Z_AXIS;
     }
 }
 
