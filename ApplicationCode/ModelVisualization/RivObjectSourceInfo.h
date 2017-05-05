@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2017 -     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,29 +18,26 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
+#include "cafPdmPointer.h"
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+
+namespace caf {
+    class PdmObject;
+}
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimNamedObject : public caf::PdmObject
+class RivObjectSourceInfo : public cvf::Object
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimNamedObject(void);
-    virtual ~RimNamedObject(void);
+    RivObjectSourceInfo(caf::PdmObject* object);
+    
+    caf::PdmObject* object() const;
 
-    QString name() const;
-    void    setName(const QString& name);
-
-protected:
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
-
-protected:
-    caf::PdmField<QString> m_name;
+private:    
+    caf::PdmPointer<caf::PdmObject> m_object;
 };
-
