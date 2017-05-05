@@ -32,6 +32,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
 
+#include "RimFishbonesMultipleSubs.h"
+
 #include "RiuMainWindow.h"
 
 #include "RivWellPathPartMgr.h"
@@ -100,6 +102,9 @@ RimWellPath::RimWellPath()
     
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
+    fishbonesSubs.uiCapability()->setUiHidden(true);
 
     m_wellPath = NULL;
 }
@@ -419,6 +424,17 @@ void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, 
     {
         filepath = RimTools::relocateFile(filepath(), newProjectPath, oldProjectPath, NULL, NULL);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimWellPath::combinedScaleFactor() const
+{
+    RimWellPathCollection* wellPathColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(wellPathColl);
+
+    return this->wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
 }
 
 //--------------------------------------------------------------------------------------------------

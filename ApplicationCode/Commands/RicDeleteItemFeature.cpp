@@ -25,6 +25,7 @@
 #include "RimEclipseInputProperty.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
+#include "RimFishbonesMultipleSubs.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -92,6 +93,7 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
+    if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))                  return true;
 
     return false;    
 }

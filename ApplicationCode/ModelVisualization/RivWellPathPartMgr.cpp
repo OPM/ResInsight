@@ -25,10 +25,11 @@
 
 #include "RigWellPath.h"
 
+#include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
-#include "RivPipeGeometryGenerator.h"
+#include "RivFishbonesSubsPartMgr.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
@@ -81,6 +82,31 @@ RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
 RivWellPathPartMgr::~RivWellPathPartMgr()
 {
     clearAllBranchData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+{
+    if (!m_rimWellPath) return;
+
+    // This concept is taken from RivReservoirSimWellsPartMgr, and is required to be able to have
+    // separate part managers for each view
+    if (m_fishbonesPartMgrs.size() != m_rimWellPath->fishbonesSubs().size())
+    {
+        m_fishbonesPartMgrs.clear();
+
+        for (auto rimFishboneSubs : m_rimWellPath->fishbonesSubs())
+        {
+            m_fishbonesPartMgrs.push_back(new RivFishbonesSubsPartMgr(rimFishboneSubs));
+        }
+    }
+
+    for (auto rivFishbonesPartManager : m_fishbonesPartMgrs)
+    {
+        rivFishbonesPartManager->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,6 +294,8 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     {
         model->addPart(m_wellLabelPart.p());
     }
+
+    appendFishbonesPartsToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,6 +308,16 @@ void RivWellPathPartMgr::setScaleTransform( cvf::Transform * scaleTransform )
         m_scaleTransform = scaleTransform; 
         scheduleGeometryRegen(); 
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::scheduleGeometryRegen()
+{
+    m_needsTransformUpdate = true;
+
+    m_fishbonesPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

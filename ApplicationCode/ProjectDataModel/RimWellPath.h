@@ -29,6 +29,7 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
+#include "cafPdmChildArrayField.h"
 #include "cvfObject.h"    
 
 class RifWellPathAsciiFileReader;
@@ -36,6 +37,8 @@ class RigWellPath;
 class RimProject;
 class RimWellLogFile;
 class RivWellPathPartMgr;
+
+class RimFishbonesMultipleSubs;
 
 //==================================================================================================
 ///  
@@ -70,12 +73,14 @@ public:
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
     RigWellPath*                        wellPathGeometry();
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
+    
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
-
+    double                              combinedScaleFactor() const;
 
 private:
 

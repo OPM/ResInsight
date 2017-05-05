@@ -49,6 +49,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Fishbones
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -107,6 +108,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
+    ProjectDataModel/Fishbones/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -121,6 +123,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
+    Commands/FishbonesCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake

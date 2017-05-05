@@ -22,6 +22,7 @@
 
 #include "cafPdmPointer.h"
 #include "cvfBoundingBox.h"
+#include "cvfCollection.h"
 
 namespace cvf
 {
@@ -40,6 +41,7 @@ namespace caf {
 class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
+class RivFishbonesSubsPartMgr;
 
 class RivWellPathPartMgr : public cvf::Object
 {
@@ -49,7 +51,7 @@ public:
 
     void                                    setScaleTransform(cvf::Transform * scaleTransform);
 
-    void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; }//printf("R"); }
+    void                                    scheduleGeometryRegen();
 
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
@@ -58,13 +60,16 @@ public:
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
+    void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                                    clearAllBranchData();
+
+private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
     cvf::ref<cvf::Transform>                m_scaleTransform; 
     bool                                    m_needsTransformUpdate;
 
-    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
-    void                                    clearAllBranchData();
     struct RivPipeBranchData
     {
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
@@ -80,4 +85,6 @@ private:
     cvf::ref<cvf::ScalarMapper>             m_scalarMapper;
     cvf::ref<cvf::Effect>                   m_scalarMapperSurfaceEffect; 
     cvf::ref<cvf::Effect>                   m_scalarMapperMeshEffect; 
+
+    cvf::Collection<RivFishbonesSubsPartMgr>  m_fishbonesPartMgrs;
 };
