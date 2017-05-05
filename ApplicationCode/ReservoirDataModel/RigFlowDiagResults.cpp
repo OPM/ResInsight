@@ -261,6 +261,35 @@ std::vector<double>* RigFlowDiagResults::calculateAverageTOFResult(const RigFlow
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::calculateSumOfFractionAndFractionMultTOF(size_t activeCellCount,
+                                                                  const std::vector<const std::vector<double> *> & fractions, 
+                                                                  const std::vector<const std::vector<double> *> & TOFs,
+                                                                  std::vector<double> *sumOfFractions,
+                                                                  std::vector<double> *fractionMultTOF)
+{
+    sumOfFractions->resize(activeCellCount, 0.0);
+    fractionMultTOF->resize(activeCellCount, 0.0);
+
+    for ( size_t iIdx = 0; iIdx < fractions.size() ; ++iIdx )
+    {
+        const std::vector<double> * frInj = fractions[iIdx];
+        const std::vector<double> * tofInj = TOFs[iIdx];
+
+        if ( ! (frInj && tofInj) ) continue;
+
+        for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
+        {
+            if ( (*frInj)[acIdx] == HUGE_VAL ) continue;
+
+            (*sumOfFractions)[acIdx] += (*frInj)[acIdx];
+            (*fractionMultTOF)[acIdx]   += (*frInj)[acIdx] * (*tofInj)[acIdx];
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<double>* RigFlowDiagResults::calculateSumOfFractionsResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
 {
     std::vector<const std::vector<double>* > fractions = findResultsForSelectedTracers(resVarAddr,
@@ -433,35 +462,6 @@ RigFlowDiagResults::findNamedResultsForSelectedTracers(const RigFlowDiagResultAd
     return selectedTracersResults;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFlowDiagResults::calculateSumOfFractionAndFractionMultTOF(size_t activeCellCount,
-                                                                  const std::vector<const std::vector<double> *> & fractions, 
-                                                                  const std::vector<const std::vector<double> *> & TOFs,
-                                                                  std::vector<double> *sumOfFractions,
-                                                                  std::vector<double> *fractionMultTOF)
-{
-    sumOfFractions->resize(activeCellCount, 0.0);
-    fractionMultTOF->resize(activeCellCount, 0.0);
-
-    for ( size_t iIdx = 0; iIdx < fractions.size() ; ++iIdx )
-    {
-        const std::vector<double> * frInj = fractions[iIdx];
-        const std::vector<double> * tofInj = TOFs[iIdx];
-
-        if ( ! (frInj && tofInj) ) continue;
-
-        for ( size_t acIdx = 0 ; acIdx < activeCellCount; ++acIdx )
-        {
-            if ( (*frInj)[acIdx] == HUGE_VAL ) continue;
-
-            (*sumOfFractions)[acIdx] += (*frInj)[acIdx];
-            (*fractionMultTOF)[acIdx]   += (*frInj)[acIdx] * (*tofInj)[acIdx];
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
