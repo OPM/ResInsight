@@ -146,41 +146,11 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
                     buildAngleRotationMatrix = cvf::Mat4d::fromRotation(rotationAxis, buildAngleRadians);
                 }
 
-                std::vector<cvf::Vec3d> domainCoords;
-
-                // Compute coordinates along the lateral by modifying the lateral direction by the build angle for 
-                // every unit vector along the lateral
-                {
-                    cvf::Vec3d accumulatedPosition = position;
-                    double accumulatedLength = 0.0;
-                    while (accumulatedLength < lateralLengths[i])
-                    {
-                        domainCoords.push_back(accumulatedPosition);
-
-                        double delta = 1.0;
-                    
-                        if (lateralLengths[i] - accumulatedLength < 1.0)
-                        {
-                            delta = lateralLengths[i] - accumulatedLength;
-                        }
-
-                        accumulatedPosition += delta * lateralDirection;
-
-                        // Modify the lateral direction by the build angle for each unit vector
-                        lateralDirection = lateralDirection.getTransformedVector(buildAngleRotationMatrix);
-
-                        accumulatedLength += delta;
-                    }
-                
-                    // Add the last accumulated position if it is not present
-                    if (domainCoords.back() != accumulatedPosition)
-                    {
-                        domainCoords.push_back(accumulatedPosition);
-                    }
-                }
+                std::vector<cvf::Vec3d> lateralDomainCoords = 
+                    RivFishbonesSubsPartMgr::computeLateralCoords(position, lateralLengths[i], lateralDirection, buildAngleRotationMatrix);
 
                 std::vector<cvf::Vec3d> displayCoords;
-                for (auto domainCoord : domainCoords)
+                for (auto domainCoord : lateralDomainCoords)
                 {
                     displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(domainCoord));
                 }
@@ -196,6 +166,47 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RivFishbonesSubsPartMgr::computeLateralCoords(const cvf::Vec3d& startCoord, double lateralLength, const cvf::Vec3d& lateralStartDirection, const cvf::Mat4d& buildAngleRotationMatrix)
+{
+    std::vector<cvf::Vec3d> coords;
+
+    cvf::Vec3d lateralDirection(lateralStartDirection);
+
+    // Compute coordinates along the lateral by modifying the lateral direction by the build angle for 
+    // every unit vector along the lateral
+    cvf::Vec3d accumulatedPosition = startCoord;
+    double accumulatedLength = 0.0;
+    while (accumulatedLength < lateralLength)
+    {
+        coords.push_back(accumulatedPosition);
+
+        double delta = 1.0;
+
+        if (lateralLength - accumulatedLength < 1.0)
+        {
+            delta = lateralLength - accumulatedLength;
+        }
+
+        accumulatedPosition += delta * lateralDirection;
+
+        // Modify the lateral direction by the build angle for each unit vector
+        lateralDirection = lateralDirection.getTransformedVector(buildAngleRotationMatrix);
+
+        accumulatedLength += delta;
+    }
+
+    // Add the last accumulated position if it is not present
+    if (coords.back() != accumulatedPosition)
+    {
+        coords.push_back(accumulatedPosition);
+    }
+
+    return coords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +277,7 @@ cvf::Vec3d RivFishbonesSubsPartMgr::closestMainAxis(const cvf::Vec3d& vec)
     {
         return cvf::Vec3d::Y_AXIS;
     }
-    else if (maxComponent == 2)
+    else
     {
         return cvf::Vec3d::Z_AXIS;
     }
