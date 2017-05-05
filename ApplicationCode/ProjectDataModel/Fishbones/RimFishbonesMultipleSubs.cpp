@@ -24,8 +24,6 @@
 
 #include "cvfAssert.h"
 
-#include <iostream> 
-#include <ctime> 
 #include <cstdlib>
 
 
@@ -238,9 +236,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         changedField == &m_locationOfSubs ||
         changedField == &m_subsOrientationMode)
     {
-        m_installationRotationAngles.v().clear();
-
-        recomputeIntallationRotationAngles();
+        computeRotationAngles();
     }
 
     RimProject* proj;
@@ -360,20 +356,20 @@ void RimFishbonesMultipleSubs::initAfterRead()
 {
     if (m_locationOfSubs().size() != m_installationRotationAngles().size())
     {
-        recomputeIntallationRotationAngles();
+        computeRotationAngles();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFishbonesMultipleSubs::recomputeIntallationRotationAngles()
+void RimFishbonesMultipleSubs::computeRotationAngles()
 {
     std::vector<double> vals;
 
     for (size_t i = 0; i < m_locationOfSubs().size(); i++)
     {
-        vals.push_back(RimFishbonesMultipleSubs::randomValue(0, 360));
+        vals.push_back(RimFishbonesMultipleSubs::randomValueFromRange(0, 360));
     }
 
     m_installationRotationAngles = vals;
@@ -397,7 +393,7 @@ std::vector<double> RimFishbonesMultipleSubs::locationsFromStartSpacingAndCount(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimFishbonesMultipleSubs::randomValue(int min, int max)
+int RimFishbonesMultipleSubs::randomValueFromRange(int min, int max)
 {
     int range = abs(max - min);
     int random_integer = min + int(range*rand() / (RAND_MAX + 1.0));

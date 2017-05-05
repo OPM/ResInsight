@@ -20,8 +20,6 @@
 
 #include "RimCheckableNamedObject.h"
 
-
-
 //==================================================================================================
 ///  
 ///  
@@ -58,17 +56,16 @@ public:
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void initAfterRead() override;
+    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void        initAfterRead() override;
 
 private:
-    void                        recomputeIntallationRotationAngles();
+    void                        computeRotationAngles();
 
     static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
-    static int                  randomValue(int min, int max);
+    static int                  randomValueFromRange(int min, int max);
 
 private:
     caf::PdmField<size_t>               m_lateralCountPerSub;
@@ -99,10 +96,8 @@ private:
 
     caf::PdmField<caf::AppEnum<LateralsOrientationType> >    m_subsOrientationMode;
 
-
     caf::PdmField<std::vector<double>>  m_locationOfSubs; // Given in measured depth
 
     caf::PdmField<std::vector<double>>  m_installationRotationAngles;
     caf::PdmField<double>               m_fixedInstallationRotationAngle;
-
 };
