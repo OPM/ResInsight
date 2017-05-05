@@ -38,6 +38,11 @@ namespace cvf
     class ModelBasicList;
 }
 
+namespace caf
+{
+    class DisplayCoordTransform;
+}
+
 
 class RivWellPathCollectionPartMgr : public cvf::Object
 {
@@ -54,7 +59,8 @@ public:
         cvf::Vec3d displayModelOffset, 
         cvf::Transform* scaleTransform, 
         double characteristicCellSize, 
-        cvf::BoundingBox wellPathClipBoundingBox);
+        cvf::BoundingBox wellPathClipBoundingBox,
+        caf::DisplayCoordTransform* displayCoordTransform);
 
 private:
     caf::PdmPointer<RimWellPathCollection>      m_wellPathCollection;

@@ -30,6 +30,7 @@
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivPartPriority.h"
+#include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafEffectGenerator.h"
@@ -232,7 +233,8 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox)
+                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+                                                          caf::DisplayCoordTransform* displayCoordTransform)
 {
     RimWellPathCollection* wellPathCollection = NULL;
     m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);

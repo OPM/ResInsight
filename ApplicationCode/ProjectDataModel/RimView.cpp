@@ -699,7 +699,8 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
                                                                     displayModelOffset,
                                                                     scaleTransform, 
                                                                     characteristicCellSize, 
-                                                                    wellPathClipBoundingBox);
+                                                                    wellPathClipBoundingBox,
+                                                                    this->displayCoordTransform().p());
     }
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();

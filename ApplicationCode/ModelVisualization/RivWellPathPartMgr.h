@@ -33,6 +33,10 @@ namespace cvf
     class ScalarMapper;
 }
 
+namespace caf {
+    class DisplayCoordTransform;
+}
+
 class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
@@ -48,7 +52,8 @@ public:
     void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; }//printf("R"); }
 
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+                                                                             caf::DisplayCoordTransform* displayCoordTransform);
 
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
