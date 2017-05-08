@@ -54,4 +54,5 @@ void RicSaveProjectAsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Save Project &As");
     actionToSetup->setIcon(QIcon(":/Save.png"));
+    actionToSetup->setShortcuts(QKeySequence::SaveAs);
 }

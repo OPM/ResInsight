@@ -66,4 +66,5 @@ void RicOpenProjectFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Open Project");
     actionToSetup->setIcon(QIcon(":/openFolder24x24.png"));
+    actionToSetup->setShortcuts(QKeySequence::Open);
 }
