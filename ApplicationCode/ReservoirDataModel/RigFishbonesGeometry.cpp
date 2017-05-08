@@ -81,8 +81,8 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation(size_t subIndex, 
 
         if (RigFisbonesGeometry::closestMainAxis(alongWellPath) == cvf::Vec3d::Z_AXIS)
         {
-            // Use x-axis if well path is heading close to z-axis
-            lateralInitialDirection = cvf::Vec3d::X_AXIS;
+            // Use Y-AXIS if well path is heading close to Z-AXIS
+            lateralInitialDirection = cvf::Vec3d::Y_AXIS;
         }
 
         {
