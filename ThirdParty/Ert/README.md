@@ -131,6 +131,7 @@ filesystem. One level above the toplevel source directory is a practical choice.
 ccmake <path/to/directory/containing/CMakeLists.txt>
 ```
 Go through several 'configure' steps with CMake and generate native build files.
+
 3. Exit ccmake and invoke the native build system, i.e. ordinarily 'make' on
 Linux.
 4. Subsequent builds can be performed using just the native make command, as in

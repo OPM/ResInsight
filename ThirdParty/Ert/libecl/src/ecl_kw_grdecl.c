@@ -413,7 +413,7 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
 
           value_ptr = &value;
         } else
-          util_abort("%s: sorry type:%s not supported \n",__func__ , ecl_type_get_name(data_type));
+          util_abort("%s: sorry type:%s not supported \n",__func__ , ecl_type_alloc_name(data_type));
 
         /*
           Removing this warning on user request:

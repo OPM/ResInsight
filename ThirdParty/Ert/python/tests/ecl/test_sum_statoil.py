@@ -20,11 +20,11 @@ import datetime
 
 from unittest import skipIf, skipUnless, skipIf
 
-from ert.ecl import EclSum, EclFile
+from ecl.ecl import EclSum, EclFile
 
-from ert.util import StringList, TimeVector, DoubleVector
+from ecl.util import StringList, TimeVector, DoubleVector
 
-from ert.test import ExtendedTestCase , TestAreaContext
+from ecl.test import ExtendedTestCase , TestAreaContext
 import csv
 
 base = "ECLIPSE"
@@ -450,13 +450,55 @@ class SumTest(ExtendedTestCase):
 
         self.assertEqual( total.iget( "WGPR:NOT_21_D", 5) , 0) # Default value
 
+    def test_write(self):
+        with TestAreaContext("my_space") as area:
+            intersect_summary = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/iter-1/NOR-2013A_R007-0") )
+            self.assertIsNotNone(intersect_summary)
+
+            write_location = os.path.join(os.getcwd(), "CASE")
+            intersect_summary.fwrite(ecl_case=write_location)
+
+            reloaded_summary = EclSum(write_location)
+            self.assertEqual(intersect_summary.keys(), reloaded_summary.keys())
 
     def test_ix_case(self):
-        # This should ideally load OK; the current assertRaises() test
-        # is just to ensure that it does not go *completely* up in flames.
-        with self.assertRaises(IOError):
-            EclSum( self.createTestPath( "Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well"))
+        intersect_summary = EclSum(self.createTestPath("Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well"))
+        self.assertIsNotNone(intersect_summary)
 
-        f = EclFile( self.createTestPath( "Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well.SMSPEC")) 
-        self.assertTrue( "KEYWORDS" in f )
-        self.assertFalse( "NAMES" in f )
+        self.assertTrue(
+                "HWELL_PROD" in
+                [intersect_summary.smspec_node(key).wgname for key in intersect_summary.keys()]
+                )
+
+        eclipse_summary = EclSum(self.createTestPath("Statoil/ECLIPSE/ix/summary/ECL100/E100_CREATE_REGION_AROUND_WELL"))
+        self.assertIsNotNone(eclipse_summary)
+
+        hwell_padder = lambda key : key if key.split(":")[-1] != "HWELL_PR" else key + "OD"
+        self.assertEqual(
+                intersect_summary.keys("WWCT*"),
+                map(hwell_padder, eclipse_summary.keys("WWCT*"))
+                )
+
+    def test_ix_write(self):
+        for data_set in [
+                    "Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well",
+                    "Statoil/ECLIPSE/ix/troll/IX_NOPH3_R04_75X75X1_grid2.SMSPEC"
+                    ]:
+
+            with TestAreaContext("my_space" + data_set.split("/")[-1]) as area:
+                intersect_summary = EclSum(self.createTestPath(data_set))
+                self.assertIsNotNone(intersect_summary)
+
+                write_location = os.path.join(os.getcwd(), "CASE")
+                intersect_summary.fwrite(ecl_case=write_location)
+
+                reloaded_summary = EclSum(write_location)
+                self.assertEqual(
+                        list(intersect_summary.keys()),
+                        list(reloaded_summary.keys())
+                        )
+
+    def test_ix_caseII(self):
+        troll_summary = EclSum( self.createTestPath("Statoil/ECLIPSE/ix/troll/IX_NOPH3_R04_75X75X1_grid2.SMSPEC"))
+        self.assertIsNotNone(troll_summary)
+        self.assertTrue("WMCTL:Q21BH1" in list(troll_summary.keys()))

@@ -5401,7 +5401,7 @@ static bool ecl_grid_get_property__(const ecl_grid_type * ecl_grid , const ecl_k
       return false;
 
   } else {
-    util_abort("%s: sorry - can not lookup ECLIPSE type:%s with %s.\n",__func__ , ecl_type_get_name( data_type ) , __func__);
+    util_abort("%s: sorry - can not lookup ECLIPSE type:%s with %s.\n",__func__ , ecl_type_alloc_name( data_type ) , __func__);
     return false;
   }
 }
@@ -5466,7 +5466,7 @@ double ecl_grid_get_property(const ecl_grid_type * ecl_grid , const ecl_kw_type 
       return -1;   /* Tried to lookup an inactive cell. */
 
   } else {
-    util_abort("%s: sorry - can not lookup ECLIPSE type:%s with %s.\n",__func__ , ecl_type_get_name( data_type ) , __func__);
+    util_abort("%s: sorry - can not lookup ECLIPSE type:%s with %s.\n",__func__ , ecl_type_alloc_name( data_type ) , __func__);
     return -1;
   }
 }
@@ -5517,7 +5517,7 @@ void ecl_grid_get_column_property(const ecl_grid_type * ecl_grid , const ecl_kw_
       }
     }
   } else
-    util_abort("%s: sorry - can not lookup ECLIPSE type:%s with %s.\n",__func__ , ecl_type_get_name( data_type ) , __func__);
+    util_abort("%s: sorry - can not lookup ECLIPSE type:%s with %s.\n",__func__ , ecl_type_alloc_name( data_type ) , __func__);
 }
 
 

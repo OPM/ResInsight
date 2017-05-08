@@ -1,5 +1,5 @@
 import os
-from ert.test import ExtendedTestCase, PathContext,TestAreaContext
+from ecl.test import ExtendedTestCase, PathContext,TestAreaContext
 
 
 class PathContextTest(ExtendedTestCase):

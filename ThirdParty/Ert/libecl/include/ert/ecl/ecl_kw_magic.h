@@ -414,6 +414,7 @@ values (2e20) are denoted with '*'.
 #define MINISTEP_KW  "MINISTEP"
 #define STARTDAT_KW  "STARTDAT"   /* Intgere keyword containing day,month,year. */
 #define WGNAMES_KW   "WGNAMES"    /* The names of wells/groups for the summary vectors. */
+#define NAMES_KW     "NAMES"      /* Alias for WGNAMES_KW. */
 #define KEYWORDS_KW  "KEYWORDS"   /* The variable type for the various summary vectors. */
 #define UNITS_KW     "UNITS"      /* The units, i.e SM^3/DAY the summary vectors. */
 #define DIMENS_KW    "DIMENS"     /* The dimensions of the grid - also used in the GRID files. */

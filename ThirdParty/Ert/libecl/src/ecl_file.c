@@ -539,13 +539,6 @@ static bool ecl_file_scan( ecl_file_type * ecl_file ) {
           else
             break;
         }
-
-        if (read_status == ECL_KW_READ_SKIP) {
-          bool skip_ok = ecl_kw_fskip_data( work_kw , ecl_file->fortio );
-          fprintf(stderr,"** Warning: keyword %s is of type \'C010\' - will be skipped when loading file. skip_ok:%d\n" , ecl_kw_get_header( work_kw ) , skip_ok);
-          if (!skip_ok)
-            break;
-        }
       }
     }
 

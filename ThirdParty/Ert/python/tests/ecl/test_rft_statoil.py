@@ -17,9 +17,9 @@
 
 from __future__ import print_function
 import datetime
-from ert.ecl import EclRFTFile, EclRFTCell, EclPLTCell
-from ert.ecl.rft import WellTrajectory
-from ert.test import ExtendedTestCase
+from ecl.ecl import EclRFTFile, EclRFTCell, EclPLTCell
+from ecl.ecl.rft import WellTrajectory
+from ecl.test import ExtendedTestCase
 
 
 class RFTTest(ExtendedTestCase):

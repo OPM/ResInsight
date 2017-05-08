@@ -1,7 +1,7 @@
 import time
 from datetime import datetime, date
 
-from ert.util import CTime
+from ecl.util import CTime
 
 
 try:

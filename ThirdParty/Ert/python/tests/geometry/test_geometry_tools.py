@@ -1,8 +1,8 @@
 import math
 
-from ert.geo import Polyline, GeometryTools , CPolyline
-from ert.geo.xyz_io import XYZIo
-from ert.test import ExtendedTestCase , TestAreaContext
+from ecl.geo import Polyline, GeometryTools , CPolyline
+from ecl.geo.xyz_io import XYZIo
+from ecl.test import ExtendedTestCase , TestAreaContext
 
 
 class GeometryToolsTest(ExtendedTestCase):

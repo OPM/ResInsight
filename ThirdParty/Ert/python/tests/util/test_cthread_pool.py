@@ -1,9 +1,9 @@
 import ctypes
-import ert
-from ert.test import ExtendedTestCase
-from ert.util import CThreadPool, startCThreadPool
+import ecl
+from ecl.test import ExtendedTestCase
+from ecl.util import CThreadPool, startCThreadPool
 
-TEST_LIB = ert.load("libert_util")
+TEST_LIB = ecl.load("libert_util")
 
 
 class CThreadPoolTest(ExtendedTestCase):

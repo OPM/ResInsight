@@ -1,6 +1,6 @@
-from ert.test import ExtendedTestCase
-from ert.util import DoubleVector, quantile, quantile_sorted, polyfit
-from ert.util.rng import RandomNumberGenerator
+from ecl.test import ExtendedTestCase
+from ecl.util import DoubleVector, quantile, quantile_sorted, polyfit
+from ecl.util.rng import RandomNumberGenerator
 
 
 class StatTest(ExtendedTestCase):

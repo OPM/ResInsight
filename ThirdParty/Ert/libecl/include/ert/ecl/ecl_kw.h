@@ -40,8 +40,7 @@ extern "C" {
 
   typedef enum {
     ECL_KW_READ_OK = 0,
-    ECL_KW_READ_FAIL = 1,
-    ECL_KW_READ_SKIP = 2
+    ECL_KW_READ_FAIL = 1
   } ecl_read_status_enum;
 
 /*
@@ -111,6 +110,8 @@ extern "C" {
   void           ecl_kw_iset(ecl_kw_type *ecl_kw , int i , const void *iptr);
   void           ecl_kw_iset_char_ptr( ecl_kw_type * ecl_kw , int index, const char * s);
   void           ecl_kw_iset_string8(ecl_kw_type * ecl_kw , int index , const char *s8);
+  void           ecl_kw_iset_string_ptr(ecl_kw_type*, int, const char*);
+  const char *   ecl_kw_iget_string_ptr(const ecl_kw_type *, int);
   const char  *  ecl_kw_iget_char_ptr( const ecl_kw_type * ecl_kw , int i);
   void        *  ecl_kw_iget_ptr(const ecl_kw_type *, int);
   int            ecl_kw_get_size(const ecl_kw_type *);

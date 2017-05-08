@@ -1,10 +1,10 @@
 import datetime
 import os.path
 
-from ert.ecl import EclGrid, EclFile, EclSum
-from ert.test import ExtendedTestCase
-from ert.util.ctime import CTime
-from ert.well import WellInfo, WellConnection, WellTypeEnum, WellConnectionDirectionEnum, WellSegment
+from ecl.ecl import EclGrid, EclFile, EclSum
+from ecl.test import ExtendedTestCase
+from ecl.util.ctime import CTime
+from ecl.well import WellInfo, WellConnection, WellTypeEnum, WellConnectionDirectionEnum, WellSegment
 
 
 class EclWellTest3(ExtendedTestCase):

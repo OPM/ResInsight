@@ -1,6 +1,6 @@
 from math import sqrt
-from ert.geo.geometry_tools import GeometryTools
-from ert.test import ExtendedTestCase
+from ecl.geo.geometry_tools import GeometryTools
+from ecl.test import ExtendedTestCase
 
 
 class PolygonSlicingTest(ExtendedTestCase):

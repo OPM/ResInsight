@@ -161,7 +161,7 @@ if (ERT_BUILD_CXX)
   list( APPEND header_files test_util.hpp )
 endif()
 
-add_library( ert_util   ${LIBRARY_TYPE}  ${source_files} )
+add_library( ert_util  ${source_files} )
 
 message(STATUS "Linking with: ${ERT_EXTERNAL_UTIL_LIBS}")
 set_target_properties( ert_util PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR} )

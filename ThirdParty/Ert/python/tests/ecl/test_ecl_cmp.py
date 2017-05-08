@@ -14,9 +14,9 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 
-from ert.test import ExtendedTestCase , TestAreaContext
-from ert.test.ecl_mock import createEclSum
-from ert.ecl import EclCmp
+from ecl.test import ExtendedTestCase , TestAreaContext
+from ecl.test.ecl_mock import createEclSum
+from ecl.ecl import EclCmp
 
 class EclCmpTest(ExtendedTestCase):
     def setUp(self):

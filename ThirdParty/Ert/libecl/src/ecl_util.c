@@ -33,21 +33,6 @@
 #include <ert/ecl/ecl_type.h>
 
 
-/*****************************************************************/
-/* The string names for the different ECLIPSE low-level
-   types.
-*/
-
-
-#define ECL_TYPE_NAME_CHAR     "CHAR"
-#define ECL_TYPE_NAME_C010     "C010"
-#define ECL_TYPE_NAME_FLOAT    "REAL"
-#define ECL_TYPE_NAME_INT      "INTE"
-#define ECL_TYPE_NAME_DOUBLE   "DOUB"
-#define ECL_TYPE_NAME_BOOL     "LOGI"
-#define ECL_TYPE_NAME_MESSAGE  "MESS"
-
-
 #define ECL_PHASE_NAME_OIL   "SOIL"   // SHould match the keywords found in restart file
 #define ECL_PHASE_NAME_WATER "SWAT"
 #define ECL_PHASE_NAME_GAS   "SGAS"
@@ -700,7 +685,7 @@ void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ec
         break;
       }
     default:
-      util_abort("%s con not convert %s -> %s \n",__func__ , ecl_type_get_name(src_type) , ecl_type_get_name(target_type));
+      util_abort("%s con not convert %s -> %s \n",__func__ , ecl_type_alloc_name(src_type) , ecl_type_alloc_name(target_type));
     }
   }
 }

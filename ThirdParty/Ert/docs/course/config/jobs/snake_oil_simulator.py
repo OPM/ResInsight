@@ -3,8 +3,8 @@ from datetime import datetime
 import os
 import sys
 
-from ert.ecl import EclSum, EclSumTStep
-from ert.test import ExtendedTestCase
+from ecl.ecl import EclSum, EclSumTStep
+from ecl.test import ExtendedTestCase
 
 try:
     from synthesizer import OilSimulator

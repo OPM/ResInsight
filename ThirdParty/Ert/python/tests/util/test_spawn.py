@@ -2,14 +2,14 @@ import os
 import stat
 import sys
 
-import ert
-from ert.test.extended_testcase import ExtendedTestCase
-from ert.test.test_area import TestAreaContext
+import ecl
+from ecl.test.extended_testcase import ExtendedTestCase
+from ecl.test.test_area import TestAreaContext
 
 from cwrap import Prototype
 
 class _TestSpawnPrototype(Prototype):
-    lib = ert.load('libert_util')
+    lib = ecl.load('libert_util')
 
     def __init__(self, prototype, bind=True):
         super(_TestSpawnPrototype, self).__init__(_TestSpawnPrototype.lib, prototype, bind=bind)

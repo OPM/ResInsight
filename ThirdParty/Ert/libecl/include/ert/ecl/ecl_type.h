@@ -38,6 +38,8 @@ extern "C" {
   different code paths for C and C++.
 */
 
+#define ECL_STRING8_LENGTH   8
+#define ECL_TYPE_LENGTH      4
 
 typedef enum {
   ECL_CHAR_TYPE   = 0,
@@ -46,7 +48,7 @@ typedef enum {
   ECL_INT_TYPE    = 3,
   ECL_BOOL_TYPE   = 4,
   ECL_MESS_TYPE   = 5,
-  ECL_C010_TYPE   = 6   // See comment immediately above about the limited support of this type.
+  ECL_STRING_TYPE = 7
 } ecl_type_enum;
 
 #define ECL_TYPE_ENUM_DEFS {.value = 0 , .name = "ECL_CHAR_TYPE"}, \
@@ -54,9 +56,10 @@ typedef enum {
 {.value = 2 , .name = "ECL_DOUBLE_TYPE"},                          \
 {.value = 3 , .name = "ECL_INT_TYPE"},                             \
 {.value = 4 , .name = "ECL_BOOL_TYPE"},                            \
-{.value = 5 , .name = "ECL_MESS_TYPE"}
+{.value = 5 , .name = "ECL_MESS_TYPE"},                            \
+{.value = 7 , .name = "ECL_STRING_TYPE"}
 
-#define ECL_TYPE_ENUM_SIZE 6
+#define ECL_TYPE_ENUM_SIZE 7
 
 /*
   Character data in ECLIPSE files comes as an array of fixed-length
@@ -77,13 +80,13 @@ typedef enum {
 #ifdef __cplusplus
 
 struct ecl_type_struct {
-    const ecl_type_enum type;
-    const size_t element_size;
+  const ecl_type_enum type;
+  const size_t element_size;
 
-    ecl_type_struct( ecl_type_enum t, size_t es) :
-      type( t ),
-      element_size( es )
-    {}
+  ecl_type_struct( ecl_type_enum t, size_t es) :
+    type( t ),
+    element_size( es )
+  {}
 };
 
 #define ECL_INT ecl_data_type( ECL_INT_TYPE, sizeof(int))
@@ -92,13 +95,13 @@ struct ecl_type_struct {
 #define ECL_BOOL ecl_data_type( ECL_BOOL_TYPE, sizeof(int))
 #define ECL_CHAR ecl_data_type( ECL_CHAR_TYPE, ECL_STRING8_LENGTH + 1)
 #define ECL_MESS ecl_data_type( ECL_MESS_TYPE, 0)
-#define ECL_C010 ecl_data_type( ECL_C010_TYPE . ECL_STRING10_LENGTH + 1)
+#define ECL_STRING(size) ecl_data_type(ECL_STRING_TYPE, size + 1)
 
 #else
 
 struct ecl_type_struct {
-    const ecl_type_enum type;
-    const size_t element_size;
+  const ecl_type_enum type;
+  const size_t element_size;
 };
 
 #define ECL_CHAR (ecl_data_type) {.type = ECL_CHAR_TYPE, .element_size = ECL_STRING8_LENGTH + 1}
@@ -107,10 +110,9 @@ struct ecl_type_struct {
 #define ECL_DOUBLE (ecl_data_type) {.type = ECL_DOUBLE_TYPE, .element_size = sizeof(double)}
 #define ECL_BOOL (ecl_data_type) {.type = ECL_BOOL_TYPE, .element_size = sizeof(int)}
 #define ECL_MESS (ecl_data_type) {.type = ECL_MESS_TYPE, .element_size = 0}
-#define ECL_C010 (ecl_data_type) {.type = ECL_C010_TYPE, .element_size = ECL_STRING10_LENGTH + 1}
+#define ECL_STRING(size) (ecl_data_type) {.type = ECL_STRING_TYPE, .element_size = size + 1}
 
 #endif
-
 
 
 #ifdef __cplusplus
@@ -119,14 +121,12 @@ extern "C" {
 
 typedef struct ecl_type_struct ecl_data_type;
 
-
-
 ecl_data_type      ecl_type_create_from_name(const char *);
 ecl_data_type      ecl_type_create(const ecl_type_enum, const size_t);
 ecl_data_type      ecl_type_create_from_type(const ecl_type_enum);
 
 ecl_type_enum      ecl_type_get_type(const ecl_data_type);
-const char *       ecl_type_get_name(const ecl_data_type);
+char *             ecl_type_alloc_name(const ecl_data_type);
 
 int                ecl_type_get_sizeof_ctype(const ecl_data_type);
 int                ecl_type_get_sizeof_ctype_fortio(const ecl_data_type);
@@ -134,14 +134,18 @@ int                ecl_type_get_sizeof_ctype_fortio(const ecl_data_type);
 bool               ecl_type_is_equal(const ecl_data_type, const ecl_data_type);
 
 bool               ecl_type_is_numeric(const ecl_data_type);
+bool               ecl_type_is_alpha(const ecl_data_type);
 bool               ecl_type_is_char(const ecl_data_type);
 bool               ecl_type_is_int(const ecl_data_type);
 bool               ecl_type_is_float(const ecl_data_type);
 bool               ecl_type_is_double(const ecl_data_type);
 bool               ecl_type_is_mess(const ecl_data_type);
 bool               ecl_type_is_bool(const ecl_data_type);
-bool               ecl_type_is_C010(const ecl_data_type);
+bool               ecl_type_is_string(const ecl_data_type);
 
+// Temporary fixup for OPM.
+char * ecl_type_get_name(const ecl_data_type);      
+   
 #ifdef __cplusplus
 }
 #endif

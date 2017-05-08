@@ -8,7 +8,7 @@ set(RESINSIGHT_INCREMENT_VERSION "flow.13")
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
 # https://github.com/Statoil/libecl
-set(ERT_GITHUB_SHA "f39d2e7fd196350ab1db86bb1bd5a3faca72d75d") 
+set(ERT_GITHUB_SHA "06a39878636af0bc52582430ad0431450e51139c") 
 
 # https://github.com/OPM/opm-flowdiagnostics
 set(OPM_FLOWDIAGNOSTICS_SHA "a14dc4ba1302bcc1e0aeb35c5de6b4bd39bce98")

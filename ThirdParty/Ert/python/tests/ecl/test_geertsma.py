@@ -1,7 +1,7 @@
 import datetime
-from ert.ecl import EclGrid, EclKW, EclDataType, openFortIO, FortIO, EclFile, EclSubsidence
+from ecl.ecl import EclGrid, EclKW, EclDataType, openFortIO, FortIO, EclFile, EclSubsidence
 
-from ert.test import ExtendedTestCase , TestAreaContext
+from ecl.test import ExtendedTestCase , TestAreaContext
 
 import numpy as np
 

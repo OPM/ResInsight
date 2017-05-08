@@ -227,6 +227,7 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
 
     if (xcon_kw) {
       const int xcon_offset = header->nxconz * (header->ncwmax * well_nr + conn_nr);
+
       conn->water_rate = ecl_kw_iget_as_double(xcon_kw, xcon_offset + XCON_WRAT_INDEX);
       conn->gas_rate = ecl_kw_iget_as_double(xcon_kw, xcon_offset + XCON_GRAT_INDEX);
       conn->oil_rate = ecl_kw_iget_as_double(xcon_kw, xcon_offset + XCON_ORAT_INDEX);

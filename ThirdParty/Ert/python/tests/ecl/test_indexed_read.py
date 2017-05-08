@@ -1,10 +1,10 @@
 import ctypes
-import ert
+import ecl
 
-from ert.ecl import EclPrototype
-from ert.ecl import EclKW, EclFile, EclDataType, FortIO
-from ert.test import ExtendedTestCase, TestAreaContext
-from ert.util import IntVector
+from ecl.ecl import EclPrototype
+from ecl.ecl import EclKW, EclFile, EclDataType, FortIO
+from ecl.test import ExtendedTestCase, TestAreaContext
+from ecl.util import IntVector
 
 class EclIndexedReadTest(ExtendedTestCase):
     _freadIndexedData   = EclPrototype("void ecl_kw_fread_indexed_data_python(fortio, int, ecl_data_type, int, int_vector, char*)", bind = False) # fortio, offset, type, count, index_map, buffer

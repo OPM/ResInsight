@@ -24,7 +24,7 @@ try:
 except ImportError:
     from unittest import TestCase
 
-from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, CTime, PermutationVector
+from ecl.util import DoubleVector, IntVector, BoolVector, TimeVector, CTime, PermutationVector
 
 class UtilTest(TestCase):
     def setUp(self):
