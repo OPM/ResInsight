@@ -316,7 +316,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         }
         else
         {
-            if (m_branchIndex >= 0 && m_branchIndex < m_generatedSimulationWellPathBranches.size() )
+            if (m_branchIndex >= 0 && m_branchIndex < static_cast<int>(m_generatedSimulationWellPathBranches.size()) )
             {
                 eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_simWellName,
                                                                                eclipseCase->caseUserDescription(),
@@ -554,7 +554,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogExtractionCurve::calculateValueOptions(c
 
         size_t branchCount = m_generatedSimulationWellPathBranches.size();
 
-        for ( int bIdx = 0; bIdx < branchCount; ++bIdx)
+        for ( int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
         {
             options.push_back(caf::PdmOptionItemInfo("Branch " + QString::number(bIdx + 1), QVariant::fromValue(bIdx) ));
         }
