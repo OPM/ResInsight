@@ -64,9 +64,12 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
 
 
     // See RifWellPathAsciiFileReader::readAllWellData for reading of dev files
+    //
+    // http://resinsight.org/docs/wellpaths/
     // Export format
     //
-    // wellname : <well name><sub lateral name>_<sub index>_<lateral index>
+    // wellname : <well name>__<sub lateral name>_<sub index>_<lateral index>
+    //
     // for each coordinate along lateral, export
     // x y TVD MD 
     // separate laterals using -999 on a single line
@@ -85,8 +88,11 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
                 // Pad with "0" to get a total of two characters defining the sub index text
                 QString subIndexText = QString("%1").arg(subIndex, 2, 10, QChar('0'));
 
-                QString lateralName = QString("%1_%2_%3_%4").arg(wellPath->name()).arg(fishbone->name()).arg(subIndexText).arg(lateralIndex);
-                stream << "wellname : " << lateralName << endl;
+                QString lateralNameCandidate = QString("%1__%2_%3_%4").arg(wellPath->name()).arg(fishbone->name()).arg(subIndexText).arg(lateralIndex);
+
+                QString lateralName = caf::Utils::makeValidFileBasename(lateralNameCandidate);
+
+                stream << "WELLNAME: " << lateralName << endl;
 
                 for (auto coordMD : coordsAndMD)
                 {
