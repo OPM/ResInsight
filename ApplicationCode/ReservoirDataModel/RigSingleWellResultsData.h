@@ -128,10 +128,10 @@ struct RigWellResultPoint
     int                               m_ertSegmentId;
 
     cvf::Vec3d                        m_bottomPosition;    //< The estimated bottom position of the well segment, when we have no grid cell connections for the segment.
-    double                            m_flowRate;
-    double                            m_oilRate;  
-    double                            m_gasRate;
-    double                            m_waterRate;
+    double                            m_flowRate; //< Total reservoir rate
+    double                            m_oilRate;  //< Surface oil rate
+    double                            m_gasRate;  //< Surface gas rate For Field-unit, converted to [stb/day] to allign with oil and water.
+    double                            m_waterRate; //< Surface water rate
 };
 
 //==================================================================================================

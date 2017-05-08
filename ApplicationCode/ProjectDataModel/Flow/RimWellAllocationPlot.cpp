@@ -374,7 +374,14 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
 
     }
 
-    plotTrack->setXAxisTitle("Flow Rate " + unitText);
+    if (m_flowDiagSolution) 
+    {
+        plotTrack->setXAxisTitle("Reservoir Flow Rate " + unitText);
+    }
+    else
+    {
+        plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
