@@ -6,10 +6,12 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.h
+${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

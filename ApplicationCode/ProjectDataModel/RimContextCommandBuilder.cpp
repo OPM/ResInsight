@@ -396,6 +396,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicSummaryCurveSwitchAxisFeature";
         
         commandIds << "RicNewFishbonesSubsFeature";
+        commandIds << "RicExportFishbonesLateralsFeature";
 
         // Work in progress -- End
 

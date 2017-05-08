@@ -191,15 +191,23 @@ std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral(size_t subIndex, size_t lateralIndex) const
 {
-    std::vector<RigCoordAndMD> coordsAndMD = m_rigFishbonesGeometry->coordsForLateral(subIndex, lateralIndex);
+    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = m_rigFishbonesGeometry->coordsForLateral(subIndex, lateralIndex);
 
     std::vector<cvf::Vec3d> domainCoords;
-    for (auto c :coordsAndMD)
+    for (const auto& coordMD : coordsAndMD)
     {
-        domainCoords.push_back(c.m_coord);
+        domainCoords.push_back(coordMD.first);
     }
 
     return domainCoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<cvf::Vec3d, double>> RimFishbonesMultipleSubs::coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const
+{
+    return m_rigFishbonesGeometry->coordsForLateral(subIndex, lateralIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

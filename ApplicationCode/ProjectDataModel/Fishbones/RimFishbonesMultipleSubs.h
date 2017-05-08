@@ -64,7 +64,8 @@ public:
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
 
-    std::vector<cvf::Vec3d> coordsForLateral(size_t subIndex, size_t lateralIndex) const;
+    std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
+    std::vector<std::pair<cvf::Vec3d, double>>  coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
