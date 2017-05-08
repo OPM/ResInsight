@@ -59,13 +59,7 @@ public:
 private:
     void        buildParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
 
-    static std::vector<cvf::Vec3d> computeLateralCoords(const cvf::Vec3d& startCoord,
-                                                             double lateralLength, const cvf::Vec3d& lateralStartDirection,
-                                                             const cvf::Mat4d& buildAngleRotationMatrix);
-
     static void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius);
-
-    static cvf::Vec3d closestMainAxis(const cvf::Vec3d& vec);
 
 private:
     caf::PdmPointer<RimFishbonesMultipleSubs> m_rimFishbonesSubs;

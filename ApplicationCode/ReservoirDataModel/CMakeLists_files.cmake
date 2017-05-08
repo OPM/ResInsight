@@ -51,6 +51,7 @@ ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
+${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -96,6 +97,7 @@ ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
+${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

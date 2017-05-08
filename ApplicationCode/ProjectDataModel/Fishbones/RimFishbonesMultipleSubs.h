@@ -20,6 +20,14 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
+#include <algorithm>
+#include <memory>
+
+class RigFisbonesGeometry;
+
 //==================================================================================================
 ///  
 ///  
@@ -55,6 +63,8 @@ public:
     double              tubingRadius() const;
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
+
+    std::vector<cvf::Vec3d> coordsForLateral(size_t subIndex, size_t lateralIndex) const;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -100,4 +110,6 @@ private:
 
     caf::PdmField<std::vector<double>>  m_installationRotationAngles;
     caf::PdmField<double>               m_fixedInstallationRotationAngle;
+
+    std::unique_ptr<RigFisbonesGeometry>    m_rigFishbonesGeometry;
 };

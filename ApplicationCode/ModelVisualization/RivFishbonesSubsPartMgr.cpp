@@ -84,129 +84,34 @@ void RivFishbonesSubsPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
-    std::vector<double> locationOfSubs = m_rimFishbonesSubs->locationOfSubs();
-
     RimWellPath* wellPath = nullptr;
     m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted(wellPath);
-
-    RigWellPath* rigWellPath = wellPath->wellPathGeometry();
 
     RivPipeGeometryGenerator geoGenerator;
     geoGenerator.setRadius(m_rimFishbonesSubs->tubingRadius());
 
-    for (size_t instanceIndex = 0; instanceIndex < locationOfSubs.size(); instanceIndex++)
+    for (size_t subIndex = 0; subIndex < m_rimFishbonesSubs->locationOfSubs().size(); subIndex++)
     {
-        double measuredDepth = locationOfSubs[instanceIndex];
-
-        cvf::Vec3d position = rigWellPath->interpolatedPointAlongWellPath(measuredDepth);
-
-        cvf::Vec3d p1 = cvf::Vec3d::UNDEFINED;
-        cvf::Vec3d p2 = cvf::Vec3d::UNDEFINED;
-        rigWellPath->twoClosestPoints(position, &p1, &p2);
-
-        if (!p1.isUndefined() && !p2.isUndefined())
+        for (size_t lateralIndex = 0; lateralIndex < m_rimFishbonesSubs->lateralLengths().size(); lateralIndex++)
         {
-            std::vector<double> lateralLengths = m_rimFishbonesSubs->lateralLengths();
-            cvf::Mat4d buildAngleRotationMatrix;
+            std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral(subIndex, lateralIndex);
 
-            for (size_t i = 0; i < lateralLengths.size(); i++)
+            std::vector<cvf::Vec3d> displayCoords;
+            for (auto domainCoord : lateralDomainCoords)
             {
-                cvf::Vec3d lateralDirection;
-                {
-                    cvf::Vec3d alongWellPath = (p2 - p1).getNormalized();
+                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(domainCoord));
+            }
 
-                    cvf::Vec3d lateralInitialDirection = cvf::Vec3d::Z_AXIS;
+            cylinderWithCenterLineParts(&m_parts, displayCoords, wellPath->wellPathColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
 
-                    if (RivFishbonesSubsPartMgr::closestMainAxis(alongWellPath) == cvf::Vec3d::Z_AXIS)
-                    {
-                        // Use x-axis if well path is heading close to z-axis
-                        lateralInitialDirection = cvf::Vec3d::X_AXIS;
-                    }
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(m_rimFishbonesSubs);
 
-                    {
-                        double intialRotationAngle = m_rimFishbonesSubs->rotationAngle(instanceIndex);
-                        double lateralOffsetDegrees = 360.0 / lateralLengths.size();
-
-                        double lateralOffsetRadians = cvf::Math::toRadians(intialRotationAngle + lateralOffsetDegrees * i);
-
-                        cvf::Mat4d lateralOffsetMatrix = cvf::Mat4d::fromRotation(alongWellPath, lateralOffsetRadians);
-
-                        lateralInitialDirection = lateralInitialDirection.getTransformedVector(lateralOffsetMatrix);
-                    }
-
-                    cvf::Vec3d rotationAxis;
-                    rotationAxis.cross(alongWellPath, lateralInitialDirection);
-
-                    double exitAngleRadians = cvf::Math::toRadians(m_rimFishbonesSubs->exitAngle());
-                    cvf::Mat4d lateralRotationMatrix = cvf::Mat4d::fromRotation(rotationAxis, exitAngleRadians);
-
-                    lateralDirection = alongWellPath.getTransformedVector(lateralRotationMatrix);
-
-                    double buildAngleRadians = cvf::Math::toRadians(m_rimFishbonesSubs->buildAngle());
-                    buildAngleRotationMatrix = cvf::Mat4d::fromRotation(rotationAxis, buildAngleRadians);
-                }
-
-                std::vector<cvf::Vec3d> lateralDomainCoords = 
-                    RivFishbonesSubsPartMgr::computeLateralCoords(position, lateralLengths[i], lateralDirection, buildAngleRotationMatrix);
-
-                std::vector<cvf::Vec3d> displayCoords;
-                for (auto domainCoord : lateralDomainCoords)
-                {
-                    displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(domainCoord));
-                }
-
-                cylinderWithCenterLineParts(&m_parts, displayCoords, wellPath->wellPathColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
-
-                cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(m_rimFishbonesSubs);
-
-                for (auto p : m_parts)
-                {
-                    p->setSourceInfo(objectSourceInfo.p());
-                }
+            for (auto p : m_parts)
+            {
+                p->setSourceInfo(objectSourceInfo.p());
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RivFishbonesSubsPartMgr::computeLateralCoords(const cvf::Vec3d& startCoord, double lateralLength, const cvf::Vec3d& lateralStartDirection, const cvf::Mat4d& buildAngleRotationMatrix)
-{
-    std::vector<cvf::Vec3d> coords;
-
-    cvf::Vec3d lateralDirection(lateralStartDirection);
-
-    // Compute coordinates along the lateral by modifying the lateral direction by the build angle for 
-    // every unit vector along the lateral
-    cvf::Vec3d accumulatedPosition = startCoord;
-    double accumulatedLength = 0.0;
-    while (accumulatedLength < lateralLength)
-    {
-        coords.push_back(accumulatedPosition);
-
-        double delta = 1.0;
-
-        if (lateralLength - accumulatedLength < 1.0)
-        {
-            delta = lateralLength - accumulatedLength;
-        }
-
-        accumulatedPosition += delta * lateralDirection;
-
-        // Modify the lateral direction by the build angle for each unit vector
-        lateralDirection = lateralDirection.getTransformedVector(buildAngleRotationMatrix);
-
-        accumulatedLength += delta;
-    }
-
-    // Add the last accumulated position if it is not present
-    if (coords.back() != accumulatedPosition)
-    {
-        coords.push_back(accumulatedPosition);
-    }
-
-    return coords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -247,39 +152,6 @@ void RivFishbonesSubsPartMgr::cylinderWithCenterLineParts(cvf::Collection<cvf::P
         part->setEffect(eff.p());
 
         destinationParts->push_back(part);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivFishbonesSubsPartMgr::closestMainAxis(const cvf::Vec3d& vec)
-{
-    size_t maxComponent = 0;
-    double maxValue = cvf::Math::abs(vec.x());
-    if (cvf::Math::abs(vec.y()) > maxValue)
-    {
-        maxComponent = 1;
-        maxValue = cvf::Math::abs(vec.y());
-    }
-
-    if (cvf::Math::abs(vec.z()) > maxValue)
-    {
-        maxComponent = 2;
-        maxValue = cvf::Math::abs(vec.z());
-    }
-
-    if (maxComponent == 0)
-    {
-        return cvf::Vec3d::X_AXIS;
-    }
-    else if (maxComponent == 1)
-    {
-        return cvf::Vec3d::Y_AXIS;
-    }
-    else
-    {
-        return cvf::Vec3d::Z_AXIS;
     }
 }
 

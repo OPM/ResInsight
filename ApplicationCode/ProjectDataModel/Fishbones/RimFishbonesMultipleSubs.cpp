@@ -19,6 +19,7 @@
 #include "RimFishbonesMultipleSubs.h"
 
 #include "RimProject.h"
+#include "RigFishbonesGeometry.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -89,6 +90,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitFieldNoDefault(&m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]", "", "", "");
     m_installationRotationAngles.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]", "", "", "");
+
+    m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +184,22 @@ std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
     }
 
     return lengths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral(size_t subIndex, size_t lateralIndex) const
+{
+    std::vector<RigCoordAndMD> coordsAndMD = m_rigFishbonesGeometry->coordsForLateral(subIndex, lateralIndex);
+
+    std::vector<cvf::Vec3d> domainCoords;
+    for (auto c :coordsAndMD)
+    {
+        domainCoords.push_back(c.m_coord);
+    }
+
+    return domainCoords;
 }
 
 //--------------------------------------------------------------------------------------------------
