@@ -131,7 +131,7 @@ RimWellPath* RicExportFishbonesLateralsFeature::selectedWellPath()
 void RicExportFishbonesLateralsFeature::setupActionLook(QAction* actionToSetup)
 {
     //actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
-    actionToSetup->setText("Export Fishbones Laterals");
+    actionToSetup->setText("Export Laterals");
 }
 
 //--------------------------------------------------------------------------------------------------
