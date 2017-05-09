@@ -67,16 +67,16 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation(size_t subIndex, 
     cvf::Vec3d position = rigWellPath->interpolatedPointAlongWellPath(measuredDepth);
 
     cvf::Mat4d buildAngleMat;
-    cvf::Vec3d lateralInitialDirection = cvf::Vec3d::Z_AXIS;
+    cvf::Vec3d lateralDirection;
 
     {
+        cvf::Vec3d lateralInitialDirection = cvf::Vec3d::Z_AXIS;
         cvf::Vec3d p1 = cvf::Vec3d::UNDEFINED;
         cvf::Vec3d p2 = cvf::Vec3d::UNDEFINED;
         rigWellPath->twoClosestPoints(position, &p1, &p2);
 
         CVF_ASSERT(!p1.isUndefined() && !p2.isUndefined());
 
-        cvf::Vec3d lateralDirection;
         cvf::Vec3d alongWellPath = (p2 - p1).getNormalized();
 
         if (RigFisbonesGeometry::closestMainAxis(alongWellPath) == cvf::Vec3d::Z_AXIS)
@@ -109,7 +109,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation(size_t subIndex, 
     }
 
     *startCoord = position;
-    *startDirection = lateralInitialDirection;
+    *startDirection = lateralDirection;
     *buildAngleMatrix = buildAngleMat;
 }
 
