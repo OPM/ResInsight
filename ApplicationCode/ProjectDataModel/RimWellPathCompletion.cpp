@@ -32,9 +32,14 @@ RimWellPathCompletion::RimWellPathCompletion()
 {
     CAF_PDM_InitObject("WellPathCompletion", ":/Well.png", "", "");
     CAF_PDM_InitFieldNoDefault(&m_coordinates, "Coordinates", "Coordinates", "", "", "");
+    m_coordinates.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_measuredDepths, "MeasuredDepth", "MeasuredDepth", "", "", "");
-    m_measuredDepths.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_measuredDepths.uiCapability()->setUiHidden(true);
     m_name.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_displayCoordinates, "DisplayCoordinates", "Coordinates", "", "", "");
+    m_displayCoordinates.registerGetMethod(this, &RimWellPathCompletion::displayCoordinates);
+    m_displayCoordinates.uiCapability()->setUiReadOnly(true);
 }
 
 
@@ -77,6 +82,25 @@ void RimWellPathCompletion::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 void RimWellPathCompletion::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* geometryGroup =  uiOrdering.addNewGroup("Geometry");
-    geometryGroup->add(&m_coordinates);
-    geometryGroup->add(&m_measuredDepths);
+    geometryGroup->add(&m_displayCoordinates);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimWellPathCompletion::displayCoordinates() const
+{
+    CVF_ASSERT(m_coordinates().size() == m_measuredDepths().size());
+
+    std::vector<QString> displayValues;
+
+    displayValues.push_back(QString("X\tY\tZ\tMD"));
+    for (size_t i = 0; i < m_coordinates().size(); i++)
+    {
+        const cvf::Vec3d& coords = m_coordinates()[i];
+        const double& measuredDepth = m_measuredDepths()[i];
+        displayValues.push_back(QString("%1\t%2\t%3\t%4\t").arg(coords.x()).arg(coords.y()).arg(coords.z()).arg(measuredDepth));
+    }
+
+    return displayValues;
 }

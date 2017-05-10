@@ -31,6 +31,7 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmChildArrayField.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -57,6 +58,9 @@ public:
     std::vector< cvf::Vec3d >           coordinates() { return m_coordinates(); }
     std::vector< double >               measuredDepths() { return m_measuredDepths(); }
 private:
+    std::vector<QString>                displayCoordinates() const;
+
     caf::PdmField< std::vector< cvf::Vec3d> >  m_coordinates;
     caf::PdmField< std::vector< double > >     m_measuredDepths;
+    caf::PdmProxyValueField< std::vector<QString> > m_displayCoordinates;
 };
