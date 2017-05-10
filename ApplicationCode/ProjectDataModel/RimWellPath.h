@@ -36,6 +36,7 @@ class RifWellPathImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
+class RimWellPathCompletionCollection;
 class RivWellPathPartMgr;
 
 class RimFishbonesMultipleSubs;
@@ -71,6 +72,7 @@ public:
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
+    caf::PdmChildField<RimWellPathCompletionCollection*> m_completionCollection;
 
     RigWellPath*                        wellPathGeometry();
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
@@ -89,6 +91,7 @@ private:
     void                                setSurveyType(QString surveyType);
 
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     bool                                isStoredInCache();
     QString                             getCacheFileName();

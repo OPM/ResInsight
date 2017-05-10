@@ -30,12 +30,15 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletionCollection.h"
 
 #include "RimFishbonesMultipleSubs.h"
 
 #include "RiuMainWindow.h"
 
 #include "RivWellPathPartMgr.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -98,6 +101,10 @@ RimWellPath::RimWellPath()
 
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_completionCollection, "Completions", "Completions", "", "", "");
+    m_completionCollection = new RimWellPathCompletionCollection;
+    m_completionCollection.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile.uiCapability()->setUiHidden(true);
@@ -268,6 +275,20 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     {
         m_datumElevation.uiCapability()->setUiHidden(true);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{ 
+    uiTreeOrdering.skipRemainingChildren(true);
+    uiTreeOrdering.add(&m_wellLogFile);
+    if (!m_completionCollection->m_completions.empty())
+    {
+        uiTreeOrdering.add(&m_completionCollection);
+    }
+    uiTreeOrdering.add(&fishbonesSubs);
 }
 
 //--------------------------------------------------------------------------------------------------
