@@ -32,7 +32,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cvfObject.h"    
 
-class RifWellPathAsciiFileReader;
+class RifWellPathImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
@@ -77,7 +77,7 @@ public:
     
     RivWellPathPartMgr*                 partMgr();
 
-    bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
+    bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
     double                              combinedScaleFactor() const;
@@ -85,8 +85,6 @@ public:
 private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
-    void                                readJsonWellPathFile();
-    void                                readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader);
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 

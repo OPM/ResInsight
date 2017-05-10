@@ -20,12 +20,11 @@
 
 #include "RimWellPath.h"
 
-#include "RifJsonEncodeDecode.h"
+#include "RifWellPathImporter.h"
 
 #include "RigWellPath.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogFile.h"
@@ -203,27 +202,28 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// Read JSON or ascii file containing well path data
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileReader* asciiReader)
+bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* wellPathImporter)
 {
-    QFileInfo fileInf(filepath());
-
-    if (fileInf.isFile() && fileInf.exists())
+    if (wellPathImporter->canReadFile(filepath()))
     {
-        if (fileInf.suffix().compare("json") == 0)
-        {
-            this->readJsonWellPathFile();
-        }
-        else
-        {
-            this->readAsciiWellPathFile(asciiReader);
-        }
+        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData(filepath());
+        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData(filepath());
+        // General well info
 
+        name = wellData.m_name;
+        id = wellMetaData.m_id;
+        sourceSystem = wellMetaData.m_sourceSystem;
+        utmZone = wellMetaData.m_utmZone;
+        updateUser = wellMetaData.m_updateUser;
+        setSurveyType(wellMetaData.m_surveyType);
+        updateDate = wellMetaData.m_updateDate.toString("d MMMM yyyy");
+
+        m_wellPath = wellData.m_wellPathGeometry;
         return true;
     }
     else
     {
         if (errorMessage) (*errorMessage) = "Could not find the well path file: " + filepath();
-
         return false;
     }
 }
@@ -234,69 +234,6 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileRe
 void RimWellPath::setWellPathGeometry(RigWellPath* wellPathModel)
 {
     m_wellPath = wellPathModel;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Read JSON file containing well path data
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::readJsonWellPathFile()
-{
-    RigWellPath* wellPathGeom = new RigWellPath();
-    ResInsightInternalJson::JsonReader jsonReader;
-    QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filepath);
-
-    // General well info
-
-    name            = jsonMap["name"].toString();
-    id              = jsonMap["id"].toString();
-    sourceSystem    = jsonMap["sourceSystem"].toString();
-    utmZone         = jsonMap["utmZone"].toString();
-    updateUser      = jsonMap["updateUser"].toString();
-
-    setSurveyType(jsonMap["surveyType"].toString());
-
-    // Convert updateDate from the following format:
-    // "Number of milliseconds elapsed since midnight Coordinated Universal Time (UTC) 
-    // of January 1, 1970, not counting leap seconds"
-
-    QString updateDateStr = jsonMap["updateDate"].toString().trimmed();
-    uint updateDateUint = updateDateStr.toULongLong() / 1000; // should be within 32 bit, maximum number is 4294967295 which corresponds to year 2106
-    QDateTime updateDateTime;
-    updateDateTime.setTime_t(updateDateUint);
-
-    updateDate = updateDateTime.toString("d MMMM yyyy");
-
-    // Well path points
-
-    double datumElevation = jsonMap["datumElevation"].toDouble();
-    wellPathGeom->setDatumElevation(datumElevation);
-
-    QList<QVariant> pathList = jsonMap["path"].toList();
-    foreach (QVariant point, pathList)
-    {
-        QMap<QString, QVariant> coordinateMap = point.toMap();
-        cvf::Vec3d vec3d(coordinateMap["east"].toDouble(), coordinateMap["north"].toDouble(), -(coordinateMap["tvd"].toDouble() - datumElevation));
-        wellPathGeom->m_wellPathPoints.push_back(vec3d);
-        
-        double measuredDepth = coordinateMap["md"].toDouble();
-        wellPathGeom->m_measuredDepths.push_back(measuredDepth);
-    }
-
-    //jsonReader.dumpToFile(wellPathGeom->m_wellPathPoints, "c:\\temp\\jsonpoints.txt");
-    setWellPathGeometry(wellPathGeom);
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellPath::readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader)
-{
-    CVF_ASSERT(asciiReader);
-
-    RifWellPathAsciiFileReader::WellData wpData = asciiReader->readWellData(filepath(), wellPathIndexInFile());
-    this->name = wpData.m_name;
-
-    setWellPathGeometry(wpData.m_wellPathGeometry.p());
 }
 
 //--------------------------------------------------------------------------------------------------
