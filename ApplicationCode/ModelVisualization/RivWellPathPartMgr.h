@@ -61,6 +61,7 @@ public:
 
 private:
     void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
     void                                    clearAllBranchData();
 

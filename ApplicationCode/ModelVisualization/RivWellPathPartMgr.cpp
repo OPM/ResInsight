@@ -28,13 +28,17 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathCompletion.h"
+#include "RimWellPathCompletionCollection.h"
 
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivObjectSourceInfo.h"
 
 #include "cafEffectGenerator.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
@@ -107,6 +111,37 @@ void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model,
     {
         rivFishbonesPartManager->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+{
+    if (!m_rimWellPath || !m_rimWellPath->m_completionCollection->isChecked()) return;
+
+    RivPipeGeometryGenerator geoGenerator;
+    for (RimWellPathCompletion* completion : m_rimWellPath->m_completionCollection()->m_completions())
+    {
+        if (!completion->isChecked()) continue;
+
+        std::vector<cvf::Vec3d> displayCoords;
+        for (auto lateralDomainCoords : completion->coordinates())
+        {
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(lateralDomainCoords));
+        }
+
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(completion);
+
+        cvf::Collection<cvf::Part> parts;
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, m_rimWellPath->wellPathColor(), m_rimWellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
+        for (auto part : parts)
+        {
+            part->setSourceInfo(objectSourceInfo.p());
+            model->addPart(part.p());
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,6 +331,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     }
 
     appendFishbonesPartsToModel(model, displayCoordTransform, characteristicCellSize);
+    appendCompletionsToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------

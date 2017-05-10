@@ -102,56 +102,14 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
                 displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(domainCoord));
             }
 
-            cylinderWithCenterLineParts(&m_parts, displayCoords, wellPath->wellPathColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
-
-            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(m_rimFishbonesSubs);
-
-            for (auto p : m_parts)
-            {
-                p->setSourceInfo(objectSourceInfo.p());
-            }
+            geoGenerator.cylinderWithCenterLineParts(&m_parts, displayCoords, wellPath->wellPathColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
         }
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFishbonesSubsPartMgr::cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius)
-{
-    cvf::ref<RivPipeGeometryGenerator> geoGenerator = new RivPipeGeometryGenerator;
-    geoGenerator->setRadius(radius);
-    geoGenerator->setCrossSectionVertexCount(12);
-
-    cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray(centerCoords);
-    geoGenerator->setPipeCenterCoords(cvfCoords.p());
-
-    cvf::ref<cvf::DrawableGeo> surfaceGeo = geoGenerator->createPipeSurface();
-    if (surfaceGeo.notNull())
+    cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(m_rimFishbonesSubs);
+    for (auto part : m_parts)
     {
-        cvf::Part* part = new cvf::Part;
-        part->setDrawable(surfaceGeo.p());
-
-        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
-        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-        part->setEffect(eff.p());
-
-        destinationParts->push_back(part);
-    }
-
-    cvf::ref<cvf::DrawableGeo> centerLineGeo = geoGenerator->createCenterLine();
-    if (centerLineGeo.notNull())
-    {
-        cvf::Part* part = new cvf::Part;
-        part->setDrawable(centerLineGeo.p());
-
-        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
-        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
-
-        part->setEffect(eff.p());
-
-        destinationParts->push_back(part);
+        part->setSourceInfo(objectSourceInfo.p());
     }
 }
 

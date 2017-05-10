@@ -21,6 +21,8 @@
 
 #include "RivPipeGeometryGenerator.h"
 
+#include "RivObjectSourceInfo.h"
+
 #include "cafEffectGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfPlane.h"
@@ -601,5 +603,45 @@ size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIn
 void RivPipeGeometryGenerator::setFirstSegmentIndex(size_t segmentIndex)
 {
     m_firstSegmentIndex = segmentIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivPipeGeometryGenerator::cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius)
+{
+    setRadius(radius);
+    setCrossSectionVertexCount(12);
+
+    cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray(centerCoords);
+    setPipeCenterCoords(cvfCoords.p());
+
+    cvf::ref<cvf::DrawableGeo> surfaceGeo = createPipeSurface();
+    if (surfaceGeo.notNull())
+    {
+        cvf::Part* part = new cvf::Part;
+        part->setDrawable(surfaceGeo.p());
+
+        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        part->setEffect(eff.p());
+
+        destinationParts->push_back(part);
+    }
+
+    cvf::ref<cvf::DrawableGeo> centerLineGeo = createCenterLine();
+    if (centerLineGeo.notNull())
+    {
+        cvf::Part* part = new cvf::Part;
+        part->setDrawable(centerLineGeo.p());
+
+        caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(color), caf::PO_1);
+        cvf::ref<cvf::Effect> eff = surfaceGen.generateCachedEffect();
+
+        part->setEffect(eff.p());
+
+        destinationParts->push_back(part);
+    }
 }
 

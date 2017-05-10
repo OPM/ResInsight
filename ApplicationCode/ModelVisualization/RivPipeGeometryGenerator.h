@@ -23,11 +23,14 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
+#include "cvfPart.h"
 
 namespace cvf {
     class DrawableGeo;
     class ScalarMapper;
 }
+
+class RivObjectSourceInfo;
 
 class RivPipeGeometryGenerator : public cvf::Object
 {
@@ -59,6 +62,7 @@ public:
     void    setFirstSegmentIndex(size_t segmentIndex);
     size_t  segmentIndexFromTriangleIndex(size_t triangleIndex) const;
 
+    void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius);
 private:
     void clearComputedData();
     void updateFilteredPipeCenterCoords();
