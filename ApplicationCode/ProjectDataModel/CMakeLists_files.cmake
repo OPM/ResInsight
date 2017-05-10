@@ -31,6 +31,8 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseWell.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
+${CEE_CURRENT_LIST_DIR}RimWellPathCompletion.h
+${CEE_CURRENT_LIST_DIR}RimWellPathCompletionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.h
@@ -119,6 +121,8 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathCompletion.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathCompletionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.cpp
