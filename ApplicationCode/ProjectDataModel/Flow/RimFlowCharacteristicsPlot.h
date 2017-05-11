@@ -86,6 +86,7 @@ private:
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
     caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+    caf::PdmField<bool>                             m_showLegend;
 
     std::vector<int>                                m_currentlyPlottedTimeSteps;
 

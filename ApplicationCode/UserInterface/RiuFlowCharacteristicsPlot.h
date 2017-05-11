@@ -57,6 +57,8 @@ public:
     void removeAllCurves();
     void zoomAll();
 
+    void showLegend(bool show);
+
     RimFlowCharacteristicsPlot*     ownerPlotDefinition();
     virtual RimViewWindow*          ownerViewWindow() const override;
 

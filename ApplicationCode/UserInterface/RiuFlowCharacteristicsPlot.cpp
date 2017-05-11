@@ -65,9 +65,6 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     this->setPalette(pal);
 
     m_lorenzPlot = new QwtPlot(this);
-    QwtLegend* legend = new QwtLegend(this);
-    m_lorenzPlot->insertLegend(legend, QwtPlot::BottomLegend);
-
     m_flowCapVsStorageCapPlot = new QwtPlot(this);
     m_sweepEffPlot = new QwtPlot(this);
 
@@ -236,6 +233,23 @@ void RiuFlowCharacteristicsPlot::zoomAll()
     zoomAllInPlot(m_lorenzPlot);
     zoomAllInPlot(m_sweepEffPlot);
     zoomAllInPlot(m_flowCapVsStorageCapPlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuFlowCharacteristicsPlot::showLegend(bool show)
+{
+    if (show)
+    {
+        // Will be released in plot destructor or when a new legend is set
+        QwtLegend* legend = new QwtLegend(m_lorenzPlot);
+        m_lorenzPlot->insertLegend(legend, QwtPlot::BottomLegend);
+    }
+    else
+    {
+        m_lorenzPlot->insertLegend(nullptr);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
