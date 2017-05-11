@@ -26,7 +26,7 @@
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimProject.h"
-#include "RigStimPlanCell.h"
+#include "RigStimPlanFracTemplateCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
 
@@ -819,7 +819,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     QString resultNameFromColors = activeView->stimPlanColors->resultName();
     QString resultUnitFromColors = activeView->stimPlanColors->unit();
 
-    std::vector<RigStimPlanCell> stimPlanCells;
+    std::vector<RigStimPlanFracTemplateCell> stimPlanCells;
 
     bool wellCenterStimPlanCellFound = false;
 
@@ -848,7 +848,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
 
-            RigStimPlanCell stimPlanCell(cellPolygon, i, j);
+            RigStimPlanFracTemplateCell stimPlanCell(cellPolygon, i, j);
             if (conductivityValuesAtTimeStep.size() > 0) //Assuming vector to be of correct length, or no values
             {
                 stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[j + 1][i + 1]);
@@ -895,7 +895,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigStimPlanCell>& RimStimPlanFractureTemplate::getStimPlanCells()
+const std::vector<RigStimPlanFracTemplateCell>& RimStimPlanFractureTemplate::getStimPlanCells()
 {
     return m_stimPlanCells;
 }
@@ -968,11 +968,11 @@ size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigStimPlanCell& RimStimPlanFractureTemplate::stimPlanCellFromIndex(size_t index) const
+const RigStimPlanFracTemplateCell& RimStimPlanFractureTemplate::stimPlanCellFromIndex(size_t index) const
 {
     if (index < m_stimPlanCells.size())
     {
-        const RigStimPlanCell& cell = m_stimPlanCells[index];
+        const RigStimPlanFracTemplateCell& cell = m_stimPlanCells[index];
         return cell;
     }
     else
@@ -980,7 +980,7 @@ const RigStimPlanCell& RimStimPlanFractureTemplate::stimPlanCellFromIndex(size_t
         //TODO: Better error handling?
         RiaLogging::error("Requesting non-existent StimPlanCell");
         RiaLogging::error("Returning cell 0, results will be invalid");
-        const RigStimPlanCell& cell = m_stimPlanCells[0];
+        const RigStimPlanFracTemplateCell& cell = m_stimPlanCells[0];
         return cell;
     }
 }

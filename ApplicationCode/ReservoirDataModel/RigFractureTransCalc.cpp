@@ -39,7 +39,7 @@
 #include "RigMainGrid.h"
 #include "cvfMath.h"
 #include "RimDefines.h"
-#include "RigStimPlanCell.h"
+#include "RigStimPlanFracTemplateCell.h"
 #include <cmath> //Used for log 
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConduct
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData)
+void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanFracTemplateCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData)
 {
 
     //Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
@@ -452,7 +452,7 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
     }
     else return std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
-    std::vector<RigStimPlanCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
+    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
     cvf::Vec3d localX, localY, localZ; //Not used in calculation here, but needed for function to find planCellPolygons
     std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
@@ -507,7 +507,7 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
+double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
 {
     std::vector<double> DcolSum;
     std::vector<double> lavgCol;
@@ -519,8 +519,8 @@ double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracT
         std::vector<double> lengthsLiOfStimPlanCol;
         std::vector<double> heightsDiOfStimPlanCells;
 
-        std::vector<RigStimPlanCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
-        for (RigStimPlanCell* stimPlanCell : stimPlanCellsCol)
+        std::vector<RigStimPlanFracTemplateCell*> stimPlanCellsCol = getColOfStimPlanCells(stimPlanCells, j);
+        for (RigStimPlanFracTemplateCell* stimPlanCell : stimPlanCellsCol)
         {
             if (stimPlanCell->getConductivtyValue() > 1e-7)
             {
@@ -576,7 +576,7 @@ double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
+double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
 {
     std::vector<double> DrowAvg;
     std::vector<double> liRowSum;
@@ -588,8 +588,8 @@ double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracT
         std::vector<double> lengthsLiOfStimPlanCol;
         std::vector<double> heightsDiOfStimPlanCells;
 
-        std::vector<RigStimPlanCell*> stimPlanCellsCol = getRowOfStimPlanCells(stimPlanCells, j);
-        for (RigStimPlanCell* stimPlanCell : stimPlanCellsCol)
+        std::vector<RigStimPlanFracTemplateCell*> stimPlanCellsCol = getRowOfStimPlanCells(stimPlanCells, j);
+        for (RigStimPlanFracTemplateCell* stimPlanCell : stimPlanCellsCol)
         {
             if (stimPlanCell->getConductivtyValue() > 1e-7)
             {
@@ -728,7 +728,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(const RigStimPlanCell& stimPlanCell)
+void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(const RigStimPlanFracTemplateCell& stimPlanCell)
 {
     double verticalSideLength = stimPlanCell.cellSizeX();
     double horisontalSideLength = stimPlanCell.cellSizeZ();
@@ -743,7 +743,7 @@ void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(const R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanCell& stimPlanCell)
+double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell& stimPlanCell)
 {
     if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return cvf::UNDEFINED_DOUBLE;
 
@@ -767,7 +767,7 @@ double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
+double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
 {
     double TcPrefix = 8 * cDarcy() * stimPlanCell.getConductivtyValue();
 
@@ -801,11 +801,11 @@ double RigFractureTransCalc::cDarcy()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t i)
+std::vector<RigStimPlanFracTemplateCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t i)
 {
-    std::vector<RigStimPlanCell*> stimPlanCellRow;
+    std::vector<RigStimPlanFracTemplateCell*> stimPlanCellRow;
 
-    for (RigStimPlanCell stimPlanCell : allStimPlanCells)
+    for (RigStimPlanFracTemplateCell stimPlanCell : allStimPlanCells)
     {
         if (stimPlanCell.getI() == i)
         {
@@ -819,11 +819,11 @@ std::vector<RigStimPlanCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanCell*> RigFractureTransCalc::getColOfStimPlanCells(std::vector<RigStimPlanCell>& allStimPlanCells, size_t j)
+std::vector<RigStimPlanFracTemplateCell*> RigFractureTransCalc::getColOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t j)
 {
-    std::vector<RigStimPlanCell*> stimPlanCellCol;
+    std::vector<RigStimPlanFracTemplateCell*> stimPlanCellCol;
 
-    for (RigStimPlanCell stimPlanCell : allStimPlanCells)
+    for (RigStimPlanFracTemplateCell stimPlanCell : allStimPlanCells)
     {
         if (stimPlanCell.getJ() == j)
         {

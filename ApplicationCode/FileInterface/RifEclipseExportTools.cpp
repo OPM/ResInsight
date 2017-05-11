@@ -42,7 +42,7 @@
 #include "RigFractureTransCalc.h"
 #include "RimFractureTemplate.h"
 #include "RimStimPlanFractureTemplate.h"
-#include "RigStimPlanCell.h"
+#include "RigStimPlanFracTemplateCell.h"
 #include "RimSimWellFracture.h"
 
 
@@ -279,9 +279,9 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
 
-        std::vector<RigStimPlanCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
+        std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
-        for (RigStimPlanCell stimPlanCell : stimPlanCells)
+        for (RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
         {
             if (stimPlanCell.getConductivtyValue() < 1e-7)
             {
@@ -372,9 +372,9 @@ void RifEclipseExportTools::printStimPlanFractureTrans(const std::vector<RimFrac
     }
     else return;
 
-    std::vector<RigStimPlanCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
+    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
-    for (RigStimPlanCell stimPlanCell : stimPlanCells)
+    for (RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
     {
         if (stimPlanCell.getConductivtyValue() < 1e-7)
         {
@@ -657,7 +657,7 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
 
 
             //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
-            const RigStimPlanCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
+            const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
             double RadTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell, perforationLengthVert, perforationLengthHor);
@@ -685,7 +685,7 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
             out << wellCenterStimPlanCellIJ.second;
 
             //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
-            const RigStimPlanCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
+            const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             //TODO: Error - stimPlanCell blir ikke riktig... Har ikke polygon!?!
 

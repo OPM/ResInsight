@@ -35,7 +35,7 @@
 
 class RigStimPlanFractureDefinition;
 class RimStimPlanLegendConfig;
-class RigStimPlanCell;
+class RigStimPlanFracTemplateCell;
 
 //==================================================================================================
 ///  
@@ -77,14 +77,14 @@ public:
     
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
     void                                    setupStimPlanCells();
-    const std::vector<RigStimPlanCell>&     getStimPlanCells();
+    const std::vector<RigStimPlanFracTemplateCell>&     getStimPlanCells();
     std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
     std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
 
     size_t                                  getGlobalIndexFromIJ(size_t i, size_t j); //TODO: should be const?
-    const RigStimPlanCell&                  stimPlanCellFromIndex(size_t index) const;
+    const RigStimPlanFracTemplateCell&                  stimPlanCellFromIndex(size_t index) const;
 
     //TODO: Functions for finding perforated stimPlanCells
     //Radial flow: Single cell (at 0,0) 
@@ -122,6 +122,6 @@ private:
 
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
-    std::vector<RigStimPlanCell>                m_stimPlanCells;
+    std::vector<RigStimPlanFracTemplateCell>                m_stimPlanCells;
     std::pair<size_t, size_t>                   wellCenterStimPlanCellIJ;
 };

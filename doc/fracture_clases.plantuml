@@ -23,10 +23,10 @@ class RigFracture{
     std::vector<cvf::uint>  m_triangleIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
 
-    std::vector<RigFractureStimPlanCellData>  m_stimPlanCellsFractureData;
+    std::vector<RigStimPlanFractureCell>  m_stimPlanCellsFractureData;
 }
 
-class RigFractureStimPlanCellData{
+class RigStimPlanFractureCell{
     size_t                  m_i;
     size_t                  m_j;
     std::vector<size_t>     contributingEclipseCells;
@@ -34,7 +34,7 @@ class RigFractureStimPlanCellData{
 }
 
 RimFracture *-- RigFracture
-RigFracture "1" *-- "n" RigFractureStimPlanCellData
+RigFracture "1" *-- "n" RigStimPlanFractureCell
 
 class RimFractureTemplate {
   todo...()
@@ -57,7 +57,8 @@ class RigStimPlanFractureDefinition{
     std::vector<RigStimPlanData> stimPlanData;
 
 }
-class RigStimPlanCell{
+
+class RigStimPlanFracTemplateCell{
     std::vector<cvf::Vec3d> m_polygon;
     double   m_displayValue;
     double   m_conductivityValue;
@@ -69,9 +70,9 @@ class RigStimPlanCell{
 }
 
 RimStimPlanFractureTemplate "1" *-- "1" RigStimPlanFractureDefinition
-RimStimPlanFractureTemplate "1" *-- "many" RigStimPlanCell
+RimStimPlanFractureTemplate "1" *-- "many" RigStimPlanFracTemplateCell
 
-RigFractureStimPlanCellData <..> RigStimPlanCell
+RigStimPlanFractureCell <..> RigStimPlanFracTemplateCell
 
 class RigStimPlanData{
     QString resultName;
@@ -92,12 +93,18 @@ class RigFractureTransCalc{
 
 RimFracture ..|> RigFractureTransCalc
 RigStimPlanCell ..|> RigFractureTransCalc
-RigFractureStimPlanCellData ..|> RigFractureTransCalc
+RigStimPlanFractureCell ..|> RigFractureTransCalc
 
 
 class RifEclipseExportTools{
 }
 
 RigFractureTransCalc ..|> RifEclipseExportTools
+
+class FunctionsForIterations{
+
+}
+
+
 
 @enduml

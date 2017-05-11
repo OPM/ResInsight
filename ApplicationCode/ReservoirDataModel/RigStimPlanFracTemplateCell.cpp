@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigStimPlanCell.h"
+#include "RigStimPlanFracTemplateCell.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanCell::RigStimPlanCell()
+RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell()
 {
 
 }
@@ -29,7 +29,7 @@ RigStimPlanCell::RigStimPlanCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanCell::RigStimPlanCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
+RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
 {
     m_polygon = polygon;
     m_i = i;
@@ -39,7 +39,7 @@ RigStimPlanCell::RigStimPlanCell(std::vector<cvf::Vec3d> polygon, size_t i, size
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanCell::~RigStimPlanCell()
+RigStimPlanFracTemplateCell::~RigStimPlanFracTemplateCell()
 {
 
 }
@@ -47,7 +47,7 @@ RigStimPlanCell::~RigStimPlanCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanCell::setTransmissibilityInFracture(double valueHorizontal, double valueVertical)
+void RigStimPlanFracTemplateCell::setTransmissibilityInFracture(double valueHorizontal, double valueVertical)
 {
     m_transmissibilityInFractureHorizontal = valueHorizontal;
     m_transmissibilityInFractureVertical = valueVertical;
@@ -56,7 +56,7 @@ void RigStimPlanCell::setTransmissibilityInFracture(double valueHorizontal, doub
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanCell::cellSizeX() const
+double RigStimPlanFracTemplateCell::cellSizeX() const
 {
     //The polygon corners are always stored in the same order
     if (m_polygon.size()>1) return (m_polygon[1] - m_polygon[0]).length();
@@ -66,7 +66,7 @@ double RigStimPlanCell::cellSizeX() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanCell::cellSizeZ() const
+double RigStimPlanFracTemplateCell::cellSizeZ() const
 {
     if (m_polygon.size()>2) return (m_polygon[2] - m_polygon[1]).length();
     return cvf::UNDEFINED_DOUBLE;

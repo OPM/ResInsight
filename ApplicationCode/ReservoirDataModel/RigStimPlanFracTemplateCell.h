@@ -27,15 +27,15 @@
 ///  
 ///  
 //==================================================================================================
-class RigStimPlanCell 
+class RigStimPlanFracTemplateCell 
 {
 
 public:
-    RigStimPlanCell();
-    RigStimPlanCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j);
+    RigStimPlanFracTemplateCell();
+    RigStimPlanFracTemplateCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j);
 
 
-    virtual ~RigStimPlanCell();
+    virtual ~RigStimPlanFracTemplateCell();
 
     std::vector<cvf::Vec3d> getPolygon() { return m_polygon; }
     double                  getConductivtyValue() const { return m_concutivityValue; }
