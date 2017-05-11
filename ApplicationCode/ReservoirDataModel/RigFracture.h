@@ -60,7 +60,7 @@ public:
     size_t                  m_i;
     size_t                  m_j;
 
-    std::vector<size_t>     getContributingEclipseCells() { return contributingEclipseCells; }
+    std::vector<size_t>     getGlobalIndeciesToContributingEclipseCells() { return globalIndeciesToContributingEclipseCells; }
     std::vector<double>     getContributingEclipseCellTransmissibilities() { return contributingEclipseCellTransmissibilities; }
     void                    addContributingEclipseCell(size_t eclipseCell, double transmissibility);
 
@@ -68,7 +68,7 @@ private:
     double                  performationLenghtVertical;
     double                  performationLenghtHorizontal;
 
-    std::vector<size_t>     contributingEclipseCells;
+    std::vector<size_t>     globalIndeciesToContributingEclipseCells;
     std::vector<double>     contributingEclipseCellTransmissibilities;
 
 };

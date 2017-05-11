@@ -295,7 +295,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
             transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(&stimPlanCell, &fracStimPlanCellData);
 
 
-            std::vector<size_t> stimPlanContributingEclipseCells = fracStimPlanCellData.getContributingEclipseCells();
+            std::vector<size_t> stimPlanContributingEclipseCells = fracStimPlanCellData.getGlobalIndeciesToContributingEclipseCells();
             std::vector<double> stimPlanContributingEclipseCellTransmissibilities = fracStimPlanCellData.getContributingEclipseCellTransmissibilities();
 
             for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)

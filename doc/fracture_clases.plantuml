@@ -29,7 +29,7 @@ class RigFracture{
 class RigStimPlanFractureCell{
     size_t                  m_i;
     size_t                  m_j;
-    std::vector<size_t>     contributingEclipseCells;
+    std::vector<size_t>     globalIndeciesToContributingEclipseCells;
     std::vector<double>     contributingEclipseCellTransmisibilities;
 }
 
@@ -54,7 +54,7 @@ class RigStimPlanFractureDefinition{
     std::vector<double>          gridYs;
     std::vector<double>          timeSteps;
     std::vector<double>          depths;
-    std::vector<RigStimPlanData> stimPlanData;
+    std::vector<RigStimPlanResultFrames> stimPlanData;
 
 }
 
@@ -74,7 +74,7 @@ RimStimPlanFractureTemplate "1" *-- "many" RigStimPlanFracTemplateCell
 
 RigStimPlanFractureCell <..> RigStimPlanFracTemplateCell
 
-class RigStimPlanData{
+class RigStimPlanResultFrames{
     QString resultName;
     QString unit;
     std::vector<std::vector<std::vector<double>>> parameterValues;
@@ -82,7 +82,7 @@ class RigStimPlanData{
 
 }
 
-RigStimPlanFractureDefinition "1" *-- "1 for each property in StimPlan File" RigStimPlanData
+RigStimPlanFractureDefinition "1" *-- "1 for each property in StimPlan File" RigStimPlanResultFrames
 
 
 class RigFractureTransCalc{
