@@ -70,6 +70,8 @@ protected:
 private:
     void                            setDefaults();
     void                            initializeColors(const std::vector<QDateTime>& dateTimes);
+    
+    static void                     addCurveWithLargeSymbol(QwtPlot* plot, const QString& curveName, const QColor& color, const QDateTime& dateTime, double timeHistoryValue);
 
 private:
     caf::PdmPointer<RimFlowCharacteristicsPlot> m_plotDefinition;
