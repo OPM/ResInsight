@@ -5,10 +5,12 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.cpp
 )
 
