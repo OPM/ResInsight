@@ -63,6 +63,8 @@ public:
     static QString      indentString(int numSpacesToIndent, const QString& str);
     
     static bool         getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir);
+
+    static bool         fileExists(const QString& fileName);
 };
 
 }
