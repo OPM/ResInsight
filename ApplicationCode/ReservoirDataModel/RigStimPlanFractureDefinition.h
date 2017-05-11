@@ -24,10 +24,10 @@
 
 #include <vector>
 
-class RigStimPlanData
+class RigStimPlanResultFrames
 {
 public:
-    RigStimPlanData();
+    RigStimPlanResultFrames();
 
     QString resultName;
     QString unit;
@@ -51,7 +51,7 @@ public:
     std::vector<double>     depths;
 
     
-    std::vector<RigStimPlanData>        stimPlanData;
+    std::vector<RigStimPlanResultFrames>        stimPlanData;
 
     bool                                timeStepExisist(double timeStepValue);
     void                                reorderYgridToDepths();

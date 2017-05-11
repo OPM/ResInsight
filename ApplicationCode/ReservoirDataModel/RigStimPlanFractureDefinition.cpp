@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanData::RigStimPlanData()
+RigStimPlanResultFrames::RigStimPlanResultFrames()
 {
 
 }
@@ -127,7 +127,7 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QStri
     }
     else
     {
-        RigStimPlanData resultData;
+        RigStimPlanResultFrames resultData;
 
         resultData.resultName = resultName;
         resultData.unit = unit;

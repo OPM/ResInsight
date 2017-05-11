@@ -749,8 +749,8 @@ std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPl
     std::vector<std::pair<QString, QString> >  propertyNamesUnits;
     if (m_stimPlanFractureDefinitionData.notNull())
     {
-        std::vector<RigStimPlanData > allStimPlanData = m_stimPlanFractureDefinitionData->stimPlanData;
-        for (RigStimPlanData stimPlanDataEntry : allStimPlanData)
+        std::vector<RigStimPlanResultFrames > allStimPlanData = m_stimPlanFractureDefinitionData->stimPlanData;
+        for (RigStimPlanResultFrames stimPlanDataEntry : allStimPlanData)
         {
             propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
         }
