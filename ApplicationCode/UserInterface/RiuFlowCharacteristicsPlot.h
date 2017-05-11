@@ -18,13 +18,14 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiuInterfaceToViewWindow.h"
 
 #include "cafPdmPointer.h"
 
-#include <QPointer>
+#include "qwt_plot.h"
+
 #include <QFrame>
-#include "RiuInterfaceToViewWindow.h"
+#include <QPointer>
 
 class RimFlowCharacteristicsPlot;
 class RiuNightchartsWidget;
@@ -68,16 +69,13 @@ protected:
 
 private:
     void                            setDefaults();
-
-
-    void                                        initializeColors(const std::vector<QDateTime>& dateTimes);
+    void                            initializeColors(const std::vector<QDateTime>& dateTimes);
 
 private:
     caf::PdmPointer<RimFlowCharacteristicsPlot> m_plotDefinition;
     QPointer<QwtPlot>                           m_lorenzPlot;
     QPointer<QwtPlot>                           m_flowCapVsStorageCapPlot;
     QPointer<QwtPlot>                           m_sweepEffPlot;
-
 
     std::map<QDateTime, QColor>                 m_dateToColorMap;
 };

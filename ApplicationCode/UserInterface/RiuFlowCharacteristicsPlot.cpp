@@ -17,27 +17,30 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuFlowCharacteristicsPlot.h"
-#include "RimFlowCharacteristicsPlot.h"
-#include "RiuResultQwtPlot.h"
 
-#include "qwt_plot.h"
+#include "RiaColorTables.h"
+
+#include "RimFlowCharacteristicsPlot.h"
+
+#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
+#include "RiuResultQwtPlot.h"
+#include "RiuSummaryQwtPlot.h"
+
 #include "cvfBase.h"
 #include "cvfColor3.h"
 
+#include "qwt_date.h"
+#include "qwt_plot.h"
+#include "qwt_plot_zoneitem.h"
+#include "qwt_plot_zoomer.h"
+
 #include <QBoxLayout>
 #include <QContextMenuEvent>
+#include <QDateTime>
 #include <QLabel>
 #include <QMenu>
-#include "RiuLineSegmentQwtPlotCurve.h"
-#include <QDateTime>
-#include "RiuSummaryQwtPlot.h"
-#include "RiuQwtPlotWheelZoomer.h"
-#include "qwt_plot_zoomer.h"
-#include "RiaColorTables.h"
-#include "qwt_plot_zoneitem.h"
-#include "qwt_date.h"
-#include "RiuQwtPlotZoomer.h"
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -85,6 +88,9 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlo
     m_flowCapVsStorageCapPlot->setTitle("Flow Capacity vs Storage Capacity");
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuFlowCharacteristicsPlot::addWindowZoom(QwtPlot* plot)
 {
     auto zoomer = new RiuQwtPlotZoomer(plot->canvas());
@@ -114,22 +120,6 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve(const std::vector<QDateTime>& da
     m_lorenzPlot->detachItems(QwtPlotItem::Rtti_PlotCurve, true); 
     auto curve = createEmptyCurve(m_lorenzPlot, "Lorenz Coefficient", QColor(0, 0, 0));
     curve->setSamplesFromDateAndValues(dateTimes, timeHistoryValues, false);
-    //curve->setSymbol(QwtSymbol )
-
-    //size_t tsIdx = 0;
-    //for ( const QDateTime& dateTime: dateTimes )
-    //{
-    //    auto curve = createEmptyCurve(m_lorenzPlot, dateTime.toString(), m_dateToColorMap[dateTime]);
-    //    std::vector<QDateTime> timeStep;
-    //    timeStep.push_back(dateTime);
-    //    std::vector<double> lorCoeff;
-    //    lorCoeff.push_back(timeHistoryValues[tsIdx]);
-    //    
-    //    curve->setSamplesFromDateAndValues(timeStep, lorCoeff, false);
-    //
-    //    ++tsIdx;
-    //}
-    //double milliSecSinceEpoch = QwtDate::toDouble(filteredDateTimes[i]);
 
     for ( size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx )
     {
@@ -151,6 +141,9 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve(const std::vector<QDateTime>& da
     m_lorenzPlot->replot();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RiuLineSegmentQwtPlotCurve* RiuFlowCharacteristicsPlot::createEmptyCurve(QwtPlot* plot, const QString& curveName, const QColor& curveColor )
 {
     RiuLineSegmentQwtPlotCurve* plotCurve = new RiuLineSegmentQwtPlotCurve(curveName);
@@ -200,6 +193,9 @@ void RiuFlowCharacteristicsPlot::removeAllCurves()
     m_dateToColorMap.clear();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void zoomAllInPlot(QwtPlot * plot)
 {
     plot->setAxisAutoScale(QwtPlot::xBottom, true);
@@ -225,7 +221,6 @@ RimFlowCharacteristicsPlot* RiuFlowCharacteristicsPlot::ownerPlotDefinition()
     return m_plotDefinition;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -241,7 +236,6 @@ QSize RiuFlowCharacteristicsPlot::minimumSizeHint() const
 {
     return QSize(0, 100);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
