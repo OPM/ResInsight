@@ -22,6 +22,7 @@
 #include "RimProject.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletion, "WellPathCompletion");
 
@@ -40,6 +41,7 @@ RimWellPathCompletion::RimWellPathCompletion()
     CAF_PDM_InitFieldNoDefault(&m_displayCoordinates, "DisplayCoordinates", "Coordinates", "", "", "");
     m_displayCoordinates.registerGetMethod(this, &RimWellPathCompletion::displayCoordinates);
     m_displayCoordinates.uiCapability()->setUiReadOnly(true);
+    m_displayCoordinates.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 }
 
 
@@ -88,19 +90,19 @@ void RimWellPathCompletion::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimWellPathCompletion::displayCoordinates() const
+QString RimWellPathCompletion::displayCoordinates() const
 {
     CVF_ASSERT(m_coordinates().size() == m_measuredDepths().size());
 
-    std::vector<QString> displayValues;
+    QStringList displayValues;
 
     displayValues.push_back(QString("X\tY\tZ\tMD"));
     for (size_t i = 0; i < m_coordinates().size(); i++)
     {
         const cvf::Vec3d& coords = m_coordinates()[i];
         const double& measuredDepth = m_measuredDepths()[i];
-        displayValues.push_back(QString("%1\t%2\t%3\t%4\t").arg(coords.x()).arg(coords.y()).arg(coords.z()).arg(measuredDepth));
+        displayValues.push_back(QString("%1\t%2\t%3\t%4").arg(coords.x()).arg(coords.y()).arg(coords.z()).arg(measuredDepth));
     }
 
-    return displayValues;
+    return displayValues.join("\n");
 }
