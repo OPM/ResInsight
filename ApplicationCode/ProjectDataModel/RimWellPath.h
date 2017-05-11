@@ -40,6 +40,7 @@ class RimWellPathCompletionCollection;
 class RivWellPathPartMgr;
 
 class RimFishbonesMultipleSubs;
+class RimPerforationCollection;
 
 //==================================================================================================
 ///  
@@ -73,6 +74,7 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
     caf::PdmChildField<RimWellPathCompletionCollection*> m_completionCollection;
+    caf::PdmChildField<RimPerforationCollection*> m_perforationCollection;
 
     RigWellPath*                        wellPathGeometry();
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;

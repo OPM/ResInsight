@@ -16,6 +16,8 @@ ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimDefines.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimOilField.h
+${CEE_CURRENT_LIST_DIR}RimPerforationCollection.h
+${CEE_CURRENT_LIST_DIR}RimPerforationInterval.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseCase.h
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
@@ -106,6 +108,8 @@ ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
+${CEE_CURRENT_LIST_DIR}RimPerforationCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimPerforationInterval.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp

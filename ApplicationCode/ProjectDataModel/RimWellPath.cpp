@@ -31,6 +31,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletionCollection.h"
+#include "RimPerforationCollection.h"
 
 #include "RimFishbonesMultipleSubs.h"
 
@@ -105,6 +106,10 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault(&m_completionCollection, "Completions", "Completions", "", "", "");
     m_completionCollection = new RimWellPathCompletionCollection;
     m_completionCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_perforationCollection, "Perforations", "Perforations", "", "", "");
+    m_perforationCollection = new RimPerforationCollection;
+    m_perforationCollection.uiCapability()->setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile.uiCapability()->setUiHidden(true);
@@ -287,6 +292,10 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     if (!m_completionCollection->m_completions.empty())
     {
         uiTreeOrdering.add(&m_completionCollection);
+    }
+    if (!m_perforationCollection->m_perforations.empty())
+    {
+        uiTreeOrdering.add(&m_perforationCollection);
     }
     uiTreeOrdering.add(&fishbonesSubs);
 }
