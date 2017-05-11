@@ -88,7 +88,6 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
     m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted(wellPath);
 
     RivPipeGeometryGenerator geoGenerator;
-    geoGenerator.setRadius(m_rimFishbonesSubs->tubingRadius());
 
     for (size_t subIndex = 0; subIndex < m_rimFishbonesSubs->locationOfSubs().size(); subIndex++)
     {
