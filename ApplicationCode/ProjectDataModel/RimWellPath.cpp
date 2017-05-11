@@ -36,6 +36,8 @@
 
 #include "RivWellPathPartMgr.h"
 
+#include "cafUtils.h"
+
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
@@ -202,7 +204,7 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathAsciiFileRe
 {
     QFileInfo fileInf(filepath());
 
-    if (fileInf.isFile() && fileInf.exists())
+    if (caf::Utils::fileExists(filepath()))
     {
         if (fileInf.suffix().compare("json") == 0)
         {
@@ -410,7 +412,7 @@ void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, 
     {
         QString newCacheFileName = getCacheFileName();
 
-        if (QFile::exists(newCacheFileName))
+        if (caf::Utils::fileExists(newCacheFileName))
         {
             filepath = newCacheFileName;
         }
