@@ -129,6 +129,7 @@ void RicDeleteItemExec::redo()
         if (wellPathColl)
         {
             wellPathColl->scheduleGeometryRegenAndRedrawViews();
+            wellPathColl->uiCapability()->updateConnectedEditors();
         }
 
         // Update due to deletion of curves (not tracks, handled separatly)

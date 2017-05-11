@@ -43,6 +43,7 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPathCompletion.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
@@ -87,13 +88,14 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimWellLogCurve*>(uiItem))              return true;
     if (dynamic_cast<RimSummaryPlot*>(uiItem))               return true;
     if (dynamic_cast<RimSummaryCurve*>(uiItem))              return true;
-    if (dynamic_cast<RimGridTimeHistoryCurve*>(uiItem)) return true;
+    if (dynamic_cast<RimGridTimeHistoryCurve*>(uiItem))      return true;
     if (dynamic_cast<RimSummaryCurveFilter*>(uiItem))        return true;
     if (dynamic_cast<RimIntersection*>(uiItem))              return true;
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
-    if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))                  return true;
+    if (dynamic_cast<RimWellPathCompletion*>(uiItem))        return true;
+    if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))     return true;
 
     return false;    
 }
