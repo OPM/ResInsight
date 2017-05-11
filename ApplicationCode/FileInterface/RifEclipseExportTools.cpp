@@ -289,7 +289,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
                 //continue;
             }
 
-            RigFractureStimPlanCellData fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
+            RigStimPlanFractureCell fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
 
 
             transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(&stimPlanCell, &fracStimPlanCellData);

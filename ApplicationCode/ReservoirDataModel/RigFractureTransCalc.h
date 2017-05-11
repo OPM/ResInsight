@@ -36,7 +36,7 @@ class RimFracture;
 class RimEclipseCase;
 class RigStimPlanCell;
 class RimStimPlanFractureTemplate;
-class RigFractureStimPlanCellData;
+class RigStimPlanFractureCell;
 
 //==================================================================================================
 /// 
@@ -59,7 +59,7 @@ public:
     static double               arithmeticAverage(std::vector<double> values);
 
     // Calculations based on StimPlan grid
-    void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData);
+    void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData);
     static void                 computeStimPlanCellTransmissibilityInFracture(const RigStimPlanCell&  stimPlanCell);
     double                      computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanCell&  stimPlanCell);
     double                      computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);

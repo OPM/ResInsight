@@ -246,7 +246,7 @@ void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConduct
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigFractureStimPlanCellData* fracStimPlanCellData)
+void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData)
 {
 
     //Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):

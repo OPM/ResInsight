@@ -52,10 +52,10 @@ public:
 };
 
 
-class RigFractureStimPlanCellData
+class RigStimPlanFractureCell
 {
 public:
-    RigFractureStimPlanCellData(size_t i, size_t j);
+    RigStimPlanFractureCell(size_t i, size_t j);
 
     size_t                  m_i;
     size_t                  m_j;
@@ -92,13 +92,13 @@ public:
 
     std::vector<RigFractureData> m_fractureData;
 
-    void addStimPlanCellFractureCell(RigFractureStimPlanCellData fracStimPlanCellData);
+    void addStimPlanCellFractureCell(RigStimPlanFractureCell fracStimPlanCellData);
 
 private:
     std::vector<cvf::uint>  m_triangleIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
 
-    std::vector<RigFractureStimPlanCellData>    m_stimPlanCellsFractureData;
+    std::vector<RigStimPlanFractureCell>    m_stimPlanCellsFractureData;
     std::vector<size_t>                         m_perforatedStimPlanCellsIndex;
 };
 
