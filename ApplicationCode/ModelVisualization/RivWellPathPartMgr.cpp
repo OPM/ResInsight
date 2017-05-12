@@ -169,15 +169,19 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, c
     for (RimPerforationInterval* perforation : m_rimWellPath->m_perforationCollection->m_perforations())
     {
         if (!perforation->isChecked()) continue;
+        if (perforation->startMD() > perforation->endMD()) continue;
 
         std::vector<cvf::Vec3d> displayCoords;
+        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->startMD())));
         for (size_t i = 0; i < wellPathGeometry->m_measuredDepths.size(); ++i)
         {
             double measuredDepth = wellPathGeometry->m_measuredDepths[i];
-            if (measuredDepth < perforation->startMD()) continue;
-            if (measuredDepth > perforation->endMD()) break;
-            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->m_wellPathPoints[i]));
+            if (measuredDepth > perforation->startMD() && measuredDepth < perforation->endMD())
+            {
+                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->m_wellPathPoints[i]));
+            }
         }
+        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->endMD())));
 
         if (displayCoords.size() < 2) continue;
 
