@@ -101,7 +101,7 @@ QString RimWellPathCompletion::displayCoordinates() const
     {
         const cvf::Vec3d& coords = m_coordinates()[i];
         const double& measuredDepth = m_measuredDepths()[i];
-        displayValues.push_back(QString("%1\t%2\t%3\t%4").arg(coords.x()).arg(coords.y()).arg(coords.z()).arg(measuredDepth));
+        displayValues.push_back(QString("%1\t%2\t%3\t%4").arg(coords.x(), 0, 'f', 2).arg(coords.y(), 0, 'f', 2).arg(coords.z(), 0, 'f', 2).arg(measuredDepth, 0, 'f', 2));
     }
 
     return displayValues.join("\n");
