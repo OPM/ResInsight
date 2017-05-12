@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RimWellPathCollection.h"
-#include "RigWellPath.h"
+#include "RifWellPathImporter.h"
 
 #include <QTemporaryFile>
 #include <QTextStream>
@@ -21,8 +20,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameNoColon)
             out << "1 2 3";
         }
 
-        RifWellPathAsciiFileReader reader;
-        RifWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
+        RifWellPathImporter reader;
+        RifWellPathImporter::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
      }
 }
@@ -42,8 +41,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColon)
             out << "1 2 3";
         }
 
-        RifWellPathAsciiFileReader reader;
-        RifWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
+        RifWellPathImporter reader;
+        RifWellPathImporter::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
      }
 }
@@ -63,8 +62,8 @@ TEST(RimWellPathAsciiFileReaderTest, TestWellNameWithColonAndSpace)
             out << "1 2 3";
         }
 
-        RifWellPathAsciiFileReader reader;
-        RifWellPathAsciiFileReader::WellData wpData = reader.readWellData(file.fileName(), 0);
+        RifWellPathImporter reader;
+        RifWellPathImporter::WellData wpData = reader.readWellData(file.fileName(), 0);
         EXPECT_TRUE(wpData.m_name == wellName);
      }
 }
