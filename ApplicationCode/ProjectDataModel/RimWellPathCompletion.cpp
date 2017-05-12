@@ -42,6 +42,7 @@ RimWellPathCompletion::RimWellPathCompletion()
     m_displayCoordinates.registerGetMethod(this, &RimWellPathCompletion::displayCoordinates);
     m_displayCoordinates.uiCapability()->setUiReadOnly(true);
     m_displayCoordinates.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_displayCoordinates.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
 }
 
 
@@ -83,8 +84,7 @@ void RimWellPathCompletion::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletion::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* geometryGroup =  uiOrdering.addNewGroup("Geometry");
-    geometryGroup->add(&m_displayCoordinates);
+    uiOrdering.add(&m_displayCoordinates);
 }
 
 //--------------------------------------------------------------------------------------------------
