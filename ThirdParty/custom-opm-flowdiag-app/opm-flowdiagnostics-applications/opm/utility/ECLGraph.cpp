@@ -1076,7 +1076,7 @@ ECL::CartesianGridData::
 haveCellData(const ResultSet&   rset,
              const std::string& vector) const
 {
-    return rset.template haveKeywordData(vector, this->gridName());
+    return rset.haveKeywordData(vector, this->gridName());
 }
 
 bool
