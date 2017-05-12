@@ -250,7 +250,7 @@ namespace {
     }
 
     ErrorTolerance
-    testTolerances(const ::Opm::parameter::ParameterGroup& param)
+    testTolerances(const ::Opm::ParameterGroup& param)
     {
         const auto atol = param.getDefault("atol", 1.0e-8);
         const auto rtol = param.getDefault("rtol", 5.0e-12);
@@ -277,7 +277,7 @@ namespace {
     }
 
     ReferenceToF
-    loadReference(const ::Opm::parameter::ParameterGroup& param,
+    loadReference(const ::Opm::ParameterGroup& param,
                   const int                               step,
                   const int                               nDigits)
     {

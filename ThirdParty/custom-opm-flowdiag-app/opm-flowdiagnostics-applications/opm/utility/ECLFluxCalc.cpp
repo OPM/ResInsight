@@ -18,6 +18,8 @@
 */
 
 #include <opm/utility/ECLFluxCalc.hpp>
+#include <opm/utility/ECLResultData.hpp>
+
 #include <opm/parser/eclipse/Units/Units.hpp>
 
 namespace Opm
@@ -34,11 +36,15 @@ namespace Opm
 
 
 
-    std::vector<double> ECLFluxCalc::flux(const PhaseIndex /* phase */) const
+    std::vector<double>
+    ECLFluxCalc::flux(const ECLRestartData& rstrt,
+                      const PhaseIndex /* phase */) const
     {
         // Obtain dynamic data.
         DynamicData dyn_data;
-        dyn_data.pressure = graph_.linearisedCellData("PRESSURE", &ECLUnits::UnitSystem::pressure);
+        dyn_data.pressure = graph_
+            .linearisedCellData(rstrt, "PRESSURE",
+                                &ECLUnits::UnitSystem::pressure);
 
         // Compute fluxes per connection.
         const int num_conn = transmissibility_.size();

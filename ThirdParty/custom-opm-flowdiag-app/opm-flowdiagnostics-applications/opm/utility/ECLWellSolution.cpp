@@ -1,6 +1,6 @@
 /*
   Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -146,13 +146,16 @@ namespace Opm
 
 
     std::vector<ECLWellSolution::WellData>
-    ECLWellSolution::solution(const ECLResultData& restart,
-                              const int num_grids) const
+    ECLWellSolution::solution(const ECLRestartData& restart,
+                              const std::vector<std::string>& grids) const
     {
+        // Note: this function expects to be called with the correct restart
+        // block--e.g., a report step--selected in the caller.
+
         // Read well data for global grid.
         std::vector<WellData> all_wd{};
-        for (int grid_index = 0; grid_index < num_grids; ++grid_index) {
-            std::vector<WellData> wd = readWellData(restart, grid_index);
+        for (const auto& gridName : grids) {
+            std::vector<WellData> wd = readWellData(restart, gridName);
             // Append to set of all well data.
             all_wd.insert(all_wd.end(), wd.begin(), wd.end());
         }
@@ -163,24 +166,34 @@ namespace Opm
 
 
     std::vector<ECLWellSolution::WellData>
-    ECLWellSolution::readWellData(const ECLResultData& restart, const int grid_index) const
+    ECLWellSolution::readWellData(const ECLRestartData& restart,
+                                  const std::string&    gridName) const
     {
-        // Note: this function is expected to be called in a context
-        // where the correct restart block using the ert block mechanisms.
+        // Check if result set provides complete set of well solution data.
+        if (! (restart.haveKeywordData(ZWEL_KW, gridName) &&
+               restart.haveKeywordData(IWEL_KW, gridName) &&
+               restart.haveKeywordData("XWEL" , gridName) &&
+               restart.haveKeywordData(ICON_KW, gridName) &&
+               restart.haveKeywordData("XCON" , gridName)))
+        {
+            // Not all requisite keywords present in this grid.  Can't
+            // create a well solution.
+            return {};
+        }
 
         // Read header, return if trivial.
-        INTEHEAD ih(restart.keywordData<int>(INTEHEAD_KW, grid_index));
+        INTEHEAD ih(restart.keywordData<int>(INTEHEAD_KW, gridName));
         if (ih.nwell == 0) {
             return {};
         }
         const double qr_unit = resRateUnit(ih.unit);
 
-        // Read necessary keywords.
-        auto zwel = restart.keywordData<std::string>(ZWEL_KW, grid_index);
-        auto iwel = restart.keywordData<int>        (IWEL_KW, grid_index);
-        auto xwel = restart.keywordData<double>     ("XWEL" , grid_index);
-        auto icon = restart.keywordData<int>        (ICON_KW, grid_index);
-        auto xcon = restart.keywordData<double>     ("XCON" , grid_index);
+        // Load well topology and flow rates.
+        auto zwel = restart.keywordData<std::string>(ZWEL_KW, gridName);
+        auto iwel = restart.keywordData<int>        (IWEL_KW, gridName);
+        auto xwel = restart.keywordData<double>     ("XWEL" , gridName);
+        auto icon = restart.keywordData<int>        (ICON_KW, gridName);
+        auto xcon = restart.keywordData<double>     ("XCON" , gridName);
 
         // Create well data.
         std::vector<WellData> wd_vec;
@@ -204,7 +217,7 @@ namespace Opm
                 const int xcon_offset = (well*ih.ncwma + comp_index) * ih.nxcon;
                 WellData::Completion completion;
                 // Note: subtracting 1 from indices (Fortran -> C convention).
-                completion.grid_index = grid_index;
+                completion.gridName = gridName;
                 completion.ijk = { icon[icon_offset + ICON_I_INDEX] - 1,
                                    icon[icon_offset + ICON_J_INDEX] - 1,
                                    icon[icon_offset + ICON_K_INDEX] - 1 };
@@ -212,7 +225,7 @@ namespace Opm
                 completion.reservoir_inflow_rate = -unit::convert::from(xcon[xcon_offset + XCON_QR_INDEX], qr_unit);
                 if (disallow_crossflow_) {
                     // Add completion only if not cross-flowing (injecting producer or producing injector).
-                    if (completion.reservoir_inflow_rate < 0.0 == is_producer) {
+                    if ((completion.reservoir_inflow_rate < 0.0) == is_producer) {
                         wd.completions.push_back(completion);
                     }
                 } else {
