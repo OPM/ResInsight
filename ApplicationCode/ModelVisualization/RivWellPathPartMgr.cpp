@@ -30,6 +30,8 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletion.h"
 #include "RimWellPathCompletionCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimPerforationCollection.h"
 
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivPartPriority.h"
@@ -145,13 +147,59 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, ca
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+{
+    if (!m_rimWellPath || !m_rimWellPath->m_perforationCollection->isChecked()) return;
+
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if (!wellPathCollection) return;
+
+    RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
+    if (!wellPathGeometry) return;
+
+    // Since we're using the index of measured depths to find the index of a point, ensure they're equal
+    CVF_ASSERT(wellPathGeometry->m_measuredDepths.size() == wellPathGeometry->m_wellPathPoints.size());
+
+    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
+    double perforationRadius = wellPathRadius * 1.1;
+
+    RivPipeGeometryGenerator geoGenerator;
+    for (RimPerforationInterval* perforation : m_rimWellPath->m_perforationCollection->m_perforations())
+    {
+        if (!perforation->isChecked()) continue;
+
+        std::vector<cvf::Vec3d> displayCoords;
+        for (size_t i = 0; i < wellPathGeometry->m_measuredDepths.size(); ++i)
+        {
+            double measuredDepth = wellPathGeometry->m_measuredDepths[i];
+            if (measuredDepth < perforation->startMD()) continue;
+            if (measuredDepth > perforation->endMD()) break;
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->m_wellPathPoints[i]));
+        }
+
+        if (displayCoords.size() < 2) continue;
+
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
+
+        cvf::Collection<cvf::Part> parts;
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, cvf::Color3f::GREEN, perforationRadius);
+        for (auto part : parts)
+        {
+            part->setSourceInfo(objectSourceInfo.p());
+            model->addPart(part.p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// The pipe geometry needs to be rebuilt on scale change to keep the pipes round
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
                                             cvf::BoundingBox wellPathClipBoundingBox)
 {
-    RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
 
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
@@ -160,7 +208,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
     clearAllBranchData();
-    double wellPathRadius = wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
+    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
 
     cvf::Vec3d textPosition = wellPathGeometry->m_wellPathPoints[0];
 
@@ -297,8 +345,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
                                                           double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
                                                           caf::DisplayCoordTransform* displayCoordTransform)
 {
-    RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
 
     if (m_rimWellPath.isNull()) return;
@@ -332,6 +379,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     appendFishbonesPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendCompletionsToModel(model, displayCoordTransform, characteristicCellSize);
+    appendPerforationsToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -374,4 +422,25 @@ void RivWellPathPartMgr::clearAllBranchData()
 size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
 {
     return m_pipeBranchData.m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
+{
+    if (!m_rimWellPath) return nullptr;
+
+    RimWellPathCollection* wellPathCollection = nullptr;
+    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
+
+    return wellPathCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RivWellPathPartMgr::wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection)
+{
+    return wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
 }

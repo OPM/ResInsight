@@ -42,6 +42,7 @@ class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
+class RimWellPathCollection;
 
 class RivWellPathPartMgr : public cvf::Object
 {
@@ -62,8 +63,11 @@ public:
 private:
     void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void                                    appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
     void                                    clearAllBranchData();
+    inline RimWellPathCollection*           wellPathCollection();
+    inline double                           wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;

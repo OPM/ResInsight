@@ -39,6 +39,9 @@ public:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    double                              startMD() { return m_startMD(); }
+    double                              endMD() { return m_endMD(); }
+
 private:
     caf::PdmField< double >             m_startMD;
     caf::PdmField< double >             m_endMD;
