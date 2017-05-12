@@ -248,6 +248,11 @@ list(APPEND THIRD_PARTY_LIBRARIES
     nightcharts
 )
 
+################################################################################
+# Eigen
+################################################################################
+
+include_directories(SYSTEM ThirdParty/Eigen-Subset)
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder

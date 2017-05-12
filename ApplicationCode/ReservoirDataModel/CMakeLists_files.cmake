@@ -42,6 +42,7 @@ ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.inl
 ${CEE_CURRENT_LIST_DIR}RigPipeInCellEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.h
+${CEE_CURRENT_LIST_DIR}RigTransmisibilityCondenser.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.h
