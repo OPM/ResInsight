@@ -151,7 +151,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmisibilitiesIfNeeded()
         ++c1EquationIdx;
     }
 
-    std::cout <<  totalSystem << std::endl;
+    // std::cout  << "T = " << std::endl <<  totalSystem << std::endl;
 
     int externalEquationCount =  totalEquationCount - internalEquationCount;
     MatrixXd condensedSystem = totalSystem.bottomRightCorner(externalEquationCount, externalEquationCount) 
@@ -159,6 +159,8 @@ void RigTransmissibilityCondenser::calculateCondensedTransmisibilitiesIfNeeded()
                                * totalSystem.topLeftCorner(internalEquationCount, internalEquationCount).inverse()
                                * totalSystem.topRightCorner(internalEquationCount, externalEquationCount );
     
+    // std::cout  << "Te = " << std::endl <<  condensedSystem << std::endl << std::endl;
+
     for (int exEqIdx = 0; exEqIdx < externalEquationCount; ++exEqIdx)
     {
         for (int exColIdx = exEqIdx +1; exColIdx < externalEquationCount; ++exColIdx)
