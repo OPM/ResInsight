@@ -7,6 +7,7 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.h
+${CEE_CURRENT_LIST_DIR}RifEclipseOutputTableFormatter.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.h
@@ -25,6 +26,7 @@ ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.cpp
+${CEE_CURRENT_LIST_DIR}RifEclipseOutputTableFormatter.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.cpp
