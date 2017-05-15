@@ -1,7 +1,7 @@
 
 set(RESINSIGHT_MAJOR_VERSION 2016)
 set(RESINSIGHT_MINOR_VERSION 11)
-set(RESINSIGHT_INCREMENT_VERSION "flow.13")
+set(RESINSIGHT_INCREMENT_VERSION "flow.14")
 
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
