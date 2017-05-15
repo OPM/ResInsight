@@ -220,8 +220,8 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* w
 {
     if (wellPathImporter->canReadFile(filepath()))
     {
-        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData(filepath());
-        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData(filepath());
+        RifWellPathImporter::WellData wellData = wellPathImporter->readWellData(filepath(), wellPathIndexInFile());
+        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData(filepath(), wellPathIndexInFile());
         // General well info
 
         name = wellData.m_name;
