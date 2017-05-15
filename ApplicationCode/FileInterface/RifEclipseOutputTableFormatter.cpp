@@ -48,12 +48,15 @@ void RifEclipseOutputTableFormatter::flush()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputTableFormatter::outputBuffer()
 {
-    m_out << "-- ";
-    for (RifEclipseOutputTableColumn& column : m_columns)
+    if (m_columns.size() > 0)
     {
-        m_out << formatColumn(column.title, column);
+        m_out << "-- ";
+        for (RifEclipseOutputTableColumn& column : m_columns)
+        {
+            m_out << formatColumn(column.title, column);
+        }
+        m_out << "\n";
     }
-    m_out << "\n";
 
     for (auto line : m_buffer)
     {
@@ -253,6 +256,6 @@ QString RifEclipseOutputTableFormatter::formatColumn(const QString str, RifEclip
     }
     else
     {
-        return str.rightJustified(column.width + m_colSpacing, ' ');
+        return str.rightJustified(column.width, ' ').leftJustified(m_colSpacing, ' ');
     }
 }
