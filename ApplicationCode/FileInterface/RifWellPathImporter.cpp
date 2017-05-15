@@ -28,6 +28,9 @@
 
 #include <QFileInfo>
 
+#include <cmath>
+#include <algorithm>
+
 #define ASCII_FILE_DEFAULT_START_INDEX 0
 
 
