@@ -41,7 +41,7 @@ RigFractureStimPlanCellData::RigFractureStimPlanCellData(size_t i, size_t j)
 void RigFractureStimPlanCellData::addContributingEclipseCell(size_t eclipseCell, double transmissibility)
 {
     contributingEclipseCells.push_back(eclipseCell);
-    contributingEclipseCellTransmisibilities.push_back(transmissibility);
+    contributingEclipseCellTransmissibilities.push_back(transmissibility);
 }
 
 //--------------------------------------------------------------------------------------------------

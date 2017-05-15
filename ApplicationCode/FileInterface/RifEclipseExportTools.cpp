@@ -296,7 +296,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 
 
             std::vector<size_t> stimPlanContributingEclipseCells = fracStimPlanCellData.getContributingEclipseCells();
-            std::vector<double> stimPlanContributingEclipseCellTransmisibilities = fracStimPlanCellData.getContributingEclipseCellTransmisibilities();
+            std::vector<double> stimPlanContributingEclipseCellTransmissibilities = fracStimPlanCellData.getContributingEclipseCellTransmissibilities();
 
             for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {
@@ -331,7 +331,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
                 out << spj;         
 
                 out << qSetFieldWidth(10);
-                out << QString::number(stimPlanContributingEclipseCellTransmisibilities[i], 'e', 3);
+                out << QString::number(stimPlanContributingEclipseCellTransmissibilities[i], 'e', 3);
 
                 out << "\n";
             }

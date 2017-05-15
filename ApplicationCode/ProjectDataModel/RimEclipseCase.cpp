@@ -570,7 +570,7 @@ bool RimEclipseCase::openReserviorCase()
             size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                eclipseCaseData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setCombTransmissibilityScalarResultIndex(combinedTransResIdx);
             }
         }
 

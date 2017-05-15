@@ -188,7 +188,7 @@ const std::vector<double>* RigNNCData::connectionScalarResult(size_t scalarResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
+void RigNNCData::setCombTransmissibilityScalarResultIndex(size_t scalarResultIndex)
 {
     std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
     if (it != m_connectionResults.end())

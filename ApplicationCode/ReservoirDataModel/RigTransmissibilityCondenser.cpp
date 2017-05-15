@@ -1,82 +1,23 @@
-#pragma once
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2017 -     Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
 
-#include <map>
-#include <vector>
-#include "cafAssert.h"
+#include "RigTransmissibilityCondenser.h"
 
-class RigTransmissibilityCondenser
-{
-public:
-    class CellAddress
-    {
-     public:
-        enum CellType { ECLIPSE, STIMPLAN };
-
-        CellAddress(): m_isExternal(false), 
-                       m_cellType(STIMPLAN), 
-                       m_globalCellIdx(-1) {}
-        CellAddress(bool     isExternal, CellType cellType, size_t   globalCellIdx)
-         : m_isExternal(isExternal), 
-           m_cellType(cellType), 
-           m_globalCellIdx(globalCellIdx) {}
-
-        bool     m_isExternal;
-        CellType m_cellType;
-        size_t   m_globalCellIdx;
-
-        bool operator==(const CellAddress& o) { return (m_isExternal == o.m_isExternal) && (m_cellType == o.m_cellType) && (m_globalCellIdx == o.m_globalCellIdx); }
-
-        // Ordering external after internal is important for the matrix order internally
-        bool operator<(const CellAddress& other) const
-        {
-            if (m_isExternal    != other.m_isExternal)    return !m_isExternal; // Internal cells < External cells
-            if (m_cellType      != other.m_cellType)      return m_cellType < other.m_cellType; // Eclipse < StimPlan
-            if (m_globalCellIdx != other.m_globalCellIdx) return m_globalCellIdx < other.m_globalCellIdx;
-            return false;
-        }
-    };
-
-    void addNeighborTransmisibility(CellAddress cell1, CellAddress cell2, double transmisibility)
-    {
-        m_condensedTransmisibilities.clear();
-        if ( cell1 < cell2 ) 
-            m_neighborTransmisibilities[cell1][cell2] = transmisibility;
-        else  
-            m_neighborTransmisibilities[cell2][cell1] = transmisibility;
-    }
-
-    std::vector<CellAddress> externalCells()
-    {
-        calculateCondensedTransmisibilitiesIfNeeded(); std::vector<CellAddress> extCells; 
-        for ( const auto& adrToAdrTransMapPair : m_condensedTransmisibilities ) extCells.push_back(adrToAdrTransMapPair.first);
-    }
-
-    double condensedTransmisibility( CellAddress externalCell1, CellAddress externalCell2) 
-    { 
-        CAF_ASSERT(!(externalCell1 == externalCell2));
-
-        calculateCondensedTransmisibilitiesIfNeeded();
-
-        if (externalCell2 < externalCell1) std::swap(externalCell1, externalCell2);
-
-        const auto& adrToAdrTransMapPair = m_condensedTransmisibilities.find(externalCell1);
-        if ( adrToAdrTransMapPair != m_condensedTransmisibilities.end() )
-        {
-            const auto& adrTransPair = adrToAdrTransMapPair->second.find(externalCell2);
-            if ( adrTransPair != adrToAdrTransMapPair->second.end() )
-            {
-                return adrTransPair->second;
-            }
-        }
-        return 0.0;
-    }
-
-private:
-    void calculateCondensedTransmisibilitiesIfNeeded();
-
-    std::map<CellAddress, std::map<CellAddress, double> > m_neighborTransmisibilities;
-    std::map<CellAddress, std::map<CellAddress, double> > m_condensedTransmisibilities;
-};  
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -84,9 +25,56 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigTransmissibilityCondenser::calculateCondensedTransmisibilitiesIfNeeded()
+void RigTransmissibilityCondenser::addNeighborTransmissibility(CellAddress cell1, CellAddress cell2, double transmissibility)
 {
-    if (m_condensedTransmisibilities.size()) return;
+    m_condensedTransmissibilities.clear();
+    m_externalCellAddrSet.clear();
+
+    if ( cell1 < cell2 )
+        m_neighborTransmissibilities[cell1][cell2] = transmissibility;
+    else
+        m_neighborTransmissibilities[cell2][cell1] = transmissibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RigTransmissibilityCondenser::CellAddress> RigTransmissibilityCondenser::externalCells()
+{
+    calculateCondensedTransmissibilitiesIfNeeded(); 
+
+    return m_externalCellAddrSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigTransmissibilityCondenser::condensedTransmissibility(CellAddress externalCell1, CellAddress externalCell2)
+{
+    CAF_ASSERT(!(externalCell1 == externalCell2));
+
+    calculateCondensedTransmissibilitiesIfNeeded();
+
+    if ( externalCell2 < externalCell1 ) std::swap(externalCell1, externalCell2);
+
+    const auto& adrToAdrTransMapPair = m_condensedTransmissibilities.find(externalCell1);
+    if ( adrToAdrTransMapPair != m_condensedTransmissibilities.end() )
+    {
+        const auto& adrTransPair = adrToAdrTransMapPair->second.find(externalCell2);
+        if ( adrTransPair != adrToAdrTransMapPair->second.end() )
+        {
+            return adrTransPair->second;
+        }
+    }
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded()
+{
+    if (m_condensedTransmissibilities.size()) return;
 
     // Find all equations, and their total ordering
 
@@ -101,7 +89,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmisibilitiesIfNeeded()
     std::map<CellAddress, int> cellAddressToEqIdxMap;
     std::vector<CellAddress>   eqIdxToCellAddressMapping;
     {
-        for ( const auto& adrEqIdxPair : m_neighborTransmisibilities )
+        for ( const auto& adrEqIdxPair : m_neighborTransmissibilities )
         {
             cellAddressToEqIdxMap.insert({ adrEqIdxPair.first, -1 });
             for ( const auto& adrTranspair : adrEqIdxPair.second )
@@ -132,7 +120,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmisibilitiesIfNeeded()
     
     MatrixXd totalSystem = MatrixXd::Zero(totalEquationCount, totalEquationCount);
 
-    for (const auto& adrToAdrTransMapPair : m_neighborTransmisibilities)
+    for (const auto& adrToAdrTransMapPair : m_neighborTransmissibilities)
     {
         CAF_ASSERT(cellAddressToEqIdxMap.count(adrToAdrTransMapPair.first)); // Remove when stabilized
         int c1EquationIdx = cellAddressToEqIdxMap[adrToAdrTransMapPair.first];
@@ -170,10 +158,16 @@ void RigTransmissibilityCondenser::calculateCondensedTransmisibilitiesIfNeeded()
             {
                 CellAddress cell1 = eqIdxToCellAddressMapping[exEqIdx + internalEquationCount];
                 CellAddress cell2 = eqIdxToCellAddressMapping[exColIdx + internalEquationCount];
-                if (cell1 < cell2) m_condensedTransmisibilities[cell1][cell2] = T;
-                else m_condensedTransmisibilities[cell2][cell1] = T;
+                if (cell1 < cell2) m_condensedTransmissibilities[cell1][cell2] = T;
+                else m_condensedTransmissibilities[cell2][cell1] = T;
+
+                m_externalCellAddrSet.insert(cell1);
+                m_externalCellAddrSet.insert(cell2);
+
             }
         }                
     }
 }
+
+
 

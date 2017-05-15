@@ -69,7 +69,7 @@ public:
     std::vector<double>&        makeConnectionScalarResult(size_t scalarResultIndex);
     const std::vector<double>*  connectionScalarResult(size_t scalarResultIndex) const;
 
-    void setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex);
+    void setCombTransmissibilityScalarResultIndex(size_t scalarResultIndex);
 
     bool hasScalarValues(size_t scalarResultIndex);
 
