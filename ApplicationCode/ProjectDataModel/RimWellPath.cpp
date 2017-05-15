@@ -39,9 +39,8 @@
 
 #include "RivWellPathPartMgr.h"
 
-#include "cafUtils.h"
-
 #include "cafPdmUiTreeOrdering.h"
+#include "cafUtils.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -218,7 +217,7 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* wellPathImporter)
 {
-    if (wellPathImporter->canReadFile(filepath()))
+    if (caf::Utils::fileExists(filepath()))
     {
         RifWellPathImporter::WellData wellData = wellPathImporter->readWellData(filepath(), wellPathIndexInFile());
         RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData(filepath(), wellPathIndexInFile());

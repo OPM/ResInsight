@@ -59,8 +59,6 @@ public:
     WellMetaData                readWellMetaData(const QString& filePath);
     size_t                      wellDataCount(const QString& filePath);
 
-    static bool                 canReadFile(const QString& filePath);
-
     void                        clear();
     void                        removeFilePath(const QString& filePath);
 

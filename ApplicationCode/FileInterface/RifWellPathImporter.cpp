@@ -24,6 +24,8 @@
 
 #include <fstream>
 
+#include "cafUtils.h"
+
 #include <QFileInfo>
 
 #define ASCII_FILE_DEFAULT_START_INDEX 0
@@ -32,22 +34,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifWellPathImporter::canReadFile(const QString& filePath)
-{
-    QFileInfo fileInfo(filePath);
-    if (fileInfo.isFile() && fileInfo.exists())
-    {
-        return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellData RifWellPathImporter::readWellData(const QString& filePath, size_t indexInFile)
 {
-    CVF_ASSERT(canReadFile(filePath));
+    CVF_ASSERT(caf::Utils::fileExists(filePath));
 
     if (isJsonFile(filePath))
     {
@@ -72,7 +61,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readWellData(const QString& f
 //--------------------------------------------------------------------------------------------------
 RifWellPathImporter::WellMetaData RifWellPathImporter::readWellMetaData(const QString& filePath, size_t indexInFile)
 {
-    CVF_ASSERT(canReadFile(filePath));
+    CVF_ASSERT(caf::Utils::fileExists(filePath));
 
     if (isJsonFile(filePath))
     {
