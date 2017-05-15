@@ -660,9 +660,10 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
             const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
-            double RadTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell, perforationLengthVert, perforationLengthHor);
+            double linTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell, perforationLengthVert, perforationLengthHor);
 
-            out << RadTransInStimPlanCell;
+            out << qSetFieldWidth(10);
+            out << QString::number(linTransInStimPlanCell, 'f', 2);
             out << "\n";
         }
 
@@ -687,12 +688,13 @@ void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vecto
             //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
             const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
-            //TODO: Error - stimPlanCell blir ikke riktig... Har ikke polygon!?!
+            //TODO: Error - stimPlanCell blir ikke riktig... 
 
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
-            double RadTransInStimPlanCell = transmissibilityCalculator.computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell);
+            double radTransInStimPlanCell = transmissibilityCalculator.computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell);
 
-            out << RadTransInStimPlanCell;
+            out << qSetFieldWidth(10);
+            out << QString::number(radTransInStimPlanCell, 'f', 2);
             out << "\n";
 
             
