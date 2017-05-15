@@ -50,7 +50,7 @@ public:
     RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuFlowCharacteristicsPlot();
 
-    void setLorenzCurve(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
+    void setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
     void addFlowCapStorageCapCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
     void addSweepEfficiencyCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
 

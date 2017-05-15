@@ -114,7 +114,7 @@ RiuFlowCharacteristicsPlot::~RiuFlowCharacteristicsPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuFlowCharacteristicsPlot::setLorenzCurve(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
+void RiuFlowCharacteristicsPlot::setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues)
 {
     initializeColors(dateTimes);
 
@@ -127,7 +127,7 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve(const std::vector<QDateTime>& da
         QDateTime dateTime = dateTimes[tsIdx];
         double timeHistoryValue = timeHistoryValues[tsIdx];
 
-        QString curveName = dateTime.toString();
+        QString curveName = dateTimeStrings[static_cast<int>(tsIdx)];
 
         RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue);
     }
@@ -145,7 +145,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol(QwtPlot* plot, const QS
     QwtSymbol::Style style = QwtSymbol::Diamond;
     QwtSymbol* symbol = new QwtSymbol(style);
 
-    symbol->setSize(20, 20);
+    symbol->setSize(15, 15);
     symbol->setColor(color);
 
     curve->setSymbol(symbol);

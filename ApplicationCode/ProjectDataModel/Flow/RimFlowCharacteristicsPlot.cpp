@@ -171,11 +171,11 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
             std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
 
-            std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+            QStringList timeStepDates = m_case->timeStepStrings();
 
             for ( int tsIdx : calculatedTimesteps )
             {
-                options.push_back(caf::PdmOptionItemInfo(timeStepDates[tsIdx].toString(), tsIdx));
+                options.push_back(caf::PdmOptionItemInfo(timeStepDates[tsIdx], tsIdx));
             }
         }
     }
@@ -279,6 +279,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         m_currentlyPlottedTimeSteps = calculatedTimesteps;
 
         std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+        QStringList timeStepStrings = m_case->timeStepStrings();
         std::vector<double> lorenzVals(timeStepDates.size(), HUGE_VAL);
 
         m_flowCharPlotWidget->removeAllCurves();
@@ -287,7 +288,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         {
             lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx).m_lorenzCoefficient;
         }
-        m_flowCharPlotWidget->setLorenzCurve(timeStepDates, lorenzVals);
+        m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
