@@ -31,10 +31,10 @@
 
 #include <opm/utility/ECLFluxCalc.hpp>
 #include <opm/utility/ECLGraph.hpp>
+#include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLWellSolution.hpp>
 
 #include <exception>
-#include <iostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -80,36 +80,64 @@ namespace example {
         throw std::invalid_argument(os.str());
     }
 
+
+    template <class FluxCalc>
     inline Opm::FlowDiagnostics::ConnectionValues
-    extractFluxField(const Opm::ECLGraph& G, const bool compute_fluxes)
+    extractFluxField(const Opm::ECLGraph& G,
+                     FluxCalc&&           getFlux)
     {
         using ConnVals = Opm::FlowDiagnostics::ConnectionValues;
+
+        const auto actPh = G.activePhases();
+
         auto flux = ConnVals(ConnVals::NumConnections{G.numConnections()},
-                             ConnVals::NumPhases{3});
+                             ConnVals::NumPhases{actPh.size()});
 
         auto phas = ConnVals::PhaseID{0};
 
-        Opm::ECLFluxCalc calc(G);
+        for (const auto& p : actPh) {
+            const auto pflux = getFlux(p);
 
-        const auto phases = { Opm::ECLGraph::PhaseIndex::Aqua   ,
-                              Opm::ECLGraph::PhaseIndex::Liquid ,
-                              Opm::ECLGraph::PhaseIndex::Vapour };
-
-        for (const auto& p : phases)
-        {
-            const auto pflux = compute_fluxes ? calc.flux(p) : G.flux(p);
             if (! pflux.empty()) {
                 assert (pflux.size() == flux.numConnections());
+
                 auto conn = ConnVals::ConnID{0};
                 for (const auto& v : pflux) {
                     flux(conn, phas) = v;
                     conn.id += 1;
                 }
             }
+
             phas.id += 1;
         }
 
         return flux;
+    }
+
+    inline Opm::FlowDiagnostics::ConnectionValues
+    extractFluxField(const Opm::ECLGraph&       G,
+                     const Opm::ECLRestartData& rstrt,
+                     const bool                 compute_fluxes)
+    {
+        if (compute_fluxes) {
+            Opm::ECLFluxCalc calc(G);
+
+            auto getFlux = [&calc, &rstrt]
+                (const Opm::ECLGraph::PhaseIndex p)
+            {
+                return calc.flux(rstrt, p);
+            };
+
+            return extractFluxField(G, getFlux);
+        }
+
+        auto getFlux = [&G, &rstrt]
+            (const Opm::ECLGraph::PhaseIndex p)
+        {
+            return G.flux(rstrt, p);
+        };
+
+        return extractFluxField(G, getFlux);
     }
 
     template <class WellFluxes>
@@ -120,9 +148,9 @@ namespace example {
         Opm::FlowDiagnostics::CellSetValues inflow;
         for (const auto& well : well_fluxes) {
             for (const auto& completion : well.completions) {
-                const int grid_index = completion.grid_index;
+                const auto& gridName = completion.gridName;
                 const auto& ijk = completion.ijk;
-                const int cell_index = G.activeCell(ijk, grid_index);
+                const int cell_index = G.activeCell(ijk, gridName);
                 if (cell_index >= 0) {
                     // Since inflow is a std::map, if the key was not
                     // already present operator[] will insert a
@@ -142,7 +170,7 @@ namespace example {
 
     struct FilePaths
     {
-        FilePaths(const Opm::parameter::ParameterGroup& param)
+        FilePaths(const Opm::ParameterGroup& param)
         {
             const string casename = param.getDefault<string>("case", "DEFAULT_CASE_NAME");
             grid = param.has("grid") ? param.get<string>("grid")
@@ -164,13 +192,13 @@ namespace example {
 
 
 
-    inline Opm::parameter::ParameterGroup
+    inline Opm::ParameterGroup
     initParam(int argc, char** argv)
     {
         // Obtain parameters from command line (possibly specifying a parameter file).
         const bool verify_commandline_syntax = true;
         const bool parameter_output = false;
-        Opm::parameter::ParameterGroup param(argc, argv, verify_commandline_syntax, parameter_output);
+        Opm::ParameterGroup param(argc, argv, verify_commandline_syntax, parameter_output);
         return param;
     }
 
@@ -180,10 +208,9 @@ namespace example {
     inline Opm::ECLGraph
     initGraph(const FilePaths& file_paths)
     {
-        // Read graph and assign restart file.
-        auto graph = Opm::ECLGraph::load(file_paths.grid, file_paths.init);
-        graph.assignFluxDataSource(file_paths.restart);
-        return graph;
+        const auto I = Opm::ECLInitFileData(file_paths.init);
+
+        return Opm::ECLGraph::load(file_paths.grid, I);
     }
 
 
@@ -209,38 +236,47 @@ namespace example {
     struct Setup
     {
         Setup(int argc, char** argv)
-            : param(initParam(argc, argv))
-            , file_paths(param)
-            , graph(initGraph(file_paths))
-            , well_fluxes()
-            , toolbox(initToolbox(graph))
+            : param          (initParam(argc, argv))
+            , file_paths     (param)
+            , rstrt          (file_paths.restart)
+            , graph          (initGraph(file_paths))
+            , well_fluxes    ()
+            , toolbox        (initToolbox(graph))
             , compute_fluxes_(param.getDefault("compute_fluxes", false))
         {
             const int step = param.getDefault("step", 0);
-            if (!selectReportStep(step)) {
+
+            if (! this->selectReportStep(step)) {
                 std::ostringstream os;
+
                 os << "Report Step " << step
-                   << " is Not Available in Result Set '"
-                   << file_paths.grid.stem() << '\'';
+                   << " is Not Available in Result Set "
+                   << file_paths.grid.stem();
+
                 throw std::domain_error(os.str());
             }
         }
 
         bool selectReportStep(const int step)
         {
-            if (graph.selectReportStep(step)) {
-                auto wsol = Opm::ECLWellSolution{};
-                well_fluxes = wsol.solution(graph.rawResultData(), graph.numGrids());;
-                toolbox.assignConnectionFlux(extractFluxField(graph, compute_fluxes_));
-                toolbox.assignInflowFlux(extractWellFlows(graph, well_fluxes));
-                return true;
-            } else {
+            if (! rstrt.selectReportStep(step)) {
                 return false;
             }
+
+            {
+                auto wsol = Opm::ECLWellSolution{};
+                well_fluxes = wsol.solution(rstrt, graph.activeGrids());
+            }
+
+            toolbox.assignConnectionFlux(extractFluxField(graph, rstrt, compute_fluxes_));
+            toolbox.assignInflowFlux(extractWellFlows(graph, well_fluxes));
+
+            return true;
         }
 
-        Opm::parameter::ParameterGroup param;
+        Opm::ParameterGroup param;
         FilePaths file_paths;
+        Opm::ECLRestartData rstrt;
         Opm::ECLGraph graph;
         std::vector<Opm::ECLWellSolution::WellData> well_fluxes;
         Opm::FlowDiagnostics::Toolbox toolbox;

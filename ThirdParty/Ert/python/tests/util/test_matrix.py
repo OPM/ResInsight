@@ -1,6 +1,6 @@
-from ert.util import Matrix , RandomNumberGenerator
-from ert.util.enums import RngAlgTypeEnum, RngInitModeEnum
-from ert.test import ExtendedTestCase, TestAreaContext
+from ecl.util import Matrix , RandomNumberGenerator
+from ecl.util.enums import RngAlgTypeEnum, RngInitModeEnum
+from ecl.test import ExtendedTestCase, TestAreaContext
 
 class MatrixTest(ExtendedTestCase):
     def test_matrix(self):

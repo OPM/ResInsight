@@ -2,14 +2,14 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from six import string_types
 import ctypes
 
-import ert
+import ecl
 from cwrap import BaseCClass, Prototype, PrototypeError
-from ert.test import ExtendedTestCase
+from ecl.test import ExtendedTestCase
 
 
 # Local copies so that the real ones don't get changed
 class TestUtilPrototype(Prototype):
-    lib = ert.load("libert_util")
+    lib = ecl.load("libert_util")
     def __init__(self, prototype, bind=False):
         super(TestUtilPrototype, self).__init__(TestUtilPrototype.lib, prototype, bind=bind)
 

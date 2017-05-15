@@ -1,28 +1,21 @@
-include(cmake/find_python_module.cmake)
-include(cmake/python_package_versions.cmake) # finds version
+install( DIRECTORY cmake DESTINATION share )
 
-FIND_PACKAGE(PythonInterp 2.7 EXACT)
-if (NOT DEFINED PYTHON_EXECUTABLE)
-   message("Python2.7 interpreter not found - Python wrappers not enabled")
-   return()
-endif()
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+include(init_python)
+init_python( 2.7 )
 
 
-python_package(numpy 1.7.1)
+find_python_package(numpy 1.7.1 ${PYTHON_INSTALL_PREFIX})
 if (NOT DEFINED PY_numpy)
-   message("numpy module not found - Python wrappers not enabled")
+   message(WARNING "numpy module not found - Python wrappers not enabled")
+   set( BUILD_PYTHON OFF PARENT_SCOPE )
    return()
 endif()
-
-if (EXISTS "/etc/debian_version")
-   set( PYTHON_PACKAGE_PATH "dist-packages")
-else()
-   set( PYTHON_PACKAGE_PATH "site-packages")
-endif()
-set(PYTHON_INSTALL_PREFIX  "lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/${PYTHON_PACKAGE_PATH}"  CACHE STRING "Subdirectory to install Python modules in")
 
 
 if (BUILD_TESTS)
    add_subdirectory( tests )
 endif()
 add_subdirectory( python )
+
+

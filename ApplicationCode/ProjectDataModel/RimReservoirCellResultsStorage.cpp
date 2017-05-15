@@ -29,6 +29,7 @@
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
+#include "cafUtils.h"
 
 #include "cvfGeometryTools.h"
 
@@ -1394,16 +1395,15 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
     // Get the name of the cache name relative to the current project file position
     QString newValidCacheFileName = getValidCacheFileName();
 
-    QFile storageFile(newValidCacheFileName);
-
     // Warn if we thought we were to find some data on the storage file
 
-    if (!storageFile.exists() && m_resultCacheMetaData.size())
+    if (!caf::Utils::fileExists(newValidCacheFileName) && m_resultCacheMetaData.size())
     {
         qWarning() << "Reading stored results: Missing the storage file : " + newValidCacheFileName; 
         return;
     }
 
+    QFile storageFile(newValidCacheFileName);
     if (!storageFile.open(QIODevice::ReadOnly)) 
     {
         qWarning() << "Reading stored results: Can't open the file : " + newValidCacheFileName; 

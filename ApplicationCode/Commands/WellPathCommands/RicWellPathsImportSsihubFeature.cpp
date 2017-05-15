@@ -27,6 +27,8 @@
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
+#include "cafUtils.h"
+
 #include <QAction>
 #include <QDir>
 #include <QFile>
@@ -47,7 +49,7 @@ bool RicWellPathsImportSsihubFeature::isCommandEnabled()
         return false;
     }
 
-    if (!QFile::exists(app->project()->fileName()))
+    if (!caf::Utils::fileExists(app->project()->fileName()))
     {
         return false;
     }
@@ -66,7 +68,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    if (!QFile::exists(app->project()->fileName()))
+    if (!caf::Utils::fileExists(app->project()->fileName()))
     {
         return;
     }

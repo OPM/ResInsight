@@ -17,11 +17,11 @@
 
 
 import datetime
-from ert.util import CTime
-from ert.ecl import EclRFTFile, EclRFTCell, EclPLTCell
-from ert.ecl.rft import WellTrajectory
-from ert.test import ExtendedTestCase
-from ert.ecl import EclRFT
+from ecl.util import CTime
+from ecl.ecl import EclRFTFile, EclRFTCell, EclPLTCell
+from ecl.ecl.rft import WellTrajectory
+from ecl.test import ExtendedTestCase
+from ecl.ecl import EclRFT
 
 class RFTTest(ExtendedTestCase):
 

@@ -23,7 +23,7 @@ try:
 except ImportError:
     from unittest import skipIf
 
-from ert.test import ExtendedTestCase , TestAreaContext, TempAreaContext
+from ecl.test import ExtendedTestCase , TestAreaContext, TempAreaContext
 
 
 class WorkAreaTest(ExtendedTestCase):

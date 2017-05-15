@@ -18,10 +18,10 @@ import datetime
 import os.path
 from unittest import skipIf
 
-from ert.ecl import EclFile, FortIO, EclKW , openFortIO , openEclFile
-from ert.ecl import EclFileFlagEnum, EclFileEnum
+from ecl.ecl import EclFile, FortIO, EclKW , openFortIO , openEclFile
+from ecl.ecl import EclFileFlagEnum, EclFileEnum
 
-from ert.test import ExtendedTestCase , TestAreaContext
+from ecl.test import ExtendedTestCase , TestAreaContext
 
 
     
@@ -153,3 +153,106 @@ class EclFileStatoilTest(ExtendedTestCase):
         v = f.restartView( sim_time = datetime.date( 2004,1,1) )
         v = f.restartView( report_step = 30 )
         v = f.restartView( seqnum_index = 30 )
+
+    def test_ix_case(self):
+        f = EclFile( self.createTestPath( "Statoil/ECLIPSE/ix/summary/Create_Region_Around_Well.SMSPEC"))
+
+        # Keywords
+        self.assertTrue( "KEYWORDS" in f )
+        keywords_loaded = list(f["KEYWORDS"][0])
+        keywords_from_file = [
+                'TIME', 'YEARS', 'AAQR', 'AAQT', 'AAQP', 'AAQR', 'AAQT',
+                'AAQP', 'AAQR', 'AAQT', 'AAQP', 'FPPW', 'FPPO', 'FPPG', 'FNQT',
+                'FNQR', 'FEIP', 'FWPT', 'FWIT', 'FWIP', 'FWGR', 'FVPT', 'FVPR',
+                'FVIT', 'FVIR', 'FPR', 'FOPT', 'FOIT', 'FOIR', 'FOIPL',
+                'FOIPG', 'FOIP', 'FGPT', 'FGIT', 'FGIPL', 'FGIPG', 'FGIP',
+                'FAQT', 'FAQR', 'FGOR', 'FWCT', 'FGSR', 'FGIR', 'FGPR', 'FWIR',
+                'FWPR', 'FOPR', 'MEMORYTS', 'NAIMFRAC', 'TCPUDAY', 'TCPUTS',
+                'NBAKFL', 'NNUMST', 'NNUMFL', 'NEWTFL', 'MSUMNEWT', 'MSUMLINS',
+                'MLINEARS', 'NLINEARS', 'NEWTON', 'ELAPSED', 'TCPU',
+                'TIMESTEP', 'GOPR', 'GOPR', 'GOPR', 'GWPR', 'GWPR', 'GWPR',
+                'GWIR', 'GWIR', 'GWIR', 'GGPR', 'GGPR', 'GGPR', 'GWCT', 'GWCT',
+                'GWCT', 'GGOR', 'GGOR', 'GGOR', 'GGIR', 'GGIR', 'GGIR', 'GGIT',
+                'GGIT', 'GGIT', 'GGPT', 'GGPT', 'GGPT', 'GOIR', 'GOIR', 'GOIR',
+                'GOIT', 'GOIT', 'GOIT', 'GOPT', 'GOPT', 'GOPT', 'GVIR', 'GVIR',
+                'GVIR', 'GVIT', 'GVIT', 'GVIT', 'GVPR', 'GVPR', 'GVPR', 'GVPT',
+                'GVPT', 'GVPT', 'GWGR', 'GWGR', 'GWGR', 'GWIT', 'GWIT', 'GWIT',
+                'GWPT', 'GWPT', 'GWPT', 'WOPR', 'WOPR', 'WOPR', 'WOPR', 'WOPR',
+                'WOPR', 'WWPR', 'WWPR', 'WWPR', 'WWPR', 'WWPR', 'WWPR', 'WWIR',
+                'WWIR', 'WWIR', 'WWIR', 'WWIR', 'WWIR', 'WGPR', 'WGPR', 'WGPR',
+                'WGPR', 'WGPR', 'WGPR', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT',
+                'WWCT', 'WMCTL', 'WMCTL', 'WMCTL', 'WMCTL', 'WMCTL', 'WMCTL',
+                'WGOR', 'WGOR', 'WGOR', 'WGOR', 'WGOR', 'WGOR', 'WAPI', 'WAPI',
+                'WAPI', 'WAPI', 'WAPI', 'WAPI', 'WBHP', 'WBHP', 'WBHP', 'WBHP',
+                'WBHP', 'WBHP', 'WGIR', 'WGIR', 'WGIR', 'WGIR', 'WGIR', 'WGIR',
+                'WGIT', 'WGIT', 'WGIT', 'WGIT', 'WGIT', 'WGIT', 'WGPT', 'WGPT',
+                'WGPT', 'WGPT', 'WGPT', 'WGPT', 'WOIR', 'WOIR', 'WOIR', 'WOIR',
+                'WOIR', 'WOIR', 'WOIT', 'WOIT', 'WOIT', 'WOIT', 'WOIT', 'WOIT',
+                'WOPT', 'WOPT', 'WOPT', 'WOPT', 'WOPT', 'WOPT', 'WPIG', 'WPIG',
+                'WPIG', 'WPIG', 'WPIG', 'WPIG', 'WPIO', 'WPIO', 'WPIO', 'WPIO',
+                'WPIO', 'WPIO', 'WPIW', 'WPIW', 'WPIW', 'WPIW', 'WPIW', 'WPIW',
+                'WTHP', 'WTHP', 'WTHP', 'WTHP', 'WTHP', 'WTHP', 'WVIR', 'WVIR',
+                'WVIR', 'WVIR', 'WVIR', 'WVIR', 'WVIT', 'WVIT', 'WVIT', 'WVIT',
+                'WVIT', 'WVIT', 'WVPR', 'WVPR', 'WVPR', 'WVPR', 'WVPR', 'WVPR',
+                'WVPT', 'WVPT', 'WVPT', 'WVPT', 'WVPT', 'WVPT', 'WWGR', 'WWGR',
+                'WWGR', 'WWGR', 'WWGR', 'WWGR', 'WWIT', 'WWIT', 'WWIT', 'WWIT',
+                'WWIT', 'WWIT', 'WWPT', 'WWPT', 'WWPT', 'WWPT', 'WWPT', 'WWPT',
+                'WBHT', 'WBHT', 'WBHT', 'WBHT', 'WBHT', 'WBHT', 'WBP', 'WBP',
+                'WBP', 'WBP', 'WBP', 'WBP', 'WWCT', 'WWCT', 'WWCT', 'WWCT',
+                'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT',
+                'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT',
+                'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT', 'WWCT'
+                ]
+
+        padd = lambda str_len : (lambda s : s + (" " * (max(0, str_len-len(s)))))
+        self.assertEqual(map(padd(8), keywords_from_file), keywords_loaded)
+
+        # Names
+        self.assertTrue( "NAMES" in f )
+        names_loaded = list(f["NAMES"][0])
+        names_from_file = [
+                '', '', 'AQFR_1', 'AQFR_1', 'AQFR_1', 'AQFR_2', 'AQFR_2',
+                'AQFR_2', 'AQFR_3', 'AQFR_3', 'AQFR_3', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD', 'FIELD',
+                'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE',
+                'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD',
+                'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO',
+                'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE',
+                'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD',
+                'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO',
+                'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE', 'TWO', 'FIELD', 'ONE',
+                'TWO', 'FIELD', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8',
+                'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI',
+                'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6',
+                'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD',
+                'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4',
+                'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8',
+                'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI',
+                'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6',
+                'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD',
+                'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4',
+                'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8',
+                'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI',
+                'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6',
+                'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD',
+                'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4',
+                'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8',
+                'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI',
+                'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6',
+                'I8', 'HWELL_PROD', 'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD',
+                'GI', 'I2', 'I4', 'I6', 'I8', 'HWELL_PROD', 'GI', 'I2', 'I4',
+                'I6', 'I8', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+',
+                ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+',
+                ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+',
+                ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+',
+                ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+',
+                ':+:+:+:+', ':+:+:+:+', ':+:+:+:+', ':+:+:+:+'
+                ]
+
+        self.assertEqual(map(padd(10), names_from_file), names_loaded)

@@ -19,9 +19,9 @@ try:
 except ImportError:
     from unittest import skipIf
 
-from ert.ecl import EclGrid, EclDataType , EclKW
-from ert.test import ExtendedTestCase
-from ert.ecl.faults import FaultBlock, FaultBlockLayer
+from ecl.ecl import EclGrid, EclDataType , EclKW
+from ecl.test import ExtendedTestCase
+from ecl.ecl.faults import FaultBlock, FaultBlockLayer
 
 class FaultBlockTest(ExtendedTestCase):
     def setUp(self):

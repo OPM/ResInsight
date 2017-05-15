@@ -55,7 +55,7 @@ class CFILE(BaseCClass):
         If the supplied argument is not of type py_file the function
         will raise a TypeException.
 
-        Examples: ert.ecl.ecl_kw.EclKW.fprintf_grdecl()
+        Examples: ecl.ecl.ecl_kw.EclKW.fprintf_grdecl()
         """
         c_ptr = self._as_file(py_file)
         try:

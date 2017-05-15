@@ -1,6 +1,6 @@
-from ert.test import ExtendedTestCase
-from ert.util import UIReturn
-from ert.util.enums import UIReturnStatusEnum
+from ecl.test import ExtendedTestCase
+from ecl.util import UIReturn
+from ecl.util.enums import UIReturnStatusEnum
 
 
 class UIReturnTest(ExtendedTestCase):

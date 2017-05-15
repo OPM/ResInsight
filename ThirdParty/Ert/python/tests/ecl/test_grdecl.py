@@ -16,8 +16,8 @@
 #  for more details. 
 
 import os
-from ert.ecl import EclKW,EclGrid,Ecl3DKW
-from ert.test import ExtendedTestCase
+from ecl.ecl import EclKW,EclGrid,Ecl3DKW
+from ecl.test import ExtendedTestCase
 
 
 

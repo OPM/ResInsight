@@ -20,9 +20,9 @@ except ImportError:
     from unittest import skipIf
 
 import time
-from ert.ecl.faults import FaultCollection, Fault, FaultLine, FaultSegment
-from ert.ecl import EclGrid, EclKW, EclDataType
-from ert.test import ExtendedTestCase
+from ecl.ecl.faults import FaultCollection, Fault, FaultLine, FaultSegment
+from ecl.ecl import EclGrid, EclKW, EclDataType
+from ecl.test import ExtendedTestCase
 
 
 

@@ -1,6 +1,6 @@
 import sys
 import os
-from ert.test import ExtendedTestCase
+from ecl.test import ExtendedTestCase
 
 try:
     from synthesizer import OilSimulator

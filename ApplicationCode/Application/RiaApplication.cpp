@@ -348,7 +348,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Open the project file and read the serialized data. 
     // Will initialize itself.
 
-    if (!QFile::exists(projectFileName))
+    if (!caf::Utils::fileExists(projectFileName))
     {
         RiaLogging::info(QString("File does not exist : '%1'").arg(projectFileName));
         return false;
@@ -714,7 +714,7 @@ bool RiaApplication::saveProject()
 {
     CVF_ASSERT(m_project.notNull());
 
-    if (!QFile::exists(m_project->fileName()))
+    if (!caf::Utils::fileExists(m_project->fileName()))
     {
         return saveProjectPromptForFileName();
     }
@@ -940,7 +940,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 {
-    if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -1113,7 +1113,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 {
-   if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -1479,14 +1479,14 @@ bool RiaApplication::parseArguments()
         foreach (QString caseName, caseNames)
         {
             QString caseFileNameWithExt = caseName + ".EGRID";
-            if (QFile::exists(caseFileNameWithExt))
+            if (!caf::Utils::fileExists(caseFileNameWithExt))
             {
                 openEclipseCaseFromFile(caseFileNameWithExt);
             }
             else
             {
                 caseFileNameWithExt = caseName + ".GRID";
-                if (QFile::exists(caseFileNameWithExt))
+                if (!caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
                 }
@@ -2135,7 +2135,7 @@ void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile(const QString& fileName)
 {
-    if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     bool loadingSucceded = false;
 

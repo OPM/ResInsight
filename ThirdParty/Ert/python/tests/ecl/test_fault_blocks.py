@@ -18,10 +18,10 @@ from __future__ import print_function
 from unittest import skipIf
 import warnings
 
-from ert.ecl import EclGrid, EclKW , EclRegion, EclDataType
-from ert.ecl.faults import FaultBlock, FaultBlockLayer, FaultBlockCell,FaultCollection
-from ert.geo import Polyline , CPolylineCollection
-from ert.test import ExtendedTestCase , TestAreaContext
+from ecl.ecl import EclGrid, EclKW , EclRegion, EclDataType
+from ecl.ecl.faults import FaultBlock, FaultBlockLayer, FaultBlockCell,FaultCollection
+from ecl.geo import Polyline , CPolylineCollection
+from ecl.test import ExtendedTestCase , TestAreaContext
 
 
 class FaultBlockTest(ExtendedTestCase):

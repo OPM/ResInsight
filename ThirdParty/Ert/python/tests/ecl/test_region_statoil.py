@@ -14,9 +14,9 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from ert.ecl import EclFile, EclGrid, EclRegion
-from ert.ecl.faults import Layer
-from ert.test import ExtendedTestCase
+from ecl.ecl import EclFile, EclGrid, EclRegion
+from ecl.ecl.faults import Layer
+from ecl.test import ExtendedTestCase
 
 
 class RegionTest(ExtendedTestCase):

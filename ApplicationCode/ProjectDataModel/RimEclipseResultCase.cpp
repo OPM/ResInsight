@@ -41,6 +41,7 @@
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
+#include "cafUtils.h"
 
 #include <QDir>
 #include <QFile>
@@ -100,7 +101,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
     }
     else
     {
-        if (!QFile::exists(caseFileName()))
+        if (!caf::Utils::fileExists(caseFileName()))
         {
             return false;
         }
@@ -174,7 +175,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
     }
     else
     {
-        if (!QFile::exists(caseFileName()))
+        if (!caf::Utils::fileExists(caseFileName()))
         {
             return false;
         }

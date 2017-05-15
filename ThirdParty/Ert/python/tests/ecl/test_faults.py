@@ -17,12 +17,12 @@
 
 from unittest import skipIf
 import time
-from ert import util
+from ecl import util
 
-from ert.ecl.faults import FaultCollection, Fault, FaultLine, FaultSegment,FaultBlockLayer
-from ert.ecl import EclGrid, EclKW, EclDataType
-from ert.test import ExtendedTestCase, TestAreaContext
-from ert.geo import Polyline , CPolyline
+from ecl.ecl.faults import FaultCollection, Fault, FaultLine, FaultSegment,FaultBlockLayer
+from ecl.ecl import EclGrid, EclKW, EclDataType
+from ecl.test import ExtendedTestCase, TestAreaContext
+from ecl.geo import Polyline , CPolyline
 
 
 class FaultTest(ExtendedTestCase):

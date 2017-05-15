@@ -1,5 +1,5 @@
 from cwrap import BaseCEnum
-from ert.test import ExtendedTestCase
+from ecl.test import ExtendedTestCase
 
 
 

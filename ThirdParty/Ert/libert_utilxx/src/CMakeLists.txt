@@ -8,7 +8,7 @@ set( header_files
 )
 
 
-add_library( ert_utilxx ${LIBRARY_TYPE} ${source_files} )
+add_library( ert_utilxx ${source_files} )
 set_target_properties( ert_utilxx PROPERTIES VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR} SOVERSION ${ERT_VERSION_MAJOR})
 if (USE_RUNPATH)
    add_runpath( ert_utilxx )

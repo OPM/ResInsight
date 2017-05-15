@@ -46,7 +46,7 @@ size_t RigEclCellIndexCalculator::resultCellIndex(size_t gridIndex, size_t gridC
 /// 
 //==================================================================================================
 
-//#define USE_WELL_PHASE_RATES
+#define USE_WELL_PHASE_RATES
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -105,6 +105,9 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 
     calculateAccumulatedFlowPrConnection(0, 1);
     calculateFlowPrPseudoLength(0, 0.0);
+#ifdef USE_WELL_PHASE_RATES
+    sortTracers();
+#endif
 }
 
 //--------------------------------------------------------------------------------------------------

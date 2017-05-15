@@ -1,5 +1,5 @@
-from ert.test import ExtendedTestCase
-from ert.util import SubstitutionList
+from ecl.test import ExtendedTestCase
+from ecl.util import SubstitutionList
 
 
 class SubstitutionListTest(ExtendedTestCase):

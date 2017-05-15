@@ -24,11 +24,11 @@ try:
 except ImportError:
     from unittest import skipIf, skipUnless, skipIf
 
-from ert.ecl import EclSum
-from ert.ecl import EclNPV , NPVPriceVector
+from ecl.ecl import EclSum
+from ecl.ecl import EclNPV , NPVPriceVector
 
-from ert.util import StringList, TimeVector, DoubleVector , CTime
-from ert.test import ExtendedTestCase , TestAreaContext
+from ecl.util import StringList, TimeVector, DoubleVector , CTime
+from ecl.test import ExtendedTestCase , TestAreaContext
 
 
 base = "ECLIPSE"

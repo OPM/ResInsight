@@ -37,6 +37,8 @@
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_units.h>
+#include <ert/ecl/ecl_util.h>
 
 #include <ert/ecl_well/well_const.h>
 #include <ert/ecl_well/well_conn.h>
@@ -173,7 +175,7 @@ struct well_state_struct {
   double           gas_rate;
   double           water_rate;
   double           volume_rate;
-
+  ert_ecl_unit_enum unit_system;
 
   hash_type      * connections;                                                       // hash<grid_name,well_conn_collection>
   well_segment_collection_type * segments;
@@ -210,7 +212,7 @@ well_state_type * well_state_alloc(const char * well_name , int global_well_nr ,
   well_state->gas_rate = 0;
   well_state->water_rate = 0;
   well_state->volume_rate = 0;
-
+  well_state->unit_system = ECL_METRIC_UNITS;
 
   /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
   if ((type == ECL_WELL_ZERO) && open)
@@ -240,17 +242,44 @@ double well_state_get_volume_rate( const well_state_type * well_state) {
 }
 
 double well_state_get_oil_rate_si( const well_state_type * well_state ) {
-  return well_state->oil_rate;
+  double conversion_factor = 1;
+
+  if (well_state->unit_system == ECL_METRIC_UNITS)
+    conversion_factor = 1.0 / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_FIELD_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_BARREL / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_LAB_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_MILLI_LITER / ECL_UNITS_TIME_HOUR;
+
+  return well_state->oil_rate * conversion_factor;
 }
 
 
 double well_state_get_gas_rate_si( const well_state_type * well_state ) {
-  return well_state->gas_rate;
+  double conversion_factor = 1;
+
+  if (well_state->unit_system == ECL_METRIC_UNITS)
+    conversion_factor = 1.0 / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_FIELD_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_GAS_FIELD / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_LAB_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_MILLI_LITER / ECL_UNITS_TIME_HOUR;
+
+  return well_state->gas_rate * conversion_factor;
 }
 
 
 double well_state_get_water_rate_si( const well_state_type * well_state) {
-  return well_state->water_rate;
+  double conversion_factor = 1;
+
+  if (well_state->unit_system == ECL_METRIC_UNITS)
+    conversion_factor = 1.0 / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_FIELD_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_BARREL / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_LAB_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_MILLI_LITER / ECL_UNITS_TIME_HOUR;
+
+  return well_state->water_rate * conversion_factor;
 }
 
 double well_state_get_volume_rate_si( const well_state_type * well_state) {
@@ -278,6 +307,7 @@ static bool well_state_add_rates( well_state_type * well_state ,
     ecl_rsthead_type *header = ecl_rsthead_alloc(rst_view, -1);
     int offset = header->nxwelz * well_nr;
 
+    well_state->unit_system = header->unit_system;
     well_state->oil_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RES_ORAT_ITEM);
     well_state->gas_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RES_GRAT_ITEM);
     well_state->water_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RES_WRAT_ITEM);
@@ -607,6 +637,13 @@ const well_conn_type * well_state_iget_wellhead( const well_state_type * well_st
 const well_conn_type * well_state_get_wellhead( const well_state_type * well_state , const char * grid_name) {
   if (hash_has_key( well_state->name_wellhead , grid_name))
     return hash_get( well_state->name_wellhead , grid_name );
+  else
+    return NULL;
+}
+
+const well_conn_type * well_state_get_global_wellhead( const well_state_type * well_state ) {
+  if (hash_has_key( well_state->name_wellhead , ECL_GRID_GLOBAL_GRID))
+    return hash_get( well_state->name_wellhead , ECL_GRID_GLOBAL_GRID );
   else
     return NULL;
 }

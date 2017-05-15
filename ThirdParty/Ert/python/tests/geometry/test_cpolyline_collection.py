@@ -1,9 +1,9 @@
 import gc
 
-from ert.geo import CPolylineCollection , CPolyline
-from ert.geo.xyz_io import XYZIo
-from ert.test import ExtendedTestCase , TestAreaContext
-from ert.util import DoubleVector
+from ecl.geo import CPolylineCollection , CPolyline
+from ecl.geo.xyz_io import XYZIo
+from ecl.test import ExtendedTestCase , TestAreaContext
+from ecl.util import DoubleVector
 
 class CPolylineCollectionTest(ExtendedTestCase):
 

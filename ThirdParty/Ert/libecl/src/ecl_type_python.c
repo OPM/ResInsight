@@ -36,8 +36,8 @@ ecl_type_enum ecl_type_get_type_python(const ecl_data_type * ecl_type) {
     return ecl_type_get_type(*ecl_type);
 }
 
-const char * ecl_type_get_name_python(const ecl_data_type * ecl_type) {
-    return ecl_type_get_name(*ecl_type);
+const char * ecl_type_alloc_name_python(const ecl_data_type * ecl_type) {
+    return ecl_type_alloc_name(*ecl_type);
 }
 
 int ecl_type_get_sizeof_ctype_fortio_python(const ecl_data_type * ecl_type) {
@@ -81,8 +81,8 @@ bool ecl_type_is_bool_python(const ecl_data_type * ecl_type) {
     return ecl_type_is_bool(*ecl_type);
 }
 
-bool ecl_type_is_C010_python(const ecl_data_type * ecl_type) {
-    return ecl_type_is_C010(*ecl_type);
+bool ecl_type_is_string_python(const ecl_data_type * ecl_type) {
+    return ecl_type_is_string(*ecl_type);
 }
 
 /**

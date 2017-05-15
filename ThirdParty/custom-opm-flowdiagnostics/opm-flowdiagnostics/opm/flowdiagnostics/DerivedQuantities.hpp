@@ -50,6 +50,14 @@ namespace FlowDiagnostics
                                            const Toolbox::Reverse& producer_solution,
                                            const std::vector<double>& pore_volume);
 
+    /// This overload gets the injector and producer time-of-flight
+    /// directly instead of extracting it from the solution
+    /// objects. It otherwise behaves identically to the other
+    /// overload.
+    Graph flowCapacityStorageCapacityCurve(const std::vector<double>& injector_tof,
+                                           const std::vector<double>& producer_tof,
+                                           const std::vector<double>& pore_volume);
+
     /// The Lorenz coefficient from the F-Phi curve.
     ///
     /// The Lorenz coefficient is a measure of heterogeneity. It

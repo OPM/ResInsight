@@ -14,10 +14,6 @@ add_executable( ecl_kw_init ecl_kw_init.c )
 target_link_libraries( ecl_kw_init ecl  )
 add_test( ecl_kw_init ${EXECUTABLE_OUTPUT_PATH}/ecl_kw_init  )
 
-add_executable( ecl_kw_ix_types ecl_kw_ix_types.c )
-target_link_libraries( ecl_kw_ix_types ecl  )
-add_test( ecl_kw_ix_types ${EXECUTABLE_OUTPUT_PATH}/ecl_kw_ix_types  )
-
 add_executable( ecl_grid_init_fwrite ecl_grid_init_fwrite.c )
 target_link_libraries( ecl_grid_init_fwrite ecl  )
 add_test( ecl_grid_init_fwrite ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_init_fwrite  )

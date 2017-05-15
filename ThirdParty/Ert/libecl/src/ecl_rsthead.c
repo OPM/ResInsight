@@ -233,3 +233,13 @@ void ecl_rsthead_fprintf_struct( const ecl_rsthead_type * header , FILE * stream
 void ecl_rsthead_free( ecl_rsthead_type * rsthead ) {
   free( rsthead );
 }
+
+
+int ecl_rsthead_get_nxconz( const ecl_rsthead_type * rsthead ) {
+  return rsthead->nxconz;
+}
+
+
+int ecl_rsthead_get_ncwmax( const ecl_rsthead_type * rsthead ) {
+  return rsthead->ncwmax;
+}

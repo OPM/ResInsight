@@ -9,9 +9,9 @@ set(TEST_SOURCES
 
 add_python_package("python.tests.cwrap" ${PYTHON_INSTALL_PREFIX}/tests/cwrap "${TEST_SOURCES}" False)
 
-addPythonTest(cwrap.basecclass tests.cwrap.test_basecclass.BaseCClassTest)
-addPythonTest(cwrap.basecenum tests.cwrap.test_basecenum.BaseCEnumTest)
-addPythonTest(cwrap.basecvalue tests.cwrap.test_basecvalue.BaseCValueTest)
-addPythonTest(cwrap.metacwrap tests.cwrap.test_metawrap.MetaWrapTest)
-addPythonTest(cwrap.cfile tests.cwrap.test_cfile.CFILETest)
+addPythonTest(tests.cwrap.test_basecclass.BaseCClassTest)
+addPythonTest(tests.cwrap.test_basecenum.BaseCEnumTest)
+addPythonTest(tests.cwrap.test_basecvalue.BaseCValueTest)
+addPythonTest(tests.cwrap.test_metawrap.MetaWrapTest)
+addPythonTest(tests.cwrap.test_cfile.CFILETest)
 

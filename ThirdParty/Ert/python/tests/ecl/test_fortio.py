@@ -16,8 +16,8 @@
 #  for more details.
 import os
 from random import randint
-from ert.ecl import FortIO, EclDataType, EclKW , openFortIO, EclFile
-from ert.test import ExtendedTestCase, TestAreaContext
+from ecl.ecl import FortIO, EclDataType, EclKW , openFortIO, EclFile
+from ecl.test import ExtendedTestCase, TestAreaContext
 
 
 

@@ -39,6 +39,8 @@
 
 #include "RivWellPathPartMgr.h"
 
+#include "cafUtils.h"
+
 #include "cafPdmUiTreeOrdering.h"
 
 #include <QDateTime>
@@ -382,7 +384,7 @@ void RimWellPath::updateFilePathsFromProjectPath(const QString& newProjectPath, 
     {
         QString newCacheFileName = getCacheFileName();
 
-        if (QFile::exists(newCacheFileName))
+        if (caf::Utils::fileExists(newCacheFileName))
         {
             filepath = newCacheFileName;
         }
