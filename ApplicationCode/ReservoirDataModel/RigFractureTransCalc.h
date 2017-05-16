@@ -31,6 +31,7 @@
 
 #include <vector>
 #include <QString>
+#include "RigFracture.h"
 
 class RimFracture;
 class RimEclipseCase;
@@ -47,11 +48,11 @@ public:
     explicit RigFractureTransCalc(RimEclipseCase* caseToApply, RimFracture* fracture);
 
     // Calculations based on fracture polygon and eclipse grid cells
-    void                        computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
+    std::vector<RigFracturedEclipseCellExportData> computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
 
     // Functions needed for upscaling from StimPlan grid to Eclipse Grid, for transmissibility calculations on eclipse grid
     // Obsolete if final calculations will be done on the stimPlan grid
-    void                        computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);  
+    std::vector<RigFracturedEclipseCellExportData> computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);  
 
     // Calculations based on StimPlan grid
     static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, double sideLengthParallellTrans, double sideLengthNormalTrans);

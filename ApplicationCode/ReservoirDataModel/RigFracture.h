@@ -89,12 +89,7 @@ public:
 
     const std::vector<cvf::uint>&  triangleIndices() const;
     const std::vector<cvf::Vec3f>& nodeCoords() const;
-
-    void setFractureData(const std::vector<RigFracturedEclipseCellExportData>& data);
-    const std::vector<RigFracturedEclipseCellExportData>& fractureData() const; //Access frac data
-
-    std::vector<RigFracturedEclipseCellExportData> m_fractureData;
-
+ 
     void addStimPlanCellFractureCell(RigStimPlanFractureCell fracStimPlanCellData);
 
 private:

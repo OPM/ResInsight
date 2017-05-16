@@ -114,13 +114,16 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     
     RiaLogging::debug(QString("Writing intermediate results from COMPDAT calculation"));
 
+    std::map<RimFracture*, std::vector<RigFracturedEclipseCellExportData> > exportDataPrFracture;
+
     for (RimFracture* fracture : fractures)
     {
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
 
         //TODO: Check that there is a fracture template available for given fracture....
-        transmissibilityCalculator.computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
-        std::vector<RigFracturedEclipseCellExportData> fracDataVector = fracture->attachedRigFracture()->fractureData();
+
+        std::vector<RigFracturedEclipseCellExportData> fracDataVector = transmissibilityCalculator.computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
+        exportDataPrFracture[fracture] = fracDataVector;
 
         for (RigFracturedEclipseCellExportData fracData : fracDataVector)
         {
@@ -134,13 +137,13 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     for (RimFracture* fracture : fractures)
     {
         RiaLogging::debug(QString("Writing COMPDAT values for fracture %1").arg(fracture->name()));
-        std::vector<RigFracturedEclipseCellExportData> fracDataVector = fracture->attachedRigFracture()->fractureData();
+        std::vector<RigFracturedEclipseCellExportData> fracDataVector = exportDataPrFracture[fracture];
 
         for (RigFracturedEclipseCellExportData fracData : fracDataVector)
         {
-            if (fracData.transmissibility > 0)
+            if ( fracData.transmissibility > 0 )
             {
-            printCOMPDATvalues(out, fracData, fracture, wellPath, simWell, mainGrid);
+                printCOMPDATvalues(out, fracData, fracture, wellPath, simWell, mainGrid);
             }
         }
         
@@ -161,20 +164,18 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 //--------------------------------------------------------------------------------------------------
 void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
-
-
     //TODO: Get these more generally: 
+
     QString resultName = "CONDUCTIVITY";
     QString resultUnit = "md-m";
     size_t timeStepIndex = 0;
 
-
-
     for (RimFracture* fracture : fractures) //For testing upscaling...
     {
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
-        transmissibilityCalculator.computeUpscaledPropertyFromStimPlan(resultName, resultUnit, timeStepIndex);
-        std::vector<RigFracturedEclipseCellExportData> fracDataVector = fracture->attachedRigFracture()->fractureData();
+        
+        std::vector<RigFracturedEclipseCellExportData> fracDataVector;
+        fracDataVector = transmissibilityCalculator.computeUpscaledPropertyFromStimPlan(resultName, resultUnit, timeStepIndex);
 
         out << qSetFieldWidth(4);
         out << "-- ";
@@ -184,7 +185,6 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 
         out << qSetFieldWidth(16);
         out << "Fracture name ";
-
 
         out << qSetFieldWidth(5);
         out << "i";          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition

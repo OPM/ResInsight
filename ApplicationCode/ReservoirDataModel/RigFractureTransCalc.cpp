@@ -82,7 +82,7 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
 //--------------------------------------------------------------------------------------------------
 /// TODO: Document equation
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture()
+std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture()
 {
     if (m_fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
     {
@@ -242,7 +242,7 @@ void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConduct
 
     }
 
-    m_fracture->setFractureData(fracDataVec);
+    return fracDataVec;
 }
 
 
@@ -526,23 +526,26 @@ double RigFractureTransCalc::arithmeticAverage(std::vector<double> values)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultName, QString resultUnit, size_t timeStepIndex)
+std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultName, QString resultUnit, size_t timeStepIndex)
 {
-
+    std::vector<RigFracturedEclipseCellExportData> fracDataVec;
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
     {
         fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
     }
-    else return;
-
+    else 
+    {
+        return fracDataVec;
+    }
 
     std::vector<std::vector<cvf::Vec3d> > stimPlanCellsAsPolygons;
     std::vector<double> stimPlanParameterValues;
     fracTemplateStimPlan->getStimPlanDataAsPolygonsAndValues(stimPlanCellsAsPolygons, stimPlanParameterValues, resultName, resultUnit, timeStepIndex);
 
     //TODO: A lot of common code with function above... Can be cleaned up...?
+
     std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
     RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
@@ -550,11 +553,8 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
-    std::vector<RigFracturedEclipseCellExportData> fracDataVec;
-
     for (size_t fracCell : fracCells)
     {
-
         RigFracturedEclipseCellExportData fracData;
         fracData.reservoirCellIndex = fracCell;
             
@@ -572,13 +572,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
         }
     }
 
-
-    //TODO: Hvis fracture allerede har en sånn vektor, trenger vi vel ikke en til for RigFractureTransCalc...? 
-    //Trenger bare funksjoner for å sette / hente ut data for en gitt Eclipse celle... 
-    m_fracture->setFractureData(fracDataVec);
-
-
-
+    return fracDataVec;
 }
 
 

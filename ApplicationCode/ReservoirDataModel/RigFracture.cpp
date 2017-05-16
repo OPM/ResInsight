@@ -79,22 +79,6 @@ const std::vector<cvf::Vec3f>& RigFracture::nodeCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFracture::setFractureData(const std::vector<RigFracturedEclipseCellExportData>& data)
-{
-    m_fractureData = data;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<RigFracturedEclipseCellExportData>& RigFracture::fractureData() const
-{
-    return m_fractureData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RigFracture::addStimPlanCellFractureCell(RigStimPlanFractureCell fracStimPlanCellData)
 {
     m_stimPlanCellsFractureData.push_back(fracStimPlanCellData);
