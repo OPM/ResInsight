@@ -37,7 +37,7 @@ public:
 
     virtual ~RigStimPlanFracTemplateCell();
 
-    std::vector<cvf::Vec3d> getPolygon() { return m_polygon; }
+    std::vector<cvf::Vec3d> getPolygon() const { return m_polygon; }
     double                  getConductivtyValue() const { return m_concutivityValue; }
     double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() { return m_i; }
