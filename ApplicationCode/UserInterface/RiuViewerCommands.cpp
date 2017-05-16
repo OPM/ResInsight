@@ -293,12 +293,18 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
+                double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
+                cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
+                RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
                 commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicNewWellLogFileCurveFeature";
                 commandIds << "Separator";
                 commandIds << "RicNewWellPathIntersectionFeature";
+                commandIds << "RicNewFishbonesSubsAtMeasuredDepthFeature";
             }
         }
 
