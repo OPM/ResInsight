@@ -52,7 +52,7 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void                                  exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult);
+    static void                                  exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult, bool removeLateralsInMainBoreCells);
     static std::vector<size_t>                   findCloseCells(const RigEclipseCaseData* caseData, const cvf::BoundingBox& bb);
     static std::vector<EclipseCellIndexRange>    getCellIndexRange(const RigMainGrid* grid, const std::vector<size_t>& cellIndices);
     static bool                                  cellOrdering(const EclipseCellIndex& cell1, const EclipseCellIndex& cell2);

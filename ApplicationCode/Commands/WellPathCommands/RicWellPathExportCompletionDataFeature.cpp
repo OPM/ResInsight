@@ -88,7 +88,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
 
-        exportToFolder(objects[0], exportSettings.fileName, exportSettings.caseToApply, exportSettings.includeWpimult());
+        exportToFolder(objects[0], exportSettings.fileName, exportSettings.caseToApply, exportSettings.includeWpimult(), exportSettings.removeLateralsInMainBoreCells());
     }
 }
 
@@ -103,7 +103,7 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult)
+void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult, bool removeLateralsInMainBoreCells)
 {
     QFile exportFile(fileName);
 
@@ -112,7 +112,7 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
         RiaLogging::error("Export Completions Data: Cannot export completions data without specified eclipse case");
         return;
     }
-    
+
     if (!exportFile.open(QIODevice::WriteOnly))
     {
         RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(fileName));
@@ -122,7 +122,13 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
     QTextStream stream(&exportFile);
 
     const RigEclipseCaseData* caseData = caseToApply->eclipseCaseData();
-    std::vector<size_t> wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+
+    std::vector<size_t> wellPathCells;
+    if (removeLateralsInMainBoreCells)
+    {
+        wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+    }
+
     std::map<size_t, double> lateralsPerCell;
 
     RifEclipseOutputTableFormatter formatter(stream);
@@ -165,9 +171,12 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
                         addLateralToCells(&lateralsPerCell, lateralCells);
                     }
 
-                    std::vector<size_t> cellsUniqueToLateral = filterWellPathCells(lateralCells, wellPathCells);
+                    if (removeLateralsInMainBoreCells)
+                    {
+                        lateralCells = filterWellPathCells(lateralCells, wellPathCells);
+                    }
 
-                    std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(caseData->mainGrid(), cellsUniqueToLateral);
+                    std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(caseData->mainGrid(), lateralCells);
 
                     formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(subs->name()).arg(subIndex).arg(lateralIndex));
                     for (auto cellRange : cellRanges)

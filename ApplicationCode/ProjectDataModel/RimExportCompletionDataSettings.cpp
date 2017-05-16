@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-//  Copyright (C) 2017-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,4 +28,5 @@ RimExportCompletionDataSettings::RimExportCompletionDataSettings()
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&includeWpimult, "IncludeWPIMULT", "Include WPIMLUT", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", "Remove Laterals in Main Bore Cells", "", "", "");
 }

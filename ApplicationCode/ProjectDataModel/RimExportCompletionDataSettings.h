@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-//  Copyright (C) 2017-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -35,4 +34,5 @@ public:
     RimExportCompletionDataSettings();
 
     caf::PdmField<bool>                     includeWpimult;
+    caf::PdmField<bool>                     removeLateralsInMainBoreCells;
 };
