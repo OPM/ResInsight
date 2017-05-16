@@ -25,7 +25,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimFishbonesMultipleSubs.h"
-#include "RimCaseAndFileExportSettings.h"
+#include "RimExportCompletionDataSettings.h"
 
 #include "RiuMainWindow.h"
 
@@ -78,7 +78,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    RimCaseAndFileExportSettings exportSettings;
+    RimExportCompletionDataSettings exportSettings;
 
     exportSettings.fileName = QDir(defaultDir).filePath("Completions");
 
@@ -91,7 +91,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
 
-        exportToFolder(objects[0], exportSettings.fileName, exportSettings.caseToApply);
+        exportToFolder(objects[0], exportSettings.fileName, exportSettings.caseToApply, exportSettings.includeWpimult());
     }
 }
 
@@ -106,9 +106,15 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply)
+void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult)
 {
     QFile exportFile(fileName);
+
+    if (caseToApply == nullptr)
+    {
+        RiaLogging::error("Export Completions Data: Cannot export completions data without specified eclipse case");
+        return;
+    }
     
     if (!exportFile.open(QIODevice::WriteOnly))
     {
@@ -120,55 +126,90 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
 
     const RigEclipseCaseData* caseData = caseToApply->eclipseCaseData();
     std::vector<size_t> wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+    std::map<size_t, double> lateralsPerCell;
 
     RifEclipseOutputTableFormatter formatter(stream);
-    std::vector<RifEclipseOutputTableColumn> header = {
-        RifEclipseOutputTableColumn{"Well", LEFT},
-        RifEclipseOutputTableColumn{"I", LEFT},
-        RifEclipseOutputTableColumn{"J", LEFT},
-        RifEclipseOutputTableColumn{"K1", LEFT},
-        RifEclipseOutputTableColumn{"K2", LEFT},
-        RifEclipseOutputTableColumn{"Status", LEFT},
-        RifEclipseOutputTableColumn{"SAT", LEFT},
-        RifEclipseOutputTableColumn{"TR", LEFT},
-        RifEclipseOutputTableColumn{"DIAM", LEFT},
-        RifEclipseOutputTableColumn{"KH", LEFT},
-        RifEclipseOutputTableColumn{"S", LEFT},
-        RifEclipseOutputTableColumn{"Df", LEFT},
-        RifEclipseOutputTableColumn{"DIR", LEFT},
-        RifEclipseOutputTableColumn{"r0", LEFT}
-    };
 
-    formatter.keyword("COMPDAT");
-    formatter.header(header);
-
-    for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesSubs)
+    // COMPDAT
     {
-        for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn{"Well", LEFT},
+            RifEclipseOutputTableColumn{"I", LEFT},
+            RifEclipseOutputTableColumn{"J", LEFT},
+            RifEclipseOutputTableColumn{"K1", LEFT},
+            RifEclipseOutputTableColumn{"K2", LEFT},
+            RifEclipseOutputTableColumn{"Status", LEFT},
+            RifEclipseOutputTableColumn{"SAT", LEFT},
+            RifEclipseOutputTableColumn{"TR", LEFT},
+            RifEclipseOutputTableColumn{"DIAM", LEFT},
+            RifEclipseOutputTableColumn{"KH", LEFT},
+            RifEclipseOutputTableColumn{"S", LEFT},
+            RifEclipseOutputTableColumn{"Df", LEFT},
+            RifEclipseOutputTableColumn{"DIR", LEFT},
+            RifEclipseOutputTableColumn{"r0", LEFT}
+        };
+
+        formatter.keyword("COMPDAT");
+        formatter.header(header);
+
+        for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesSubs)
         {
-            for (size_t lateralIndex = 0; lateralIndex < subs->lateralLengths().size(); ++lateralIndex)
+            for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
             {
-                std::vector<cvf::Vec3d> lateralCoords = subs->coordsForLateral(subIndex, lateralIndex);
-
-                std::vector<size_t> lateralCells = findIntersectingCells(caseData, lateralCoords);
-                
-                std::vector<size_t> cellsUniqueToLateral = filterWellPathCells(lateralCells, wellPathCells);
-
-                std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(caseData->mainGrid(), cellsUniqueToLateral);
-
-                formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(subs->name()).arg(subIndex).arg(lateralIndex));
-                for (auto cellRange : cellRanges)
+                for (size_t lateralIndex = 0; lateralIndex < subs->lateralLengths().size(); ++lateralIndex)
                 {
-                    // Add cell indices
-                    formatter.add(wellPath->name()).addZeroBasedCellIndex(cellRange.i).addZeroBasedCellIndex(cellRange.j).addZeroBasedCellIndex(cellRange.k1).addZeroBasedCellIndex(cellRange.k2);
-                    // Remaining data, to be computed
-                    formatter.add("'OPEN'").add("1*").add("1*").add(0.0).add("1*").add("1*").add("1*").add("'Z'").add("1*");
-                    formatter.rowCompleted();
+                    std::vector<cvf::Vec3d> lateralCoords = subs->coordsForLateral(subIndex, lateralIndex);
+
+                    std::vector<size_t> lateralCells = findIntersectingCells(caseData, lateralCoords);
+
+                    if (includeWpimult)
+                    {
+                        // Only need this data if WPIMULT should be included in file
+                        addLateralToCells(&lateralsPerCell, lateralCells);
+                    }
+
+                    std::vector<size_t> cellsUniqueToLateral = filterWellPathCells(lateralCells, wellPathCells);
+
+                    std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(caseData->mainGrid(), cellsUniqueToLateral);
+
+                    formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(subs->name()).arg(subIndex).arg(lateralIndex));
+                    for (auto cellRange : cellRanges)
+                    {
+                        // Add cell indices
+                        formatter.add(wellPath->name()).addZeroBasedCellIndex(cellRange.i).addZeroBasedCellIndex(cellRange.j).addZeroBasedCellIndex(cellRange.k1).addZeroBasedCellIndex(cellRange.k2);
+                        // Remaining data, to be computed
+                        formatter.add("'OPEN'").add("1*").add("1*").add(0.0).add("1*").add("1*").add("1*").add("'Z'").add("1*");
+                        formatter.rowCompleted();
+                    }
                 }
             }
         }
+        formatter.flush();
     }
-    formatter.flush();
+
+    // WPIMULT
+    if (includeWpimult)
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn{"Well", LEFT},
+            RifEclipseOutputTableColumn{"Mult", LEFT},
+            RifEclipseOutputTableColumn{"I", LEFT},
+            RifEclipseOutputTableColumn{"J", LEFT},
+            RifEclipseOutputTableColumn{"K", LEFT},
+        };
+        formatter.keyword("WPIMULT");
+        formatter.header(header);
+
+        for (auto lateralsInCell : lateralsPerCell)
+        {
+            size_t i, j, k;
+            caseData->mainGrid()->ijkFromCellIndex(lateralsInCell.first, &i, &j, &k);
+            formatter.add(wellPath->name()).add(lateralsInCell.second).addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
+            formatter.rowCompleted();
+        }
+
+        formatter.flush();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -349,6 +390,25 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::filterWellPathCells(
     std::vector<size_t> filteredCells;
     std::set_difference(completionCells.begin(), completionCells.end(), wellPathCells.begin(), wellPathCells.end(), std::back_inserter(filteredCells));
     return filteredCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::addLateralToCells(std::map<size_t, double>* lateralsPerCell, const std::vector<size_t>& lateralCells)
+{
+    for (size_t cell : lateralCells)
+    {
+        std::map<size_t, double>::iterator it = lateralsPerCell->find(cell);
+        if (it == lateralsPerCell->end())
+        {
+            (*lateralsPerCell)[cell] = 1;
+        }
+        else
+        {
+            (*lateralsPerCell)[cell] = it->second + 1;
+        }
+    }
 }
 
 } // end namespace caf

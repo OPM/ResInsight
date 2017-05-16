@@ -57,13 +57,14 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void                                  exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply);
+    static void                                  exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult);
     static std::vector<size_t>                   findCloseCells(const RigEclipseCaseData* caseData, const cvf::BoundingBox& bb);
     static std::vector<EclipseCellIndexRange>    getCellIndexRange(const RigMainGrid* grid, const std::vector<size_t>& cellIndices);
     static bool                                  cellOrdering(const EclipseCellIndex& cell1, const EclipseCellIndex& cell2);
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
     static void                                  setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners);
     static std::vector<size_t>                   filterWellPathCells(const std::vector<size_t>& completionCells, const std::vector<size_t>& wellPathCells);
+    static void                                  addLateralToCells(std::map<size_t, double>* lateralsPerCell, const std::vector<size_t>& lateralCells);
 };
 
 

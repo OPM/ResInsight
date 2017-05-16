@@ -74,6 +74,9 @@ void RifEclipseOutputTableFormatter::outputBuffer()
             m_out << " /" << "\n";
         }
     }
+    // If we finished a table, output an "empty" line after it
+    if (!m_columns.empty()) m_out << "/\n";
+    m_columns.clear();
     m_buffer.clear();
 }
 
