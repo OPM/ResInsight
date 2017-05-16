@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigAllGridCellsResultAccessor::RigAllGridCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues)
+RigAllGridCellsResultAccessor::RigAllGridCellsResultAccessor(const RigGridBase* grid, const std::vector<double>* reservoirResultValues)
     : m_grid(grid),
     m_reservoirResultValues(reservoirResultValues)
 {

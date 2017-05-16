@@ -30,7 +30,7 @@ class RigGridBase;
 class RigAllGridCellsResultAccessor : public RigResultAccessor
 {
 public:
-    RigAllGridCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues);
+    RigAllGridCellsResultAccessor(const RigGridBase* grid, const std::vector<double>* reservoirResultValues);
 
     virtual double  cellScalar(size_t gridLocalCellIndex) const;
     virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
@@ -39,7 +39,7 @@ public:
 
 private:
     const RigGridBase*      m_grid;
-    std::vector<double>*    m_reservoirResultValues;
+    const std::vector<double>*    m_reservoirResultValues;
 };
 
 

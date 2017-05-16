@@ -72,7 +72,7 @@ public:
     const RigEclipseCaseData*                   eclipseCaseData() const;
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
-    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel) const ;
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
