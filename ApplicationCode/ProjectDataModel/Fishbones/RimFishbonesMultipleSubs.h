@@ -63,6 +63,7 @@ public:
     double              buildAngle() const;
 
     double              tubingRadius() const;
+    double              holeRadius() const { return m_lateralHoleRadius(); }
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
 

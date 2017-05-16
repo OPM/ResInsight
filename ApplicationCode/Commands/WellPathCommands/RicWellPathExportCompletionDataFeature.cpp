@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -43,9 +42,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
+CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -178,7 +175,10 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
                         // Add cell indices
                         formatter.add(wellPath->name()).addZeroBasedCellIndex(cellRange.i).addZeroBasedCellIndex(cellRange.j).addZeroBasedCellIndex(cellRange.k1).addZeroBasedCellIndex(cellRange.k2);
                         // Remaining data, to be computed
-                        formatter.add("'OPEN'").add("1*").add("1*").add(0.0).add("1*").add("1*").add("1*").add("'Z'").add("1*");
+                        formatter.add("'OPEN'").add("1*").add("1*");
+                        // Diameter (originally in mm) in m
+                        formatter.add(subs->holeRadius() / 1000);
+                        formatter.add("1*").add("1*").add("1*").add("'Z'").add("1*");
                         formatter.rowCompleted();
                     }
                 }
@@ -234,12 +234,6 @@ std::vector<EclipseCellIndexRange> RicWellPathExportCompletionDataFeature::getCe
         size_t i, j, k;
         if (!grid->ijkFromCellIndex(cellIndex, &i, &j, &k)) continue;
         eclipseCellIndices.push_back(std::make_tuple(i, j, k));
-    }
-
-    // Remove any duplicate cells
-    {
-        std::set<EclipseCellIndex> uniqueCellIndices(eclipseCellIndices.begin(), eclipseCellIndices.end());
-        eclipseCellIndices.assign(uniqueCellIndices.begin(), uniqueCellIndices.end());
     }
 
     // Group cell indices in K-ranges
@@ -309,8 +303,8 @@ bool RicWellPathExportCompletionDataFeature::cellOrdering(const EclipseCellIndex
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
 {
-    const std::vector<cvf::Vec3d>& nodeCoords =  caseData->mainGrid()->nodes();
-    std::vector<size_t> cells;
+    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
+    std::set<size_t> cells;
 
     // Find starting cell
     if (coords.size() > 0)
@@ -329,7 +323,7 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
 
             if (RigHexIntersector::isPointInCell(coords[0], hexCorners, closeCell))
             {
-                cells.push_back(closeCell);
+                cells.insert(closeCell);
                 break;
             }
         }
@@ -358,11 +352,15 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
 
         for (auto intersection : intersections)
         {
-            cells.push_back(intersection.m_hexIndex);
+            cells.insert(intersection.m_hexIndex);
         }
     }
-    std::sort(cells.begin(), cells.end());
-    return cells;
+    // Ensure only unique cells are included
+    std::vector<size_t> cellsVector;
+    cellsVector.assign(cells.begin(), cells.end());
+    // Sort cells
+    std::sort(cellsVector.begin(), cellsVector.end());
+    return cellsVector;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,7 +381,7 @@ void RicWellPathExportCompletionDataFeature::setHexCorners(const RigCell& cell, 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RicWellPathExportCompletionDataFeature::filterWellPathCells(const std::vector<size_t>& completionCells, const std::vector<size_t>& wellPathCells)
 {
@@ -410,5 +408,3 @@ void RicWellPathExportCompletionDataFeature::addLateralToCells(std::map<size_t, 
         }
     }
 }
-
-} // end namespace caf

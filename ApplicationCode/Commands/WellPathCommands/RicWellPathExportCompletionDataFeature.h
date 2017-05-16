@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,9 +29,6 @@ class RigEclipseCaseData;
 class RigMainGrid;
 class RigCell;
 
-namespace caf 
-{
-
 struct EclipseCellIndexRange {
     size_t i;
     size_t j;
@@ -45,7 +41,7 @@ typedef std::tuple<size_t, size_t, size_t> EclipseCellIndex;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellPathExportCompletionDataFeature : public CmdFeature
+class RicWellPathExportCompletionDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:
@@ -65,7 +61,3 @@ private:
     static std::vector<size_t>                   filterWellPathCells(const std::vector<size_t>& completionCells, const std::vector<size_t>& wellPathCells);
     static void                                  addLateralToCells(std::map<size_t, double>* lateralsPerCell, const std::vector<size_t>& lateralCells);
 };
-
-
-
-} // end namespace caf
