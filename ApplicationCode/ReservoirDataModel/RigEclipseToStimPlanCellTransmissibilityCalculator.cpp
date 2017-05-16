@@ -26,31 +26,25 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
-
-#include "RiaApplication.h"
 
 #include "cvfGeometryTools.h"
 
-
-
-
-RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
-                                                                                                       cvf::Mat4f fractureTransform, 
-                                                                                                       double skinFactor, 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase* caseToApply,
+                                                                                                       cvf::Mat4f fractureTransform,
+                                                                                                       double skinFactor,
                                                                                                        double cDarcy,
-                                                                                                       const RigStimPlanFracTemplateCell& stimPlanCell) 
-
-    : m_stimPlanCell(stimPlanCell)
+                                                                                                       const RigStimPlanFracTemplateCell& stimPlanCell)
+    : m_case(caseToApply),
+    m_fractureTransform(fractureTransform),
+    m_fractureSkinFactor(skinFactor),
+    m_cDarcy(cDarcy),
+    m_stimPlanCell(stimPlanCell)
 {
-    m_case = caseToApply;
-    m_fractureSkinFactor = skinFactor;
-    m_cDarcy = cDarcy;
-    m_fractureTransform = fractureTransform;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -83,11 +77,10 @@ const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::c
 //--------------------------------------------------------------------------------------------------
 void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
 {
-
-    //Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
+    // Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
     if (m_stimPlanCell.getConductivtyValue() < 1e-7) return;
 
-    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
+    const RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
@@ -109,7 +102,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
     cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
 
-    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+    const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
     std::vector<cvf::Vec3d> stimPlanPolygonTransformed;
     for (cvf::Vec3d v : m_stimPlanCell.getPolygon())
@@ -118,7 +111,6 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         stimPlanPolygonNode.transformPoint(m_fractureTransform);
         stimPlanPolygonTransformed.push_back(static_cast<cvf::Vec3d>(stimPlanPolygonNode));
     }
-
 
     std::vector<size_t> fracCells = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
     for (size_t fracCell : fracCells)
@@ -211,8 +203,6 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-
-
         double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength);
         double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength);
         double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength);
@@ -224,9 +214,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         m_globalIndeciesToContributingEclipseCells.push_back(fracCell);
         m_contributingEclipseCellTransmissibilities.push_back(transmissibility);
-
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,36 +222,28 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon)
 {
-    std::vector<size_t> cellindecies;
+    std::vector<size_t> cellIndices;
 
-    RiaApplication* app = RiaApplication::instance();
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return cellindecies;
-
-    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-    if (!activeRiv) return cellindecies;
-
-    const RigMainGrid* mainGrid = activeRiv->mainGrid();
-    if (!mainGrid) return cellindecies;
+    const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+    if (!mainGrid) return cellIndices;
 
     cvf::BoundingBox polygonBBox;
     for (cvf::Vec3d nodeCoord : polygon) polygonBBox.add(nodeCoord);
 
-    mainGrid->findIntersectingCells(polygonBBox, &cellindecies);
+    mainGrid->findIntersectingCells(polygonBBox, &cellIndices);
 
-    return cellindecies;
+    return cellIndices;
 }
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigEclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons,
-                                                                                       cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ)
+bool RigEclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPolygons(size_t cellindex, 
+                                                                                       std::vector<std::vector<cvf::Vec3d> > & polygons,
+                                                                                       cvf::Vec3d & localX, 
+                                                                                       cvf::Vec3d & localY, 
+                                                                                       cvf::Vec3d & localZ)
 {
-
     cvf::Plane fracturePlane;
     bool isCellIntersected = false;
 
@@ -305,7 +285,12 @@ bool RigEclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransmissibility(double perm, double NTG, double A, double cellSizeLength, double skinfactor, double fractureAreaWeightedlength)
+double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransmissibility(double perm, 
+                                                                                           double NTG, 
+                                                                                           double A, 
+                                                                                           double cellSizeLength, 
+                                                                                           double skinfactor, 
+                                                                                           double fractureAreaWeightedlength)
 {
     double transmissibility;
 
