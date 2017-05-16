@@ -40,6 +40,7 @@ class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
 class RimFractureTemplate;
 class RigFracturedEclipseCellExportData;
+class RigMainGrid;
 
 //==================================================================================================
 ///  
@@ -86,7 +87,7 @@ public:
     const std::vector<cvf::uint>&   triangleIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
 
-    std::vector<size_t>             getPotentiallyFracturedCells();
+    std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid);
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;

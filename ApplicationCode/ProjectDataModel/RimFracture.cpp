@@ -139,23 +139,14 @@ const std::vector<cvf::Vec3f>& RimFracture::nodeCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimFracture::getPotentiallyFracturedCells()
+std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid* mainGrid)
 {
     std::vector<size_t> cellindecies;
-
-    RiaApplication* app = RiaApplication::instance();
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return cellindecies;
- 
-    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-    if (!activeRiv) return cellindecies;
-
-    const RigMainGrid* mainGrid = activeRiv->mainGrid();
     if (!mainGrid) return cellindecies;
 
-    const std::vector<cvf::Vec3f>& nodeCoordVec = nodeCoords();
-
     if (!hasValidGeometry()) computeGeometry();
+
+    const std::vector<cvf::Vec3f>& nodeCoordVec = nodeCoords();
 
     cvf::BoundingBox polygonBBox;
     for (cvf::Vec3f nodeCoord : nodeCoordVec) polygonBBox.add(nodeCoord);

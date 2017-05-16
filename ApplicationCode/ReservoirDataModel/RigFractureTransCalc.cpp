@@ -115,7 +115,7 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
     std::vector<RigFracturedEclipseCellExportData> fracDataVec;
-    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells(eclipseCaseData->mainGrid());
 
     for (size_t fracCell : fracCells)
     {
@@ -546,12 +546,11 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeUps
 
     //TODO: A lot of common code with function above... Can be cleaned up...?
 
-    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
+    std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells(m_case->eclipseCaseData()->mainGrid());
 
-    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
-    RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+    RigActiveCellInfo* activeCellInfo = m_case->eclipseCaseData()->activeCellInfo(porosityModel);
 
     for (size_t fracCell : fracCells)
     {
