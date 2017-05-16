@@ -68,6 +68,8 @@ public:
     static std::vector<RigStimPlanFracTemplateCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t i);
     static std::vector<RigStimPlanFracTemplateCell*>    getColOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t j);
 
+    double                  cDarcy();
+
 private: 
     double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
     double calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
@@ -77,7 +79,6 @@ private:
     RimFracture*            m_fracture;
     RimDefines::UnitSystem  m_unitForCalculation;
 
-    double                  cDarcy();
 };
 
 class EclipseToStimPlanCellTransmissibilityCalculator

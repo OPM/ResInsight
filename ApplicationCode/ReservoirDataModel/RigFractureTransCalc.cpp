@@ -881,10 +881,37 @@ EclipseToStimPlanCellTransmissibilityCalculator::EclipseToStimPlanCellTransmissi
 {
     m_case = caseToApply;
     m_fractureSkinFactor = skinFactor;
+    m_cDarcy = cDarcy;
     m_fractureTransform = fractureTransform;
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& EclipseToStimPlanCellTransmissibilityCalculator::globalIndeciesToContributingEclipseCells()
+{
+    if (m_globalIndeciesToContributingEclipseCells.size() < 1)
+    {
+        calculateStimPlanCellsMatrixTransmissibility();
+    }
+
+    return m_globalIndeciesToContributingEclipseCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>& EclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
+{
+    if (m_globalIndeciesToContributingEclipseCells.size() < 1)
+    {
+        calculateStimPlanCellsMatrixTransmissibility();
+    }
+
+    return m_contributingEclipseCellTransmissibilities;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -919,8 +946,16 @@ void EclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatr
 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
+    std::vector<cvf::Vec3d> stimPlanPolygonTransformed;
+    for (cvf::Vec3d v : m_stimPlanCell.getPolygon())
+    {
+        cvf::Vec3f stimPlanPolygonNode = static_cast<cvf::Vec3f>(v);
+        stimPlanPolygonNode.transformPoint(m_fractureTransform);
+        stimPlanPolygonTransformed.push_back(static_cast<cvf::Vec3d>(stimPlanPolygonNode));
+    }
 
-    std::vector<size_t> fracCells = getPotentiallyFracturedCellsForPolygon(m_stimPlanCell.getPolygon());
+
+    std::vector<size_t> fracCells = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
     for (size_t fracCell : fracCells)
     {
         bool cellIsActive = activeCellInfo->isActive(fracCell);

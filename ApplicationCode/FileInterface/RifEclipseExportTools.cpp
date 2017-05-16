@@ -278,6 +278,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
         else continue;
 
         RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+        double cDarcyInCorrectUnit = transmissibilityCalculator.cDarcy();
 
         std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
@@ -285,18 +286,19 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
         {
             if (stimPlanCell.getConductivtyValue() < 1e-7)
             {
-                //If conductivity in stimPlanCell is 0, contributions might not be relevant...
-                //continue;
+                continue;
             }
 
             RigStimPlanFractureCell fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
 
+            EclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
+                fracture->transformMatrix(),
+                fracture->attachedFractureDefinition()->skinFactor,
+                cDarcyInCorrectUnit,
+                stimPlanCell);
 
-            transmissibilityCalculator.calculateStimPlanCellsMatrixTransmissibility(&stimPlanCell, &fracStimPlanCellData);
-
-
-            std::vector<size_t> stimPlanContributingEclipseCells = fracStimPlanCellData.getGlobalIndeciesToContributingEclipseCells();
-            std::vector<double> stimPlanContributingEclipseCellTransmissibilities = fracStimPlanCellData.getContributingEclipseCellTransmissibilities();
+            std::vector<size_t> stimPlanContributingEclipseCells = eclToStimPlanTransCalc.globalIndeciesToContributingEclipseCells();
+            std::vector<double> stimPlanContributingEclipseCellTransmissibilities = eclToStimPlanTransCalc.contributingEclipseCellTransmissibilities();
 
             for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {
