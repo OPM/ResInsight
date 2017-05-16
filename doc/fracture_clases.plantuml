@@ -72,7 +72,7 @@ class RigStimPlanFracTemplateCell{
 RimStimPlanFractureTemplate "1" *-- "1" RigStimPlanFractureDefinition
 RimStimPlanFractureTemplate "1" *-- "many" RigStimPlanFracTemplateCell
 
-RigStimPlanFractureCell <..> RigStimPlanFracTemplateCell
+RigStimPlanFractureCell <.> RigStimPlanFracTemplateCell
 
 class RigStimPlanResultFrames{
     QString resultName;
@@ -91,19 +91,17 @@ class RigFractureTransCalc{
     RimDefines::UnitSystem  m_unitForCalculation;
 }
 
-RimFracture ..|> RigFractureTransCalc
-RigStimPlanCell ..|> RigFractureTransCalc
-RigStimPlanFractureCell ..|> RigFractureTransCalc
+RigFractureTransCalc --> RimFracture 
+RigFractureTransCalc ..> RigStimPlanFracTemplateCell
+RigFractureTransCalc ..> RigStimPlanFractureCell
 
 
 class RifEclipseExportTools{
 }
 
-RigFractureTransCalc ..|> RifEclipseExportTools
+RifEclipseExportTools --> RigFractureTransCalc 
 
-class FunctionsForIterations{
 
-}
 
 
 
