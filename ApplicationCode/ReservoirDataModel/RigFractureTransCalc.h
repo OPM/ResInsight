@@ -59,8 +59,9 @@ public:
     static double               arithmeticAverage(std::vector<double> values);
 
     // Calculations based on StimPlan grid
+    static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, double sideLengthParallellTrans, double sideLengthNormalTrans);
+
     void                        calculateStimPlanCellsMatrixTransmissibility(RigStimPlanFracTemplateCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData);
-    static void                 computeStimPlanCellTransmissibilityInFracture(const RigStimPlanFracTemplateCell&  stimPlanCell);
     double                      computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell);
     double                      computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal);
 
@@ -82,7 +83,7 @@ private:
 class EclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit EclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase* caseToApply,
+    explicit EclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
                                                             cvf::Mat4f fractureTransform,
                                                             double skinFactor,
                                                             double cDarcy,
@@ -99,7 +100,7 @@ private:
     double                      calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
 
 
-    const RimEclipseCase*               m_case;
+    RimEclipseCase*                     m_case;
     double                              m_cDarcy;
     double                              m_fractureSkinFactor;
     cvf::Mat4f                          m_fractureTransform;

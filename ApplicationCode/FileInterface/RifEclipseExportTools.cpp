@@ -382,7 +382,8 @@ void RifEclipseExportTools::printStimPlanFractureTrans(const std::vector<RimFrac
             continue;
         }
 
-        RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(stimPlanCell);
+        double verticalTrans = RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(stimPlanCell.getConductivtyValue(), stimPlanCell.cellSizeX(), stimPlanCell.cellSizeZ());
+        double horizontalTrans = RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(stimPlanCell.getConductivtyValue(), stimPlanCell.cellSizeZ(), stimPlanCell.cellSizeX());
 
         out << qSetFieldWidth(5);
         size_t spi = stimPlanCell.getI();
@@ -392,8 +393,8 @@ void RifEclipseExportTools::printStimPlanFractureTrans(const std::vector<RimFrac
         out << spj;
 
         out << qSetFieldWidth(10);
-        out << QString::number(stimPlanCell.getVerticalTransmissibilityInFracture(), 'e', 3);
-        out << QString::number(stimPlanCell.getHorizontalTransmissibilityInFracture(), 'e', 3);
+        out << QString::number(verticalTrans, 'e', 3);
+        out << QString::number(horizontalTrans, 'e', 3);
 
         out << "\n";
     }

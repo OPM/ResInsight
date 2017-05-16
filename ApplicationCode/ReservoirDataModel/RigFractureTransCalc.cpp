@@ -731,17 +731,10 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(const RigStimPlanFracTemplateCell& stimPlanCell)
+double RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(double conductivity, double sideLengthParallellTrans, double sideLengthNormalTrans)
 {
-    //TODO: Ta inn relevante parametre, ikke hele cella
-    double verticalSideLength = stimPlanCell.cellSizeX();
-    double horisontalSideLength = stimPlanCell.cellSizeZ();
-
-    double verticalTrans = stimPlanCell.getConductivtyValue() * verticalSideLength / (horisontalSideLength / 2);
-    double horizontalTrans = stimPlanCell.getConductivtyValue() * horisontalSideLength / (verticalSideLength / 2);
-
-    //TODO: Ta bort const???
-//    stimPlanCell.setTransmissibilityInFracture(verticalTrans, horizontalTrans);
+    double transmissibility = conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
+    return transmissibility;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -878,7 +871,7 @@ double RigFractureTransCalc::convertConductivtyValue(double Kw, RimDefines::Unit
 
 
 
-EclipseToStimPlanCellTransmissibilityCalculator::EclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase* caseToApply,
+EclipseToStimPlanCellTransmissibilityCalculator::EclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
                                                                                                  cvf::Mat4f fractureTransform, 
                                                                                                  double skinFactor, 
                                                                                                  double cDarcy,
