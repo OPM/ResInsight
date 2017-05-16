@@ -18,8 +18,10 @@
 
 #include "RimFishbonesMultipleSubs.h"
 
-#include "RimProject.h"
 #include "RigFishbonesGeometry.h"
+#include "RigWellPath.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -37,7 +39,7 @@ namespace caf {
         addItem(RimFishbonesMultipleSubs::FB_SUB_COUNT_END,     "FB_SUB_COUNT",     "Start/End/Number of Subs");
         addItem(RimFishbonesMultipleSubs::FB_SUB_SPACING_END,   "FB_SUB_SPACING",   "Start/End/Spacing");
         addItem(RimFishbonesMultipleSubs::FB_SUB_USER_DEFINED,  "FB_SUB_CUSTOM",    "User Specification");
-        setDefault(RimFishbonesMultipleSubs::FB_SUB_USER_DEFINED);
+        setDefault(RimFishbonesMultipleSubs::FB_SUB_COUNT_END);
     }
 
     template<>
@@ -79,7 +81,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitFieldNoDefault(&m_locationOfSubs,       "LocationOfSubs",                   "Measured Depths [m]", "", "", "");
     m_locationOfSubs.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
-    CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_USER_DEFINED), "Location Defined By", "", "", "");
+    CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_COUNT_END), "Location Defined By", "", "", "");
     CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeSubSpacing,               "RangeSubSpacing",  40.0,           "Spacing [m]", "", "", "");
@@ -100,6 +102,21 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 RimFishbonesMultipleSubs::~RimFishbonesMultipleSubs()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount)
+{
+    m_subsLocationMode = FB_SUB_SPACING_END;
+
+    m_rangeStart = measuredDepth;
+    m_rangeEnd = measuredDepth + spacing * subCount;
+    m_rangeSubCount = subCount;
+
+    computeRangesAndLocations();
+    computeRotationAngles();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,28 +252,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (recomputeLocations)
     {
-        if (m_subsLocationMode == FB_SUB_COUNT_END)
-        {
-            size_t divisor = 1;
-            if (m_rangeSubCount > 2) divisor = m_rangeSubCount - 1;
-
-            m_rangeSubSpacing = fabs(m_rangeStart - m_rangeEnd) / divisor;
-        }
-        else if (m_subsLocationMode == FB_SUB_SPACING_END)
-        {
-            m_rangeSubCount = (fabs(m_rangeStart - m_rangeEnd) / m_rangeSubSpacing) + 1;
-
-            if (m_rangeSubCount < 1)
-            {
-                m_rangeSubCount = 1;
-            }
-        }
-
-        if (m_subsLocationMode == FB_SUB_COUNT_END || m_subsLocationMode == FB_SUB_SPACING_END)
-        {
-            std::vector<double> measuredDepths = locationsFromStartSpacingAndCount(m_rangeStart, m_rangeSubSpacing, m_rangeSubCount);
-            m_locationOfSubs = measuredDepths;
-        }
+        computeRangesAndLocations();
     }
 
     if (recomputeLocations ||
@@ -269,6 +265,55 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::computeRangesAndLocations()
+{
+    if (m_subsLocationMode == FB_SUB_COUNT_END)
+    {
+        size_t divisor = 1;
+        if (m_rangeSubCount > 2) divisor = m_rangeSubCount - 1;
+
+        m_rangeSubSpacing = fabs(m_rangeStart - m_rangeEnd) / divisor;
+    }
+    else if (m_subsLocationMode == FB_SUB_SPACING_END)
+    {
+        m_rangeSubCount = (fabs(m_rangeStart - m_rangeEnd) / m_rangeSubSpacing) + 1;
+
+        if (m_rangeSubCount < 1)
+        {
+            m_rangeSubCount = 1;
+        }
+    }
+
+    if (m_subsLocationMode == FB_SUB_COUNT_END || m_subsLocationMode == FB_SUB_SPACING_END)
+    {
+        std::vector<double> validMeasuredDepths; 
+        {
+            RimWellPath* wellPath = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(wellPath);
+        
+            RigWellPath* rigWellPathGeo = wellPath->wellPathGeometry();
+            if (rigWellPathGeo && rigWellPathGeo->m_measuredDepths.size() > 1)
+            {
+                double firstWellPathMD = rigWellPathGeo->m_measuredDepths.front();
+                double lastWellPathMD = rigWellPathGeo->m_measuredDepths.back();
+
+                for (auto md : locationsFromStartSpacingAndCount(m_rangeStart, m_rangeSubSpacing, m_rangeSubCount))
+                {
+                    if (md > firstWellPathMD && md < lastWellPathMD)
+                    {
+                        validMeasuredDepths.push_back(md);
+                    }
+                }
+            }
+        }
+        
+        m_locationOfSubs = validMeasuredDepths;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

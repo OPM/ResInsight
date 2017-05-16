@@ -54,6 +54,8 @@ public:
     RimFishbonesMultipleSubs();
     virtual ~RimFishbonesMultipleSubs();
 
+    void                setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
+
     std::vector<double> locationOfSubs() const;
 
     double              rotationAngle(size_t index) const;
@@ -69,10 +71,12 @@ public:
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
     virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void        initAfterRead() override;
 
 private:
+    void                        computeRangesAndLocations();
     void                        computeRotationAngles();
 
     static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
