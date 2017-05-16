@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFractureData::RigFractureData()
+RigFracturedEclipseCellExportData::RigFracturedEclipseCellExportData()
 {
 
 }
@@ -79,7 +79,7 @@ const std::vector<cvf::Vec3f>& RigFracture::nodeCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFracture::setFractureData(const std::vector<RigFractureData>& data)
+void RigFracture::setFractureData(const std::vector<RigFracturedEclipseCellExportData>& data)
 {
     m_fractureData = data;
 }
@@ -87,7 +87,7 @@ void RigFracture::setFractureData(const std::vector<RigFractureData>& data)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigFractureData>& RigFracture::fractureData() const
+const std::vector<RigFracturedEclipseCellExportData>& RigFracture::fractureData() const
 {
     return m_fractureData;
 }

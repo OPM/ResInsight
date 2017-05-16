@@ -26,25 +26,28 @@
 
 #include <vector>
 
-class RigFractureData
+class RigFracturedEclipseCellExportData
 {
 public:
-    RigFractureData();
+    RigFracturedEclipseCellExportData();
 
-    size_t reservoirCellIndex;
-    double transmissibility;
-    cvf::Vec3d transmissibilities;
+    // Compdat export data
+    size_t reservoirCellIndex; 
+    double transmissibility; // Total cell to well transmissibility finally used in COMPDAT keyword
+    bool cellIsActive;
+
+    // General intermediate results
+    double NTG;
+    cvf::Vec3d permeabilities;
+    double skinFactor;
     
-    double totalArea;
+    // Elipse fracture related values
+    cvf::Vec3d transmissibilities; //matrixToFractureTransmissibilitiesXYZ
+    double totalArea; // Elipse cell overlap area
     double fractureLenght;
     cvf::Vec3d projectedAreas;
 
-    cvf::Vec3d permeabilities;
     cvf::Vec3d cellSizes;
-    double NTG;
-    double skinFactor;
-
-    bool cellIsActive;
     
     //TODO: Used for upscaling - should be moved?
     double upscaledStimPlanValueHA;
@@ -87,10 +90,10 @@ public:
     const std::vector<cvf::uint>&  triangleIndices() const;
     const std::vector<cvf::Vec3f>& nodeCoords() const;
 
-    void setFractureData(const std::vector<RigFractureData>& data);
-    const std::vector<RigFractureData>& fractureData() const; //Access frac data
+    void setFractureData(const std::vector<RigFracturedEclipseCellExportData>& data);
+    const std::vector<RigFracturedEclipseCellExportData>& fractureData() const; //Access frac data
 
-    std::vector<RigFractureData> m_fractureData;
+    std::vector<RigFracturedEclipseCellExportData> m_fractureData;
 
     void addStimPlanCellFractureCell(RigStimPlanFractureCell fracStimPlanCellData);
 

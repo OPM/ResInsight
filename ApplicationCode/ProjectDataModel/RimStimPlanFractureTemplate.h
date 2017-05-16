@@ -122,6 +122,6 @@ private:
 
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
-    std::vector<RigStimPlanFracTemplateCell>                m_stimPlanCells;
+    std::vector<RigStimPlanFracTemplateCell>    m_stimPlanCells;
     std::pair<size_t, size_t>                   wellCenterStimPlanCellIJ;
 };

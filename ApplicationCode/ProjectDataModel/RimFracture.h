@@ -39,7 +39,7 @@ class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
 class RimFractureTemplate;
-class RigFractureData;
+class RigFracturedEclipseCellExportData;
 
 //==================================================================================================
 ///  
@@ -85,7 +85,7 @@ public:
     
     const std::vector<cvf::uint>&   triangleIndices() const;
     const std::vector<cvf::Vec3f>&  nodeCoords() const;
-    void                            setFractureData(std::vector<RigFractureData> fractureDataVector);
+    void                            setFractureData(std::vector<RigFracturedEclipseCellExportData> fractureDataVector);
 
 
     std::vector<size_t>             getPotentiallyFracturedCells();

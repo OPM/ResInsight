@@ -112,7 +112,7 @@ void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConduct
 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
-    std::vector<RigFractureData> fracDataVec;
+    std::vector<RigFracturedEclipseCellExportData> fracDataVec;
     std::vector<size_t> fracCells = m_fracture->getPotentiallyFracturedCells();
 
     for (size_t fracCell : fracCells)
@@ -153,7 +153,7 @@ void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConduct
         directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
         directionOfLength.normalize();
 
-        RigFractureData fracData;
+        RigFracturedEclipseCellExportData fracData;
         fracData.reservoirCellIndex = fracCell;
 
         std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(m_unitForCalculation);
@@ -246,8 +246,9 @@ void RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConduct
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility(RigStimPlanFracTemplateCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData)
+void RigFractureTransCalc::calculateStimPlanCellsMatrixTransmissibility( RigStimPlanFracTemplateCell* stimPlanCell, RigStimPlanFractureCell* fracStimPlanCellData)
 {
+    //TODO: Gjør til egen klasse / kalkulator, som kan holde eclipseCell/StimplanCell og Transm. 
 
     //Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
     if (stimPlanCell->getConductivtyValue() < 1e-7) return;
@@ -693,12 +694,12 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
-    std::vector<RigFractureData> fracDataVec;
+    std::vector<RigFracturedEclipseCellExportData> fracDataVec;
 
     for (size_t fracCell : fracCells)
     {
 
-        RigFractureData fracData;
+        RigFracturedEclipseCellExportData fracData;
         fracData.reservoirCellIndex = fracCell;
             
         std::pair<double, double> upscaledCondFlowAcrossLayers = flowAcrossLayersUpscaling(resultName, resultUnit, timeStepIndex, m_unitForCalculation, fracCell);
@@ -730,6 +731,7 @@ void RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultNa
 //--------------------------------------------------------------------------------------------------
 void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(const RigStimPlanFracTemplateCell& stimPlanCell)
 {
+    //TODO: Ta inn relevante parametre, ikke hele cella
     double verticalSideLength = stimPlanCell.cellSizeX();
     double horisontalSideLength = stimPlanCell.cellSizeZ();
 
@@ -745,6 +747,7 @@ void RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(const R
 //--------------------------------------------------------------------------------------------------
 double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell& stimPlanCell)
 {
+    //TODO: Ta inn relevante parametre, ikke hele brønncella
     if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return cvf::UNDEFINED_DOUBLE;
 
     double areaScalingFactor = 1.0;
@@ -769,6 +772,8 @@ double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(c
 //--------------------------------------------------------------------------------------------------
 double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
 {
+    //TODO: Ta inn relevante parametre, ikke hele brønncella
+
     double TcPrefix = 8 * cDarcy() * stimPlanCell.getConductivtyValue();
 
     double DzPerf = perforationLengthVertical * m_fracture->perforationEfficiency();

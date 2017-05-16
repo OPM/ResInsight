@@ -79,3 +79,18 @@ private:
     double                  cDarcy();
 };
 
+class EclipseToStimPlanCellTransmissibilityCalculator
+{
+public:
+    explicit EclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase* caseToApply, cvf::Mat4f fractureTransform, double skinFactor, const RigStimPlanFracTemplateCell& stimPlanCell);
+
+    const std::vector<size_t>&     globalIndeciesToContributingEclipseCells();
+    const std::vector<double>&     contributingEclipseCellTransmissibilities();
+
+private:
+    void calculateStimPlanCellsMatrixTransmissibility();
+   
+    std::vector<size_t>     m_globalIndeciesToContributingEclipseCells;
+    std::vector<double>     m_contributingEclipseCellTransmissibilities;
+
+};

@@ -139,7 +139,7 @@ const std::vector<cvf::Vec3f>& RimFracture::nodeCoords() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::setFractureData(std::vector<RigFractureData> fractureDataVector)
+void RimFracture::setFractureData(std::vector<RigFracturedEclipseCellExportData> fractureDataVector)
 {
     m_rigFracture->setFractureData(fractureDataVector);
 }
