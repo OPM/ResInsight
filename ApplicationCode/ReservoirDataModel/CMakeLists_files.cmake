@@ -46,6 +46,7 @@ ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.h
+${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
@@ -58,7 +59,6 @@ ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFracTemplateCell.h
-
 
 
 )
@@ -101,6 +101,7 @@ ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
@@ -113,7 +114,6 @@ ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFracTemplateCell.cpp
-
 
 )
 

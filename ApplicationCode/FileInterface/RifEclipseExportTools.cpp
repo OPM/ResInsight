@@ -23,8 +23,10 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigFracture.h"
-#include "RigFracture.h"
+#include "RigFractureTransCalc.h"
+#include "RigStimPlanFracTemplateCell.h"
 #include "RigMainGrid.h"
+#include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultDefinition.h"
@@ -32,6 +34,9 @@
 #include "RimEclipseWell.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
+#include "RimFractureTemplate.h"
+#include "RimSimWellFracture.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimWellPath.h"
 
 #include "cafProgressInfo.h"
@@ -39,11 +44,6 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
-#include "RigFractureTransCalc.h"
-#include "RimFractureTemplate.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RigStimPlanFracTemplateCell.h"
-#include "RimSimWellFracture.h"
 
 
 
