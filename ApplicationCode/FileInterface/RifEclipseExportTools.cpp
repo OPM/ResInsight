@@ -291,7 +291,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 
             RigStimPlanFractureCell fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
 
-            EclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
+            RigEclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
                 fracture->transformMatrix(),
                 fracture->attachedFractureDefinition()->skinFactor,
                 cDarcyInCorrectUnit,

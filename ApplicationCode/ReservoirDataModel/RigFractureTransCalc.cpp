@@ -871,7 +871,7 @@ double RigFractureTransCalc::convertConductivtyValue(double Kw, RimDefines::Unit
 
 
 
-EclipseToStimPlanCellTransmissibilityCalculator::EclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
+RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
                                                                                                  cvf::Mat4f fractureTransform, 
                                                                                                  double skinFactor, 
                                                                                                  double cDarcy,
@@ -890,7 +890,7 @@ EclipseToStimPlanCellTransmissibilityCalculator::EclipseToStimPlanCellTransmissi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& EclipseToStimPlanCellTransmissibilityCalculator::globalIndeciesToContributingEclipseCells()
+const std::vector<size_t>& RigEclipseToStimPlanCellTransmissibilityCalculator::globalIndeciesToContributingEclipseCells()
 {
     if (m_globalIndeciesToContributingEclipseCells.size() < 1)
     {
@@ -903,7 +903,7 @@ const std::vector<size_t>& EclipseToStimPlanCellTransmissibilityCalculator::glob
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& EclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
+const std::vector<double>& RigEclipseToStimPlanCellTransmissibilityCalculator::contributingEclipseCellTransmissibilities()
 {
     if (m_globalIndeciesToContributingEclipseCells.size() < 1)
     {
@@ -916,7 +916,7 @@ const std::vector<double>& EclipseToStimPlanCellTransmissibilityCalculator::cont
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void EclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
+void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatrixTransmissibility()
 {
 
     //Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
@@ -1067,7 +1067,7 @@ void EclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsMatr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> EclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon)
+std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon)
 {
     std::vector<size_t> cellindecies;
 
@@ -1095,7 +1095,7 @@ std::vector<size_t> EclipseToStimPlanCellTransmissibilityCalculator::getPotentia
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool EclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons,
+bool RigEclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons,
     cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ)
 {
 
@@ -1140,7 +1140,7 @@ bool EclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPolyg
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double EclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransmissibility(double perm, double NTG, double A, double cellSizeLength, double skinfactor, double fractureAreaWeightedlength)
+double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransmissibility(double perm, double NTG, double A, double cellSizeLength, double skinfactor, double fractureAreaWeightedlength)
 {
     double transmissibility;
 

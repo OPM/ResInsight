@@ -81,10 +81,10 @@ private:
 
 };
 
-class EclipseToStimPlanCellTransmissibilityCalculator
+class RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit EclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
+    explicit RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
                                                             cvf::Mat4f fractureTransform,
                                                             double skinFactor,
                                                             double cDarcy,
