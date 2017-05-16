@@ -132,22 +132,21 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
 
     // COMPDAT
     {
-        std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn{"Well", LEFT},
-            RifEclipseOutputTableColumn{"I", LEFT},
-            RifEclipseOutputTableColumn{"J", LEFT},
-            RifEclipseOutputTableColumn{"K1", LEFT},
-            RifEclipseOutputTableColumn{"K2", LEFT},
-            RifEclipseOutputTableColumn{"Status", LEFT},
-            RifEclipseOutputTableColumn{"SAT", LEFT},
-            RifEclipseOutputTableColumn{"TR", LEFT},
-            RifEclipseOutputTableColumn{"DIAM", LEFT},
-            RifEclipseOutputTableColumn{"KH", LEFT},
-            RifEclipseOutputTableColumn{"S", LEFT},
-            RifEclipseOutputTableColumn{"Df", LEFT},
-            RifEclipseOutputTableColumn{"DIR", LEFT},
-            RifEclipseOutputTableColumn{"r0", LEFT}
-        };
+        std::vector<RifEclipseOutputTableColumn> header;
+        header.push_back(RifEclipseOutputTableColumn("Well",    LEFT));
+        header.push_back(RifEclipseOutputTableColumn("I",       LEFT));
+        header.push_back(RifEclipseOutputTableColumn("J",       LEFT));
+        header.push_back(RifEclipseOutputTableColumn("K1",      LEFT));
+        header.push_back(RifEclipseOutputTableColumn("K2",      LEFT));
+        header.push_back(RifEclipseOutputTableColumn("Status",  LEFT));
+        header.push_back(RifEclipseOutputTableColumn("SAT",     LEFT));
+        header.push_back(RifEclipseOutputTableColumn("TR",      LEFT));
+        header.push_back(RifEclipseOutputTableColumn("DIAM",    LEFT));
+        header.push_back(RifEclipseOutputTableColumn("KH",      LEFT));
+        header.push_back(RifEclipseOutputTableColumn("S",       LEFT));
+        header.push_back(RifEclipseOutputTableColumn("Df",      LEFT));
+        header.push_back(RifEclipseOutputTableColumn("DIR",     LEFT));
+        header.push_back(RifEclipseOutputTableColumn("r0",      LEFT));
 
         formatter.keyword("COMPDAT");
         formatter.header(header);

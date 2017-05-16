@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "cvfObject.h"
-
 #include <QString>
 #include <QTextStream>
 
@@ -57,16 +55,23 @@ struct RifEclipseOutputTableLine
 //==================================================================================================
 struct RifEclipseOutputTableColumn
 {
+    RifEclipseOutputTableColumn(const QString& title, RifEclipseOutputTableAlignment alignment)
+        : title(title),
+        alignment(alignment),
+        width(-1)
+    {
+    }
+
     QString                         title;
     RifEclipseOutputTableAlignment  alignment;
-    int                             width = -1;
+    int                             width;
 };
 
 
 //==================================================================================================
 //
 //==================================================================================================
-class RifEclipseOutputTableFormatter : public cvf::Object
+class RifEclipseOutputTableFormatter
 {
 public:
     RifEclipseOutputTableFormatter(QTextStream& out);
