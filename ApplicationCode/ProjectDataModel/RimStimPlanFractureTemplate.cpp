@@ -617,7 +617,7 @@ QString RimStimPlanFractureTemplate::getAttributeValueString(QXmlStreamReader &x
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, caf::AppEnum< RimDefines::UnitSystem > fractureUnit)
+void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimDefines::UnitSystem fractureUnit)
 {
     
     if (m_stimPlanFractureDefinitionData.isNull())
@@ -988,7 +988,7 @@ const RigStimPlanFracTemplateCell& RimStimPlanFractureTemplate::stimPlanCellFrom
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(caf::AppEnum< RimDefines::UnitSystem > fractureUnit)
+std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(RimDefines::UnitSystem fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 

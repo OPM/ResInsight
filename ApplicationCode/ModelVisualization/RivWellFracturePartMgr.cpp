@@ -326,7 +326,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax)
 {
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit());
 
     if (polygon.size() > 1)
     {
@@ -351,7 +351,7 @@ void RivWellFracturePartMgr::getPolygonBB(float &polygonXmin, float &polygonXmax
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::DisplayCoordTransform* displayCoordTransform)
 {
 
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit);
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit());
 
     cvf::Mat4f m = m_rimFracture->transformMatrix();
     std::vector<cvf::Vec3f> polygonDisplayCoords = transfromToFractureDisplayCoords(polygon, m, displayCoordTransform);

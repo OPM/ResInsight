@@ -244,7 +244,7 @@ void RimFracture::computeGeometry()
     RimFractureTemplate* fractureDef = attachedFractureDefinition();
     if (fractureDef )
     {
-        fractureDef->fractureGeometry(&nodeCoords, &triangleIndices, fractureUnit);
+        fractureDef->fractureGeometry(&nodeCoords, &triangleIndices, fractureUnit());
     }
 
     cvf::Mat4f m = transformMatrix();
