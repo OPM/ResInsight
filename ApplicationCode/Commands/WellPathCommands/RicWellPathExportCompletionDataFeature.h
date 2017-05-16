@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "RigWellLogExtractionTools.h"
 
 #include "cafCmdFeature.h"
 
