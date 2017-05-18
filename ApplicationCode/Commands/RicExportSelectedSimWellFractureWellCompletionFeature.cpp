@@ -23,7 +23,7 @@
 
 #include "EclipseWell/RicEclipseWellFeatureImpl.h"
 
-#include "RifEclipseExportTools.h"
+#include "RifFractureExportTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -95,7 +95,7 @@ void RicExportSelectedSimWellFractureWellCompletionFeature::onActionTriggered(bo
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("FRACTURE_EXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
 
-        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
+        bool isOk = RifFractureExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
 
         if (!isOk)
         {

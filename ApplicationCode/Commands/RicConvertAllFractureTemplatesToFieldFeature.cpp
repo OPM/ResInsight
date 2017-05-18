@@ -20,8 +20,6 @@
 
 #include "RiaApplication.h"
 
-#include "RifEclipseExportTools.h"
-#include "RifEclipseExportTools.h"
 
 #include "RimDefines.h"
 #include "RimEclipseCase.h"

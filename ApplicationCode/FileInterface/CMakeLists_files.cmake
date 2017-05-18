@@ -20,7 +20,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseWellCompletionExporter.h
-${CEE_CURRENT_LIST_DIR}RifEclipseExportTools.h
+${CEE_CURRENT_LIST_DIR}RifFractureExportTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -39,7 +39,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseWellCompletionExporter.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseExportTools.cpp
+${CEE_CURRENT_LIST_DIR}RifFractureExportTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

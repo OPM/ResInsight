@@ -43,11 +43,11 @@ class RimWellPath;
 // Class for access to Eclipse "keyword" files using libecl
 //
 //==================================================================================================
-class RifEclipseExportTools 
+class RifFractureExportTools 
 {
 public:
-    RifEclipseExportTools();
-    virtual ~RifEclipseExportTools();
+    RifFractureExportTools();
+    virtual ~RifFractureExportTools();
 
     static bool writeFracturesToTextFile(const QString& fileName, const std::vector<RimFracture*>& fractures, RimEclipseCase* caseToApply);
 

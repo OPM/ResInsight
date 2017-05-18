@@ -21,8 +21,8 @@
 
 #include "RiaApplication.h"
 
-#include "RifEclipseExportTools.h"
-#include "RifEclipseExportTools.h"
+#include "RifFractureExportTools.h"
+#include "RifFractureExportTools.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -100,7 +100,7 @@ void RicExportSelectedWellPathFractureWellCompletionFeature::onActionTriggered(b
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("FRACTURE_EXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
 
-        bool isOk = RifEclipseExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
+        bool isOk = RifFractureExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
 
         if (!isOk)
         {

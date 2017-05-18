@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifEclipseExportTools.h"
+#include "RifFractureExportTools.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -50,7 +50,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseExportTools::RifEclipseExportTools()
+RifFractureExportTools::RifFractureExportTools()
 {
 
 }
@@ -59,7 +59,7 @@ RifEclipseExportTools::RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 /// Destructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseExportTools::~RifEclipseExportTools()
+RifFractureExportTools::~RifFractureExportTools()
 {
   
 }
@@ -67,19 +67,12 @@ RifEclipseExportTools::~RifEclipseExportTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
+bool RifFractureExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
 {
     RiaLogging::info(QString("Computing and writing COMPDAT values to file %1").arg(fileName));
 
-    RiaApplication* app = RiaApplication::instance();
-    RimView* activeView = RiaApplication::instance()->activeReservoirView();
-    if (!activeView) return false;
-    RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-    if (!activeRiv) return false;
-
-    const RigMainGrid* mainGrid = activeRiv->mainGrid();
+    const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
     if (!mainGrid) return false;
-
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -91,7 +84,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
     RimEclipseWell* simWell = nullptr;
     RimWellPath* wellPath = nullptr;
 
-    size_t progress =0;
+    size_t progress = 0;
     std::vector<size_t> ijk;
 
     QTextStream out(&file);
@@ -162,7 +155,7 @@ bool RifEclipseExportTools::writeFracturesToTextFile(const QString& fileName,  c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+void RifFractureExportTools::performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
     //TODO: Get these more generally: 
 
@@ -236,7 +229,7 @@ void RifEclipseExportTools::performStimPlanUpscalingAndPrintResults(const std::v
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
     out << "StimPlan cells' matrix transmissibility and Eclipse Cell contributions \n";
 
@@ -347,7 +340,7 @@ void RifEclipseExportTools::printStimPlanCellsMatrixTransContributions(const std
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::printStimPlanFractureTrans(const std::vector<RimFracture *>& fractures, QTextStream &out)
+void RifFractureExportTools::printStimPlanFractureTrans(const std::vector<RimFracture *>& fractures, QTextStream &out)
 {
     out << "StimPlan cells' fracture transmissibility \n";
 
@@ -408,7 +401,7 @@ return;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::printCOMPDATvalues(QTextStream & out, RigFracturedEclipseCellExportData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+void RifFractureExportTools::printCOMPDATvalues(QTextStream & out, RigFracturedEclipseCellExportData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
     out << qSetFieldWidth(8);
     if (fracData.transmissibility == cvf::UNDEFINED_DOUBLE || !(fracture->attachedFractureDefinition())) out << "--"; //Commenting out line in output file
@@ -460,7 +453,7 @@ void RifEclipseExportTools::printCOMPDATvalues(QTextStream & out, RigFracturedEc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
+void RifFractureExportTools::printBackgroundDataHeaderLine(QTextStream & out)
 {
     out << "-- Background data for calculation" << "\n\n";
 
@@ -518,7 +511,7 @@ void RifEclipseExportTools::printBackgroundDataHeaderLine(QTextStream & out)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFracturedEclipseCellExportData &fracData)
+void RifFractureExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFracturedEclipseCellExportData &fracData)
 {
     out << qSetFieldWidth(4);
     out << "-- ";
@@ -596,7 +589,7 @@ void RifEclipseExportTools::printBackgroundData(QTextStream & out, RimWellPath* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseExportTools::printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, QTextStream &out, RimEclipseCase* caseToApply)
+void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, QTextStream &out, RimEclipseCase* caseToApply)
 {
     out << "-- Transmissibility From Fracture To Well \n";
 
