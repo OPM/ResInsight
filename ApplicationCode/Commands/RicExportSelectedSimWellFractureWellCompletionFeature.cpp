@@ -95,7 +95,7 @@ void RicExportSelectedSimWellFractureWellCompletionFeature::onActionTriggered(bo
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("FRACTURE_EXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
 
-        bool isOk = RifFractureExportTools::writeFracturesToTextFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
+        bool isOk = RifFractureExportTools::exportFracturesToEclipseDataInputFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
 
         if (!isOk)
         {

@@ -67,7 +67,7 @@ RifFractureExportTools::~RifFractureExportTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifFractureExportTools::writeFracturesToTextFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
+bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString& fileName,  const std::vector< RimFracture*>& fractures, RimEclipseCase* caseToApply)
 {
     RiaLogging::info(QString("Computing and writing COMPDAT values to file %1").arg(fileName));
 

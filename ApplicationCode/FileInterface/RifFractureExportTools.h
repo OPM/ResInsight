@@ -49,7 +49,7 @@ public:
     RifFractureExportTools();
     virtual ~RifFractureExportTools();
 
-    static bool writeFracturesToTextFile(const QString& fileName, const std::vector<RimFracture*>& fractures, RimEclipseCase* caseToApply);
+    static bool exportFracturesToEclipseDataInputFile(const QString& fileName, const std::vector<RimFracture*>& fractures, RimEclipseCase* caseToApply);
 
 private:
     static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
