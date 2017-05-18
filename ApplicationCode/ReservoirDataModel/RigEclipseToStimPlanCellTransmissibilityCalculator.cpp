@@ -203,9 +203,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-        double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength);
-        double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength);
-        double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength);
+        double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
 
         double transmissibility = sqrt(transmissibility_X * transmissibility_X
                                        + transmissibility_Y * transmissibility_Y
@@ -290,12 +290,13 @@ double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransm
                                                                                            double A, 
                                                                                            double cellSizeLength, 
                                                                                            double skinfactor, 
-                                                                                           double fractureAreaWeightedlength)
+                                                                                           double fractureAreaWeightedlength, 
+                                                                                           double cDarcy)
 {
     double transmissibility;
 
     double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
-    transmissibility = 8 * m_cDarcy * (perm * NTG) * A / (cellSizeLength + slDivPi);
+    transmissibility = 8 * cDarcy * (perm * NTG) * A / (cellSizeLength + slDivPi);
 
     return transmissibility;
 }

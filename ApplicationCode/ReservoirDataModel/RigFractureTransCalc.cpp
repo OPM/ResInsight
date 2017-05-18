@@ -587,22 +587,28 @@ double RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(doubl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell& stimPlanCell)
+double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
+                                                                               double stimPlanCellSizeX,
+                                                                               double stimPlanCellSizeZ,
+                                                                               double wellRadius, 
+                                                                               double skinFactor, 
+                                                                               double fractureAzimuth,
+                                                                               double wellAzimuthAtFracturePosition, 
+                                                                               double cDarcyForRelevantUnit)
 {
-    //TODO: Ta inn relevante parametre, ikke hele brønncella
-    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH) return cvf::UNDEFINED_DOUBLE;
-
     double areaScalingFactor = 1.0;
-    if (m_fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+
+    double angleinRad = cvf::Math::toRadians(fractureAzimuth - (wellAzimuthAtFracturePosition - 90));
+    if ((angleinRad-90.0) > 0.01)
     {
-        areaScalingFactor = 1 / cvf::Math::cos((m_fracture->azimuth() - (m_fracture->wellAzimuthAtFracturePosition()-90) ));
+        areaScalingFactor = 1 / cvf::Math::cos(angleinRad);
     }
 
     double ro = 0.14 * cvf::Math::sqrt(
-        pow(stimPlanCell.cellSizeX(), 2.0) + pow(stimPlanCell.cellSizeZ(), 2));
+        pow(stimPlanCellSizeX, 2.0) + pow(stimPlanCellSizeZ, 2));
 
-    double Tc = 2 * cvf::PI_D * cDarcy() * stimPlanCell.getConductivtyValue() /
-        (log(ro / m_fracture->wellRadius()) + m_fracture->attachedFractureDefinition()->skinFactor() );
+    double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * stimPlanCellConductivity /
+        (log(ro / wellRadius) + skinFactor );
 
     Tc = Tc * areaScalingFactor;
 
@@ -612,20 +618,25 @@ double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell, double perforationLengthVertical, double perforationLengthHorizontal)
+double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity, 
+                                                                               double stimPlanCellSizeX,
+                                                                               double stimPlanCellSizeZ, 
+                                                                               double perforationLengthVertical,
+                                                                               double perforationLengthHorizontal,
+                                                                               double perforationEfficiency, 
+                                                                               double skinfactor, 
+                                                                               double cDarcyForRelevantUnit)
 {
-    //TODO: Ta inn relevante parametre, ikke hele brønncella
+    double TcPrefix = 8 * cDarcyForRelevantUnit * stimPlanConductivity;
 
-    double TcPrefix = 8 * cDarcy() * stimPlanCell.getConductivtyValue();
-
-    double DzPerf = perforationLengthVertical * m_fracture->perforationEfficiency();
-    double DxPerf = perforationLengthHorizontal * m_fracture->perforationEfficiency();
+    double DzPerf = perforationLengthVertical * perforationEfficiency;
+    double DxPerf = perforationLengthHorizontal * perforationEfficiency;
 
     double TcZ = TcPrefix * DzPerf /
-        (stimPlanCell.cellSizeX() + m_fracture->attachedFractureDefinition()->skinFactor() * DzPerf / cvf::PI_D);
+        (stimPlanCellSizeX + skinfactor * DzPerf / cvf::PI_D);
 
     double TcX = TcPrefix * DxPerf /
-        (stimPlanCell.cellSizeZ() + m_fracture->attachedFractureDefinition()->skinFactor() * DxPerf / cvf::PI_D);
+        (stimPlanCellSizeZ + skinfactor* DxPerf / cvf::PI_D);
 
     double Tc = cvf::Math::sqrt(pow(TcX, 2) + pow(TcZ, 2));
     return Tc;

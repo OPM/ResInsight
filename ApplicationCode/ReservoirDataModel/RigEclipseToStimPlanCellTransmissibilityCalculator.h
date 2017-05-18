@@ -50,12 +50,13 @@ private:
                                                               cvf::Vec3d & localX, 
                                                               cvf::Vec3d & localY, 
                                                               cvf::Vec3d & localZ);
-    double                      calculateMatrixTransmissibility(double permX, 
+    static double               calculateMatrixTransmissibility(double permX, 
                                                                 double NTG, 
                                                                 double Ay, 
                                                                 double dx, 
                                                                 double skinfactor, 
-                                                                double fractureAreaWeightedlength);
+                                                                double fractureAreaWeightedlength, 
+                                                                double cDarcy);
 
     const RimEclipseCase*               m_case;
     double                              m_cDarcy;

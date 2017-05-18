@@ -55,13 +55,28 @@ public:
     std::vector<RigFracturedEclipseCellExportData> computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);  
 
     // Calculations based on StimPlan grid
-    static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, double sideLengthParallellTrans, double sideLengthNormalTrans);
+    static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, 
+                                                                              double sideLengthParallellTrans, 
+                                                                              double sideLengthNormalTrans);
 
-    double                      computeRadialTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell);
-    double                      computeLinearTransmissibilityToWellinStimPlanCell(const RigStimPlanFracTemplateCell&  stimPlanCell, 
+    static double               computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
+                                                                                  double stimPlanCellSizeX, 
+                                                                                  double stimPlanCellSizeZ, 
+                                                                                  double wellRadius, 
+                                                                                  double skinFactor, 
+                                                                                  double fractureAzimuth, 
+                                                                                  double wellAzimuthAtFracturePosition, 
+                                                                                  double cDarcyForRelevantUnit);
+
+    static double               computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity,  
+                                                                                  double stimPlanCellSizeX, 
+                                                                                  double stimPlanCellSizeZ, 
                                                                                   double perforationLengthVertical, 
-                                                                                  double perforationLengthHorizontal);
-
+                                                                                  double perforationLengthHorizontal, 
+                                                                                  double perforationEfficiency,
+                                                                                  double skinfactor,
+                                                                                  double cDarcyForRelevantUnit);
+   
     double                      cDarcy();
 
 private: 
@@ -91,3 +106,4 @@ private:
     RimDefines::UnitSystem  m_unitForCalculation;
 
 };
+

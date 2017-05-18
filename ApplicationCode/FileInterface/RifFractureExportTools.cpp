@@ -656,7 +656,14 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
             const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
-            double linTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell, perforationLengthVert, perforationLengthHor);
+            double linTransInStimPlanCell = transmissibilityCalculator.computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell.getConductivtyValue(),
+                                                                                                                            stimPlanCell.cellSizeX(),
+                                                                                                                            stimPlanCell.cellSizeZ(),
+                                                                                                                            perforationLengthVert,
+                                                                                                                            perforationLengthHor,
+                                                                                                                            fracture->perforationEfficiency,
+                                                                                                                            fracture->attachedFractureDefinition()->skinFactor(),
+                                                                                                                            transmissibilityCalculator.cDarcy());
 
             out << qSetFieldWidth(10);
             out << QString::number(linTransInStimPlanCell, 'f', 2);
@@ -681,13 +688,17 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
             out << wellCenterStimPlanCellIJ.first;
             out << wellCenterStimPlanCellIJ.second;
 
-            //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
             const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
-            //TODO: Error - stimPlanCell blir ikke riktig... 
-
             RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
-            double radTransInStimPlanCell = transmissibilityCalculator.computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell);
+            double radTransInStimPlanCell = transmissibilityCalculator.computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell.getConductivtyValue(),
+                                                                                                                         stimPlanCell.cellSizeX(), 
+                                                                                                                         stimPlanCell.cellSizeZ(), 
+                                                                                                                         fracture->wellRadius(), 
+                                                                                                                         fracture->attachedFractureDefinition()->skinFactor(), 
+                                                                                                                         fracture->azimuth, 
+                                                                                                                         fracture->wellAzimuthAtFracturePosition(), 
+                                                                                                                         transmissibilityCalculator.cDarcy());
 
             out << qSetFieldWidth(10);
             out << QString::number(radTransInStimPlanCell, 'f', 2);
