@@ -54,6 +54,7 @@ public:
                                                       RimEclipseCase* caseToApply);
 
 private:
+
     static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, 
                                                         RimEclipseCase* caseToApply, 
                                                         QTextStream &out, 

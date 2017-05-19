@@ -169,6 +169,7 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
     return true;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -291,8 +292,7 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
         }
         else continue;
 
-        RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
-        double cDarcyInCorrectUnit = transmissibilityCalculator.cDarcy();
+        double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
 
         std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
@@ -678,15 +678,14 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
             //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
             const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
-            RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
             double linTransInStimPlanCell = RigFractureTransmissibilityEquations::computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell.getConductivtyValue(),
-                                                                                                                            stimPlanCell.cellSizeX(),
-                                                                                                                            stimPlanCell.cellSizeZ(),
-                                                                                                                            perforationLengthVert,
-                                                                                                                            perforationLengthHor,
-                                                                                                                            fracture->perforationEfficiency,
-                                                                                                                            fracture->attachedFractureDefinition()->skinFactor(),
-                                                                                                                            transmissibilityCalculator.cDarcy());
+                                                                                                                                    stimPlanCell.cellSizeX(),
+                                                                                                                                    stimPlanCell.cellSizeZ(),
+                                                                                                                                    perforationLengthVert,
+                                                                                                                                    perforationLengthHor,
+                                                                                                                                    fracture->perforationEfficiency,
+                                                                                                                                    fracture->attachedFractureDefinition()->skinFactor(),
+                                                                                                                                    caseToApply->eclipseCaseData()->darchysValue());
 
             out << qSetFieldWidth(10);
             out << QString::number(linTransInStimPlanCell, 'f', 2);
@@ -713,15 +712,14 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
 
             const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(fracTemplateStimPlan->getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
-            RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
             double radTransInStimPlanCell = RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell.getConductivtyValue(),
-                                                                                                                         stimPlanCell.cellSizeX(), 
-                                                                                                                         stimPlanCell.cellSizeZ(), 
-                                                                                                                         fracture->wellRadius(), 
-                                                                                                                         fracture->attachedFractureDefinition()->skinFactor(), 
-                                                                                                                         fracture->azimuth, 
-                                                                                                                         fracture->wellAzimuthAtFracturePosition(), 
-                                                                                                                         transmissibilityCalculator.cDarcy());
+                                                                                                                                    stimPlanCell.cellSizeX(),
+                                                                                                                                    stimPlanCell.cellSizeZ(),
+                                                                                                                                    fracture->wellRadius(),
+                                                                                                                                    fracture->attachedFractureDefinition()->skinFactor(),
+                                                                                                                                    fracture->azimuth,
+                                                                                                                                    fracture->wellAzimuthAtFracturePosition(),
+                                                                                                                                    caseToApply->eclipseCaseData()->darchysValue());
 
             out << qSetFieldWidth(10);
             out << QString::number(radTransInStimPlanCell, 'f', 2);
