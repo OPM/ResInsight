@@ -96,8 +96,13 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
 
                 for (auto coordMD : coordsAndMD)
                 {
+                    int numberOfDecimals = 2;
+
                     // Export X and Y unchanged, invert sign of Z to get TVD, export MD unchanged
-                    stream << coordMD.first.x() << " " << coordMD.first.y() << " " << -coordMD.first.z() << " " << coordMD.second << endl;
+                    stream        << formatNumber( coordMD.first.x(), numberOfDecimals);
+                    stream << " " << formatNumber( coordMD.first.y(), numberOfDecimals);
+                    stream << " " << formatNumber(-coordMD.first.z(), numberOfDecimals);
+                    stream << " " << formatNumber( coordMD.second, numberOfDecimals) << endl;
                 }
                 stream << -999 << endl << endl;
             }
@@ -105,6 +110,14 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     }
 
     RiaLogging::info("Completed export of Fishbones well path laterals to : " + completeFilename);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicExportFishbonesLateralsFeature::formatNumber(double val, int numberOfDecimals)
+{
+    return QString("%1").arg(val, 0, 'f', numberOfDecimals);
 }
 
 //--------------------------------------------------------------------------------------------------
