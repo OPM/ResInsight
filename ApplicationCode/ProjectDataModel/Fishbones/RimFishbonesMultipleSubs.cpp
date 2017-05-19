@@ -93,6 +93,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_installationRotationAngles.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]", "", "", "");
 
+    m_name.uiCapability()->setUiReadOnly(true);
+
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
 }
 
@@ -321,8 +323,6 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_name); // From RimNamedObject
-
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Location");
 
@@ -432,6 +432,18 @@ void RimFishbonesMultipleSubs::initAfterRead()
     {
         computeRotationAngles();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+{
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbonesMultipleSubs*>*>(this->parentField());
+    CVF_ASSERT(container);
+
+    size_t index = container->index(this);
+    m_name = QString("Fishbone %1").arg(index);
 }
 
 //--------------------------------------------------------------------------------------------------
