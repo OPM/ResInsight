@@ -36,7 +36,7 @@ public:
     RimPerforationInterval();
     virtual ~RimPerforationInterval();
 
-
+    void                                setStartAndEndMD(double startMD, double endMD);
     double                              startMD() { return m_startMD(); }
     double                              endMD() { return m_endMD(); }
 
@@ -50,5 +50,4 @@ private:
     caf::PdmField< double >             m_endMD;
     caf::PdmField< double >             m_radius;
     caf::PdmField< double >             m_skinFactor;
-
 };

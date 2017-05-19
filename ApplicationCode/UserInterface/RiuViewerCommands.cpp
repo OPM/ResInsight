@@ -305,6 +305,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 commandIds << "Separator";
                 commandIds << "RicNewWellPathIntersectionFeature";
                 commandIds << "RicNewFishbonesSubsAtMeasuredDepthFeature";
+                commandIds << "RicNewPerforationIntervalAtMeasuredDepthFeature";
             }
         }
 

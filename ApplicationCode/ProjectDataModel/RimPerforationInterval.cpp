@@ -51,6 +51,15 @@ RimPerforationInterval::~RimPerforationInterval()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setStartAndEndMD(double startMD, double endMD)
+{
+    m_startMD = startMD;
+    m_endMD = endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimProject* proj;

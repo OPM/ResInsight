@@ -7,11 +7,13 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalAtMeasuredDepthFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalAtMeasuredDepthFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
