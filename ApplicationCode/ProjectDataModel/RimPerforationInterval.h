@@ -36,15 +36,19 @@ public:
     RimPerforationInterval();
     virtual ~RimPerforationInterval();
 
-    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     double                              startMD() { return m_startMD(); }
     double                              endMD() { return m_endMD(); }
+
+protected:
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
 
 private:
     caf::PdmField< double >             m_startMD;
     caf::PdmField< double >             m_endMD;
     caf::PdmField< double >             m_radius;
     caf::PdmField< double >             m_skinFactor;
+
 };
