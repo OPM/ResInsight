@@ -28,6 +28,7 @@ class RimIdenticalGridCaseGroup;
 namespace caf 
 {
     class PdmObjectGroup;
+}
    
 //==================================================================================================
 /// 
@@ -37,15 +38,11 @@ class RicPasteEclipseCasesFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void addCasesToGridCaseGroup(PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
+    static void addCasesToGridCaseGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup);
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered(bool isChecked);
-    virtual void setupActionLook(QAction* actionToSetup);
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 };
-
-
-
-} // end namespace caf

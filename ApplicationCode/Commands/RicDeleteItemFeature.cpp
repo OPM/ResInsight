@@ -55,11 +55,9 @@
 
 #include <QAction>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicDeleteItemFeature, "RicDeleteItemFeature");
+CAF_CMD_SOURCE_INIT(RicDeleteItemFeature, "RicDeleteItemFeature");
 
-bool isDeletable(PdmUiItem * uiItem)
+bool isDeletable(caf::PdmUiItem* uiItem)
 {
     // Enable delete of well allocation plots
     if (dynamic_cast<RimWellAllocationPlot*>(uiItem)) return true;
@@ -107,12 +105,12 @@ bool isDeletable(PdmUiItem * uiItem)
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteItemFeature::isCommandEnabled() 
 {
-    std::vector<PdmUiItem*> items;
+    std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems(items);
     
     if (items.empty() ) return false;
 
-    for (PdmUiItem* item : items)
+    for (caf::PdmUiItem* item : items)
     {
         if (!isDeletable(item)) return false;
 
@@ -131,11 +129,11 @@ bool RicDeleteItemFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<PdmUiItem*> items;
-    SelectionManager::instance()->selectedItems(items);
+    std::vector<caf::PdmUiItem*> items;
+    caf::SelectionManager::instance()->selectedItems(items);
     assert(items.size() > 0);
 
-    for (PdmUiItem* item: items)
+    for (caf::PdmUiItem* item: items)
     {
         if (!isDeletable(item)) continue;
 
@@ -147,7 +145,7 @@ void RicDeleteItemFeature::onActionTriggered(bool isChecked)
 
         int indexAfter = -1;
 
-        std::vector<PdmObjectHandle*> childObjects;
+        std::vector<caf::PdmObjectHandle*> childObjects;
         childArrayFieldHandle->childObjects(&childObjects);
 
         for ( size_t i = 0; i < childObjects.size(); i++ )
@@ -161,15 +159,15 @@ void RicDeleteItemFeature::onActionTriggered(bool isChecked)
         // Did not find currently selected pdm object in the current list field
         assert(indexAfter != -1);
 
-        RicDeleteItemExec* executeCmd = new RicDeleteItemExec(SelectionManager::instance()->notificationCenter());
+        RicDeleteItemExec* executeCmd = new RicDeleteItemExec(caf::SelectionManager::instance()->notificationCenter());
 
         RicDeleteItemExecData* data = executeCmd->commandData();
-        data->m_rootObject = PdmReferenceHelper::findRoot(childArrayFieldHandle);
-        data->m_pathToField = PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, childArrayFieldHandle);
+        data->m_rootObject = caf::PdmReferenceHelper::findRoot(childArrayFieldHandle);
+        data->m_pathToField = caf::PdmReferenceHelper::referenceFromRootToField(data->m_rootObject, childArrayFieldHandle);
         data->m_indexToObject = indexAfter;
 
 
-        CmdExecCommandManager::instance()->processExecuteCommand(executeCmd);
+        caf::CmdExecCommandManager::instance()->processExecuteCommand(executeCmd);
     }
 }
 
@@ -181,5 +179,3 @@ void RicDeleteItemFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Delete");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
-
-} // end namespace caf

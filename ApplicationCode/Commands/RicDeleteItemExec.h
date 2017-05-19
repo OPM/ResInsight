@@ -22,18 +22,15 @@
 
 #include "cafCmdExecuteCommand.h"
 
-namespace caf 
-{
-
 class RicDeleteItemExecData;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicDeleteItemExec : public CmdExecuteCommand
+class RicDeleteItemExec : public caf::CmdExecuteCommand
 {
 public:
-    explicit RicDeleteItemExec(NotificationCenter* notificationCenter);
+    explicit RicDeleteItemExec(caf::NotificationCenter* notificationCenter);
 
     RicDeleteItemExecData* commandData();
 
@@ -44,7 +41,3 @@ public:
 private:
     RicDeleteItemExecData* m_commandData;
 };
-
-
-
-} // end namespace caf

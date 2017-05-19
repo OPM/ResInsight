@@ -21,9 +21,4 @@
 #include "RicDeleteItemExecData.h"
 
 
-namespace caf
-{
-
 CAF_PDM_SOURCE_INIT(RicDeleteItemExecData, "RicDeleteItemExecData");
-
-} // end namespace caf

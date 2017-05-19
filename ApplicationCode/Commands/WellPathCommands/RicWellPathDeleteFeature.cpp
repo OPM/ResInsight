@@ -20,18 +20,13 @@
 #include "RicWellPathDeleteFeature.h"
 
 #include "RimWellPathCollection.h"
+#include "RimWellPath.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RimWellPath.h"
-
-namespace caf
-{
-
 
 CAF_CMD_SOURCE_INIT(RicWellPathDeleteFeature, "RicWellPathDeleteFeature");
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -83,5 +78,3 @@ void RicWellPathDeleteFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Delete Well Path(s)");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
-
-} // end namespace caf

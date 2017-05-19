@@ -21,23 +21,16 @@
 
 #include "cafCmdFeature.h"
 
-namespace caf 
-{
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicToggleItemsOffFeature : public CmdFeature 
+class RicToggleItemsOffFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:
 
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
-
-
-
-} // end namespace caf

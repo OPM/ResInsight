@@ -19,14 +19,11 @@
 
 #include "RicToggleItemsFeature.h"
 
-#include "cafSelectionManager.h"
-
 #include "RicToggleItemsFeatureImpl.h"
 
-#include <QAction>
+#include "cafSelectionManager.h"
 
-namespace caf
-{
+#include <QAction>
 
 CAF_CMD_SOURCE_INIT(RicToggleItemsFeature, "RicToggleItemsFeature");
 
@@ -56,5 +53,3 @@ void RicToggleItemsFeature::setupActionLook(QAction* actionToSetup)
     else
         actionToSetup->setText("Toggle");
 }
-
-} // end namespace caf

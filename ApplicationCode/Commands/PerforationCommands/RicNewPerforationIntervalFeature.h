@@ -23,26 +23,19 @@
 
 class RimWellPath;
 
-namespace caf 
-{
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewPerforationIntervalFeature : public CmdFeature
+class RicNewPerforationIntervalFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:
 
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     RimWellPath* selectedWellPath();
 };
-
-
-
-} // end namespace caf

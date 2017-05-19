@@ -32,10 +32,7 @@
 #include <QAction>
 #include <QFileDialog>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicWellPathImportCompletionsFileFeature, "RicWellPathImportCompletionsFileFeature");
-
+CAF_CMD_SOURCE_INIT(RicWellPathImportCompletionsFileFeature, "RicWellPathImportCompletionsFileFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -88,5 +85,3 @@ void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToS
     actionToSetup->setText("Import Completions from File");
     actionToSetup->setIcon(QIcon(":/Well.png"));
 }
-
-} // end namespace caf

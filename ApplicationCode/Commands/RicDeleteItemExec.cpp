@@ -21,8 +21,10 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
@@ -39,12 +41,7 @@
 #include "cafPdmReferenceHelper.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafSelectionManager.h"
-#include "RimFormationNamesCollection.h"
-#include "RimCase.h"
 
-
-namespace caf
-{
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,15 +56,15 @@ QString RicDeleteItemExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::redo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
+    caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
     if (listField)
     {
-        std::vector<PdmObjectHandle*> children;
+        std::vector<caf::PdmObjectHandle*> children;
         listField->childObjects(&children);
 
-        PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
+        caf::PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections(obj);
 
         std::vector<caf::PdmObjectHandle*> referringObjects;
@@ -204,12 +201,12 @@ void RicDeleteItemExec::redo()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::undo()
 {
-    PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
+    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
 
-    PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>(field);
+    caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>(field);
     if (listField)
     {
-        PdmObjectHandle* obj = PdmXmlObjectHandle::readUnknownObjectFromXmlString(m_commandData->m_deletedObjectAsXml(), PdmDefaultObjectFactory::instance());
+        caf::PdmObjectHandle* obj = caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString(m_commandData->m_deletedObjectAsXml(), caf::PdmDefaultObjectFactory::instance());
 
         listField->insertAt(m_commandData->m_indexToObject, obj);
 
@@ -225,7 +222,7 @@ void RicDeleteItemExec::undo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicDeleteItemExec::RicDeleteItemExec(NotificationCenter* notificationCenter)
+RicDeleteItemExec::RicDeleteItemExec(caf::NotificationCenter* notificationCenter)
     : CmdExecuteCommand(notificationCenter)
 {
     m_commandData = new RicDeleteItemExecData;
@@ -238,5 +235,3 @@ RicDeleteItemExecData* RicDeleteItemExec::commandData()
 {
     return m_commandData;
 }
-
-} // end namespace caf

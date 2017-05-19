@@ -30,9 +30,6 @@
 
 #include <QAction>
 
-namespace caf
-{
-
 
 CAF_CMD_SOURCE_INIT(RicNewPerforationIntervalFeature, "RicNewPerforationIntervalFeature");
 
@@ -92,5 +89,3 @@ RimWellPath * RicNewPerforationIntervalFeature::selectedWellPath()
 
     return wellPath;
 }
-
-} // end namespace caf

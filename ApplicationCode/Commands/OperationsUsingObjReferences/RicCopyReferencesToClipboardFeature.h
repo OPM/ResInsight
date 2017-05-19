@@ -22,29 +22,25 @@
 
 #include "cafCmdFeature.h"
 
-namespace caf 
+namespace caf
 {
-
-class PdmObject;
+    class PdmObject;
+}
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCopyReferencesToClipboardFeature : public CmdFeature
+class RicCopyReferencesToClipboardFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 protected:
 
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
     static bool isAnyCopyableObjectSelected();
-    static bool isCopyOfObjectSupported(PdmObject* pdmObject);
+    static bool isCopyOfObjectSupported(caf::PdmObject* pdmObject);
 };
-
-
-
-} // end namespace caf
