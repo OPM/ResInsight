@@ -18,6 +18,8 @@
 
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
+#include "RigFractureTransmissibilityEquations.h"
+
 #include "RigStimPlanFracTemplateCell.h"
 #include "RigResultAccessorFactory.h"
 #include "RigEclipseCaseData.h"
@@ -203,9 +205,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-        double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_X = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Y = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Z = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
 
         double transmissibility = sqrt(transmissibility_X * transmissibility_X
                                        + transmissibility_Y * transmissibility_Y
@@ -280,23 +282,4 @@ bool RigEclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPo
     RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
     return isCellIntersected;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransmissibility(double perm, 
-                                                                                           double NTG, 
-                                                                                           double A, 
-                                                                                           double cellSizeLength, 
-                                                                                           double skinfactor, 
-                                                                                           double fractureAreaWeightedlength, 
-                                                                                           double cDarcy)
-{
-    double transmissibility;
-
-    double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
-    transmissibility = 8 * cDarcy * (perm * NTG) * A / (cellSizeLength + slDivPi);
-
-    return transmissibility;
 }
