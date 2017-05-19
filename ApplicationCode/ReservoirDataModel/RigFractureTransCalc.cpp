@@ -43,6 +43,7 @@
 #include <cmath> //Used for log 
 #include "RiaApplication.h"
 #include "RimEclipseView.h"
+#include "RigFractureTransmissibilityEquations.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -91,6 +92,7 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
     }
 
     RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
+    double cDarchy = eclipseCaseData->darchysValue();
 
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
@@ -219,9 +221,9 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
         double skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
 
-        double transmissibility_X = calculateMatrixTransmissibility(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength);
-        double transmissibility_Y = calculateMatrixTransmissibility(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength);
-        double transmissibility_Z = calculateMatrixTransmissibility(permZ, 1.0, Az, dz, skinfactor, fractureAreaWeightedlength);
+        double transmissibility_X = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength, cDarchy);
+        double transmissibility_Y = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength, cDarchy);
+        double transmissibility_Z = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permZ, 1.0, Az, dz, skinfactor, fractureAreaWeightedlength, cDarchy);
 
         double transmissibility = sqrt(transmissibility_X * transmissibility_X
             + transmissibility_Y * transmissibility_Y
@@ -276,104 +278,6 @@ bool RigFractureTransCalc::planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
 
     return isCellIntersected;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeStimPlanCellTransmissibilityInFracture(double conductivity, double sideLengthParallellTrans, double sideLengthNormalTrans)
-{
-    double transmissibility = conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
-    return transmissibility;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
-                                                                               double stimPlanCellSizeX,
-                                                                               double stimPlanCellSizeZ,
-                                                                               double wellRadius, 
-                                                                               double skinFactor, 
-                                                                               double fractureAzimuth,
-                                                                               double wellAzimuthAtFracturePosition, 
-                                                                               double cDarcyForRelevantUnit)
-{
-    double areaScalingFactor = 1.0;
-
-    double angleinRad = cvf::Math::toRadians(fractureAzimuth - (wellAzimuthAtFracturePosition - 90));
-    if ((angleinRad-90.0) > 0.01)
-    {
-        areaScalingFactor = 1 / cvf::Math::cos(angleinRad);
-    }
-
-    double ro = 0.14 * cvf::Math::sqrt(
-        pow(stimPlanCellSizeX, 2.0) + pow(stimPlanCellSizeZ, 2));
-
-    double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * stimPlanCellConductivity /
-        (log(ro / wellRadius) + skinFactor );
-
-    Tc = Tc * areaScalingFactor;
-
-    return Tc;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity, 
-                                                                               double stimPlanCellSizeX,
-                                                                               double stimPlanCellSizeZ, 
-                                                                               double perforationLengthVertical,
-                                                                               double perforationLengthHorizontal,
-                                                                               double perforationEfficiency, 
-                                                                               double skinfactor, 
-                                                                               double cDarcyForRelevantUnit)
-{
-    double TcPrefix = 8 * cDarcyForRelevantUnit * stimPlanConductivity;
-
-    double DzPerf = perforationLengthVertical * perforationEfficiency;
-    double DxPerf = perforationLengthHorizontal * perforationEfficiency;
-
-    double TcZ = TcPrefix * DzPerf /
-        (stimPlanCellSizeX + skinfactor * DzPerf / cvf::PI_D);
-
-    double TcX = TcPrefix * DxPerf /
-        (stimPlanCellSizeZ + skinfactor* DxPerf / cvf::PI_D);
-
-    double Tc = cvf::Math::sqrt(pow(TcX, 2) + pow(TcZ, 2));
-    return Tc;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::calculateMatrixTransmissibility(double perm, double NTG, double A, double cellSizeLength, double skinfactor, double fractureAreaWeightedlength)
-{
-    double transmissibility;
-
-    double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
-    transmissibility = 8 * cDarcy() * (perm * NTG) * A / (cellSizeLength + slDivPi);
-
-    return transmissibility;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::cDarcy()
-{
-    double c = cvf::UNDEFINED_DOUBLE;
-    if (m_unitForCalculation == RimDefines::UNITS_METRIC) c = 0.00852702;
-    if (m_unitForCalculation == RimDefines::UNITS_FIELD)  c = 0.00112712;
-
-    // TODO: Use value from RimReservoirCellResultsStorage?
-
-    return c;
 }
 
 

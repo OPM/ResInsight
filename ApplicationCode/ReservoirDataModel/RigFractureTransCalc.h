@@ -49,39 +49,13 @@ public:
 
     // Calculations based on fracture polygon and eclipse grid cells
     std::vector<RigFracturedEclipseCellExportData> computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
-
-    // Calculations based on StimPlan grid
-    static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, 
-                                                                              double sideLengthParallellTrans, 
-                                                                              double sideLengthNormalTrans);
-
-    static double               computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
-                                                                                  double stimPlanCellSizeX, 
-                                                                                  double stimPlanCellSizeZ, 
-                                                                                  double wellRadius, 
-                                                                                  double skinFactor, 
-                                                                                  double fractureAzimuth, 
-                                                                                  double wellAzimuthAtFracturePosition, 
-                                                                                  double cDarcyForRelevantUnit);
-
-    static double               computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity,  
-                                                                                  double stimPlanCellSizeX, 
-                                                                                  double stimPlanCellSizeZ, 
-                                                                                  double perforationLengthVertical, 
-                                                                                  double perforationLengthHorizontal, 
-                                                                                  double perforationEfficiency,
-                                                                                  double skinfactor,
-                                                                                  double cDarcyForRelevantUnit);
    
-    double                      cDarcy();
-
     static bool                 planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8],
                                                              cvf::Mat4f transformMatrixForPlane,
                                                              std::vector<std::vector<cvf::Vec3d> > & polygons);
 
 private: 
     static double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
-    double calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
 
 private:
     RimEclipseCase*         m_case;
