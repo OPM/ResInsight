@@ -32,13 +32,14 @@ CAF_PDM_SOURCE_INIT(RimPerforationInterval, "Perforation");
 RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitObject("Perforation", ":/Default.png", "", "");
-    m_name = "Perforation";
+
     CAF_PDM_InitField(&m_startMD, "StartMeasuredDepth", 0.0, "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_endMD, "EndMeasuredDepth", 0.0, "End MD [m]", "", "", "");
     CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius [m]", "", "", "");
     CAF_PDM_InitField(&m_skinFactor, "SkinFactor", 0.0, "Skin Factor", "", "", "");
-}
 
+    m_name.uiCapability()->setUiReadOnly(true);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -53,8 +54,8 @@ RimPerforationInterval::~RimPerforationInterval()
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimProject* proj;
-    this->firstAncestorOrThisOfType(proj);
-    if (proj) proj->createDisplayModelAndRedrawAllViews();
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->createDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +63,7 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    m_name = QString("%1 - %2").arg(m_startMD).arg(m_endMD);
     uiOrdering.add(&m_name);
 
     uiOrdering.add(&m_startMD);
