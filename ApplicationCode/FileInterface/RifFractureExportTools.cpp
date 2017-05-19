@@ -173,6 +173,35 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const QString& fileName, 
+                                                                           const RimWellPath* wellPath, 
+                                                                           const RimEclipseCase* caseToApply)
+{
+    
+     // Loop over fractures in well path (all)
+     //   Loop over stimplancells
+     //     if cell Is Contributing cond > 0
+     //        Calculate Matrix To Fracture Trans       
+     //        Add to condenser
+     //   Loop over stimplanecells (i, j)
+     //      if cell Is Contributing cond > 0
+     //         Calculate trans to neighbor (+i, +j ) 
+     //         Add to condenser
+     //   Find well cells (Perforated Well Path, Radius, Positioned Fracture)
+     //   For each well cell 
+     //       Find path intersection
+     //       Use LinT + 1/2 radialT on each end if endpoints are inside cell 
+     //       Add to condenser
+     //   Add eclipse cell transmissibilities to a map <eclipsecell index, map<fractureptr, transmissibility> >
+     // For all transmissibilities 
+     //  summarize all fractures contributions pr cell, 
+     //  Print COMPDAT entry
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifFractureExportTools::performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
 {
     //TODO: Get these more generally: 
@@ -393,8 +422,12 @@ void RifFractureExportTools::printStimPlanFractureTrans(const std::vector<RimFra
             continue;
         }
 
-        double verticalTrans = RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(stimPlanCell.getConductivtyValue(), stimPlanCell.cellSizeX(), stimPlanCell.cellSizeZ());
-        double horizontalTrans = RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(stimPlanCell.getConductivtyValue(), stimPlanCell.cellSizeZ(), stimPlanCell.cellSizeX());
+        double verticalTrans = RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(stimPlanCell.getConductivtyValue(), 
+                                                                                                                   stimPlanCell.cellSizeX(), 
+                                                                                                                   stimPlanCell.cellSizeZ());
+        double horizontalTrans = RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(stimPlanCell.getConductivtyValue(), 
+                                                                                                                     stimPlanCell.cellSizeZ(), 
+                                                                                                                     stimPlanCell.cellSizeX());
 
         out << qSetFieldWidth(5);
         size_t spi = stimPlanCell.getI();

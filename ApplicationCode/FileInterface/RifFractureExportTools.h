@@ -53,6 +53,11 @@ public:
                                                       const std::vector<RimFracture*>& fractures, 
                                                       RimEclipseCase* caseToApply);
 
+    static void exportWellPathFracturesToEclipseDataInputFile(const QString& fileName,
+                                                              const RimWellPath* wellPath,
+                                                              const RimEclipseCase* caseToApply);
+
+
 private:
 
     static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, 
