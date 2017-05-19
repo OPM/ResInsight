@@ -45,6 +45,7 @@
 #include <QFile>
 #include <QString>
 #include <QTextStream>
+#include "RigStimPlanUpscalingCalc.h"
 
 
 

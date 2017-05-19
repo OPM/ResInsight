@@ -60,6 +60,8 @@ ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFracTemplateCell.h
+${CEE_CURRENT_LIST_DIR}RigStimPlanUpscalingCalc.h
+
 
 
 )
@@ -116,6 +118,7 @@ ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFracTemplateCell.cpp
+${CEE_CURRENT_LIST_DIR}RigStimPlanUpscalingCalc.cpp
 
 )
 
