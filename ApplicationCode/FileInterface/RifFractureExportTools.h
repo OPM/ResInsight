@@ -49,7 +49,9 @@ public:
     RifFractureExportTools();
     virtual ~RifFractureExportTools();
 
-    static bool exportFracturesToEclipseDataInputFile(const QString& fileName, const std::vector<RimFracture*>& fractures, RimEclipseCase* caseToApply);
+    static bool exportFracturesToEclipseDataInputFile(const QString& fileName, 
+                                                      const std::vector<RimFracture*>& fractures, 
+                                                      RimEclipseCase* caseToApply);
 
 private:
     static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, 
@@ -70,10 +72,11 @@ private:
 
 
     static void printCOMPDATvalues(QTextStream & out, 
-                                   RigFracturedEclipseCellExportData &fracData, 
-                                   RimFracture* fracture, 
-                                   const QString& wellName, 
-                                   const RigMainGrid* mainGrid);
+                                   double transmissibility,
+                                   size_t i, size_t j, size_t k, 
+                                   const QString& fractureName, 
+                                   double skinFactor, 
+                                   const QString& wellName);
 
     static void printBackgroundDataHeaderLine(QTextStream & out);
 

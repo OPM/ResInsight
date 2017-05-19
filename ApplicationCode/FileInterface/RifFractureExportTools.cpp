@@ -141,11 +141,17 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
         RiaLogging::debug(QString("Writing COMPDAT values for fracture %1").arg(fracture->name()));
         std::vector<RigFracturedEclipseCellExportData> fracDataVector = exportDataPrFracture[fracture];
 
+        double skinFactor = cvf::UNDEFINED_DOUBLE;
+        if (fracture->attachedFractureDefinition()) skinFactor = fracture->attachedFractureDefinition()->skinFactor();
+        QString fractureName = fracture->name();
+
         for (RigFracturedEclipseCellExportData fracData : fracDataVector)
         {
             if ( fracData.transmissibility > 0 )
             {
-                printCOMPDATvalues(out, fracData, fracture, wellName, mainGrid);
+                size_t i, j, k;
+                mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
+                printCOMPDATvalues(out, fracData.transmissibility, i, j, k, fractureName, skinFactor,  wellName);
             }
         }
         
@@ -410,14 +416,15 @@ return;
 /// 
 //--------------------------------------------------------------------------------------------------
 void RifFractureExportTools::printCOMPDATvalues(QTextStream & out, 
-                                                RigFracturedEclipseCellExportData &fracData, 
-                                                RimFracture* fracture, 
-                                                const QString& wellName, 
-                                                const RigMainGrid* mainGrid)
+                                                double transmissibility,
+                                                size_t i, size_t j, size_t k, 
+                                                const QString& fractureName, 
+                                                double skinFactor, 
+                                                const QString& wellName)
 {
     out << qSetFieldWidth(8);
     
-    if (fracData.transmissibility == cvf::UNDEFINED_DOUBLE || !(fracture->attachedFractureDefinition())) 
+    if (transmissibility == cvf::UNDEFINED_DOUBLE || skinFactor == cvf::UNDEFINED_DOUBLE)
     {
         out << "--"; //Commenting out line in output file
     }
@@ -425,8 +432,7 @@ void RifFractureExportTools::printCOMPDATvalues(QTextStream & out,
     out << wellName;
     out << qSetFieldWidth(5);
 
-    size_t i, j, k;
-    mainGrid->ijkFromCellIndex(fracData.reservoirCellIndex, &i, &j, &k);
+   
     out << i + 1;          // 2. I location grid block, adding 1 to go to eclipse 1-based grid definition
     out << j + 1;          // 3. J location grid block, adding 1 to go to eclipse 1-based grid definition
     out << k + 1;          // 4. K location of upper connecting grid block, adding 1 to go to eclipse 1-based grid definition
@@ -437,18 +443,26 @@ void RifFractureExportTools::printCOMPDATvalues(QTextStream & out,
                          // 7. Saturation table number for connection rel perm. Default value
 
     out << qSetFieldWidth(12);
+    
     // 8. Transmissibility 
-    if (fracData.transmissibility != cvf::UNDEFINED_DOUBLE) out << QString::number(fracData.transmissibility, 'e', 4);
-    else out << "UNDEF";
+    if (transmissibility != cvf::UNDEFINED_DOUBLE)
+    {
+        out << QString::number(transmissibility, 'e', 4);
+    }
+    else 
+    {
+        out << "UNDEF";
+    }
 
     out << qSetFieldWidth(4);
     out << "2* ";         // Default value for 
                          // 9. Well bore diameter. Set to default
                          // 10. Effective Kh (perm times width)
 
-    if (fracture->attachedFractureDefinition())
+
+    if (skinFactor != cvf::UNDEFINED_DOUBLE)
     {
-        out << fracture->attachedFractureDefinition()->skinFactor;    // 11. Skin factor
+        out << skinFactor;    // 11. Skin factor
     }
     else //If no attached fracture definition these parameters are set to UNDEF
     {
@@ -456,7 +470,7 @@ void RifFractureExportTools::printCOMPDATvalues(QTextStream & out,
     }
 
     out << "/";
-    out << " " << fracture->name(); //Fracture name as comment
+    out << " " << fractureName; //Fracture name as comment
     out << "\n"; // Terminating entry
 
 }
