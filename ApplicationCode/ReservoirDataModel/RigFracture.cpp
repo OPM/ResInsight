@@ -29,24 +29,6 @@ RigFracturedEclipseCellExportData::RigFracturedEclipseCellExportData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFractureCell::RigStimPlanFractureCell(size_t i, size_t j)
-{
-    m_i = i;
-    m_j = j;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureCell::addContributingEclipseCell(size_t eclipseCell, double transmissibility)
-{
-    globalIndeciesToContributingEclipseCells.push_back(eclipseCell);
-    contributingEclipseCellTransmissibilities.push_back(transmissibility);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RigFracture::RigFracture()
 {
 }
@@ -75,12 +57,3 @@ const std::vector<cvf::Vec3f>& RigFracture::nodeCoords() const
 {
     return m_nodeCoords;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigFracture::addStimPlanCellFractureCell(RigStimPlanFractureCell fracStimPlanCellData)
-{
-    m_stimPlanCellsFractureData.push_back(fracStimPlanCellData);
-}
-

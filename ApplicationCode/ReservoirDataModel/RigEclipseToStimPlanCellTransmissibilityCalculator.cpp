@@ -110,9 +110,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     std::vector<cvf::Vec3d> stimPlanPolygonTransformed;
     for (cvf::Vec3d v : m_stimPlanCell.getPolygon())
     {
-        cvf::Vec3f stimPlanPolygonNode = static_cast<cvf::Vec3f>(v);
+        cvf::Vec3f stimPlanPolygonNode = cvf::Vec3f(v);
         stimPlanPolygonNode.transformPoint(m_fractureTransform);
-        stimPlanPolygonTransformed.push_back(static_cast<cvf::Vec3d>(stimPlanPolygonNode));
+        stimPlanPolygonTransformed.push_back(cvf::Vec3d(stimPlanPolygonNode));
     }
 
     std::vector<size_t> fracCells = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);

@@ -332,8 +332,6 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
                 continue;
             }
 
-            RigStimPlanFractureCell fracStimPlanCellData(stimPlanCell.getI(), stimPlanCell.getJ());
-
             RigEclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
                 fracture->transformMatrix(),
                 fracture->attachedFractureDefinition()->skinFactor,

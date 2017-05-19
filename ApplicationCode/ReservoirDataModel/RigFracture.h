@@ -54,29 +54,6 @@ public:
     double upscaledStimPlanValueAH;
 };
 
-
-class RigStimPlanFractureCell
-{
-public:
-    RigStimPlanFractureCell(size_t i, size_t j);
-
-    size_t                  m_i;
-    size_t                  m_j;
-
-    std::vector<size_t>     getGlobalIndeciesToContributingEclipseCells() { return globalIndeciesToContributingEclipseCells; }
-    std::vector<double>     getContributingEclipseCellTransmissibilities() { return contributingEclipseCellTransmissibilities; }
-    void                    addContributingEclipseCell(size_t eclipseCell, double transmissibility);
-
-private:
-    double                  performationLenghtVertical;
-    double                  performationLenghtHorizontal;
-
-    std::vector<size_t>     globalIndeciesToContributingEclipseCells;
-    std::vector<double>     contributingEclipseCellTransmissibilities;
-
-};
-
-
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -90,13 +67,8 @@ public:
     const std::vector<cvf::uint>&  triangleIndices() const;
     const std::vector<cvf::Vec3f>& nodeCoords() const;
  
-    void addStimPlanCellFractureCell(RigStimPlanFractureCell fracStimPlanCellData);
-
 private:
     std::vector<cvf::uint>  m_triangleIndices;
     std::vector<cvf::Vec3f> m_nodeCoords;
-
-    std::vector<RigStimPlanFractureCell>    m_stimPlanCellsFractureData;
-    std::vector<size_t>                         m_perforatedStimPlanCellsIndex;
 };
 
