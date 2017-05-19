@@ -48,7 +48,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 
     obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesSubs.size()));
     int integerValue = wellPathSelItem->m_measuredDepth;
-    obj->setMeasuredDepthAndCount(integerValue, 24, 5);
+    obj->setMeasuredDepthAndCount(integerValue, 24, 1);
 
     wellPath->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(obj);
