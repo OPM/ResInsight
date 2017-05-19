@@ -519,7 +519,7 @@ void RicWellPathExportCompletionDataFeature::computeWellSegments(RifEclipseOutpu
                 formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
 
                 lateral.branchNumber = ++branchNum;
-                std::vector<cvf::Vec3d>& coords = location.fishbonesSubs->coordsForLateral(location.subIndex, lateral.lateralIndex);
+                std::vector<cvf::Vec3d> coords = location.fishbonesSubs->coordsForLateral(location.subIndex, lateral.lateralIndex);
                 std::vector<HexIntersectionInfo> intersections = findIntersections(caseToApply->eclipseCaseData(), coords);
                 filterIntersections(&intersections);
 
