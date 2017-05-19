@@ -95,7 +95,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
 
-        exportToFolder(objects[0], exportSettings.fileName, exportSettings.caseToApply, exportSettings.includeWpimult(), exportSettings.removeLateralsInMainBoreCells());
+        exportToFolder(objects[0], exportSettings);
     }
 }
 
@@ -110,11 +110,11 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult, bool removeLateralsInMainBoreCells)
+void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings)
 {
-    QFile exportFile(fileName);
+    QFile exportFile(exportSettings.fileName());
 
-    if (caseToApply == nullptr)
+    if (exportSettings.caseToApply() == nullptr)
     {
         RiaLogging::error("Export Completions Data: Cannot export completions data without specified eclipse case");
         return;
@@ -122,112 +122,279 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
 
     if (!exportFile.open(QIODevice::WriteOnly))
     {
-        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(fileName));
+        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(exportSettings.fileName()));
         return;
     }
 
-    QTextStream stream(&exportFile);
+    RiaLogging::debug(QString("Exporting completion data for well path %1 to %2 [WPIMULT: %3, REM BORE CELLS: %4]").arg(wellPath->name).arg(exportSettings.fileName()).arg(exportSettings.includeWpimult()).arg(exportSettings.removeLateralsInMainBoreCells()));
 
-    const RigEclipseCaseData* caseData = caseToApply->eclipseCaseData();
 
-    std::vector<size_t> wellPathCells;
-    if (removeLateralsInMainBoreCells)
+    // Generate data
+    const RigEclipseCaseData* caseData =  exportSettings.caseToApply()->eclipseCaseData();
+    std::vector<WellSegmentLocation> wellSegmentLocations = findWellSegmentLocations(exportSettings.caseToApply, wellPath);
+
+    // Filter out cells where main bore is present
+    if (exportSettings.removeLateralsInMainBoreCells())
     {
-        wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+        std::vector<size_t> wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+        markWellPathCells(wellPathCells, &wellSegmentLocations);
     }
 
-    std::map<size_t, double> lateralsPerCell;
-
+    // Print data
+    QTextStream stream(&exportFile);
     RifEclipseOutputTableFormatter formatter(stream);
 
-    // COMPDAT
+    generateCompdatTable(formatter, wellPath, exportSettings, wellSegmentLocations);
+
+    if (exportSettings.includeWpimult())
+    {
+        std::map<size_t, double> lateralsPerCell = computeLateralsPerCell(wellSegmentLocations, exportSettings.removeLateralsInMainBoreCells());
+        generateWpimultTable(formatter, wellPath, exportSettings, lateralsPerCell);
+    }
+
+    generateWelsegsTable(formatter, wellPath, exportSettings, wellSegmentLocations);
+    generateCompsegsTable(formatter, wellPath, exportSettings, wellSegmentLocations);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations)
+{
+    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
+    std::vector<RifEclipseOutputTableColumn> header = {
+               RifEclipseOutputTableColumn("Well"),
+               RifEclipseOutputTableColumn("I"),
+               RifEclipseOutputTableColumn("J"),
+               RifEclipseOutputTableColumn("K1"),
+               RifEclipseOutputTableColumn("K2"),
+               RifEclipseOutputTableColumn("Status"),
+               RifEclipseOutputTableColumn("SAT"),
+               RifEclipseOutputTableColumn("TR"),
+               RifEclipseOutputTableColumn("DIAM"),
+               RifEclipseOutputTableColumn("KH"),
+               RifEclipseOutputTableColumn("S"),
+               RifEclipseOutputTableColumn("Df"),
+               RifEclipseOutputTableColumn("DIR"),
+               RifEclipseOutputTableColumn("r0")
+    };
+
+    formatter.keyword("COMPDAT");
+    formatter.header(header);
+
+    for (const WellSegmentLocation& location : locations)
+    {
+        for (const WellSegmentLateral& lateral : location.laterals)
+        {
+            std::vector<size_t> cellIndices;
+            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
+            {
+                if (settings.removeLateralsInMainBoreCells && intersection.mainBoreCell) continue;
+
+                cellIndices.push_back(intersection.cellIndex);
+            }
+            std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(grid, cellIndices);
+
+            formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
+            for (auto cellRange : cellRanges)
+            {
+                // Add cell indices
+                formatter.add(wellPath->name()).addZeroBasedCellIndex(cellRange.i).addZeroBasedCellIndex(cellRange.j).addZeroBasedCellIndex(cellRange.k1).addZeroBasedCellIndex(cellRange.k2);
+                // Remaining data, to be computed
+                formatter.add("'OPEN'").add("1*").add("1*");
+                // Diameter (originally in mm) in m
+                formatter.add(location.fishbonesSubs->holeRadius() / 1000);
+                formatter.add("1*").add("1*").add("1*");
+                formatter.add("'Z'"); // TODO - Calculate direction
+                formatter.add("1*");
+                formatter.rowCompleted();
+            }
+        }
+    }
+
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::map<size_t, double>& lateralsPerCell)
+{
+    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
+    std::vector<RifEclipseOutputTableColumn> header = {
+        RifEclipseOutputTableColumn("Well"),
+        RifEclipseOutputTableColumn("Mult"),
+        RifEclipseOutputTableColumn("I"),
+        RifEclipseOutputTableColumn("J"),
+        RifEclipseOutputTableColumn("K"),
+    };
+    formatter.keyword("WPIMULT");
+    formatter.header(header);
+
+    for (auto lateralsInCell : lateralsPerCell)
+    {
+        size_t i, j, k;
+        grid->ijkFromCellIndex(lateralsInCell.first, &i, &j, &k);
+        formatter.add(wellPath->name());
+        formatter.add(lateralsInCell.second);
+        formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
+        formatter.rowCompleted();
+    }
+
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations)
+{
+    formatter.keyword("WELSEGS");
+
+    const WellSegmentLocation& firstLocation = locations[0];
+
     {
         std::vector<RifEclipseOutputTableColumn> header = {
-                   RifEclipseOutputTableColumn{"Well",   LEFT},
-                   RifEclipseOutputTableColumn{"I",      LEFT},
-                   RifEclipseOutputTableColumn{"J",      LEFT},
-                   RifEclipseOutputTableColumn{"K1",     LEFT},
-                   RifEclipseOutputTableColumn{"K2",     LEFT},
-                   RifEclipseOutputTableColumn{"Status", LEFT},
-                   RifEclipseOutputTableColumn{"SAT",    LEFT},
-                   RifEclipseOutputTableColumn{"TR",     LEFT},
-                   RifEclipseOutputTableColumn{"DIAM",   LEFT},
-                   RifEclipseOutputTableColumn{"KH",     LEFT},
-                   RifEclipseOutputTableColumn{"S",      LEFT},
-                   RifEclipseOutputTableColumn{"Df",     LEFT},
-                   RifEclipseOutputTableColumn{"DIR",    LEFT},
-                   RifEclipseOutputTableColumn{"r0",     LEFT}
+            RifEclipseOutputTableColumn("Name"),
+            RifEclipseOutputTableColumn("Dep 1"),
+            RifEclipseOutputTableColumn("Tlen 1"),
+            RifEclipseOutputTableColumn("Vol 1"),
+            RifEclipseOutputTableColumn("Len&Dep"),
+            RifEclipseOutputTableColumn("PresDrop"),
         };
-
-        formatter.keyword("COMPDAT");
         formatter.header(header);
 
-        for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
+        formatter.add(wellPath->name());
+        formatter.add(firstLocation.trueVerticalDepth);
+        formatter.add(firstLocation.measuredDepth);
+        formatter.add("1*");
+        formatter.add("INC"); 
+        formatter.add("H--");
+
+        formatter.rowCompleted();
+    }
+
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn("First Seg"),
+            RifEclipseOutputTableColumn("Last Seg"),
+            RifEclipseOutputTableColumn("Branch Num"),
+            RifEclipseOutputTableColumn("Outlet Seg"),
+            RifEclipseOutputTableColumn("Length"),
+            RifEclipseOutputTableColumn("Depth Change"),
+            RifEclipseOutputTableColumn("Diam"),
+            RifEclipseOutputTableColumn("Rough"),
+        };
+        formatter.header(header);
+    }
+
+    {
+        WellSegmentLocation previousLocation = firstLocation;
+        formatter.comment("Main stem");
+        for (size_t i = 0; i < locations.size(); ++i)
         {
-            for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
+            const WellSegmentLocation& location = locations[i];
+
+            formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
+            formatter.add(location.segmentNumber).add(location.segmentNumber);
+            formatter.add(1); // All segments on main stem are branch 1
+            formatter.add(location.segmentNumber - 1); // All main stem segments are connected to the segment below them
+            formatter.add(location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex]);
+            formatter.add(location.trueVerticalDepth - previousLocation.trueVerticalDepth);
+            formatter.add(-1.0); // FIXME : Diam of main stem?
+            formatter.add(-1.0); // FIXME : Rough of main stem?
+            formatter.rowCompleted();
+
+            previousLocation = location;
+        }
+    }
+
+    {
+        formatter.comment("Laterals");
+        formatter.comment("Diam: MSW - Tubing Radius");
+        formatter.comment("Rough: MSW - Open Hole Roughness Factor");
+        for (const WellSegmentLocation& location : locations)
+        {
+            for (const WellSegmentLateral& lateral : location.laterals)
             {
-                for (size_t lateralIndex = 0; lateralIndex < subs->lateralLengths().size(); ++lateralIndex)
+                formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
+
+                for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
                 {
-                    std::vector<cvf::Vec3d> lateralCoords = subs->coordsForLateral(subIndex, lateralIndex);
-
-                    std::vector<size_t> lateralCells = findIntersectingCells(caseData, lateralCoords);
-
-                    if (includeWpimult)
-                    {
-                        // Only need this data if WPIMULT should be included in file
-                        addLateralToCells(&lateralsPerCell, lateralCells);
-                    }
-
-                    if (removeLateralsInMainBoreCells)
-                    {
-                        lateralCells = filterWellPathCells(lateralCells, wellPathCells);
-                    }
-
-                    std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(caseData->mainGrid(), lateralCells);
-
-                    formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(subs->name()).arg(subIndex).arg(lateralIndex));
-                    for (auto cellRange : cellRanges)
-                    {
-                        // Add cell indices
-                        formatter.add(wellPath->name()).addZeroBasedCellIndex(cellRange.i).addZeroBasedCellIndex(cellRange.j).addZeroBasedCellIndex(cellRange.k1).addZeroBasedCellIndex(cellRange.k2);
-                        // Remaining data, to be computed
-                        formatter.add("'OPEN'").add("1*").add("1*");
-                        // Diameter (originally in mm) in m
-                        formatter.add(subs->holeRadius() / 1000);
-                        formatter.add("1*").add("1*").add("1*").add("'Z'").add("1*");
-                        formatter.rowCompleted();
-                    }
+                    formatter.add(intersection.segmentNumber);
+                    formatter.add(intersection.segmentNumber);
+                    formatter.add(lateral.branchNumber);
+                    formatter.add(intersection.attachedSegmentNumber);
+                    formatter.add(intersection.length);
+                    formatter.add(intersection.depth);
+                    formatter.add(location.fishbonesSubs->tubingRadius());
+                    formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
+                    formatter.rowCompleted();
                 }
             }
         }
-        formatter.tableCompleted();
     }
 
-    // WPIMULT
-    if (includeWpimult)
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations)
+{
+    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
+    formatter.keyword("COMPSEGS");
     {
         std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn{"Well", LEFT},
-            RifEclipseOutputTableColumn{"Mult", LEFT},
-            RifEclipseOutputTableColumn{"I", LEFT},
-            RifEclipseOutputTableColumn{"J", LEFT},
-            RifEclipseOutputTableColumn{"K", LEFT},
+            RifEclipseOutputTableColumn("Name")
         };
-        formatter.keyword("WPIMULT");
         formatter.header(header);
-
-        for (auto lateralsInCell : lateralsPerCell)
-        {
-            size_t i, j, k;
-            caseData->mainGrid()->ijkFromCellIndex(lateralsInCell.first, &i, &j, &k);
-            formatter.add(wellPath->name()).add(lateralsInCell.second).addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
-            formatter.rowCompleted();
-        }
-
-        formatter.tableCompleted();
+        formatter.add(wellPath->name());
+        formatter.rowCompleted();
     }
 
-    computeWellSegments(formatter, wellPath, caseToApply);
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn("I"),
+            RifEclipseOutputTableColumn("J"),
+            RifEclipseOutputTableColumn("K"),
+            RifEclipseOutputTableColumn("Branch no"),
+            RifEclipseOutputTableColumn("Start Length"),
+            RifEclipseOutputTableColumn("End Length"),
+            RifEclipseOutputTableColumn("Dir Pen"),
+            RifEclipseOutputTableColumn("End Range"),
+            RifEclipseOutputTableColumn("Connection Depth")
+        };
+        formatter.header(header);
+    }
+
+    for (const WellSegmentLocation& location : locations)
+    {
+        for (const WellSegmentLateral& lateral : location.laterals)
+        {
+            double length = 0;
+            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
+            {
+                length += intersection.length;
+
+                if (settings.removeLateralsInMainBoreCells && intersection.mainBoreCell) continue;
+
+                size_t i, j, k;
+                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
+                
+                formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
+                formatter.add(lateral.branchNumber);
+                formatter.add(length);
+                formatter.add("1*");
+                formatter.add("X"); // TODO - Calculate direction
+                formatter.add(-1);
+                formatter.rowCompleted();
+            }
+        }
+    }
+
+    formatter.tableCompleted();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,158 +579,51 @@ void RicWellPathExportCompletionDataFeature::setHexCorners(const RigCell& cell, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RicWellPathExportCompletionDataFeature::filterWellPathCells(const std::vector<size_t>& completionCells, const std::vector<size_t>& wellPathCells)
+void RicWellPathExportCompletionDataFeature::markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations)
 {
-    std::vector<size_t> filteredCells;
-    std::set_difference(completionCells.begin(), completionCells.end(), wellPathCells.begin(), wellPathCells.end(), std::back_inserter(filteredCells));
-    return filteredCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::addLateralToCells(std::map<size_t, double>* lateralsPerCell, const std::vector<size_t>& lateralCells)
-{
-    for (size_t cell : lateralCells)
+    std::set<size_t> wellPathCellSet(wellPathCells.begin(), wellPathCells.end());
+    for (WellSegmentLocation& location : *locations)
     {
-        std::map<size_t, double>::iterator it = lateralsPerCell->find(cell);
-        if (it == lateralsPerCell->end())
+        for (WellSegmentLateral& lateral : location.laterals)
         {
-            (*lateralsPerCell)[cell] = 1;
-        }
-        else
-        {
-            (*lateralsPerCell)[cell] = it->second + 1;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::computeWellSegments(RifEclipseOutputTableFormatter& formatter, RimWellPath* wellPath, const RimEclipseCase* caseToApply)
-{
-    std::vector<WellSegmentLocation> wellSegmentLocations = findWellSegmentLocations(wellPath);
-    if (wellSegmentLocations.empty()) return;
-    formatter.keyword("WELSEGS");
-
-    WellSegmentLocation& firstLocation = wellSegmentLocations[0];
-
-    {
-        std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn{"Name", LEFT},
-            RifEclipseOutputTableColumn{"Dep 1", LEFT},
-            RifEclipseOutputTableColumn{"Tlen 1", LEFT},
-            RifEclipseOutputTableColumn{"Vol 1", LEFT},
-            RifEclipseOutputTableColumn{"Len&Dep", LEFT},
-            RifEclipseOutputTableColumn{"PresDrop", LEFT},
-        };
-        formatter.header(header);
-
-        formatter.add(wellPath->name());
-        formatter.add(firstLocation.trueVerticalDepth);
-        formatter.add(firstLocation.measuredDepth);
-        formatter.add("1*");
-        formatter.add("INC"); 
-        formatter.add("H--");
-
-        formatter.rowCompleted();
-    }
-
-    {
-        std::vector<RifEclipseOutputTableColumn> header = {
-            RifEclipseOutputTableColumn{"First Seg", LEFT},
-            RifEclipseOutputTableColumn{"Last Seg", LEFT},
-            RifEclipseOutputTableColumn{"Branch Num", LEFT},
-            RifEclipseOutputTableColumn{"Outlet Seg", LEFT},
-            RifEclipseOutputTableColumn{"Length", LEFT},
-            RifEclipseOutputTableColumn{"Depth Change", LEFT},
-            RifEclipseOutputTableColumn{"Diam", LEFT},
-            RifEclipseOutputTableColumn{"Rough", LEFT},
-        };
-        formatter.header(header);
-    }
-
-    size_t segmentNumber = 1;
-    {
-        WellSegmentLocation previousLocation = firstLocation;
-        formatter.comment("Main stem");
-        for (size_t i = 0; i < wellSegmentLocations.size(); ++i)
-        {
-            WellSegmentLocation& location = wellSegmentLocations[i];
-            location.segmentNumber = static_cast<int>(segmentNumber + 1);
-
-            formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
-            formatter.add(location.segmentNumber).add(location.segmentNumber);
-            formatter.add(1); // All segments on main stem are branch 1
-            formatter.add(segmentNumber);
-            formatter.add(location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex]);
-            formatter.add(location.trueVerticalDepth - previousLocation.trueVerticalDepth);
-            formatter.add(-1.0); // FIXME : Diam of main stem?
-            formatter.add(-1.0); // FIXME : Rough of main stem?
-            formatter.rowCompleted();
-
-            ++segmentNumber;
-            previousLocation = location;
-        }
-    }
-
-    {
-        int branchNum = 1;
-        formatter.comment("Laterals");
-        formatter.comment("Diam: MSW - Tubing Radius");
-        formatter.comment("Rough: MSW - Open Hole Roughness Factor");
-        for (WellSegmentLocation& location : wellSegmentLocations)
-        {
-            for (WellSegmentLateral& lateral : location.laterals)
+            for (WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
-                formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
-
-                lateral.branchNumber = ++branchNum;
-                std::vector<cvf::Vec3d> coords = location.fishbonesSubs->coordsForLateral(location.subIndex, lateral.lateralIndex);
-                std::vector<HexIntersectionInfo> intersections = findIntersections(caseToApply->eclipseCaseData(), coords);
-                filterIntersections(&intersections);
-
-                double length = 0;
-                double depth = 0;
-                cvf::Vec3d& startPoint = coords[0];
-                auto intersection = intersections.cbegin();
-
-                for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); i++)
+                if (wellPathCellSet.find(intersection.cellIndex) != wellPathCellSet.end())
                 {
-                    if (isPointBetween(startPoint, coords[i], intersection->m_intersectionPoint))
-                    {
-                        cvf::Vec3d between = intersection->m_intersectionPoint - startPoint;
-                        length += between.length();
-                        depth += intersection->m_intersectionPoint.z() - startPoint.z();
-                        segmentNumber++;
-                        formatter.add(segmentNumber).add(segmentNumber);
-                        formatter.add(lateral.branchNumber);
-                        formatter.add(location.segmentNumber);
-                        formatter.add(length);
-                        formatter.add(depth);
-                        formatter.add(location.fishbonesSubs->tubingRadius());
-                        formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
-                        formatter.rowCompleted();
-
-                        length = 0;
-                        depth = 0;
-                        startPoint = intersection->m_intersectionPoint;
-                        ++intersection;
-                    }
-                    else
-                    {
-                        cvf::Vec3d between = coords[i] - startPoint;
-                        length += between.length();
-                        depth += coords[i].z() - startPoint.z();
-                        startPoint = coords[i];
-                    }
+                    intersection.mainBoreCell = true;
                 }
             }
         }
     }
+}
 
-    formatter.tableCompleted();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<size_t, double> RicWellPathExportCompletionDataFeature::computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells)
+{
+    std::map<size_t, double> lateralsPerCell;
+    for (const WellSegmentLocation& location : segmentLocations)
+    {
+        for (const WellSegmentLateral& lateral : location.laterals)
+        {
+            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
+            {
+                if (removeMainBoreCells && intersection.mainBoreCell) continue;
+
+                auto match = lateralsPerCell.find(intersection.cellIndex);
+                if (match == lateralsPerCell.end())
+                {
+                    lateralsPerCell[intersection.cellIndex] = 1;
+                }
+                else
+                {
+                    lateralsPerCell[intersection.cellIndex] = match->second + 1;
+                }
+            }
+        }
+    }
+    return lateralsPerCell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -603,7 +663,10 @@ void RicWellPathExportCompletionDataFeature::filterIntersections(std::vector<Hex
     }
 }
 
-std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(RimWellPath* wellPath)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(const RimEclipseCase* caseToApply, RimWellPath* wellPath)
 {
     std::vector<WellSegmentLocation> wellSegmentLocations;
     for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
@@ -622,6 +685,72 @@ std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWel
     }
     std::sort(wellSegmentLocations.begin(), wellSegmentLocations.end(), wellSegmentLocationOrdering);
 
+    assignBranchAndSegmentNumbers(caseToApply, &wellSegmentLocations);
+
     return wellSegmentLocations;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum)
+{
+    for (WellSegmentLateral& lateral : location->laterals)
+    {
+        lateral.branchNumber = ++(*branchNum);
+        std::vector<cvf::Vec3d> coords = location->fishbonesSubs->coordsForLateral(location->subIndex, lateral.lateralIndex);
+        std::vector<HexIntersectionInfo> intersections = findIntersections(caseToApply->eclipseCaseData(), coords);
+        filterIntersections(&intersections);
+
+        double length = 0;
+        double depth = 0;
+        cvf::Vec3d& startPoint = coords[0];
+        auto intersection = intersections.cbegin();
+        int attachedSegmentNumber = location->segmentNumber;
+
+        for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); i++)
+        {
+            if (isPointBetween(startPoint, coords[i], intersection->m_intersectionPoint))
+            {
+                cvf::Vec3d between = intersection->m_intersectionPoint - startPoint;
+                length += between.length();
+                depth += intersection->m_intersectionPoint.z() - startPoint.z();
+
+                lateral.intersections.push_back(WellSegmentLateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->m_hexIndex, length, depth));
+
+                length = 0;
+                depth = 0;
+                startPoint = intersection->m_intersectionPoint;
+                attachedSegmentNumber = *segmentNum;
+                ++intersection;
+            }
+            else
+            {
+                cvf::Vec3d between = coords[i] - startPoint;
+                length += between.length();
+                depth += coords[i].z() - startPoint.z();
+                startPoint = coords[i];
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations)
+{
+    int segmentNumber = 1;
+    int branchNumber = 1;
+    // First loop over the locations so that each segment on the main stem is an incremental number
+    for (WellSegmentLocation& location : *locations)
+    {
+        location.segmentNumber = ++segmentNumber;
+    }
+    // Then assign branch and segment numbers to each lateral parts
+    for (WellSegmentLocation& location : *locations)
+    {
+        calculateLateralIntersections(caseToApply, &location, &branchNumber, &segmentNumber);
+    }
 }
 

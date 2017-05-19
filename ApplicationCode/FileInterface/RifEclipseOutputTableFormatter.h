@@ -55,10 +55,10 @@ struct RifEclipseOutputTableLine
 //==================================================================================================
 struct RifEclipseOutputTableColumn
 {
-    RifEclipseOutputTableColumn(const QString& title, RifEclipseOutputTableAlignment alignment)
+    RifEclipseOutputTableColumn(const QString& title, RifEclipseOutputTableAlignment alignment = LEFT, int width = -1)
         : title(title),
         alignment(alignment),
-        width(-1)
+        width(width)
     {
     }
 

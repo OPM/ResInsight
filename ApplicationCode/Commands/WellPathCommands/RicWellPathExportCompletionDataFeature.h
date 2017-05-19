@@ -22,6 +22,8 @@
 
 #include "RigWellLogExtractionTools.h"
 
+#include "RimExportCompletionDataSettings.h"
+
 #include "cafCmdFeature.h"
 
 #include "cvfBoundingBox.h"
@@ -34,6 +36,26 @@ class RigMainGrid;
 class RigCell;
 class RimFishbonesMultipleSubs;
 
+//==================================================================================================
+/// 
+//==================================================================================================
+struct WellSegmentLateralIntersection {
+    WellSegmentLateralIntersection(int segmentNumber, int attachedSegmentNumber, size_t cellIndex, double length, double depth)
+        : segmentNumber(segmentNumber),
+          attachedSegmentNumber(attachedSegmentNumber),
+          cellIndex(cellIndex),
+          length(length),
+          depth(depth),
+          mainBoreCell(false)
+    {}
+
+    int    segmentNumber;
+    int    attachedSegmentNumber;
+    size_t cellIndex;
+    bool   mainBoreCell;
+    double length;
+    double depth;
+};
 
 //==================================================================================================
 /// 
@@ -41,20 +63,21 @@ class RimFishbonesMultipleSubs;
 struct WellSegmentLateral {
     WellSegmentLateral(size_t lateralIndex) : lateralIndex(lateralIndex) {}
 
-    size_t lateralIndex;
-    int    branchNumber;
+    size_t                                      lateralIndex;
+    int                                         branchNumber;
+    std::vector<WellSegmentLateralIntersection> intersections;
 };
 
 //==================================================================================================
 /// 
 //==================================================================================================
 struct WellSegmentLocation {
-    WellSegmentLocation(const RimFishbonesMultipleSubs* subs, double measuredDepth, double trueVerticalDepth, size_t subIndex)
+    WellSegmentLocation(const RimFishbonesMultipleSubs* subs, double measuredDepth, double trueVerticalDepth, size_t subIndex, int segmentNumber = -1)
         : fishbonesSubs(subs),
           measuredDepth(measuredDepth),
           trueVerticalDepth(trueVerticalDepth),
           subIndex(subIndex),
-          segmentNumber(-1)
+          segmentNumber(segmentNumber)
     {
     }
 
@@ -95,18 +118,26 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void                                  exportToFolder(RimWellPath* wellPath, const QString& fileName, const RimEclipseCase* caseToApply, bool includeWpimult, bool removeLateralsInMainBoreCells);
+    static void                                  exportToFolder(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings);
+
+    static void                                  generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::map<size_t, double>& lateralsPerCell);
+    static void                                  generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations);
+
+    static std::map<size_t, double>              computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells);
+
     static std::vector<size_t>                   findCloseCells(const RigEclipseCaseData* caseData, const cvf::BoundingBox& bb);
     static std::vector<EclipseCellIndexRange>    getCellIndexRange(const RigMainGrid* grid, const std::vector<size_t>& cellIndices);
     static bool                                  cellOrdering(const EclipseCellIndex& cell1, const EclipseCellIndex& cell2);
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
     static void                                  setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners);
-    static std::vector<size_t>                   filterWellPathCells(const std::vector<size_t>& completionCells, const std::vector<size_t>& wellPathCells);
-    static void                                  addLateralToCells(std::map<size_t, double>* lateralsPerCell, const std::vector<size_t>& lateralCells);
-    static void                                  computeWellSegments(RifEclipseOutputTableFormatter& formatter, RimWellPath* wellPath, const RimEclipseCase* caseToApply);
+    static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
     static bool                                  wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second);
     static std::vector<HexIntersectionInfo>      findIntersections(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords);
     static bool                                  isPointBetween(const cvf::Vec3d& pointA, const cvf::Vec3d& pointB, const cvf::Vec3d& needle);
     static void                                  filterIntersections(std::vector<HexIntersectionInfo>* intersections);
-    static std::vector<WellSegmentLocation>      findWellSegmentLocations(RimWellPath* wellPath);
+    static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, RimWellPath* wellPath);
+    static void                                  calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum);
+    static void                                  assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
 };

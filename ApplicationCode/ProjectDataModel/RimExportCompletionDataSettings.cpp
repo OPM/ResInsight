@@ -27,6 +27,6 @@ RimExportCompletionDataSettings::RimExportCompletionDataSettings()
 {
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&includeWpimult, "IncludeWPIMULT", "Include WPIMLUT", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", "Remove Laterals in Main Bore Cells", "", "", "");
+    CAF_PDM_InitField(&includeWpimult, "IncludeWPIMULT", true, "Include WPIMLUT", "", "", "");
+    CAF_PDM_InitField(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", false, "Remove Laterals in Main Bore Cells", "", "", "");
 }
