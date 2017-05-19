@@ -35,8 +35,8 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseWell.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
-${CEE_CURRENT_LIST_DIR}RimWellPathCompletion.h
-${CEE_CURRENT_LIST_DIR}RimWellPathCompletionCollection.h
+${CEE_CURRENT_LIST_DIR}RimFishboneWellPath.h
+${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.h
@@ -96,6 +96,7 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
+${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -129,8 +130,8 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimWellPathCompletion.cpp
-${CEE_CURRENT_LIST_DIR}RimWellPathCompletionCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimFishboneWellPath.cpp
+${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.cpp
@@ -190,6 +191,7 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -199,5 +201,6 @@ ${SOURCE_GROUP_HEADER_FILES}
 list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
+
 
 source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

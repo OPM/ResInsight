@@ -34,6 +34,7 @@
 #include "RimPerforationCollection.h"
 
 #include "RimFishbonesMultipleSubs.h"
+#include "RimWellPathCompletions.h"
 
 #include "RiuMainWindow.h"
 
@@ -104,7 +105,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_completionCollection, "Completions", "Completions", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_completionCollection, "Completions_to_be_moved", "Completions", "", "", "");
     m_completionCollection = new RimFishboneWellPathCollection;
     m_completionCollection.uiCapability()->setUiHidden(true);
 
@@ -112,6 +113,10 @@ RimWellPath::RimWellPath()
     m_perforationCollection = new RimPerforationCollection;
     m_perforationCollection.uiCapability()->setUiHidden(true);
     
+    CAF_PDM_InitFieldNoDefault(&m_completions, "Completions", "Completions", "", "", "");
+    m_completions = new RimWellPathCompletions;
+    m_completions.uiCapability()->setUiTreeHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile.uiCapability()->setUiHidden(true);
 
@@ -290,6 +295,8 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 { 
     uiTreeOrdering.skipRemainingChildren(true);
     uiTreeOrdering.add(&m_wellLogFile);
+    uiTreeOrdering.add(&m_completions);
+
     if (!m_completionCollection->m_completions.empty())
     {
         uiTreeOrdering.add(&m_completionCollection);
