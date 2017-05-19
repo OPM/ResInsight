@@ -138,7 +138,7 @@ double RigStimPlanUpscalingCalc::computeHAupscale(RimStimPlanFractureTemplate* f
         double sumDiDivCondLi = 0.0;
         double sumDi = 0.0;
         double sumLiDi = 0.0;
-        for (int i = 0; i < conductivitiesInStimPlanCells.size(); i++)
+        for (size_t i = 0; i < conductivitiesInStimPlanCells.size(); i++)
         {
             sumDiDivCondLi += heightsDiOfStimPlanCells[i] / (conductivitiesInStimPlanCells[i] * lengthsLiOfStimPlanCol[i]);
             sumDi += heightsDiOfStimPlanCells[i];
@@ -208,7 +208,7 @@ double RigStimPlanUpscalingCalc::computeAHupscale(RimStimPlanFractureTemplate* f
         double sumDi = 0.0;
         double sumLiDi = 0.0;
         double sumLi = 0.0;
-        for (int i = 0; i < conductivitiesInStimPlanCells.size(); i++)
+        for (size_t i = 0; i < conductivitiesInStimPlanCells.size(); i++)
         {
             sumCondLiDivDi += (conductivitiesInStimPlanCells[i] * lengthsLiOfStimPlanCol[i]) / heightsDiOfStimPlanCells[i];
             sumDi += heightsDiOfStimPlanCells[i];
@@ -230,7 +230,7 @@ double RigStimPlanUpscalingCalc::computeAHupscale(RimStimPlanFractureTemplate* f
     double sumDiDivCondALi = 0.0;
     double sumDi = 0.0;
     double sumDiLi = 0.0;
-    for (int i = 0; i < CondAritRow.size(); i++)
+    for (size_t i = 0; i < CondAritRow.size(); i++)
     {
         sumDi += DrowAvg[i];
         sumDiLi += DrowAvg[i] * liRowSum[i];

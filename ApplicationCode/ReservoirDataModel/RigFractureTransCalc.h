@@ -75,7 +75,7 @@ public:
    
     double                      cDarcy();
 
-    static bool RigFractureTransCalc::planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8],
+    static bool                 planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8],
                                                              cvf::Mat4f transformMatrixForPlane,
                                                              std::vector<std::vector<cvf::Vec3d> > & polygons);
 
