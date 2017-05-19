@@ -81,8 +81,6 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
     }
 
     caf::ProgressInfo pi(fractures.size(), QString("Writing data to file %1").arg(fileName));
-    RimEclipseWell* simWell = nullptr;
-    RimWellPath* wellPath = nullptr;
 
     size_t progress = 0;
     std::vector<size_t> ijk;
@@ -90,6 +88,17 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
     QTextStream out(&file);
     out << "\n";
     out << "-- Exported from ResInsight" << "\n";
+
+    QString wellName; 
+    {
+        RimEclipseWell* simWell = nullptr;
+        fractures[0]->firstAncestorOrThisOfType(simWell);
+        if ( simWell ) wellName = simWell->name;    
+
+        RimWellPath* wellPath = nullptr;
+        fractures[0]->firstAncestorOrThisOfType(wellPath);
+        if ( wellPath ) wellName = wellPath->name;  
+    }
 
     RigEclipseCaseData::UnitsType caseUnit = caseToApply->eclipseCaseData()->unitsType();
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC) out << "-- Using metric unit system" << "\n";
@@ -101,7 +110,7 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
     
     printStimPlanFractureTrans(fractures, out);
     
-    printStimPlanCellsMatrixTransContributions(fractures, caseToApply, out, wellPath, simWell, mainGrid);
+    printStimPlanCellsMatrixTransContributions(fractures, caseToApply, out, wellName, mainGrid);
     
     printBackgroundDataHeaderLine(out);
     
@@ -120,7 +129,7 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
 
         for (RigFracturedEclipseCellExportData fracData : fracDataVector)
         {
-            printBackgroundData(out, wellPath, simWell, fracture, mainGrid, fracData);
+            printBackgroundData(out, wellName, fracture, mainGrid, fracData);
         }
     }
 
@@ -136,7 +145,7 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
         {
             if ( fracData.transmissibility > 0 )
             {
-                printCOMPDATvalues(out, fracData, fracture, wellPath, simWell, mainGrid);
+                printCOMPDATvalues(out, fracData, fracture, wellName, mainGrid);
             }
         }
         
@@ -229,7 +238,11 @@ void RifFractureExportTools::performStimPlanUpscalingAndPrintResults(const std::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, 
+                                                                        RimEclipseCase* caseToApply, 
+                                                                        QTextStream &out, 
+                                                                        const QString& wellName, 
+                                                                        const RigMainGrid* mainGrid)
 {
     out << "StimPlan cells' matrix transmissibility and Eclipse Cell contributions \n";
 
@@ -299,12 +312,7 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
                 out << "-- ";
 
                 out << qSetFieldWidth(12);
-                wellPath, simWell = nullptr;
-                fracture->firstAncestorOrThisOfType(simWell);
-                if (simWell) out << simWell->name + " ";    // 1. Well name 
-                fracture->firstAncestorOrThisOfType(wellPath);
-                if (wellPath) out << wellPath->name + " ";  // 1. Well name 
-
+                out << wellName + " ";
                 out << qSetFieldWidth(16);
                 out << fracture->name().left(15) + " ";
 
@@ -401,17 +409,20 @@ return;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifFractureExportTools::printCOMPDATvalues(QTextStream & out, RigFracturedEclipseCellExportData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid)
+void RifFractureExportTools::printCOMPDATvalues(QTextStream & out, 
+                                                RigFracturedEclipseCellExportData &fracData, 
+                                                RimFracture* fracture, 
+                                                const QString& wellName, 
+                                                const RigMainGrid* mainGrid)
 {
     out << qSetFieldWidth(8);
-    if (fracData.transmissibility == cvf::UNDEFINED_DOUBLE || !(fracture->attachedFractureDefinition())) out << "--"; //Commenting out line in output file
+    
+    if (fracData.transmissibility == cvf::UNDEFINED_DOUBLE || !(fracture->attachedFractureDefinition())) 
+    {
+        out << "--"; //Commenting out line in output file
+    }
 
-    wellPath, simWell = nullptr;
-    fracture->firstAncestorOrThisOfType(simWell);
-    if (simWell) out << simWell->name;    // 1. Well name 
-    fracture->firstAncestorOrThisOfType(wellPath);
-    if (wellPath) out << wellPath->name;  // 1. Well name 
-
+    out << wellName;
     out << qSetFieldWidth(5);
 
     size_t i, j, k;
@@ -511,18 +522,14 @@ void RifFractureExportTools::printBackgroundDataHeaderLine(QTextStream & out)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifFractureExportTools::printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFracturedEclipseCellExportData &fracData)
+void RifFractureExportTools::printBackgroundData(QTextStream & out, const QString& wellName, RimFracture* fracture, const RigMainGrid* mainGrid, RigFracturedEclipseCellExportData &fracData)
 {
     out << qSetFieldWidth(4);
     out << "-- ";
 
     out << qSetFieldWidth(12);
-    wellPath, simWell = nullptr;
-    fracture->firstAncestorOrThisOfType(simWell);
-    if (simWell) out << simWell->name + " " ;    // 1. Well name 
-    fracture->firstAncestorOrThisOfType(wellPath);
-    if (wellPath) out << wellPath->name + " ";  // 1. Well name 
 
+    out << wellName + " ";
     out << qSetFieldWidth(16);
     out << fracture->name().left(15) + " ";
 

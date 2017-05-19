@@ -52,15 +52,34 @@ public:
     static bool exportFracturesToEclipseDataInputFile(const QString& fileName, const std::vector<RimFracture*>& fractures, RimEclipseCase* caseToApply);
 
 private:
-    static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
-    static void printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, RimEclipseCase* caseToApply, QTextStream &out, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
+    static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, 
+                                                        RimEclipseCase* caseToApply, 
+                                                        QTextStream &out, 
+                                                        RimWellPath* wellPath, 
+                                                        RimEclipseWell* simWell, 
+                                                        const RigMainGrid* mainGrid);
+    static void printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, 
+                                                           RimEclipseCase* caseToApply, 
+                                                           QTextStream &out, 
+                                                           const QString& wellName,
+                                                           const RigMainGrid* mainGrid);
     static void printStimPlanFractureTrans(const std::vector<RimFracture *>& fractures, QTextStream &out);
-    static void printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, QTextStream &out, RimEclipseCase* caseToApply);
+    static void printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, 
+                                                    QTextStream &out, 
+                                                    RimEclipseCase* caseToApply);
 
 
-    static void printCOMPDATvalues(QTextStream & out, RigFracturedEclipseCellExportData &fracData, RimFracture* fracture, RimWellPath* wellPath, RimEclipseWell* simWell, const RigMainGrid* mainGrid);
+    static void printCOMPDATvalues(QTextStream & out, 
+                                   RigFracturedEclipseCellExportData &fracData, 
+                                   RimFracture* fracture, 
+                                   const QString& wellName, 
+                                   const RigMainGrid* mainGrid);
 
     static void printBackgroundDataHeaderLine(QTextStream & out);
 
-    static void printBackgroundData(QTextStream & out, RimWellPath* wellPath, RimEclipseWell* simWell, RimFracture* fracture, const RigMainGrid* mainGrid, RigFracturedEclipseCellExportData &fracData);
+    static void printBackgroundData(QTextStream & out, 
+                                    const QString& wellName, 
+                                    RimFracture* fracture, 
+                                    const RigMainGrid* mainGrid, 
+                                    RigFracturedEclipseCellExportData &fracData);
 };
