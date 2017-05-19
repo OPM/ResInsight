@@ -76,12 +76,19 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
     RimExportCompletionDataSettings exportSettings;
+    std::vector<RimCase*> cases;
+    app->project()->allCases(cases);
+    for (auto c : cases)
+    {
+        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(c);
+        if (eclipseCase != nullptr)
+        {
+            exportSettings.caseToApply = eclipseCase;
+            break;
+        }
+    }
 
     exportSettings.fileName = QDir(defaultDir).filePath("Completions");
-
-    RimEclipseCase* caseToApply;
-    objects[0]->firstAncestorOrThisOfType(caseToApply);
-    exportSettings.caseToApply = caseToApply;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
