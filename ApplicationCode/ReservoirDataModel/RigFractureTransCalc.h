@@ -50,10 +50,6 @@ public:
     // Calculations based on fracture polygon and eclipse grid cells
     std::vector<RigFracturedEclipseCellExportData> computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture();
 
-    // Functions needed for upscaling from StimPlan grid to Eclipse Grid, for transmissibility calculations on eclipse grid
-    // Obsolete if final calculations will be done on the stimPlan grid
-    std::vector<RigFracturedEclipseCellExportData> computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);  
-
     // Calculations based on StimPlan grid
     static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, 
                                                                               double sideLengthParallellTrans, 
@@ -79,25 +75,12 @@ public:
    
     double                      cDarcy();
 
+    static bool RigFractureTransCalc::planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8],
+                                                             cvf::Mat4f transformMatrixForPlane,
+                                                             std::vector<std::vector<cvf::Vec3d> > & polygons);
+
 private: 
-
-    bool                        planeCellIntersectionPolygons(size_t cellindex, 
-                                                              std::vector<std::vector<cvf::Vec3d> > & polygons, 
-                                                              cvf::Vec3d & localX, 
-                                                              cvf::Vec3d & localY, 
-                                                              cvf::Vec3d & localZ);
-
-    // Functions needed for upscaling from StimPlan grid to Eclipse Grid, for transmissibility calculations on eclipse grid
-    // Obsolete if final calculations will be done on the stimPlan grid
-    std::pair<double, double>   flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
-    double                      computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
-    double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
-    static double               arithmeticAverage(std::vector<double> values);
-
-    static std::vector<RigStimPlanFracTemplateCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t i);
-    static std::vector<RigStimPlanFracTemplateCell*>    getColOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t j);
-
-    double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
+    static double convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit);
     double calculateMatrixTransmissibility(double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength);
 
 private:
@@ -107,3 +90,25 @@ private:
 
 };
 
+class RigStimPlanUpscalingCalc
+{
+public:
+    explicit RigStimPlanUpscalingCalc(RimEclipseCase* caseToApply, RimFracture* fracture);
+
+    std::vector<RigFracturedEclipseCellExportData> computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);
+
+private:
+    std::pair<double, double>   flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex);
+    double                      computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
+    double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
+    static double               arithmeticAverage(std::vector<double> values);
+
+    static std::vector<RigStimPlanFracTemplateCell*>    getRowOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t i);
+    static std::vector<RigStimPlanFracTemplateCell*>    getColOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t j);
+
+private:
+    RimEclipseCase*         m_case;
+    RimFracture*            m_fracture;
+    RimDefines::UnitSystem  m_unitForCalculation;
+
+};

@@ -31,6 +31,7 @@
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cvfGeometryTools.h"
+#include "RigFractureTransCalc.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -130,12 +131,18 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
 
+        const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+        cvf::Vec3d hexCorners[8];
+        mainGrid->cellCornerVertices(fracCell, hexCorners);
+
+        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
+        bool isPlanIntersected = RigFractureTransCalc::planeCellIntersectionPolygons(hexCorners, m_fractureTransform, planeCellPolygons);
+        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
+
         cvf::Vec3d localX;
         cvf::Vec3d localY;
         cvf::Vec3d localZ;
-        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
-        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
+        RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
         //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
         cvf::Mat4f invertedTransMatrix = m_fractureTransform.getInverted();
@@ -282,4 +289,23 @@ bool RigEclipseToStimPlanCellTransmissibilityCalculator::planeCellIntersectionPo
     RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
     return isCellIntersected;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateMatrixTransmissibility(double perm, 
+                                                                                           double NTG, 
+                                                                                           double A, 
+                                                                                           double cellSizeLength, 
+                                                                                           double skinfactor, 
+                                                                                           double fractureAreaWeightedlength, 
+                                                                                           double cDarcy)
+{
+    double transmissibility;
+
+    double slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
+    transmissibility = 8 * cDarcy * (perm * NTG) * A / (cellSizeLength + slDivPi);
+
+    return transmissibility;
 }

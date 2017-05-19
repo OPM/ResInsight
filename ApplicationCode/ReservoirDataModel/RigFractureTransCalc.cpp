@@ -131,12 +131,18 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
 
         double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
 
+        const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+        cvf::Vec3d hexCorners[8];
+        mainGrid->cellCornerVertices(fracCell, hexCorners);
+
+        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
+        bool isPlanIntersected = planeCellIntersectionPolygons(hexCorners, m_fracture->transformMatrix(), planeCellPolygons);
+        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
+
         cvf::Vec3d localX;
         cvf::Vec3d localY;
         cvf::Vec3d localZ;
-        std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = planeCellIntersectionPolygons(fracCell, planeCellPolygons, localX, localY, localZ);
-        if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
+        RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
         //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
         cvf::Mat4f invertedTransMatrix = m_fracture->transformMatrix().getInverted();
@@ -249,41 +255,18 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigFractureTransCalc::planeCellIntersectionPolygons(size_t cellindex, std::vector<std::vector<cvf::Vec3d> > & polygons,
-    cvf::Vec3d & localX, cvf::Vec3d & localY, cvf::Vec3d & localZ)
+bool RigFractureTransCalc::planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8],
+                                                         cvf::Mat4f transformMatrixForPlane, 
+                                                         std::vector<std::vector<cvf::Vec3d> > & polygons)
 {
 
-    cvf::Plane fracturePlane;
-    cvf::Mat4f m = m_fracture->transformMatrix();
+    //Lage static func - input: transform-matrix for plan, hexcorners for celle
+
     bool isCellIntersected = false;
 
-    fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m.translation()),
-        static_cast<cvf::Vec3d>(m.col(2)));
-
-    const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
-    if (!mainGrid) return false;
-
-    RigCell cell = mainGrid->globalCellArray()[cellindex];
-    if (cell.isInvalid()) return mainGrid;
-
-    if (cellindex == 186234)
-    {
-        cvf::Vec3d cellcenter = cell.center();
-    }
-
-    //Copied (and adapted) from RigEclipseWellLogExtractor
-    cvf::Vec3d hexCorners[8];
-    const std::vector<cvf::Vec3d>& nodeCoords = mainGrid->nodes();
-    const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
-
-    hexCorners[0] = nodeCoords[cornerIndices[0]];
-    hexCorners[1] = nodeCoords[cornerIndices[1]];
-    hexCorners[2] = nodeCoords[cornerIndices[2]];
-    hexCorners[3] = nodeCoords[cornerIndices[3]];
-    hexCorners[4] = nodeCoords[cornerIndices[4]];
-    hexCorners[5] = nodeCoords[cornerIndices[5]];
-    hexCorners[6] = nodeCoords[cornerIndices[6]];
-    hexCorners[7] = nodeCoords[cornerIndices[7]];
+    cvf::Plane fracturePlane;
+    fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(transformMatrixForPlane.translation()),
+        static_cast<cvf::Vec3d>(transformMatrixForPlane.col(2)));
 
     //Find line-segments where cell and fracture plane intersects
     std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > intersectionLineSegments;
@@ -292,15 +275,13 @@ bool RigFractureTransCalc::planeCellIntersectionPolygons(size_t cellindex, std::
 
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
 
-    RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
-
     return isCellIntersected;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
+std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
 {
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
@@ -311,9 +292,18 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 
     std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
 
+
+
     cvf::Vec3d localX, localY, localZ; //Not used in calculation here, but needed for function to find planCellPolygons
     std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-    bool isPlanIntersected = planeCellIntersectionPolygons(eclipseCellIndex, planeCellPolygons, localX, localY, localZ);
+
+    const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
+    cvf::Vec3d hexCorners[8];
+    mainGrid->cellCornerVertices(eclipseCellIndex, hexCorners);
+
+
+
+    bool isPlanIntersected = RigFractureTransCalc::planeCellIntersectionPolygons(hexCorners, m_fracture->transformMatrix(), planeCellPolygons);
     if (!isPlanIntersected || planeCellPolygons.size() == 0) return  std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
     //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon/stimPlan mesh already is located)
@@ -339,17 +329,6 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 
     for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
     {
-//         //For debug only, to compare with results in Excel: 
-//         std::vector<cvf::Vec3d> planeCellPolygonHacked;
-//         if (eclipseCellIndex == 134039)
-//         {
-//             planeCellPolygonHacked.push_back(cvf::Vec3d(-12.0, -3.5, 0.0));
-//             planeCellPolygonHacked.push_back(cvf::Vec3d(12.0, -3.5, 0.0));
-//             planeCellPolygonHacked.push_back(cvf::Vec3d(12.0, 19.0, 0.0));
-//             planeCellPolygonHacked.push_back(cvf::Vec3d(-12.0, 19.0, 0.0));
-//             planeCellPolygon = planeCellPolygonHacked;
-//         }
-
         double condHA = computeHAupscale(fracTemplateStimPlan, stimPlanCells, planeCellPolygon, directionAlongLayers, directionAcrossLayers);
         upscaledConductivitiesHA.push_back(condHA);
 
@@ -364,7 +343,7 @@ std::pair<double, double> RigFractureTransCalc::flowAcrossLayersUpscaling(QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
+double RigStimPlanUpscalingCalc::computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
 {
     std::vector<double> DcolSum;
     std::vector<double> lavgCol;
@@ -433,7 +412,7 @@ double RigFractureTransCalc::computeHAupscale(RimStimPlanFractureTemplate* fracT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
+double RigStimPlanUpscalingCalc::computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigStimPlanFracTemplateCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers)
 {
     std::vector<double> DrowAvg;
     std::vector<double> liRowSum;
@@ -508,7 +487,7 @@ double RigFractureTransCalc::computeAHupscale(RimStimPlanFractureTemplate* fracT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::arithmeticAverage(std::vector<double> values)
+double RigStimPlanUpscalingCalc::arithmeticAverage(std::vector<double> values)
 {
     if (values.size() == 0) return cvf::UNDEFINED_DOUBLE;
 
@@ -526,7 +505,39 @@ double RigFractureTransCalc::arithmeticAverage(std::vector<double> values)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeUpscaledPropertyFromStimPlan( QString resultName, QString resultUnit, size_t timeStepIndex)
+RigStimPlanUpscalingCalc::RigStimPlanUpscalingCalc(RimEclipseCase* caseToApply, RimFracture* fracture)
+{
+    m_case = caseToApply;
+    m_fracture = fracture;
+
+
+    //Set correct unit system: 
+    RigEclipseCaseData::UnitsType caseUnit = m_case->eclipseCaseData()->unitsType();
+
+    if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
+        m_unitForCalculation = RimDefines::UNITS_METRIC;
+    }
+    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
+    {
+        RiaLogging::debug(QString("Calculating transmissibilities in field units"));
+        m_unitForCalculation = RimDefines::UNITS_FIELD;
+    }
+    else
+    {
+        //TODO: How to handle lab units for eclipse case?
+        RiaLogging::error(QString("Unit system for case not supported for fracture export."));
+        RiaLogging::error(QString("Export will be in metric units, but results might be wrong."));
+        m_unitForCalculation = RimDefines::UNITS_METRIC;
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFracturedEclipseCellExportData>  RigStimPlanUpscalingCalc::computeUpscaledPropertyFromStimPlan( QString resultName, QString resultUnit, size_t timeStepIndex)
 {
     std::vector<RigFracturedEclipseCellExportData> fracDataVec;
 
@@ -674,7 +685,7 @@ double RigFractureTransCalc::cDarcy()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanFracTemplateCell*> RigFractureTransCalc::getRowOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t i)
+std::vector<RigStimPlanFracTemplateCell*> RigStimPlanUpscalingCalc::getRowOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t i)
 {
     std::vector<RigStimPlanFracTemplateCell*> stimPlanCellRow;
 
@@ -692,7 +703,7 @@ std::vector<RigStimPlanFracTemplateCell*> RigFractureTransCalc::getRowOfStimPlan
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigStimPlanFracTemplateCell*> RigFractureTransCalc::getColOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t j)
+std::vector<RigStimPlanFracTemplateCell*> RigStimPlanUpscalingCalc::getColOfStimPlanCells(std::vector<RigStimPlanFracTemplateCell>& allStimPlanCells, size_t j)
 {
     std::vector<RigStimPlanFracTemplateCell*> stimPlanCellCol;
 

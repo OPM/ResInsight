@@ -181,10 +181,10 @@ void RifFractureExportTools::performStimPlanUpscalingAndPrintResults(const std::
 
     for (RimFracture* fracture : fractures) //For testing upscaling...
     {
-        RigFractureTransCalc transmissibilityCalculator(caseToApply, fracture);
+        RigStimPlanUpscalingCalc upscalingCalculator(caseToApply, fracture);
         
         std::vector<RigFracturedEclipseCellExportData> fracDataVector;
-        fracDataVector = transmissibilityCalculator.computeUpscaledPropertyFromStimPlan(resultName, resultUnit, timeStepIndex);
+        fracDataVector = upscalingCalculator.computeUpscaledPropertyFromStimPlan(resultName, resultUnit, timeStepIndex);
 
         out << qSetFieldWidth(4);
         out << "-- ";

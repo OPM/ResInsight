@@ -45,11 +45,7 @@ public:
 private:
     void                        calculateStimPlanCellsMatrixTransmissibility();
     std::vector<size_t>         getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon);
-    bool                        planeCellIntersectionPolygons(size_t cellindex, 
-                                                              std::vector<std::vector<cvf::Vec3d> > & polygons,
-                                                              cvf::Vec3d & localX, 
-                                                              cvf::Vec3d & localY, 
-                                                              cvf::Vec3d & localZ);
+
 
     const RimEclipseCase*               m_case;
     double                              m_cDarcy;
