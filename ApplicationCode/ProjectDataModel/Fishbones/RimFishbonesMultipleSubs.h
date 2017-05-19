@@ -64,6 +64,7 @@ public:
 
     double              tubingRadius() const;
     double              holeRadius() const { return m_lateralHoleRadius(); }
+    double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
 

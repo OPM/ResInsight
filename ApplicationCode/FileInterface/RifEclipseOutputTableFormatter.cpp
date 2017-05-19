@@ -32,16 +32,8 @@ RifEclipseOutputTableFormatter::RifEclipseOutputTableFormatter(QTextStream& out)
 //--------------------------------------------------------------------------------------------------
 RifEclipseOutputTableFormatter::~RifEclipseOutputTableFormatter()
 {
-  
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifEclipseOutputTableFormatter::flush()
-{
-    if (!m_lineBuffer.empty()) rowCompleted();
-    outputBuffer();
+    CVF_ASSERT(m_buffer.empty());
+    CVF_ASSERT(m_columns.empty());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +55,7 @@ void RifEclipseOutputTableFormatter::outputBuffer()
     {
         if (line.lineType == COMMENT)
         {
-            m_out << "-- " << line.data[0] << "\n";
+            outputComment(line);
         }
         else if (line.lineType == CONTENTS)
         {
@@ -75,8 +67,6 @@ void RifEclipseOutputTableFormatter::outputBuffer()
             m_out << " /" << "\n";
         }
     }
-    // If we finished a table, output an "empty" line after it
-    if (!m_columns.empty()) m_out << "/\n";
     m_columns.clear();
     m_buffer.clear();
 }
@@ -84,9 +74,28 @@ void RifEclipseOutputTableFormatter::outputBuffer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifEclipseOutputTableFormatter::outputComment(RifEclipseOutputTableLine& comment)
+{
+    m_out << "-- " << comment.data[0] << "\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputTableFormatter::tableCompleted()
+{
+    outputBuffer();
+    // Output an "empty" line after a finished table
+    m_out << "/\n";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseOutputTableFormatter& RifEclipseOutputTableFormatter::keyword(const QString keyword)
 {
-    flush();
+    CVF_ASSERT(m_buffer.empty());
+    CVF_ASSERT(m_columns.empty());
     m_out << keyword << "\n";
     return *this;
 }
@@ -113,7 +122,14 @@ RifEclipseOutputTableFormatter& RifEclipseOutputTableFormatter::comment(const QS
     RifEclipseOutputTableLine line;
     line.data.push_back(comment);
     line.lineType = COMMENT;
-    m_buffer.push_back(line);
+    if (m_columns.empty())
+    {
+        outputComment(line);
+    }
+    else
+    {
+        m_buffer.push_back(line);
+    }
     return *this;
 }
 

@@ -18,17 +18,57 @@
 
 #pragma once
 
+#include "RifEclipseOutputTableFormatter.h"
+
+#include "RigWellLogExtractionTools.h"
 
 #include "cafCmdFeature.h"
 
 #include "cvfBoundingBox.h"
+
 
 class RimWellPath;
 class RimEclipseCase;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigCell;
+class RimFishbonesMultipleSubs;
 
+
+//==================================================================================================
+/// 
+//==================================================================================================
+struct WellSegmentLateral {
+    WellSegmentLateral(size_t lateralIndex) : lateralIndex(lateralIndex) {}
+
+    size_t lateralIndex;
+    int    branchNumber;
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
+struct WellSegmentLocation {
+    WellSegmentLocation(const RimFishbonesMultipleSubs* subs, double measuredDepth, double trueVerticalDepth, size_t subIndex)
+        : fishbonesSubs(subs),
+          measuredDepth(measuredDepth),
+          trueVerticalDepth(trueVerticalDepth),
+          subIndex(subIndex),
+          segmentNumber(-1)
+    {
+    }
+
+    const RimFishbonesMultipleSubs*       fishbonesSubs;
+    double                                measuredDepth;
+    double                                trueVerticalDepth;
+    size_t                                subIndex;
+    int                                   segmentNumber;
+    std::vector<WellSegmentLateral>       laterals;
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
 struct EclipseCellIndexRange {
     size_t i;
     size_t j;
@@ -36,6 +76,9 @@ struct EclipseCellIndexRange {
     size_t k2;
 };
 
+//==================================================================================================
+/// 
+//==================================================================================================
 typedef std::tuple<size_t, size_t, size_t> EclipseCellIndex;
 
 //==================================================================================================
@@ -60,4 +103,10 @@ private:
     static void                                  setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners);
     static std::vector<size_t>                   filterWellPathCells(const std::vector<size_t>& completionCells, const std::vector<size_t>& wellPathCells);
     static void                                  addLateralToCells(std::map<size_t, double>* lateralsPerCell, const std::vector<size_t>& lateralCells);
+    static void                                  computeWellSegments(RifEclipseOutputTableFormatter& formatter, RimWellPath* wellPath, const RimEclipseCase* caseToApply);
+    static bool                                  wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second);
+    static std::vector<HexIntersectionInfo>      findIntersections(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords);
+    static bool                                  isPointBetween(const cvf::Vec3d& pointA, const cvf::Vec3d& pointB, const cvf::Vec3d& needle);
+    static void                                  filterIntersections(std::vector<HexIntersectionInfo>* intersections);
+    static std::vector<WellSegmentLocation>      findWellSegmentLocations(RimWellPath* wellPath);
 };

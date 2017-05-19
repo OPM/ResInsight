@@ -86,7 +86,7 @@ public:
     RifEclipseOutputTableFormatter&     addZeroBasedCellIndex(size_t index);
     RifEclipseOutputTableFormatter&     comment(const QString str);
     void                                rowCompleted();
-    void                                flush();
+    void                                tableCompleted();
 
 private:
     int                                 measure(const QString str);
@@ -100,6 +100,7 @@ private:
     QString                             formatColumn(const QString str, RifEclipseOutputTableColumn column);
 
     void                                outputBuffer();
+    void                                outputComment(RifEclipseOutputTableLine& comment);
 
 private:
     std::vector<RifEclipseOutputTableColumn> m_columns;

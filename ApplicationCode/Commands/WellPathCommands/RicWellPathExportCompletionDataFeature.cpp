@@ -28,8 +28,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "RifEclipseOutputTableFormatter.h"
-
 #include "RigWellLogExtractionTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -38,12 +36,13 @@
 #include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
+#include "cvfPlane.h"
+
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -200,7 +199,7 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
                 }
             }
         }
-        formatter.flush();
+        formatter.tableCompleted();
     }
 
     // WPIMULT
@@ -224,8 +223,10 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
             formatter.rowCompleted();
         }
 
-        formatter.flush();
+        formatter.tableCompleted();
     }
+
+    computeWellSegments(formatter, wellPath, caseToApply);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,6 +346,27 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
         }
     }
 
+    std::vector<HexIntersectionInfo> intersections = findIntersections(caseData, coords);
+    for (auto intersection : intersections)
+    {
+        cells.insert(intersection.m_hexIndex);
+    }
+
+    // Ensure only unique cells are included
+    std::vector<size_t> cellsVector;
+    cellsVector.assign(cells.begin(), cells.end());
+    // Sort cells
+    std::sort(cellsVector.begin(), cellsVector.end());
+    return cellsVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<HexIntersectionInfo> RicWellPathExportCompletionDataFeature::findIntersections(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
+{
+    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
+    std::vector<HexIntersectionInfo> intersections;
     for (size_t i = 0; i < coords.size() - 1; ++i)
     {
         cvf::BoundingBox bb;
@@ -354,7 +376,6 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
         std::vector<size_t> closeCells = findCloseCells(caseData, bb);
 
         cvf::Vec3d hexCorners[8];
-        std::vector<HexIntersectionInfo> intersections;
 
         for (size_t closeCell : closeCells)
         {
@@ -365,18 +386,9 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
 
             RigHexIntersector::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners, closeCell, &intersections);
         }
-
-        for (auto intersection : intersections)
-        {
-            cells.insert(intersection.m_hexIndex);
-        }
     }
-    // Ensure only unique cells are included
-    std::vector<size_t> cellsVector;
-    cellsVector.assign(cells.begin(), cells.end());
-    // Sort cells
-    std::sort(cellsVector.begin(), cellsVector.end());
-    return cellsVector;
+
+    return intersections;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -424,3 +436,191 @@ void RicWellPathExportCompletionDataFeature::addLateralToCells(std::map<size_t, 
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::computeWellSegments(RifEclipseOutputTableFormatter& formatter, RimWellPath* wellPath, const RimEclipseCase* caseToApply)
+{
+    std::vector<WellSegmentLocation> wellSegmentLocations = findWellSegmentLocations(wellPath);
+    if (wellSegmentLocations.empty()) return;
+    formatter.keyword("WELSEGS");
+
+    WellSegmentLocation& firstLocation = wellSegmentLocations[0];
+
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn{"Name", LEFT},
+            RifEclipseOutputTableColumn{"Dep 1", LEFT},
+            RifEclipseOutputTableColumn{"Tlen 1", LEFT},
+            RifEclipseOutputTableColumn{"Vol 1", LEFT},
+            RifEclipseOutputTableColumn{"Len&Dep", LEFT},
+            RifEclipseOutputTableColumn{"PresDrop", LEFT},
+        };
+        formatter.header(header);
+
+        formatter.add(wellPath->name());
+        formatter.add(firstLocation.trueVerticalDepth);
+        formatter.add(firstLocation.measuredDepth);
+        formatter.add("1*");
+        formatter.add("INC"); 
+        formatter.add("H--");
+
+        formatter.rowCompleted();
+    }
+
+    {
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn{"First Seg", LEFT},
+            RifEclipseOutputTableColumn{"Last Seg", LEFT},
+            RifEclipseOutputTableColumn{"Branch Num", LEFT},
+            RifEclipseOutputTableColumn{"Outlet Seg", LEFT},
+            RifEclipseOutputTableColumn{"Length", LEFT},
+            RifEclipseOutputTableColumn{"Depth Change", LEFT},
+            RifEclipseOutputTableColumn{"Diam", LEFT},
+            RifEclipseOutputTableColumn{"Rough", LEFT},
+        };
+        formatter.header(header);
+    }
+
+    size_t segmentNumber = 1;
+    {
+        WellSegmentLocation previousLocation = firstLocation;
+        formatter.comment("Main stem");
+        for (size_t i = 0; i < wellSegmentLocations.size(); ++i)
+        {
+            WellSegmentLocation& location = wellSegmentLocations[i];
+            location.segmentNumber = static_cast<int>(segmentNumber + 1);
+
+            formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
+            formatter.add(location.segmentNumber).add(location.segmentNumber);
+            formatter.add(1); // All segments on main stem are branch 1
+            formatter.add(segmentNumber);
+            formatter.add(location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex]);
+            formatter.add(location.trueVerticalDepth - previousLocation.trueVerticalDepth);
+            formatter.add(-1.0); // FIXME : Diam of main stem?
+            formatter.add(-1.0); // FIXME : Rough of main stem?
+            formatter.rowCompleted();
+
+            ++segmentNumber;
+            previousLocation = location;
+        }
+    }
+
+    {
+        int branchNum = 1;
+        formatter.comment("Laterals");
+        formatter.comment("Diam: MSW - Tubing Radius");
+        formatter.comment("Rough: MSW - Open Hole Roughness Factor");
+        for (WellSegmentLocation& location : wellSegmentLocations)
+        {
+            for (WellSegmentLateral& lateral : location.laterals)
+            {
+                formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
+
+                lateral.branchNumber = ++branchNum;
+                std::vector<cvf::Vec3d>& coords = location.fishbonesSubs->coordsForLateral(location.subIndex, lateral.lateralIndex);
+                std::vector<HexIntersectionInfo> intersections = findIntersections(caseToApply->eclipseCaseData(), coords);
+                filterIntersections(&intersections);
+
+                double length = 0;
+                double depth = 0;
+                cvf::Vec3d& startPoint = coords[0];
+                auto intersection = intersections.cbegin();
+
+                for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); i++)
+                {
+                    if (isPointBetween(startPoint, coords[i], intersection->m_intersectionPoint))
+                    {
+                        cvf::Vec3d between = intersection->m_intersectionPoint - startPoint;
+                        length += between.length();
+                        depth += intersection->m_intersectionPoint.z() - startPoint.z();
+                        segmentNumber++;
+                        formatter.add(segmentNumber).add(segmentNumber);
+                        formatter.add(lateral.branchNumber);
+                        formatter.add(location.segmentNumber);
+                        formatter.add(length);
+                        formatter.add(depth);
+                        formatter.add(location.fishbonesSubs->tubingRadius());
+                        formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
+                        formatter.rowCompleted();
+
+                        length = 0;
+                        depth = 0;
+                        startPoint = intersection->m_intersectionPoint;
+                        ++intersection;
+                    }
+                    else
+                    {
+                        cvf::Vec3d between = coords[i] - startPoint;
+                        length += between.length();
+                        depth += coords[i].z() - startPoint.z();
+                        startPoint = coords[i];
+                    }
+                }
+            }
+        }
+    }
+
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeature::wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second)
+{
+    return first.measuredDepth < second.measuredDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeature::isPointBetween(const cvf::Vec3d& pointA, const cvf::Vec3d& pointB, const cvf::Vec3d& needle)
+{
+    cvf::Plane plane;
+    plane.setFromPointAndNormal(needle, pointB - pointA);
+    return plane.side(pointA) != plane.side(pointB);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::filterIntersections(std::vector<HexIntersectionInfo>* intersections)
+{
+    // Erase intersections that are marked as entering
+    for (auto it = intersections->begin(); it != intersections->end();)
+    {
+        if (it->m_isIntersectionEntering)
+        {
+            it = intersections->erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(RimWellPath* wellPath)
+{
+    std::vector<WellSegmentLocation> wellSegmentLocations;
+    for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesSubs)
+    {
+        for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
+        {
+            double measuredDepth = subs->locationOfSubs()[subIndex];
+            cvf::Vec3d position = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(measuredDepth);
+            WellSegmentLocation location = WellSegmentLocation(subs, measuredDepth, -position.z(), subIndex);
+            for (size_t lateralIndex = 0; lateralIndex < subs->lateralLengths().size(); ++lateralIndex)
+            {
+                location.laterals.push_back(WellSegmentLateral(lateralIndex));
+            }
+            wellSegmentLocations.push_back(location);
+        }
+    }
+    std::sort(wellSegmentLocations.begin(), wellSegmentLocations.end(), wellSegmentLocationOrdering);
+
+    return wellSegmentLocations;
+}
+
