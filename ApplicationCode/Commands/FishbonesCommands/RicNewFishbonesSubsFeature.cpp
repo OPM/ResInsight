@@ -19,6 +19,7 @@
 #include "RicNewFishbonesSubsFeature.h"
 
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFishbonesCollection.h"
 #include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
@@ -39,8 +40,8 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
     CVF_ASSERT(wellPath);
 
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
-    obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesSubs.size()));
-    wellPath->fishbonesSubs.push_back(obj);
+    obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesCollection()->fishbonesSubs.size()));
+    wellPath->fishbonesCollection()->fishbonesSubs.push_back(obj);
 
     wellPath->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(obj);

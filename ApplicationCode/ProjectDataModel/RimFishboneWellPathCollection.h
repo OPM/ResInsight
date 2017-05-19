@@ -37,12 +37,14 @@ class RimFishboneWellPathCollection : public RimCheckableNamedObject
 
 public:
     RimFishboneWellPathCollection();
-    ~RimFishboneWellPathCollection();
 
-    void appendCompletion(RimFishboneWellPath* completion);
-    void importCompletionsFromFile(const QList<QString> filePaths);
+    void importCompletionsFromFile(const QStringList& filePaths);
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    caf::PdmChildArrayField<RimFishboneWellPath*>    m_completions;
+private:
+    void appendCompletion(RimFishboneWellPath* completion);
+
+private:
+    caf::PdmChildArrayField<RimFishboneWellPath*> m_wellPaths;
 };

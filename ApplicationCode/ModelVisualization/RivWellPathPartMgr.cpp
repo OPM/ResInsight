@@ -29,6 +29,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimFishboneWellPath.h"
+#include "RimFishbonesCollection.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
@@ -99,11 +100,11 @@ void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model,
 
     // This concept is taken from RivReservoirSimWellsPartMgr, and is required to be able to have
     // separate part managers for each view
-    if (m_fishbonesPartMgrs.size() != m_rimWellPath->fishbonesSubs().size())
+    if (m_fishbonesPartMgrs.size() != m_rimWellPath->fishbonesCollection()->fishbonesSubs.size())
     {
         m_fishbonesPartMgrs.clear();
 
-        for (auto rimFishboneSubs : m_rimWellPath->fishbonesSubs())
+        for (auto rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs())
         {
             m_fishbonesPartMgrs.push_back(new RivFishbonesSubsPartMgr(rimFishboneSubs));
         }
@@ -120,20 +121,22 @@ void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
-    if (!m_rimWellPath || !m_rimWellPath->m_completionCollection->isChecked()) return;
+    if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->wellPathCollection()->isChecked()) return;
 
     RivPipeGeometryGenerator geoGenerator;
-    for (RimFishboneWellPath* completion : m_rimWellPath->m_completionCollection()->m_completions())
+    std::vector<RimFishboneWellPath*> fishbonesWellPaths;
+    m_rimWellPath->descendantsIncludingThisOfType(fishbonesWellPaths);
+    for (RimFishboneWellPath* fbWellPath : fishbonesWellPaths)
     {
-        if (!completion->isChecked()) continue;
+        if (!fbWellPath->isChecked()) continue;
 
         std::vector<cvf::Vec3d> displayCoords;
-        for (auto lateralDomainCoords : completion->coordinates())
+        for (auto lateralDomainCoords : fbWellPath->coordinates())
         {
             displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(lateralDomainCoords));
         }
 
-        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(completion);
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(fbWellPath);
 
         cvf::Collection<cvf::Part> parts;
         geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, m_rimWellPath->wellPathColor(), m_rimWellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
@@ -151,7 +154,7 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, ca
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
-    if (!m_rimWellPath || !m_rimWellPath->m_perforationCollection->isChecked()) return;
+    if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
@@ -166,7 +169,9 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, c
     double perforationRadius = wellPathRadius * 1.1;
 
     RivPipeGeometryGenerator geoGenerator;
-    for (RimPerforationInterval* perforation : m_rimWellPath->m_perforationCollection->m_perforations())
+    std::vector<RimPerforationInterval*> perforations;
+    m_rimWellPath->descendantsIncludingThisOfType(perforations);
+    for (RimPerforationInterval* perforation : perforations)
     {
         if (!perforation->isChecked()) continue;
         if (perforation->startMD() > perforation->endMD()) continue;

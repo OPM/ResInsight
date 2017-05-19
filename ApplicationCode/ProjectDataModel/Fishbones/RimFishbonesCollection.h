@@ -18,27 +18,32 @@
 
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
 #include "cafPdmChildField.h"
 
-class RimFishbonesCollection;
-class RimPerforationCollection;
+class RimFishbonesMultipleSubs;
+class RimFishboneWellPathCollection;
 
 //==================================================================================================
-///  
-///  
+//
+// 
+//
 //==================================================================================================
-class RimWellPathCompletions : public caf::PdmObject
+class RimFishbonesCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellPathCompletions();
+    RimFishbonesCollection();
 
-    RimFishbonesCollection*     fishbonesCollection() const;
-    RimPerforationCollection*   perforationCollection() const;
+    RimFishboneWellPathCollection* wellPathCollection() const;
+
+    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
 private:
-    caf::PdmChildField<RimFishbonesCollection*>     m_fishbonesCollection;
-    caf::PdmChildField<RimPerforationCollection*>   m_perforationCollection;
+    caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 };

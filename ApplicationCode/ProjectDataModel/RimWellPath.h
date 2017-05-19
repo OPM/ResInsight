@@ -39,7 +39,7 @@ class RimWellLogFile;
 class RimFishboneWellPathCollection;
 class RivWellPathPartMgr;
 
-class RimFishbonesMultipleSubs;
+class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathCompletions;
 
@@ -74,13 +74,11 @@ public:
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmChildField<RimFishboneWellPathCollection*> m_completionCollection;
-    caf::PdmChildField<RimPerforationCollection*> m_perforationCollection;
-    caf::PdmChildField<RimWellPathCompletions*> m_completions;
+
+    RimFishbonesCollection*             fishbonesCollection();
+    RimPerforationCollection*           perforationIntervalCollection();
 
     RigWellPath*                        wellPathGeometry();
-    caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
-    
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
@@ -110,6 +108,8 @@ private:
  
     caf::PdmField<QString>              m_surveyType;
     caf::PdmField<double>               m_datumElevation;
+    
+    caf::PdmChildField<RimWellPathCompletions*> m_completions;
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;

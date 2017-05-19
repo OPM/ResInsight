@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 
@@ -77,7 +78,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     size_t fishboneSubIndex = 0;
 
     QTextStream stream(&exportFile);
-    for (RimFishbonesMultipleSubs* fishbone : wellPath->fishbonesSubs())
+    for (RimFishbonesMultipleSubs* fishbone : wellPath->fishbonesCollection()->fishbonesSubs())
     {
         if (!fishbone->isChecked()) continue;
 

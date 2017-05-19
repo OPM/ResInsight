@@ -50,7 +50,7 @@ void RicEditPerforationCollectionFeature::onActionTriggered(bool isChecked)
     
     if (wellPath == nullptr) return;
 
-    RiuEditPerforationCollectionWidget dlg(nullptr, wellPath->m_perforationCollection);
+    RiuEditPerforationCollectionWidget dlg(nullptr, wellPath->perforationIntervalCollection());
     dlg.exec();
     wellPath->updateConnectedEditors();
 }

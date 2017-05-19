@@ -52,7 +52,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
 
-    wellPath->m_perforationCollection()->appendPerforation(perforationInterval);
+    wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
 
     RimWellPathCollection* wellPathCollection = nullptr;
     wellPath->firstAncestorOrThisOfType(wellPathCollection);

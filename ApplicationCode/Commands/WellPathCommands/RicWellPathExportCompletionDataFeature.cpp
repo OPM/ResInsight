@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimFishbonesCollection.h"
 #include "RimExportCompletionDataSettings.h"
 
 #include "RiuMainWindow.h"
@@ -161,7 +162,7 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
         formatter.keyword("COMPDAT");
         formatter.header(header);
 
-        for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesSubs)
+        for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
         {
             for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
             {
@@ -605,7 +606,7 @@ void RicWellPathExportCompletionDataFeature::filterIntersections(std::vector<Hex
 std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(RimWellPath* wellPath)
 {
     std::vector<WellSegmentLocation> wellSegmentLocations;
-    for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesSubs)
+    for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
     {
         for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
         {

@@ -41,18 +41,10 @@ RimFishboneWellPathCollection::RimFishboneWellPathCollection()
     CAF_PDM_InitObject("WellPathCompletions", ":/WellCollection.png", "", "");
 
     m_name.uiCapability()->setUiHidden(true);
-    m_name = "Completions";
+    m_name = "Well Paths";
 
-    CAF_PDM_InitFieldNoDefault(&m_completions, "Completions", "WellPathCompletions", "", "", "");
-    m_completions.uiCapability()->setUiHidden(true);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimFishboneWellPathCollection::~RimFishboneWellPathCollection()
-{
-    m_completions.deleteAllChildObjects();
+    CAF_PDM_InitFieldNoDefault(&m_wellPaths, "WellPaths", "Well Paths", "", "", "");
+    m_wellPaths.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +62,7 @@ void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* completion)
 {
-    m_completions.push_back(completion);
+    m_wellPaths.push_back(completion);
 
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(completion);
@@ -82,13 +74,13 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
 
-    uiCapability()->setUiHidden(!m_completions.empty());
+    uiCapability()->setUiHidden(!m_wellPaths.empty());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::importCompletionsFromFile(const QList<QString> filePaths)
+void RimFishboneWellPathCollection::importCompletionsFromFile(const QStringList& filePaths)
 {
     RifWellPathImporter wellPathImporter;
 

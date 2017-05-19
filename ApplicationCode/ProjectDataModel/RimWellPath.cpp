@@ -30,8 +30,6 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimFishboneWellPathCollection.h"
-#include "RimPerforationCollection.h"
 
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPathCompletions.h"
@@ -105,23 +103,12 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField(&wellPathRadiusScaleFactor,   "WellPathRadiusScale", 1.0,             "Well path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_completionCollection, "Completions_to_be_moved", "Completions", "", "", "");
-    m_completionCollection = new RimFishboneWellPathCollection;
-    m_completionCollection.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&m_perforationCollection, "Perforations", "Perforations", "", "", "");
-    m_perforationCollection = new RimPerforationCollection;
-    m_perforationCollection.uiCapability()->setUiHidden(true);
-    
     CAF_PDM_InitFieldNoDefault(&m_completions, "Completions", "Completions", "", "", "");
     m_completions = new RimWellPathCompletions;
     m_completions.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
-    fishbonesSubs.uiCapability()->setUiHidden(true);
 
     m_wellPath = NULL;
 }
@@ -172,6 +159,26 @@ void RimWellPath::setSurveyType(QString surveyType)
         wellPathColor = cvf::Color3f(0.999f, 0.333f, 0.0f);
     else if (m_surveyType == "PROTOTYPE")
         wellPathColor = cvf::Color3f(0.0f, 0.333f, 0.999f);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFishbonesCollection* RimWellPath::fishbonesCollection()
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fishbonesCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPerforationCollection* RimWellPath::perforationIntervalCollection()
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->perforationCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,16 +303,6 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     uiTreeOrdering.skipRemainingChildren(true);
     uiTreeOrdering.add(&m_wellLogFile);
     uiTreeOrdering.add(&m_completions);
-
-    if (!m_completionCollection->m_completions.empty())
-    {
-        uiTreeOrdering.add(&m_completionCollection);
-    }
-    if (!m_perforationCollection->m_perforations.empty())
-    {
-        uiTreeOrdering.add(&m_perforationCollection);
-    }
-    uiTreeOrdering.add(&fishbonesSubs);
 }
 
 //--------------------------------------------------------------------------------------------------

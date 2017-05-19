@@ -16,43 +16,48 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellPathCompletions.h"
-
 #include "RimFishbonesCollection.h"
-#include "RimPerforationCollection.h"
+
+#include "RimEclipseWell.h"
+#include "RimPerforationInterval.h"
+#include "RimView.h"
+#include "RimProject.h"
+
+#include "RigWellPath.h"
+
+#include "RifWellPathImporter.h"
+
+#include "RiuMainWindow.h"
+#include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesMultipleSubs.h"
 
 
-CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
+CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCompletions::RimWellPathCompletions()
+RimFishbonesCollection::RimFishbonesCollection()
 {
-    CAF_PDM_InitObject("WellPathCompletions", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Fishbones", ":/Folder.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_perforationCollection, "Perforations", "Perforations", "", "", "");
-    m_perforationCollection = new RimPerforationCollection;
-    m_perforationCollection.uiCapability()->setUiHidden(true);
+    m_name.uiCapability()->setUiHidden(true);
+    m_name = "Fishbones";
 
-    CAF_PDM_InitFieldNoDefault(&m_fishbonesCollection, "Fishbones", "Fishbones", "", "", "");
-    m_fishbonesCollection = new RimFishbonesCollection;
-    m_fishbonesCollection.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
+
+    fishbonesSubs.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Well Paths", "", "", "");
+    m_wellPathCollection = new RimFishboneWellPathCollection;
+    m_wellPathCollection.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
+RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() const
 {
-    return m_fishbonesCollection;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
-{
-    return m_perforationCollection;
+    return m_wellPathCollection();
 }
 

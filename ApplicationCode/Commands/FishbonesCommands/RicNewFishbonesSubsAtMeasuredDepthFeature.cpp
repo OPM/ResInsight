@@ -18,6 +18,7 @@
 
 #include "RicNewFishbonesSubsAtMeasuredDepthFeature.h"
 
+#include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -44,9 +45,9 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     CVF_ASSERT(wellPath);
     
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
-    wellPath->fishbonesSubs.push_back(obj);
+    wellPath->fishbonesCollection()->fishbonesSubs.push_back(obj);
 
-    obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesSubs.size()));
+    obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesCollection()->fishbonesSubs.size()));
     int integerValue = wellPathSelItem->m_measuredDepth;
     obj->setMeasuredDepthAndCount(integerValue, 24, 1);
 

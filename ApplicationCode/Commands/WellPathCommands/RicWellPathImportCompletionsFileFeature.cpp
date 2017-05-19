@@ -24,6 +24,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -69,7 +70,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
     // Remember the path to next time
     app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
 
-    objects[0]->m_completionCollection()->importCompletionsFromFile(wellPathFilePaths);
+    objects[0]->fishbonesCollection()->wellPathCollection()->importCompletionsFromFile(wellPathFilePaths);
 
     if (app->project())
     {
