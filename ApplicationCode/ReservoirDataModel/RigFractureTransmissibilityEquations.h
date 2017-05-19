@@ -31,8 +31,6 @@ public:
                                                                                   double stimPlanCellSizeZ, 
                                                                                   double wellRadius, 
                                                                                   double skinFactor, 
-                                                                                  double fractureAzimuth, 
-                                                                                  double wellAzimuthAtFracturePosition, 
                                                                                   double cDarcyForRelevantUnit);
 
     static double               computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity,  

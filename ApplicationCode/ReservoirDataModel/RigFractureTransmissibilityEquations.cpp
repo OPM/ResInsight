@@ -39,25 +39,13 @@ double RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWell
                                                                                double stimPlanCellSizeZ,
                                                                                double wellRadius, 
                                                                                double skinFactor, 
-                                                                               double fractureAzimuth,
-                                                                               double wellAzimuthAtFracturePosition, 
                                                                                double cDarcyForRelevantUnit)
 {
-    double areaScalingFactor = 1.0;
-
-    double angleinRad = cvf::Math::toRadians(fractureAzimuth - (wellAzimuthAtFracturePosition - 90));
-    if ((angleinRad-90.0) > 0.01)
-    {
-        areaScalingFactor = 1 / cvf::Math::cos(angleinRad);
-    }
-
     double ro = 0.14 * cvf::Math::sqrt(
         pow(stimPlanCellSizeX, 2.0) + pow(stimPlanCellSizeZ, 2));
 
     double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * stimPlanCellConductivity /
         (log(ro / wellRadius) + skinFactor );
-
-    Tc = Tc * areaScalingFactor;
 
     return Tc;
 }

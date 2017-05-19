@@ -60,12 +60,13 @@ public:
 
 private:
 
-    static void performStimPlanUpscalingAndPrintResults(const std::vector<RimFracture *>& fractures, 
-                                                        RimEclipseCase* caseToApply, 
-                                                        QTextStream &out, 
-                                                        RimWellPath* wellPath, 
-                                                        RimEclipseWell* simWell, 
-                                                        const RigMainGrid* mainGrid);
+    static void printCOMPDATvalues(QTextStream & out, 
+                                   double transmissibility,
+                                   size_t i, size_t j, size_t k, 
+                                   const QString& fractureName, 
+                                   double skinFactor, 
+                                   const QString& wellName);
+
     static void printStimPlanCellsMatrixTransContributions(const std::vector<RimFracture *>& fractures, 
                                                            RimEclipseCase* caseToApply, 
                                                            QTextStream &out, 
@@ -76,13 +77,6 @@ private:
                                                     QTextStream &out, 
                                                     RimEclipseCase* caseToApply);
 
-
-    static void printCOMPDATvalues(QTextStream & out, 
-                                   double transmissibility,
-                                   size_t i, size_t j, size_t k, 
-                                   const QString& fractureName, 
-                                   double skinFactor, 
-                                   const QString& wellName);
 
     static void printBackgroundDataHeaderLine(QTextStream & out);
 
