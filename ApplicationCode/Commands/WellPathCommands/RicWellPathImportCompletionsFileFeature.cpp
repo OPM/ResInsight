@@ -23,7 +23,7 @@
 
 #include "RimProject.h"
 #include "RimWellPath.h"
-#include "RimWellPathCompletionCollection.h"
+#include "RimFishboneWellPathCollection.h"
 
 #include "RiuMainWindow.h"
 

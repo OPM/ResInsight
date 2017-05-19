@@ -41,13 +41,13 @@
 ///  
 ///  
 //==================================================================================================
-class RimWellPathCompletion : public RimCheckableNamedObject
+class RimFishboneWellPath : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimWellPathCompletion();
-    virtual ~RimWellPathCompletion();
+    RimFishboneWellPath();
+    virtual ~RimFishboneWellPath();
 
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

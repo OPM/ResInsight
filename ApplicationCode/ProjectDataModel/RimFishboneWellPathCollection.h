@@ -20,7 +20,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
-#include "RimWellPathCompletion.h"
+#include "RimFishboneWellPath.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
@@ -31,18 +31,18 @@
 // 
 //
 //==================================================================================================
-class RimWellPathCompletionCollection : public RimCheckableNamedObject
+class RimFishboneWellPathCollection : public RimCheckableNamedObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellPathCompletionCollection();
-    ~RimWellPathCompletionCollection();
+    RimFishboneWellPathCollection();
+    ~RimFishboneWellPathCollection();
 
-    void appendCompletion(RimWellPathCompletion* completion);
+    void appendCompletion(RimFishboneWellPath* completion);
     void importCompletionsFromFile(const QList<QString> filePaths);
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    caf::PdmChildArrayField<RimWellPathCompletion*>    m_completions;
+    caf::PdmChildArrayField<RimFishboneWellPath*>    m_completions;
 };

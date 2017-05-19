@@ -30,7 +30,7 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathCompletionCollection.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimPerforationCollection.h"
 
 #include "RimFishbonesMultipleSubs.h"
@@ -105,7 +105,7 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitField(&wellPathColor,               "WellPathColor",       cvf::Color3f(0.999f, 0.333f, 0.999f), "Well path color", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_completionCollection, "Completions", "Completions", "", "", "");
-    m_completionCollection = new RimWellPathCompletionCollection;
+    m_completionCollection = new RimFishboneWellPathCollection;
     m_completionCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_perforationCollection, "Perforations", "Perforations", "", "", "");

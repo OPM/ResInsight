@@ -17,10 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellPathCompletionCollection.h"
+#include "RimFishboneWellPathCollection.h"
 
 #include "RimEclipseWell.h"
-#include "RimWellPathCompletion.h"
+#include "RimFishboneWellPath.h"
 #include "RimView.h"
 #include "RimProject.h"
 
@@ -31,12 +31,12 @@
 #include "RiuMainWindow.h"
 
 
-CAF_PDM_SOURCE_INIT(RimWellPathCompletionCollection, "WellPathCompletionCollection");
+CAF_PDM_SOURCE_INIT(RimFishboneWellPathCollection, "WellPathCompletionCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCompletionCollection::RimWellPathCompletionCollection()
+RimFishboneWellPathCollection::RimFishboneWellPathCollection()
 {
     CAF_PDM_InitObject("WellPathCompletions", ":/WellCollection.png", "", "");
 
@@ -50,7 +50,7 @@ RimWellPathCompletionCollection::RimWellPathCompletionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCompletionCollection::~RimWellPathCompletionCollection()
+RimFishboneWellPathCollection::~RimFishboneWellPathCollection()
 {
     m_completions.deleteAllChildObjects();
 }
@@ -58,7 +58,7 @@ RimWellPathCompletionCollection::~RimWellPathCompletionCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
@@ -68,7 +68,7 @@ void RimWellPathCompletionCollection::fieldChangedByUi(const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionCollection::appendCompletion(RimWellPathCompletion* completion)
+void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* completion)
 {
     m_completions.push_back(completion);
 
@@ -88,7 +88,7 @@ void RimWellPathCompletionCollection::appendCompletion(RimWellPathCompletion* co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionCollection::importCompletionsFromFile(const QList<QString> filePaths)
+void RimFishboneWellPathCollection::importCompletionsFromFile(const QList<QString> filePaths)
 {
     RifWellPathImporter wellPathImporter;
 
@@ -98,7 +98,7 @@ void RimWellPathCompletionCollection::importCompletionsFromFile(const QList<QStr
         for (size_t i = 0; i < wellDataCount; ++i)
         {
             RifWellPathImporter::WellData wellData = wellPathImporter.readWellData(filePath, i);
-            RimWellPathCompletion* wellCompletion = new RimWellPathCompletion();
+            RimFishboneWellPath* wellCompletion = new RimFishboneWellPath();
             wellCompletion->setName(wellData.m_name);
             wellCompletion->setCoordinates(wellData.m_wellPathGeometry->m_wellPathPoints);
             wellCompletion->setMeasuredDepths(wellData.m_wellPathGeometry->m_measuredDepths);

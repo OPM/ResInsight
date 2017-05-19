@@ -17,19 +17,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellPathCompletion.h"
+#include "RimFishboneWellPath.h"
 
 #include "RimProject.h"
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTextEditor.h"
 
-CAF_PDM_SOURCE_INIT(RimWellPathCompletion, "WellPathCompletion");
+CAF_PDM_SOURCE_INIT(RimFishboneWellPath, "WellPathCompletion");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCompletion::RimWellPathCompletion()
+RimFishboneWellPath::RimFishboneWellPath()
 {
     CAF_PDM_InitObject("WellPathCompletion", ":/Well.png", "", "");
     CAF_PDM_InitFieldNoDefault(&m_coordinates, "Coordinates", "Coordinates", "", "", "");
@@ -39,7 +39,7 @@ RimWellPathCompletion::RimWellPathCompletion()
     m_name.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_displayCoordinates, "DisplayCoordinates", "Coordinates", "", "", "");
-    m_displayCoordinates.registerGetMethod(this, &RimWellPathCompletion::displayCoordinates);
+    m_displayCoordinates.registerGetMethod(this, &RimFishboneWellPath::displayCoordinates);
     m_displayCoordinates.uiCapability()->setUiReadOnly(true);
     m_displayCoordinates.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_displayCoordinates.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LabelPosType::TOP);
@@ -49,14 +49,14 @@ RimWellPathCompletion::RimWellPathCompletion()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCompletion::~RimWellPathCompletion()
+RimFishboneWellPath::~RimFishboneWellPath()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletion::setCoordinates(std::vector< cvf::Vec3d > coordinates)
+void RimFishboneWellPath::setCoordinates(std::vector< cvf::Vec3d > coordinates)
 {
     m_coordinates = coordinates;
 }
@@ -64,7 +64,7 @@ void RimWellPathCompletion::setCoordinates(std::vector< cvf::Vec3d > coordinates
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletion::setMeasuredDepths(std::vector< double > measuredDepths)
+void RimFishboneWellPath::setMeasuredDepths(std::vector< double > measuredDepths)
 {
     m_measuredDepths = measuredDepths;
 }
@@ -72,7 +72,7 @@ void RimWellPathCompletion::setMeasuredDepths(std::vector< double > measuredDept
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletion::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFishboneWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
@@ -82,7 +82,7 @@ void RimWellPathCompletion::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletion::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimFishboneWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_displayCoordinates);
 }
@@ -90,7 +90,7 @@ void RimWellPathCompletion::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathCompletion::displayCoordinates() const
+QString RimFishboneWellPath::displayCoordinates() const
 {
     CVF_ASSERT(m_coordinates().size() == m_measuredDepths().size());
 

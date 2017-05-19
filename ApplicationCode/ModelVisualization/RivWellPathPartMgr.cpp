@@ -28,8 +28,8 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathCompletion.h"
-#include "RimWellPathCompletionCollection.h"
+#include "RimFishboneWellPath.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
 
@@ -123,7 +123,7 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, ca
     if (!m_rimWellPath || !m_rimWellPath->m_completionCollection->isChecked()) return;
 
     RivPipeGeometryGenerator geoGenerator;
-    for (RimWellPathCompletion* completion : m_rimWellPath->m_completionCollection()->m_completions())
+    for (RimFishboneWellPath* completion : m_rimWellPath->m_completionCollection()->m_completions())
     {
         if (!completion->isChecked()) continue;
 

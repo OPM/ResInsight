@@ -36,7 +36,7 @@ class RifWellPathImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
-class RimWellPathCompletionCollection;
+class RimFishboneWellPathCollection;
 class RivWellPathPartMgr;
 
 class RimFishbonesMultipleSubs;
@@ -73,7 +73,7 @@ public:
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
-    caf::PdmChildField<RimWellPathCompletionCollection*> m_completionCollection;
+    caf::PdmChildField<RimFishboneWellPathCollection*> m_completionCollection;
     caf::PdmChildField<RimPerforationCollection*> m_perforationCollection;
 
     RigWellPath*                        wellPathGeometry();

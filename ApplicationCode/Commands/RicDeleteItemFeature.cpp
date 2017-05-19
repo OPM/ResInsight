@@ -43,7 +43,7 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellPathCompletion.h"
+#include "RimFishboneWellPath.h"
 #include "RimPerforationInterval.h"
 
 #include "cafCmdExecCommandManager.h"
@@ -93,7 +93,7 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
-    if (dynamic_cast<RimWellPathCompletion*>(uiItem))        return true;
+    if (dynamic_cast<RimFishboneWellPath*>(uiItem))        return true;
     if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))     return true;
     if (dynamic_cast<RimPerforationInterval*>(uiItem))       return true;
 
