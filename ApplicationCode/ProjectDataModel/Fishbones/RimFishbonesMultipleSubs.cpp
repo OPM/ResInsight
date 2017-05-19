@@ -371,6 +371,8 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
 
         {
             caf::PdmUiGroup* successGroup = lateralConfigGroup->addNewGroup("Installation Success Fractions");
+            successGroup->setCollapsedByDefault(true);
+
             successGroup->add(&m_lateralLengthFraction);
             successGroup->add(&m_lateralInstallFraction);
         }
