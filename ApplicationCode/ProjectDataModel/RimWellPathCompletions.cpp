@@ -21,6 +21,8 @@
 #include "RimFishbonesCollection.h"
 #include "RimPerforationCollection.h"
 
+#include "cvfAssert.h"
+
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
 
@@ -45,6 +47,8 @@ RimWellPathCompletions::RimWellPathCompletions()
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
 {
+    CVF_ASSERT(m_fishbonesCollection);
+
     return m_fishbonesCollection;
 }
 
@@ -53,6 +57,8 @@ RimFishbonesCollection* RimWellPathCompletions::fishbonesCollection() const
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
 {
+    CVF_ASSERT(m_perforationCollection);
+
     return m_perforationCollection;
 }
 

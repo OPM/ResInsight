@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimWellPath;
+class RimFishbonesCollection;
 
 //==================================================================================================
 /// 
@@ -36,5 +36,5 @@ protected:
 
 private:
     static QString formatNumber(double val, int numberOfDecimals);
-    static RimWellPath* selectedWellPath();
+    static RimFishbonesCollection* selectedFishbonesCollection();
 };

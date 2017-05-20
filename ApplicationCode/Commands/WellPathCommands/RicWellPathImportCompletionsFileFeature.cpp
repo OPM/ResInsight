@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,10 +20,11 @@
 
 #include "RiaApplication.h"
 
-#include "RimProject.h"
-#include "RimWellPath.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
+#include "RimProject.h"
+#include "RimWellPath.h"
+#include "RimWellPathCompletions.h"
 
 #include "RiuMainWindow.h"
 
@@ -40,10 +40,8 @@ CAF_CMD_SOURCE_INIT(RicWellPathImportCompletionsFileFeature, "RicWellPathImportC
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    if (objects.size() == 1) {
+    if (RicWellPathImportCompletionsFileFeature::selectedWellPathCompletions() != nullptr)
+    {
         return true;
     }
 
@@ -55,10 +53,8 @@ bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    CVF_ASSERT(objects.size() == 1);
+    RimWellPathCompletions* wellPathCompletions = RicWellPathImportCompletionsFileFeature::selectedWellPathCompletions();
+    CVF_ASSERT(wellPathCompletions);
 
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
@@ -70,7 +66,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
     // Remember the path to next time
     app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
 
-    objects[0]->fishbonesCollection()->wellPathCollection()->importCompletionsFromFile(wellPathFilePaths);
+    wellPathCompletions->fishbonesCollection()->wellPathCollection()->importCompletionsFromFile(wellPathFilePaths);
 
     if (app->project())
     {
@@ -85,4 +81,20 @@ void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToS
 {
     actionToSetup->setText("Import Completions from File");
     actionToSetup->setIcon(QIcon(":/Well.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathCompletions* RicWellPathImportCompletionsFileFeature::selectedWellPathCompletions()
+{
+    std::vector<RimWellPathCompletions*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
+
+    if (objects.size() > 0)
+    {
+        return objects[0];
+    }
+
+    return nullptr;
 }

@@ -20,9 +20,7 @@
 
 #include "RimCheckableNamedObject.h"
 
-#include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
 #include "cafPdmChildField.h"
 
 class RimFishbonesMultipleSubs;

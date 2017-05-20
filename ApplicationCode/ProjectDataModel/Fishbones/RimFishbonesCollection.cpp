@@ -18,16 +18,10 @@
 
 #include "RimFishbonesCollection.h"
 
-#include "RimEclipseWell.h"
-#include "RimPerforationInterval.h"
-#include "RimView.h"
-#include "RimProject.h"
+#include "RifWellPathImporter.h"
 
 #include "RigWellPath.h"
 
-#include "RifWellPathImporter.h"
-
-#include "RiuMainWindow.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 
@@ -58,6 +52,8 @@ RimFishbonesCollection::RimFishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() const
 {
+    CVF_ASSERT(m_wellPathCollection);
+
     return m_wellPathCollection();
 }
 

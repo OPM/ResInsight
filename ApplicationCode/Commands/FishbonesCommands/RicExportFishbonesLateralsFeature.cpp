@@ -41,7 +41,11 @@ CAF_CMD_SOURCE_INIT(RicExportFishbonesLateralsFeature, "RicExportFishbonesLatera
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* wellPath = selectedWellPath();
+    RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
+    CVF_ASSERT(fishbonesCollection);
+
+    RimWellPath* wellPath = nullptr;
+    fishbonesCollection->firstAncestorOrThisOfType(wellPath);
     CVF_ASSERT(wellPath);
 
     RiaApplication* app = RiaApplication::instance();
@@ -78,7 +82,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     size_t fishboneSubIndex = 0;
 
     QTextStream stream(&exportFile);
-    for (RimFishbonesMultipleSubs* fishbone : wellPath->fishbonesCollection()->fishbonesSubs())
+    for (RimFishbonesMultipleSubs* fishbone : fishbonesCollection->fishbonesSubs())
     {
         if (!fishbone->isChecked()) continue;
 
@@ -126,19 +130,19 @@ QString RicExportFishbonesLateralsFeature::formatNumber(double val, int numberOf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicExportFishbonesLateralsFeature::selectedWellPath()
+RimFishbonesCollection* RicExportFishbonesLateralsFeature::selectedFishbonesCollection()
 {
-    RimWellPath* wellPath = nullptr;
+    RimFishbonesCollection* objToFind = nullptr;
     
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
     {
-        objHandle->firstAncestorOrThisOfType(wellPath);
+        objHandle->firstAncestorOrThisOfType(objToFind);
     }
 
-    return wellPath;
+    return objToFind;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,7 +159,7 @@ void RicExportFishbonesLateralsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicExportFishbonesLateralsFeature::isCommandEnabled()
 {
-    if (selectedWellPath())
+    if (selectedFishbonesCollection())
     {
         return true;
     }
