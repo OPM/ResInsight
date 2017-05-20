@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimWellPath;
+class RimFishbonesCollection;
 
 //==================================================================================================
 /// 
@@ -35,5 +35,5 @@ protected:
     virtual bool isCommandEnabled() override;
 
 private:
-    static RimWellPath* selectedWellPath();
+    static RimFishbonesCollection* selectedFishbonesCollection();
 };

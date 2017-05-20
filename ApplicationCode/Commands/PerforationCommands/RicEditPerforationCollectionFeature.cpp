@@ -21,7 +21,6 @@
 #include "RiuEditPerforationCollectionWidget.h"
 
 #include "RimPerforationCollection.h"
-#include "RimWellPath.h"
 
 #include "cafSelectionManager.h"
 
@@ -36,7 +35,7 @@ CAF_CMD_SOURCE_INIT(RicEditPerforationCollectionFeature, "RicEditPerforationColl
 //--------------------------------------------------------------------------------------------------
 bool RicEditPerforationCollectionFeature::isCommandEnabled()
 {
-    return selectedWellPath() != nullptr;
+    return selectedPerforationCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,13 +45,14 @@ void RicEditPerforationCollectionFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    RimWellPath* wellPath = selectedWellPath();
+    RimPerforationCollection* perforationCollection = selectedPerforationCollection();
     
-    if (wellPath == nullptr) return;
+    if (perforationCollection == nullptr) return;
 
-    RiuEditPerforationCollectionWidget dlg(nullptr, wellPath->perforationIntervalCollection());
+    RiuEditPerforationCollectionWidget dlg(nullptr, perforationCollection);
     dlg.exec();
-    wellPath->updateConnectedEditors();
+
+    perforationCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,17 +66,17 @@ void RicEditPerforationCollectionFeature::setupActionLook(QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicEditPerforationCollectionFeature::selectedWellPath() const
+RimPerforationCollection* RicEditPerforationCollectionFeature::selectedPerforationCollection()
 {
-    RimWellPath* wellPath = nullptr;
+    RimPerforationCollection* objToFind = nullptr;
     
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
     {
-        objHandle->firstAncestorOrThisOfType(wellPath);
+        objHandle->firstAncestorOrThisOfType(objToFind);
     }
 
-    return wellPath;
+    return objToFind;
 }

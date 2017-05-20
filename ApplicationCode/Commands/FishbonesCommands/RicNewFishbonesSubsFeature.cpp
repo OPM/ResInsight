@@ -20,7 +20,6 @@
 
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFishbonesCollection.h"
-#include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
 
@@ -36,33 +35,33 @@ CAF_CMD_SOURCE_INIT(RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature");
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* wellPath = selectedWellPath();
-    CVF_ASSERT(wellPath);
+    RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
+    CVF_ASSERT(fishbonesCollection);
 
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
-    obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesCollection()->fishbonesSubs.size()));
-    wellPath->fishbonesCollection()->fishbonesSubs.push_back(obj);
+    obj->setName(QString("Fishbones Subs (%1)").arg(fishbonesCollection->fishbonesSubs.size()));
+    fishbonesCollection->fishbonesSubs.push_back(obj);
 
-    wellPath->updateConnectedEditors();
+    fishbonesCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(obj);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewFishbonesSubsFeature::selectedWellPath()
+RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection()
 {
-    RimWellPath* wellPath = nullptr;
+    RimFishbonesCollection* objToFind = nullptr;
     
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
     {
-        objHandle->firstAncestorOrThisOfType(wellPath);
+        objHandle->firstAncestorOrThisOfType(objToFind);
     }
 
-    return wellPath;
+    return objToFind;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +78,7 @@ void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewFishbonesSubsFeature::isCommandEnabled()
 {
-    if (selectedWellPath())
+    if (selectedFishbonesCollection())
     {
         return true;
     }

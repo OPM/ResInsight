@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimWellPath;
+class RimPerforationCollection;
 
 //==================================================================================================
 /// 
@@ -35,6 +35,6 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    RimWellPath* selectedWellPath() const;
+    static RimPerforationCollection* selectedPerforationCollection();
 };
 

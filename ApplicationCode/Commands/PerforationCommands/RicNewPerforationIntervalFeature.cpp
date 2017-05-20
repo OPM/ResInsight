@@ -23,7 +23,6 @@
 
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
-#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "cafSelectionManager.h"
@@ -39,7 +38,7 @@ CAF_CMD_SOURCE_INIT(RicNewPerforationIntervalFeature, "RicNewPerforationInterval
 //--------------------------------------------------------------------------------------------------
 bool RicNewPerforationIntervalFeature::isCommandEnabled()
 {
-    return selectedWellPath() != nullptr;
+    return selectedPerforationCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,15 +46,15 @@ bool RicNewPerforationIntervalFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPath* wellPath = selectedWellPath();
-    if (wellPath == nullptr) return;
+    RimPerforationCollection* perforationCollection = selectedPerforationCollection();
+    if (perforationCollection == nullptr) return;
 
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
 
-    wellPath->perforationIntervalCollection()->appendPerforation(perforationInterval);
+    perforationCollection->appendPerforation(perforationInterval);
 
     RimWellPathCollection* wellPathCollection = nullptr;
-    wellPath->firstAncestorOrThisOfType(wellPathCollection);
+    perforationCollection->firstAncestorOrThisOfType(wellPathCollection);
     if (!wellPathCollection) return;
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -75,17 +74,17 @@ void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath * RicNewPerforationIntervalFeature::selectedWellPath()
+RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationCollection()
 {
-    RimWellPath* wellPath = nullptr;
+    RimPerforationCollection* objToFind = nullptr;
     
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (objHandle)
     {
-        objHandle->firstAncestorOrThisOfType(wellPath);
+        objHandle->firstAncestorOrThisOfType(objToFind);
     }
 
-    return wellPath;
+    return objToFind;
 }
