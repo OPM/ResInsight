@@ -40,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicWellPathImportCompletionsFileFeature, "RicWellPathImportC
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 {
-    if (RicWellPathImportCompletionsFileFeature::selectedWellPathCompletions() != nullptr)
+    if (RicWellPathImportCompletionsFileFeature::selectedWellPathCollection() != nullptr)
     {
         return true;
     }
@@ -53,8 +53,8 @@ bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 {
-    RimWellPathCompletions* wellPathCompletions = RicWellPathImportCompletionsFileFeature::selectedWellPathCompletions();
-    CVF_ASSERT(wellPathCompletions);
+    RimFishboneWellPathCollection* wellPathCollection = RicWellPathImportCompletionsFileFeature::selectedWellPathCollection();
+    CVF_ASSERT(wellPathCollection);
 
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
@@ -66,7 +66,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
     // Remember the path to next time
     app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
 
-    wellPathCompletions->fishbonesCollection()->wellPathCollection()->importCompletionsFromFile(wellPathFilePaths);
+    wellPathCollection->importCompletionsFromFile(wellPathFilePaths);
 
     if (app->project())
     {
@@ -86,14 +86,17 @@ void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPathCompletions* RicWellPathImportCompletionsFileFeature::selectedWellPathCompletions()
+RimFishboneWellPathCollection* RicWellPathImportCompletionsFileFeature::selectedWellPathCollection()
 {
-    std::vector<RimWellPathCompletions*> objects;
+    std::vector<caf::PdmObject*> objects;
     caf::SelectionManager::instance()->objectsByType(&objects);
 
     if (objects.size() > 0)
     {
-        return objects[0];
+        RimFishboneWellPathCollection* fbWellColl = nullptr;
+        objects[0]->firstAncestorOrThisOfType(fbWellColl);
+
+        return fbWellColl;
     }
 
     return nullptr;

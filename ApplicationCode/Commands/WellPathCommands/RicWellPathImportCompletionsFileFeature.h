@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimWellPathCompletions;
+class RimFishboneWellPathCollection;
 
 //==================================================================================================
 /// 
@@ -36,6 +36,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimWellPathCompletions* selectedWellPathCompletions();
+    static RimFishboneWellPathCollection* selectedWellPathCollection();
 };
 
