@@ -71,6 +71,7 @@
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
@@ -164,14 +165,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         RimView* activeView = RiaApplication::instance()->activeReservoirView();
         CVF_ASSERT(activeView);
 
-        RimCase* rimCase = NULL;
-        activeView->firstAncestorOrThisOfType(rimCase);
-        if (rimCase)
-        {
-            displayModelOffset = rimCase->displayModelOffset();
-        }
-
-        m_currentPickPositionInDomainCoords = localIntersectionPoint + displayModelOffset;
+        cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+        m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
     }
 
     if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
@@ -846,7 +841,6 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-
 
     if (eclipseView && eclipseView->eclipseCase())
     {
