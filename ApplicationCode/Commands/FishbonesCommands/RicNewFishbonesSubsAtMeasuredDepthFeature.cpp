@@ -18,6 +18,8 @@
 
 #include "RicNewFishbonesSubsAtMeasuredDepthFeature.h"
 
+#include "RicNewFishbonesSubsFeature.h"
+
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimProject.h"
@@ -50,6 +52,8 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesCollection()->fishbonesSubs.size()));
     int integerValue = wellPathSelItem->m_measuredDepth;
     obj->setMeasuredDepthAndCount(integerValue, 24, 1);
+
+    RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(wellPath->fishbonesCollection());
 
     wellPath->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(obj);
