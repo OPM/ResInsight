@@ -1,0 +1,111 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2017 Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicFlyToObjectFeature.h"
+
+#include "RiaApplication.h"
+
+#include "Rim3dPropertiesInterface.h"
+#include "RimView.h"
+
+#include "RiuViewer.h"
+
+#include "cafDisplayCoordTransform.h"
+#include "cafPdmObject.h"
+#include "cafSelectionManager.h"
+
+#include "cvfCamera.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT(RicFlyToObjectFeature, "RicFlyToObjectFeature");
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicFlyToObjectFeature::isCommandEnabled()
+{
+    if (RicFlyToObjectFeature::boundingBoxForSelectedObjects().isValid())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
+{
+    RimView* activeView = RiaApplication::instance()->activeReservoirView();
+    if (!activeView) return;
+
+    RiuViewer* destinationViewer = activeView->viewer();
+    if (!destinationViewer) return;
+
+    cvf::BoundingBox bb = RicFlyToObjectFeature::boundingBoxForSelectedObjects();
+    CVF_ASSERT(bb.isValid());
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+
+    cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord(bb.center());
+
+    cvf::Vec3d cameraEye = centerInDisplayCoords + cvf::Vec3d::X_AXIS * 50.0;
+    cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
+    cvf::Vec3d cameraUp = cvf::Vec3d::Z_AXIS;
+
+    destinationViewer->mainCamera()->setFromLookAt(cameraEye, cameraViewRefPoint, cameraUp);
+    
+    activeView->updateCurrentTimeStepAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicFlyToObjectFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Fly to Object");
+    //actionToSetup->setIcon(QIcon(":/3DView16x16.png"));
+}    
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RicFlyToObjectFeature::boundingBoxForSelectedObjects()
+{
+    cvf::BoundingBox bb;
+
+    std::vector<caf::PdmObject*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
+
+    for (auto o : objects)
+    {
+        Rim3dPropertiesInterface* rim3dProperties = dynamic_cast<Rim3dPropertiesInterface*>(o);
+        if (rim3dProperties)
+        {
+            bb.add(rim3dProperties->boundingBoxInDomainCoords());
+        }
+    }
+
+    return bb;
+}
+

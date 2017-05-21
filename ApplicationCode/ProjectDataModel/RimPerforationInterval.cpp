@@ -19,7 +19,10 @@
 
 #include "RimPerforationInterval.h"
 
+#include "RigWellPath.h"
+
 #include "RimProject.h"
+#include "RimWellPath.h"
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -55,6 +58,26 @@ void RimPerforationInterval::setStartAndEndMD(double startMD, double endMD)
 {
     m_startMD = startMD;
     m_endMD = endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
+{
+    cvf::BoundingBox bb;
+
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(wellPath);
+
+    RigWellPath* rigWellPath = wellPath->wellPathGeometry();
+    if (rigWellPath)
+    {
+        bb.add(rigWellPath->interpolatedPointAlongWellPath(startMD()));
+        bb.add(rigWellPath->interpolatedPointAlongWellPath(endMD()));
+    }
+
+    return bb;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "Rim3dPropertiesInterface.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -32,7 +33,7 @@ class RigFisbonesGeometry;
 ///  
 ///  
 //==================================================================================================
-class RimFishbonesMultipleSubs : public RimCheckableNamedObject
+class RimFishbonesMultipleSubs : public RimCheckableNamedObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -54,6 +55,7 @@ public:
     RimFishbonesMultipleSubs();
     virtual ~RimFishbonesMultipleSubs();
 
+
     void                setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
 
     std::vector<double> locationOfSubs() const;
@@ -70,6 +72,9 @@ public:
 
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
     std::vector<std::pair<cvf::Vec3d, double>>  coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const;
+    
+    // Override from Rim3dPropertiesInterface
+    virtual cvf::BoundingBox boundingBoxInDomainCoords() override;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

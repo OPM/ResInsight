@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RimCheckableNamedObject.h"
+#include "Rim3dPropertiesInterface.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,7 +29,7 @@
 ///  
 ///  
 //==================================================================================================
-class RimPerforationInterval : public RimCheckableNamedObject
+class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -39,6 +40,8 @@ public:
     void                                setStartAndEndMD(double startMD, double endMD);
     double                              startMD() { return m_startMD(); }
     double                              endMD() { return m_endMD(); }
+
+    virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
 
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

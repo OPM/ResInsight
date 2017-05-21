@@ -26,6 +26,7 @@
 #include "cafPdmUiListEditor.h"
 
 #include "cvfAssert.h"
+#include "cvfBoundingBox.h"
 
 #include <cstdlib>
 
@@ -50,7 +51,6 @@ namespace caf {
         setDefault(RimFishbonesMultipleSubs::FB_LATERAL_ORIENTATION_RANDOM);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -444,6 +444,29 @@ void RimFishbonesMultipleSubs::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
 
     size_t index = container->index(this);
     m_name = QString("Fishbone %1").arg(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RimFishbonesMultipleSubs::boundingBoxInDomainCoords()
+{
+    cvf::BoundingBox bb;
+
+    for (size_t i = 0; i < m_locationOfSubs().size(); i++)
+    {
+        for (size_t lateralIndex = 0; lateralIndex < m_lateralCountPerSub; lateralIndex++)
+        {
+            std::vector<cvf::Vec3d> coords = coordsForLateral(i, lateralIndex);
+
+            for (auto c : coords)
+            {
+                bb.add(c);
+            }
+        }
+    }
+
+    return bb;
 }
 
 //--------------------------------------------------------------------------------------------------
