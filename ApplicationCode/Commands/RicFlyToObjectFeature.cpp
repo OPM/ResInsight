@@ -33,6 +33,8 @@
 
 #include <QAction>
 
+#include <algorithm>
+
 CAF_CMD_SOURCE_INIT(RicFlyToObjectFeature, "RicFlyToObjectFeature");
 
 
@@ -69,7 +71,15 @@ void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
 
     cvf::Vec3d centerInDisplayCoords = transForm->transformToDisplayCoord(bb.center());
 
-    cvf::Vec3d cameraEye = centerInDisplayCoords + cvf::Vec3d::X_AXIS * 50.0;
+    cvf::Vec3d directionNormalToLargesExtent = cvf::Vec3d::X_AXIS;
+    double largesExtent = fabs(bb.extent().y());
+    if (fabs(bb.extent().x()) > largesExtent)
+    {
+        largesExtent = fabs(bb.extent().x());
+        directionNormalToLargesExtent = cvf::Vec3d::Y_AXIS;
+    }
+
+    cvf::Vec3d cameraEye = centerInDisplayCoords + directionNormalToLargesExtent * std::max(largesExtent, 30.0);
     cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
     cvf::Vec3d cameraUp = cvf::Vec3d::Z_AXIS;
 
