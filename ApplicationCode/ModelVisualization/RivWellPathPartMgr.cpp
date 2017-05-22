@@ -96,7 +96,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
-    if (!m_rimWellPath) return;
+    if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked()) return;
 
     // This concept is taken from RivReservoirSimWellsPartMgr, and is required to be able to have
     // separate part managers for each view

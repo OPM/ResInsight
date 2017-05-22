@@ -24,6 +24,7 @@
 
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimProject.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
@@ -55,5 +56,15 @@ RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() cons
     CVF_ASSERT(m_wellPathCollection);
 
     return m_wellPathCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->createDisplayModelAndRedrawAllViews();
 }
 

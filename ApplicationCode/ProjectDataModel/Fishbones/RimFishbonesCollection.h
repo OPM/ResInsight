@@ -42,6 +42,9 @@ public:
 
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
+protected:
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
 private:
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 };
