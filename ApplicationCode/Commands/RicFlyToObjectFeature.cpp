@@ -104,15 +104,14 @@ cvf::BoundingBox RicFlyToObjectFeature::boundingBoxForSelectedObjects()
 {
     cvf::BoundingBox bb;
 
-    std::vector<caf::PdmObject*> objects;
+    std::vector<Rim3dPropertiesInterface*> objects;
     caf::SelectionManager::instance()->objectsByType(&objects);
 
-    for (auto o : objects)
+    for (auto obj : objects)
     {
-        Rim3dPropertiesInterface* rim3dProperties = dynamic_cast<Rim3dPropertiesInterface*>(o);
-        if (rim3dProperties)
+        if (obj)
         {
-            bb.add(rim3dProperties->boundingBoxInDomainCoords());
+            bb.add(obj->boundingBoxInDomainCoords());
         }
     }
 
