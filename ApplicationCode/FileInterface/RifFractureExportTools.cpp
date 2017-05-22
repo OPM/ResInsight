@@ -47,6 +47,7 @@
 #include <QTextStream>
 #include "RigStimPlanUpscalingCalc.h"
 #include "RigTransmissibilityCondenser.h"
+#include "RigWellPathStimplanIntersector.h"
 
 
 
@@ -309,7 +310,14 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
         //       Use LinT + 1/2 radialT on each end if endpoints are inside cell 
         //       Add to condenser
 
-        //Adding well cell to condenser
+        
+        // Adding well cells to condenser
+        
+        
+        //RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
+
+        // Todo: ..
+
         std::pair<size_t, size_t> centerCellIJ = fracTemplateStimPlan->getStimPlanCellAtWellCenter();
         size_t wellCellIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(centerCellIJ.first, centerCellIJ.second);
         const RigStimPlanFracTemplateCell stimPlanWellCell = fracTemplateStimPlan->stimPlanCellFromIndex(wellCellIndex);
@@ -325,12 +333,8 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
                                               {false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex},
                                               wellTrans);
 
-        //    std::map <size_t, std::map<RimFracture*, double>> transmissibilitiesMap; //eclipseCellIndex (size_t), fracture (RimFracture) and trans value
-
-        //   Add eclipse cell transmissibilities to a map <eclipsecell index, map<fractureptr, transmissibility> >
 
         std::set<RigTransmissibilityCondenser::CellAddress> externalCells = condenser.externalCells();
-
         for (RigTransmissibilityCondenser::CellAddress externalCell : externalCells)
         {
             if (externalCell.m_cellIndexSpace == RigTransmissibilityCondenser::CellAddress::ECLIPSE)

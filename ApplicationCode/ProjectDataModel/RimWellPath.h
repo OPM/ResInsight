@@ -72,6 +72,8 @@ public:
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
     RigWellPath*                        wellPathGeometry();
+    const RigWellPath*                  wellPathGeometry() const;
+
     caf::PdmChildField<RimWellPathFractureCollection*>  fractureCollection;
 
 

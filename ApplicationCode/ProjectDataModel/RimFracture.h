@@ -68,10 +68,10 @@ public:
     caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >  fractureUnit;
 
 
-    cvf::Vec3d                      anchorPosition();
+    cvf::Vec3d                      anchorPosition() const ;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
 
-    cvf::Mat4f                      transformMatrix(); 
+    cvf::Mat4f                      transformMatrix() const; 
 
     const RigFracture*              attachedRigFracture() const;
 

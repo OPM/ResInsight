@@ -245,7 +245,7 @@ void RimFracture::computeGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RimFracture::anchorPosition()
+cvf::Vec3d RimFracture::anchorPosition() const
 {
     return m_anchorPosition();
 }
@@ -253,7 +253,7 @@ cvf::Vec3d RimFracture::anchorPosition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4f RimFracture::transformMatrix()
+cvf::Mat4f RimFracture::transformMatrix() const
 {
     cvf::Vec3d center = anchorPosition();
 

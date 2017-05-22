@@ -276,7 +276,18 @@ ClipperLib::IntPoint toClipperPoint(const cvf::Vec3d& cvfPoint)
 
 cvf::Vec3d fromClipperPoint(const ClipperLib::IntPoint& clipPoint)
 {
-    return cvf::Vec3d (clipPoint.X, clipPoint.Y, clipPoint.Z ) /clipperConversionFactor;
+    double zDValue; 
+    
+    if (clipPoint.Z == std::numeric_limits<int>::max()) 
+    {
+        zDValue = HUGE_VAL;
+    }
+    else 
+    {
+        zDValue = clipPoint.Z;
+    }
+
+    return cvf::Vec3d (clipPoint.X, clipPoint.Y, zDValue ) /clipperConversionFactor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,7 +359,7 @@ void fillInterpolatedSubjectZ(ClipperLib::IntPoint& e1bot,
 
     double fraction = e2BotPtLength/e2Length;
 
-    pt.Z = e2bot.Z + fraction*(e2top.Z - e2bot.Z);
+    pt.Z = std::nearbyint( e2bot.Z + fraction*(e2top.Z - e2bot.Z) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -360,27 +371,27 @@ void fillUndefinedZ(ClipperLib::IntPoint& e1bot,
                               ClipperLib::IntPoint& e2top,
                               ClipperLib::IntPoint& pt)
 {
-   pt.Z = HUGE_VAL;
+   pt.Z = std::numeric_limits<int>::max();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygon(std::vector<cvf::Vec3d> polyLine, 
-                                                                                  std::vector<cvf::Vec3d> polygon, 
+std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygon(const std::vector<cvf::Vec3d>& polyLine, 
+                                                                                  const std::vector<cvf::Vec3d>& polygon, 
                                                                                   ZInterpolationType interpolType)
 {
     int polygonScaleFactor = 10000; //For transform to clipper int 
 
     //Convert to int for clipper library and store as clipper "path"
     ClipperLib::Path polyLinePath;
-    for (cvf::Vec3d& v : polyLine)
+    for (const cvf::Vec3d& v : polyLine)
     {
         polyLinePath.push_back(toClipperPoint(v));
     }
 
     ClipperLib::Path polygonPath;
-    for (cvf::Vec3d& v : polygon)
+    for (const cvf::Vec3d& v : polygon)
     {
         polygonPath.push_back(toClipperPoint(v));
     }
@@ -398,12 +409,16 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
         clpr.ZFillFunction(&fillUndefinedZ);
     }
 
-    ClipperLib::Paths solution;
+    ClipperLib::PolyTree solution;
     clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+    // We only expect open paths from this method (unless the polyline is self intersecting, a condition we do not handle)
+    ClipperLib::Paths solutionPaths;
+    ClipperLib::OpenPathsFromPolyTree(solution, solutionPaths);
 
     //Convert back to std::vector<std::vector<cvf::Vec3d> >
     std::vector<std::vector<cvf::Vec3d> > clippedPolyline;
-    for (ClipperLib::Path pathInSol : solution)
+    for (ClipperLib::Path pathInSol : solutionPaths)
     {
         std::vector<cvf::Vec3d> clippedPolygon;
         for (ClipperLib::IntPoint IntPosition : pathInSol)

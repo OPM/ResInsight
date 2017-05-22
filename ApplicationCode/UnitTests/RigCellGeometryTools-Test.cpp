@@ -221,3 +221,84 @@ TEST(RigCellGeometryTools, lengthCalcTest)
     length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, polygonExample);
     EXPECT_DOUBLE_EQ(length, 2.5);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigCellGeometryTools, polylinePolygonIntersectionTest)
+{
+    std::vector<cvf::Vec3d> polygonExample;
+
+    polygonExample.push_back(cvf::Vec3d(0.00, 0.00, 0.0));
+    polygonExample.push_back(cvf::Vec3d(0.00, 2.50, 0.0));
+    polygonExample.push_back(cvf::Vec3d(1.50, 2.50, 0.0));
+    polygonExample.push_back(cvf::Vec3d(1.50, 0.00, 0.0));
+
+
+    std::vector<cvf::Vec3d> polyLine;
+
+    polyLine.push_back(cvf::Vec3d(-1.00, 0.00, 1.0));
+    polyLine.push_back(cvf::Vec3d(1.00, 2.0, 2.0));
+    polyLine.push_back(cvf::Vec3d(1.00, 3.00, 3.0));
+
+    {
+        std::vector< std::vector<cvf::Vec3d> > clippedLines = RigCellGeometryTools::clipPolylineByPolygon(polyLine,
+                                                                                                          polygonExample,
+                                                                                                          RigCellGeometryTools::INTERPOLATE_LINE_Z);
+
+        EXPECT_EQ(1, clippedLines.size());
+        EXPECT_EQ(3, clippedLines.front().size());
+        EXPECT_EQ(0.0, clippedLines.front()[0].x());
+        EXPECT_EQ(1.0, clippedLines.front()[0].y());
+        EXPECT_EQ(1.5, clippedLines.front()[0].z());
+
+        EXPECT_EQ(1.0, clippedLines.front()[1].x());
+        EXPECT_EQ(2.0, clippedLines.front()[1].y());
+        EXPECT_EQ(2.0, clippedLines.front()[1].z());
+
+        EXPECT_EQ(1.0, clippedLines.front()[2].x());
+        EXPECT_EQ(2.5, clippedLines.front()[2].y());
+        EXPECT_EQ(2.5, clippedLines.front()[2].z());
+    }
+
+    {
+        std::vector< std::vector<cvf::Vec3d> > clippedLines = RigCellGeometryTools::clipPolylineByPolygon(polyLine,
+                                                                                                          polygonExample,
+                                                                                                          RigCellGeometryTools::USE_HUGEVAL);
+
+        EXPECT_EQ(1, clippedLines.size());
+        EXPECT_EQ(3, clippedLines.front().size());
+        EXPECT_EQ(0.0, clippedLines.front()[0].x());
+        EXPECT_EQ(1.0, clippedLines.front()[0].y());
+        EXPECT_EQ(HUGE_VAL, clippedLines.front()[0].z());
+
+        EXPECT_EQ(1.0, clippedLines.front()[1].x());
+        EXPECT_EQ(2.0, clippedLines.front()[1].y());
+        EXPECT_EQ(2.0, clippedLines.front()[1].z());
+
+        EXPECT_EQ(1.0, clippedLines.front()[2].x());
+        EXPECT_EQ(2.5, clippedLines.front()[2].y());
+        EXPECT_EQ(HUGE_VAL, clippedLines.front()[2].z());
+    }
+
+    polyLine.push_back({-0.5, 1.5, 0.0});
+
+    {
+        std::vector< std::vector<cvf::Vec3d> > clippedLines = RigCellGeometryTools::clipPolylineByPolygon(polyLine,
+                                                                                                          polygonExample,
+                                                                                                          RigCellGeometryTools::USE_HUGEVAL);
+
+        EXPECT_EQ(2, clippedLines.size());
+        EXPECT_EQ(2, clippedLines.front().size());
+        EXPECT_EQ(3, clippedLines.back().size());
+
+        EXPECT_EQ(0.5, clippedLines.front()[0].x());
+        EXPECT_EQ(2.5, clippedLines.front()[0].y());
+        EXPECT_EQ(HUGE_VAL, clippedLines.front()[0].z());
+
+        EXPECT_EQ(0.0, clippedLines.front()[1].x());
+        EXPECT_EQ(2.0, clippedLines.front()[1].y());
+        EXPECT_EQ(HUGE_VAL, clippedLines.front()[1].z());
+    }
+
+}

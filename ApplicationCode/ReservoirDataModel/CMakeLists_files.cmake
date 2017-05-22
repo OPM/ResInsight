@@ -56,6 +56,7 @@ ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
 ${CEE_CURRENT_LIST_DIR}RigFracture.h
 ${CEE_CURRENT_LIST_DIR}RigFractureTransCalc.h
 ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.h
+${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.h
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
@@ -114,6 +115,7 @@ ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
 ${CEE_CURRENT_LIST_DIR}RigFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RigFractureTransCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.cpp
+${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.cpp
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp

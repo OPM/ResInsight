@@ -46,7 +46,9 @@ public:
     static std::vector<std::vector<cvf::Vec3d> >  intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2);
 
     enum ZInterpolationType { INTERPOLATE_LINE_Z, USE_HUGEVAL, USE_ZERO};
-    static std::vector<std::vector<cvf::Vec3d> >  clipPolylineByPolygon(std::vector<cvf::Vec3d> polyLine, std::vector<cvf::Vec3d> polygon, ZInterpolationType interpolType = USE_ZERO);
+    static std::vector<std::vector<cvf::Vec3d> >  clipPolylineByPolygon(const std::vector<cvf::Vec3d>& polyLine, 
+                                                                        const std::vector<cvf::Vec3d>& polygon, 
+                                                                        ZInterpolationType interpolType = USE_ZERO);
 
     static std::pair<cvf::Vec3d, cvf::Vec3d> getLineThroughBoundingBox(cvf::Vec3d lineDirection, cvf::BoundingBox polygonBBox, cvf::Vec3d pointOnLine);
 
