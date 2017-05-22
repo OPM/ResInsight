@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaColorTables.h"
 
 #include "RigWellPath.h"
 
@@ -223,6 +224,15 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
 {
     caf::ProgressInfo progress(wellPathArray.size(), "Reading well paths from file");
 
+    const caf::ColorTable& colorTable = RiaColorTables::wellLogPlotPaletteColors();
+    cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+    cvf::Color3ubArray interpolatedWellColors = wellColors;
+
+    if (wellPathArray.size() > 1)
+    {
+        interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellPathArray.size());
+    }
+
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
@@ -242,6 +252,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         }
         else
         {
+            wellPath->wellPathColor = cvf::Color3f(interpolatedWellColors[wpIdx]);
             wellPaths.push_back(wellPath);
         }
 
