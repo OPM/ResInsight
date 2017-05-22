@@ -176,7 +176,7 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
 
         for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
         {
-            std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::clipPolygons(planeCellPolygon, fracPolygonDouble);
+            std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::intersectPolygons(planeCellPolygon, fracPolygonDouble);
             for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
             {
                 polygonsDescribingFractureInCell.push_back(clippedPolygon);

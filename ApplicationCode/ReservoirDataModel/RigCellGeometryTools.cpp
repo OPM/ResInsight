@@ -233,7 +233,7 @@ double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLen
         polygon.push_back(line2.first);
 
         //Use clipper to find overlap between bbpolygon and fracture
-        std::vector<std::vector<cvf::Vec3d> > clippedPolygons = clipPolygons(polygonToCalcLengthOf, polygon);
+        std::vector<std::vector<cvf::Vec3d> > clippedPolygons = intersectPolygons(polygonToCalcLengthOf, polygon);
 
         double area = 0;
         double length = 0;
@@ -264,29 +264,38 @@ double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLen
     return areaWeightedLength;
 }
 
+double clipperConversionFactor = 10000; //For transform to clipper int 
+
+ClipperLib::IntPoint toClipperPoint(const cvf::Vec3d& cvfPoint)
+{
+    int xInt = cvfPoint.x()*clipperConversionFactor;
+    int yInt = cvfPoint.y()*clipperConversionFactor;
+    int zInt = cvfPoint.z()*clipperConversionFactor;
+    return  ClipperLib::IntPoint(xInt, yInt, zInt); 
+}
+
+cvf::Vec3d fromClipperPoint(const ClipperLib::IntPoint& clipPoint)
+{
+    return cvf::Vec3d (clipPoint.X, clipPoint.Y, clipPoint.Z ) /clipperConversionFactor;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2)
+std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2)
 {
-    int polygonScaleFactor = 10000; //For transform to clipper int 
-    int xInt, yInt;
     
-    //Convert to int for clipper library and store as clipper "path"
+    // Convert to int for clipper library and store as clipper "path"
     ClipperLib::Path polygon1path;
     for (cvf::Vec3d& v : polygon1)
     {
-        xInt = v.x()*polygonScaleFactor;
-        yInt = v.y()*polygonScaleFactor;
-        polygon1path.push_back(ClipperLib::IntPoint(xInt, yInt));
+        polygon1path.push_back(toClipperPoint(v));
     }
 
     ClipperLib::Path polygon2path;
     for (cvf::Vec3d& v : polygon2)
     {
-        xInt = v.x()*polygonScaleFactor;
-        yInt = v.y()*polygonScaleFactor;
-        polygon2path.push_back(ClipperLib::IntPoint(xInt, yInt));
+        polygon2path.push_back(toClipperPoint(v));
     }
 
     ClipperLib::Clipper clpr;
@@ -296,23 +305,115 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolygons(std::ve
     ClipperLib::Paths solution;
     clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
 
-    //Convert back to std::vector<std::vector<cvf::Vec3d> >
+    // Convert back to std::vector<std::vector<cvf::Vec3d> >
     std::vector<std::vector<cvf::Vec3d> > clippedPolygons;
     for (ClipperLib::Path pathInSol : solution)
     {
         std::vector<cvf::Vec3d> clippedPolygon;
         for (ClipperLib::IntPoint IntPosition : pathInSol)
         {
-            cvf::Vec3d v = cvf::Vec3d::ZERO;
-            v.x() = (float)IntPosition.X / (float)polygonScaleFactor;
-            v.y() = (float)IntPosition.Y / (float)polygonScaleFactor;
-            clippedPolygon.push_back(v);
+            clippedPolygon.push_back(fromClipperPoint(IntPosition));
         }
         clippedPolygons.push_back(clippedPolygon);
     }
 
     return clippedPolygons;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void fillInterpolatedSubjectZ(ClipperLib::IntPoint& e1bot,
+                              ClipperLib::IntPoint& e1top,
+                              ClipperLib::IntPoint& e2bot,
+                              ClipperLib::IntPoint& e2top,
+                              ClipperLib::IntPoint& pt)
+{
+    int e2XRange = (e2top.X - e2bot.X);
+    int e2YRange = (e2top.Y - e2bot.Y);
+
+    double e2Length =  sqrt(e2XRange*e2XRange + e2YRange*e2YRange);
+    
+    if (e2Length <= 1)
+    {
+        pt.Z = e2bot.Z;
+        return;
+    }
+
+    int e2BotPtXRange = pt.X - e2bot.X;
+    int e2BotPtYRange = pt.Y - e2bot.Y;
+
+    double e2BotPtLength =  sqrt(e2BotPtXRange*e2BotPtXRange + e2BotPtYRange*e2BotPtYRange);
+
+    double fraction = e2BotPtLength/e2Length;
+
+    pt.Z = e2bot.Z + fraction*(e2top.Z - e2bot.Z);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void fillUndefinedZ(ClipperLib::IntPoint& e1bot,
+                              ClipperLib::IntPoint& e1top,
+                              ClipperLib::IntPoint& e2bot,
+                              ClipperLib::IntPoint& e2top,
+                              ClipperLib::IntPoint& pt)
+{
+   pt.Z = HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygon(std::vector<cvf::Vec3d> polyLine, 
+                                                                                  std::vector<cvf::Vec3d> polygon, 
+                                                                                  ZInterpolationType interpolType)
+{
+    int polygonScaleFactor = 10000; //For transform to clipper int 
+
+    //Convert to int for clipper library and store as clipper "path"
+    ClipperLib::Path polyLinePath;
+    for (cvf::Vec3d& v : polyLine)
+    {
+        polyLinePath.push_back(toClipperPoint(v));
+    }
+
+    ClipperLib::Path polygonPath;
+    for (cvf::Vec3d& v : polygon)
+    {
+        polygonPath.push_back(toClipperPoint(v));
+    }
+
+    ClipperLib::Clipper clpr;
+    clpr.AddPath(polyLinePath, ClipperLib::ptSubject, false);
+    clpr.AddPath(polygonPath, ClipperLib::ptClip, true);
+
+    if ( interpolType == INTERPOLATE_LINE_Z )
+    {
+        clpr.ZFillFunction(&fillInterpolatedSubjectZ);
+    }
+    else if ( interpolType == USE_HUGEVAL )
+    {
+        clpr.ZFillFunction(&fillUndefinedZ);
+    }
+
+    ClipperLib::Paths solution;
+    clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftEvenOdd, ClipperLib::pftEvenOdd);
+
+    //Convert back to std::vector<std::vector<cvf::Vec3d> >
+    std::vector<std::vector<cvf::Vec3d> > clippedPolyline;
+    for (ClipperLib::Path pathInSol : solution)
+    {
+        std::vector<cvf::Vec3d> clippedPolygon;
+        for (ClipperLib::IntPoint IntPosition : pathInSol)
+        {
+            clippedPolygon.push_back(fromClipperPoint(IntPosition));
+        }
+        clippedPolyline.push_back(clippedPolygon);
+    }
+
+    return clippedPolyline;
 }
 
 //--------------------------------------------------------------------------------------------------

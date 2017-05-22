@@ -122,7 +122,7 @@ double RigStimPlanUpscalingCalc::computeHAupscale(RimStimPlanFractureTemplate* f
         {
             if (stimPlanCell->getConductivtyValue() > 1e-7)
             {
-                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
+                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::intersectPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
                 if (clippedStimPlanPolygons.size() > 0)
                 {
                     for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)
@@ -191,7 +191,7 @@ double RigStimPlanUpscalingCalc::computeAHupscale(RimStimPlanFractureTemplate* f
         {
             if (stimPlanCell->getConductivtyValue() > 1e-7)
             {
-                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::clipPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
+                std::vector<std::vector<cvf::Vec3d> >clippedStimPlanPolygons = RigCellGeometryTools::intersectPolygons(stimPlanCell->getPolygon(), planeCellPolygon);
                 if (clippedStimPlanPolygons.size() > 0)
                 {
                     for (auto clippedStimPlanPolygon : clippedStimPlanPolygons)

@@ -167,7 +167,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         for (std::vector<cvf::Vec3d> planeCellPolygon : planeCellPolygons)
         {
-            std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::clipPolygons(planeCellPolygon, stimPlanPolygon);
+            std::vector<std::vector<cvf::Vec3d> >clippedPolygons = RigCellGeometryTools::intersectPolygons(planeCellPolygon, stimPlanPolygon);
             for (std::vector<cvf::Vec3d> clippedPolygon : clippedPolygons)
             {
                 polygonsForStimPlanCellInEclipseCell.push_back(clippedPolygon);
