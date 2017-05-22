@@ -40,8 +40,8 @@ public:
     std::vector<cvf::Vec3d> getPolygon() const { return m_polygon; }
     double                  getConductivtyValue() const { return m_concutivityValue; }
     double                  getDisplayValue() { return m_displayValue; }
-    size_t                  getI() { return m_i; }
-    size_t                  getJ() { return m_j; }
+    size_t                  getI() const { return m_i; }
+    size_t                  getJ() const { return m_j; }
     double                  getVerticalTransmissibilityInFracture()   { return m_transmissibilityInFractureVertical; }
     double                  getHorizontalTransmissibilityInFracture() { return m_transmissibilityInFractureHorizontal; }
         

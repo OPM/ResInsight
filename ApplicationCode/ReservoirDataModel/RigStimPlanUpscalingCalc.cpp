@@ -295,6 +295,7 @@ std::vector<RigFracturedEclipseCellExportData>  RigStimPlanUpscalingCalc::comput
 
     for (size_t fracCell : fracCells)
     {
+        //TODO: Lage ny classe for å holde upscaledData
         RigFracturedEclipseCellExportData fracData;
         fracData.reservoirCellIndex = fracCell;
             

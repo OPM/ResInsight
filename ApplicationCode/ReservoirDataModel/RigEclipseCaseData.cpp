@@ -434,7 +434,7 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigEclipseCaseData::darchysValue()
+double RigEclipseCaseData::darchysValue() const
 {
     // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
     //     CDARCY Darcys constant

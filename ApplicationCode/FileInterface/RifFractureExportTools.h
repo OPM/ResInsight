@@ -72,7 +72,9 @@ private:
                                                            QTextStream &out, 
                                                            const QString& wellName,
                                                            const RigMainGrid* mainGrid);
-    static void printStimPlanFractureTrans(const std::vector<RimFracture *>& fractures, QTextStream &out);
+    static void printStimPlanFractureTrans(const std::vector<RimFracture *>& fractures, 
+                                           RimEclipseCase* caseToApply, 
+                                           QTextStream &out);
     static void printTransmissibilityFractureToWell(const std::vector<RimFracture *>& fractures, 
                                                     QTextStream &out, 
                                                     RimEclipseCase* caseToApply);

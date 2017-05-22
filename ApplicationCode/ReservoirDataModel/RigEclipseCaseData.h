@@ -94,7 +94,7 @@ public:
 
     UnitsType                                   unitsType() const                   { return m_unitsType; }
     void                                        setUnitsType(UnitsType unitsType)   { m_unitsType = unitsType; }
-    double                                      darchysValue(); 
+    double                                      darchysValue() const; 
 
 private:
     void                                        computeActiveCellIJKBBox();

@@ -83,7 +83,7 @@ public:
 
     std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
 
-    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j); //TODO: should be const?
+    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j);
     const RigStimPlanFracTemplateCell&                  stimPlanCellFromIndex(size_t index) const;
 
     //TODO: Functions for finding perforated stimPlanCells

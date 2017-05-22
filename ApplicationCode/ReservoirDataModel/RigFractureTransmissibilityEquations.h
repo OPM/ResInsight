@@ -24,7 +24,16 @@ class RigFractureTransmissibilityEquations
 public:
     static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, 
                                                                               double sideLengthParallellTrans, 
-                                                                              double sideLengthNormalTrans);
+                                                                              double sideLengthNormalTrans,
+                                                                              double cDarcyForRelevantUnit);
+
+    static double               computeStimPlanCellTransmissibilityInFractureCenterToCenterForTwoCells(double conductivityCell1,
+                                                                                                       double sideLengthParallellTransCell1,
+                                                                                                       double sideLengthNormalTransCell1,
+                                                                                                       double conductivityCell2,
+                                                                                                       double sideLengthParallellTransCell2,
+                                                                                                       double sideLengthNormalTransCell2,
+                                                                                                       double cDarcyForRelevantUnit);
 
     static double               computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
                                                                                   double stimPlanCellSizeX, 

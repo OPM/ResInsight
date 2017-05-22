@@ -25,10 +25,32 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(double conductivity, double sideLengthParallellTrans, double sideLengthNormalTrans)
+double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(double conductivity, 
+                                                                                           double sideLengthParallellTrans, 
+                                                                                           double sideLengthNormalTrans, 
+                                                                                           double cDarcyForRelevantUnit)
 {
-    double transmissibility = conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
+    double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
     return transmissibility;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFractureCenterToCenterForTwoCells(double conductivityCell1, 
+                                                                                                                    double sideLengthParallellTransCell1, 
+                                                                                                                    double sideLengthNormalTransCell1, 
+                                                                                                                    double conductivityCell2, 
+                                                                                                                    double sideLengthParallellTransCell2, 
+                                                                                                                    double sideLengthNormalTransCell2, 
+                                                                                                                    double cDarcyForRelevantUnit)
+{
+    double transCell1 = computeStimPlanCellTransmissibilityInFracture(conductivityCell1, sideLengthParallellTransCell1, sideLengthNormalTransCell1, cDarcyForRelevantUnit);
+    double transCell2 = computeStimPlanCellTransmissibilityInFracture(conductivityCell2, sideLengthParallellTransCell2, sideLengthNormalTransCell2, cDarcyForRelevantUnit);
+
+    double totalTrans = 1 / ( (1 / transCell1) + (1 / transCell2));
+
+    return totalTrans;
 }
 
 //--------------------------------------------------------------------------------------------------
