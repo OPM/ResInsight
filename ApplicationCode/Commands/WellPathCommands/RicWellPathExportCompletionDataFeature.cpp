@@ -186,26 +186,33 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseOutp
     {
         for (const WellSegmentLateral& lateral : location.laterals)
         {
-            std::vector<size_t> cellIndices;
+            formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
             for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
                 if (settings.removeLateralsInMainBoreCells && intersection.mainBoreCell) continue;
 
-                cellIndices.push_back(intersection.cellIndex);
-            }
-            std::vector<EclipseCellIndexRange> cellRanges = getCellIndexRange(grid, cellIndices);
-
-            formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
-            for (auto cellRange : cellRanges)
-            {
-                // Add cell indices
-                formatter.add(wellPath->name()).addZeroBasedCellIndex(cellRange.i).addZeroBasedCellIndex(cellRange.j).addZeroBasedCellIndex(cellRange.k1).addZeroBasedCellIndex(cellRange.k2);
-                // Remaining data, to be computed
+                size_t i, j, k;
+                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
+                formatter.add(wellPath->name());
+                formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k).addZeroBasedCellIndex(k);
                 formatter.add("'OPEN'").add("1*").add("1*");
-                // Diameter (originally in mm) in m
                 formatter.add(location.fishbonesSubs->holeRadius() / 1000);
                 formatter.add("1*").add("1*").add("1*");
-                formatter.add("'Z'"); // TODO - Calculate direction
+                switch (intersection.direction)
+                {
+                case POS_I:
+                case NEG_I:
+                    formatter.add("'X'");
+                    break;
+                case POS_J:
+                case NEG_J:
+                    formatter.add("'Y'");
+                    break;
+                case POS_K:
+                case NEG_K:
+                    formatter.add("'Z'");
+                    break;
+                }
                 formatter.add("1*");
                 formatter.rowCompleted();
             }
@@ -387,7 +394,21 @@ void RicWellPathExportCompletionDataFeature::generateCompsegsTable(RifEclipseOut
                 formatter.add(lateral.branchNumber);
                 formatter.add(length);
                 formatter.add("1*");
-                formatter.add("X"); // TODO - Calculate direction
+                switch (intersection.direction)
+                {
+                case POS_I:
+                case NEG_I:
+                    formatter.add("I");
+                    break;
+                case POS_J:
+                case NEG_J:
+                    formatter.add("J");
+                    break;
+                case POS_K:
+                case NEG_K:
+                    formatter.add("K");
+                    break;
+                }
                 formatter.add(-1);
                 formatter.rowCompleted();
             }
@@ -486,6 +507,36 @@ bool RicWellPathExportCompletionDataFeature::cellOrdering(const EclipseCellIndex
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RicWellPathExportCompletionDataFeature::findCellFromCoords(const RigEclipseCaseData* caseData, const cvf::Vec3d& coords)
+{
+    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
+
+    cvf::BoundingBox bb;
+    bb.add(coords);
+    std::vector<size_t> closeCells = findCloseCells(caseData, bb);
+    cvf::Vec3d hexCorners[8];
+
+    for (size_t closeCell : closeCells)
+    {
+        const RigCell& cell = caseData->mainGrid()->globalCellArray()[closeCell];
+        if (cell.isInvalid()) continue;
+
+        setHexCorners(cell, nodeCoords, hexCorners);
+
+        if (RigHexIntersector::isPointInCell(coords, hexCorners, closeCell))
+        {
+            return closeCell;
+        }
+    }
+
+    // Coordinate is outside any cells?
+    CVF_ASSERT(false);
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
 {
     const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
@@ -494,23 +545,10 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
     // Find starting cell
     if (coords.size() > 0)
     {
-        cvf::BoundingBox bb;
-        bb.add(coords[0]);
-        std::vector<size_t> closeCells = findCloseCells(caseData, bb);
-        cvf::Vec3d hexCorners[8];
-
-        for (size_t closeCell : closeCells)
+        size_t startCell = findCellFromCoords(caseData, coords[0]);
+        if (startCell > 0)
         {
-            const RigCell& cell = caseData->mainGrid()->globalCellArray()[closeCell];
-            if (cell.isInvalid()) continue;
-
-            setHexCorners(cell, nodeCoords, hexCorners);
-
-            if (RigHexIntersector::isPointInCell(coords[0], hexCorners, closeCell))
-            {
-                cells.insert(closeCell);
-                break;
-            }
+            cells.insert(startCell);
         }
     }
 
@@ -702,35 +740,58 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
         std::vector<HexIntersectionInfo> intersections = findIntersections(caseToApply->eclipseCaseData(), coords);
         filterIntersections(&intersections);
 
-        double length = 0;
-        double depth = 0;
-        cvf::Vec3d& startPoint = coords[0];
-        auto intersection = intersections.cbegin();
-        int attachedSegmentNumber = location->segmentNumber;
+        const HexIntersectionInfo* prevIntersection = nullptr;
 
-        for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); i++)
         {
-            if (isPointBetween(startPoint, coords[i], intersection->m_intersectionPoint))
-            {
-                cvf::Vec3d between = intersection->m_intersectionPoint - startPoint;
-                length += between.length();
-                depth += intersection->m_intersectionPoint.z() - startPoint.z();
+            double length = 0;
+            double depth = 0;
+            cvf::Vec3d startPoint = coords[0];
+            auto intersection = intersections.cbegin();
+            int attachedSegmentNumber = location->segmentNumber;
 
-                lateral.intersections.push_back(WellSegmentLateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->m_hexIndex, length, depth));
-
-                length = 0;
-                depth = 0;
-                startPoint = intersection->m_intersectionPoint;
-                attachedSegmentNumber = *segmentNum;
-                ++intersection;
-            }
-            else
+            for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); i++)
             {
-                cvf::Vec3d between = coords[i] - startPoint;
-                length += between.length();
-                depth += coords[i].z() - startPoint.z();
-                startPoint = coords[i];
+                if (isPointBetween(startPoint, coords[i], intersection->m_intersectionPoint))
+                {
+                    cvf::Vec3d between = intersection->m_intersectionPoint - startPoint;
+                    length += between.length();
+                    depth += intersection->m_intersectionPoint.z() - startPoint.z();
+
+                    // Find the direction of the previous cell
+                    if (prevIntersection != nullptr)
+                    {
+                        std::pair<WellSegmentCellDirection, double> direction = calculateDirectionAndDistanceInCell(caseToApply->eclipseCaseData()->mainGrid(), prevIntersection->m_hexIndex, prevIntersection->m_intersectionPoint, intersection->m_intersectionPoint);
+                        WellSegmentLateralIntersection& lateralIntersection = lateral.intersections[lateral.intersections.size() - 1];
+                        lateralIntersection.direction = direction.first;
+                        lateralIntersection.directionLength = direction.second;
+                    }
+
+                    lateral.intersections.push_back(WellSegmentLateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->m_hexIndex, length, depth));
+
+                    length = 0;
+                    depth = 0;
+                    startPoint = intersection->m_intersectionPoint;
+                    attachedSegmentNumber = *segmentNum;
+                    ++intersection;
+                    prevIntersection = &*intersection;
+                }
+                else
+                {
+                    const cvf::Vec3d between = coords[i] - startPoint;
+                    length += between.length();
+                    depth += coords[i].z() - startPoint.z();
+                    startPoint = coords[i];
+                }
             }
+        }
+
+        // Find the direction of the last cell
+        if (prevIntersection != nullptr && !coords.empty())
+        {
+            std::pair<WellSegmentCellDirection, double> direction = calculateDirectionAndDistanceInCell(caseToApply->eclipseCaseData()->mainGrid(), prevIntersection->m_hexIndex, prevIntersection->m_intersectionPoint, coords[coords.size()-1]);
+            WellSegmentLateralIntersection& lateralIntersection = lateral.intersections[lateral.intersections.size() - 1];
+            lateralIntersection.direction = direction.first;
+            lateralIntersection.directionLength = direction.second;
         }
     }
 }
@@ -754,3 +815,84 @@ void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::calculateCellMainAxisDirections(const RigMainGrid* grid, size_t cellIndex, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection)
+{
+    const std::vector<cvf::Vec3d>& nodeCoords = grid->nodes();
+    cvf::Vec3d hexCorners[8];
+    const RigCell& cell = grid->globalCellArray()[cellIndex];
+    setHexCorners(cell, nodeCoords, hexCorners);
+
+    *iAxisDirection = calculateCellMainAxisDirection(hexCorners, cvf::StructGridInterface::FaceType::NEG_I, cvf::StructGridInterface::POS_I);
+    *jAxisDirection = calculateCellMainAxisDirection(hexCorners, cvf::StructGridInterface::FaceType::NEG_J, cvf::StructGridInterface::POS_J);
+    *kAxisDirection = calculateCellMainAxisDirection(hexCorners, cvf::StructGridInterface::FaceType::NEG_K, cvf::StructGridInterface::POS_K);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RicWellPathExportCompletionDataFeature::calculateCellMainAxisDirection(const cvf::Vec3d* hexCorners, cvf::StructGridInterface::FaceType startFace, cvf::StructGridInterface::FaceType endFace)
+{
+    cvf::ubyte faceVertexIndices[4];
+
+    cvf::StructGridInterface::cellFaceVertexIndices(startFace, faceVertexIndices);
+
+    cvf::Vec3d startFaceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+    cvf::StructGridInterface::cellFaceVertexIndices(endFace, faceVertexIndices);
+
+    cvf::Vec3d endFaceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+    return endFaceCenter - startFaceCenter;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<WellSegmentCellDirection, double> RicWellPathExportCompletionDataFeature::calculateDirectionAndDistanceInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
+{
+    cvf::Vec3d vec = endPoint - startPoint;
+
+    cvf::Vec3d iAxisDirection;
+    cvf::Vec3d jAxisDirection;
+    cvf::Vec3d kAxisDirection;
+    calculateCellMainAxisDirections(grid, cellIndex, &iAxisDirection, &jAxisDirection, &kAxisDirection);
+
+    double iLength = iAxisDirection.dot(vec);
+    double jLength = jAxisDirection.dot(vec);
+    double kLength = kAxisDirection.dot(vec);
+
+    double iNormalizedLength = abs(iLength / iAxisDirection.length());
+    double jNormalizedLength = abs(jLength / jAxisDirection.length());
+    double kNormalizedLength = abs(kLength / kAxisDirection.length());
+
+    if (iNormalizedLength > jNormalizedLength && iNormalizedLength > kNormalizedLength)
+    {
+        WellSegmentCellDirection direction = POS_I;
+        if (iLength < 0)
+        {
+            direction = NEG_I;
+        }
+        return std::make_pair(direction, iLength);
+    }
+    else if (jNormalizedLength > iNormalizedLength && jNormalizedLength > kNormalizedLength)
+    {
+        WellSegmentCellDirection direction = POS_J;
+        if (jLength < 0)
+        {
+            direction = NEG_J;
+        }
+        return std::make_pair(direction, jLength);
+    }
+    else
+    {
+        WellSegmentCellDirection direction = POS_K;
+        if (kLength < 0)
+        {
+            direction = NEG_K;
+        }
+        return std::make_pair(direction, kLength);
+    }
+}

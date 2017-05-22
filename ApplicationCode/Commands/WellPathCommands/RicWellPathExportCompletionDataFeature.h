@@ -39,6 +39,18 @@ class RimFishbonesMultipleSubs;
 //==================================================================================================
 /// 
 //==================================================================================================
+enum WellSegmentCellDirection {
+    POS_I,
+    NEG_I,
+    POS_J,
+    NEG_J,
+    POS_K,
+    NEG_K
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
 struct WellSegmentLateralIntersection {
     WellSegmentLateralIntersection(int segmentNumber, int attachedSegmentNumber, size_t cellIndex, double length, double depth)
         : segmentNumber(segmentNumber),
@@ -46,15 +58,19 @@ struct WellSegmentLateralIntersection {
           cellIndex(cellIndex),
           length(length),
           depth(depth),
+          direction(POS_I),
+          directionLength(-1.0),
           mainBoreCell(false)
     {}
 
-    int    segmentNumber;
-    int    attachedSegmentNumber;
-    size_t cellIndex;
-    bool   mainBoreCell;
-    double length;
-    double depth;
+    int                      segmentNumber;
+    int                      attachedSegmentNumber;
+    size_t                   cellIndex;
+    bool                     mainBoreCell;
+    double                   length;
+    double                   depth;
+    WellSegmentCellDirection direction;
+    double                   directionLength;
 };
 
 //==================================================================================================
@@ -128,6 +144,8 @@ private:
     static std::map<size_t, double>              computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells);
 
     static std::vector<size_t>                   findCloseCells(const RigEclipseCaseData* caseData, const cvf::BoundingBox& bb);
+    static size_t                                findCellFromCoords(const RigEclipseCaseData* caseData, const cvf::Vec3d& coords);
+
     static std::vector<EclipseCellIndexRange>    getCellIndexRange(const RigMainGrid* grid, const std::vector<size_t>& cellIndices);
     static bool                                  cellOrdering(const EclipseCellIndex& cell1, const EclipseCellIndex& cell2);
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
@@ -140,4 +158,9 @@ private:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, RimWellPath* wellPath);
     static void                                  calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum);
     static void                                  assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
+
+    // Calculate direction
+    static void                                        calculateCellMainAxisDirections(const RigMainGrid* grid, size_t cellIndex, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection);
+    static cvf::Vec3d                                  calculateCellMainAxisDirection(const cvf::Vec3d* hexCorners, cvf::StructGridInterface::FaceType startFace, cvf::StructGridInterface::FaceType endFace);
+    static std::pair<WellSegmentCellDirection, double> calculateDirectionAndDistanceInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
 };
