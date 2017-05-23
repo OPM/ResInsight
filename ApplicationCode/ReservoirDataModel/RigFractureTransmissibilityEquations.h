@@ -21,12 +21,12 @@
 
 class RigFractureTransmissibilityEquations
 {
-public:
+public:                      // centerToEdgeStimPlanCellTrans  
     static double               computeStimPlanCellTransmissibilityInFracture(double conductivity, 
                                                                               double sideLengthParallellTrans, 
                                                                               double sideLengthNormalTrans,
                                                                               double cDarcyForRelevantUnit);
-
+                             // centerToCenterStimPlanCellTrans
     static double               computeStimPlanCellTransmissibilityInFractureCenterToCenterForTwoCells(double conductivityCell1,
                                                                                                        double sideLengthParallellTransCell1,
                                                                                                        double sideLengthNormalTransCell1,
@@ -34,14 +34,14 @@ public:
                                                                                                        double sideLengthParallellTransCell2,
                                                                                                        double sideLengthNormalTransCell2,
                                                                                                        double cDarcyForRelevantUnit);
-
+                             // stimPlanCellToWellRadialTrans
     static double               computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
                                                                                   double stimPlanCellSizeX, 
                                                                                   double stimPlanCellSizeZ, 
                                                                                   double wellRadius, 
                                                                                   double skinFactor, 
                                                                                   double cDarcyForRelevantUnit);
-
+                             // stimPlanCellToWellLinearTrans   
     static double               computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity,  
                                                                                   double stimPlanCellSizeX, 
                                                                                   double stimPlanCellSizeZ, 
@@ -50,6 +50,7 @@ public:
                                                                                   double perforationEfficiency,
                                                                                   double skinfactor,
                                                                                   double cDarcyForRelevantUnit);
+                             // matrixToFractureTrans
     static double               calculateMatrixTransmissibility(double permX, 
                                                                 double NTG, 
                                                                 double Ay, 
