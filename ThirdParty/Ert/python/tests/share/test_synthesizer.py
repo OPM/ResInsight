@@ -1,11 +1,11 @@
 import sys
 import os
-from ert.test import ExtendedTestCase
+from ecl.test import ExtendedTestCase
 
 try:
     from synthesizer import OilSimulator
 except ImportError as e:
-    share_lib_path = os.path.join(ExtendedTestCase.findShareRoot(), "lib")
+    share_lib_path = os.path.join(ExtendedTestCase.createSharePath("lib"))
 
     sys.path.insert(0, share_lib_path)
     synthesizer_module =  __import__("synthesizer")

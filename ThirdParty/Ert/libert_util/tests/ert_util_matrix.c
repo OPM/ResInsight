@@ -28,8 +28,6 @@
 #include <ert/util/matrix.h>
 #include <ert/util/rng.h>
 #include <ert/util/mzran.h>
-#include <ert/util/matrix_lapack.h>
-
 
 
 void test_resize() {
@@ -96,54 +94,6 @@ void test_dims() {
 }
 
 
-void test_det4() {
-  matrix_type * m = matrix_alloc(4  , 4 );
-  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
-  for (int i=0; i < 10; i++) {
-    matrix_random_init( m , rng );
-    {
-      double det4 = matrix_det4( m );
-      double det = matrix_det( m );
-
-      test_assert_double_equal( det , det4 );
-    }
-  }
-
-  matrix_free( m );
-  rng_free( rng );
-}
-
-
-void test_det3() {
-  matrix_type * m = matrix_alloc(3  , 3 );
-  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
-  matrix_random_init( m , rng );
-
-  {
-    double det3 = matrix_det3( m );
-    double det = matrix_det( m );
-
-    test_assert_double_equal( det , det3 );
-  }
-
-  matrix_free( m );
-  rng_free( rng );
-}
-
-
-void test_det2() {
-  matrix_type * m = matrix_alloc(2,2);
-  rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
-  matrix_random_init( m , rng );
-  {
-    double det2 = matrix_det2( m );
-    double det = matrix_det( m );
-
-    test_assert_double_equal( det , det2 );
-  }
-  matrix_free( m );
-  rng_free( rng );
-}
 
 
 void test_readwrite() {
@@ -283,9 +233,7 @@ int main( int argc , char ** argv) {
   test_resize();
   test_column_equal();
   test_dims();
-  test_det2();
-  test_det3();
-  test_det4();
+
   test_readwrite();
   test_diag_std();
   test_masked_copy();

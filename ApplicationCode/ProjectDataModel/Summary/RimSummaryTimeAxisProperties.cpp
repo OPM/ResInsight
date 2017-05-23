@@ -281,6 +281,36 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
+{
+    double scale = 1.0;
+    switch (m_timeUnit())
+    {
+    case SECONDS:
+        scale = 60.0 * 60.0 * 24.0;
+        break;
+    case MINUTES:
+        scale = 60.0 * 24.0;
+        break;
+    case HOURS:
+        scale = 24.0;
+        break;
+    case DAYS:
+        break;
+    case YEARS:
+        scale = 1.0/365.2425;
+        break;
+    default:
+        CVF_ASSERT(false);
+        break;
+    }
+
+    return scale;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup& titleGroup = *(uiOrdering.addNewGroup("Axis Title"));

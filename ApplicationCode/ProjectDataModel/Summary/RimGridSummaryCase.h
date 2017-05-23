@@ -41,6 +41,7 @@ public:
 
     virtual QString                 summaryHeaderFilename() const override;
     virtual QString                 caseName() override;
+    virtual void                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
 private:
     QString                         eclipseGridFileName() const;

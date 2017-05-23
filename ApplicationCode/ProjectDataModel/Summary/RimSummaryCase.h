@@ -48,6 +48,8 @@ public:
     void                loadCase();
     RigSummaryCaseData* caseData();
 
+    virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
+
 protected:
     void                updateTreeItemName();
 

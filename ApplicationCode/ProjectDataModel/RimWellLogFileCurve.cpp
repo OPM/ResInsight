@@ -84,7 +84,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
         {
             if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
             {
-                QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves in not yet supported, and no LAS curve will be displayed in this mode.\n\n");
+                QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves is not yet supported, and the LAS curve will be hidden in this mode.\n\n");
                 tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD warning\"";
             
                 QMessageBox::warning(NULL, "LAS curve without TVD", tmp);
@@ -179,6 +179,7 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
 
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->add(&m_showLegend);
     RimPlotCurve::curveNameUiOrdering(*nameGroup);
 
 }

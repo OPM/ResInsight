@@ -7,6 +7,7 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.h
+${CEE_CURRENT_LIST_DIR}RifEclipseOutputTableFormatter.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.h
@@ -19,6 +20,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
+${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseWellCompletionExporter.h
 ${CEE_CURRENT_LIST_DIR}RifFractureExportTools.h
 )
@@ -26,6 +28,7 @@ ${CEE_CURRENT_LIST_DIR}RifFractureExportTools.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.cpp
+${CEE_CURRENT_LIST_DIR}RifEclipseOutputTableFormatter.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.cpp
@@ -38,6 +41,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderInterface.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
+${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseWellCompletionExporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifFractureExportTools.cpp
 )

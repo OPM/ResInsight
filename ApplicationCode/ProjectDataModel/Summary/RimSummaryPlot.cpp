@@ -36,6 +36,7 @@
 #include "cvfColor3.h"
 
 #include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiCheckBoxEditor.h"
 
 #include <QDateTime>
 #include <QString>
@@ -43,6 +44,8 @@
 
 #include "qwt_plot_curve.h"
 #include "qwt_plot_renderer.h"
+#include "qwt_abstract_legend.h"
+#include "qwt_legend.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -55,7 +58,10 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitObject("Summary Plot", ":/SummaryPlotLight16x16.png", "", "");
 
     CAF_PDM_InitField(&m_userName, "PlotDescription", QString("Summary Plot"), "Name", "", "", "");
-    CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
+    CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Plot Title", "", "", "");
+    m_showPlotTitle.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
+    m_showLegend.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters.uiCapability()->setUiTreeHidden(true);
@@ -693,7 +699,8 @@ void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &m_userName || 
-        changedField == &m_showPlotTitle)
+        changedField == &m_showPlotTitle ||
+        changedField == &m_showLegend)
     {
         updateMdiWindowTitle();
     }
@@ -896,6 +903,18 @@ void RimSummaryPlot::updateMdiWindowTitle()
         {
             m_qwtPlot->setTitle("");
         }
+
+
+        if (m_showLegend)
+        {
+            // Will be released in plot destructor or when a new legend is set
+            QwtLegend* legend = new QwtLegend(m_qwtPlot);
+            m_qwtPlot->insertLegend(legend, QwtPlot::BottomLegend);
+        }
+        else
+        {
+            m_qwtPlot->insertLegend(nullptr);
+        }
     }
 }
 
@@ -956,4 +975,19 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
 size_t RimSummaryPlot::curveCount() const
 {
     return m_summaryCurves.size() + m_gridTimeHistoryCurves.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (field == &m_showLegend || field == &m_showPlotTitle)
+    {
+        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_useNativeCheckBoxLabel = true;
+        }
+    }
 }

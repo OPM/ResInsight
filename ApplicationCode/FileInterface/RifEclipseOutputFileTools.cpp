@@ -115,7 +115,7 @@ void getDayMonthYear(const ecl_kw_type* intehead_kw, int* day, int* month, int* 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps)
+void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
 {
     if (!ecl_file) return;
 
@@ -127,7 +127,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
     // Get the number of occurrences of the DOUBHEAD keyword
     int numDOUBHEAD = ecl_file_get_num_named_kw(ecl_file, DOUBHEAD_KW);
 
-    std::vector<double> dayFractions(numINTEHEAD, 0.0); // Init fraction to zero
+    std::vector<double> dayValues(numINTEHEAD, 0.0); // Init fraction to zero
 
     // Read out fraction of day if number of keywords are identical
     if (numINTEHEAD == numDOUBHEAD)
@@ -137,12 +137,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
             ecl_kw_type* kwDOUBHEAD = ecl_file_iget_named_kw(ecl_file, DOUBHEAD_KW, i);
             if (kwDOUBHEAD)
             {
-                double dayValue = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
-                double floorDayValue = cvf::Math::floor(dayValue);
-
-                double dayDelta = dayValue - floorDayValue;
-
-                dayFractions[i] = dayDelta;
+                dayValues[i] = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
             }
         }
     }
@@ -159,7 +154,8 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         QDateTime reportDateTime(QDate(year, month, day));
         CVF_ASSERT(reportDateTime.isValid());
 
-        double dayFraction = dayFractions[i];
+        double dayValue = dayValues[i];
+        double dayFraction = dayValue - cvf::Math::floor(dayValue);
         int milliseconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0 * 1000.0);
         int seconds = milliseconds % 1000;
         milliseconds -= seconds * 1000;
@@ -172,6 +168,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
         {
             timeSteps->push_back(reportDateTime);
+            daysSinceSimulationStart->push_back(dayValue);
         }
     }
 }
@@ -382,8 +379,9 @@ void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_t
                         int namedKeywordCount = ecl_file_get_num_named_kw(ecl_file, kw);
                         for (int iOcc = 0; iOcc < namedKeywordCount; iOcc++)
                         {
-                            ecl_type_enum dataType = ecl_file_iget_named_type(ecl_file, kw, iOcc);
-                            if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE)
+                            ecl_data_type dataType = ecl_file_iget_named_data_type(ecl_file, kw, iOcc);
+                            ecl_type_enum dataTypeEmum = ecl_type_get_type(dataType);
+                            if (dataTypeEmum != ECL_DOUBLE_TYPE && dataTypeEmum != ECL_FLOAT_TYPE && dataTypeEmum != ECL_INT_TYPE)
                             {
                                 continue;
                             }

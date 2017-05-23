@@ -25,6 +25,7 @@
 
 namespace Opm
 {
+    class ECLRestartData;
 
     /// Class for computing connection fluxes in the absence of flux output.
     class ECLFluxCalc
@@ -45,7 +46,9 @@ namespace Opm
         /// \return Flux values corresponding to selected phase.
         ///         Empty if required data is missing.
         ///         Numerical values in SI units (rm^3/s).
-        std::vector<double> flux(const PhaseIndex phase) const;
+        std::vector<double>
+        flux(const ECLRestartData& rstrt,
+             const PhaseIndex      phase) const;
 
     private:
         struct DynamicData

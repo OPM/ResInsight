@@ -38,6 +38,8 @@ void test_create() {
   struct_vector_type * struct_vector = struct_vector_alloc( sizeof d );
   test_assert_true( struct_vector_is_instance( struct_vector ));
   test_assert_int_equal( struct_vector_get_size( struct_vector ) , 0 );
+  struct_vector_reserve( struct_vector , 1000 );
+  test_assert_int_equal( struct_vector_get_size( struct_vector ) , 0 );
   struct_vector_free( struct_vector );
 }
 
@@ -59,7 +61,9 @@ void test_append_iget() {
 
   struct_vector_append( struct_vector , &d1 );
   test_assert_int_equal( struct_vector_get_size( struct_vector ) , 1 );
-  
+  struct_vector_reserve( struct_vector , 0 );
+  test_assert_int_equal( struct_vector_get_size( struct_vector ) , 1 );
+
   test_assert_false( d1.x == d2.x );
   test_assert_false( d1.y == d2.y );
   test_assert_false( d1.z == d2.z );
@@ -69,6 +73,13 @@ void test_append_iget() {
   test_assert_true( d1.y == d2.y );
   test_assert_true( d1.z == d2.z );
 
+  {
+    struct test_struct * d = struct_vector_get_data( struct_vector );
+    struct test_struct d3 = d[0];
+    test_assert_true( d1.x == d3.x );
+    test_assert_true( d1.y == d3.y );
+    test_assert_true( d1.z == d3.z );
+  }
   struct_vector_reset( struct_vector );
   test_assert_int_equal( struct_vector_get_size( struct_vector ) , 0 );
 
@@ -77,9 +88,53 @@ void test_append_iget() {
 
 
 
+int cmp( const void * _d1, const void * _d2) {
+  const struct test_struct * d1 = (const struct test_struct *) _d1;
+  const struct test_struct * d2 = (const struct test_struct *) _d2;
+
+  return d1->x - d2->x;
+}
+
+
+int rcmp( const void * _d1, const void * _d2) {
+  return cmp(_d2 , _d1);
+}
+
+
+
+void test_sort() {
+  struct test_struct d;
+  struct_vector_type * struct_vector = struct_vector_alloc( sizeof d );
+  for (int i = 0; i < 10; i++) {
+    struct test_struct d = {.x = 9 - i,
+                            .y = 9 - i,
+                            .z = 9 - i };
+    struct_vector_append( struct_vector , &d );
+  }
+  struct_vector_sort( struct_vector , cmp );
+  for (int i = 0; i < 9; i++) {
+    struct test_struct d1;
+    struct test_struct d2;
+    struct_vector_iget( struct_vector , i  ,&d1 );
+    struct_vector_iget( struct_vector , i  + 1,&d2 );
+    test_assert_true( cmp(&d1 , &d2) <= 0);
+  }
+
+  struct_vector_sort( struct_vector , rcmp );
+  for (int i = 0; i < 9; i++) {
+    struct test_struct d1;
+    struct test_struct d2;
+    struct_vector_iget( struct_vector , i  ,&d1 );
+    struct_vector_iget( struct_vector , i  + 1,&d2 );
+    test_assert_true( cmp(&d1 , &d2) >= 0);
+  }
+}
+
+
 
 int main(int argc , char ** argv) {
   test_create();
   test_create_invalid();
   test_append_iget();
+  test_sort();
 }

@@ -69,7 +69,7 @@ private:
 
     std::string             ertGridName( size_t gridNr );
 
-    static RigWellResultPoint createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
+    RigWellResultPoint      createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
     
     void                    importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults);
 
@@ -93,6 +93,7 @@ private:
     RigEclipseCaseData*                            m_eclipseCase;
 
     std::vector<QDateTime>                  m_timeSteps;
+    std::vector<double>                     m_daysSinceSimulationStart;
 
     ecl_file_type*                          m_ecl_init_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results

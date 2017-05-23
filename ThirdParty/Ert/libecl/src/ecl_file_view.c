@@ -27,6 +27,7 @@
 #include <ert/ecl/ecl_file_kw.h>
 #include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/ecl_rsthead.h>
+#include <ert/ecl/ecl_type.h>
 
 
 struct ecl_file_view_struct {
@@ -166,10 +167,10 @@ void ecl_file_view_index_fload_kw(const ecl_file_view_type * ecl_file_view, cons
 
     if (fortio_assert_stream_open( ecl_file_view->fortio )) {
         offset_type offset = ecl_file_kw_get_offset(file_kw);
-        ecl_type_enum ecl_type = ecl_file_kw_get_type(file_kw);
+        ecl_data_type data_type = ecl_file_kw_get_data_type(file_kw);
         int element_count = ecl_file_kw_get_size(file_kw);
 
-        ecl_kw_fread_indexed_data(ecl_file_view->fortio, offset + ECL_KW_HEADER_FORTIO_SIZE, ecl_type, element_count, index_map, buffer);
+        ecl_kw_fread_indexed_data(ecl_file_view->fortio, offset + ECL_KW_HEADER_FORTIO_SIZE, data_type, element_count, index_map, buffer);
     }
 }
 
@@ -204,9 +205,9 @@ int ecl_file_view_get_size( const ecl_file_view_type * ecl_file_view ) {
 }
 
 
-ecl_type_enum ecl_file_view_iget_type( const ecl_file_view_type * ecl_file_view , int index) {
+ecl_data_type ecl_file_view_iget_data_type( const ecl_file_view_type * ecl_file_view , int index) {
   ecl_file_kw_type * file_kw = ecl_file_view_iget_file_kw( ecl_file_view , index );
-  return ecl_file_kw_get_type( file_kw );
+  return ecl_file_kw_get_data_type( file_kw );
 }
 
 int ecl_file_view_iget_size( const ecl_file_view_type * ecl_file_view , int index) {
@@ -235,9 +236,9 @@ ecl_kw_type * ecl_file_view_iget_named_kw( const ecl_file_view_type * ecl_file_v
   return ecl_kw;
 }
 
-ecl_type_enum ecl_file_view_iget_named_type( const ecl_file_view_type * ecl_file_view , const char * kw , int ith) {
+ecl_data_type ecl_file_view_iget_named_data_type( const ecl_file_view_type * ecl_file_view , const char * kw , int ith) {
   ecl_file_kw_type * file_kw = ecl_file_view_iget_named_file_kw( ecl_file_view , kw, ith);
-  return ecl_file_kw_get_type( file_kw );
+  return ecl_file_kw_get_data_type( file_kw );
 }
 
 int ecl_file_view_iget_named_size( const ecl_file_view_type * ecl_file_view , const char * kw , int ith) {
@@ -357,10 +358,12 @@ void ecl_file_view_fprintf_kw_list(const ecl_file_view_type * ecl_file_view , FI
   int i;
   for (i=0; i < vector_get_size( ecl_file_view->kw_list ); i++) {
     const ecl_file_kw_type * file_kw = vector_iget_const( ecl_file_view->kw_list , i );
+    char * type_name = ecl_type_alloc_name(ecl_file_kw_get_data_type(file_kw));
     fprintf(stream , "%-8s %7d:%s\n",
             ecl_file_kw_get_header( file_kw ) ,
             ecl_file_kw_get_size( file_kw ) ,
-            ecl_util_get_type_name( ecl_file_kw_get_type( file_kw )));
+            type_name);
+    free(type_name);
   }
 }
 

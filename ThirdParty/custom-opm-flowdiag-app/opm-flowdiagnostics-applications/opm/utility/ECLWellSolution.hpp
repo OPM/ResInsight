@@ -1,6 +1,6 @@
 /*
   Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -29,7 +29,7 @@
 namespace Opm
 {
 
-    class ECLResultData;
+    class ECLRestartData;
 
     class ECLWellSolution
     {
@@ -47,7 +47,7 @@ namespace Opm
             bool is_injector_well;
             struct Completion
             {
-                int grid_index;                // 0 for main grid, otherwise LGR grid.
+                std::string gridName;          // empty for main grid, otherwise LGR grid.
                 std::array<int, 3> ijk;        // Cartesian location in grid.
                 double reservoir_inflow_rate;  // Total fluid rate in SI (m^3/s).
             };
@@ -58,8 +58,8 @@ namespace Opm
         ///
         /// Will throw if required data is not available for the
         /// requested step.
-        std::vector<WellData> solution(const ECLResultData& restart,
-                                       const int num_grids) const;
+        std::vector<WellData> solution(const ECLRestartData& restart,
+                                       const std::vector<std::string>& grids) const;
 
     private:
         // Data members.
@@ -67,8 +67,8 @@ namespace Opm
         bool disallow_crossflow_;
 
         // Methods.
-        std::vector<WellData> readWellData(const ECLResultData& restart,
-                                           const int grid_index) const;
+        std::vector<WellData> readWellData(const ECLRestartData& restart,
+                                           const std::string& gridName) const;
     };
 
 

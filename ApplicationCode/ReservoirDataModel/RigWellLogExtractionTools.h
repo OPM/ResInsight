@@ -21,6 +21,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfStructGrid.h"
+#include "cvfRay.h"
 
 //==================================================================================================
 ///  Internal class for intersection point info 
@@ -88,6 +89,28 @@ struct RigHexIntersector
         }
 
         return intersectionCount;
+    }
+
+    static bool isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8], const size_t hexIndex)
+    {
+        cvf::Ray ray;
+        ray.setOrigin(point);
+        for (int face = 0; face < 6; ++face)
+        {
+            cvf::ubyte faceVertexIndices[4];
+            cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+            cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+            for (int i = 0; i < 4; ++i)
+            {
+                int next = i < 3 ? i + 1 : 0;
+                if (ray.triangleIntersect(hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     static bool isEqualDepth(double d1, double d2) 

@@ -26,10 +26,7 @@
 #include <QAction>
 #include <QFileDialog>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature");
-
+CAF_CMD_SOURCE_INIT(RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -65,5 +62,3 @@ void RicWellLogsImportFileFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Import Well &Logs from File");
     actionToSetup->setIcon(QIcon(":/LasFile16x16.png"));
 }
-
-} // end namespace caf

@@ -42,6 +42,12 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimFlowPlotCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimSummaryPlot.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimWellAllocationPlot.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -297,40 +303,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &releaseResultMemory)
     {
-        if (this->eclipseCaseData())
-        {
-            for (size_t i = 0; i < reservoirViews().size(); i++)
-            {
-                RimEclipseView* reservoirView = reservoirViews()[i];
-                CVF_ASSERT(reservoirView);
-
-                RimEclipseCellColors* result = reservoirView->cellResult;
-                CVF_ASSERT(result);
-
-                result->setResultVariable(RimDefines::undefinedResultName());
-                result->loadResult();
-
-                RimCellEdgeColors* cellEdgeResult = reservoirView->cellEdgeResult;
-                CVF_ASSERT(cellEdgeResult);
-
-                cellEdgeResult->setResultVariable(RimDefines::undefinedResultName());
-                cellEdgeResult->loadResult();
-
-                reservoirView->createDisplayModelAndRedraw();
-            }
-
-            RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
-            if (matrixModelResults)
-            {
-                matrixModelResults->clearAllResults();
-            }
-
-            RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
-            if (fractureModelResults)
-            {
-                fractureModelResults->clearAllResults();
-            }
-        }
+        reloadDataAndUpdate();
 
         releaseResultMemory = oldValue.toBool();
     }
@@ -662,6 +635,66 @@ QString RimEclipseCase::timeStepName(int frameIdx)
     QDateTime date = timeStepDates.at(frameIdx);
 
     return date.toString(m_timeStepFormatString);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::reloadDataAndUpdate()
+{
+    if (this->eclipseCaseData())
+    {
+        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
+        if (matrixModelResults)
+        {
+            matrixModelResults->clearAllResults();
+        }
+
+        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
+        if (fractureModelResults)
+        {
+            fractureModelResults->clearAllResults();
+        }
+
+        reloadEclipseGridFile();
+
+        for (size_t i = 0; i < reservoirViews().size(); i++)
+        {
+            RimEclipseView* reservoirView = reservoirViews()[i];
+            CVF_ASSERT(reservoirView);
+            reservoirView->loadDataAndUpdate();
+        }
+
+        RimProject* project = RiaApplication::instance()->project();
+        if (project)
+        {
+            if (project->mainPlotCollection())
+            {
+                RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+                RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
+                RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
+
+                if (wellPlotCollection)
+                {
+                    for (size_t i = 0; i < wellPlotCollection->wellLogPlots().size(); ++i)
+                    {
+                        wellPlotCollection->wellLogPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (summaryPlotCollection)
+                {
+                    for (size_t i = 0; i < summaryPlotCollection->summaryPlots().size(); ++i)
+                    {
+                        summaryPlotCollection->summaryPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (flowPlotCollection)
+                {
+                    flowPlotCollection->loadDataAndUpdate();
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

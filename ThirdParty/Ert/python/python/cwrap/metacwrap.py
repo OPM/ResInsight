@@ -14,6 +14,10 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+import six
+
 import re
 from types import MethodType
 
@@ -59,4 +63,5 @@ class MetaCWrap(type):
 
                 if attr.shouldBeBound():
                     method = MethodType(attr, None, cls)
+                    #method = six.create_bound_method(attr, cls)
                     setattr(cls, key, method)

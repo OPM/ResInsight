@@ -693,8 +693,6 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
     RimWellPathCollection* wellPathCollection =                 oilFields                               ? oilFields->wellPathCollection() : NULL;
     RivWellPathCollectionPartMgr* wellPathCollectionPartMgr =   wellPathCollection                      ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
 
-    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-
     if (wellPathCollectionPartMgr)
     {
         wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList, 
@@ -702,7 +700,7 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
                                                                     scaleTransform, 
                                                                     characteristicCellSize, 
                                                                     wellPathClipBoundingBox,
-                                                                    transForm.p());
+                                                                    this->displayCoordTransform().p());
     }
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();

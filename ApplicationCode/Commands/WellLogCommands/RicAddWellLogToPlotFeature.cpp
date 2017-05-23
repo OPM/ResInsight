@@ -43,9 +43,7 @@
 
 #include <QAction>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature");
+CAF_CMD_SOURCE_INIT(RicAddWellLogToPlotFeature, "RicAddWellLogToPlotFeature");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -135,5 +133,3 @@ std::vector<RimWellLogFileChannel*> RicAddWellLogToPlotFeature::selectedWellLogs
     caf::SelectionManager::instance()->objectsByType(&selection);
     return selection;
 }
-
-} // end namespace caf

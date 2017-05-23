@@ -121,22 +121,22 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     bool allKwReadOk = true;
 
     fseek(gridFilePointer, specgridPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
+    allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
     progress.setProgress(1);
 
     fseek(gridFilePointer, zcornPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_FLOAT_TYPE));
+    allKwReadOk = allKwReadOk && NULL != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(2);
 
     fseek(gridFilePointer, coordPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_FLOAT_TYPE));
+    allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE)));
     progress.setProgress(3);
 
     // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
     if (actnumPos >= 0)
     {
         fseek(gridFilePointer, actnumPos, SEEK_SET);
-        allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
+        allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ecl_type_create_from_type(ECL_INT_TYPE)));
         progress.setProgress(4);
     }
 
@@ -144,7 +144,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
     if (mapaxesPos >= 0)
     {
         fseek(gridFilePointer, mapaxesPos, SEEK_SET);
-        mapAxesKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false , ECL_FLOAT_TYPE);
+        mapAxesKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false , ecl_type_create_from_type(ECL_FLOAT_TYPE));
     }
 
     if (!allKwReadOk)
@@ -228,7 +228,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
 
         fseek(gridFilePointer, fileKeywords[i].filePos, SEEK_SET);
 
-        ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false, ECL_FLOAT_TYPE);
+        ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false, ecl_type_create_from_type(ECL_FLOAT_TYPE));
         if (eclipseKeywordData)
         {
             QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
@@ -261,7 +261,7 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseC
     FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!filePointer) return false;
 
-    ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_grdecl_dynamic__(filePointer, eclipseKeyWord.toLatin1().data(), false, ECL_FLOAT_TYPE);
+    ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_grdecl_dynamic__(filePointer, eclipseKeyWord.toLatin1().data(), false, ecl_type_create_from_type(ECL_FLOAT_TYPE));
     bool isOk = false;
     if (eclipseKeywordData)
     {
@@ -474,30 +474,23 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 /// Create and write a result vector with values for all cells.
 /// undefinedValue is used for cells with no result
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, 
-                                                           RigEclipseCaseData* eclipseCase, 
-                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
-                                                           size_t timeStep, 
-                                                           const QString& resultName, 
-                                                           const QString& eclipseKeyWord, 
+bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName,
+                                                           RigEclipseCaseData* eclipseCase,
+                                                           size_t timeStep,
+                                                           RimEclipseResultDefinition* resultDefinition,
+                                                           const QString& eclipseKeyWord,
                                                            const double undefinedValue)
 {
     CVF_ASSERT(eclipseCase);
 
-    size_t resultIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(resultName);
-    if (resultIndex == cvf::UNDEFINED_SIZE_T)
+    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, eclipseCase->mainGrid()->gridIndex(), timeStep, resultDefinition);
+    if (resultAccessor.isNull())
     {
         return false;
     }
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return false;
-    }
-
-    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(eclipseCase, eclipseCase->mainGrid()->gridIndex(), porosityModel, timeStep, resultName);
-    if (resultAccessor.isNull())
     {
         return false;
     }

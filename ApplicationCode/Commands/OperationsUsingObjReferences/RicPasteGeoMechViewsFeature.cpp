@@ -32,8 +32,6 @@
 
 #include <QAction>
 
-namespace caf
-{
 
 CAF_CMD_SOURCE_INIT(RicPasteGeoMechViewsFeature, "RicPasteGeoMechViewsFeature");
 
@@ -42,7 +40,7 @@ CAF_CMD_SOURCE_INIT(RicPasteGeoMechViewsFeature, "RicPasteGeoMechViewsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicPasteGeoMechViewsFeature::isCommandEnabled()
 {
-    PdmObjectGroup objectGroup;
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
     std::vector<caf::PdmPointer<RimGeoMechView> > typedObjects;
@@ -53,7 +51,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
         return false;
     }
 
-    PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimGeoMechCase* geoMechCase = RicPasteFeatureImpl::findGeoMechCase(destinationObject);
     if (geoMechCase) return true;
@@ -66,12 +64,12 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
 {
-    PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimGeoMechCase* geomCase = RicPasteFeatureImpl::findGeoMechCase(destinationObject);
     assert(geomCase);
 
-    PdmObjectGroup objectGroup;
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
     if (objectGroup.objects.size() == 0) return;
@@ -84,7 +82,7 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
     // Add cases to case group
     for (size_t i = 0; i < geomViews.size(); i++)
     {
-        RimGeoMechView* rimReservoirView = dynamic_cast<RimGeoMechView*>(geomViews[i]->xmlCapability()->copyByXmlSerialization(PdmDefaultObjectFactory::instance()));
+        RimGeoMechView* rimReservoirView = dynamic_cast<RimGeoMechView*>(geomViews[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
         rimReservoirView->name = nameOfCopy;
         geomCase->geoMechViews().push_back(rimReservoirView);
@@ -117,6 +115,3 @@ void RicPasteGeoMechViewsFeature::setupActionLook(QAction* actionToSetup)
 
     RicPasteFeatureImpl::setIconAndShortcuts(actionToSetup);
 }
-
-
-} // end namespace caf

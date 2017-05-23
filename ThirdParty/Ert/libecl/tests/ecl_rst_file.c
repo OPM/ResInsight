@@ -25,18 +25,19 @@
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_endian_flip.h>
 #include <ert/ecl/ecl_rst_file.h>
+#include <ert/ecl/ecl_type.h>
 
 
 
-void write_keyword( fortio_type * fortio , const char * kw, ecl_type_enum ecl_type ) {
-  ecl_kw_type * ecl_kw = ecl_kw_alloc( kw , 1000 , ecl_type );
+void write_keyword( fortio_type * fortio , const char * kw, ecl_data_type data_type ) {
+  ecl_kw_type * ecl_kw = ecl_kw_alloc( kw , 1000 , data_type );
   ecl_kw_fwrite( ecl_kw , fortio );
   ecl_kw_free( ecl_kw );
 }
 
 
 void write_seqnum( fortio_type * fortio , int report_step ) {
-  ecl_kw_type * ecl_kw = ecl_kw_alloc( SEQNUM_KW , 1 , ECL_INT_TYPE );
+  ecl_kw_type * ecl_kw = ecl_kw_alloc( SEQNUM_KW , 1 , ECL_INT);
   ecl_kw_iset_int( ecl_kw , 0 , report_step );
   ecl_kw_fwrite( ecl_kw , fortio );
   ecl_kw_free( ecl_kw );
@@ -68,13 +69,13 @@ void test_Xfile() {
   {
     fortio_type * f = fortio_open_writer( "TEST.X0010" , false , ECL_ENDIAN_FLIP);
 
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     fortio_fclose( f );
   }
@@ -92,21 +93,21 @@ void test_UNRST0() {
   {
     fortio_type * f = fortio_open_writer( "TEST.UNRST" , false , ECL_ENDIAN_FLIP);
     write_seqnum( f , 0 );
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     pos10 = fortio_ftell( f );
     write_seqnum( f , 10 );
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     pos20 = fortio_ftell( f );
     write_seqnum( f , 20 );
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     pos_end = fortio_ftell( f );
     fortio_fclose( f );
@@ -131,21 +132,21 @@ void test_UNRST1() {
     fortio_type * f = fortio_open_writer( "TEST.UNRST" , false , ECL_ENDIAN_FLIP);
     pos5 = fortio_ftell( f );
     write_seqnum( f , 5 );
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     pos10 = fortio_ftell( f );
     write_seqnum( f , 10 );
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     pos20 = fortio_ftell( f );
     write_seqnum( f , 20 );
-    write_keyword( f , "INTEHEAD" , ECL_INT_TYPE );
-    write_keyword( f , "PRESSURE" , ECL_FLOAT_TYPE );
-    write_keyword( f , "SWAT" , ECL_FLOAT_TYPE );
+    write_keyword( f , "INTEHEAD" , ECL_INT);
+    write_keyword( f , "PRESSURE" , ECL_FLOAT);
+    write_keyword( f , "SWAT" , ECL_FLOAT);
 
     pos_end = fortio_ftell( f );
     fortio_fclose( f );

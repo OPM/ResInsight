@@ -117,6 +117,7 @@ public:
 
     // Set the navigation policy
     void                    setNavigationPolicy(caf::NavigationPolicy* navigationPolicy);
+    const caf::NavigationPolicy* getNavigationPolicy() const;
     void                    enableNavigationPolicy(bool enable); 
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();

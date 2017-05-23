@@ -19,6 +19,8 @@
 #include "RigWellPath.h"
 #include "cvfGeometryTools.h"
 
+#include "cvfGeometryTools.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -148,5 +150,43 @@ double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
 
 
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigWellPath::twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2) const
+{
+    CVF_ASSERT(p1 && p2);
+
+    size_t closestIndex = cvf::UNDEFINED_SIZE_T;
+    double closestDistance = cvf::UNDEFINED_DOUBLE;
+
+    for (size_t i = 1; i < m_wellPathPoints.size(); i++)
+    {
+        cvf::Vec3d p1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d p2 = m_wellPathPoints[i - 0];
+
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist(p1, p2, position);
+        if (candidateDistance < closestDistance)
+        {
+            closestDistance = candidateDistance;
+            closestIndex = i;
+        }
+    }
+
+    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    {
+        if (closestIndex > 0)
+        {
+            *p1 = m_wellPathPoints[closestIndex - 1];
+            *p2 = m_wellPathPoints[closestIndex - 0];
+        }
+        else
+        {
+            *p1 = m_wellPathPoints[closestIndex + 1];
+            *p2 = m_wellPathPoints[closestIndex + 0];
+        }
+    }
 }
 

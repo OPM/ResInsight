@@ -312,7 +312,7 @@ void RiuDragDrop::moveCasesToGridGroup(caf::PdmObjectGroup& objectGroup, RimIden
 
     if (RicCloseCaseFeature::userConfirmedGridCaseGroupChange(casesToBeDeleted))
     {
-        caf::RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
+        RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
     
         for (size_t i = 0; i < casesToBeDeleted.size(); i++)
         {
@@ -328,7 +328,7 @@ bool RiuDragDrop::handleGridCaseGroupDrop(Qt::DropAction action, caf::PdmObjectG
 {
     if (action == Qt::CopyAction)
     {
-        caf::RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
+        RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(objectGroup, gridCaseGroup);
     }
     else if (action == Qt::MoveAction)
     {

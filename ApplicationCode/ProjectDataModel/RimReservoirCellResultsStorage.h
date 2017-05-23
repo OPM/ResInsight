@@ -101,6 +101,7 @@ public:
     caf::PdmField<caf::AppEnum< RimDefines::ResultCatType> > m_resultType;
     caf::PdmField<QString>                                   m_resultName;
     caf::PdmField< std::vector <QDateTime> >                 m_timeStepDates;
+    caf::PdmField< std::vector <double> >                    m_daysSinceSimulationStart;
     caf::PdmField<qint64>                                    m_filePosition;
 };
 

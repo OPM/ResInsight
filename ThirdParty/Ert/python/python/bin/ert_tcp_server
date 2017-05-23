@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+import argparse
+import socket
+import sys
+
+from ert.server.ertrpcserver import ErtRPCServer
+
+default_port = 0
+
+parser = argparse.ArgumentParser()
+
+parser.add_argument("--port", type=int, default=default_port, dest="port")
+parser.add_argument("--host", default=socket.gethostname(), dest="host")
+parser.add_argument("--localhost", default=False, action="store_true", dest="localhost")
+parser.add_argument("--log-file", default="ert-server.log", dest="log_file")
+parser.add_argument("--log-level", type=int, default=1, dest="log_level")
+parser.add_argument("config_file")
+
+args = parser.parse_args()
+
+config_file = args.config_file
+port = args.port
+log_level = args.log_level
+
+
+# By default the server will bind with the publicly available hostname
+# socket.gethostname() - meaning that clients can connect from
+# anywhere, but by using the --localhost switch the server can be
+# instructed to only accept connections from localhost. 
+#
+# On some computers the socket.gethostname() will not include the
+# domain name; that will not work and we exit the server and ask the
+# user to supply the full hostname using --host.
+
+if args.localhost:
+    host = "localhost"
+else:
+    host = args.host
+    if host.count(".") == 0:
+        sys.exit("Sorry - could not determine FQDN for server - use the --host option to supply.")
+
+server = ErtRPCServer(config_file, host, port, log_requests=log_level > 1, verbose_queue=True)
+
+try:
+    print("ERT Server running on port: %d at host: %s" % (server.port, host))
+    server.start()
+except KeyboardInterrupt:
+    try:
+        server.stop()
+        print("ERT Server 'smoothly' killed the running jobs")
+    except Exception as e:
+        print("Unable to stop server 'gracefully'!")
+        raise e

@@ -23,6 +23,7 @@
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_type.h>
 
 
 
@@ -30,7 +31,7 @@
 int main( int argc , char ** argv) {
   int num_kw  = 1000;       // Total file size should roughly exceed 2GB
   int kw_size = 600000;
-  ecl_kw_type * kw = ecl_kw_alloc("KW" , kw_size , ECL_INT_TYPE );
+  ecl_kw_type * kw = ecl_kw_alloc("KW" , kw_size , ECL_INT );
   rng_type * rng = rng_alloc( MZRAN , INIT_DEFAULT );
   int i;
   offset_type file_size;

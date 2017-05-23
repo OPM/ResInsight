@@ -1,0 +1,23 @@
+@startuml
+
+
+
+RimView --> RivWellPathCollectionPartMgr
+
+RivWellPathCollectionPartMgr -* "N" RivWellPathPartMgr
+
+class RivWellPathPartMgr {
+RimWellPath* m_wellPath
+}
+
+class RimWellPath {
+RimWellPathFractureCollection m_fractureCollection;
+}
+
+class RimWellPathFractureCollection {
+caf::PdmChildArrayField<RimWellPathFracture*> fractures;
+}
+
+
+
+@enduml

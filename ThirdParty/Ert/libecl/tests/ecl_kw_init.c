@@ -27,7 +27,7 @@
 void test_int() {
   size_t N = 1000;
   int i;
-  ecl_kw_type * kw = ecl_kw_alloc("KW" , N , ECL_INT_TYPE);
+  ecl_kw_type * kw = ecl_kw_alloc("KW" , N , ECL_INT);
   for (i=0; i < N; i++)
     test_assert_int_equal( 0 , ecl_kw_iget_int( kw , i ));
 
@@ -38,7 +38,7 @@ void test_int() {
 void test_double() {
   size_t N = 1000;
   double i;
-  ecl_kw_type * kw = ecl_kw_alloc("KW" , N , ECL_DOUBLE_TYPE);
+  ecl_kw_type * kw = ecl_kw_alloc("KW" , N , ECL_DOUBLE);
   for (i=0; i < N; i++)
     test_assert_double_equal( 0 , ecl_kw_iget_double( kw , i ));
 
@@ -49,7 +49,7 @@ void test_double() {
 void test_float() {
   size_t N = 1000;
   int i;
-  ecl_kw_type * kw = ecl_kw_alloc("KW" , N , ECL_FLOAT_TYPE);
+  ecl_kw_type * kw = ecl_kw_alloc("KW" , N , ECL_FLOAT);
   for (i=0; i < N; i++)
     test_assert_int_equal( 0 , ecl_kw_iget_float( kw , i ));
 

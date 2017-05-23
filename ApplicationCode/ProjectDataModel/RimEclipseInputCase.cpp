@@ -228,6 +228,15 @@ bool RimEclipseInputCase::openEclipseGridFile()
     return true;
  }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseInputCase::reloadEclipseGridFile()
+{
+    setReservoirData(nullptr);
+    openReserviorCase();
+}
+
 #define for_all(stdVector, indexName) for (size_t indexName = 0; indexName < stdVector.size(); ++indexName)
 //--------------------------------------------------------------------------------------------------
 /// Loads input property data from the gridFile and additional files

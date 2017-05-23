@@ -29,13 +29,19 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
+#include "cafPdmChildArrayField.h"
 #include "cvfObject.h"    
 
-class RifWellPathAsciiFileReader;
+class RifWellPathImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
+class RimFishboneWellPathCollection;
 class RivWellPathPartMgr;
+
+class RimFishbonesCollection;
+class RimPerforationCollection;
+class RimWellPathCompletions;
 
 class RimWellPathFractureCollection;
 
@@ -71,6 +77,9 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
+    RimFishbonesCollection*             fishbonesCollection();
+    RimPerforationCollection*           perforationIntervalCollection();
+
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;
 
@@ -80,21 +89,19 @@ public:
     
     RivWellPathPartMgr*                 partMgr();
 
-    bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
+    bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
-protected:
-    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    double                              combinedScaleFactor() const;
 
 private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
-    void                                readJsonWellPathFile();
-    void                                readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader);
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     bool                                isStoredInCache();
     QString                             getCacheFileName();
@@ -109,6 +116,8 @@ private:
  
     caf::PdmField<QString>              m_surveyType;
     caf::PdmField<double>               m_datumElevation;
+    
+    caf::PdmChildField<RimWellPathCompletions*> m_completions;
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;

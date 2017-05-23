@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaColorTables.h"
 
 #include "RigWellPath.h"
 
@@ -32,6 +33,8 @@
 #include "RiuMainWindow.h"
 
 #include "RivWellPathCollectionPartMgr.h"
+
+#include "RifWellPathImporter.h"
 
 #include "cafPdmUiEditorHandle.h"
 #include "cafProgressInfo.h"
@@ -88,9 +91,7 @@ RimWellPathCollection::RimWellPathCollection()
 
     m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
 
-    m_asciiFileReader = new RifWellPathAsciiFileReader;
-
-
+    m_wellPathImporter = new RifWellPathImporter;
 }
 
 
@@ -100,7 +101,7 @@ RimWellPathCollection::RimWellPathCollection()
 RimWellPathCollection::~RimWellPathCollection()
 {
    wellPaths.deleteAllChildObjects();
-   delete m_asciiFileReader;
+   delete m_wellPathImporter;
 }
 
 
@@ -125,7 +126,7 @@ void RimWellPathCollection::readWellPathFiles()
         if (!wellPaths[wpIdx]->filepath().isEmpty())
         {
             QString errorMessage;
-            if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage, this->asciiFileReader()))
+            if (!wellPaths[wpIdx]->readWellPathFile(&errorMessage, m_wellPathImporter))
             {
                 QMessageBox::warning(RiuMainWindow::instance(),
                                      "File open error",
@@ -201,7 +202,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
             else
             {
                 // Create Well path objects for all the paths in the assumed ascii file
-                size_t wellPathCount = this->m_asciiFileReader->wellDataCount(filePath);
+                size_t wellPathCount = m_wellPathImporter->wellDataCount(filePath);
                 for (size_t i = 0; i < wellPathCount; ++i)
                 {
                     RimWellPath* wellPath = new RimWellPath();
@@ -224,10 +225,19 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
 {
     caf::ProgressInfo progress(wellPathArray.size(), "Reading well paths from file");
 
+    const caf::ColorTable& colorTable = RiaColorTables::wellLogPlotPaletteColors();
+    cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+    cvf::Color3ubArray interpolatedWellColors = wellColors;
+
+    if (wellPathArray.size() > 1)
+    {
+        interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellPathArray.size());
+    }
+
     for (size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++)
     {
         RimWellPath* wellPath = wellPathArray[wpIdx];
-        wellPath->readWellPathFile(NULL, this->asciiFileReader());
+        wellPath->readWellPathFile(NULL, m_wellPathImporter);
 
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name));
 
@@ -237,12 +247,13 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         {
             existingWellPath->filepath = wellPath->filepath;
             existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
-            existingWellPath->readWellPathFile(NULL, this->asciiFileReader());
+            existingWellPath->readWellPathFile(NULL, m_wellPathImporter);
 
             delete wellPath;
         }
         else
         {
+            wellPath->wellPathColor = cvf::Color3f(interpolatedWellColors[wpIdx]);
             wellPaths.push_back(wellPath);
         }
 
@@ -348,7 +359,7 @@ void RimWellPathCollection::deleteAllWellPaths()
 {
     wellPaths.deleteAllChildObjects();
 
-    m_asciiFileReader->clear();
+    m_wellPathImporter->clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -372,7 +383,7 @@ void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
     {
         // One file can have multiple well paths
         // If no other well paths are referencing the filepath, remove cached data from the file reader
-        m_asciiFileReader->removeFilePath(wellPath->filepath);
+        m_wellPathImporter->removeFilePath(wellPath->filepath);
     }
 }
 
@@ -392,212 +403,4 @@ bool lessWellPath(const caf::PdmPointer<RimWellPath>& w1,  const caf::PdmPointer
 void RimWellPathCollection::sortWellsByName()
 {
     std::sort(wellPaths.begin(), wellPaths.end(), lessWellPath);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifWellPathAsciiFileReader::readAllWellData(QString filePath)
-{
-    std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
-
-    // If we have the file in the map, assume it is already read.
-    if (it != m_fileNameToWellDataGroupMap.end())
-    {
-        return;
-    }
-
-    // Create the data container
-    std::vector<WellData>& fileWellDataArray = m_fileNameToWellDataGroupMap[filePath];
-
-    std::ifstream stream(filePath.toLatin1().data());
-    double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
-
-    bool hasReadWellPointInCurrentWell = false;
-
-    while (stream.good())
-    {
-        // First check if we can read a number
-        stream >> x;
-        if (stream.good()) // If we can, assume this line is a well point entry
-        {
-            stream >> y >> tvd >> md;
-            if (!stream.good())
-            {
-                // -999 or otherwise to few numbers before some word
-                if (x != -999)
-                {
-                    // Error in file: missing numbers at this line
-
-                }
-                stream.clear();
-            }
-            else
-            {
-                if (!fileWellDataArray.size())
-                {
-                    fileWellDataArray.push_back(WellData());
-                    fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
-                }
-
-                cvf::Vec3d wellPoint(x, y, -tvd);
-                fileWellDataArray.back().m_wellPathGeometry->m_wellPathPoints.push_back(wellPoint);
-                fileWellDataArray.back().m_wellPathGeometry->m_measuredDepths.push_back(md);
-
-                x = HUGE_VAL;
-                y = HUGE_VAL;
-                tvd = HUGE_VAL;
-                md = HUGE_VAL;
-
-                hasReadWellPointInCurrentWell = true;
-            }
-        }
-        else
-        {
-            // Could not read one double.
-            // we assume there is a comment line or a well path description
-            stream.clear();
-
-            std::string line;
-            std::getline(stream, line, '\n');
-            // Skip possible comment lines (-- is used in eclipse, so Haakon Høgstøl considered it smart to skip these here as well)
-            // The first "-" is eaten by the stream >> x above
-            if (line.find("-") == 0 || line.find("#") == 0)
-            {
-                // Comment line, just ignore
-            }
-            else
-            {
-                // Find the first and the last position of any quotes (and do not care to match quotes)
-                size_t quoteStartIdx = line.find_first_of("'`´’‘");
-                size_t quoteEndIdx = line.find_last_of("'`´’‘");
-
-                std::string wellName;
-                bool haveAPossibleWellStart = false;
-
-                if (quoteStartIdx < line.size() -1)
-                {
-                    // Extract the text between the quotes
-                    wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
-                    haveAPossibleWellStart = true;
-                }
-                else if (quoteStartIdx > line.length())
-                {
-                    // We did not find any quotes
-
-                    // Supported alternatives are 
-                    // name <WellNameA>
-                    // wellname: <WellNameA>
-                    std::string lineLowerCase = line;
-                    transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower);
-
-                    std::string tokenName = "name";
-                    std::size_t foundNameIdx = lineLowerCase.find(tokenName);
-                    if (foundNameIdx != std::string::npos)
-                    {
-                        std::string tokenColon = ":";
-                        std::size_t foundColonIdx = lineLowerCase.find(tokenColon, foundNameIdx);
-                        if (foundColonIdx != std::string::npos)
-                        {
-                            wellName = line.substr(foundColonIdx + tokenColon.length());
-                        }
-                        else
-                        {
-                            wellName = line.substr(foundNameIdx + tokenName.length());
-                        }
-
-                        haveAPossibleWellStart = true;
-                    }
-                    else
-                    {
-                        // Interpret the whole line as the well name.
-
-                        QString name = line.c_str();
-                        if (!name.trimmed().isEmpty())
-                        {
-                            wellName = name.trimmed().toStdString();
-                            haveAPossibleWellStart = true;
-                        }
-                    }
-                }
-
-                if (haveAPossibleWellStart)
-                {
-                    // Create a new Well data if we have read some data into the previous one.
-                    // if not, just overwrite the name
-                    if (hasReadWellPointInCurrentWell || fileWellDataArray.size() == 0)
-                    {
-                        fileWellDataArray.push_back(WellData());
-                        fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
-                    }
-
-                    QString name = wellName.c_str();
-                    if (!name.trimmed().isEmpty())
-                    {
-                        // Do not overwrite the name aquired from a line above, if this line is empty
-                        fileWellDataArray.back().m_name = name.trimmed();
-                    }
-                    hasReadWellPointInCurrentWell = false;
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifWellPathAsciiFileReader::WellData RifWellPathAsciiFileReader::readWellData(QString filePath, int indexInFile)
-{
-    this->readAllWellData(filePath);
-
-    std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
-
-    CVF_ASSERT(it != m_fileNameToWellDataGroupMap.end());
-
-    if (indexInFile < static_cast<int>(it->second.size()))
-    {
-        return it->second[indexInFile];
-    }
-    else
-    {
-        // Error : The ascii well path file does not contain that many well paths
-        return WellData();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RifWellPathAsciiFileReader::wellDataCount(QString filePath)
-{
-    std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
-
-    // If we have the file in the map, assume it is already read.
-    if (it != m_fileNameToWellDataGroupMap.end())
-    {
-        return it->second.size();
-    }
-
-    this->readAllWellData(filePath);
-    it = m_fileNameToWellDataGroupMap.find(filePath);
-    CVF_ASSERT(it != m_fileNameToWellDataGroupMap.end());
-
-    return it->second.size();;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifWellPathAsciiFileReader::clear()
-{
-    m_fileNameToWellDataGroupMap.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifWellPathAsciiFileReader::removeFilePath(const QString& filePath)
-{
-    m_fileNameToWellDataGroupMap.erase(filePath);
 }

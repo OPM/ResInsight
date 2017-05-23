@@ -423,6 +423,32 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart() const
+{
+    size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+    maxTimeStepCount(&scalarResWithMostTimeSteps);
+
+    return daysSinceSimulationStart(scalarResWithMostTimeSteps);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scalarResultIndex) const
+{
+    if (scalarResultIndex < m_resultInfos.size())
+    {
+        return m_resultInfos[scalarResultIndex].m_daysSinceSimulationStart;
+    }
+    else
+    {
+        return std::vector<double>();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepReportNumbers.size() > timeStepIndex)
@@ -446,11 +472,12 @@ std::vector<int> RigCaseCellResultsData::reportStepNumbers(size_t scalarResultIn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<int>& reportStepNumbers)
+void RigCaseCellResultsData::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers)
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 
     m_resultInfos[scalarResultIndex].m_timeStepDates = dates;
+    m_resultInfos[scalarResultIndex].m_daysSinceSimulationStart = daysSinceSimulationStart;
     m_resultInfos[scalarResultIndex].m_timeStepReportNumbers = reportStepNumbers;
 
     std::vector< std::vector<double> >& dataValues = this->cellScalarResults(scalarResultIndex);

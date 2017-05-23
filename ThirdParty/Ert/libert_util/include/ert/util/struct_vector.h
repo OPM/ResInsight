@@ -26,14 +26,18 @@ extern "C" {
 
 
 typedef struct struct_vector_struct struct_vector_type;
-
+typedef int ( struct_vector_cmp_ftype ) (const void * , const void *);
 
   struct_vector_type * struct_vector_alloc( int element_size );
   void                 struct_vector_free( struct_vector_type * struct_vector );
   int                  struct_vector_get_size( const struct_vector_type * struct_vector );
   void                 struct_vector_append( struct_vector_type * struct_vector , void * value);
   void                 struct_vector_iget( const struct_vector_type * struct_vector , int index , void * value);
+  void               * struct_vector_iget_ptr( const struct_vector_type * struct_vector , int index);
   void                 struct_vector_reset( struct_vector_type * struct_vector );
+  void                 struct_vector_reserve( struct_vector_type * struct_vector , int reserve_size);
+  void               * struct_vector_get_data( const struct_vector_type * struct_vector );
+  void                 struct_vector_sort( struct_vector_type * struct_vector , struct_vector_cmp_ftype * cmp);
 
   UTIL_IS_INSTANCE_HEADER( struct_vector );
 

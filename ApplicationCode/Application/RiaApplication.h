@@ -137,8 +137,6 @@ public:
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
-    void                updateRegressionTest(const QString& testRootPath );
-    void                regressionTestConfigureProject();
 
     void                processNonGuiEvents();
 
@@ -187,6 +185,9 @@ public:
 
     static RimViewWindow* activeViewWindow();
 
+    bool                isMain3dWindowVisible() const;
+    bool                isMainPlotWindowVisible() const;
+
     bool                tryCloseMainWindow();
     bool                tryClosePlotWindow();
 
@@ -214,6 +215,11 @@ private:
     void                    loadAndUpdatePlotData();
     
     void                    storeTreeViewState();
+
+    void                    resizeMaximizedPlotWindows();
+    void                    updateRegressionTest(const QString& testRootPath);
+    void                    regressionTestConfigureProject();
+    static QSize            regressionDefaultImageSize();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

@@ -27,13 +27,13 @@
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
+#include "cafUtils.h"
+
 #include <QAction>
 #include <QDir>
 #include <QFile>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
+CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ bool RicWellPathsImportSsihubFeature::isCommandEnabled()
         return false;
     }
 
-    if (!QFile::exists(app->project()->fileName()))
+    if (!caf::Utils::fileExists(app->project()->fileName()))
     {
         return false;
     }
@@ -66,7 +66,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    if (!QFile::exists(app->project()->fileName()))
+    if (!caf::Utils::fileExists(app->project()->fileName()))
     {
         return;
     }
@@ -123,5 +123,3 @@ void RicWellPathsImportSsihubFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Import Well Paths from &SSI-hub");
     actionToSetup->setIcon(QIcon(":/WellCollection.png"));
 }
-
-} // end namespace caf

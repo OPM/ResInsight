@@ -3,13 +3,13 @@ from datetime import datetime
 import os
 import sys
 
-from ert.ecl import EclSum, EclSumTStep
-from ert.test import ExtendedTestCase
+from ecl.ecl import EclSum, EclSumTStep
+from ecl.test import ExtendedTestCase
 
 try:
     from synthesizer import OilSimulator
 except ImportError as e:
-    share_lib_path = os.path.join(ExtendedTestCase.findShareRoot(), "lib")
+    share_lib_path = ExtendedTestCase.createShareRoot("lib")
 
     sys.path.insert(0, share_lib_path)
     synthesizer_module = __import__("synthesizer")

@@ -1,7 +1,7 @@
 add_executable(ert_util_unique_ptr ert_util_unique_ptr.cpp )
-target_link_libraries(ert_util_unique_ptr test_util ert_util)
+target_link_libraries(ert_util_unique_ptr  ert_util)
 add_test(ert_util_unique_ptr ${EXECUTABLE_OUTPUT_PATH}/ert_util_unique_ptr)
 
 add_executable(ert_util_test_area_xx ert_util_test_area_xx.cpp )
-target_link_libraries(ert_util_test_area_xx test_util ert_utilxx)
+target_link_libraries(ert_util_test_area_xx  ert_utilxx)
 add_test(ert_util_test_area_xx ${EXECUTABLE_OUTPUT_PATH}/ert_util_test_area_xx)

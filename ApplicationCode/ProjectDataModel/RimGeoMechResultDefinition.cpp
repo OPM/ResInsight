@@ -114,10 +114,13 @@ void RimGeoMechResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
     uiOrdering.add(&m_resultPositionTypeUiField);
     uiOrdering.add(&m_resultVariableUiField);
 
-    caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Relative Result Options");
-    timeLapseGr->add(&m_isTimeLapseResultUiField);
-    if (m_isTimeLapseResultUiField())
-        timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
+    if ( m_resultPositionTypeUiField() != RIG_FORMATION_NAMES )
+    {
+        caf::PdmUiGroup * timeLapseGr = uiOrdering.addNewGroup("Relative Result Options");
+        timeLapseGr->add(&m_isTimeLapseResultUiField);
+        if ( m_isTimeLapseResultUiField() )
+            timeLapseGr->add(&m_timeLapseBaseTimestepUiField);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -137,7 +140,9 @@ QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions(
             std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
             QStringList uiVarNames;
             QStringList varNames;
-            getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, m_isTimeLapseResultUiField, m_timeLapseBaseTimestepUiField);
+            bool isNeedingTimeLapseStrings =  m_isTimeLapseResultUiField() && (m_resultPositionTypeUiField() != RIG_FORMATION_NAMES);
+
+            getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, isNeedingTimeLapseStrings, m_timeLapseBaseTimestepUiField);
 
             for (int oIdx = 0; oIdx < uiVarNames.size(); ++oIdx)
             {
@@ -189,7 +194,8 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         std::map<std::string, std::vector<std::string> >  fieldCompNames = getResultMetaDataForUIFieldSetting();
         QStringList uiVarNames;
         QStringList varNames;
-        getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, m_isTimeLapseResultUiField, m_timeLapseBaseTimestepUiField);
+        bool isNeedingTimeLapseStrings =  m_isTimeLapseResultUiField() && (m_resultPositionTypeUiField() != RIG_FORMATION_NAMES);
+        getUiAndResultVariableStringList(&uiVarNames, &varNames, fieldCompNames, isNeedingTimeLapseStrings, m_timeLapseBaseTimestepUiField);
 
         if (m_resultPositionTypeUiField() == m_resultPositionType()
             && m_isTimeLapseResultUiField() == m_isTimeLapseResult()

@@ -223,4 +223,22 @@ bool Utils::getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, st
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::fileExists(const QString& fileName)
+{
+    QFileInfo fi(fileName);
+
+    // QFileInfo::exists returns true for both files and folders
+    // Also check if the path points to a file
+
+    if (fi.exists() && fi.isFile())
+    {
+        return true;
+    }
+
+    return false;
+}
+
 } // namespace caf

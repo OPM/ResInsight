@@ -70,7 +70,7 @@ private:
 
 
 class RigEclipseCaseData;
-class RigOpmFldStaticData;
+class RigOpmFlowDiagStaticData;
 
 class RigFlowDiagSolverInterface : public cvf::Object
 {
@@ -85,7 +85,7 @@ public:
 private:
     RimEclipseResultCase * m_eclipseCase;
 
-    cvf::ref<RigOpmFldStaticData> m_opmFldData;
+    cvf::ref<RigOpmFlowDiagStaticData> m_opmFlowDiagStaticData;
    
 };
 

@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+import requests
+import json
+import os
+import sys
+
+closed_pr = set( [1197 , 1201, 1235, 1244, 1245, 1252, 1261, 1262, 1366,
+                  1357, 1282, 1279, 1267, 1273, 1305, 1312, 1313, 1339 , 1346,
+                  1354, 1370,1371, 1381])
+
+def getPRList( api_token, first_pr ):
+    pr = first_pr
+    pr_list = []
+    prev_len = 0
+    sys.stderr.write("Downloading PR: ")
+    while True:
+        if pr in closed_pr:
+            pr += 1
+        else:
+            url = "https://api.github.com/repos/Ensembles/ert/pulls/%d" % pr
+            response = requests.get( url , {"access_token" : api_token})
+            for i in range(prev_len):
+                sys.stdout.write("\b")
+
+            sys.stdout.write("%d" % pr )
+            sys.stdout.flush()
+            prev_len = len("%s" % pr)
+            
+            if response.status_code == 200:
+                pr_list.append( json.loads( response.content ) )
+                pr += 1
+            else:
+                break
+
+
+        
+    return pr_list
+
+
+def printPRList( pr_list , fileH):
+    for pr in pr_list:
+        title = pr["title"]
+        body = pr["body"]
+        nr = pr["number"]
+        
+        try:
+            fileH.write( "[%d] *%s*\n\n" % (nr , title))
+        except UnicodeEncodeError:
+            fileH.write(" [%d] : UnicodeError")
+
+        try:
+            fileH.write( "%s\n\n\n" % body )
+        except UnicodeEncodeError:
+            fileH.write("UnicodeError")
+
+
+def main():
+    if "GITHUB_API_TOKEN" in os.environ:
+        github_api_token = os.getenv("GITHUB_API_TOKEN")
+    else:
+        sys.exit("You must create a github access token and set the environment variable 'GITHUB_API_TOKEN' to proceed")
+
+    pr1 = int(sys.argv[1])
+    pr_list = getPRList( github_api_token, pr1)
+    pr2 = pr_list[-1]["number"]
+
+    filename = "/tmp/relnotes-%d-%d" % (pr1 , pr2)
+    printPRList( pr_list , open(filename , "w"))
+
+    print "Have created file: %s which can be a starting point for release notes" % filename
+
+
+
+        
+if __name__ == "__main__":
+    main( )
+
+

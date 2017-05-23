@@ -38,7 +38,7 @@ namespace cvf
     class ModelBasicList;
 }
 
-namespace caf 
+namespace caf
 {
     class DisplayCoordTransform;
 }

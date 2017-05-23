@@ -37,6 +37,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -137,6 +139,8 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
 void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 {
      m_eclipseCase = eclipseCase;
+   
+     assignFlowSolutionFromCase();
 }
 
 
@@ -323,16 +327,15 @@ void RimEclipseResultDefinition::setTofAndSelectTracer(const QString& tracerName
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 {
-    RimEclipseResultCase* eclCase = nullptr;
-    this->firstAncestorOrThisOfType(eclCase);
+    RimFlowDiagSolution* defaultFlowDiagSolution = nullptr;
+
+    RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
+
     if (eclCase)
     {
-        RimFlowDiagSolution* defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
-        if (defaultFlowDiagSolution)
-        {
-            this->setFlowSolution(defaultFlowDiagSolution);
-        }
+        defaultFlowDiagSolution = eclCase->defaultFlowDiagSolution();
     }
+    this->setFlowSolution(defaultFlowDiagSolution);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,9 +428,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
         }
 
-        // Do not include flow diag results if not available
+        RimGridTimeHistoryCurve* timeHistoryCurve;
+        this->firstAncestorOrThisOfType(timeHistoryCurve);
 
-        if ( !hasFlowDiagFluxes )
+        // Do not include flow diagnostics results if not available or is a time history curve
+        if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr )
         {
             using ResCatEnum = caf::AppEnum< RimDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
@@ -464,8 +469,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
-            RimEclipseResultCase* eclCase;
-            this->firstAncestorOrThisOfType(eclCase);
+            RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
             if (eclCase)
             {
                 std::vector<RimFlowDiagSolution*> flowSols = eclCase->flowDiagSolutions();
@@ -662,6 +666,18 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     {
         timeStep = rimView->currentTimeStep();
     }
+    RimWellLogExtractionCurve* wellLogExtractionCurve = nullptr;
+    this->firstAncestorOrThisOfType(wellLogExtractionCurve);
+    if (wellLogExtractionCurve)
+    {
+        timeStep = static_cast<size_t>(wellLogExtractionCurve->currentTimeStep());
+    }
+
+    // Time history curves are not supported, since it requires the time 
+    // step to access to be supplied.
+    RimGridTimeHistoryCurve* timeHistoryCurve = nullptr;
+    this->firstAncestorOrThisOfType(timeHistoryCurve);
+    CVF_ASSERT(timeHistoryCurve == nullptr);
 
     std::set<std::string> selTracerNames;
     if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)

@@ -98,7 +98,7 @@ public:
 
     virtual void                setTimeSteps(const std::vector<QDateTime>& timeSteps) {};
     virtual size_t              timeStepCount() = 0;
-    virtual std::vector<QDateTime>    timeSteps() = 0;
+    virtual void                timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart) = 0;
     virtual std::vector<int>     reportNumbers() = 0;
 
     virtual void                resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts) = 0;

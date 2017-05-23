@@ -14,13 +14,18 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
-from ctypes import pointer, c_long, c_int, c_bool, c_float, c_double, c_byte, \
-    c_short, c_char, c_ubyte, c_ushort, c_uint, c_ulong
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+import six
+
+from ctypes import (pointer, c_long, c_int, c_bool, c_float, c_double, c_byte,
+                    c_short, c_char, c_ubyte, c_ushort, c_uint, c_ulong)
 
 from .metacwrap import MetaCWrap
 
+@six.add_metaclass(MetaCWrap)
 class BaseCValue(object):
-    __metaclass__ = MetaCWrap
     DATA_TYPE = None
     LEGAL_TYPES = [c_byte, c_ubyte, c_short, c_ushort, c_int, c_uint, c_long, c_ulong, c_bool, c_char, c_float, c_double]
 

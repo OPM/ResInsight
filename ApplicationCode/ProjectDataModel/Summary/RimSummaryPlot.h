@@ -64,7 +64,7 @@ public:
     caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
     
-    void                                            loadDataAndUpdate();
+    virtual void                                    loadDataAndUpdate() override;
 
     void                                            detachAllCurves();
     void                                            updateCaseNameHasChanged();
@@ -95,6 +95,7 @@ protected:
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
     virtual QImage                                  snapshotWindowContent() override;
 
@@ -118,6 +119,7 @@ private:
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
+    caf::PdmField<bool>                                 m_showLegend;
     caf::PdmField<QString>                              m_userName;
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;

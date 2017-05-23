@@ -32,7 +32,7 @@ int main(int argc , char ** argv) {
     while (true) {
       ecl_kw_type * grdecl_kw;
       timer_start( timer );
-      grdecl_kw = ecl_kw_fscanf_alloc_current_grdecl( stream ,  ECL_FLOAT_TYPE );
+      grdecl_kw = ecl_kw_fscanf_alloc_current_grdecl( stream ,  ECL_FLOAT );
       timer_stop( timer );
 
       if (grdecl_kw != NULL) {

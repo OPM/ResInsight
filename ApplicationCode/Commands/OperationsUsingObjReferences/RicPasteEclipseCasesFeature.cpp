@@ -42,8 +42,6 @@
 #include <QAction>
 #include <QString>
 
-namespace caf
-{
 
 CAF_CMD_SOURCE_INIT(RicPasteEclipseCasesFeature, "RicPasteEclipseCasesFeature");
 
@@ -53,7 +51,7 @@ CAF_CMD_SOURCE_INIT(RicPasteEclipseCasesFeature, "RicPasteEclipseCasesFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicPasteEclipseCasesFeature::isCommandEnabled()
 {
-    PdmObjectGroup objectGroup;
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
     std::vector<caf::PdmPointer<RimEclipseResultCase> > typedObjects;
@@ -64,7 +62,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
         return false;
     }
 
-    PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup(destinationObject);
     if (gridCaseGroup) return true;
@@ -77,12 +75,12 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseCasesFeature::onActionTriggered(bool isChecked)
 {
-    PdmObjectHandle* destinationObject = dynamic_cast<PdmObjectHandle*>(SelectionManager::instance()->selectedItem());
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup(destinationObject);
     if (!gridCaseGroup) return;
 
-    PdmObjectGroup objectGroup;
+    caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs(&objectGroup);
 
     if (objectGroup.objects.size() == 0) return;
@@ -105,7 +103,7 @@ void RicPasteEclipseCasesFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
+void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup)
 {
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
@@ -202,5 +200,3 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
     }
 }
 
-
-} // end namespace caf

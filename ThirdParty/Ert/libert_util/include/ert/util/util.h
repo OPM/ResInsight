@@ -294,6 +294,8 @@ typedef enum {left_pad   = 0,
   bool         util_string_isspace(const char * s);
 
   char *  util_alloc_dump_filename(void);
+  void    util_abort_test_set_intercept_function(const char *);
+  bool    util_addr2line_lookup(const void *, char **, char **, int *);
   void    util_exit(const char * fmt , ...);
   void    util_install_signals(void);
   void    util_update_signals(void);

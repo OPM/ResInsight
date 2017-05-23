@@ -36,7 +36,7 @@
 
 //class RimFractureCollection;
 class RivWellPathCollectionPartMgr;
-class RifWellPathAsciiFileReader;
+class RifWellPathImporter;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
@@ -88,8 +88,6 @@ public:
     void                                removeWellPath(RimWellPath* wellPath);
     void                                deleteAllWellPaths();
 
-    RifWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
-    
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
 
@@ -108,31 +106,5 @@ private:
 
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
-    RifWellPathAsciiFileReader*         m_asciiFileReader;
-};
-
-
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RifWellPathAsciiFileReader
-{
-public:
-    struct WellData
-    {
-        QString                 m_name;
-        cvf::ref<RigWellPath>   m_wellPathGeometry;
-    };
-
-    WellData readWellData(QString filePath, int indexInFile);
-    size_t   wellDataCount(QString filePath);
-
-    void    clear();
-    void    removeFilePath(const QString& filePath);
-
-private:
-    void readAllWellData(QString filePath);
-
-    std::map<QString, std::vector<WellData> > m_fileNameToWellDataGroupMap;
+    RifWellPathImporter*                m_wellPathImporter;
 };

@@ -26,6 +26,7 @@
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_smspec.h>
 #include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_type.h>
 
 #define ECL_SUM_TSTEP_ID 88631
 
@@ -270,7 +271,7 @@ int ecl_sum_tstep_get_ministep(const ecl_sum_tstep_type * ministep) {
 
 void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vector_type * index_map , fortio_type * fortio) {
   {
-    ecl_kw_type * ministep_kw = ecl_kw_alloc( MINISTEP_KW , 1 , ECL_INT_TYPE );
+    ecl_kw_type * ministep_kw = ecl_kw_alloc( MINISTEP_KW , 1 , ECL_INT );
     ecl_kw_iset_int( ministep_kw , 0 , ministep->ministep );
     ecl_kw_fwrite( ministep_kw , fortio );
     ecl_kw_free( ministep_kw );
@@ -278,7 +279,7 @@ void ecl_sum_tstep_fwrite( const ecl_sum_tstep_type * ministep , const int_vecto
 
   {
     int compact_size = int_vector_size( index_map );
-    ecl_kw_type * params_kw = ecl_kw_alloc( PARAMS_KW , compact_size , ECL_FLOAT_TYPE );
+    ecl_kw_type * params_kw = ecl_kw_alloc( PARAMS_KW , compact_size , ECL_FLOAT );
 
     const int * index = int_vector_get_ptr( index_map );
     float * data      = ecl_kw_get_ptr( params_kw );

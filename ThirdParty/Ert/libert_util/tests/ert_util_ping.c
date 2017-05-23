@@ -30,13 +30,5 @@ int main( int argc , char ** argv) {
   test_assert_true( util_ping("127.0.0.1" ));
   test_assert_false( util_ping("does.not.exist"));
 
-  if (argc > 1) {
-    stringlist_type * server_list = stringlist_alloc_from_split( argv[1] , " ");
-    int is ; 
-    for (is = 0; is < stringlist_get_size( server_list ); is++) {
-      test_assert_true( util_ping( stringlist_iget( server_list , is )));
-    }
-  }
-  
   exit(0);
 }

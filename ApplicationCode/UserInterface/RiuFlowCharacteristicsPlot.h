@@ -18,13 +18,14 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiuInterfaceToViewWindow.h"
 
 #include "cafPdmPointer.h"
 
-#include <QPointer>
+#include "qwt_plot.h"
+
 #include <QFrame>
-#include "RiuInterfaceToViewWindow.h"
+#include <QPointer>
 
 class RimFlowCharacteristicsPlot;
 class RiuNightchartsWidget;
@@ -49,12 +50,14 @@ public:
     RiuFlowCharacteristicsPlot(RimFlowCharacteristicsPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuFlowCharacteristicsPlot();
 
-    void setLorenzCurve(const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
+    void setLorenzCurve(const QStringList& dateTimeStrings, const std::vector<QDateTime>& dateTimes, const std::vector<double>& timeHistoryValues);
     void addFlowCapStorageCapCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
     void addSweepEfficiencyCurve(const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals);
 
     void removeAllCurves();
     void zoomAll();
+
+    void showLegend(bool show);
 
     RimFlowCharacteristicsPlot*     ownerPlotDefinition();
     virtual RimViewWindow*          ownerViewWindow() const override;
@@ -68,16 +71,15 @@ protected:
 
 private:
     void                            setDefaults();
-
-
-    void                                        initializeColors(const std::vector<QDateTime>& dateTimes);
+    void                            initializeColors(const std::vector<QDateTime>& dateTimes);
+    
+    static void                     addCurveWithLargeSymbol(QwtPlot* plot, const QString& curveName, const QColor& color, const QDateTime& dateTime, double timeHistoryValue);
 
 private:
     caf::PdmPointer<RimFlowCharacteristicsPlot> m_plotDefinition;
     QPointer<QwtPlot>                           m_lorenzPlot;
     QPointer<QwtPlot>                           m_flowCapVsStorageCapPlot;
     QPointer<QwtPlot>                           m_sweepEffPlot;
-
 
     std::map<QDateTime, QColor>                 m_dateToColorMap;
 };

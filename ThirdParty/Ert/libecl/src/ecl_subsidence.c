@@ -179,9 +179,9 @@ static double ecl_subsidence_survey_eval_geertsma( const ecl_subsidence_survey_t
 
   for (int index = 0; index < size; index++) {
     if (monitor_survey) {
-        weight[index] = - scale_factor * cell_volume[index] * (monitor_survey->pressure[index] - base_survey->pressure[index]);
+        weight[index] = scale_factor * cell_volume[index] * (base_survey->pressure[index] - monitor_survey->pressure[index]);
     } else {
-        weight[index] = - scale_factor * cell_volume[index] * (base_survey->pressure[index] );
+        weight[index] = scale_factor * cell_volume[index] * (base_survey->pressure[index] );
     }
   }
 

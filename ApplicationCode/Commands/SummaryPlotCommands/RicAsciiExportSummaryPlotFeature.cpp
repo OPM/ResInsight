@@ -95,7 +95,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered(bool isChecked)
         bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
         if (!writeFiles) return;
 
-        RiaLogging::debug(QString("Writing to directory %1").arg(saveDir));
+        RiaLogging::info(QString("Writing to directory %1").arg(saveDir));
         for (RimSummaryPlot* summaryPlot : selectedSummaryPlots)
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(summaryPlot->description()) + ".ascii";

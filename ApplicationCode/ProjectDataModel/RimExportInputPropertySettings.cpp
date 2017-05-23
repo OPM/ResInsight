@@ -42,7 +42,7 @@ void RimExportInputSettings::defineEditorAttribute(const caf::PdmFieldHandle* fi
 {
     if (field == &fileName)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_selectSaveFileName = true;

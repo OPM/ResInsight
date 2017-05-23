@@ -137,8 +137,9 @@ static test_work_area_type * test_work_area_alloc__(const char * prefix , const 
       work_area->original_cwd = util_alloc_cwd();
       work_area->cwd = test_cwd;
       work_area->change_dir = change_dir;
-      if (change_dir)
-        util_chdir( work_area->cwd );
+      if (change_dir )
+        if(util_chdir( work_area->cwd ) != 0)
+            util_abort("%s: Failed to move into temporary directory: %s", __func__, test_cwd);
 
       test_work_area_set_store( work_area , DEFAULT_STORE);
 

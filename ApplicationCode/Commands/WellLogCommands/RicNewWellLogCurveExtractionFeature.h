@@ -21,10 +21,11 @@
 
 #include "cafCmdFeature.h"
 
+class RimEclipseWell;
+class RimView;
 class RimWellLogExtractionCurve;
 class RimWellLogTrack;
 class RimWellPath;
-class RimView;
 
 //==================================================================================================
 /// 
@@ -34,7 +35,7 @@ class RicNewWellLogCurveExtractionFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimWellLogExtractionCurve* addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath);
+    static RimWellLogExtractionCurve* addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimEclipseWell* simWell, int branchIndex);
 
 
 protected:
@@ -46,5 +47,6 @@ protected:
 private:
     RimWellLogTrack*    selectedWellLogPlotTrack() const;
     RimWellPath*            selectedWellPath() const;
+    RimEclipseWell*         selectedSimulationWell(int * branchIndex) const;
     bool                    caseAvailable() const;
 };

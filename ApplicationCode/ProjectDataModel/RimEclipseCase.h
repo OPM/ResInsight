@@ -95,6 +95,9 @@ public:
     virtual cvf::BoundingBox                    allCellsBoundingBox() const;
     virtual cvf::Vec3d                          displayModelOffset() const;
 
+    void                                        reloadDataAndUpdate();
+    virtual void                                reloadEclipseGridFile() = 0;
+
     // Overridden methods from PdmObject
 public:
 

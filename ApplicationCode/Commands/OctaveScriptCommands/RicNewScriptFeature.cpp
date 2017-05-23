@@ -29,6 +29,8 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafUtils.h"
+
 #include <QAction>
 #include <QFileInfo>
 #include <QInputDialog>
@@ -76,7 +78,7 @@ void RicNewScriptFeature::onActionTriggered(bool isChecked)
 
     fullPathFilenameNewScript = fullPathNewScript + "/untitled.m";
     int num= 1;
-    while (QFileInfo(fullPathFilenameNewScript).exists())
+    while (caf::Utils::fileExists(fullPathFilenameNewScript))
     {
         fullPathFilenameNewScript = fullPathNewScript + "/untitled" + QString::number(num) + ".m";
         num++;

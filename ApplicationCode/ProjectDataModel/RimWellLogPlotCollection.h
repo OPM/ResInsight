@@ -45,7 +45,12 @@ class RimWellLogPlotCollection : public caf::PdmObject
 public:
     RimWellLogPlotCollection();
     virtual ~RimWellLogPlotCollection();
-    
+
+    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor(const QString& simWellName, 
+                                                             const QString& caseUserDescription, 
+                                                             const RigWellPath* wellPathGeom, 
+                                                             const RigEclipseCaseData* eclCaseData);
+
     RigEclipseWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase);
     RigGeoMechWellLogExtractor* findOrCreateExtractor(RimWellPath* wellPath, RimGeoMechCase* eclCase);
 

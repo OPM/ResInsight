@@ -28,6 +28,7 @@
 #include <ert/ecl/ecl_endian_flip.h>
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_init_file.h>
+#include <ert/ecl/ecl_type.h>
 
 
 void test_write_header() {
@@ -48,7 +49,7 @@ void test_write_header() {
   // Write poro with global size.
   {
     fortio_type * f = fortio_open_writer( "FOO1.INIT" , false , ECL_ENDIAN_FLIP );
-    ecl_kw_type * poro = ecl_kw_alloc( "PORO" , ecl_grid_get_global_size( ecl_grid ) , ECL_FLOAT_TYPE );
+    ecl_kw_type * poro = ecl_kw_alloc( "PORO" , ecl_grid_get_global_size( ecl_grid ) , ECL_FLOAT);
     ecl_kw_scalar_set_float( poro , 0.10 );
     ecl_init_file_fwrite_header( f , ecl_grid , poro , ECL_FIELD_UNITS, 7 , start_time );
     ecl_kw_free( poro );
@@ -59,7 +60,7 @@ void test_write_header() {
   // Write poro with nactive size.
   {
     fortio_type * f = fortio_open_writer( "FOO2.INIT" , false , ECL_ENDIAN_FLIP );
-    ecl_kw_type * poro = ecl_kw_alloc( "PORO" , ecl_grid_get_global_size( ecl_grid ) , ECL_FLOAT_TYPE );
+    ecl_kw_type * poro = ecl_kw_alloc( "PORO" , ecl_grid_get_global_size( ecl_grid ) , ECL_FLOAT);
     ecl_kw_scalar_set_float( poro , 0.10 );
     ecl_init_file_fwrite_header( f , ecl_grid , poro , ECL_FIELD_UNITS, 7 , start_time );
     ecl_kw_free( poro );

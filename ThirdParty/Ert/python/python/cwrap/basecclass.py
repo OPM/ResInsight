@@ -14,16 +14,20 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+import six
+
 import ctypes
 from .metacwrap import MetaCWrap
 
+@six.add_metaclass(MetaCWrap)
 class BaseCClass(object):
-    __metaclass__ = MetaCWrap
-
     namespaces = {}
 
     def __init__(self, c_pointer, parent=None, is_reference=False):
-        if c_pointer == 0 or c_pointer is None:
+        if not c_pointer:
             raise ValueError("Must have a valid (not null) pointer value!")
 
         if c_pointer < 0:
@@ -46,13 +50,6 @@ class BaseCClass(object):
 
     def _ad_str(self):
         return 'at 0x%x' % self._address()
-
-    @classmethod
-    def cNamespace(cls):
-        """ @rtype: CNamespace """
-        if cls not in BaseCClass.namespaces:
-            BaseCClass.namespaces[cls] = CNamespace(cls.__name__)
-        return BaseCClass.namespaces[cls]
 
     @classmethod
     def from_param(cls, c_class_object):
@@ -136,7 +133,7 @@ class BaseCClass(object):
             if not self.__is_reference:
                 # Important to check the c_pointer; in the case of failed object creation
                 # we can have a Python object with c_pointer == None.
-                if self.__c_pointer > 0:
+                if self.__c_pointer:
                     self.free()
 
     def _invalidateCPointer(self):

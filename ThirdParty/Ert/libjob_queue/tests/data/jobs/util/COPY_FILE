@@ -1,2 +1,0 @@
-EXECUTABLE  /bin/cp
-ARGLIST       <SRC_FILE> <TARGET_FILE> 

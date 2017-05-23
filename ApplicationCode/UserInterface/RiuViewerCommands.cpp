@@ -71,6 +71,7 @@
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
@@ -164,14 +165,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         RimView* activeView = RiaApplication::instance()->activeReservoirView();
         CVF_ASSERT(activeView);
 
-        RimCase* rimCase = NULL;
-        activeView->firstAncestorOrThisOfType(rimCase);
-        if (rimCase)
-        {
-            displayModelOffset = rimCase->displayModelOffset();
-        }
-
-        m_currentPickPositionInDomainCoords = localIntersectionPoint + displayModelOffset;
+        cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+        m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
     }
 
     if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
@@ -306,9 +301,13 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
                 //TODO: Update so these also use RiuWellPathSelectionItem 
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
-                commandIds << "RicNewWellLogFileCurveFeature";
+
                 commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicNewWellLogFileCurveFeature";
+                commandIds << "Separator";
                 commandIds << "RicNewWellPathIntersectionFeature";
+                commandIds << "RicNewFishbonesSubsAtMeasuredDepthFeature";
+                commandIds << "RicNewPerforationIntervalAtMeasuredDepthFeature";
             }
         }
 
@@ -319,13 +318,19 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             if (well)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
-                commandIds << "RicNewSimWellIntersectionFeature";
+
+                commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
-                commandIds << "RicShowContributingWellsFeature";
                 commandIds << "RicPlotProductionRateFeature";
+                commandIds << "Separator";
+                commandIds << "RicShowContributingWellsFeature";
+                commandIds << "Separator";
+                commandIds << "RicNewSimWellIntersectionFeature";
+
 
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+                commandIds << "RicPlotProductionRateFeature";
                 commandIds << "RicNewSimWellFractureAtPosFeature";
             }
         }
@@ -348,7 +353,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
-    if (menu.actions().size() > 0)
+    if (!menu.isEmpty())
     {
         menu.exec(event->globalPos());
     }
@@ -849,7 +854,6 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-
 
     if (eclipseView && eclipseView->eclipseCase())
     {

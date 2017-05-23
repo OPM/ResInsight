@@ -33,6 +33,7 @@ list (APPEND TEST_SOURCE_FILES
         )
 
 list (APPEND EXAMPLE_SOURCE_FILES
+        examples/computeFlowStorageCurve.cpp
         examples/computeLocalSolutions.cpp
         examples/computeToFandTracers.cpp
         examples/computeTracers.cpp

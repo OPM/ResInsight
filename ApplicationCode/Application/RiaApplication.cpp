@@ -145,7 +145,7 @@ namespace RegTestNames
     const QString generatedFolderName   = "RegTestGeneratedImages";
     const QString diffFolderName        = "RegTestDiffImages";
     const QString baseFolderName        = "RegTestBaseImages";
-    const QString testProjectName       = "RegressionTest.rip";
+    const QString testProjectName       = "RegressionTest";
     const QString testFolderFilter      = "TestCase*";
     const QString imageCompareExeName   = "compare";
     const QString reportFileName        = "ResInsightRegressionTestReport.html";
@@ -350,7 +350,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Open the project file and read the serialized data. 
     // Will initialize itself.
 
-    if (!QFile::exists(projectFileName))
+    if (!caf::Utils::fileExists(projectFileName))
     {
         RiaLogging::info(QString("File does not exist : '%1'").arg(projectFileName));
         return false;
@@ -718,7 +718,7 @@ bool RiaApplication::saveProject()
 {
     CVF_ASSERT(m_project.notNull());
 
-    if (!QFile::exists(m_project->fileName()))
+    if (!caf::Utils::fileExists(m_project->fileName()))
     {
         return saveProjectPromptForFileName();
     }
@@ -944,7 +944,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 {
-    if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -1138,7 +1138,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 {
-   if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -1424,7 +1424,8 @@ bool RiaApplication::parseArguments()
             std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
 
-            closeProject();
+            closeAllWindows();
+            processEvents();
 
             return false;
         }
@@ -1503,14 +1504,14 @@ bool RiaApplication::parseArguments()
         foreach (QString caseName, caseNames)
         {
             QString caseFileNameWithExt = caseName + ".EGRID";
-            if (QFile::exists(caseFileNameWithExt))
+            if (!caf::Utils::fileExists(caseFileNameWithExt))
             {
                 openEclipseCaseFromFile(caseFileNameWithExt);
             }
             else
             {
                 caseFileNameWithExt = caseName + ".GRID";
-                if (QFile::exists(caseFileNameWithExt))
+                if (!caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
                 }
@@ -1577,7 +1578,8 @@ bool RiaApplication::parseArguments()
                 }
             }
             
-            closeProject();
+            closeAllWindows();
+            processEvents();
         }
 
         // Returning false will exit the application
@@ -1731,6 +1733,24 @@ RimViewWindow* RiaApplication::activeViewWindow()
     }
 
     return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::isMain3dWindowVisible() const
+{
+    return RiuMainWindow::instance()->isVisible();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::isMainPlotWindowVisible() const
+{
+    if (!m_mainPlotWindow) return false;
+
+    return m_mainPlotWindow->isVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2140,7 +2160,7 @@ void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile(const QString& fileName)
 {
-    if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     bool loadingSucceded = false;
 
@@ -2287,6 +2307,18 @@ void removeDirectoryWithContent(QDir dirToDelete )
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
+{
+    double timeRunning = time.elapsed() / 1000.0;
+
+    QString timeText = QString("(%1 s) ").arg(timeRunning, 0, 'f', 1);
+
+    RiaLogging::info(timeText + msg);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::runRegressionTest(const QString& testRootPath)
 {
     m_runningRegressionTests = true;
@@ -2340,6 +2372,11 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         }
     }
 
+    QTime timeStamp;
+    timeStamp.start();
+
+    logInfoTextWithTimeInSeconds(timeStamp, "Starting regression tests\n");
+
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
@@ -2361,47 +2398,101 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
-        if (testCaseFolder.exists(regTestProjectName))
+
+        QString projectFileName;
+        
+        if (testCaseFolder.exists(regTestProjectName + ".rip"))
         {
-             loadProject(testCaseFolder.filePath(regTestProjectName));
+            projectFileName = regTestProjectName + ".rip";
+        }
 
-             // Wait until all command objects have completed
-             while (!m_commandQueueLock.tryLock())
-             {
-                 processEvents();
-             }
-             m_commandQueueLock.unlock();
+        if (testCaseFolder.exists(regTestProjectName + ".rsp"))
+        {
+            projectFileName = regTestProjectName + ".rsp";
+        }
 
-             regressionTestConfigureProject();
+        if (!projectFileName.isEmpty())
+        {
+            logInfoTextWithTimeInSeconds(timeStamp, "Initializing test :" + testCaseFolder.absolutePath());
 
-             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-             saveSnapshotForAllViews(fullPathGeneratedFolder);
+            loadProject(testCaseFolder.filePath(projectFileName));
 
-             RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
+            // Wait until all command objects have completed
+            while (!m_commandQueueLock.tryLock())
+            {
+                processEvents();
+            }
+            m_commandQueueLock.unlock();
 
-             QDir baseDir(testCaseFolder.filePath(baseFolderName));
-             QDir genDir(testCaseFolder.filePath(generatedFolderName));
-             QDir diffDir(testCaseFolder.filePath(diffFolderName));
-             if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
-             baseDir.setFilter(QDir::Files);
-             QStringList baseImageFileNames = baseDir.entryList();
+            regressionTestConfigureProject();
 
-             for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
-             {
-                 QString fileName = baseImageFileNames[fIdx];
-                 RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
-                 bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
-                 if (!ok)
-                 {
+            resizeMaximizedPlotWindows();
+
+            QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
+            saveSnapshotForAllViews(fullPathGeneratedFolder);
+
+            RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
+
+            QDir baseDir(testCaseFolder.filePath(baseFolderName));
+            QDir genDir(testCaseFolder.filePath(generatedFolderName));
+            QDir diffDir(testCaseFolder.filePath(diffFolderName));
+            if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
+            baseDir.setFilter(QDir::Files);
+            QStringList baseImageFileNames = baseDir.entryList();
+
+            for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
+            {
+                QString fileName = baseImageFileNames[fIdx];
+                RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
+                bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
+                if (!ok)
+                {
                     qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
-                 }
-             }
+                }
+            }
 
-             closeProject();
+            closeProject();
+        
+            logInfoTextWithTimeInSeconds(timeStamp, "Completed test :" + testCaseFolder.absolutePath());
         }
     }
 
+    RiaLogging::info("\n");
+    logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
+
     m_runningRegressionTests = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::resizeMaximizedPlotWindows()
+{
+    std::vector<RimViewWindow*> viewWindows;
+    m_project->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+
+    for (auto viewWindow : viewWindows)
+    {
+        if (viewWindow->isMdiWindow())
+        {
+            RimMdiWindowGeometry wndGeo = viewWindow->mdiWindowGeometry();
+            if (wndGeo.isMaximized)
+            {
+                QWidget* viewWidget = viewWindow->viewWidget();
+
+                if (viewWidget)
+                {
+                    QMdiSubWindow* mdiWindow = m_mainPlotWindow->findMdiSubWindow(viewWidget);
+                    if (mdiWindow)
+                    {
+                        mdiWindow->showNormal();
+
+                        viewWidget->resize(RiaApplication::regressionDefaultImageSize());
+                    }
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2798,7 +2889,6 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -2833,8 +2923,16 @@ void RiaApplication::regressionTestConfigureProject()
                 }
 
                 // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize(1000, 745);
+                riv->viewer()->setFixedSize(RiaApplication::regressionDefaultImageSize());
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize RiaApplication::regressionDefaultImageSize()
+{
+    return QSize(1000, 745);
 }

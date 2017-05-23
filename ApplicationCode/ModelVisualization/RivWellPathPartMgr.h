@@ -22,6 +22,7 @@
 
 #include "cafPdmPointer.h"
 #include "cvfBoundingBox.h"
+#include "cvfCollection.h"
 
 namespace cvf
 {
@@ -41,6 +42,8 @@ namespace caf
 class RivPipeGeometryGenerator;
 class RimProject;
 class RimWellPath;
+class RivFishbonesSubsPartMgr;
+class RimWellPathCollection;
 
 class RivWellPathPartMgr : public cvf::Object
 {
@@ -52,16 +55,21 @@ public:
 
     void                                    scheduleGeometryRegen();
 
-    void                                    appendStaticGeometryPartsToModel(   cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                                double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
-                                                                                caf::DisplayCoordTransform* displayCoordTransform);
+    void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+                                                                             caf::DisplayCoordTransform* displayCoordTransform);
 
 
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
-    void                                    appendFracturePartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
+    void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    inline RimWellPathCollection*           wellPathCollection();
+    inline double                           wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
+    void                                    appendFracturePartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform);
     void                                    clearAllBranchData();
 
 private:
@@ -85,4 +93,6 @@ private:
     cvf::ref<cvf::ScalarMapper>             m_scalarMapper;
     cvf::ref<cvf::Effect>                   m_scalarMapperSurfaceEffect; 
     cvf::ref<cvf::Effect>                   m_scalarMapperMeshEffect; 
+
+    cvf::Collection<RivFishbonesSubsPartMgr>  m_fishbonesPartMgrs;
 };

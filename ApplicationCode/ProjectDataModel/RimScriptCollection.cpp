@@ -87,11 +87,12 @@ void RimScriptCollection::readContentFromDisc()
         {
             QString fileName = fileList.at(i);
 
-            QFileInfo fi(fileName);
-            if (fi.exists())
+            if (caf::Utils::fileExists(fileName))
             {
                 RimCalcScript* calcScript = new RimCalcScript;
                 calcScript->absolutePath = fileName;
+                
+                QFileInfo fi(fileName);
                 calcScript->setUiName(fi.baseName());
 
                 calcScripts.push_back(calcScript);
@@ -187,7 +188,10 @@ void RimScriptCollection::defineEditorAttribute(const caf::PdmFieldHandle* field
 {
     if (field == &directory)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
-        myAttr->m_selectDirectory = true;
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_selectDirectory = true;
+        }
     }
 }

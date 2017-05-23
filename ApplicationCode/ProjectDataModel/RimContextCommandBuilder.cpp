@@ -343,6 +343,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
+            commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewSimWellIntersectionFeature";
             commandIds << "RicShowWellAllocationPlotFeature";
         }
@@ -431,6 +432,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicShowTotalAllocationDataFeature";
         
         commandIds << "RicSummaryCurveSwitchAxisFeature";
+        
+        commandIds << "RicNewFishbonesSubsFeature";
+        commandIds << "RicNewPerforationIntervalFeature";
+        commandIds << "RicEditPerforationCollectionFeature";
+        commandIds << "RicExportFishbonesLateralsFeature";
+        commandIds << "RicWellPathExportCompletionDataFeature";
+        commandIds << "RicWellPathImportCompletionsFileFeature";
+        commandIds << "RicFlyToObjectFeature";
 
         // Work in progress -- End
 
@@ -445,6 +454,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
+            commandIds << "RicReloadCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))

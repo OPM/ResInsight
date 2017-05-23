@@ -91,7 +91,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
     scrollArea->setWidget(m_placeholder);
 
     m_placeHolderLayout = new QVBoxLayout();
-    m_placeHolderLayout->setContentsMargins(5,0,0,0);
+    m_placeHolderLayout->setContentsMargins(5,5,5,0);
     m_placeholder->setLayout(m_placeHolderLayout);
 
     QVBoxLayout* dummy = new QVBoxLayout(this);

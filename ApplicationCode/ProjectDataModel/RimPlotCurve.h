@@ -78,6 +78,9 @@ public:
     QString                         curveName() const { return m_curveName; }
 
     void                            updateCurveVisibility();
+    void                            updateLegendVisibility();
+
+    void                            showLegend(bool show);
 
 protected:
 
@@ -107,6 +110,7 @@ protected:
     caf::PdmField<bool>             m_showCurve;
     caf::PdmField<QString>          m_curveName;
     caf::PdmField<QString>          m_customCurveName;
+    caf::PdmField<bool>             m_showLegend;
 
     caf::PdmField<bool>             m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;

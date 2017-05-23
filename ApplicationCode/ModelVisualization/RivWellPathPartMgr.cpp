@@ -24,19 +24,29 @@
 #include "RigWellPath.h"
 
 #include "RimFracture.h"
+#include "RimFishbonesMultipleSubs.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimFishboneWellPath.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishboneWellPathCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimPerforationCollection.h"
 
+#include "RivFishbonesSubsPartMgr.h"
+#include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivPartPriority.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
 #include "RivWellPathSourceInfo.h"
+#include "RivObjectSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
+#include "cafDisplayCoordTransform.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
@@ -102,15 +112,123 @@ void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, 
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+{
+    if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked()) return;
+
+    // This concept is taken from RivReservoirSimWellsPartMgr, and is required to be able to have
+    // separate part managers for each view
+    if (m_fishbonesPartMgrs.size() != m_rimWellPath->fishbonesCollection()->fishbonesSubs.size())
+    {
+        m_fishbonesPartMgrs.clear();
+
+        for (auto rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs())
+        {
+            m_fishbonesPartMgrs.push_back(new RivFishbonesSubsPartMgr(rimFishboneSubs));
+        }
+    }
+
+    for (auto rivFishbonesPartManager : m_fishbonesPartMgrs)
+    {
+        rivFishbonesPartManager->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+{
+    if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->wellPathCollection()->isChecked()) return;
+
+    RivPipeGeometryGenerator geoGenerator;
+    std::vector<RimFishboneWellPath*> fishbonesWellPaths;
+    m_rimWellPath->descendantsIncludingThisOfType(fishbonesWellPaths);
+    for (RimFishboneWellPath* fbWellPath : fishbonesWellPaths)
+    {
+        if (!fbWellPath->isChecked()) continue;
+
+        std::vector<cvf::Vec3d> displayCoords;
+        for (auto lateralDomainCoords : fbWellPath->coordinates())
+        {
+            displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(lateralDomainCoords));
+        }
+
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(fbWellPath);
+
+        cvf::Collection<cvf::Part> parts;
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, m_rimWellPath->wellPathColor(), m_rimWellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
+        for (auto part : parts)
+        {
+            part->setSourceInfo(objectSourceInfo.p());
+            model->addPart(part.p());
+        }
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+{
+    if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
+
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if (!wellPathCollection) return;
+
+    RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
+    if (!wellPathGeometry) return;
+
+    // Since we're using the index of measured depths to find the index of a point, ensure they're equal
+    CVF_ASSERT(wellPathGeometry->m_measuredDepths.size() == wellPathGeometry->m_wellPathPoints.size());
+
+    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
+    double perforationRadius = wellPathRadius * 1.1;
+
+    RivPipeGeometryGenerator geoGenerator;
+    std::vector<RimPerforationInterval*> perforations;
+    m_rimWellPath->descendantsIncludingThisOfType(perforations);
+    for (RimPerforationInterval* perforation : perforations)
+    {
+        if (!perforation->isChecked()) continue;
+        if (perforation->startMD() > perforation->endMD()) continue;
+
+        std::vector<cvf::Vec3d> displayCoords;
+        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->startMD())));
+        for (size_t i = 0; i < wellPathGeometry->m_measuredDepths.size(); ++i)
+        {
+            double measuredDepth = wellPathGeometry->m_measuredDepths[i];
+            if (measuredDepth > perforation->startMD() && measuredDepth < perforation->endMD())
+            {
+                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->m_wellPathPoints[i]));
+            }
+        }
+        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->endMD())));
+
+        if (displayCoords.size() < 2) continue;
+
+        cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
+
+        cvf::Collection<cvf::Part> parts;
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, cvf::Color3f::GREEN, perforationRadius);
+        for (auto part : parts)
+        {
+            part->setSourceInfo(objectSourceInfo.p());
+            model->addPart(part.p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// The pipe geometry needs to be rebuilt on scale change to keep the pipes round
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, 
                                             cvf::BoundingBox wellPathClipBoundingBox)
 {
-    if (!m_rimWellPath) return;
-
-    RimWellPathCollection* wellPathCollection = NULL;
-    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
 
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
@@ -119,7 +237,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
     clearAllBranchData();
-    double wellPathRadius = wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
+    double wellPathRadius = this->wellPathRadius(characteristicCellSize, wellPathCollection);
 
     cvf::Vec3d textPosition = wellPathGeometry->m_wellPathPoints[0];
 
@@ -253,12 +371,10 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-    double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox, caf::DisplayCoordTransform* displayCoordTransform)
+                                                          double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+                                                          caf::DisplayCoordTransform* displayCoordTransform)
 {
-    if (!m_rimWellPath) return;
-
-    RimWellPathCollection* wellPathCollection = nullptr;
-    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
 
     if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
@@ -295,6 +411,10 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     }
 
     appendFracturePartsToModel(model, displayCoordTransform);
+
+    appendFishbonesPartsToModel(model, displayCoordTransform, characteristicCellSize);
+    appendCompletionsToModel(model, displayCoordTransform, characteristicCellSize);
+    appendPerforationsToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,6 +435,8 @@ void RivWellPathPartMgr::setScaleTransform( cvf::Transform * scaleTransform )
 void RivWellPathPartMgr::scheduleGeometryRegen()
 {
     m_needsTransformUpdate = true;
+
+    m_fishbonesPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,4 +457,25 @@ void RivWellPathPartMgr::clearAllBranchData()
 size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
 {
     return m_pipeBranchData.m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RivWellPathPartMgr::wellPathCollection()
+{
+    if (!m_rimWellPath) return nullptr;
+
+    RimWellPathCollection* wellPathCollection = nullptr;
+    m_rimWellPath->firstAncestorOrThisOfType(wellPathCollection);
+
+    return wellPathCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RivWellPathPartMgr::wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection)
+{
+    return wellPathCollection->wellPathRadiusScaleFactor() * m_rimWellPath->wellPathRadiusScaleFactor() * characteristicCellSize;
 }

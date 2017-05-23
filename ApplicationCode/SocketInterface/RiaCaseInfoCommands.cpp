@@ -518,26 +518,17 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
 
-        quint64 timeStepCount = timeStepDates.size();
+        quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
 
         socketStream << byteCount;
         socketStream << timeStepCount;
 
-        if (timeStepCount > 0)
+        for (double day : daysSinceSimulationStart)
         {
-            double secondsInADay = 24 * 60 * 60;
-
-            for (size_t i = 0; i < timeStepCount; i++)
-            {
-                double secondsDiff = timeStepDates[0].secsTo(timeStepDates[i]);
-
-                double decimalDaysDiff = secondsDiff / secondsInADay;
-
-                socketStream << decimalDaysDiff;
-            }
+            socketStream << day;
         }
 
         return true;

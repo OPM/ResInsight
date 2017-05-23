@@ -30,6 +30,7 @@
 #include "RimWellPathCollection.h"
 
 #include "cafPdmUiItem.h"
+#include "cafUtils.h"
 
 #include <QFileInfo>
 #include <QDir>
@@ -81,7 +82,7 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     bool isWindowsPath = false;
     if (orgFileName.count("/")) isWindowsPath = false; // "/" are not allowed in a windows path
     else if (orgFileName.count("\\")
-        && !QFile::exists(orgFileName)) // To make sure we do not convert single linux files containing "\"
+        && !caf::Utils::fileExists(orgFileName)) // To make sure we do not convert single linux files containing "\"
     {
         isWindowsPath = true;
     }
@@ -93,7 +94,7 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     }
 
     if (searchedPaths) searchedPaths->push_back(fileName);
-    if (QFile::exists(fileName))
+    if (caf::Utils::fileExists(fileName))
     {
         return fileName;
     }
@@ -104,7 +105,7 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
         QString candidate = QDir::fromNativeSeparators(newProjectPath + QDir::separator() + fileNameWithoutPath);
         if (searchedPaths) searchedPaths->push_back(candidate);
 
-        if (QFile::exists(candidate))
+        if (caf::Utils::fileExists(candidate))
         {
             return candidate;
         }
@@ -130,7 +131,15 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
     int firstDiffIdx = 0;
     for (firstDiffIdx = 0; firstDiffIdx < gridPathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx)
     {
-        if (gridPathElements[firstDiffIdx] == oldProjPathElements[firstDiffIdx])
+#ifdef WIN32
+        // When comparing parts of a file path, the drive letter has been seen to be a mix of
+        // upper and lower cases. Always use case insensitive compare on Windows, as this is a valid approach
+        // for all parts for a file path
+        Qt::CaseSensitivity cs = Qt::CaseInsensitive;
+#else
+        Qt::CaseSensitivity cs = Qt::CaseSensitive;
+#endif
+        if (gridPathElements[firstDiffIdx].compare(oldProjPathElements[firstDiffIdx], cs) == 0)
         {
             pathStartsAreEqual = pathStartsAreEqual || !gridPathElements[firstDiffIdx].isEmpty();
         }
@@ -191,7 +200,7 @@ QString RimTools::relocateFile(const QString& orgFileName, const QString& orgNew
 
             if (searchedPaths) searchedPaths->push_back(relocatedFileName);
 
-            if (QFile::exists(relocatedFileName))
+            if (caf::Utils::fileExists(relocatedFileName))
             {
                 return relocatedFileName;
             }

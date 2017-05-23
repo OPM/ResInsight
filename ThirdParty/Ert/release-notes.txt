@@ -1,39 +1,142 @@
-Versjon 2.1.0, October 2016
+Version 2.1.0 February 2017  PR: 1150 - 1415
+Open PR: 1352, 1358, 1362 
 
-* Made ecl_file_view 1st class citizen, exposed to API
-* Added EXCLUDE_HOSTS to LSF driver with dynamic blacklisting
-* Fixed MAX_RUNTIME is respected by WPRO
-* Added functionality to open restart files in RW mode with seek
-* Improved date handling (all is UTC now)
-* As a result of this the filesystem version has been upgraded to 107, to use an old case you must upgrade it: "ert_upgradefs_107 config_file".
-* Bug fixes (EclKW and EclGrid)
-* Improved jobs and plugin loading
-* The entire source tree was changed with the removal of devel
-* ecl_sum can load aquifer variables.
+Queue system/workflows:
+
+ - Functionality to blacklist nodes from LSF [1240, 1256, 1258, 1274, 1412, 1415].
+ - Use bhist command to check lsf job status if job has expired from bjobs [1301].
+ - Debug output from torque goes to stdout [1151].
+ - Torque driver will not abort if qstat returns invalid status [1411].
+ - Simulation status USER_EXIT - count as failed [1166].
+ - Added Enum identifier 'JOB_QUEUE_DO_KILL_NODE_FAILURE [1268].
+ - Have deprecated the ability to set queue options directly on the drivers [1288].
+ - Added system for version specific loading for workflow job model
+   description files [1177].
+ - Job loader should not try to load from directory [1187].
+ - Refactoring of max runtime - initiated from WPRO [1237].
+ - Determine which nodes are running a job [1251].
+
+Build updates:
+
+ - Check if python modules are present in the required version [1150].
+ - Do not build ERT_GUI if PyQt4 is not found [1150, 1230].
+ - Do not fail build numpy is not found [1153].
+ - Allow for user provided CMAKE_C_FLAGS on linux [1300].
+ - Require exactly version 2.7 of Python [1307].
+ - Travis testing improvements [1363].
+ - Removed devel/ directory from source [1196].
+ - Setting correct working directory, and build target dependency
+   for sphinx-apidoc / html generation [1385].
+
+Eclipse library:
+
+ - C++ move constructor and operator= for smspec_node [1155, 1200].
+ - fortio_ftruncate( ) [1161].
+ - INIT writer will write keywords DEPTH, DX, DY, DZ [1164, 1172, 1311, 1388].
+ - Grid writer will take unit system enum argument [1164].
+ - New function ecl_kw_first_different( ) [1165].
+ - Completion variables can be treated as totals [1167].
+ - Fixed bug in ecl_kw_compare_numeric( ) [1168].
+ - Refactored / inlined volume calculations in ecl_grid [1173, 1184].
+ - Made function ecl_kw_size_and_type_equal() public [1192].
+ - Fixed bug in ecl_grid_cell_contains() [1402, 1404, 1195, 1419].
+ - OOM bug in ecl_kw_grdecl loader for large files [1207].
+ - Cache cell volumes in ecl_grid [1228].
+ - Geertsma / gravity functionality [1227, 1284, 1289, 1292, 1364, 1408].
+ - Summary + restart - will allow some keyword differences [1296].
+ - Implemented ecl_rst_file_open_write_seek( ) [1236].
+ - Optionally apply mapaxes [1242, 1281].
+ - Expose and use ecl_file_view datastructere - stop using 'blocks' in ecl_file objects [1250].
+ - ecl_sum will internalize Aquifer variables [1275].
+ - Make sure region properties RxxT are marked as total + depreecated some properties [1285].
+ - ecl_kw_resize() + C++ operator[] [1316]
+ - Added small C++ utility to create eclipse filenames[1396].
+ - Make sure restart and INIT files are written with correct unit ID [1399, 1407].
+ - Skip keyword data type: 'C010' without failing [1406, 1410].
+ - Adding parsing of the last (optional) config token for the SLAVES kwd [1409].
+ - Add nnc index to the information exported by ecl_nnc_export() [1204].
+ - Marked solvent related total keywords ?NIT and ?NPT.* as totals [1241].
+ - Top active cell in grid [1322].
+ - Added absolute epsilon to ecl_kw comparsion [1345,1351].
+
+Smoother, updates and 'running':
+
+ - Fixed bug with local updates of GEN_DATA [1291].
+ - Changed default MDA weights and removed file input [1156, 1190, 1191].
+ - Bug in handling of failed realisations [1163].
+ - Fix bug missing assignment of analysis module in ES-MDA [1179].
+ - OpenMP implementation of fwd_step [1185, 1324,1342].
+ - Removes the ability to update dynamic variables [1189].
+ - Allow max CV FOLD to be the number of ensembles [1205, 1208].
+ - Fix for min_realizations logic [1206].
+ - Can assign a specific analyis module for one local update [1224].
+ - Handle updates when some summary relaisations are "too short" [1400, 1405].
+ - Extending hook manager to support PRE_UPDATE and POST_UPDATE hooks [1340,1360].
+ - RML logging is on by default [1318].
+ - Changed default ENKF_ALPHA value to 3.0 [??]
+ - Implemented subsspacce inversion algorithm [1334, 1344].
+
+libgeometry:
+
+ - Added function to create new geo_surface (i.e. IRAP) object [1308].
+ - Get (x, y) pos from surface [1395].
+
+Python code:
+
+ - cwrap has been moved out to stand-alone module, out of ert
+   package [1159, 1320, 1325, 1326, 1328, 1332, 1338, 1341, 1343, 1347, 1350, 1353]
+ - Simplified loading of shared libraries [1234].
+ - Python3 preparations [1231, 1347].
+ - Added __repr__ methods: [1266, 1327, 1329, 1331, 1348, 1373, 1375, 1377, 1384, 1387].
+ - Implement __getitem__( ) for gen_data [1331].
+ - Removed cstring_obj Python class [1387].
+ - EclKW.numpy_array returns shared buffer ndarray [1180].
+ - Minor bug in ecl_kw.py [1171].
+ - Added EclKW.numpyView( ) and EclKW.numpyCopy( ) [1188].
+ - Bug in EclKW slice access [1203].
+ - Expose active_list better in Python [1392].
+ - @TYPE@_vector suppports negative indices in __getitem__ and
+   __setitem__; added repr method [1378].
+ - added root() methdo ert/__init__.py [1293].
+
+GUI / Configuration / Documentation
+
+ - Bug when viewing plots while simulating [1157.]
+ - Bug when plotting short vectors [1303].
+ - Completely refactored the ERT Gui event system [1158, 1162].
+ - Marked keywords INIT_SECTION and SCHEDULE_FILE as deprecated [1181].
+ - Removed outdated keywords from documentation [1390].
+ - Documented UMASK keyword [1186].
+ - ConfigParser: Can turn off validation + warnings [1233, 1249, 1287].
+ - Make ies advanced option only [1401].
+ - Removing MAX_RUNNING_LOCAL and MAX_RUNNING_LSF from user doc [1398].
+ - Apply plot style to other plots [1397].
+ - Fig bug in initialization when out of range [1394].
+ - Added new object for generic config settings [1391].
+ - Changes to plot settings [11359,376,1380,1382,1386].
+ - Fix bug in load case manually [1368].
+ - Documentation of plugins [1194].
+ - Changed all time handling to UTC. This will affect loading old cases [1229, 1257].
+ - Removed keyword QC_PATH + updated GRID [1263].
+ - Making sure the ertshell is creating the run path [1280].
+ - Create Doxygen [1277,1278,1294,1309,1317].
+ - Ability to run analysis from GUI [1314].
+ - Improved documentation of priors [1319].
+ - Bug in config parsing with relative paths [1333].
+ - Field documentation updates [1337].
 
 
-Version 2.0.5, August 2016
-* rel_eps & abs_eps
+libwecl_well:
 
-Version 2.0, July 2016
-* functions to write keywords DEPTH, DX, DY and DZ keyword to the INIT file.
-* failed realizations are correctly propagated back to the main running scope
-* MDA is made first-class citizen and no longer a plugin
+  - Internalize rates for wells and connections in the well library
+    [1403].
+  - New function well_ts_get_name() [1393].
 
-Version 1.10, November 2011
-* Set the the verbose flag from the environment variable ERT_VERBOSE.
-* Abort if field transformation does not exist among the supported
-  transformations.
-* Added small class EclCmp for comparing Eclipse simulation cases.
-* Added function ecl_grid_cell_invalid / EclGrid.validCellGeometry( ). Typically
-  interesting for GRID files where not necessarily all cells are entered.
-* Added function util_update_signalse() which will install util_abort_signal()
-  signal handler for all fatal signals in default state; using new function from
-  python ert/__init__py.
-* Removed reference to undefined EnkFMain.__len__() method.
+libutil:
 
-Version 1
-* Fixed crash when stopping running simulations from gui.
-* Ertshell refactored. Implementing shell functionality has been simplified.
-* Ertshell. Added dumping of entries in block mount files.
-* Removed LaTeX reporting
+  - Functions for parsing and outputting dates in ISO format[1248].
+  - stringlist_join - like Python str.join [1243].
+  - bug in matrix_dgemm [1286].
+  - Resurrected block_fs utilities from the past [1297].
+  - Slicing for runpath_list [1356].
+
