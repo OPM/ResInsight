@@ -31,8 +31,17 @@ class RimExportCompletionDataSettings : public RimCaseAndFileExportSettings
     CAF_PDM_HEADER_INIT;
 public:
 
+    enum PressureDropType {
+        HYDROSTATIC,
+        HYDROSTATIC_FRICTION,
+        HYDROSTATIC_FRICTION_ACCELERATION
+    };
+
+    typedef caf::AppEnum<RimExportCompletionDataSettings::PressureDropType> PressureDropEnum;
+
     RimExportCompletionDataSettings();
 
     caf::PdmField<bool>                     includeWpimult;
     caf::PdmField<bool>                     removeLateralsInMainBoreCells;
+    caf::PdmField<PressureDropEnum>         pressureDrop;
 };

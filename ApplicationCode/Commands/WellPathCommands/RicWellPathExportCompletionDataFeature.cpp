@@ -276,7 +276,7 @@ void RicWellPathExportCompletionDataFeature::generateWelsegsTable(RifEclipseOutp
         formatter.add(firstLocation.measuredDepth);
         formatter.add("1*");
         formatter.add("INC"); 
-        formatter.add("H--");
+        formatter.add(settings.pressureDrop().text());
 
         formatter.rowCompleted();
     }

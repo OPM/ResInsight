@@ -18,6 +18,17 @@
 
 #include "RimExportCompletionDataSettings.h"
 
+namespace caf {
+    template<>
+    void RimExportCompletionDataSettings::PressureDropEnum::setUp()
+    {
+        addItem(RimExportCompletionDataSettings::HYDROSTATIC,                       "H--", "Hydrostatic");
+        addItem(RimExportCompletionDataSettings::HYDROSTATIC_FRICTION,              "HF-", "Hydrostatic + Friction");
+        addItem(RimExportCompletionDataSettings::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
+        setDefault(RimExportCompletionDataSettings::HYDROSTATIC);
+    }
+}
+
 CAF_PDM_SOURCE_INIT(RimExportCompletionDataSettings, "RimExportCompletionDataSettings");
 
 //--------------------------------------------------------------------------------------------------
@@ -29,4 +40,5 @@ RimExportCompletionDataSettings::RimExportCompletionDataSettings()
 
     CAF_PDM_InitField(&includeWpimult, "IncludeWPIMULT", true, "Include WPIMLUT", "", "", "");
     CAF_PDM_InitField(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", false, "Remove Laterals in Main Bore Cells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");
 }
