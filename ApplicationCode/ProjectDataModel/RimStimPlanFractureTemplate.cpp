@@ -697,7 +697,7 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::getNegAndPosXcoords()
+std::vector<double> RimStimPlanFractureTemplate::getNegAndPosXcoords() const
 {
     std::vector<double> allXcoords;
     for (const double& xCoord : m_stimPlanFractureDefinitionData->gridXs)
@@ -719,7 +719,7 @@ std::vector<double> RimStimPlanFractureTemplate::getNegAndPosXcoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellPathPosition()
+std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellPathPosition() const
 {
     std::vector<double> depthRelativeToWellPath;
 
@@ -735,7 +735,7 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()
+std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()  
 {
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
     return m_stimPlanFractureDefinitionData->timeSteps;
@@ -957,7 +957,7 @@ std::pair<size_t, size_t> RimStimPlanFractureTemplate::getStimPlanCellAtWellCent
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j)
+size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j) const
 {
     size_t length_I = stimPlanGridNumberOfRows() - 1;
     size_t globIndex = j * length_I + i;
@@ -1112,7 +1112,7 @@ void RimStimPlanFractureTemplate::sortPolygon(std::vector<cvf::Vec3f> &polygon)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfColums()
+size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfColums() const
 {
     return getNegAndPosXcoords().size();
 }
@@ -1120,7 +1120,7 @@ size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfColums()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfRows()
+size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfRows() const
 {
     return adjustedDepthCoordsAroundWellPathPosition().size();
 }

@@ -65,12 +65,12 @@ public:
     std::vector<cvf::Vec3f>                 fracturePolygon(RimDefines::UnitSystem fractureUnit);
     void sortPolygon(std::vector<cvf::Vec3f> &polygon);
 
-    size_t                                  stimPlanGridNumberOfRows();
-    size_t                                  stimPlanGridNumberOfColums();
+    size_t                                  stimPlanGridNumberOfRows() const;
+    size_t                                  stimPlanGridNumberOfColums() const;
 
 
-    std::vector<double>                     getNegAndPosXcoords();
-    std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double>                     getNegAndPosXcoords() const;
+    std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition() const;
     std::vector<double>                     getStimPlanTimeValues();
     std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
@@ -83,8 +83,8 @@ public:
 
     std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
 
-    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j);
-    const RigStimPlanFracTemplateCell&                  stimPlanCellFromIndex(size_t index) const;
+    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
+    const RigStimPlanFracTemplateCell&      stimPlanCellFromIndex(size_t index) const;
 
     //TODO: Functions for finding perforated stimPlanCells
     //Radial flow: Single cell (at 0,0) 
