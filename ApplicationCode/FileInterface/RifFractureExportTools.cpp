@@ -201,7 +201,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
     double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
     std::map <size_t, std::map<RimFracture*, double>> transmissibilitiesMap; //eclipseCellIndex (size_t), fracture (RimFracture) and trans value
 
-    //Getting fractures for well path
+    // Getting fractures for well path
     std::vector<RimFracture*> fractures;
     wellPath->descendantsIncludingThisOfType(fractures);
 
@@ -238,7 +238,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
             std::vector<double> stimPlanContributingEclipseCellTransmissibilities = eclToStimPlanTransCalc.contributingEclipseCellTransmissibilities();
 
             //        Add to condenser
-            for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
+            for (size_t i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {
                 condenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::ECLIPSE, stimPlanContributingEclipseCells[i]},
                                                       { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellIndex},
@@ -249,9 +249,9 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
 
 
         //   Loop over stimplanecells (i, j)
-        for (int i = 0; i < fracTemplateStimPlan->stimPlanGridNumberOfColums(); i++)
+        for (size_t i = 0; i < fracTemplateStimPlan->stimPlanGridNumberOfColums(); i++)
         {
-            for (int j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows();  j++)
+            for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows();  j++)
             {
                 //TODO: Check that cond > 0
                 size_t stimPlanCellIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(i, j);

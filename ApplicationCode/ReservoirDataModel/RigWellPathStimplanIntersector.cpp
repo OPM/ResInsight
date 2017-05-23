@@ -8,7 +8,7 @@
 #include "RigStimPlanFracTemplateCell.h"
 #include "RimStimPlanFractureTemplate.h"
 
-
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///  Todo: Use only the perforated parts of the well path
