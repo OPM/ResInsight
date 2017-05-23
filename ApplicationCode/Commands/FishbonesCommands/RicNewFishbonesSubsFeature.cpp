@@ -46,7 +46,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     obj->setName(QString("Fishbones Subs (%1)").arg(fishbonesCollection->fishbonesSubs.size()));
-    fishbonesCollection->fishbonesSubs.push_back(obj);
+    fishbonesCollection->appendFishbonesSubs(obj);
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(fishbonesCollection);
 

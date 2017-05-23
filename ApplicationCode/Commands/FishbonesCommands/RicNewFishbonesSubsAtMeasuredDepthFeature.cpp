@@ -47,7 +47,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     CVF_ASSERT(wellPath);
     
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
-    wellPath->fishbonesCollection()->fishbonesSubs.push_back(obj);
+    wellPath->fishbonesCollection()->appendFishbonesSubs(obj);
 
     obj->setName(QString("Fishbones Subs (%1)").arg(wellPath->fishbonesCollection()->fishbonesSubs.size()));
     int integerValue = wellPathSelItem->m_measuredDepth;

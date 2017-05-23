@@ -23,6 +23,10 @@
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
+#include "cvfColor3.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
 
 #include <algorithm>
 #include <memory>
@@ -75,6 +79,9 @@ public:
     
     // Override from Rim3dPropertiesInterface
     virtual cvf::BoundingBox boundingBoxInDomainCoords() override;
+
+public:
+    caf::PdmField<cvf::Color3f>         fishbonesColor;
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

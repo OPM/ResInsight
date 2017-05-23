@@ -22,6 +22,9 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
+#include "cafPdmFieldCvfColor.h"    
+
+#include "cvfColor3.h"
 
 class RimFishbonesMultipleSubs;
 class RimFishboneWellPathCollection;
@@ -39,6 +42,7 @@ public:
     RimFishbonesCollection();
 
     RimFishboneWellPathCollection* wellPathCollection() const;
+    void                           appendFishbonesSubs(RimFishbonesMultipleSubs* subs);
 
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
@@ -46,5 +50,7 @@ protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
+    cvf::Color3f nextFishbonesColor() const;
+
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 };

@@ -59,6 +59,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
     CAF_PDM_InitObject("FishbonesMultipleSubs", ":/Default.png", "", "");
 
+    CAF_PDM_InitField(&fishbonesColor,                         "FishbonesColor", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
+
     CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Laterals Per Sub", "", "", "");
     CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("12.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
 
@@ -323,6 +325,12 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    {
+        caf::PdmUiGroup* group = uiOrdering.addNewGroup("Appearance");
+
+        group->add(&fishbonesColor);
+    }
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Location");
 

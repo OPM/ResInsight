@@ -101,7 +101,7 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
                 displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(domainCoord));
             }
 
-            geoGenerator.cylinderWithCenterLineParts(&m_parts, displayCoords, wellPath->wellPathColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
+            geoGenerator.cylinderWithCenterLineParts(&m_parts, displayCoords, m_rimFishbonesSubs->fishbonesColor(), wellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
         }
     }
 

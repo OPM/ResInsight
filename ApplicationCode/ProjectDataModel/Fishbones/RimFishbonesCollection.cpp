@@ -25,6 +25,9 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
+
+#include <QColor>
 
 
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
@@ -66,5 +69,47 @@ void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changed
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
+{
+    subs->fishbonesColor = nextFishbonesColor();
+    fishbonesSubs.push_back(subs);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    cvf::Color3ub wellPathColor(wellPath->wellPathColor());
+    QColor qWellPathColor = QColor(wellPathColor.r(), wellPathColor.g(), wellPathColor.b());
+
+    if (qWellPathColor.value() == 0)
+    {
+        // If the color is black, using `lighter` or `darker` will not have any effect, since they multiply `value` by a percentage.
+        // In this case, `value` is set specifically to make `lighter`/`darker` possible.
+        qWellPathColor.setHsl(qWellPathColor.hue(), qWellPathColor.saturation(), 25);
+    }
+
+    QColor qFishbonesColor;
+
+    int newIndex = static_cast<int>(fishbonesSubs.size());
+
+    if (qWellPathColor.lightnessF() < 0.5)
+    {
+        qFishbonesColor = qWellPathColor.lighter(150 + 50 * newIndex);
+    }
+    else
+    {
+        qFishbonesColor = qWellPathColor.darker(150 + 50 * newIndex);
+    }
+
+    return cvf::Color3f::fromByteColor(qFishbonesColor.red(), qFishbonesColor.green(), qFishbonesColor.blue());
 }
 
