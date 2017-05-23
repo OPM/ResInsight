@@ -84,6 +84,8 @@ void RicFlyToObjectFeature::onActionTriggered(bool isChecked)
     cvf::Vec3d cameraUp = cvf::Vec3d::Z_AXIS;
 
     destinationViewer->mainCamera()->setFromLookAt(cameraEye, cameraViewRefPoint, cameraUp);
+
+    destinationViewer->setPointOfInterest(cameraViewRefPoint);
     
     activeView->updateCurrentTimeStepAndRedraw();
 }
