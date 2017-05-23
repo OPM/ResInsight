@@ -39,9 +39,17 @@ public:
 
     typedef caf::AppEnum<RimExportCompletionDataSettings::PressureDropType> PressureDropEnum;
 
+    enum LengthAndDepthType {
+        ABS,
+        INC
+    };
+
+    typedef caf::AppEnum<RimExportCompletionDataSettings::LengthAndDepthType> LengthAndDepthEnum;
+
     RimExportCompletionDataSettings();
 
     caf::PdmField<bool>                     includeWpimult;
     caf::PdmField<bool>                     removeLateralsInMainBoreCells;
     caf::PdmField<PressureDropEnum>         pressureDrop;
+    caf::PdmField<LengthAndDepthEnum>       lengthAndDepth;
 };

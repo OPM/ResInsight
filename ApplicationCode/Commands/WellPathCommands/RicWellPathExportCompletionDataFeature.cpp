@@ -275,7 +275,7 @@ void RicWellPathExportCompletionDataFeature::generateWelsegsTable(RifEclipseOutp
         formatter.add(firstLocation.trueVerticalDepth);
         formatter.add(firstLocation.measuredDepth);
         formatter.add("1*");
-        formatter.add("INC"); 
+        formatter.add(settings.lengthAndDepth().text()); 
         formatter.add(settings.pressureDrop().text());
 
         formatter.rowCompleted();
@@ -298,16 +298,31 @@ void RicWellPathExportCompletionDataFeature::generateWelsegsTable(RifEclipseOutp
     {
         WellSegmentLocation previousLocation = firstLocation;
         formatter.comment("Main stem");
+
+        double depth = 0;
+        double length = 0;
+
         for (size_t i = 0; i < locations.size(); ++i)
         {
             const WellSegmentLocation& location = locations[i];
+
+            if (settings.lengthAndDepth() == RimExportCompletionDataSettings::INC)
+            {
+                depth = location.trueVerticalDepth - previousLocation.trueVerticalDepth;
+                length = location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex];
+            }
+            else
+            {
+                depth += location.trueVerticalDepth - previousLocation.trueVerticalDepth;
+                length += location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex];
+            }
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
             formatter.add(location.segmentNumber).add(location.segmentNumber);
             formatter.add(1); // All segments on main stem are branch 1
             formatter.add(location.segmentNumber - 1); // All main stem segments are connected to the segment below them
-            formatter.add(location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex]);
-            formatter.add(location.trueVerticalDepth - previousLocation.trueVerticalDepth);
+            formatter.add(length);
+            formatter.add(depth);
             formatter.add(-1.0); // FIXME : Diam of main stem?
             formatter.add(-1.0); // FIXME : Rough of main stem?
             formatter.rowCompleted();
@@ -326,14 +341,27 @@ void RicWellPathExportCompletionDataFeature::generateWelsegsTable(RifEclipseOutp
             {
                 formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
 
+                double depth = 0;
+                double length = 0;
+
                 for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
                 {
+                    if (settings.lengthAndDepth() == RimExportCompletionDataSettings::INC)
+                    {
+                        depth = intersection.depth;
+                        length = intersection.length;
+                    }
+                    else
+                    {
+                        depth += intersection.depth;
+                        length += intersection.length;
+                    }
                     formatter.add(intersection.segmentNumber);
                     formatter.add(intersection.segmentNumber);
                     formatter.add(lateral.branchNumber);
                     formatter.add(intersection.attachedSegmentNumber);
-                    formatter.add(intersection.length);
-                    formatter.add(intersection.depth);
+                    formatter.add(length);
+                    formatter.add(depth);
                     formatter.add(location.fishbonesSubs->tubingRadius());
                     formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
                     formatter.rowCompleted();
