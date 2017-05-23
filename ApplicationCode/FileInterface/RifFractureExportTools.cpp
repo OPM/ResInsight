@@ -197,70 +197,65 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
                                                                            const RimWellPath* wellPath, 
                                                                            const RimEclipseCase* caseToApply)
 {
+    std::vector<RimFracture*> fracturesAlongWellPath;
+    wellPath->descendantsIncludingThisOfType(fracturesAlongWellPath);
 
     double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
-    std::map <size_t, std::map<RimFracture*, double>> transmissibilitiesMap; //eclipseCellIndex (size_t), fracture (RimFracture) and trans value
 
-    // Getting fractures for well path
-    std::vector<RimFracture*> fractures;
-    wellPath->descendantsIncludingThisOfType(fractures);
+    // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility 
+    // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
+    // std::map <eclipseCellIndex ,map< fracture, trans> > 
+    std::map <size_t, std::map<RimFracture*, double> > eclCellIdxToTransPrFractureMap; 
 
-
-    // Loop over fractures in well path (all)
-    for (RimFracture* fracture : fractures)
+    for (RimFracture* fracture : fracturesAlongWellPath)
     {
+        using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
 
-        RimStimPlanFractureTemplate* fracTemplateStimPlan;
-        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
-        {
-            fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
-        }
-        else continue;
+        RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
 
-        RigTransmissibilityCondenser condenser;
-        
-         //   Loop over stimplancells
-        for (const RigStimPlanFracTemplateCell stimPlanCell : fracTemplateStimPlan->getStimPlanCells())
+        if (!fracTemplateStimPlan) continue; // We do not handle Elliptical fractures yet
+
+        RigTransmissibilityCondenser transCondenser;
+
+        //////
+        // Calculate Matrix To Fracture Trans       
+                
+        auto stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
+
+        for (const RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
         {
-            //     if cell Is Contributing cond > 0
             if (stimPlanCell.getConductivtyValue() < 1e-7) continue;
-            
+
+            RigEclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
+                                                                                      fracture->transformMatrix(),
+                                                                                      fracture->attachedFractureDefinition()->skinFactor,
+                                                                                      cDarcyInCorrectUnit,
+                                                                                      stimPlanCell);
+
+            const std::vector<size_t>& stimPlanContributingEclipseCells                  = eclToStimPlanTransCalc.globalIndeciesToContributingEclipseCells();
+            const std::vector<double>& stimPlanContributingEclipseCellTransmissibilities = eclToStimPlanTransCalc.contributingEclipseCellTransmissibilities();
+
             size_t stimPlanCellIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(stimPlanCell.getI(), stimPlanCell.getJ());
 
-            //        Calculate Matrix To Fracture Trans       
-            RigEclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
-                fracture->transformMatrix(),
-                fracture->attachedFractureDefinition()->skinFactor,
-                cDarcyInCorrectUnit,
-                stimPlanCell);
-
-            std::vector<size_t> stimPlanContributingEclipseCells = eclToStimPlanTransCalc.globalIndeciesToContributingEclipseCells();
-            std::vector<double> stimPlanContributingEclipseCellTransmissibilities = eclToStimPlanTransCalc.contributingEclipseCellTransmissibilities();
-
-            //        Add to condenser
             for (size_t i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {
-                condenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::ECLIPSE, stimPlanContributingEclipseCells[i]},
-                                                      { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellIndex},
-                                                      stimPlanContributingEclipseCellTransmissibilities[i]);
+                transCondenser.addNeighborTransmissibility({ true,  CellIdxSpace::ECLIPSE, stimPlanContributingEclipseCells[i] },
+                                                           { false, CellIdxSpace::STIMPLAN, stimPlanCellIndex },
+                                                           stimPlanContributingEclipseCellTransmissibilities[i]);
             }
-
         }
 
-
-        //   Loop over stimplanecells (i, j)
+        //////
+        // Calculate Transmissibility in the fracture: From one StimPlan Cell to the other
+         
         for (size_t i = 0; i < fracTemplateStimPlan->stimPlanGridNumberOfColums(); i++)
         {
             for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows();  j++)
             {
-                //TODO: Check that cond > 0
                 size_t stimPlanCellIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(i, j);
                 const RigStimPlanFracTemplateCell stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(stimPlanCellIndex);
 
-                if (stimPlanCell.getConductivtyValue() < 1e-7)
-                {
-                    continue;
-                }
+                if (stimPlanCell.getConductivtyValue() < 1e-7) continue;
 
                 if (i < fracTemplateStimPlan->stimPlanGridNumberOfColums() - 1)
                 {
@@ -276,9 +271,9 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
                                                                                                                                      stimPlanCellNeighbourX.cellSizeZ(),
                                                                                                                                      cDarcyInCorrectUnit);
 
-                    condenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellIndex },
-                    { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellNeighbourXIndex },
-                        horizontalTransToXneigbour);
+                    transCondenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellIndex },
+                                                               { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellNeighbourXIndex },
+                                                               horizontalTransToXneigbour);
 
                 }
 
@@ -296,62 +291,122 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
                                                                                                                                      stimPlanCellNeighbourZ.cellSizeX(),
                                                                                                                                      cDarcyInCorrectUnit);
 
-                    condenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellIndex },
-                                                          { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellNeighbourZIndex },
-                                                          verticalTransToZneigbour);
+                    transCondenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellIndex },
+                                                               { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stimPlanCellNeighbourZIndex },
+                                                               verticalTransToZneigbour);
 
                 }
             }
         } 
 
-        //   Find well cells (Perforated Well Path, Radius, Positioned Fracture)
-        //   For each well cell 
-        //       Find path intersection
-        //       Use LinT + 1/2 radialT on each end if endpoints are inside cell 
-        //       Add to condenser
-
+        /////
+        // Calculate transmissibility into the well
         
-        // Adding well cells to condenser
-        
-        
-        //RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
+        RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
+        const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& stpWellCells =  wellFractureIntersector.intersections();
 
-        // Todo: ..
+        for (const auto& stpCellIdxIsectDataPair : stpWellCells)
+        {
+            size_t stpWellCellIdx = stpCellIdxIsectDataPair.first;
+            RigWellPathStimplanIntersector::WellCellIntersection intersection = stpCellIdxIsectDataPair.second;
 
-        std::pair<size_t, size_t> centerCellIJ = fracTemplateStimPlan->getStimPlanCellAtWellCenter();
-        size_t wellCellIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(centerCellIJ.first, centerCellIJ.second);
-        const RigStimPlanFracTemplateCell stimPlanWellCell = fracTemplateStimPlan->stimPlanCellFromIndex(wellCellIndex);
+            const RigStimPlanFracTemplateCell stimPlanWellCell = fracTemplateStimPlan->stimPlanCellFromIndex(stpWellCellIdx);
 
-        double wellTrans = RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWellinStimPlanCell(stimPlanWellCell.getConductivtyValue(),
-                                                                                                                   stimPlanWellCell.cellSizeX(),
-                                                                                                                   stimPlanWellCell.cellSizeZ(),
-                                                                                                                   fracture->wellRadius(),
-                                                                                                                   fracTemplateStimPlan->skinFactor(),
-                                                                                                                   cDarcyInCorrectUnit);
+            double radialTrans = 0.0;
+            if (intersection.endpointCount)
+            {
+                radialTrans = RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWellinStimPlanCell(stimPlanWellCell.getConductivtyValue(),
+                                                                                                                       stimPlanWellCell.cellSizeX(),
+                                                                                                                       stimPlanWellCell.cellSizeZ(),
+                                                                                                                       fracture->wellRadius(),
+                                                                                                                       fracTemplateStimPlan->skinFactor(),
+                                                                                                                       cDarcyInCorrectUnit);
+            }
 
-        condenser.addNeighborTransmissibility({true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-                                              {false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex},
-                                              wellTrans);
+            double linearTrans = 0.0;
+            if (intersection.hlength > 0.0 || intersection.vlength > 0.0 )
+            {
+                linearTrans = RigFractureTransmissibilityEquations::computeLinearTransmissibilityToWellinStimPlanCell(stimPlanWellCell.getConductivtyValue(),
+                                                                                                                      stimPlanWellCell.cellSizeX(),
+                                                                                                                      stimPlanWellCell.cellSizeZ(),
+                                                                                                                      intersection.vlength,
+                                                                                                                      intersection.hlength ,
+                                                                                                                      fracture->perforationEfficiency, 
+                                                                                                                      fracTemplateStimPlan->skinFactor(), 
+                                                                                                                      cDarcyInCorrectUnit);
+            }
+            
+            double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
 
+            transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, stpWellCellIdx},
+                                                        { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stpWellCellIdx },
+                                                        totalWellTrans);
+        }
+   
+        /////
+        // Insert total transmissibility from eclipse-cell to well for this fracture into the map 
 
-        std::set<RigTransmissibilityCondenser::CellAddress> externalCells = condenser.externalCells();
+        std::set<RigTransmissibilityCondenser::CellAddress> externalCells = transCondenser.externalCells();
         for (RigTransmissibilityCondenser::CellAddress externalCell : externalCells)
         {
             if (externalCell.m_cellIndexSpace == RigTransmissibilityCondenser::CellAddress::ECLIPSE)
             {
-                double trans = condenser.condensedTransmissibility(externalCell, { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 });
+                double trans = transCondenser.condensedTransmissibility(externalCell, { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 });
                 
-                transmissibilitiesMap[externalCell.m_globalCellIdx][fracture] = trans;
+                eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
             }
         }
-    } //end loop fractures
+    } 
 
+    // Todo:
+    // For all transmissibilities 
+    //  summarize all fractures contributions pr cell, 
 
+    //  Print COMPDAT entry
 
-      // For all transmissibilities 
-      //  summarize all fractures contributions pr cell, 
-     //  Print COMPDAT entry
+   const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return;
+    }
+
+    QTextStream out(&file);
+    out << "\n";
+    out << "-- Exported from ResInsight" << "\n";
+    out << "\n";
+    out << qSetFieldWidth(7) << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
+
+    for ( const auto& eclCellIdxFractureTransPair : eclCellIdxToTransPrFractureMap )
+    {
+        const auto& fracTransMap = eclCellIdxFractureTransPair.second;
+
+        double skinFactor = cvf::UNDEFINED_DOUBLE;
+        double totalCellToWellTrans = 0.0;
+        QString fractureNames;
+        for ( const auto& fracTransPair: fracTransMap )
+        {
+            totalCellToWellTrans += fracTransPair.second;
+
+            // Selecting the last existing skin factor TODO: What should we do ? Use highest/lowest ... ?
+            if ( fracTransPair.first->attachedFractureDefinition() )
+            {
+                skinFactor = fracTransPair.first->attachedFractureDefinition()->skinFactor();
+            }
+
+            fractureNames += fracTransPair.first->name() + "(" + QString::number(fracTransPair.second) + ")"+ " ";
+        }
+
+        if ( totalCellToWellTrans > 0 )
+        {
+            size_t i, j, k;
+            mainGrid->ijkFromCellIndex(eclCellIdxFractureTransPair.first, &i, &j, &k);
+            printCOMPDATvalues(out, totalCellToWellTrans, i, j, k, fractureNames, skinFactor,  wellPath->name());
+        }
+    }
+
+    out << "/ \n";
 }
 
 //--------------------------------------------------------------------------------------------------
