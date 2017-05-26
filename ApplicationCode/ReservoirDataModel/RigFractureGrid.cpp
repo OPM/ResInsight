@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureGrid.h"
 #include "RiaLogging.h"
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell()
+RigFractureGrid::RigFractureGrid()
 {
 
 }
@@ -31,38 +31,29 @@ RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
+size_t RigFractureGrid::getGlobalIndexFromIJ(size_t i, size_t j) const
 {
-    m_polygon = polygon;
-    m_i = i;
-    m_j = j;
+    return i * m_jCount + j;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFracTemplateCell::~RigStimPlanFracTemplateCell()
+const RigStimPlanFracTemplateCell& RigFractureGrid::stimPlanCellFromIndex(size_t index) const
 {
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigStimPlanFracTemplateCell::cellSizeX() const
-{
-    //The polygon corners are always stored in the same order
-    if (m_polygon.size()>1) return (m_polygon[1] - m_polygon[0]).length();
-    return cvf::UNDEFINED_DOUBLE;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigStimPlanFracTemplateCell::cellSizeZ() const
-{
-    if (m_polygon.size()>2) return (m_polygon[2] - m_polygon[1]).length();
-    return cvf::UNDEFINED_DOUBLE;
+    if (index < m_fractureCells.size())
+    {
+        const RigStimPlanFracTemplateCell& cell = m_fractureCells[index];
+        return cell;
+    }
+    else
+    {
+        //TODO: Better error handling?
+        RiaLogging::error(QString("Requesting non-existent StimPlanCell"));
+        RiaLogging::error(QString("Returning cell 0, results will be invalid"));
+        const RigStimPlanFracTemplateCell& cell = m_fractureCells[0];
+        return cell;
+    }
 }
 
 

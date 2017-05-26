@@ -7,6 +7,7 @@
 #include "cvfMatrix4.h"
 #include "RigStimPlanFracTemplateCell.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RigFractureGrid.h"
 
 #include <cmath>
 

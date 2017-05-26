@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RigFractureGrid.h"
+
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimFracture.h"
@@ -288,7 +290,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     //Should probably be moved, since it now is called twice in some cases... 
     stimPlanFracTemplate->setupStimPlanCells();
 
-    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = stimPlanFracTemplate->getStimPlanCells();
+    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = stimPlanFracTemplate->fractureGrid().getStimPlanCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
     for (RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)

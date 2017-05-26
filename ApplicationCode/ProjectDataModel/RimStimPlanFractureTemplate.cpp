@@ -45,6 +45,7 @@
 #include <vector>
 #include <cmath>
 #include "RigFractureTransCalc.h"
+#include "RigFractureGrid.h"
 
 
 
@@ -68,7 +69,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
     CAF_PDM_InitField(&showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
 
     //TODO: Is this correct way of doing this...?
-    wellCenterStimPlanCellIJ = std::make_pair(0, 0);
+    //wellCenterStimPlanCellIJ = std::make_pair(0, 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -820,6 +821,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     QString resultUnitFromColors = activeView->stimPlanColors->unit();
 
     std::vector<RigStimPlanFracTemplateCell> stimPlanCells;
+    std::pair<size_t, size_t> wellCenterStimPlanCellIJ = std::make_pair(0,0);
 
     bool wellCenterStimPlanCellFound = false;
 
@@ -889,16 +891,29 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     }
 
 
-    m_stimPlanCells = stimPlanCells;
+    RigFractureGrid fractureGrid;
+    fractureGrid.setFractureCells(stimPlanCells);
+    fractureGrid.setWellCenterStimPlanCellIJ(wellCenterStimPlanCellIJ);
+    fractureGrid.setIcount(getNegAndPosXcoords().size());
+    fractureGrid.setJcount(adjustedDepthCoordsAroundWellPathPosition().size());
+    m_fractureGrid = fractureGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigStimPlanFracTemplateCell>& RimStimPlanFractureTemplate::getStimPlanCells() const
+const RigFractureGrid& RimStimPlanFractureTemplate::fractureGrid() const
 {
-    return m_stimPlanCells;
+    return m_fractureGrid;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+// const std::vector<RigStimPlanFracTemplateCell>& RimStimPlanFractureTemplate::getStimPlanCells() const
+// {
+//     return m_stimPlanCells;
+// }
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -949,43 +964,43 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::pair<size_t, size_t> RimStimPlanFractureTemplate::getStimPlanCellAtWellCenter()
-{
-    return wellCenterStimPlanCellIJ;
-}
+// std::pair<size_t, size_t> RimStimPlanFractureTemplate::getStimPlanCellAtWellCenter()
+// {
+//     return wellCenterStimPlanCellIJ;
+// }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j) const
-{
-    size_t cellCountJ = stimPlanGridNumberOfRows() - 2;
-    size_t globIndex = i * cellCountJ + j;
-
-    CVF_ASSERT(m_stimPlanCells[globIndex].getI() == i && m_stimPlanCells[globIndex].getJ() == j);
-     
-    return globIndex;
-}
+//size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j) const
+//{
+//    size_t cellCountJ = stimPlanGridNumberOfRows() - 2;
+//    size_t globIndex = i * cellCountJ + j;
+//
+//    CVF_ASSERT(m_stimPlanCells[globIndex].getI() == i && m_stimPlanCells[globIndex].getJ() == j);
+//     
+//    return globIndex;
+//}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigStimPlanFracTemplateCell& RimStimPlanFractureTemplate::stimPlanCellFromIndex(size_t index) const
-{
-    if (index < m_stimPlanCells.size())
-    {
-        const RigStimPlanFracTemplateCell& cell = m_stimPlanCells[index];
-        return cell;
-    }
-    else
-    {
-        //TODO: Better error handling?
-        RiaLogging::error("Requesting non-existent StimPlanCell");
-        RiaLogging::error("Returning cell 0, results will be invalid");
-        const RigStimPlanFracTemplateCell& cell = m_stimPlanCells[0];
-        return cell;
-    }
-}
+// const RigStimPlanFracTemplateCell& RimStimPlanFractureTemplate::stimPlanCellFromIndex(size_t index) const
+// {
+//     if (index < m_stimPlanCells.size())
+//     {
+//         const RigStimPlanFracTemplateCell& cell = m_stimPlanCells[index];
+//         return cell;
+//     }
+//     else
+//     {
+//         //TODO: Better error handling?
+//         RiaLogging::error("Requesting non-existent StimPlanCell");
+//         RiaLogging::error("Returning cell 0, results will be invalid");
+//         const RigStimPlanFracTemplateCell& cell = m_stimPlanCells[0];
+//         return cell;
+//     }
+// }
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1114,18 +1129,18 @@ void RimStimPlanFractureTemplate::sortPolygon(std::vector<cvf::Vec3f> &polygon)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfColums() const
-{
-    return getNegAndPosXcoords().size();
-}
+// size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfColums() const
+// {
+//     return getNegAndPosXcoords().size();
+// }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfRows() const
-{
-    return adjustedDepthCoordsAroundWellPathPosition().size();
-}
+// size_t RimStimPlanFractureTemplate::stimPlanGridNumberOfRows() const
+// {
+//     return adjustedDepthCoordsAroundWellPathPosition().size();
+// }
 
 //--------------------------------------------------------------------------------------------------
 /// 

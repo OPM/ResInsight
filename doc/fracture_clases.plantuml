@@ -68,8 +68,13 @@ class RigStimPlanFracTemplateCell{
 
 }
 
+class RigFractureGrid{
+}
+
+
 RimStimPlanFractureTemplate "1" *-- "1" RigStimPlanFractureDefinition
-RimStimPlanFractureTemplate "1" *-- "many" RigStimPlanFracTemplateCell
+RimStimPlanFractureTemplate "1" *-- "1" RigFractureGrid
+RigFractureGrid "1" *-- "many" RigStimPlanFracTemplateCell
 
 RigStimPlanFractureCell <.> RigStimPlanFracTemplateCell
 

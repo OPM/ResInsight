@@ -6,6 +6,7 @@
 #include "RigCellGeometryTools.h"
 #include "RigStimPlanFracTemplateCell.h"
 #include "RiaLogging.h"
+#include "RigFractureGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +53,7 @@ std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QS
     }
     else return std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
-    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->getStimPlanCells();
+    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->fractureGrid().getStimPlanCells();
 
 
 
@@ -111,7 +112,7 @@ double RigStimPlanUpscalingCalc::computeHAupscale(RimStimPlanFractureTemplate* f
     std::vector<double> lavgCol;
     std::vector<double> CondHarmCol;
 
-    for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfColums(); j++)
+    for (size_t j = 0; j < fracTemplateStimPlan->fractureGrid().stimPlanGridNumberOfColums(); j++)
     {
         std::vector<double> conductivitiesInStimPlanCells;
         std::vector<double> lengthsLiOfStimPlanCol;
@@ -180,7 +181,7 @@ double RigStimPlanUpscalingCalc::computeAHupscale(RimStimPlanFractureTemplate* f
     std::vector<double> liRowSum;
     std::vector<double> CondAritRow;
     
-    for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows(); j++)
+    for (size_t j = 0; j < fracTemplateStimPlan->fractureGrid().stimPlanGridNumberOfRows(); j++)
     {
         std::vector<double> conductivitiesInStimPlanCells;
         std::vector<double> lengthsLiOfStimPlanCol;

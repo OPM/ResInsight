@@ -32,10 +32,13 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureGrid.h"
 
 class RigStimPlanFractureDefinition;
 class RimStimPlanLegendConfig;
 class RigStimPlanFracTemplateCell;
+class RigFractureGrid;
 
 //==================================================================================================
 ///  
@@ -74,13 +77,14 @@ public:
     std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     
     void                                    setupStimPlanCells();
-    const std::vector<RigStimPlanFracTemplateCell>&     getStimPlanCells() const;
-    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
-    const RigStimPlanFracTemplateCell&      stimPlanCellFromIndex(size_t index) const;
-    size_t                                  stimPlanGridNumberOfRows() const;
-    size_t                                  stimPlanGridNumberOfColums() const;
+    const RigFractureGrid&                  fractureGrid() const;
+//     const std::vector<RigStimPlanFracTemplateCell>&     getStimPlanCells() const;
+//     size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
+//     const RigStimPlanFracTemplateCell&      stimPlanCellFromIndex(size_t index) const;
+//     size_t                                  stimPlanGridNumberOfRows() const;
+//     size_t                                  stimPlanGridNumberOfColums() const;
 
-    std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
+//     std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
    
 
     //Functions used by upscaling only
@@ -113,6 +117,7 @@ private:
 
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
-    std::vector<RigStimPlanFracTemplateCell>    m_stimPlanCells;
-    std::pair<size_t, size_t>                   wellCenterStimPlanCellIJ;
+//    std::vector<RigStimPlanFracTemplateCell>    m_stimPlanCells;
+//    std::pair<size_t, size_t>                   wellCenterStimPlanCellIJ;
+    RigFractureGrid                             m_fractureGrid;
 };
