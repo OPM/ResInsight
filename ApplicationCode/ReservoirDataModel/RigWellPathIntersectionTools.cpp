@@ -48,7 +48,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     size_t                cellIndex;
     WellPathCellDirection direction;
 
-    auto& intersection = intersections.cbegin();
+    auto intersection = intersections.cbegin();
 
     if (includeStartCell)
     {
