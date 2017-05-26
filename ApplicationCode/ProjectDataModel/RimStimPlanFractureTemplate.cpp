@@ -735,7 +735,7 @@ std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues()  
+std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues() 
 {
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
     return m_stimPlanFractureDefinitionData->timeSteps;
@@ -895,7 +895,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigStimPlanFracTemplateCell>& RimStimPlanFractureTemplate::getStimPlanCells()
+const std::vector<RigStimPlanFracTemplateCell>& RimStimPlanFractureTemplate::getStimPlanCells() const
 {
     return m_stimPlanCells;
 }

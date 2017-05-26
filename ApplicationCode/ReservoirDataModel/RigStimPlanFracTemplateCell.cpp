@@ -47,15 +47,6 @@ RigStimPlanFracTemplateCell::~RigStimPlanFracTemplateCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFracTemplateCell::setTransmissibilityInFracture(double valueHorizontal, double valueVertical)
-{
-    m_transmissibilityInFractureHorizontal = valueHorizontal;
-    m_transmissibilityInFractureVertical = valueVertical;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 double RigStimPlanFracTemplateCell::cellSizeX() const
 {
     //The polygon corners are always stored in the same order

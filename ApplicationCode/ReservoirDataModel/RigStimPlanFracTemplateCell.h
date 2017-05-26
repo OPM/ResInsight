@@ -37,18 +37,15 @@ public:
 
     virtual ~RigStimPlanFracTemplateCell();
 
-    std::vector<cvf::Vec3d> getPolygon() const { return m_polygon; }
+    const std::vector<cvf::Vec3d>& getPolygon() const { return m_polygon; }
     double                  getConductivtyValue() const { return m_concutivityValue; }
     double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() const { return m_i; }
     size_t                  getJ() const { return m_j; }
-    double                  getVerticalTransmissibilityInFracture()   { return m_transmissibilityInFractureVertical; }
-    double                  getHorizontalTransmissibilityInFracture() { return m_transmissibilityInFractureHorizontal; }
         
 
     void                    setConductivityValue(double cond) { m_concutivityValue = cond; }
     void                    setDisplayValue(double value) { m_displayValue = value; };
-    void                    setTransmissibilityInFracture(double valueHorizontal, double valueVertical);
 
     double                  cellSizeX() const;
     double                  cellSizeZ() const;
@@ -58,8 +55,5 @@ private:
     double                  m_concutivityValue;
     size_t                  m_i;
     size_t                  m_j;
-
-    double                  m_transmissibilityInFractureVertical;
-    double                  m_transmissibilityInFractureHorizontal;
 
 };

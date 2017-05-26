@@ -56,6 +56,8 @@ public:
     caf::PdmField<bool>                     showStimPlanMesh;
     
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    loadDataAndUpdate(); 
 
     void                                    setFileName(const QString& fileName);
     const QString&                          fileName();
@@ -65,40 +67,26 @@ public:
     std::vector<cvf::Vec3f>                 fracturePolygon(RimDefines::UnitSystem fractureUnit);
     void sortPolygon(std::vector<cvf::Vec3f> &polygon);
 
-    size_t                                  stimPlanGridNumberOfRows() const;
-    size_t                                  stimPlanGridNumberOfColums() const;
-
-
-    std::vector<double>                     getNegAndPosXcoords() const;
-    std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition() const;
     std::vector<double>                     getStimPlanTimeValues();
     std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
-    
-    void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
-    void                                    setupStimPlanCells();
-    const std::vector<RigStimPlanFracTemplateCell>&     getStimPlanCells();
-    std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
-    std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
-
-    std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
-
-    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
-    const RigStimPlanFracTemplateCell&      stimPlanCellFromIndex(size_t index) const;
-
-    //TODO: Functions for finding perforated stimPlanCells
-    //Radial flow: Single cell (at 0,0) 
-
-
-
-
-    void                                    loadDataAndUpdate(); //TODO: Update m_stimPlanCells
     void                                    setDefaultsBasedOnXMLfile();
     std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
-    std::vector<std::vector<double>>        getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    void                                    setupStimPlanCells();
+    const std::vector<RigStimPlanFracTemplateCell>&     getStimPlanCells() const;
+    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
+    const RigStimPlanFracTemplateCell&      stimPlanCellFromIndex(size_t index) const;
+    size_t                                  stimPlanGridNumberOfRows() const;
+    size_t                                  stimPlanGridNumberOfColums() const;
 
+    std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
+   
+
+    //Functions used by upscaling only
+    void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
+    std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
+    std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -114,6 +102,9 @@ private:
     static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
     void                                    getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
     std::vector<std::vector<double>>        getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
+    std::vector<std::vector<double>>        getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
+    std::vector<double>                     getNegAndPosXcoords() const;
+    std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition() const;
 
     bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
     bool                                    setPropertyForPolygonDefault();

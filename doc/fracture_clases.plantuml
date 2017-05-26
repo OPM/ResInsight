@@ -64,8 +64,7 @@ class RigStimPlanFracTemplateCell{
     double   m_conductivityValue;
     size_t     m_i;
     size_t     m_j;
-    double   m_transmissibilityInFractureVertical;
-    double   m_transmissibilityInFractureHorizontal;
+
 
 }
 
