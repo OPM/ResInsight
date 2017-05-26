@@ -18,9 +18,14 @@
 #pragma once
 
 #include <map>
+#include <vector>
+#include "cvfBase.h"
+#include "cvfMatrix4.h"
 
 class RigWellPath;
 class RimFracture;
+class RigWellPathStimplanIntersectorTester;
+
 
 class RigWellPathStimplanIntersector
 {
@@ -38,8 +43,29 @@ public:
     const std::map<size_t, WellCellIntersection >& intersections() { return m_stimPlanCellIdxToIntersectionInfoMap; }
 
 private:
-     std::map<size_t, WellCellIntersection > m_stimPlanCellIdxToIntersectionInfoMap;
+    friend class RigWellPathStimplanIntersectorTester;
+    static void calculate(const cvf::Mat4f& fractureXf,
+                          const std::vector<cvf::Vec3f>& fracturePolygon,
+                          const std::vector<cvf::Vec3d>& wellPathPoints,
+                          double wellRadius,
+                          const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons,
+                          std::map<size_t, WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap);
+
+    std::map<size_t, WellCellIntersection > m_stimPlanCellIdxToIntersectionInfoMap;
 };
 
 
+class RigWellPathStimplanIntersectorTester
+{
+public:
+    static void testCalculate(const cvf::Mat4f& fractureXf,
+                              const std::vector<cvf::Vec3f>& fracturePolygon,
+                              const std::vector<cvf::Vec3d>& wellPathPoints,
+                              double wellRadius,
+                              const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons,
+                              std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap)
+    {
+        RigWellPathStimplanIntersector::calculate(fractureXf, fracturePolygon, wellPathPoints, wellRadius, stpCellPolygons, stimPlanCellIdxToIntersectionInfoMap);
+    }
 
+};

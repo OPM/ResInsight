@@ -302,3 +302,120 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest)
     }
 
 }
+
+#include "RigWellPathStimplanIntersector.h"
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigWellPathStimplanIntersector, intersection)
+{
+
+    {
+        cvf::Mat4f fractureXf = cvf::Mat4f::IDENTITY;
+        fractureXf.setTranslation({ 50.0f, 0.0f, 0.0f });
+
+        std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        std::vector<cvf::Vec3d> wellPathPoints  ={ {50.0f-4.0f, 6.0f, 10.0f},  {50.0f+6.0f, 6.0f, 0.0f}, {50.0f+10.0f, 10.0f, -100.0f} };
+        double wellRadius = 1.5;
+        std::vector<std::vector<cvf::Vec3d> > stpCellPolygons =
+        {
+           { { 0.0f, 0.0f, 0.0f },  { 0.0f, 5.0f, 0.0f }, { 5.0f, 5.0f, 0.0f }, { 5.0f, 0.0f, 0.0f } },
+           { { 0.5f, 0.0f, 0.0f },  { 0.5f, 5.0f, 0.0f }, {10.0f, 5.0f, 0.0f }, {10.0f, 0.0f, 0.0f } },
+           { { 0.0f, 5.0f, 0.0f },  { 0.0f,10.0f, 0.0f }, { 5.0f,10.0f, 0.0f }, { 5.0f, 5.0f, 0.0f } },
+           { { 5.0f, 5.0f, 0.0f },  { 5.0f,10.0f, 0.0f }, {10.0f,10.0f, 0.0f }, {10.0f, 5.0f, 0.0f } },
+        };
+
+        std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
+
+        RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
+                                                            fracturePolygon,
+                                                            wellPathPoints,
+                                                            wellRadius,
+                                                            stpCellPolygons,
+                                                            stimPlanCellIdxToIntersectionInfoMap);
+
+        EXPECT_EQ(2, stimPlanCellIdxToIntersectionInfoMap.size());
+        auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
+        EXPECT_EQ(2, it->first);
+        EXPECT_EQ(1, it->second.endpointCount);
+        ++it;
+        EXPECT_EQ(3, it->first);
+        EXPECT_EQ(1, it->second.endpointCount);
+    }
+
+
+    {
+        cvf::Mat4f fractureXf = cvf::Mat4f::IDENTITY;
+
+        std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        double wellRadius = 1.5;
+        std::vector<std::vector<cvf::Vec3d> > stpCellPolygons =
+        {
+            { { 0.0f, 0.0f, 0.0f },  { 0.0f, 5.0f, 0.0f }, { 5.0f, 5.0f, 0.0f }, { 5.0f, 0.0f, 0.0f } },
+            { { 5.0f, 0.0f, 0.0f },  { 5.0f, 5.0f, 0.0f }, {10.0f, 5.0f, 0.0f }, {10.0f, 0.0f, 0.0f } },
+            { { 0.0f, 5.0f, 0.0f },  { 0.0f,10.0f, 0.0f }, { 5.0f,10.0f, 0.0f }, { 5.0f, 5.0f, 0.0f } },
+            { { 5.0f, 5.0f, 0.0f },  { 5.0f,10.0f, 0.0f }, {10.0f,10.0f, 0.0f }, {10.0f, 5.0f, 0.0f } },
+        };
+
+
+        {
+            std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
+            std::vector<cvf::Vec3d> wellPathPoints  ={ {1.0f, 0.5f, 10.0f}, {1.0f, 1.5f, -10.0f} };
+
+            RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
+                                                                fracturePolygon,
+                                                                wellPathPoints,
+                                                                wellRadius,
+                                                                stpCellPolygons,
+                                                                stimPlanCellIdxToIntersectionInfoMap);
+
+
+
+            EXPECT_EQ(1, stimPlanCellIdxToIntersectionInfoMap.size());
+            auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
+            EXPECT_EQ(0, it->first);
+            EXPECT_EQ(2, it->second.endpointCount);
+        }
+
+        {
+            std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
+            std::vector<cvf::Vec3d> wellPathPoints  ={ {1.0f, 0.5f, 10.0f}, {1.0f, 1.0f, 0.5f} };
+
+            RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
+                                                                fracturePolygon,
+                                                                wellPathPoints,
+                                                                wellRadius,
+                                                                stpCellPolygons,
+                                                                stimPlanCellIdxToIntersectionInfoMap);
+
+
+
+            EXPECT_EQ(1, stimPlanCellIdxToIntersectionInfoMap.size());
+            auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
+            EXPECT_EQ(0, it->first);
+            EXPECT_EQ(2, it->second.endpointCount);
+        }
+
+        {
+            std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
+            std::vector<cvf::Vec3d> wellPathPoints  ={ {1.0f, 0.5f, 10.0f}, {1.0f, 1.0f, 0.5f},  {1.0f, 1.5f, -0.5f},  {1.0f, 2.0f, -10.0f}};
+
+            RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
+                                                                fracturePolygon,
+                                                                wellPathPoints,
+                                                                wellRadius,
+                                                                stpCellPolygons,
+                                                                stimPlanCellIdxToIntersectionInfoMap);
+
+
+
+            EXPECT_EQ(1, stimPlanCellIdxToIntersectionInfoMap.size());
+            auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
+            EXPECT_EQ(0, it->first);
+            EXPECT_EQ(2, it->second.endpointCount);
+        }
+
+    }
+
+}

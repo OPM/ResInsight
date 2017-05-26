@@ -341,25 +341,39 @@ void fillInterpolatedSubjectZ(ClipperLib::IntPoint& e1bot,
                               ClipperLib::IntPoint& e2top,
                               ClipperLib::IntPoint& pt)
 {
-    int e2XRange = (e2top.X - e2bot.X);
-    int e2YRange = (e2top.Y - e2bot.Y);
+    ClipperLib::IntPoint ePLbot;
+    ClipperLib::IntPoint ePLtop;
 
-    double e2Length =  sqrt(e2XRange*e2XRange + e2YRange*e2YRange);
-    
-    if (e2Length <= 1)
+    if (e1top.Z == std::numeric_limits<int>::max()) 
     {
-        pt.Z = e2bot.Z;
+        ePLtop = e2top;
+        ePLbot = e2bot;
+    }
+    else
+    {
+        ePLtop = e1top;
+        ePLbot = e1bot;
+    }
+
+    double ePLXRange = (ePLtop.X - ePLbot.X);
+    double ePLYRange = (ePLtop.Y - ePLbot.Y);
+
+    double ePLLength =  sqrt(ePLXRange*ePLXRange + ePLYRange*ePLYRange);
+    
+    if (ePLLength <= 1)
+    {
+        pt.Z = ePLbot.Z;
         return;
     }
 
-    int e2BotPtXRange = pt.X - e2bot.X;
-    int e2BotPtYRange = pt.Y - e2bot.Y;
+    double ePLBotPtXRange = pt.X - ePLbot.X;
+    double ePLBotPtYRange = pt.Y - ePLbot.Y;
 
-    double e2BotPtLength =  sqrt(e2BotPtXRange*e2BotPtXRange + e2BotPtYRange*e2BotPtYRange);
+    double ePLBotPtLength =  sqrt(ePLBotPtXRange*ePLBotPtXRange + ePLBotPtYRange*ePLBotPtYRange);
 
-    double fraction = e2BotPtLength/e2Length;
+    double fraction = ePLBotPtLength/ePLLength;
 
-    pt.Z = std::nearbyint( e2bot.Z + fraction*(e2top.Z - e2bot.Z) );
+    pt.Z = std::nearbyint( ePLbot.Z + fraction*(ePLtop.Z - ePLbot.Z) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,7 +389,7 @@ void fillUndefinedZ(ClipperLib::IntPoint& e1bot,
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Assumes x.y plane polygon. Polyline might have a Z, and the returned Z is the polyline Z, interpolated if it is clipped.
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygon(const std::vector<cvf::Vec3d>& polyLine, 
                                                                                   const std::vector<cvf::Vec3d>& polygon, 
@@ -393,7 +407,9 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
     ClipperLib::Path polygonPath;
     for (const cvf::Vec3d& v : polygon)
     {
-        polygonPath.push_back(toClipperPoint(v));
+        ClipperLib::IntPoint intp = toClipperPoint(v);
+        intp.Z = std::numeric_limits<int>::max();
+        polygonPath.push_back(intp);
     }
 
     ClipperLib::Clipper clpr;

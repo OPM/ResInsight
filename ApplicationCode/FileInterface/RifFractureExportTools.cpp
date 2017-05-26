@@ -338,7 +338,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
             
             double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
 
-            transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, stpWellCellIdx},
+            transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
                                                         { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, stpWellCellIdx },
                                                         totalWellTrans);
         }

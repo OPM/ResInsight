@@ -52,21 +52,9 @@ CAF_CMD_SOURCE_INIT(RicExportSelectedWellPathFractureWellCompletionFeature, "Ric
 //--------------------------------------------------------------------------------------------------
 void RicExportSelectedWellPathFractureWellCompletionFeature::onActionTriggered(bool isChecked)
 {
-
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-
-
-    std::vector<RimFracture*> fractures;
-    for (RimWellPath* well : selection)
-    {
-        std::vector<RimFracture*> fracListForWell;
-        well->descendantsIncludingThisOfType(fracListForWell);
-        for (RimFracture* fracture : fracListForWell)
-        {
-            fractures.push_back(fracture);
-        }
-    }
+    if (!selection.size()) return;
 
     RimFractureExportSettings exportSettings;
 
@@ -74,20 +62,15 @@ void RicExportSelectedWellPathFractureWellCompletionFeature::onActionTriggered(b
     QString projectFolder = app->currentProjectPath();
 
     RimView* view = app->activeReservoirView();
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(view);
-    if (!objHandle) return;
 
     RimEclipseCase* caseToApply;
-    objHandle->firstAncestorOrThisOfType(caseToApply);
-    exportSettings.caseToApply = caseToApply;
+    view->firstAncestorOrThisOfType(caseToApply);
+    if (!caseToApply) return;
 
+    exportSettings.caseToApply = caseToApply;
     if (projectFolder.isEmpty())
     {
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
-        if (!activeView) return;
-        RimEclipseView * activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-        if (!activeRiv) return;
-        projectFolder = activeRiv->eclipseCase()->locationOnDisc();
+        projectFolder = caseToApply->locationOnDisc();
     }
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("FRACTURE_EXPORT_DIR", projectFolder);
@@ -100,15 +83,8 @@ void RicExportSelectedWellPathFractureWellCompletionFeature::onActionTriggered(b
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("FRACTURE_EXPORT_DIR", QFileInfo(exportSettings.fileName).absolutePath());
 
-        bool isOk = RifFractureExportTools::exportFracturesToEclipseDataInputFile(exportSettings.fileName, fractures, exportSettings.caseToApply);
-
-        if (!isOk)
-        {
-            QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
-        }
+        RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(exportSettings.fileName, selection[0], exportSettings.caseToApply);
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
