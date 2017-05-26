@@ -23,6 +23,7 @@
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
+class RimWellPathFractureCollection;
 
 //==================================================================================================
 ///  
@@ -35,10 +36,12 @@ class RimWellPathCompletions : public caf::PdmObject
 public:
     RimWellPathCompletions();
 
-    RimFishbonesCollection*     fishbonesCollection() const;
-    RimPerforationCollection*   perforationCollection() const;
+    RimFishbonesCollection*        fishbonesCollection() const;
+    RimPerforationCollection*      perforationCollection() const;
+    RimWellPathFractureCollection* fractureCollection() const;
 
 private:
-    caf::PdmChildField<RimFishbonesCollection*>     m_fishbonesCollection;
-    caf::PdmChildField<RimPerforationCollection*>   m_perforationCollection;
+    caf::PdmChildField<RimFishbonesCollection*>         m_fishbonesCollection;
+    caf::PdmChildField<RimPerforationCollection*>       m_perforationCollection;
+    caf::PdmChildField<RimWellPathFractureCollection*>  m_fractureCollection;
 };

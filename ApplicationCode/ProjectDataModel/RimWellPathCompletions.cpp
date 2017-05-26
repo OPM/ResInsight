@@ -20,6 +20,7 @@
 
 #include "RimFishbonesCollection.h"
 #include "RimPerforationCollection.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cvfAssert.h"
 
@@ -40,6 +41,10 @@ RimWellPathCompletions::RimWellPathCompletions()
     CAF_PDM_InitFieldNoDefault(&m_fishbonesCollection, "Fishbones", "Fishbones", "", "", "");
     m_fishbonesCollection = new RimFishbonesCollection;
     m_fishbonesCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_fractureCollection, "Fractures", "Fractures", "", "", "");
+    m_fractureCollection = new RimWellPathFractureCollection;
+    m_fractureCollection.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,3 +67,12 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
     return m_perforationCollection;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() const
+{
+    CVF_ASSERT(m_fractureCollection);
+
+    return m_fractureCollection;
+}

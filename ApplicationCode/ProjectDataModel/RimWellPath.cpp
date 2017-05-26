@@ -112,9 +112,6 @@ RimWellPath::RimWellPath()
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&fractureCollection, "FractureCollection", "Fractures", "", "", "");
-    fractureCollection = new RimWellPathFractureCollection();
-
     m_wellPath = NULL;
 }
 
@@ -142,10 +139,6 @@ RimWellPath::~RimWellPath()
             }
         }
     }
-
-    if (fractureCollection()) delete fractureCollection();
-
-
 }
 
 
@@ -187,6 +180,16 @@ RimPerforationCollection* RimWellPath::perforationIntervalCollection()
     CVF_ASSERT(m_completions);
 
     return m_completions->perforationCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathFractureCollection* RimWellPath::fractureCollection()
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fractureCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,12 +321,6 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 { 
     uiTreeOrdering.add(&m_wellLogFile);
     uiTreeOrdering.add(&m_completions);
-
-    // TODO : Move to subobject Completions->Fractures 
-    for (RimWellPathFracture* fracture : fractureCollection()->fractures())
-    {
-        uiTreeOrdering.add(fracture);
-    }
     uiTreeOrdering.skipRemainingChildren(true);
 }
 

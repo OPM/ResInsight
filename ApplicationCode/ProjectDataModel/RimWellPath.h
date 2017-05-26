@@ -79,14 +79,11 @@ public:
 
     RimFishbonesCollection*             fishbonesCollection();
     RimPerforationCollection*           perforationIntervalCollection();
+    RimWellPathFractureCollection*      fractureCollection();
 
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;
 
-    caf::PdmChildField<RimWellPathFractureCollection*>  fractureCollection;
-
-
-    
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
