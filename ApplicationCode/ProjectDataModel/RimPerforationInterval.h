@@ -38,8 +38,10 @@ public:
     virtual ~RimPerforationInterval();
 
     void                                setStartAndEndMD(double startMD, double endMD);
-    double                              startMD() { return m_startMD(); }
-    double                              endMD() { return m_endMD(); }
+    double                              startMD() const { return m_startMD(); }
+    double                              endMD() const { return m_endMD(); }
+    double                              radius() const { return m_radius(); }
+    double                              skinFactor() const { return m_skinFactor(); }
 
     virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
 

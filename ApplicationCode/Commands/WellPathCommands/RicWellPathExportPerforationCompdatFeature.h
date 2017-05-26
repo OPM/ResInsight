@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,34 +18,31 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfMath.h"
-#include "cvfVector3.h"
+#include "RimCaseAndFileExportSettings.h"
 
-#include <vector>
+#include "RifEclipseOutputTableFormatter.h"
 
+#include "cafCmdFeature.h"
+
+class RimPerforationInterval;
+class RimWellPath;
+
+class RigEclipseCaseData;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigWellPath : public cvf::Object
+class RicWellPathExportPerforationCompdatFeature : public caf::CmdFeature
 {
-public:
-    RigWellPath();
+    CAF_CMD_HEADER_INIT;
+protected:
 
-    std::vector<cvf::Vec3d>     m_wellPathPoints;
-    std::vector<double>         m_measuredDepths;
-
-    void                        setDatumElevation(double value);
-    bool                        hasDatumElevation() const;
-    double                      datumElevation() const;
-    cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth);
-    double                      wellPathAzimuthAngle(const cvf::Vec3d& position) const;
-    void                        twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2) const;
-    std::vector<cvf::Vec3d>     clippedPointSubset(double startMD, double endMD) const;
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    bool    m_hasDatumElevation;
-    double  m_datumElevation;
+    static void                                  exportCompdat(RimWellPath* wellPath, const RimCaseAndFileExportSettings& exportSettings);
+    static void                                  generateCompdatForPerforation(RifEclipseOutputTableFormatter& formatter, const RigEclipseCaseData* caseData, RimWellPath* wellPath, const RimPerforationInterval* interval);
 };
