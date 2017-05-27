@@ -260,16 +260,16 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
         //////
         // Calculate Transmissibility in the fracture: From one StimPlan Cell to the other
          
-        for (size_t i = 0; i < fracTemplateStimPlan->stimPlanGridNumberOfColums(); i++)
+        for (size_t i = 0; i < fracTemplateStimPlan->stimPlanGridNumberOfColums()-2; i++)
         {
-            for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows();  j++)
+            for (size_t j = 0; j < fracTemplateStimPlan->stimPlanGridNumberOfRows()-2;  j++)
             {
                 size_t stimPlanCellIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(i, j);
                 const RigStimPlanFracTemplateCell stimPlanCell = fracTemplateStimPlan->stimPlanCellFromIndex(stimPlanCellIndex);
 
                 if (stimPlanCell.getConductivtyValue() < 1e-7) continue;
 
-                if (i < fracTemplateStimPlan->stimPlanGridNumberOfColums() - 1)
+                if (i < fracTemplateStimPlan->stimPlanGridNumberOfColums() - 2-1)
                 {
                     size_t stimPlanCellNeighbourXIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(i + 1, j);
                     const RigStimPlanFracTemplateCell stimPlanCellNeighbourX = fracTemplateStimPlan->stimPlanCellFromIndex(stimPlanCellNeighbourXIndex);
@@ -289,7 +289,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
 
                 }
 
-                if (j < fracTemplateStimPlan->stimPlanGridNumberOfRows() - 1)
+                if (j < fracTemplateStimPlan->stimPlanGridNumberOfRows() - 2-1)
                 {
                     size_t stimPlanCellNeighbourZIndex = fracTemplateStimPlan->getGlobalIndexFromIJ(i, j + 1);
                     const RigStimPlanFracTemplateCell stimPlanCellNeighbourZ = fracTemplateStimPlan->stimPlanCellFromIndex(stimPlanCellNeighbourZIndex);

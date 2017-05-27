@@ -959,9 +959,11 @@ std::pair<size_t, size_t> RimStimPlanFractureTemplate::getStimPlanCellAtWellCent
 //--------------------------------------------------------------------------------------------------
 size_t RimStimPlanFractureTemplate::getGlobalIndexFromIJ(size_t i, size_t j) const
 {
-    size_t length_I = stimPlanGridNumberOfRows() - 1;
-    size_t globIndex = j * length_I + i;
+    size_t cellCountJ = stimPlanGridNumberOfRows() - 2;
+    size_t globIndex = i * cellCountJ + j;
 
+    CVF_ASSERT(m_stimPlanCells[globIndex].getI() == i && m_stimPlanCells[globIndex].getJ() == j);
+     
     return globIndex;
 }
 
