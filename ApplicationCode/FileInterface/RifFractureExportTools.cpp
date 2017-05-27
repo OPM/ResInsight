@@ -201,11 +201,23 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
     wellPath->descendantsIncludingThisOfType(fracturesAlongWellPath);
 
     double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
+    const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility 
     // to the well from each fracture intersecting the cell and sum these transmissibilities at the end.
     // std::map <eclipseCellIndex ,map< fracture, trans> > 
     std::map <size_t, std::map<RimFracture*, double> > eclCellIdxToTransPrFractureMap; 
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        return;
+    }
+
+    QTextStream out(&file);
+    out << "\n";
+    out << "-- Exported from ResInsight" << "\n";
+    out << "\n";
 
     for (RimFracture* fracture : fracturesAlongWellPath)
     {
@@ -356,26 +368,13 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
                 eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
             }
         }
+        out << "\n" << "\n" << "\n----------- All Transimissibilities " << fracture->name() << " -------------------- \n\n";
+        out << QString::fromStdString(transCondenser.neighborTransDebugOutput(mainGrid, fracTemplateStimPlan));
+        out << "\n" << "\n" << "\n----------- Condensed Results -------------------- \n\n";
+        out << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fracTemplateStimPlan));
+        out << "\n" ;
     } 
 
-    // Todo:
-    // For all transmissibilities 
-    //  summarize all fractures contributions pr cell, 
-
-    //  Print COMPDAT entry
-
-   const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
-
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        return;
-    }
-
-    QTextStream out(&file);
-    out << "\n";
-    out << "-- Exported from ResInsight" << "\n";
-    out << "\n";
     out << qSetFieldWidth(7) << "COMPDAT" << "\n" << right << qSetFieldWidth(8);
 
     for ( const auto& eclCellIdxFractureTransPair : eclCellIdxToTransPrFractureMap )
@@ -398,7 +397,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
             fractureNames += fracTransPair.first->name() + "(" + QString::number(fracTransPair.second) + ")"+ " ";
         }
 
-        if ( totalCellToWellTrans > 0 )
+        if ( true)// totalCellToWellTrans > 0 )
         {
             size_t i, j, k;
             mainGrid->ijkFromCellIndex(eclCellIdxFractureTransPair.first, &i, &j, &k);

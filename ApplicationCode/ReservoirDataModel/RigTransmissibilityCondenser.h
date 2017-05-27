@@ -24,6 +24,9 @@
 #include <vector>
 #include <set>
 
+class RigMainGrid;
+class RimStimPlanFractureTemplate;
+
 class RigTransmissibilityCondenser
 {
 public:
@@ -70,6 +73,9 @@ public:
     std::set<CellAddress> externalCells();
 
     double condensedTransmissibility( CellAddress externalCell1, CellAddress externalCell2);
+
+    std::string neighborTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid);
+    std::string condensedTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid);
 
 private:
     void calculateCondensedTransmissibilitiesIfNeeded();

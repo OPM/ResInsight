@@ -21,6 +21,7 @@
 
 #include <Eigen/Core>
 #include <Eigen/LU>
+#include <iomanip>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -155,7 +156,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
         for (int exColIdx = exEqIdx +1; exColIdx < externalEquationCount; ++exColIdx)
         {
             double T = condensedSystem(exEqIdx, exColIdx);
-            if (T != 0.0)
+            //if (T != 0.0)
             {
                 CellAddress cell1 = eqIdxToCellAddressMapping[exEqIdx + internalEquationCount];
                 CellAddress cell2 = eqIdxToCellAddressMapping[exColIdx + internalEquationCount];
@@ -172,3 +173,91 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
 
 
 
+
+
+#include "RimStimPlanFractureTemplate.h"
+#include "RigMainGrid.h"
+#include "RigStimPlanFracTemplateCell.h"
+
+void printCellAddress(std::stringstream& str, 
+                      const RigMainGrid* mainGrid, 
+                      const RimStimPlanFractureTemplate* fractureGrid,
+                      RigTransmissibilityCondenser::CellAddress cellAddr)
+{
+    using CellAddress =  RigTransmissibilityCondenser::CellAddress;
+
+    str << (cellAddr.m_isExternal ? "E " : "I ");
+
+    switch (cellAddr.m_cellIndexSpace) {
+        case CellAddress::ECLIPSE: 
+        {
+            str << "ECL ";
+            size_t i, j, k;
+            mainGrid->ijkFromCellIndex(cellAddr.m_globalCellIdx, &i, &j, &k);
+            str << std::setw(5) << i+1 << std::setw(5) << j+1 << std::setw(5) << k+1;
+        }
+        break;
+        case CellAddress::STIMPLAN: 
+        {
+            str << "STP ";
+            const RigStimPlanFracTemplateCell& stpCell = fractureGrid->stimPlanCellFromIndex(cellAddr.m_globalCellIdx);
+            str << std::setw(5) << stpCell.getI()+1 << std::setw(5) << stpCell.getJ()+1  << std::setw(5) << " ";
+        }
+        break;
+
+        case CellAddress::WELL: 
+        {
+            str << "WEL ";
+            str << std::setw(5) << cellAddr.m_globalCellIdx << std::setw(5) << " "  << std::setw(5) << " ";
+        }
+        break;
+    }
+
+    str << " ";
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RigTransmissibilityCondenser::neighborTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid)
+{
+    std::stringstream debugText;
+    for ( const auto& adrEqIdxPair : m_neighborTransmissibilities )
+    {
+        for (const auto& adrTransPair :adrEqIdxPair.second)
+        {
+            debugText << "-- ";
+            printCellAddress(debugText, mainGrid, fractureGrid, adrEqIdxPair.first);
+            printCellAddress(debugText, mainGrid, fractureGrid, adrTransPair.first);
+
+            debugText << " Trans: " << std::setprecision(10) << std::fixed << adrTransPair.second;
+            debugText << std::endl;
+        }
+    }
+
+    return debugText.str();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RigTransmissibilityCondenser::condensedTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid)
+{
+    std::stringstream debugText;
+    for ( const auto& adrEqIdxPair : m_condensedTransmissibilities )
+    {
+        for (const auto& adrTransPair :adrEqIdxPair.second)
+        {
+            debugText << "-- ";
+            printCellAddress(debugText, mainGrid, fractureGrid, adrEqIdxPair.first);
+            printCellAddress(debugText, mainGrid, fractureGrid, adrTransPair.first);
+
+            debugText << " Trans: " << std::setprecision(10) << std::fixed << adrTransPair.second;
+            debugText << std::endl;
+        }
+    }
+
+    return debugText.str();
+}
