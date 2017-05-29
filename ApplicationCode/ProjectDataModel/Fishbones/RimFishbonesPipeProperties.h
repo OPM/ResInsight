@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,38 +18,35 @@
 
 #pragma once
 
-#include "RimCheckableNamedObject.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishbonesPipeProperties.h"
+#include "cvfBase.h"
+#include "cvfVector3.h"
+#include "cvfColor3.h"
 
 #include "cafPdmObject.h"
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 
+#include <algorithm>
+#include <memory>
+
 //==================================================================================================
-//
-// 
-//
+///  
+///  
 //==================================================================================================
-class RimFishboneWellPathCollection : public RimCheckableNamedObject
+class RimFishbonesPipeProperties : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFishboneWellPathCollection();
+    RimFishbonesPipeProperties();
+    virtual ~RimFishbonesPipeProperties();
 
-    void importCompletionsFromFile(const QStringList& filePaths);
-
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    double                              skinFactor() const { return m_skinFactor(); }
+    double                              holeRadius() const { return m_lateralHoleRadius(); }
 
 protected:
-    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void appendCompletion(RimFishboneWellPath* completion);
-
-private:
-    caf::PdmChildArrayField<RimFishboneWellPath*> m_wellPaths;
-    caf::PdmChildField<RimFishbonesPipeProperties*> m_pipeProperties;
+    caf::PdmField<double>               m_skinFactor;
+    caf::PdmField<double>               m_lateralHoleRadius;
 };

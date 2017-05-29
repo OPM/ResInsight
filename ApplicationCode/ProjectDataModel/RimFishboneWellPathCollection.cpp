@@ -45,6 +45,12 @@ RimFishboneWellPathCollection::RimFishboneWellPathCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_wellPaths, "WellPaths", "Well Paths", "", "", "");
     m_wellPaths.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_pipeProperties, "PipeProperties", "Pipe Properties", "", "", "");
+    m_pipeProperties.uiCapability()->setUiHidden(true);
+    m_pipeProperties.uiCapability()->setUiTreeHidden(true);
+    m_pipeProperties.uiCapability()->setUiTreeChildrenHidden(true);
+    m_pipeProperties = new RimFishbonesPipeProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +61,15 @@ void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishboneWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* wellPropertiesGroup = uiOrdering.addNewGroup("Well Properties");
+    m_pipeProperties->uiOrdering(uiConfigName, *wellPropertiesGroup);
 }
 
 //--------------------------------------------------------------------------------------------------

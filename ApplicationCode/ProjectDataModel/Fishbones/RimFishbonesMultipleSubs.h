@@ -20,13 +20,15 @@
 
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
+#include "RimFishbonesPipeProperties.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
 #include "cvfColor3.h"
 
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmChildField.h"
 
 #include <algorithm>
 #include <memory>
@@ -69,7 +71,7 @@ public:
     double              buildAngle() const;
 
     double              tubingRadius() const;
-    double              holeRadius() const { return m_lateralHoleRadius(); }
+    double              holeRadius() const { return m_pipeProperties()->holeRadius(); }
     double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
@@ -104,9 +106,6 @@ private:
     caf::PdmField<double>               m_lateralExitAngle;
     caf::PdmField<double>               m_lateralBuildAngle;
 
-    caf::PdmField<double>               m_skinFactor;
-
-    caf::PdmField<double>               m_lateralHoleRadius;
     caf::PdmField<double>               m_lateralTubingRadius;
 
     caf::PdmField<double>               m_lateralOpenHoleRoghnessFactor;
@@ -130,6 +129,8 @@ private:
 
     caf::PdmField<std::vector<double>>  m_installationRotationAngles;
     caf::PdmField<double>               m_fixedInstallationRotationAngle;
+
+    caf::PdmChildField<RimFishbonesPipeProperties*> m_pipeProperties;
 
     std::unique_ptr<RigFisbonesGeometry>    m_rigFishbonesGeometry;
 };

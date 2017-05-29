@@ -59,7 +59,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
     CAF_PDM_InitObject("FishbonesMultipleSubs", ":/Default.png", "", "");
 
-    CAF_PDM_InitField(&fishbonesColor,                         "FishbonesColor", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
+    CAF_PDM_InitField(&fishbonesColor,                  "FishbonesColor", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
 
     CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Laterals Per Sub", "", "", "");
     CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("12.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
@@ -67,7 +67,6 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralExitAngle,              "LateralExitAngle", 35.0,           "Exit Angle [deg]", "", "", "");
     CAF_PDM_InitField(&m_lateralBuildAngle,             "LateralBuildAngle", 5.0,           "Build Angle [deg/m]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralHoleRadius,             "LateralHoleRadius", 12.0,          "Hole Radius [mm]", "", "", "");
     CAF_PDM_InitField(&m_lateralTubingRadius,           "LateralTubingRadius", 8.0,         "Tubing Radius [mm]", "", "", "");
 
     CAF_PDM_InitField(&m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001,   "Open Hole Roghness Factor [m]", "", "", "");
@@ -75,7 +74,6 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     CAF_PDM_InitField(&m_lateralLengthFraction,         "LateralLengthFraction", 0.8,       "Length Fraction [0..1]", "", "", "");
     CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 0.7,      "Install Fraction [0..1]", "", "", "");
-    CAF_PDM_InitField(&m_skinFactor,                    "SkinFactor", 1.0,                  "Skin Factor [0..1]", "", "", "");
 
     CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICD Count", "", "", "");
     CAF_PDM_InitField(&m_icdOrificeRadius,              "IcdOrificeRadius", 8.0,            "ICD Orifice Radius [mm]", "", "", "");
@@ -94,6 +92,12 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitFieldNoDefault(&m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]", "", "", "");
     m_installationRotationAngles.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_pipeProperties, "PipeProperties", "Pipe Properties", "", "", "");
+    m_pipeProperties.uiCapability()->setUiHidden(true);
+    m_pipeProperties.uiCapability()->setUiTreeChildrenHidden(true);
+
+    m_pipeProperties = new RimFishbonesPipeProperties;
 
     m_name.uiCapability()->setUiReadOnly(true);
 
@@ -370,12 +374,6 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
             lateralConfigGroup->add(&m_fixedInstallationRotationAngle);
         }
 
-        {
-            caf::PdmUiGroup* wellGroup = lateralConfigGroup->addNewGroup("Well Properties");
-
-            wellGroup->add(&m_lateralHoleRadius);
-            wellGroup->add(&m_skinFactor);
-        }
 
         {
             caf::PdmUiGroup* successGroup = lateralConfigGroup->addNewGroup("Installation Success Fractions");
@@ -384,6 +382,12 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
             successGroup->add(&m_lateralLengthFraction);
             successGroup->add(&m_lateralInstallFraction);
         }
+    }
+
+    {
+        caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup("Well Properties");
+
+        m_pipeProperties->uiOrdering(uiConfigName, *wellGroup);
     }
 
     {
