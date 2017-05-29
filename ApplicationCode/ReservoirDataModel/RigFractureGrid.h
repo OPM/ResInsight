@@ -26,7 +26,7 @@ class RigStimPlanFracTemplateCell;
 ///  
 ///  
 //==================================================================================================
-class RigFractureGrid
+class RigFractureGrid //TODO arve fra cvf::Object,  skal være cvf::ref i rigstimplanfracturetemplate
 {
 public:
     RigFractureGrid();
