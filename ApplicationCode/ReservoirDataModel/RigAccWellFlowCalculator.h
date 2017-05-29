@@ -74,7 +74,6 @@ public:
     const std::vector<double>&                              pseudoLengthFromTop(size_t branchIdx) const;
     const std::vector<double>&                              trueVerticalDepth(size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
-    const std::vector<double>&                              flowPrPseudoLength( size_t branchIdx) const;
     const std::vector<double>&                              tracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
 
 
