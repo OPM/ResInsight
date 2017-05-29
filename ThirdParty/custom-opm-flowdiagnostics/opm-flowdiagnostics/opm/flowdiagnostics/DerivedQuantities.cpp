@@ -69,11 +69,13 @@ namespace FlowDiagnostics
     /// al. (SPE 146446), Shook and Mitchell (SPE 124625).
     Graph flowCapacityStorageCapacityCurve(const Toolbox::Forward& injector_solution,
                                            const Toolbox::Reverse& producer_solution,
-                                           const std::vector<double>& pv)
+                                           const std::vector<double>& pv,
+                                           const double max_pv_fraction)
     {
         return flowCapacityStorageCapacityCurve(injector_solution.fd.timeOfFlight(),
                                                 producer_solution.fd.timeOfFlight(),
-                                                pv);
+                                                pv,
+                                                max_pv_fraction);
     }
 
 
@@ -88,20 +90,30 @@ namespace FlowDiagnostics
     /// al. (SPE 146446), Shook and Mitchell (SPE 124625).
     Graph flowCapacityStorageCapacityCurve(const std::vector<double>& injector_tof,
                                            const std::vector<double>& producer_tof,
-                                           const std::vector<double>& pv)
+                                           const std::vector<double>& pv,
+                                           const double max_pv_fraction)
     {
         if (pv.size() != injector_tof.size() || pv.size() != producer_tof.size()) {
             throw std::runtime_error("flowCapacityStorageCapacityCurve(): "
                                      "Input solutions must have same size.");
         }
 
+        // Compute max pv cutoff.
+        const double total_pv = std::accumulate(pv.begin(), pv.end(), 0.0);
+        const double max_pv = max_pv_fraction * total_pv;
+
         // Sort according to total travel time.
         const int n = pv.size();
         typedef std::pair<double, double> D2;
         std::vector<D2> time_and_pv(n);
         for (int ii = 0; ii < n; ++ii) {
-            time_and_pv[ii].first = injector_tof[ii] + producer_tof[ii]; // Total travel time.
-            time_and_pv[ii].second = pv[ii];
+            if (pv[ii] > max_pv) {
+                time_and_pv[ii].first = 1e100;
+                time_and_pv[ii].second = 0.0;
+            } else {
+                time_and_pv[ii].first = injector_tof[ii] + producer_tof[ii]; // Total travel time.
+                time_and_pv[ii].second = pv[ii];
+            }
         }
         std::sort(time_and_pv.begin(), time_and_pv.end());
 

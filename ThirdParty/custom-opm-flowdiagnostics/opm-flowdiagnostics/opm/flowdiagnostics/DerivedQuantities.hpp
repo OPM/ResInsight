@@ -44,11 +44,19 @@ namespace FlowDiagnostics
     /// coefficient. For a technical description see Shavali et
     /// al. (SPE 146446), Shook and Mitchell (SPE 124625).
     ///
+    /// Single cells with a very large pore volume can be filtered out
+    /// before creating the curve. The 'max_pv_fraction' parameter
+    /// gives a fraction such that, if a cell's fraction of the total
+    /// pore volume is above this number, that cell will be
+    /// ignored. This can be used to disregard numerical aquifers for
+    /// example.
+    ///
     /// Returns F (flow capacity) as a function of Phi (storage capacity),
     /// that is for the returned Graph g, g.first is Phi and g.second is F.
     Graph flowCapacityStorageCapacityCurve(const Toolbox::Forward& injector_solution,
                                            const Toolbox::Reverse& producer_solution,
-                                           const std::vector<double>& pore_volume);
+                                           const std::vector<double>& pore_volume,
+                                           const double max_pv_fraction = 1.0);
 
     /// This overload gets the injector and producer time-of-flight
     /// directly instead of extracting it from the solution
@@ -56,7 +64,8 @@ namespace FlowDiagnostics
     /// overload.
     Graph flowCapacityStorageCapacityCurve(const std::vector<double>& injector_tof,
                                            const std::vector<double>& producer_tof,
-                                           const std::vector<double>& pore_volume);
+                                           const std::vector<double>& pore_volume,
+                                           const double max_pv_fraction = 1.0);
 
     /// The Lorenz coefficient from the F-Phi curve.
     ///
