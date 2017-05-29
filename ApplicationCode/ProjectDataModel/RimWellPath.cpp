@@ -174,6 +174,16 @@ RimFishbonesCollection* RimWellPath::fishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimFishbonesCollection * RimWellPath::fishbonesCollection() const
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fishbonesCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RimWellPath::perforationIntervalCollection()
 {
     CVF_ASSERT(m_completions);
@@ -184,7 +194,25 @@ RimPerforationCollection* RimWellPath::perforationIntervalCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimPerforationCollection* RimWellPath::perforationIntervalCollection() const
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->perforationCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigWellPath* RimWellPath::wellPathGeometry()
+{
+    return m_wellPath.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellPath * RimWellPath::wellPathGeometry() const
 {
     return m_wellPath.p();
 }

@@ -57,7 +57,7 @@ double RigWellPath::datumElevation() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth)
+cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth) const
 {
     cvf::Vec3d wellPathPoint = cvf::Vec3d::ZERO;
 

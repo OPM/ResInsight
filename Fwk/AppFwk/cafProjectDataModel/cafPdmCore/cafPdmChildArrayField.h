@@ -54,6 +54,7 @@ public:
     virtual ~PdmChildArrayField();
 
     PdmChildArrayField&   operator() () { return *this; }
+    const PdmChildArrayField& operator() () const { return *this; }
 
     // Reimplementation of PdmPointersFieldHandle methods
   

@@ -76,9 +76,12 @@ public:
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
     RimFishbonesCollection*             fishbonesCollection();
+    const RimFishbonesCollection*       fishbonesCollection() const;
     RimPerforationCollection*           perforationIntervalCollection();
+    const RimPerforationCollection*     perforationIntervalCollection() const;
 
     RigWellPath*                        wellPathGeometry();
+    const RigWellPath*                  wellPathGeometry() const;
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
