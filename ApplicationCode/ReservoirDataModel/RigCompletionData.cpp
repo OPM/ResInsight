@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 
 #include <QString>
+#include <cmath> // Needed for HUGE_VAL on linux
 
 //==================================================================================================
 /// 
