@@ -121,12 +121,14 @@ protected:
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
 
+    std::vector<RimWellPath*>                    selectedWellPaths();
+
 public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath);
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
 private:
-    static void                                  exportCompletions(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings);
+    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RimExportCompletionDataSettings& exportSettings);
 
     static void                                  generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
     static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
@@ -143,4 +145,5 @@ private:
     static void                                  assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
 
     static void                                  appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data);
+
 };

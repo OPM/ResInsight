@@ -23,6 +23,7 @@
 
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFishbonesCollection.h"
 #include "RimPerforationInterval.h"
@@ -53,14 +54,7 @@ CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCo
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 {
-    std::vector<RimWellPath*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    if (objects.size() == 1) {
-        return true;
-    }
-
-    return false;
+    return !selectedWellPaths().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,10 +62,9 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellPath*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
+    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
 
-    CVF_ASSERT(objects.size() == 1);
+    CVF_ASSERT(wellPaths.size() > 0);
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -98,7 +91,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
 
-        exportCompletions(objects[0], exportSettings);
+        exportCompletions(wellPaths, exportSettings);
     }
 }
 
@@ -113,7 +106,31 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportCompletions(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings)
+std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPaths()
+{
+    std::vector<RimWellPath*> wellPaths;
+    caf::SelectionManager::instance()->objectsByType(&wellPaths);
+
+    std::vector<RimWellPathCollection*> wellPathCollections;
+    caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+
+    for (auto wellPathCollection : wellPathCollections)
+    {
+        for (auto wellPath : wellPathCollection->wellPaths())
+        {
+            wellPaths.push_back(wellPath);
+        }
+    }
+
+    std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
+    wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
+    return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RimExportCompletionDataSettings& exportSettings)
 {
     QFile exportFile(exportSettings.fileName());
 
@@ -129,37 +146,40 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(RimWellPath* well
         return;
     }
 
-
-    // Generate completion data
-    std::map<IJKCellIndex, RigCompletionData> completionData;
-
-    if (exportSettings.includePerforations)
-    {
-        std::vector<RigCompletionData> perforationCompletionData = generatePerforationsCompdatValues(wellPath, exportSettings);
-        appendCompletionData(&completionData, perforationCompletionData);
-    }
-    if (exportSettings.includeFishbones)
-    {
-        std::vector<RigCompletionData> fishbonesCompletionData = generateFishbonesCompdatValues(wellPath, exportSettings);
-        appendCompletionData(&completionData, fishbonesCompletionData);
-    }
-
-    // Merge map into a vector of values
-    std::vector<RigCompletionData> completions;
-    for (auto& data : completionData)
-    {
-        completions.push_back(data.second);
-    }
-    // Sort by well name / cell index
-    std::sort(completions.begin(), completions.end());
-
-    // Print completion data
     QTextStream stream(&exportFile);
     RifEclipseOutputTableFormatter formatter(stream);
-    generateCompdatTable(formatter, completions);
-    if (exportSettings.includeWpimult)
+
+    for (auto wellPath : wellPaths)
     {
-        generateWpimultTable(formatter, completions);
+        // Generate completion data
+        std::map<IJKCellIndex, RigCompletionData> completionData;
+
+        if (exportSettings.includePerforations)
+        {
+            std::vector<RigCompletionData> perforationCompletionData = generatePerforationsCompdatValues(wellPath, exportSettings);
+            appendCompletionData(&completionData, perforationCompletionData);
+        }
+        if (exportSettings.includeFishbones)
+        {
+            std::vector<RigCompletionData> fishbonesCompletionData = generateFishbonesCompdatValues(wellPath, exportSettings);
+            appendCompletionData(&completionData, fishbonesCompletionData);
+        }
+
+        // Merge map into a vector of values
+        std::vector<RigCompletionData> completions;
+        for (auto& data : completionData)
+        {
+            completions.push_back(data.second);
+        }
+        // Sort by well name / cell index
+        std::sort(completions.begin(), completions.end());
+
+        // Print completion data
+        generateCompdatTable(formatter, completions);
+        if (exportSettings.includeWpimult)
+        {
+            generateWpimultTable(formatter, completions);
+        }
     }
 }
 
