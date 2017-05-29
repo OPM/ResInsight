@@ -91,10 +91,12 @@ struct RigHexIntersector
         return intersectionCount;
     }
 
-    static bool isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8], const size_t hexIndex)
+    static bool isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8])
     {
         cvf::Ray ray;
         ray.setOrigin(point);
+        size_t intersections = 0;
+
         for (int face = 0; face < 6; ++face)
         {
             cvf::ubyte faceVertexIndices[4];
@@ -106,11 +108,11 @@ struct RigHexIntersector
                 int next = i < 3 ? i + 1 : 0;
                 if (ray.triangleIntersect(hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter))
                 {
-                    return true;
+                    ++intersections;
                 }
             }
         }
-        return false;
+        return intersections % 2 == 1;
     }
 
     static bool isEqualDepth(double d1, double d2) 

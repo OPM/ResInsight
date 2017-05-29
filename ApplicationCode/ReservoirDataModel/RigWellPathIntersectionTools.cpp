@@ -115,7 +115,7 @@ std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::getIntersectedCel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Calculates direction vectors for each axis in the cell.
+/// Calculates main axis vectors for each axis in the cell.
 //--------------------------------------------------------------------------------------------------
 void RigWellPathIntersectionTools::calculateCellMainAxisVectors(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection)
 {
@@ -125,7 +125,7 @@ void RigWellPathIntersectionTools::calculateCellMainAxisVectors(const std::array
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Calculate the main axis vector for one axis in the cell, fron `negativeFace` to `positiveFace`
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigWellPathIntersectionTools::calculateCellMainAxisVector(const std::array<cvf::Vec3d, 8>& hexCorners,
                                                                         cvf::StructGridInterface::FaceType negativeFace,
@@ -244,7 +244,7 @@ size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid,
 
         setHexCorners(cell, nodeCoords, hexCorners);
 
-        if (RigHexIntersector::isPointInCell(coords, hexCorners, closeCell))
+        if (RigHexIntersector::isPointInCell(coords, hexCorners))
         {
             return closeCell;
         }
