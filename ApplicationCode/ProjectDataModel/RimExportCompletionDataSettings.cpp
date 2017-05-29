@@ -46,6 +46,9 @@ RimExportCompletionDataSettings::RimExportCompletionDataSettings()
 {
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
+    CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
+    CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
+
     CAF_PDM_InitField(&includeWpimult, "IncludeWPIMULT", true, "Include WPIMLUT", "", "", "");
     CAF_PDM_InitField(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", false, "Remove Laterals in Main Bore Cells", "", "", "");
     CAF_PDM_InitFieldNoDefault(&pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");

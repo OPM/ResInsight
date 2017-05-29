@@ -18,8 +18,6 @@
 
 #include "RigWellPathIntersectionTools.h"
 
-#include "RiaLogging.h"
-
 #include "RigWellPath.h"
 #include "RigMainGrid.h"
 #include "RigEclipseCaseData.h"
@@ -121,10 +119,6 @@ std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::getIntersectedCel
 //--------------------------------------------------------------------------------------------------
 void RigWellPathIntersectionTools::calculateCellMainAxisVectors(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection)
 {
-    for (auto vec : hexCorners)
-    {
-        RiaLogging::debug(QString("%1, %2, %3").arg(vec.x()).arg(vec.y()).arg(vec.z()));
-    }
     *iAxisDirection = calculateCellMainAxisVector(hexCorners, cvf::StructGridInterface::NEG_I, cvf::StructGridInterface::POS_I);
     *jAxisDirection = calculateCellMainAxisVector(hexCorners, cvf::StructGridInterface::NEG_J, cvf::StructGridInterface::POS_J);
     *kAxisDirection = calculateCellMainAxisVector(hexCorners, cvf::StructGridInterface::NEG_K, cvf::StructGridInterface::POS_K);

@@ -83,3 +83,18 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<const RimPerforationInterval*> RimPerforationCollection::perforations() const
+{
+    std::vector<const RimPerforationInterval*> myPerforations;
+
+    for (auto perforation : m_perforations)
+    {
+        myPerforations.push_back(perforation);
+    }
+
+    return myPerforations;
+}
+

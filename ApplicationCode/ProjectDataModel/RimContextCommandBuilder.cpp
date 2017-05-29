@@ -401,7 +401,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicExportFishbonesLateralsFeature";
         commandIds << "RicWellPathExportCompletionDataFeature";
         commandIds << "RicWellPathImportCompletionsFileFeature";
-        commandIds << "RicWellPathExportPerforationCompdatFeature";
         commandIds << "RicFlyToObjectFeature";
 
         // Work in progress -- End

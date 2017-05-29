@@ -21,6 +21,8 @@
 #include "RifEclipseOutputTableFormatter.h"
 
 #include "RigWellLogExtractionTools.h"
+#include "RigWellPathIntersectionTools.h"
+#include "RigCompletionData.h"
 
 #include "RimExportCompletionDataSettings.h"
 
@@ -39,18 +41,6 @@ class RimFishbonesMultipleSubs;
 //==================================================================================================
 /// 
 //==================================================================================================
-enum WellSegmentCellDirection {
-    POS_I,
-    NEG_I,
-    POS_J,
-    NEG_J,
-    POS_K,
-    NEG_K
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
 struct WellSegmentLateralIntersection {
     WellSegmentLateralIntersection(int segmentNumber, int attachedSegmentNumber, size_t cellIndex, double length, double depth)
         : segmentNumber(segmentNumber),
@@ -59,7 +49,6 @@ struct WellSegmentLateralIntersection {
           length(length),
           depth(depth),
           direction(POS_I),
-          directionLength(-1.0),
           mainBoreCell(false)
     {}
 
@@ -69,8 +58,7 @@ struct WellSegmentLateralIntersection {
     bool                     mainBoreCell;
     double                   length;
     double                   depth;
-    WellSegmentCellDirection direction;
-    double                   directionLength;
+    WellPathCellDirection    direction;
 };
 
 //==================================================================================================
@@ -134,33 +122,25 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
 private:
-    static void                                  exportToFolder(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings);
+    static void                                  exportCompletions(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings);
 
-    static void                                  generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::map<size_t, double>& lateralsPerCell);
+    static void                                  generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
+    static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
+
+    static std::vector<RigCompletionData>        generateFishbonesCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
+    static std::vector<RigCompletionData>        generatePerforationsCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
+
     static void                                  generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations);
     static void                                  generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations);
 
     static std::map<size_t, double>              computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells);
-
-    static std::vector<size_t>                   findCloseCells(const RigEclipseCaseData* caseData, const cvf::BoundingBox& bb);
-    static size_t                                findCellFromCoords(const RigEclipseCaseData* caseData, const cvf::Vec3d& coords);
-
-    static std::vector<EclipseCellIndexRange>    getCellIndexRange(const RigMainGrid* grid, const std::vector<size_t>& cellIndices);
-    static bool                                  cellOrdering(const EclipseCellIndex& cell1, const EclipseCellIndex& cell2);
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
-    static void                                  setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners);
     static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
     static bool                                  wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second);
-    static std::vector<HexIntersectionInfo>      findIntersections(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords);
     static bool                                  isPointBetween(const cvf::Vec3d& pointA, const cvf::Vec3d& pointB, const cvf::Vec3d& needle);
-    static void                                  filterIntersections(std::vector<HexIntersectionInfo>* intersections);
-    static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, RimWellPath* wellPath);
+    static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath);
     static void                                  calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum);
     static void                                  assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
 
-    // Calculate direction
-    static void                                        calculateCellMainAxisDirections(const RigMainGrid* grid, size_t cellIndex, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection);
-    static cvf::Vec3d                                  calculateCellMainAxisDirection(const cvf::Vec3d* hexCorners, cvf::StructGridInterface::FaceType startFace, cvf::StructGridInterface::FaceType endFace);
-    static std::pair<WellSegmentCellDirection, double> calculateDirectionAndDistanceInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
+    static void                                  appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data);
 };

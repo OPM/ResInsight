@@ -48,6 +48,10 @@ public:
 
     RimExportCompletionDataSettings();
 
+
+    caf::PdmField<bool>                     includePerforations;
+    caf::PdmField<bool>                     includeFishbones;
+
     caf::PdmField<bool>                     includeWpimult;
     caf::PdmField<bool>                     removeLateralsInMainBoreCells;
     caf::PdmField<PressureDropEnum>         pressureDrop;

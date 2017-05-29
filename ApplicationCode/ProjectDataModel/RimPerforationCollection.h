@@ -41,8 +41,12 @@ public:
     ~RimPerforationCollection();
 
     void appendPerforation(RimPerforationInterval* perforation);
+    std::vector<const RimPerforationInterval*> perforations() const;
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
+    friend class RiuEditPerforationCollectionWidget;
+
+private:
     caf::PdmChildArrayField<RimPerforationInterval*>    m_perforations;
 };

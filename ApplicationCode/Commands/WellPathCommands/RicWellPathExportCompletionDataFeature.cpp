@@ -25,11 +25,14 @@
 #include "RimWellPath.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFishbonesCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimPerforationCollection.h"
 #include "RimExportCompletionDataSettings.h"
 
 #include "RiuMainWindow.h"
 
 #include "RigWellLogExtractionTools.h"
+#include "RigWellPathIntersectionTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
@@ -95,7 +98,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
 
-        exportToFolder(objects[0], exportSettings);
+        exportCompletions(objects[0], exportSettings);
     }
 }
 
@@ -110,7 +113,7 @@ void RicWellPathExportCompletionDataFeature::setupActionLook(QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings)
+void RicWellPathExportCompletionDataFeature::exportCompletions(RimWellPath* wellPath, const RimExportCompletionDataSettings& exportSettings)
 {
     QFile exportFile(exportSettings.fileName());
 
@@ -126,108 +129,126 @@ void RicWellPathExportCompletionDataFeature::exportToFolder(RimWellPath* wellPat
         return;
     }
 
-    RiaLogging::debug(QString("Exporting completion data for well path %1 to %2 [WPIMULT: %3, REM BORE CELLS: %4]").arg(wellPath->name).arg(exportSettings.fileName()).arg(exportSettings.includeWpimult()).arg(exportSettings.removeLateralsInMainBoreCells()));
 
+    // Generate completion data
+    std::map<IJKCellIndex, RigCompletionData> completionData;
 
-    // Generate data
-    const RigEclipseCaseData* caseData =  exportSettings.caseToApply()->eclipseCaseData();
-    std::vector<WellSegmentLocation> wellSegmentLocations = findWellSegmentLocations(exportSettings.caseToApply, wellPath);
-
-    // Filter out cells where main bore is present
-    if (exportSettings.removeLateralsInMainBoreCells())
+    if (exportSettings.includePerforations)
     {
-        std::vector<size_t> wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
-        markWellPathCells(wellPathCells, &wellSegmentLocations);
+        std::vector<RigCompletionData> perforationCompletionData = generatePerforationsCompdatValues(wellPath, exportSettings);
+        appendCompletionData(&completionData, perforationCompletionData);
+    }
+    if (exportSettings.includeFishbones)
+    {
+        std::vector<RigCompletionData> fishbonesCompletionData = generateFishbonesCompdatValues(wellPath, exportSettings);
+        appendCompletionData(&completionData, fishbonesCompletionData);
     }
 
-    // Print data
+    // Merge map into a vector of values
+    std::vector<RigCompletionData> completions;
+    for (auto& data : completionData)
+    {
+        completions.push_back(data.second);
+    }
+    // Sort by well name / cell index
+    std::sort(completions.begin(), completions.end());
+
+    // Print completion data
     QTextStream stream(&exportFile);
     RifEclipseOutputTableFormatter formatter(stream);
-
-    generateCompdatTable(formatter, wellPath, exportSettings, wellSegmentLocations);
-
-    if (exportSettings.includeWpimult())
+    generateCompdatTable(formatter, completions);
+    if (exportSettings.includeWpimult)
     {
-        std::map<size_t, double> lateralsPerCell = computeLateralsPerCell(wellSegmentLocations, exportSettings.removeLateralsInMainBoreCells());
-        generateWpimultTable(formatter, wellPath, exportSettings, lateralsPerCell);
+        generateWpimultTable(formatter, completions);
     }
-
-    generateWelsegsTable(formatter, wellPath, exportSettings, wellSegmentLocations);
-    generateCompsegsTable(formatter, wellPath, exportSettings, wellSegmentLocations);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::vector<WellSegmentLocation>& locations)
+void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
 {
-    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     std::vector<RifEclipseOutputTableColumn> header = {
-               RifEclipseOutputTableColumn("Well"),
-               RifEclipseOutputTableColumn("I"),
-               RifEclipseOutputTableColumn("J"),
-               RifEclipseOutputTableColumn("K1"),
-               RifEclipseOutputTableColumn("K2"),
-               RifEclipseOutputTableColumn("Status"),
-               RifEclipseOutputTableColumn("SAT"),
-               RifEclipseOutputTableColumn("TR"),
-               RifEclipseOutputTableColumn("DIAM"),
-               RifEclipseOutputTableColumn("KH"),
-               RifEclipseOutputTableColumn("S"),
-               RifEclipseOutputTableColumn("Df"),
-               RifEclipseOutputTableColumn("DIR"),
-               RifEclipseOutputTableColumn("r0")
+        RifEclipseOutputTableColumn("Well"),
+        RifEclipseOutputTableColumn("I"),
+        RifEclipseOutputTableColumn("J"),
+        RifEclipseOutputTableColumn("K1"),
+        RifEclipseOutputTableColumn("K2"),
+        RifEclipseOutputTableColumn("Status"),
+        RifEclipseOutputTableColumn("SAT"),
+        RifEclipseOutputTableColumn("TR"),
+        RifEclipseOutputTableColumn("DIAM"),
+        RifEclipseOutputTableColumn("KH"),
+        RifEclipseOutputTableColumn("S"),
+        RifEclipseOutputTableColumn("Df"),
+        RifEclipseOutputTableColumn("DIR"),
+        RifEclipseOutputTableColumn("r0")
     };
 
     formatter.keyword("COMPDAT");
     formatter.header(header);
 
-    for (const WellSegmentLocation& location : locations)
+    for (const RigCompletionData& data : completionData)
     {
-        for (const WellSegmentLateral& lateral : location.laterals)
+        for (const RigCompletionMetaData& metadata : data.metadata())
         {
-            formatter.comment(QString("Fishbone %1 - Sub: %2 - Lateral: %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
-            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
-            {
-                if (settings.removeLateralsInMainBoreCells && intersection.mainBoreCell) continue;
+            formatter.comment(QString("%1 : %2").arg(metadata.name).arg(metadata.comment));
+        }
+        formatter.add(data.wellName());
+        formatter.addZeroBasedCellIndex(data.cellIndex().i).addZeroBasedCellIndex(data.cellIndex().j).addZeroBasedCellIndex(data.cellIndex().k).addZeroBasedCellIndex(data.cellIndex().k);
+        switch (data.connectionState())
+        {
+        case OPEN:
+            formatter.add("OPEN");
+            break;
+        case SHUT:
+            formatter.add("SHUT");
+            break;
+        case AUTO:
+            formatter.add("AUTO");
+            break;
+        }
+        if (RigCompletionData::isDefaultValue(data.saturation())) formatter.add("1*"); else formatter.add(data.saturation());
+        if (RigCompletionData::isDefaultValue(data.transmissibility()))
+        {
+            formatter.add("1*"); // Transmissibility
 
-                size_t i, j, k;
-                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
-                formatter.add(wellPath->name());
-                formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k).addZeroBasedCellIndex(k);
-                formatter.add("'OPEN'").add("1*").add("1*");
-                formatter.add(location.fishbonesSubs->holeRadius() / 1000);
-                formatter.add("1*").add("1*").add("1*");
-                switch (intersection.direction)
-                {
-                case POS_I:
-                case NEG_I:
-                    formatter.add("'X'");
-                    break;
-                case POS_J:
-                case NEG_J:
-                    formatter.add("'Y'");
-                    break;
-                case POS_K:
-                case NEG_K:
-                    formatter.add("'Z'");
-                    break;
-                }
-                formatter.add("1*");
-                formatter.rowCompleted();
+            if (RigCompletionData::isDefaultValue(data.diameter())) formatter.add("1*"); else formatter.add(data.diameter());
+            if (RigCompletionData::isDefaultValue(data.kh())) formatter.add("1*"); else formatter.add(data.kh());
+            if (RigCompletionData::isDefaultValue(data.skinFactor())) formatter.add("1*"); else formatter.add(data.skinFactor());
+            if (RigCompletionData::isDefaultValue(data.dFactor())) formatter.add("1*"); else formatter.add(data.dFactor());
+
+            switch (data.direction())
+            {
+            case DIR_I:
+                formatter.add("'X'");
+                break;
+            case DIR_J:
+                formatter.add("'Y'");
+                break;
+            case DIR_K:
+                formatter.add("'Z'");
+                break;
+            default:
+                formatter.add("'Z'");
+                break;
             }
         }
-    }
+        else
+        {
+            formatter.add(data.transmissibility());
+        }
 
+        formatter.rowCompleted();
+    }
     formatter.tableCompleted();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings, const std::map<size_t, double>& lateralsPerCell)
+void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
 {
-    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
         RifEclipseOutputTableColumn("Mult"),
@@ -238,17 +259,118 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseOutp
     formatter.keyword("WPIMULT");
     formatter.header(header);
 
-    for (auto lateralsInCell : lateralsPerCell)
+    for (auto& completion : completionData)
     {
-        size_t i, j, k;
-        grid->ijkFromCellIndex(lateralsInCell.first, &i, &j, &k);
-        formatter.add(wellPath->name());
-        formatter.add(lateralsInCell.second);
-        formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
+        formatter.add(completion.wellName());
+        formatter.add(completion.count());
+        formatter.addZeroBasedCellIndex(completion.cellIndex().i).addZeroBasedCellIndex(completion.cellIndex().j).addZeroBasedCellIndex(completion.cellIndex().k);
         formatter.rowCompleted();
     }
 
     formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings)
+{
+    // Generate data
+    const RigEclipseCaseData* caseData =  settings.caseToApply()->eclipseCaseData();
+    std::vector<WellSegmentLocation> locations = findWellSegmentLocations(settings.caseToApply, wellPath);
+
+    // Filter out cells where main bore is present
+    if (settings.removeLateralsInMainBoreCells())
+    {
+        std::vector<size_t> wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
+        markWellPathCells(wellPathCells, &locations);
+    }
+
+    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
+
+    std::vector<RigCompletionData> completionData;
+
+    for (const WellSegmentLocation& location : locations)
+    {
+        for (const WellSegmentLateral& lateral : location.laterals)
+        {
+            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
+            {
+                if (intersection.mainBoreCell && settings.removeLateralsInMainBoreCells()) continue;
+
+                size_t i, j, k;
+                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
+                RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+                completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
+                double diameter = location.fishbonesSubs->holeRadius() / 1000 * 2;
+                switch (intersection.direction)
+                {
+                case POS_I:
+                case NEG_I:
+                    completion.setFromFishbone(diameter, CellDirection::DIR_I);
+                    break;
+                case POS_J:
+                case NEG_J:
+                    completion.setFromFishbone(diameter, CellDirection::DIR_J);
+                    break;
+                case POS_K:
+                case NEG_K:
+                    completion.setFromFishbone(diameter, CellDirection::DIR_K);
+                    break;
+                default:
+                    completion.setFromFishbone(diameter, CellDirection::DIR_UNDEF);
+                    break;
+                }
+                completionData.push_back(completion);
+            }
+        }
+    }
+
+    return completionData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generatePerforationsCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings)
+{
+    std::vector<RigCompletionData> completionData;
+
+    for (const RimPerforationInterval* interval : wellPath->perforationIntervalCollection()->perforations())
+    {
+        std::vector<cvf::Vec3d> perforationPoints = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), perforationPoints);
+        for (auto& cell : intersectedCells)
+        {
+            size_t i, j, k;
+            settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
+            RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
+            double diameter = interval->radius() * 2;
+            switch (cell.direction)
+            {
+            case POS_I:
+            case NEG_I:
+                completion.setFromPerforation(diameter, CellDirection::DIR_I);
+                break;
+            case POS_J:
+            case NEG_J:
+                completion.setFromPerforation(diameter, CellDirection::DIR_J);
+                break;
+            case POS_K:
+            case NEG_K:
+                completion.setFromPerforation(diameter, CellDirection::DIR_K);
+                break;
+            default:
+                completion.setFromPerforation(diameter, CellDirection::DIR_UNDEF);
+                break;
+            }
+
+            completionData.push_back(completion);
+        }
+    }
+
+    return completionData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -449,138 +571,12 @@ void RicWellPathExportCompletionDataFeature::generateCompsegsTable(RifEclipseOut
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RicWellPathExportCompletionDataFeature::findCloseCells(const RigEclipseCaseData* caseData, const cvf::BoundingBox& bb)
-{
-    std::vector<size_t> closeCells;
-    caseData->mainGrid()->findIntersectingCells(bb, &closeCells);
-    return closeCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<EclipseCellIndexRange> RicWellPathExportCompletionDataFeature::getCellIndexRange(const RigMainGrid* grid, const std::vector<size_t>& cellIndices)
-{
-    // Retrieve I, J, K indices
-    std::vector<EclipseCellIndex> eclipseCellIndices;
-    for (auto cellIndex : cellIndices)
-    {
-        size_t i, j, k;
-        if (!grid->ijkFromCellIndex(cellIndex, &i, &j, &k)) continue;
-        eclipseCellIndices.push_back(std::make_tuple(i, j, k));
-    }
-
-    // Group cell indices in K-ranges
-    std::sort(eclipseCellIndices.begin(), eclipseCellIndices.end(), RicWellPathExportCompletionDataFeature::cellOrdering);
-    std::vector<EclipseCellIndexRange> eclipseCellRanges;
-    size_t lastI = std::numeric_limits<size_t>::max();
-    size_t lastJ = std::numeric_limits<size_t>::max();
-    size_t lastK = std::numeric_limits<size_t>::max();
-    size_t startK = std::numeric_limits<size_t>::max();
-    for (EclipseCellIndex cell : eclipseCellIndices)
-    {
-        size_t i, j, k;
-        std::tie(i, j, k) = cell;
-        if (i != lastI || j != lastJ || k != lastK + 1)
-        {
-            if (startK != std::numeric_limits<size_t>::max())
-            {
-                EclipseCellIndexRange cellRange = {lastI, lastJ, startK, lastK};
-                eclipseCellRanges.push_back(cellRange);
-            }
-            lastI = i;
-            lastJ = j;
-            lastK = k;
-            startK = k;
-        }
-        else
-        {
-            lastK = k;
-        }
-    }
-    // Append last cell range
-    if (startK != std::numeric_limits<size_t>::max())
-    {
-        EclipseCellIndexRange cellRange = {lastI, lastJ, startK, lastK};
-        eclipseCellRanges.push_back(cellRange);
-    }
-    return eclipseCellRanges;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::cellOrdering(const EclipseCellIndex& cell1, const EclipseCellIndex& cell2)
-{
-    size_t i1, i2, j1, j2, k1, k2;
-    std::tie(i1, j1, k1) = cell1;
-    std::tie(i2, j2, k2) = cell2;
-    if (i1 == i2)
-    {
-        if (j1 == j2)
-        {
-            return k1 < k2;
-        }
-        else
-        {
-            return j1 < j2;
-        }
-    }
-    else
-    {
-        return i1 < i2;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RicWellPathExportCompletionDataFeature::findCellFromCoords(const RigEclipseCaseData* caseData, const cvf::Vec3d& coords)
-{
-    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
-
-    cvf::BoundingBox bb;
-    bb.add(coords);
-    std::vector<size_t> closeCells = findCloseCells(caseData, bb);
-    cvf::Vec3d hexCorners[8];
-
-    for (size_t closeCell : closeCells)
-    {
-        const RigCell& cell = caseData->mainGrid()->globalCellArray()[closeCell];
-        if (cell.isInvalid()) continue;
-
-        setHexCorners(cell, nodeCoords, hexCorners);
-
-        if (RigHexIntersector::isPointInCell(coords, hexCorners, closeCell))
-        {
-            return closeCell;
-        }
-    }
-
-    // Coordinate is outside any cells?
-    CVF_ASSERT(false);
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
 {
     const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
     std::set<size_t> cells;
 
-    // Find starting cell
-    if (coords.size() > 0)
-    {
-        size_t startCell = findCellFromCoords(caseData, coords[0]);
-        if (startCell > 0)
-        {
-            cells.insert(startCell);
-        }
-    }
-
-    std::vector<HexIntersectionInfo> intersections = findIntersections(caseData, coords);
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(caseData->mainGrid(), coords);
     for (auto intersection : intersections)
     {
         cells.insert(intersection.m_hexIndex);
@@ -592,54 +588,6 @@ std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCell
     // Sort cells
     std::sort(cellsVector.begin(), cellsVector.end());
     return cellsVector;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<HexIntersectionInfo> RicWellPathExportCompletionDataFeature::findIntersections(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
-{
-    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
-    std::vector<HexIntersectionInfo> intersections;
-    for (size_t i = 0; i < coords.size() - 1; ++i)
-    {
-        cvf::BoundingBox bb;
-        bb.add(coords[i]);
-        bb.add(coords[i + 1]);
-
-        std::vector<size_t> closeCells = findCloseCells(caseData, bb);
-
-        cvf::Vec3d hexCorners[8];
-
-        for (size_t closeCell : closeCells)
-        {
-            const RigCell& cell = caseData->mainGrid()->globalCellArray()[closeCell];
-            if (cell.isInvalid()) continue;
-
-            setHexCorners(cell, nodeCoords, hexCorners);
-
-            RigHexIntersector::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners, closeCell, &intersections);
-        }
-    }
-
-    return intersections;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners)
-{
-    const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
-
-    hexCorners[0] = nodeCoords[cornerIndices[0]];
-    hexCorners[1] = nodeCoords[cornerIndices[1]];
-    hexCorners[2] = nodeCoords[cornerIndices[2]];
-    hexCorners[3] = nodeCoords[cornerIndices[3]];
-    hexCorners[4] = nodeCoords[cornerIndices[4]];
-    hexCorners[5] = nodeCoords[cornerIndices[5]];
-    hexCorners[6] = nodeCoords[cornerIndices[6]];
-    hexCorners[7] = nodeCoords[cornerIndices[7]];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -713,26 +661,7 @@ bool RicWellPathExportCompletionDataFeature::isPointBetween(const cvf::Vec3d& po
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::filterIntersections(std::vector<HexIntersectionInfo>* intersections)
-{
-    // Erase intersections that are marked as entering
-    for (auto it = intersections->begin(); it != intersections->end();)
-    {
-        if (it->m_isIntersectionEntering)
-        {
-            it = intersections->erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(const RimEclipseCase* caseToApply, RimWellPath* wellPath)
+std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath)
 {
     std::vector<WellSegmentLocation> wellSegmentLocations;
     for (RimFishbonesMultipleSubs* subs : wellPath->fishbonesCollection()->fishbonesSubs())
@@ -765,61 +694,37 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
     {
         lateral.branchNumber = ++(*branchNum);
         std::vector<cvf::Vec3d> coords = location->fishbonesSubs->coordsForLateral(location->subIndex, lateral.lateralIndex);
-        std::vector<HexIntersectionInfo> intersections = findIntersections(caseToApply->eclipseCaseData(), coords);
-        filterIntersections(&intersections);
+        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), coords);
 
-        const HexIntersectionInfo* prevIntersection = nullptr;
+        auto intersection = intersections.cbegin();
+        double length = 0;
+        double depth = 0;
+        cvf::Vec3d startPoint = coords[0];
+        int attachedSegmentNumber = location->segmentNumber;
 
+        for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); ++i)
         {
-            double length = 0;
-            double depth = 0;
-            cvf::Vec3d startPoint = coords[0];
-            auto intersection = intersections.cbegin();
-            int attachedSegmentNumber = location->segmentNumber;
-
-            for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); i++)
+            if (isPointBetween(startPoint, coords[i], intersection->endPoint))
             {
-                if (isPointBetween(startPoint, coords[i], intersection->m_intersectionPoint))
-                {
-                    cvf::Vec3d between = intersection->m_intersectionPoint - startPoint;
-                    length += between.length();
-                    depth += intersection->m_intersectionPoint.z() - startPoint.z();
+                length += (intersection->endPoint - startPoint).length();
+                depth += intersection->endPoint.z() - startPoint.z();
 
-                    // Find the direction of the previous cell
-                    if (prevIntersection != nullptr)
-                    {
-                        std::pair<WellSegmentCellDirection, double> direction = calculateDirectionAndDistanceInCell(caseToApply->eclipseCaseData()->mainGrid(), prevIntersection->m_hexIndex, prevIntersection->m_intersectionPoint, intersection->m_intersectionPoint);
-                        WellSegmentLateralIntersection& lateralIntersection = lateral.intersections[lateral.intersections.size() - 1];
-                        lateralIntersection.direction = direction.first;
-                        lateralIntersection.directionLength = direction.second;
-                    }
+                WellSegmentLateralIntersection lateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->cellIndex, length, depth);
+                lateralIntersection.direction = intersection->direction;
+                lateral.intersections.push_back(lateralIntersection);
 
-                    lateral.intersections.push_back(WellSegmentLateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->m_hexIndex, length, depth));
-
-                    length = 0;
-                    depth = 0;
-                    startPoint = intersection->m_intersectionPoint;
-                    attachedSegmentNumber = *segmentNum;
-                    ++intersection;
-                    prevIntersection = &*intersection;
-                }
-                else
-                {
-                    const cvf::Vec3d between = coords[i] - startPoint;
-                    length += between.length();
-                    depth += coords[i].z() - startPoint.z();
-                    startPoint = coords[i];
-                }
+                length = 0;
+                depth = 0;
+                startPoint = intersection->startPoint;
+                attachedSegmentNumber = *segmentNum;
+                ++intersection;
             }
-        }
-
-        // Find the direction of the last cell
-        if (prevIntersection != nullptr && !coords.empty())
-        {
-            std::pair<WellSegmentCellDirection, double> direction = calculateDirectionAndDistanceInCell(caseToApply->eclipseCaseData()->mainGrid(), prevIntersection->m_hexIndex, prevIntersection->m_intersectionPoint, coords[coords.size()-1]);
-            WellSegmentLateralIntersection& lateralIntersection = lateral.intersections[lateral.intersections.size() - 1];
-            lateralIntersection.direction = direction.first;
-            lateralIntersection.directionLength = direction.second;
+            else
+            {
+                length += (coords[i] - startPoint).length();
+                depth += coords[i].z() - startPoint.z();
+                startPoint = coords[i];
+            }
         }
     }
 }
@@ -846,81 +751,18 @@ void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::calculateCellMainAxisDirections(const RigMainGrid* grid, size_t cellIndex, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection)
+void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data)
 {
-    const std::vector<cvf::Vec3d>& nodeCoords = grid->nodes();
-    cvf::Vec3d hexCorners[8];
-    const RigCell& cell = grid->globalCellArray()[cellIndex];
-    setHexCorners(cell, nodeCoords, hexCorners);
-
-    *iAxisDirection = calculateCellMainAxisDirection(hexCorners, cvf::StructGridInterface::FaceType::NEG_I, cvf::StructGridInterface::POS_I);
-    *jAxisDirection = calculateCellMainAxisDirection(hexCorners, cvf::StructGridInterface::FaceType::NEG_J, cvf::StructGridInterface::POS_J);
-    *kAxisDirection = calculateCellMainAxisDirection(hexCorners, cvf::StructGridInterface::FaceType::NEG_K, cvf::StructGridInterface::POS_K);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RicWellPathExportCompletionDataFeature::calculateCellMainAxisDirection(const cvf::Vec3d* hexCorners, cvf::StructGridInterface::FaceType startFace, cvf::StructGridInterface::FaceType endFace)
-{
-    cvf::ubyte faceVertexIndices[4];
-
-    cvf::StructGridInterface::cellFaceVertexIndices(startFace, faceVertexIndices);
-
-    cvf::Vec3d startFaceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
-
-    cvf::StructGridInterface::cellFaceVertexIndices(endFace, faceVertexIndices);
-
-    cvf::Vec3d endFaceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
-
-    return endFaceCenter - startFaceCenter;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::pair<WellSegmentCellDirection, double> RicWellPathExportCompletionDataFeature::calculateDirectionAndDistanceInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
-{
-    cvf::Vec3d vec = endPoint - startPoint;
-
-    cvf::Vec3d iAxisDirection;
-    cvf::Vec3d jAxisDirection;
-    cvf::Vec3d kAxisDirection;
-    calculateCellMainAxisDirections(grid, cellIndex, &iAxisDirection, &jAxisDirection, &kAxisDirection);
-
-    double iLength = iAxisDirection.dot(vec);
-    double jLength = jAxisDirection.dot(vec);
-    double kLength = kAxisDirection.dot(vec);
-
-    double iNormalizedLength = abs(iLength / iAxisDirection.length());
-    double jNormalizedLength = abs(jLength / jAxisDirection.length());
-    double kNormalizedLength = abs(kLength / kAxisDirection.length());
-
-    if (iNormalizedLength > jNormalizedLength && iNormalizedLength > kNormalizedLength)
+    for (auto& completion : data)
     {
-        WellSegmentCellDirection direction = POS_I;
-        if (iLength < 0)
+        auto it = completionData->find(completion.cellIndex());
+        if (it != completionData->end())
         {
-            direction = NEG_I;
+            it->second = it->second.combine(completion);
         }
-        return std::make_pair(direction, iLength);
-    }
-    else if (jNormalizedLength > iNormalizedLength && jNormalizedLength > kNormalizedLength)
-    {
-        WellSegmentCellDirection direction = POS_J;
-        if (jLength < 0)
+        else
         {
-            direction = NEG_J;
+            completionData->insert(std::pair<IJKCellIndex, RigCompletionData>(completion.cellIndex(), completion));
         }
-        return std::make_pair(direction, jLength);
-    }
-    else
-    {
-        WellSegmentCellDirection direction = POS_K;
-        if (kLength < 0)
-        {
-            direction = NEG_K;
-        }
-        return std::make_pair(direction, kLength);
     }
 }
