@@ -62,7 +62,7 @@ struct WellPathCellIntersectionInfo {
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigWellPathIntersectionTools : public cvf::Object
+class RigWellPathIntersectionTools
 {
 public:
     static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords, bool includeStartCell = true, bool includeEndCell = true);
@@ -81,5 +81,6 @@ public:
     static std::array<cvf::Vec3d, 8>                   getCellHexCorners(const RigMainGrid* grid, size_t cellIndex);
     static void                                        setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners);
 
+private:
     static void                                        removeEnteringIntersections(std::vector<HexIntersectionInfo>* intersections);
 };

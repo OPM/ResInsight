@@ -399,6 +399,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicNewPerforationIntervalFeature";
         commandIds << "RicEditPerforationCollectionFeature";
         commandIds << "RicExportFishbonesLateralsFeature";
+        commandIds << "RicExportFishbonesWellSegmentsFeature";
         commandIds << "RicWellPathExportCompletionDataFeature";
         commandIds << "RicWellPathImportCompletionsFileFeature";
         commandIds << "RicFlyToObjectFeature";

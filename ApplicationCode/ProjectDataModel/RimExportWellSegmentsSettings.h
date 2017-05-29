@@ -26,16 +26,28 @@
 ///  
 ///  
 //==================================================================================================
-class RimExportCompletionDataSettings : public RimCaseAndFileExportSettings
+class RimExportWellSegmentsSettings : public RimCaseAndFileExportSettings
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimExportCompletionDataSettings();
 
+    enum PressureDropType {
+        HYDROSTATIC,
+        HYDROSTATIC_FRICTION,
+        HYDROSTATIC_FRICTION_ACCELERATION
+    };
 
-    caf::PdmField<bool>                     includePerforations;
-    caf::PdmField<bool>                     includeFishbones;
+    typedef caf::AppEnum<RimExportWellSegmentsSettings::PressureDropType> PressureDropEnum;
 
-    caf::PdmField<bool>                     includeWpimult;
-    caf::PdmField<bool>                     removeLateralsInMainBoreCells;
+    enum LengthAndDepthType {
+        ABS,
+        INC
+    };
+
+    typedef caf::AppEnum<RimExportWellSegmentsSettings::LengthAndDepthType> LengthAndDepthEnum;
+
+    RimExportWellSegmentsSettings();
+
+    caf::PdmField<PressureDropEnum>         pressureDrop;
+    caf::PdmField<LengthAndDepthEnum>       lengthAndDepth;
 };

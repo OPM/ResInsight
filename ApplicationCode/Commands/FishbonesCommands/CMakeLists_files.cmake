@@ -7,12 +7,14 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.h
+${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.cpp
 )
 
