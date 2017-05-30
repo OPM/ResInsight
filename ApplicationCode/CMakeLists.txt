@@ -47,9 +47,9 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
-    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Fishbones
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -108,7 +108,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
-    ProjectDataModel/Fishbones/CMakeLists_files.cmake
+    ProjectDataModel/Completions/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
