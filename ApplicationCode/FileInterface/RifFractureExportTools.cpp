@@ -234,7 +234,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
         //////
         // Calculate Matrix To Fracture Trans       
                 
-        auto stimPlanCells = fractureGrid.getStimPlanCells();
+        auto stimPlanCells = fractureGrid.fractureCells();
 
         for (const RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
         {
@@ -262,19 +262,19 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
         //////
         // Calculate Transmissibility in the fracture: From one StimPlan Cell to the other
          
-        for (size_t i = 0; i < fractureGrid.stimPlanGridNumberOfColums(); i++)
+        for (size_t i = 0; i < fractureGrid.iCellCount(); i++)
         {
-            for (size_t j = 0; j < fractureGrid.stimPlanGridNumberOfRows();  j++)
+            for (size_t j = 0; j < fractureGrid.jCellCount();  j++)
             {
                 size_t stimPlanCellIndex = fractureGrid.getGlobalIndexFromIJ(i, j);
-                const RigStimPlanFracTemplateCell stimPlanCell = fractureGrid.stimPlanCellFromIndex(stimPlanCellIndex);
+                const RigStimPlanFracTemplateCell stimPlanCell = fractureGrid.cellFromIndex(stimPlanCellIndex);
 
                 if (stimPlanCell.getConductivtyValue() < 1e-7) continue;
 
-                if (i < fractureGrid.stimPlanGridNumberOfColums()-1)
+                if (i < fractureGrid.iCellCount()-1)
                 {
                     size_t stimPlanCellNeighbourXIndex = fractureGrid.getGlobalIndexFromIJ(i + 1, j);
-                    const RigStimPlanFracTemplateCell stimPlanCellNeighbourX = fractureGrid.stimPlanCellFromIndex(stimPlanCellNeighbourXIndex);
+                    const RigStimPlanFracTemplateCell stimPlanCellNeighbourX = fractureGrid.cellFromIndex(stimPlanCellNeighbourXIndex);
 
                     double horizontalTransToXneigbour =
                         RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFractureCenterToCenterForTwoCells(stimPlanCell.getConductivtyValue(),
@@ -291,10 +291,10 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
 
                 }
 
-                if (j < fractureGrid.stimPlanGridNumberOfRows()-1)
+                if (j < fractureGrid.jCellCount()-1)
                 {
                     size_t stimPlanCellNeighbourZIndex = fractureGrid.getGlobalIndexFromIJ(i, j + 1);
-                    const RigStimPlanFracTemplateCell stimPlanCellNeighbourZ = fractureGrid.stimPlanCellFromIndex(stimPlanCellNeighbourZIndex);
+                    const RigStimPlanFracTemplateCell stimPlanCellNeighbourZ = fractureGrid.cellFromIndex(stimPlanCellNeighbourZIndex);
                   
                     double verticalTransToZneigbour = 
                         RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFractureCenterToCenterForTwoCells(stimPlanCell.getConductivtyValue(),
@@ -324,7 +324,7 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
             size_t stpWellCellIdx = stpCellIdxIsectDataPair.first;
             RigWellPathStimplanIntersector::WellCellIntersection intersection = stpCellIdxIsectDataPair.second;
 
-            const RigStimPlanFracTemplateCell stimPlanWellCell = fractureGrid.stimPlanCellFromIndex(stpWellCellIdx);
+            const RigStimPlanFracTemplateCell stimPlanWellCell = fractureGrid.cellFromIndex(stpWellCellIdx);
 
             double radialTrans = 0.0;
             if (intersection.endpointCount)
@@ -523,7 +523,7 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
 
         double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
 
-        std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->fractureGrid().getStimPlanCells();
+        std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->fractureGrid().fractureCells();
 
         for (RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
         {
@@ -613,7 +613,7 @@ void RifFractureExportTools::printStimPlanFractureTrans(const std::vector<RimFra
     }
     else return;
 
-    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->fractureGrid().getStimPlanCells();
+    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = fracTemplateStimPlan->fractureGrid().fractureCells();
 
     for (RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
     {
@@ -841,14 +841,14 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
             double perforationLengthVert = fracture->perforationLength * cos(wellDip);
             double perforationLengthHor  = fracture->perforationLength * sin(wellDip);
             
-            std::pair<size_t, size_t> wellCenterStimPlanCellIJ = fracTemplateStimPlan->fractureGrid().getStimPlanCellAtWellCenter();
+            std::pair<size_t, size_t> wellCenterStimPlanCellIJ = fracTemplateStimPlan->fractureGrid().fractureCellAtWellCenter();
             out << qSetFieldWidth(5);
             out << wellCenterStimPlanCellIJ.first;
             out << wellCenterStimPlanCellIJ.second;
 
 
             //RigStimPlanCell* stimPlanCell = fracTemplateStimPlan->getStimPlanCellAtIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second);
-            const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->fractureGrid().stimPlanCellFromIndex(fracTemplateStimPlan->fractureGrid().getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
+            const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->fractureGrid().cellFromIndex(fracTemplateStimPlan->fractureGrid().getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             double linTransInStimPlanCell = RigFractureTransmissibilityEquations::computeLinearTransmissibilityToWellinStimPlanCell(stimPlanCell.getConductivtyValue(),
                                                                                                                                     stimPlanCell.cellSizeX(),
@@ -877,12 +877,12 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
             }
             else continue;
 
-            std::pair<size_t, size_t> wellCenterStimPlanCellIJ = fracTemplateStimPlan->fractureGrid().getStimPlanCellAtWellCenter();
+            std::pair<size_t, size_t> wellCenterStimPlanCellIJ = fracTemplateStimPlan->fractureGrid().fractureCellAtWellCenter();
             out << qSetFieldWidth(5);
             out << wellCenterStimPlanCellIJ.first;
             out << wellCenterStimPlanCellIJ.second;
 
-            const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->fractureGrid().stimPlanCellFromIndex(fracTemplateStimPlan->fractureGrid().getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
+            const RigStimPlanFracTemplateCell& stimPlanCell = fracTemplateStimPlan->fractureGrid().cellFromIndex(fracTemplateStimPlan->fractureGrid().getGlobalIndexFromIJ(wellCenterStimPlanCellIJ.first, wellCenterStimPlanCellIJ.second));
 
             double radTransInStimPlanCell = RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWellinStimPlanCell(stimPlanCell.getConductivtyValue(),
                                                                                                                                     stimPlanCell.cellSizeX(),

@@ -893,9 +893,9 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 
     RigFractureGrid fractureGrid;
     fractureGrid.setFractureCells(stimPlanCells);
-    fractureGrid.setWellCenterStimPlanCellIJ(wellCenterStimPlanCellIJ);
-    fractureGrid.setIcount(getNegAndPosXcoords().size() - 2);
-    fractureGrid.setJcount(adjustedDepthCoordsAroundWellPathPosition().size() - 2);
+    fractureGrid.setWellCenterFractureCellIJ(wellCenterStimPlanCellIJ);
+    fractureGrid.setICellCount(getNegAndPosXcoords().size() - 2);
+    fractureGrid.setJCellCount(adjustedDepthCoordsAroundWellPathPosition().size() - 2);
     m_fractureGrid = fractureGrid;
 }
 

@@ -33,13 +33,13 @@ RigFractureGrid::RigFractureGrid()
 //--------------------------------------------------------------------------------------------------
 size_t RigFractureGrid::getGlobalIndexFromIJ(size_t i, size_t j) const
 {
-    return i * m_jCount + j;
+    return i * m_jCellCount + j;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigStimPlanFracTemplateCell& RigFractureGrid::stimPlanCellFromIndex(size_t index) const
+const RigStimPlanFracTemplateCell& RigFractureGrid::cellFromIndex(size_t index) const
 {
     if (index < m_fractureCells.size())
     {
