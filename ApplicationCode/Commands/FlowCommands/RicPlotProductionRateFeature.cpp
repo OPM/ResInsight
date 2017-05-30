@@ -22,8 +22,10 @@
 #include "RiaPreferences.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifReaderEclipseSummary.h"
 
 #include "RigSingleWellResultsData.h"
+#include "RigSummaryCaseData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseWell.h"
@@ -114,17 +116,25 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
             RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
             
             {
+                // Note : The parameter "WOIR" is probably never-existing, but we check for existence before creating curve
+                // Oil
+                QString parameterName = "WOIR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledGreenColor(0));
+            }
+
+            {
                 // Water
                 QString parameterName = "WWIR";
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName, plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledBlueColor(0));
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledBlueColor(0));
             }
 
             {
                 // Gas
                 QString parameterName = "WGIR";
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName, plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledRedColor(0));
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledRedColor(0));
             }
         }
         else
@@ -136,22 +146,22 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
             {
                 // Oil
                 QString parameterName = "WOPR";
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName, plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledGreenColor(0));
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledGreenColor(0));
             }
 
             {
                 // Water
                 QString parameterName = "WWPR";
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName, plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledBlueColor(0));
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledBlueColor(0));
             }
 
             {
                 // Gas
                 QString parameterName = "WGPR";
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName, plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledRedColor(0));
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledRedColor(0));
             }
         }
 
@@ -162,17 +172,16 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
             RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_RIGHT;
 
             {
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, "WTHP", plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(0));
-                //curve->setSymbol(RimPlotCurve::SYMBOL_DIAMOND);
+                QString parameterName = "WTHP";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(0));
             }
 
             {
-                RimSummaryCurve* curve = RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, "WBHP", plotAxis);
-                curve->setColor(RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(1));
-                //curve->setSymbol(RimPlotCurve::SYMBOL_DIAMOND);
+                QString parameterName = "WBHP";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(1));
             }
-        
         }
 
         summaryPlotColl->updateConnectedEditors();
@@ -262,16 +271,11 @@ bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimEclipseWell* well,
                                                     RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
-                                                    RimDefines::PlotAxis plotAxis)
+                                                    RimDefines::PlotAxis plotAxis, const cvf::Color3f& color)
 {
     CVF_ASSERT(plot);
     CVF_ASSERT(gridSummaryCase);
     CVF_ASSERT(well);
-
-    RimSummaryCurve* newCurve = new RimSummaryCurve();
-    plot->addCurve(newCurve);
-
-    newCurve->setSummaryCase(gridSummaryCase);
 
     RifEclipseSummaryAddress addr(RifEclipseSummaryAddress::SUMMARY_WELL,
         vectorName.toStdString(),
@@ -285,7 +289,17 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
         -1,
         -1);
 
+    if (!gridSummaryCase->caseData()->summaryReader()->hasAddress(addr))
+    {
+        return nullptr;
+    }
+
+    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    plot->addCurve(newCurve);
+
+    newCurve->setSummaryCase(gridSummaryCase);
     newCurve->setSummaryAddress(addr);
+    newCurve->setColor(color);
     newCurve->setYAxis(plotAxis);
 
     return newCurve;

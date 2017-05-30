@@ -46,7 +46,7 @@ private:
     static bool                 isInjector(RimEclipseWell* well);
     static RimSummaryCurve*     addSummaryCurve(RimSummaryPlot* plot, const RimEclipseWell* well,
                                 RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
-                                RimDefines::PlotAxis plotAxis);
+                                RimDefines::PlotAxis plotAxis, const cvf::Color3f& color);
 };
 
 
