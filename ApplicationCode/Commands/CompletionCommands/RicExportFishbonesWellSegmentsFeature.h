@@ -20,7 +20,7 @@
 
 #include "RifEclipseOutputTableFormatter.h"
 
-#include "RimExportWellSegmentsSettings.h"
+#include "RicExportWellSegmentsSettingsUi.h"
 
 #include "RicWellPathExportCompletionDataFeature.h"
 
@@ -46,7 +46,7 @@ private:
     static RimFishbonesCollection*               selectedFishbonesCollection();
     static RimWellPath*                          selectedWellPath();
 
-    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RimExportWellSegmentsSettings& settings);
-    static void                                  generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportWellSegmentsSettings& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportWellSegmentsSettings& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings);
+    static void                                  generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
 };

@@ -7,9 +7,6 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.h
-${CEE_CURRENT_LIST_DIR}RimCaseAndFileExportSettings.h
-${CEE_CURRENT_LIST_DIR}RimExportCompletionDataSettings.h
-${CEE_CURRENT_LIST_DIR}RimExportWellSegmentsSettings.h
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.h
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.h
@@ -103,9 +100,6 @@ ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimCaseAndFileExportSettings.cpp
-${CEE_CURRENT_LIST_DIR}RimExportCompletionDataSettings.cpp
-${CEE_CURRENT_LIST_DIR}RimExportWellSegmentsSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.cpp

@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimExportCompletionDataSettings.h"
+#include "RicExportCompletionDataSettingsUi.h"
 
-CAF_PDM_SOURCE_INIT(RimExportCompletionDataSettings, "RimExportCompletionDataSettings");
+CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimExportCompletionDataSettings::RimExportCompletionDataSettings()
+RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 

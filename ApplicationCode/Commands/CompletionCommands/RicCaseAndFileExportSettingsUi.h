@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017-     Statoil ASA
-//  Copyright (C) 2017-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -29,12 +28,12 @@
 ///  
 ///  
 //==================================================================================================
-class RimCaseAndFileExportSettings : public caf::PdmObject
+class RicCaseAndFileExportSettingsUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimCaseAndFileExportSettings();
+    RicCaseAndFileExportSettingsUi();
 
     caf::PdmField<QString>                  fileName;
     caf::PdmPtrField<RimEclipseCase*>       caseToApply;

@@ -58,7 +58,7 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    RimExportWellSegmentsSettings exportSettings;
+    RicExportWellSegmentsSettingsUi exportSettings;
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -148,7 +148,7 @@ bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RimExportWellSegmentsSettings& settings)
+void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings)
 {
     QFile exportFile(settings.fileName());
 
@@ -175,7 +175,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportWellSegmentsSettings& settings, const std::vector<WellSegmentLocation>& locations)
+void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
 {
     formatter.keyword("WELSEGS");
 
@@ -227,7 +227,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutpu
         {
             const WellSegmentLocation& location = locations[i];
 
-            if (settings.lengthAndDepth() == RimExportWellSegmentsSettings::INC)
+            if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
             {
                 depth = location.trueVerticalDepth - previousLocation.trueVerticalDepth;
                 length = location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex];
@@ -267,7 +267,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutpu
 
                 for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
                 {
-                    if (settings.lengthAndDepth() == RimExportWellSegmentsSettings::INC)
+                    if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
                     {
                         depth = intersection.depth;
                         length = intersection.length;
@@ -297,7 +297,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutpu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RimExportWellSegmentsSettings& settings, const std::vector<WellSegmentLocation>& locations)
+void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
 {
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     formatter.keyword("COMPSEGS");

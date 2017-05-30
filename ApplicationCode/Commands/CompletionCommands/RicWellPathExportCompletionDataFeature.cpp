@@ -30,7 +30,7 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
-#include "RimExportCompletionDataSettings.h"
+#include "RicExportCompletionDataSettingsUi.h"
 
 #include "RiuMainWindow.h"
 
@@ -73,7 +73,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    RimExportCompletionDataSettings exportSettings;
+    RicExportCompletionDataSettingsUi exportSettings;
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -132,7 +132,7 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RimExportCompletionDataSettings& exportSettings)
+void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings)
 {
     QFile exportFile(exportSettings.fileName());
 
@@ -297,7 +297,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseOutp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     // Generate data
     const RigEclipseCaseData* caseData =  settings.caseToApply()->eclipseCaseData();
@@ -340,7 +340,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings & settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi & settings)
 {
     std::vector<RigCompletionData> completionData;
 
@@ -366,7 +366,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generatePerforationsCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generatePerforationsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     std::vector<RigCompletionData> completionData;
 

@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimCaseAndFileExportSettings.h"
+#include "RicCaseAndFileExportSettingsUi.h"
 
 #include "cafPdmField.h"
 
@@ -26,7 +26,7 @@
 ///  
 ///  
 //==================================================================================================
-class RimExportWellSegmentsSettings : public RimCaseAndFileExportSettings
+class RicExportWellSegmentsSettingsUi : public RicCaseAndFileExportSettingsUi
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -37,16 +37,16 @@ public:
         HYDROSTATIC_FRICTION_ACCELERATION
     };
 
-    typedef caf::AppEnum<RimExportWellSegmentsSettings::PressureDropType> PressureDropEnum;
+    typedef caf::AppEnum<RicExportWellSegmentsSettingsUi::PressureDropType> PressureDropEnum;
 
     enum LengthAndDepthType {
         ABS,
         INC
     };
 
-    typedef caf::AppEnum<RimExportWellSegmentsSettings::LengthAndDepthType> LengthAndDepthEnum;
+    typedef caf::AppEnum<RicExportWellSegmentsSettingsUi::LengthAndDepthType> LengthAndDepthEnum;
 
-    RimExportWellSegmentsSettings();
+    RicExportWellSegmentsSettingsUi();
 
     caf::PdmField<PressureDropEnum>         pressureDrop;
     caf::PdmField<LengthAndDepthEnum>       lengthAndDepth;

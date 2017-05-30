@@ -16,18 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCaseAndFileExportSettings.h"
+#include "RicCaseAndFileExportSettingsUi.h"
 
 #include "RimTools.h"
 
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT(RimCaseAndFileExportSettings, "RimCaseAndFileExportSettings");
+CAF_PDM_SOURCE_INIT(RicCaseAndFileExportSettingsUi, "RicCaseAndFileExportSettingsUi");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCaseAndFileExportSettings::RimCaseAndFileExportSettings()
+RicCaseAndFileExportSettingsUi::RicCaseAndFileExportSettingsUi()
 {
     CAF_PDM_InitObject("RimCaseAndFileExportSettings", "", "", "");
 
@@ -40,7 +40,7 @@ RimCaseAndFileExportSettings::RimCaseAndFileExportSettings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCaseAndFileExportSettings::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RicCaseAndFileExportSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -55,7 +55,7 @@ QList<caf::PdmOptionItemInfo> RimCaseAndFileExportSettings::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCaseAndFileExportSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RicCaseAndFileExportSettingsUi::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (field == &fileName)
     {

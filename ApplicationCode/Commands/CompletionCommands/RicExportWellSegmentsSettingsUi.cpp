@@ -16,33 +16,33 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimExportWellSegmentsSettings.h"
+#include "RicExportWellSegmentsSettingsUi.h"
 
 namespace caf {
     template<>
-    void RimExportWellSegmentsSettings::PressureDropEnum::setUp()
+    void RicExportWellSegmentsSettingsUi::PressureDropEnum::setUp()
     {
-        addItem(RimExportWellSegmentsSettings::HYDROSTATIC,                       "H--", "Hydrostatic");
-        addItem(RimExportWellSegmentsSettings::HYDROSTATIC_FRICTION,              "HF-", "Hydrostatic + Friction");
-        addItem(RimExportWellSegmentsSettings::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
-        setDefault(RimExportWellSegmentsSettings::HYDROSTATIC);
+        addItem(RicExportWellSegmentsSettingsUi::HYDROSTATIC,                       "H--", "Hydrostatic");
+        addItem(RicExportWellSegmentsSettingsUi::HYDROSTATIC_FRICTION,              "HF-", "Hydrostatic + Friction");
+        addItem(RicExportWellSegmentsSettingsUi::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
+        setDefault(RicExportWellSegmentsSettingsUi::HYDROSTATIC);
     }
 
     template<>
-    void RimExportWellSegmentsSettings::LengthAndDepthEnum::setUp()
+    void RicExportWellSegmentsSettingsUi::LengthAndDepthEnum::setUp()
     {
-        addItem(RimExportWellSegmentsSettings::INC, "INC", "Incremental");
-        addItem(RimExportWellSegmentsSettings::ABS, "ABS", "Absolute");
-        setDefault(RimExportWellSegmentsSettings::INC);
+        addItem(RicExportWellSegmentsSettingsUi::INC, "INC", "Incremental");
+        addItem(RicExportWellSegmentsSettingsUi::ABS, "ABS", "Absolute");
+        setDefault(RicExportWellSegmentsSettingsUi::INC);
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimExportWellSegmentsSettings, "RimExportWellSegmentsSettings");
+CAF_PDM_SOURCE_INIT(RicExportWellSegmentsSettingsUi, "RicExportWellSegmentsSettingsUi");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimExportWellSegmentsSettings::RimExportWellSegmentsSettings()
+RicExportWellSegmentsSettingsUi::RicExportWellSegmentsSettingsUi()
 {
     CAF_PDM_InitObject("RimExportWellSegmentsSettings", "", "", "");
 

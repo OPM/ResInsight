@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimCaseAndFileExportSettings.h"
+#include "RicCaseAndFileExportSettingsUi.h"
 
 #include "cafPdmField.h"
 
@@ -26,11 +26,11 @@
 ///  
 ///  
 //==================================================================================================
-class RimExportCompletionDataSettings : public RimCaseAndFileExportSettings
+class RicExportCompletionDataSettingsUi : public RicCaseAndFileExportSettingsUi
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimExportCompletionDataSettings();
+    RicExportCompletionDataSettingsUi();
 
 
     caf::PdmField<bool>                     includePerforations;

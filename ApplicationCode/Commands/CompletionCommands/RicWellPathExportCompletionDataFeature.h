@@ -24,7 +24,7 @@
 #include "RigWellPathIntersectionTools.h"
 #include "RigCompletionData.h"
 
-#include "RimExportCompletionDataSettings.h"
+#include "RicExportCompletionDataSettingsUi.h"
 
 #include "cafCmdFeature.h"
 
@@ -128,14 +128,14 @@ public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);
 
 private:
-    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RimExportCompletionDataSettings& exportSettings);
+    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings);
 
     static void                                  generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
     static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
 
-    static std::vector<RigCompletionData>        generateFishbonesCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
-    static std::vector<RigCompletionData>        generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
-    static std::vector<RigCompletionData>        generatePerforationsCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
+    static std::vector<RigCompletionData>        generateFishbonesCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
+    static std::vector<RigCompletionData>        generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
+    static std::vector<RigCompletionData>        generatePerforationsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
 
     static std::map<size_t, double>              computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells);
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
