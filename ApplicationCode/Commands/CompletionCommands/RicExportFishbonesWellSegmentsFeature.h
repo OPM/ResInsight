@@ -22,7 +22,7 @@
 
 #include "RimExportWellSegmentsSettings.h"
 
-#include "WellPathCommands/RicWellPathExportCompletionDataFeature.h"
+#include "RicWellPathExportCompletionDataFeature.h"
 
 #include "cafCmdFeature.h"
 
