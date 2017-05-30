@@ -67,7 +67,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralExitAngle,              "LateralExitAngle", 35.0,           "Exit Angle [deg]", "", "", "");
     CAF_PDM_InitField(&m_lateralBuildAngle,             "LateralBuildAngle", 5.0,           "Build Angle [deg/m]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralTubingRadius,           "LateralTubingRadius", 8.0,         "Tubing Radius [mm]", "", "", "");
+    CAF_PDM_InitField(&m_lateralTubingDiameter,         "LateralTubingDiameter", 8.0,       "Tubing Diameter [mm]", "", "", "");
 
     CAF_PDM_InitField(&m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001,   "Open Hole Roghness Factor [m]", "", "", "");
     CAF_PDM_InitField(&m_lateralTubingRoghnessFactor,   "LateralTubingRoghnessFactor", 1e-5,      "Tubing Roghness Factor [m]", "", "", "");
@@ -76,7 +76,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 0.7,      "Install Fraction [0..1]", "", "", "");
 
     CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICD Count", "", "", "");
-    CAF_PDM_InitField(&m_icdOrificeRadius,              "IcdOrificeRadius", 8.0,            "ICD Orifice Radius [mm]", "", "", "");
+    CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 8.0,          "ICD Orifice Diameter [mm]", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_locationOfSubs,       "LocationOfSubs",                   "Measured Depths [m]", "", "", "");
     m_locationOfSubs.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -171,9 +171,9 @@ double RimFishbonesMultipleSubs::buildAngle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::tubingRadius() const
+double RimFishbonesMultipleSubs::tubingDiameter() const
 {
-    return m_lateralTubingRadius;
+    return m_lateralTubingDiameter;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -393,11 +393,11 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
     {
         caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
         mswGroup->setCollapsedByDefault(true);
-        mswGroup->add(&m_lateralTubingRadius);
+        mswGroup->add(&m_lateralTubingDiameter);
         mswGroup->add(&m_lateralOpenHoleRoghnessFactor);
         mswGroup->add(&m_lateralTubingRoghnessFactor);
         mswGroup->add(&m_icdCount);
-        mswGroup->add(&m_icdOrificeRadius);
+        mswGroup->add(&m_icdOrificeDiameter);
     }
 
     // Visibility

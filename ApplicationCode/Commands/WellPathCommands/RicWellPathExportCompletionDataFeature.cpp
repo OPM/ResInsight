@@ -326,7 +326,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
                 grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
                 RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
                 completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
-                double diameter = location.fishbonesSubs->holeRadius() / 1000 * 2;
+                double diameter = location.fishbonesSubs->holeDiameter() / 1000;
                 CellDirection direction = wellPathCellDirectionToCellDirection(intersection.direction);
                 completion.setFromFishbone(diameter, direction);
                 completionData.push_back(completion);
@@ -344,7 +344,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 {
     std::vector<RigCompletionData> completionData;
 
-    double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeRadius() / 1000 * 2;
+    double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter() / 1000;
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates());
@@ -380,7 +380,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
-            double diameter = interval->radius() * 2;
+            double diameter = interval->diameter();
             CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
             completion.setFromPerforation(diameter, direction);
             completionData.push_back(completion);

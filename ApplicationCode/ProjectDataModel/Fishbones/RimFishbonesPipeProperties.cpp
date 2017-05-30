@@ -30,8 +30,8 @@ RimFishbonesPipeProperties::RimFishbonesPipeProperties()
 {
     CAF_PDM_InitObject("FishbonesPipeProperties", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralHoleRadius, "LateralHoleRadius", 12.0, "Hole Radius [mm]",   "", "", "");
-    CAF_PDM_InitField(&m_skinFactor,        "SkinFactor",        1.0,  "Skin Factor [0..1]", "", "", "");
+    CAF_PDM_InitField(&m_lateralHoleDiameter, "LateralHoleDiameter", 12.0, "Hole Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_skinFactor,          "SkinFactor",          1.0,  "Skin Factor [0..1]", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +47,6 @@ RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesPipeProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering & uiOrdering)
 {
-    uiOrdering.add(&m_lateralHoleRadius);
+    uiOrdering.add(&m_lateralHoleDiameter);
     uiOrdering.add(&m_skinFactor);
 }

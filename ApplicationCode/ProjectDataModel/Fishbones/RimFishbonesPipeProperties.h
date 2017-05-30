@@ -41,12 +41,12 @@ public:
     virtual ~RimFishbonesPipeProperties();
 
     double                              skinFactor() const { return m_skinFactor(); }
-    double                              holeRadius() const { return m_lateralHoleRadius(); }
+    double                              holeDiameter() const { return m_lateralHoleDiameter(); }
 
 protected:
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<double>               m_skinFactor;
-    caf::PdmField<double>               m_lateralHoleRadius;
+    caf::PdmField<double>               m_lateralHoleDiameter;
 };

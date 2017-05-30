@@ -38,7 +38,7 @@ RimPerforationInterval::RimPerforationInterval()
 
     CAF_PDM_InitField(&m_startMD, "StartMeasuredDepth", 0.0, "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_endMD, "EndMeasuredDepth", 0.0, "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_radius, "Radius", 0.0, "Radius [m]", "", "", "");
+    CAF_PDM_InitField(&m_diameter, "Diameter", 0.0, "Diameter [m]", "", "", "");
     CAF_PDM_InitField(&m_skinFactor, "SkinFactor", 0.0, "Skin Factor", "", "", "");
 
     m_name.uiCapability()->setUiReadOnly(true);
@@ -105,7 +105,7 @@ void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 {
     uiOrdering.add(&m_startMD);
     uiOrdering.add(&m_endMD);
-    uiOrdering.add(&m_radius);
+    uiOrdering.add(&m_diameter);
     uiOrdering.add(&m_skinFactor);
 
     uiOrdering.skipRemainingFields();

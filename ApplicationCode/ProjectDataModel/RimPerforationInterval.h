@@ -40,7 +40,7 @@ public:
     void                                setStartAndEndMD(double startMD, double endMD);
     double                              startMD() const { return m_startMD(); }
     double                              endMD() const { return m_endMD(); }
-    double                              radius() const { return m_radius(); }
+    double                              diameter() const { return m_diameter(); }
     double                              skinFactor() const { return m_skinFactor(); }
 
     virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
@@ -53,6 +53,6 @@ protected:
 private:
     caf::PdmField< double >             m_startMD;
     caf::PdmField< double >             m_endMD;
-    caf::PdmField< double >             m_radius;
+    caf::PdmField< double >             m_diameter;
     caf::PdmField< double >             m_skinFactor;
 };

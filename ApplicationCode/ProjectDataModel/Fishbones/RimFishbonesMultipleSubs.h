@@ -70,8 +70,8 @@ public:
     double              exitAngle() const;
     double              buildAngle() const;
 
-    double              tubingRadius() const;
-    double              holeRadius() const { return m_pipeProperties()->holeRadius(); }
+    double              tubingDiameter() const;
+    double              holeDiameter() const { return m_pipeProperties()->holeDiameter(); }
     double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
     double              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
@@ -106,7 +106,7 @@ private:
     caf::PdmField<double>               m_lateralExitAngle;
     caf::PdmField<double>               m_lateralBuildAngle;
 
-    caf::PdmField<double>               m_lateralTubingRadius;
+    caf::PdmField<double>               m_lateralTubingDiameter;
 
     caf::PdmField<double>               m_lateralOpenHoleRoghnessFactor;
     caf::PdmField<double>               m_lateralTubingRoghnessFactor;
@@ -115,7 +115,7 @@ private:
     caf::PdmField<double>               m_lateralInstallFraction;
 
     caf::PdmField<size_t>               m_icdCount;
-    caf::PdmField<double>               m_icdOrificeRadius;
+    caf::PdmField<double>               m_icdOrificeDiameter;
 
     caf::PdmField<caf::AppEnum<LocationType> >    m_subsLocationMode;
     caf::PdmField<double>               m_rangeStart;
