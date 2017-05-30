@@ -24,7 +24,7 @@
 #include "cvfMatrix4.h"
 
 class RimEclipseCase;
-class RigStimPlanFracTemplateCell;
+class RigFractureCell;
 
 //==================================================================================================
 ///
@@ -37,7 +37,7 @@ public:
                                                                 cvf::Mat4f fractureTransform,
                                                                 double skinFactor,
                                                                 double cDarcy,
-                                                                const RigStimPlanFracTemplateCell& stimPlanCell);
+                                                                const RigFractureCell& stimPlanCell);
 
     const std::vector<size_t>&  globalIndeciesToContributingEclipseCells();
     const std::vector<double>&  contributingEclipseCellTransmissibilities();
@@ -51,7 +51,7 @@ private:
     double                              m_cDarcy;
     double                              m_fractureSkinFactor;
     cvf::Mat4f                          m_fractureTransform;
-    const RigStimPlanFracTemplateCell&  m_stimPlanCell;
+    const RigFractureCell&  m_stimPlanCell;
 
     std::vector<size_t>                 m_globalIndeciesToContributingEclipseCells;
     std::vector<double>                 m_contributingEclipseCellTransmissibilities;

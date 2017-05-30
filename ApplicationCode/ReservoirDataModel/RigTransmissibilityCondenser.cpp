@@ -177,7 +177,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
 
 #include "RimStimPlanFractureTemplate.h"
 #include "RigMainGrid.h"
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 
 void printCellAddress(std::stringstream& str, 
                       const RigMainGrid* mainGrid, 
@@ -200,7 +200,7 @@ void printCellAddress(std::stringstream& str,
         case CellAddress::STIMPLAN: 
         {
             str << "STP ";
-            const RigStimPlanFracTemplateCell& stpCell = fractureGrid->fractureGrid().cellFromIndex(cellAddr.m_globalCellIdx);
+            const RigFractureCell& stpCell = fractureGrid->fractureGrid().cellFromIndex(cellAddr.m_globalCellIdx);
             str << std::setw(5) << stpCell.getI()+1 << std::setw(5) << stpCell.getJ()+1  << std::setw(5) << " ";
         }
         break;

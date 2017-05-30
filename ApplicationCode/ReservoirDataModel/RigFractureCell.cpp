@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include "RiaLogging.h"
 #include <QString>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell()
+RigFractureCell::RigFractureCell()
 {
 
 }
@@ -31,7 +31,7 @@ RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
+RigFractureCell::RigFractureCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j)
 {
     m_polygon = polygon;
     m_i = i;
@@ -41,7 +41,7 @@ RigStimPlanFracTemplateCell::RigStimPlanFracTemplateCell(std::vector<cvf::Vec3d>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFracTemplateCell::~RigStimPlanFracTemplateCell()
+RigFractureCell::~RigFractureCell()
 {
 
 }
@@ -49,7 +49,7 @@ RigStimPlanFracTemplateCell::~RigStimPlanFracTemplateCell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanFracTemplateCell::cellSizeX() const
+double RigFractureCell::cellSizeX() const
 {
     //The polygon corners are always stored in the same order
     if (m_polygon.size()>1) return (m_polygon[1] - m_polygon[0]).length();
@@ -59,7 +59,7 @@ double RigStimPlanFracTemplateCell::cellSizeX() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigStimPlanFracTemplateCell::cellSizeZ() const
+double RigFractureCell::cellSizeZ() const
 {
     if (m_polygon.size()>2) return (m_polygon[2] - m_polygon[1]).length();
     return cvf::UNDEFINED_DOUBLE;

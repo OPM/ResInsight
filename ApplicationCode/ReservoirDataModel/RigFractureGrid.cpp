@@ -39,11 +39,11 @@ size_t RigFractureGrid::getGlobalIndexFromIJ(size_t i, size_t j) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigStimPlanFracTemplateCell& RigFractureGrid::cellFromIndex(size_t index) const
+const RigFractureCell& RigFractureGrid::cellFromIndex(size_t index) const
 {
     if (index < m_fractureCells.size())
     {
-        const RigStimPlanFracTemplateCell& cell = m_fractureCells[index];
+        const RigFractureCell& cell = m_fractureCells[index];
         return cell;
     }
     else
@@ -51,7 +51,7 @@ const RigStimPlanFracTemplateCell& RigFractureGrid::cellFromIndex(size_t index) 
         //TODO: Better error handling?
         RiaLogging::error(QString("Requesting non-existent StimPlanCell"));
         RiaLogging::error(QString("Returning cell 0, results will be invalid"));
-        const RigStimPlanFracTemplateCell& cell = m_fractureCells[0];
+        const RigFractureCell& cell = m_fractureCells[0];
         return cell;
     }
 }

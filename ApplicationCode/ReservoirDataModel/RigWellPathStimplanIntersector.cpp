@@ -5,7 +5,7 @@
 #include "RimFractureTemplate.h"
 #include "cvfBase.h"
 #include "cvfMatrix4.h"
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RigFractureGrid.h"
 
@@ -26,7 +26,7 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
 
         fracturePolygonf = stimPlanFractureTemplate->fracturePolygon(rimFracture->fractureUnit());
         {
-            const std::vector<RigStimPlanFracTemplateCell>& stpCells = stimPlanFractureTemplate->fractureGrid().fractureCells();
+            const std::vector<RigFractureCell>& stpCells = stimPlanFractureTemplate->fractureGrid().fractureCells();
             for ( const auto& stpCell: stpCells ) stpCellPolygons.push_back(stpCell.getPolygon());
         }
     }

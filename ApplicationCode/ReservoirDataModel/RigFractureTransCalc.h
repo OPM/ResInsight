@@ -35,7 +35,7 @@
 
 class RimFracture;
 class RimEclipseCase;
-class RigStimPlanFracTemplateCell;
+class RigFractureCell;
 class RimStimPlanFractureTemplate;
 
 //==================================================================================================

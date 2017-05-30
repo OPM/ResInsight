@@ -20,7 +20,7 @@
 
 #include "RigFractureTransmissibilityEquations.h"
 
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include "RigResultAccessorFactory.h"
 #include "RigEclipseCaseData.h"
 #include "RigActiveCellInfo.h"
@@ -40,7 +40,7 @@ RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTran
                                                                                                        cvf::Mat4f fractureTransform,
                                                                                                        double skinFactor,
                                                                                                        double cDarcy,
-                                                                                                       const RigStimPlanFracTemplateCell& stimPlanCell)
+                                                                                                       const RigFractureCell& stimPlanCell)
     : m_case(caseToApply),
     m_fractureTransform(fractureTransform),
     m_fractureSkinFactor(skinFactor),

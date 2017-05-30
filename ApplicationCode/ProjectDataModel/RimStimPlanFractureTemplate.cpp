@@ -26,7 +26,7 @@
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimProject.h"
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
 
@@ -820,7 +820,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     QString resultNameFromColors = activeView->stimPlanColors->resultName();
     QString resultUnitFromColors = activeView->stimPlanColors->unit();
 
-    std::vector<RigStimPlanFracTemplateCell> stimPlanCells;
+    std::vector<RigFractureCell> stimPlanCells;
     std::pair<size_t, size_t> wellCenterStimPlanCellIJ = std::make_pair(0,0);
 
     bool wellCenterStimPlanCellFound = false;
@@ -850,7 +850,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
             cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
 
-            RigStimPlanFracTemplateCell stimPlanCell(cellPolygon, i, j);
+            RigFractureCell stimPlanCell(cellPolygon, i, j);
             if (conductivityValuesAtTimeStep.size() > 0) //Assuming vector to be of correct length, or no values
             {
                 stimPlanCell.setConductivityValue(conductivityValuesAtTimeStep[j + 1][i + 1]);

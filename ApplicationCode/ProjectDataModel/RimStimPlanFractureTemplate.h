@@ -32,12 +32,12 @@
 #include "cvfVector3.h"
 
 #include <vector>
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include "RigFractureGrid.h"
 
 class RigStimPlanFractureDefinition;
 class RimStimPlanLegendConfig;
-class RigStimPlanFracTemplateCell;
+class RigFractureCell;
 class RigFractureGrid;
 
 //==================================================================================================

@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include <vector>
-class RigStimPlanFracTemplateCell;
+class RigFractureCell;
 
 //==================================================================================================
 ///  
@@ -31,25 +31,25 @@ class RigFractureGrid //TODO arve fra cvf::Object,  skal være cvf::ref i rigstim
 public:
     RigFractureGrid();
 
-    void setFractureCells(std::vector<RigStimPlanFracTemplateCell> fractureCells) { m_fractureCells = fractureCells; }
+    void setFractureCells(std::vector<RigFractureCell> fractureCells) { m_fractureCells = fractureCells; }
     void setWellCenterFractureCellIJ(std::pair<size_t, size_t>  wellCenterFractureCellIJ) { m_wellCenterFractureCellIJ = wellCenterFractureCellIJ; }
     void setICellCount(size_t iCellCount) { m_iCellCount = iCellCount; }
     void setJCellCount(size_t jCellCount) { m_jCellCount = jCellCount; }
 
-    const std::vector<RigStimPlanFracTemplateCell>&     fractureCells() const { return m_fractureCells; }
-    size_t                                              getGlobalIndexFromIJ(size_t i, size_t j) const;
-    const RigStimPlanFracTemplateCell&                  cellFromIndex(size_t index) const;
-    size_t                                              jCellCount() const { return m_jCellCount; }
-    size_t                                              iCellCount() const { return m_iCellCount; }
+    const std::vector<RigFractureCell>&     fractureCells() const { return m_fractureCells; }
+    size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
+    const RigFractureCell&                  cellFromIndex(size_t index) const;
+    size_t                                  jCellCount() const { return m_jCellCount; }
+    size_t                                  iCellCount() const { return m_iCellCount; }
 
     std::pair<size_t, size_t>                           fractureCellAtWellCenter() const { return m_wellCenterFractureCellIJ; }
 
 
 private:
-    std::vector<RigStimPlanFracTemplateCell>    m_fractureCells;
-    std::pair<size_t, size_t>                   m_wellCenterFractureCellIJ;
-    size_t                                      m_iCellCount;
-    size_t                                      m_jCellCount;
+    std::vector<RigFractureCell>    m_fractureCells;
+    std::pair<size_t, size_t>       m_wellCenterFractureCellIJ;
+    size_t                          m_iCellCount;
+    size_t                          m_jCellCount;
 
     
 

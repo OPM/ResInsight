@@ -27,7 +27,7 @@
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimLegendConfig.h"
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
 
@@ -290,10 +290,10 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     //Should probably be moved, since it now is called twice in some cases... 
     stimPlanFracTemplate->setupStimPlanCells();
 
-    std::vector<RigStimPlanFracTemplateCell> stimPlanCells = stimPlanFracTemplate->fractureGrid().fractureCells();
+    std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid().fractureCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
-    for (RigStimPlanFracTemplateCell stimPlanCell : stimPlanCells)
+    for (RigFractureCell stimPlanCell : stimPlanCells)
     {
         if (stimPlanCell.getDisplayValue() > 1e-7)
         {

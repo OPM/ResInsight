@@ -39,7 +39,7 @@
 #include "RigMainGrid.h"
 #include "cvfMath.h"
 #include "RimDefines.h"
-#include "RigStimPlanFracTemplateCell.h"
+#include "RigFractureCell.h"
 #include <cmath> //Used for log 
 #include "RiaApplication.h"
 #include "RimEclipseView.h"
