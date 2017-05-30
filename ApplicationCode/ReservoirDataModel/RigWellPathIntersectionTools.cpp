@@ -18,6 +18,8 @@
 
 #include "RigWellPathIntersectionTools.h"
 
+#include "RiaLogging.h"
+
 #include "RigWellPath.h"
 #include "RigMainGrid.h"
 #include "RigEclipseCaseData.h"
@@ -50,11 +52,19 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
 
     if (includeStartCell)
     {
+        bool foundCell;
         startPoint = coords[0];
-        endPoint = intersection->m_intersectionPoint;
-        cellIndex = findCellFromCoords(grid, startPoint);
-        direction = calculateDirectionInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, direction, startPoint, endPoint));
+        cellIndex = findCellFromCoords(grid, startPoint, &foundCell);
+        if (foundCell)
+        {
+            endPoint = intersection->m_intersectionPoint;
+            direction = calculateDirectionInCell(grid, cellIndex, startPoint, endPoint);
+            intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, direction, startPoint, endPoint));
+        }
+        else
+        {
+            RiaLogging::debug("Path starts outside valid cell");
+        }
     }
 
     startPoint = intersection->m_intersectionPoint;
@@ -228,7 +238,7 @@ std::vector<size_t> RigWellPathIntersectionTools::findCloseCells(const RigMainGr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid, const cvf::Vec3d& coords)
+size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid, const cvf::Vec3d& coords, bool* foundCell)
 {
     const std::vector<cvf::Vec3d>& nodeCoords = grid->nodes();
 
@@ -246,12 +256,12 @@ size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid,
 
         if (RigHexIntersector::isPointInCell(coords, hexCorners))
         {
+            *foundCell = true;
             return closeCell;
         }
     }
 
-    // Coordinate is outside any cells?
-    CVF_ASSERT(false);
+    *foundCell = false;
     return 0;
 }
 
