@@ -200,7 +200,7 @@ void printCellAddress(std::stringstream& str,
         case CellAddress::STIMPLAN: 
         {
             str << "STP ";
-            const RigStimPlanFracTemplateCell& stpCell = fractureGrid->stimPlanCellFromIndex(cellAddr.m_globalCellIdx);
+            const RigStimPlanFracTemplateCell& stpCell = fractureGrid->fractureGrid().stimPlanCellFromIndex(cellAddr.m_globalCellIdx);
             str << std::setw(5) << stpCell.getI()+1 << std::setw(5) << stpCell.getJ()+1  << std::setw(5) << " ";
         }
         break;
