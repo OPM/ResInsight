@@ -95,7 +95,7 @@ public:
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
-    RigCompletionData   combine(const RigCompletionData& other) const;
+    static RigCompletionData   combine(const RigCompletionData& first, const RigCompletionData& second);
 
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);

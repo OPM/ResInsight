@@ -31,7 +31,7 @@ RimCaseAndFileExportSettings::RimCaseAndFileExportSettings()
 {
     CAF_PDM_InitObject("RimCaseAndFileExportSettings", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export Filename", "", "", "");
     fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&caseToApply, "CaseToApply", "Case to Apply", "", "", "");

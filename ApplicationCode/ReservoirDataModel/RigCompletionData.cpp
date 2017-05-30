@@ -59,25 +59,25 @@ RigCompletionData::RigCompletionData(const RigCompletionData& other)
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData RigCompletionData::combine(const RigCompletionData& other) const
+RigCompletionData RigCompletionData::combine(const RigCompletionData& first, const RigCompletionData& second)
 {
-    RigCompletionData result(*this);
-    CVF_ASSERT(result.m_wellName == other.m_wellName);
-    CVF_ASSERT(result.m_cellIndex == other.m_cellIndex);
+    RigCompletionData result(first);
+    CVF_ASSERT(result.m_wellName == second.m_wellName);
+    CVF_ASSERT(result.m_cellIndex == second.m_cellIndex);
 
-    if (onlyOneIsDefaulted(result.m_transmissibility, other.m_transmissibility))
+    if (onlyOneIsDefaulted(result.m_transmissibility, second.m_transmissibility))
     {
         RiaLogging::error("Transmissibility defaulted in one but not both, will produce erroneous result");
     }
     else
     {
-        result.m_transmissibility += other.m_transmissibility;
+        result.m_transmissibility += second.m_transmissibility;
     }
 
-    result.m_metadata.reserve(result.m_metadata.size() + other.m_metadata.size());
-    result.m_metadata.insert(result.m_metadata.end(), other.m_metadata.begin(), other.m_metadata.end());
+    result.m_metadata.reserve(result.m_metadata.size() + second.m_metadata.size());
+    result.m_metadata.insert(result.m_metadata.end(), second.m_metadata.begin(), second.m_metadata.end());
 
-    result.m_count += other.m_count;
+    result.m_count += second.m_count;
 
     return result;
 }

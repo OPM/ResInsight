@@ -593,7 +593,7 @@ void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCe
         auto it = completionData->find(completion.cellIndex());
         if (it != completionData->end())
         {
-            it->second = it->second.combine(completion);
+            it->second = RigCompletionData::combine(it->second, completion);
         }
         else
         {
