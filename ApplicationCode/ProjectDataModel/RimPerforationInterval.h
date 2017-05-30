@@ -25,8 +25,9 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <QDate>
+
 //==================================================================================================
-///  
 ///  
 //==================================================================================================
 class RimPerforationInterval : public RimCheckableNamedObject, public Rim3dPropertiesInterface
@@ -38,6 +39,10 @@ public:
     virtual ~RimPerforationInterval();
 
     void                                setStartAndEndMD(double startMD, double endMD);
+    void                                setStartOfHistory();
+    void                                setDate(const QDate& date);
+    void                                setDiameter(double diameter);
+    void                                setSkinFactor(double skinFactor);
     double                              startMD() const { return m_startMD(); }
     double                              endMD() const { return m_endMD(); }
     double                              diameter() const { return m_diameter(); }
@@ -55,4 +60,6 @@ private:
     caf::PdmField< double >             m_endMD;
     caf::PdmField< double >             m_diameter;
     caf::PdmField< double >             m_skinFactor;
+    caf::PdmField< bool >               m_startOfHistory;
+    caf::PdmField< QDateTime >          m_date;
 };
