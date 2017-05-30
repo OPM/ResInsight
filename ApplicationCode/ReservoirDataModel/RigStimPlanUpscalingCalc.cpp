@@ -53,7 +53,7 @@ std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QS
     }
     else return std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
-    std::vector<RigFractureCell> stimPlanCells = fracTemplateStimPlan->fractureGrid().fractureCells();
+    std::vector<RigFractureCell> stimPlanCells = fracTemplateStimPlan->fractureGrid()->fractureCells();
 
 
 
@@ -112,7 +112,7 @@ double RigStimPlanUpscalingCalc::computeHAupscale(RimStimPlanFractureTemplate* f
     std::vector<double> lavgCol;
     std::vector<double> CondHarmCol;
 
-    for (size_t j = 0; j < fracTemplateStimPlan->fractureGrid().iCellCount(); j++)
+    for (size_t j = 0; j < fracTemplateStimPlan->fractureGrid()->iCellCount(); j++)
     {
         std::vector<double> conductivitiesInStimPlanCells;
         std::vector<double> lengthsLiOfStimPlanCol;
@@ -181,7 +181,7 @@ double RigStimPlanUpscalingCalc::computeAHupscale(RimStimPlanFractureTemplate* f
     std::vector<double> liRowSum;
     std::vector<double> CondAritRow;
     
-    for (size_t j = 0; j < fracTemplateStimPlan->fractureGrid().jCellCount(); j++)
+    for (size_t j = 0; j < fracTemplateStimPlan->fractureGrid()->jCellCount(); j++)
     {
         std::vector<double> conductivitiesInStimPlanCells;
         std::vector<double> lengthsLiOfStimPlanCol;

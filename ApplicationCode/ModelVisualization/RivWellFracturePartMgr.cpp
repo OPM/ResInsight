@@ -290,7 +290,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
     //Should probably be moved, since it now is called twice in some cases... 
     stimPlanFracTemplate->setupStimPlanCells();
 
-    std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid().fractureCells();
+    std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;
 
     for (RigFractureCell stimPlanCell : stimPlanCells)

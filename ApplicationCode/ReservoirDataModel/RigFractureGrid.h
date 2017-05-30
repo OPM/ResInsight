@@ -18,15 +18,20 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfObject.h"
 #include "RigFractureCell.h"
+
 #include <vector>
+
 class RigFractureCell;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RigFractureGrid //TODO arve fra cvf::Object,  skal være cvf::ref i rigstimplanfracturetemplate
+class RigFractureGrid : public cvf::Object
+    
 {
 public:
     RigFractureGrid();

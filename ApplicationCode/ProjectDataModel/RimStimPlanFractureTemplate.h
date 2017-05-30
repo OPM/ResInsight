@@ -77,15 +77,7 @@ public:
     std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
     
     void                                    setupStimPlanCells();
-    const RigFractureGrid&                  fractureGrid() const;
-//     const std::vector<RigStimPlanFracTemplateCell>&     getStimPlanCells() const;
-//     size_t                                  getGlobalIndexFromIJ(size_t i, size_t j) const;
-//     const RigStimPlanFracTemplateCell&      stimPlanCellFromIndex(size_t index) const;
-//     size_t                                  stimPlanGridNumberOfRows() const;
-//     size_t                                  stimPlanGridNumberOfColums() const;
-
-//     std::pair<size_t, size_t>               getStimPlanCellAtWellCenter();
-   
+    const RigFractureGrid*                  fractureGrid() const;
 
     //Functions used by upscaling only
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
@@ -95,7 +87,6 @@ public:
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
-
 
 private:
     void                                    updateUiTreeName();
@@ -117,7 +108,6 @@ private:
 
     caf::PdmField<QString>                      m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
-//    std::vector<RigStimPlanFracTemplateCell>    m_stimPlanCells;
-//    std::pair<size_t, size_t>                   wellCenterStimPlanCellIJ;
-    RigFractureGrid                             m_fractureGrid;
+    cvf::ref<RigFractureGrid>                   m_fractureGrid;
+
 };
