@@ -38,4 +38,9 @@ public:
 
     caf::PdmField<bool>                     includeWpimult;
     caf::PdmField<bool>                     removeLateralsInMainBoreCells;
+
+    caf::PdmField<int>                      timeStep;
+
+protected:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 };

@@ -372,6 +372,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 
     for (const RimPerforationInterval* interval : wellPath->perforationIntervalCollection()->perforations())
     {
+        if (!interval->isActiveOnDate(settings.caseToApply->timeStepDates()[settings.timeStep])) continue;
+
         std::vector<cvf::Vec3d> perforationPoints = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), perforationPoints);
         for (auto& cell : intersectedCells)

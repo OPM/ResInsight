@@ -27,9 +27,39 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
+    CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
+
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
 
     CAF_PDM_InitField(&includeWpimult, "IncludeWPIMULT", true, "Include WPIMLUT", "", "", "");
     CAF_PDM_InitField(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", false, "Remove Laterals in Main Bore Cells", "", "", "");
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if (fieldNeedingOptions == &timeStep)
+    {
+        QStringList timeStepNames;
+
+        if (caseToApply)
+        {
+            timeStepNames = caseToApply->timeStepStrings();
+        }
+
+        for (int i = 0; i < timeStepNames.size(); i++)
+        {
+            options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
+        }
+    }
+    else
+    {
+        options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    }
+    return options;
 }

@@ -102,6 +102,18 @@ void RimPerforationInterval::setSkinFactor(double skinFactor)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimPerforationInterval::isActiveOnDate(const QDateTime& date) const
+{
+    if (m_startOfHistory())
+    {
+        return true;
+    }
+    return m_date() < date;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
 {
     cvf::BoundingBox bb;

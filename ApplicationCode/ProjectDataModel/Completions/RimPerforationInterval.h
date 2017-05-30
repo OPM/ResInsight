@@ -48,6 +48,8 @@ public:
     double                              diameter() const { return m_diameter(); }
     double                              skinFactor() const { return m_skinFactor(); }
 
+    bool                                isActiveOnDate(const QDateTime& date) const;
+
     virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
 
 protected:
