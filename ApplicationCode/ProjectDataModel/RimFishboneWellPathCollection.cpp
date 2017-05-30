@@ -66,6 +66,21 @@ void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<const RimFishboneWellPath*> RimFishboneWellPathCollection::wellPaths() const
+{
+    std::vector<const RimFishboneWellPath*> paths;
+
+    for (const RimFishboneWellPath* path : m_wellPaths)
+    {
+        paths.push_back(path);
+    }
+
+    return paths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishboneWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* wellPropertiesGroup = uiOrdering.addNewGroup("Well Properties");

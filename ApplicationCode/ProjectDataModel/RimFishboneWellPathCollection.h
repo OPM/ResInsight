@@ -44,6 +44,9 @@ public:
 
     void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
+    std::vector<const RimFishboneWellPath*> wellPaths() const;
+    double                                  holeRadius() const { return m_pipeProperties->holeRadius(); }
+
 protected:
     virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

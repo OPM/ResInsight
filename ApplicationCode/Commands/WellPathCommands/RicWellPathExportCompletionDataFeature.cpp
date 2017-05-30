@@ -26,6 +26,8 @@
 #include "RimWellPathCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFishbonesCollection.h"
+#include "RimFishboneWellPath.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
 #include "RimExportCompletionDataSettings.h"
@@ -163,6 +165,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         {
             std::vector<RigCompletionData> fishbonesCompletionData = generateFishbonesCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesCompletionData);
+            std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesWellPathCompdatValues(wellPath, exportSettings);
+            appendCompletionData(&completionData, fishbonesWellPathCompletionData);
         }
 
         // Merge map into a vector of values
@@ -323,26 +327,36 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
                 RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
                 completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 double diameter = location.fishbonesSubs->holeRadius() / 1000 * 2;
-                switch (intersection.direction)
-                {
-                case POS_I:
-                case NEG_I:
-                    completion.setFromFishbone(diameter, CellDirection::DIR_I);
-                    break;
-                case POS_J:
-                case NEG_J:
-                    completion.setFromFishbone(diameter, CellDirection::DIR_J);
-                    break;
-                case POS_K:
-                case NEG_K:
-                    completion.setFromFishbone(diameter, CellDirection::DIR_K);
-                    break;
-                default:
-                    completion.setFromFishbone(diameter, CellDirection::DIR_UNDEF);
-                    break;
-                }
+                CellDirection direction = wellPathCellDirectionToCellDirection(completion.direction);
+                completion.setFromFishbone(diameter, direction);
                 completionData.push_back(completion);
             }
+        }
+    }
+
+    return completionData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings & settings)
+{
+    std::vector<RigCompletionData> completionData;
+
+    double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeRadius() / 1000 * 2;
+    for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
+    {
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates());
+        for (auto& cell : intersectedCells)
+        {
+            size_t i, j, k;
+            settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
+            RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+            completion.addMetadata(fishbonesPath->name(), "");
+            CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
+            completion.setFromFishbone(diameter, direction);
+            completionData.push_back(completion);
         }
     }
 
@@ -367,25 +381,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
             double diameter = interval->radius() * 2;
-            switch (cell.direction)
-            {
-            case POS_I:
-            case NEG_I:
-                completion.setFromPerforation(diameter, CellDirection::DIR_I);
-                break;
-            case POS_J:
-            case NEG_J:
-                completion.setFromPerforation(diameter, CellDirection::DIR_J);
-                break;
-            case POS_K:
-            case NEG_K:
-                completion.setFromPerforation(diameter, CellDirection::DIR_K);
-                break;
-            default:
-                completion.setFromPerforation(diameter, CellDirection::DIR_UNDEF);
-                break;
-            }
-
+            CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
+            completion.setFromPerforation(diameter, direction);
             completionData.push_back(completion);
         }
     }
@@ -602,5 +599,30 @@ void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCe
         {
             completionData->insert(std::pair<IJKCellIndex, RigCompletionData>(completion.cellIndex(), completion));
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+CellDirection RicWellPathExportCompletionDataFeature::wellPathCellDirectionToCellDirection(WellPathCellDirection direction)
+{
+    switch (direction)
+    {
+    case POS_I:
+    case NEG_I:
+        CellDirection::DIR_I;
+        break;
+    case POS_J:
+    case NEG_J:
+        CellDirection::DIR_J;
+        break;
+    case POS_K:
+    case NEG_K:
+        CellDirection::DIR_K;
+        break;
+    default:
+        CellDirection::DIR_UNDEF;
+        break;
     }
 }

@@ -134,6 +134,7 @@ private:
     static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
 
     static std::vector<RigCompletionData>        generateFishbonesCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
+    static std::vector<RigCompletionData>        generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
     static std::vector<RigCompletionData>        generatePerforationsCompdatValues(const RimWellPath* wellPath, const RimExportCompletionDataSettings& settings);
 
     static std::map<size_t, double>              computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells);
@@ -146,4 +147,5 @@ private:
 
     static void                                  appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data);
 
+    static CellDirection                         wellPathCellDirectionToCellDirection(WellPathCellDirection direction);
 };
