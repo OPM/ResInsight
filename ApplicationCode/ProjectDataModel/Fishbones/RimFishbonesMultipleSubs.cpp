@@ -62,10 +62,10 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&fishbonesColor,                  "FishbonesColor", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
 
     CAF_PDM_InitField(&m_lateralCountPerSub,            "LateralCountPerSub", size_t(3),    "Laterals Per Sub", "", "", "");
-    CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("12.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
+    CAF_PDM_InitField(&m_lateralLength,                 "LateralLength",  QString("11.0"),  "Length(s) [m]", "", "Specify multiple length values if the sub lengths differ", "");
 
     CAF_PDM_InitField(&m_lateralExitAngle,              "LateralExitAngle", 35.0,           "Exit Angle [deg]", "", "", "");
-    CAF_PDM_InitField(&m_lateralBuildAngle,             "LateralBuildAngle", 5.0,           "Build Angle [deg/m]", "", "", "");
+    CAF_PDM_InitField(&m_lateralBuildAngle,             "LateralBuildAngle", 6.0,           "Build Angle [deg/m]", "", "", "");
 
     CAF_PDM_InitField(&m_lateralTubingDiameter,         "LateralTubingDiameter", 8.0,       "Tubing Diameter [mm]", "", "", "");
 
@@ -75,8 +75,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralLengthFraction,         "LateralLengthFraction", 0.8,       "Length Fraction [0..1]", "", "", "");
     CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 0.7,      "Install Fraction [0..1]", "", "", "");
 
-    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICD Count", "", "", "");
-    CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 8.0,          "ICD Orifice Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(7),              "ICD Count", "", "", "");
+    CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_locationOfSubs,       "LocationOfSubs",                   "Measured Depths [m]", "", "", "");
     m_locationOfSubs.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -84,7 +84,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_subsLocationMode,              "SubsLocationMode", caf::AppEnum<LocationType>(FB_SUB_COUNT_END), "Location Defined By", "", "", "");
     CAF_PDM_InitField(&m_rangeStart,                    "RangeStart",       100.0,          "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeEnd,                      "RangeEnd",         250.0,          "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_rangeSubSpacing,               "RangeSubSpacing",  40.0,           "Spacing [m]", "", "", "");
+    CAF_PDM_InitField(&m_rangeSubSpacing,               "RangeSubSpacing",  13.0,           "Spacing [m]", "", "", "");
     CAF_PDM_InitField(&m_rangeSubCount,                 "RangeSubCount",    size_t(25),     "Number of Subs", "", "", "");
 
     CAF_PDM_InitField(&m_subsOrientationMode,           "SubsOrientationMode", caf::AppEnum<LateralsOrientationType>(FB_LATERAL_ORIENTATION_RANDOM), "Orientation", "", "", "");
@@ -256,6 +256,13 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         changedField == &m_rangeSubSpacing)
     {
         recomputeLocations = true;
+    }
+
+    if (changedField == &m_rangeSubSpacing &&
+        m_rangeSubSpacing() < 13.0)
+    {
+        // Minimum distance between fishbones is 13m
+        m_rangeSubSpacing = 13.0;
     }
 
     if (recomputeLocations)

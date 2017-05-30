@@ -283,7 +283,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutpu
                     formatter.add(intersection.attachedSegmentNumber);
                     formatter.add(length);
                     formatter.add(depth);
-                    formatter.add(location.fishbonesSubs->tubingRadius());
+                    formatter.add(location.fishbonesSubs->tubingDiameter());
                     formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
                     formatter.rowCompleted();
                 }

@@ -30,7 +30,7 @@ RimFishbonesPipeProperties::RimFishbonesPipeProperties()
 {
     CAF_PDM_InitObject("FishbonesPipeProperties", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralHoleDiameter, "LateralHoleDiameter", 12.0, "Hole Diameter [mm]", "", "", "");
+    CAF_PDM_InitField(&m_lateralHoleDiameter, "LateralHoleDiameter", 12.5, "Hole Diameter [mm]", "", "", "");
     CAF_PDM_InitField(&m_skinFactor,          "SkinFactor",          1.0,  "Skin Factor [0..1]", "", "", "");
 }
 
