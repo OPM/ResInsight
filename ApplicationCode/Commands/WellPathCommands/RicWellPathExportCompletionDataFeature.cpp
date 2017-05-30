@@ -327,7 +327,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
                 RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
                 completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 double diameter = location.fishbonesSubs->holeRadius() / 1000 * 2;
-                CellDirection direction = wellPathCellDirectionToCellDirection(completion.direction);
+                CellDirection direction = wellPathCellDirectionToCellDirection(intersection.direction);
                 completion.setFromFishbone(diameter, direction);
                 completionData.push_back(completion);
             }
@@ -611,18 +611,14 @@ CellDirection RicWellPathExportCompletionDataFeature::wellPathCellDirectionToCel
     {
     case POS_I:
     case NEG_I:
-        CellDirection::DIR_I;
-        break;
+        return CellDirection::DIR_I;
     case POS_J:
     case NEG_J:
-        CellDirection::DIR_J;
-        break;
+        return CellDirection::DIR_J;
     case POS_K:
     case NEG_K:
-        CellDirection::DIR_K;
-        break;
+        return CellDirection::DIR_K;
     default:
-        CellDirection::DIR_UNDEF;
-        break;
+        return CellDirection::DIR_UNDEF;
     }
 }
