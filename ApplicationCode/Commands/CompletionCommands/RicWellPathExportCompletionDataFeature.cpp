@@ -149,7 +149,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
 
     QTextStream stream(&exportFile);
-    RifEclipseOutputTableFormatter formatter(stream);
+    RifEclipseDataTableFormatter formatter(stream);
 
     for (auto wellPath : wellPaths)
     {
@@ -190,7 +190,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
+void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
 {
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),
@@ -271,7 +271,7 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseOutp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
+void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData)
 {
     std::vector<RifEclipseOutputTableColumn> header = {
         RifEclipseOutputTableColumn("Well"),

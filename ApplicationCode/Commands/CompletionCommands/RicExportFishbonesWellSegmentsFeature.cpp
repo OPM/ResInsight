@@ -167,7 +167,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
     std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeature::findWellSegmentLocations(settings.caseToApply, wellPath, fishbonesSubs);
 
     QTextStream stream(&exportFile);
-    RifEclipseOutputTableFormatter formatter(stream);
+    RifEclipseDataTableFormatter formatter(stream);
     generateWelsegsTable(formatter, wellPath, settings, locations);
     generateCompsegsTable(formatter, wellPath, settings, locations);
 }
@@ -175,7 +175,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
+void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
 {
     formatter.keyword("WELSEGS");
 
@@ -297,7 +297,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseOutpu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
+void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
 {
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     formatter.keyword("COMPSEGS");

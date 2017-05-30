@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseOutputTableFormatter.h"
+#include "RifEclipseDataTableFormatter.h"
 
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPathIntersectionTools.h"
@@ -130,8 +130,8 @@ public:
 private:
     static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings);
 
-    static void                                  generateCompdatTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
-    static void                                  generateWpimultTable(RifEclipseOutputTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
+    static void                                  generateCompdatTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
+    static void                                  generateWpimultTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
 
     static std::vector<RigCompletionData>        generateFishbonesCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
     static std::vector<RigCompletionData>        generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);

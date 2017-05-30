@@ -71,20 +71,20 @@ struct RifEclipseOutputTableColumn
 //==================================================================================================
 //
 //==================================================================================================
-class RifEclipseOutputTableFormatter
+class RifEclipseDataTableFormatter
 {
 public:
-    RifEclipseOutputTableFormatter(QTextStream& out);
-    virtual ~RifEclipseOutputTableFormatter();
+    RifEclipseDataTableFormatter(QTextStream& out);
+    virtual ~RifEclipseDataTableFormatter();
 
-    RifEclipseOutputTableFormatter&     keyword(const QString keyword);
-    RifEclipseOutputTableFormatter&     header(std::vector<RifEclipseOutputTableColumn> tableHeader);
-    RifEclipseOutputTableFormatter&     add(const QString str);
-    RifEclipseOutputTableFormatter&     add(double num);
-    RifEclipseOutputTableFormatter&     add(int num);
-    RifEclipseOutputTableFormatter&     add(size_t num);
-    RifEclipseOutputTableFormatter&     addZeroBasedCellIndex(size_t index);
-    RifEclipseOutputTableFormatter&     comment(const QString str);
+    RifEclipseDataTableFormatter&     keyword(const QString keyword);
+    RifEclipseDataTableFormatter&     header(std::vector<RifEclipseOutputTableColumn> tableHeader);
+    RifEclipseDataTableFormatter&     add(const QString str);
+    RifEclipseDataTableFormatter&     add(double num);
+    RifEclipseDataTableFormatter&     add(int num);
+    RifEclipseDataTableFormatter&     add(size_t num);
+    RifEclipseDataTableFormatter&     addZeroBasedCellIndex(size_t index);
+    RifEclipseDataTableFormatter&     comment(const QString str);
     void                                rowCompleted();
     void                                tableCompleted();
 

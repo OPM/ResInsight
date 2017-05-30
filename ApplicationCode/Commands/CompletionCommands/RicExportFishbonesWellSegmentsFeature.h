@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RifEclipseOutputTableFormatter.h"
+#include "RifEclipseDataTableFormatter.h"
 
 #include "RicExportWellSegmentsSettingsUi.h"
 
@@ -47,6 +47,6 @@ private:
     static RimWellPath*                          selectedWellPath();
 
     static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings);
-    static void                                  generateWelsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateCompsegsTable(RifEclipseOutputTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
 };
