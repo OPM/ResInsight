@@ -25,10 +25,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFracture(double conductivity, 
-                                                                                           double sideLengthParallellTrans, 
-                                                                                           double sideLengthNormalTrans, 
-                                                                                           double cDarcyForRelevantUnit)
+double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans(double conductivity, 
+                                                                           double sideLengthParallellTrans, 
+                                                                           double sideLengthNormalTrans, 
+                                                                           double cDarcyForRelevantUnit)
 {
     double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / (sideLengthParallellTrans / 2);
     return transmissibility;
@@ -37,16 +37,16 @@ double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibility
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibilityInFractureCenterToCenterForTwoCells(double conductivityCell1, 
-                                                                                                                    double sideLengthParallellTransCell1, 
-                                                                                                                    double sideLengthNormalTransCell1, 
-                                                                                                                    double conductivityCell2, 
-                                                                                                                    double sideLengthParallellTransCell2, 
-                                                                                                                    double sideLengthNormalTransCell2, 
-                                                                                                                    double cDarcyForRelevantUnit)
+double RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(double conductivityCell1, 
+                                                                             double sideLengthParallellTransCell1, 
+                                                                             double sideLengthNormalTransCell1, 
+                                                                             double conductivityCell2, 
+                                                                             double sideLengthParallellTransCell2, 
+                                                                             double sideLengthNormalTransCell2, 
+                                                                             double cDarcyForRelevantUnit)
 {
-    double transCell1 = computeStimPlanCellTransmissibilityInFracture(conductivityCell1, sideLengthParallellTransCell1, sideLengthNormalTransCell1, cDarcyForRelevantUnit);
-    double transCell2 = computeStimPlanCellTransmissibilityInFracture(conductivityCell2, sideLengthParallellTransCell2, sideLengthNormalTransCell2, cDarcyForRelevantUnit);
+    double transCell1 = centerToEdgeFractureCellTrans(conductivityCell1, sideLengthParallellTransCell1, sideLengthNormalTransCell1, cDarcyForRelevantUnit);
+    double transCell2 = centerToEdgeFractureCellTrans(conductivityCell2, sideLengthParallellTransCell2, sideLengthNormalTransCell2, cDarcyForRelevantUnit);
 
     double totalTrans = 1 / ( (1 / transCell1) + (1 / transCell2));
 
@@ -56,17 +56,17 @@ double RigFractureTransmissibilityEquations::computeStimPlanCellTransmissibility
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWellinStimPlanCell(double stimPlanCellConductivity, 
-                                                                               double stimPlanCellSizeX,
-                                                                               double stimPlanCellSizeZ,
-                                                                               double wellRadius, 
-                                                                               double skinFactor, 
-                                                                               double cDarcyForRelevantUnit)
+double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(double fractureCellConductivity, 
+                                                                           double fractureCellSizeX,
+                                                                           double fractureCellSizeZ,
+                                                                           double wellRadius, 
+                                                                           double skinFactor, 
+                                                                           double cDarcyForRelevantUnit)
 {
     double ro = 0.14 * cvf::Math::sqrt(
-        pow(stimPlanCellSizeX, 2.0) + pow(stimPlanCellSizeZ, 2));
+        pow(fractureCellSizeX, 2.0) + pow(fractureCellSizeZ, 2));
 
-    double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * stimPlanCellConductivity /
+    double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * fractureCellConductivity /
         (log(ro / wellRadius) + skinFactor );
 
     return Tc;
@@ -75,25 +75,25 @@ double RigFractureTransmissibilityEquations::computeRadialTransmissibilityToWell
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::computeLinearTransmissibilityToWellinStimPlanCell(double stimPlanConductivity, 
-                                                                               double stimPlanCellSizeX,
-                                                                               double stimPlanCellSizeZ, 
-                                                                               double perforationLengthVertical,
-                                                                               double perforationLengthHorizontal,
-                                                                               double perforationEfficiency, 
-                                                                               double skinfactor, 
-                                                                               double cDarcyForRelevantUnit)
+double RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(double fractureCellConductivity, 
+                                                                           double fractureCellSizeX,
+                                                                           double fractureCellSizeZ, 
+                                                                           double perforationLengthVertical,
+                                                                           double perforationLengthHorizontal,
+                                                                           double perforationEfficiency, 
+                                                                           double skinfactor, 
+                                                                           double cDarcyForRelevantUnit)
 {
-    double TcPrefix = 8 * cDarcyForRelevantUnit * stimPlanConductivity;
+    double TcPrefix = 8 * cDarcyForRelevantUnit * fractureCellConductivity;
 
     double DzPerf = perforationLengthVertical * perforationEfficiency;
     double DxPerf = perforationLengthHorizontal * perforationEfficiency;
 
     double TcZ = TcPrefix * DzPerf /
-        (stimPlanCellSizeX + skinfactor * DzPerf / cvf::PI_D);
+        (fractureCellSizeX + skinfactor * DzPerf / cvf::PI_D);
 
     double TcX = TcPrefix * DxPerf /
-        (stimPlanCellSizeZ + skinfactor* DxPerf / cvf::PI_D);
+        (fractureCellSizeZ + skinfactor* DxPerf / cvf::PI_D);
 
     double Tc = cvf::Math::sqrt(pow(TcX, 2) + pow(TcZ, 2));
     return Tc;
@@ -103,13 +103,13 @@ double RigFractureTransmissibilityEquations::computeLinearTransmissibilityToWell
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(double perm, 
-                                                                             double NTG, 
-                                                                             double A, 
-                                                                             double cellSizeLength, 
-                                                                             double skinfactor, 
-                                                                             double fractureAreaWeightedlength, 
-                                                                             double cDarcy)
+double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm, 
+                                                                   double NTG, 
+                                                                   double A, 
+                                                                   double cellSizeLength, 
+                                                                   double skinfactor, 
+                                                                   double fractureAreaWeightedlength, 
+                                                                   double cDarcy)
 {
     double transmissibility;
 

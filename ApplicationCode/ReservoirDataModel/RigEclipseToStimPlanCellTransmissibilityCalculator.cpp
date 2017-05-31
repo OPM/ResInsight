@@ -212,9 +212,9 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
 
-        double transmissibility_X = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Y = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
-        double transmissibility_Z = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(permY, NTG, Ay, dx, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(permX, NTG, Ax, dy, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
+        double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans(permZ, 1.0, Az, dz, m_fractureSkinFactor, fractureAreaWeightedlength, m_cDarcy);
 
         double transmissibility = sqrt(transmissibility_X * transmissibility_X
                                        + transmissibility_Y * transmissibility_Y

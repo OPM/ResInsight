@@ -221,9 +221,9 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
         double skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
 
-        double transmissibility_X = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength, cDarchy);
-        double transmissibility_Y = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength, cDarchy);
-        double transmissibility_Z = RigFractureTransmissibilityEquations::calculateMatrixTransmissibility(permZ, 1.0, Az, dz, skinfactor, fractureAreaWeightedlength, cDarchy);
+        double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength, cDarchy);
+        double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength, cDarchy);
+        double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans(permZ, 1.0, Az, dz, skinfactor, fractureAreaWeightedlength, cDarchy);
 
         double transmissibility = sqrt(transmissibility_X * transmissibility_X
             + transmissibility_Y * transmissibility_Y
