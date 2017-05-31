@@ -47,7 +47,7 @@ ResInsight calculates several of the presented geomechanical results based on th
 
 ### Relative Results (Time Lapse Results) 
 
-ResInsight can calculate and display relative results, sometimes also reffered to as Time Lapse results.
+ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results.
 When enabled, every result variable is calculated as :
 
 Value'(t) = Value(t) - Value(BaseTime)
@@ -56,7 +56,7 @@ Enable the **Enable Relative Result**  option in the **Relative Result Options**
 
 ![]({{ site.baseurl }}/images/DerivedRelativeResults.png)
 
-Each variable is then postfixed with "_D*TimeStepIndex*" to distinguish them from the native variables.
+Each variable is then post-fixed with "_D*TimeStepIndex*" to distinguish them from the native variables.
 
 Note: Relative Results calculated based on Gamma values are calculated slightly differently:
 
@@ -99,7 +99,7 @@ The calculated result fields are:
     
 #### Definitions of derived results
 
-In this text the label Sa and Ea will be used to denote the unchanged stress and strain tensor respectivly from the odb file.
+In this text the label Sa and Ea will be used to denote the unchanged stress and strain tensor respectively from the odb file.
 
 Components with one subscript denotes the principal values 1, 2, and 3 which refers to the maximum, middle, and minimum principals respectively. 
 
@@ -143,7 +143,7 @@ Gamma<sub>ii</sub> = ST<sub>ii</sub>/POR (i= 1,2,3)
 
 Gamma<sub>i</sub> = ST<sub>i</sub>/POR 
 
-In these calcualtioins we set Gamma to *undefined* if abs(POR) > 0.01 MPa. 
+In these calculations we set Gamma to *undefined* if abs(POR) > 0.01 MPa. 
 
 ##### SE - Effective Stress
 
@@ -190,7 +190,7 @@ ED = 2*(E1-E3)/3
 ##### Element Nodal On Face
 
 For each face displayed, (might be an element face or an intersection/intersection box face), 
-a coodinate system is established such that:
+a coordinate system is established such that:
 
 - Ez is normal to the face, named N - Normal
 - Ex is horizontal and in the plane of the face, named H - Horizontal 

@@ -15,8 +15,10 @@ published: true
 3. Start ResInsight.exe 
 
 ### Octave installation (optional)
-1. ResInsight is delivered with support for Octave 4.0.0 which can be downloaded here: [Octave-4.0.0](ftp://ftp.gnu.org/gnu/octave/windows/octave-4.0.0_0-installer.exe)
-2. Launch ResInsight.exe, open **Edit->Preferences**. On the **Octave** tab, enter the path to the Octave command line interpreter executable, usually `C:\Your\Path\To\Octave-x.x.x\bin\octave-cli.exe`
+1. Download [Octave-4.0.0](ftp://ftp.gnu.org/gnu/octave/windows/octave-4.0.0_0-installer.exe) and install it. 
+2. Launch ResInsight.exe, open **Edit->Preferences**. 
+3. On the **Octave** tab, enter the path to the Octave command line interpreter executable.  
+   ( Usually _`C:\Your\Path\To\Octave-x.x.x\bin\octave-cli.exe`_ )
 
 <div class="note info">
 A binary package of ResInsight will normally <b>not</b> work with other Octave versions than the one it is compiled with. 

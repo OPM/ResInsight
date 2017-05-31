@@ -13,9 +13,16 @@ ResInsight can display well logs by extracting data from a simulation model alon
 
 Well log plots can be created in several ways: 
 
-1. Right click the empty area below all the items in the **Project Tree** and select **New Well Log Plot**. A plot is created with one **Track** and an empty **Curve**.
-2. Right click a wellpath, either in the **Project Tree** or in the 3D-view, and select either **New Well Log Extraction Curve**. A new plot with a single **Track** and a **Curve** is created. The curve is setup to match your selection (Well trajectory, active case and result) 
-3. Right click a LAS-file channel in the **Project Tree** and select **Add to New Plot**. A new plot with a single **Track** and a **Curve** is created. The curve is setup to plot the selected LAS-file channel.
+1. Right-click a wellpath or a simulation well, either in the **Project Tree** or in the 3D-view.  
+   Select **New Well Log Extraction Curve**.   
+   A new plot with a single **Track** and a **Curve** is created. The curve is setup to match the 
+   selected Well trajectory, active case, and result. 
+2. Right-click the empty area below all the items in the **Project Tree**.  
+   Select **New Well Log Plot**. 
+   A plot is created with one **Track** and an empty **Curve**.
+3. Right-click a LAS-file channel in the **Project Tree**.
+   Select **Add to New Plot**. 
+   A new plot with a single **Track** and a **Curve**  displaying the selected LAS-file channel is created.
 
 Each **Well Log Plot** can contain several *Tracks*, and each **Track** can contain several **Curves**.
 
@@ -23,7 +30,11 @@ Each **Well Log Plot** can contain several *Tracks*, and each **Track** can cont
 
 Tracks and Curves can be organized using drag and drop functionality in the **Project Tree**. Tracks can be moved from one plot to another, and you can alter the order in which they appear in the **Plot**. **Curves** can be moved from one **Track** to another.
 
-All the **Tracks** in the same plot always display the same depth range, and share the *True Veritcal Depth (TVD)* or *Measured Depth (MD)* setting. In the property panel of the plot, the exact depth range can be adjusted along with the depth type setting (TVD/MD).
+### Measured Depth (MD), True Veritcal Depth (TVD) and Pseudo Length (PL)
+
+All the **Tracks** in the same plot always display the same depth range, and share the *True Vertical Depth (TVD)* or *Measured Depth (MD)* setting. In the property panel of the plot, the exact depth range can be adjusted along with the depth type setting (TVD/MD). 
+
+**Simulation Wells** however, is using a *Pseudo Length* instead of the real *Measured Depth* when the depth type is MD, as the MD information is not available in the restart files. The *Pseudo Length* is a length along the coarsely interpolated visualization pipe, and serves only as a very coarse estimation of an MD-like depth. Pseudo length is measured from the simulation-wells first connection-cell (well head connection) to the reservoir. This is very different from MD, which would start at RKB or at sea level.
 
 ### Depth unit
 
@@ -34,9 +45,15 @@ The depth unit can be set using the **Depth unit** option. Currently ResInsight 
 The visible depth range can be panned using the mouse wheel while the mouse pointer hovers over the plot.
 Pressing and holding **CTRL** while using the mouse wheel will allow you to zoom in or out depth-wise, towards the mouse position.
 
+### Accessing the Plot Data
+
+The command context command **Show Plot Data** will show a window containing the plot data in ascii format. The content of this window is easy to copy and paste into Excel or other tools for further processing.
+
+It is also possible to save the ascii data to a file directly by using the context command **Export Plot Data to Text File** on the plot. 
+
 ## Tracks
 
-Tracks can be created by right clicking a **Well Log Plot** and select **New Track**
+Tracks can be created by right-clicking a **Well Log Plot** and select **New Track**
 
 ![]({{ site.baseurl }}/images/TrackProperties.png)
 
@@ -45,42 +62,50 @@ Logarithmic display is controlled using the **Logarithmic Scale** option.
 
 ## Curves
 
-Curves can be created by right clicking a **Track** in the **Project Tree**, or by the commands mentioned above.
+Curves can be created by right-clicking a **Track** in the **Project Tree**, or by the commands mentioned above.
 There are two types of curves: *Well Log Extraction Curves* and *Well Log LAS Curves*. 
 
 Curve visual appearance is controlled in the **Appearance** section:
 
-- **Color** - Controls the color of the curve
-- **Thickness** - Number of pixels used to draw the curve
-- **Point style** - Defines the style used to draw the result points of the curve, select *None* to disable drawing of points
-- **Line style** - Defines the the style used to draw the curve, select  *None* to disable line drawing
+- **Color** -- Controls the color of the curve
+- **Thickness** -- Number of pixels used to draw the curve
+- **Point style** -- Defines the style used to draw the result points of the curve, select *None* to disable drawing of points
+- **Line style** -- Defines the the style used to draw the curve, select  *None* to disable line drawing
 
 ### Well Log Extraction Curves
 
-Ectraction curves acts as an artifical well log curve. Instead of probing the real well, a simulation model is probed instead.
+Extraction curves acts as an artificial well log curve. Instead of probing the real well, a simulation model is probed instead.
 
-
-The property panel for a geomechanical model is shown below:
+The property panel for an eclipse model is shown below:
 
 ![]({{ site.baseurl }}/images/WellLogExtractionCurveProperties.png)
 
 The first group of options controls all the input needed to setup the data extraction for the curve - Well Path, Case, and result value. The selection of result value is somewhat different between geomechanical cases and Eclipse cases. In addition you can select what timestep to address if the selected property is a dynamic one. 
 
 <div class="note">
-Placing keyboard focus in the <b>Time Step</b> drop-downbox will allow you to use the arrow keys to quickly step through the timesteps while watching the changes in the curve. 
+Placing keyboard focus in the <b>Time Step</b> drop-downbox will allow you to use the arrow keys or the mouse wheel to quickly step through the timesteps while watching the changes in the curve. 
 </div>
 
-The disply name of a curve is normally generated automatically. The options grouped below **Auto Name** can be used to tailor the length and content of the curve name.
+The display name of a curve is normally generated automatically. The options grouped below **Auto Name** can be used to tailor the length and content of the curve name.
 
 #### Curve extraction calculation
 
 This section describes how the values are extracted from the grid when creating a Well log Extraction Curve.
 
-Ectraction curves are calculated by finding the intersections between a well trajectory and the cell-faces in a particular grid model. Usually there are two intersections at nearly the same spot; the one leaving the previous cell, and the one entering the next one. At each intersection point the measured depth along the trajectory is interpolated from the trajectory data. The result value is retreived from the corresponding cell in different ways depending on the nature of the underlying result. 
+Extraction curves are calculated by finding the intersections between a well trajectory and the cell-faces in a particular grid model. Usually there are two intersections at nearly the same spot; the one leaving the previous cell, and the one entering the next one. At each intersection point the measured depth along the trajectory is interpolated from the trajectory data. The result value is retrieved from the corresponding cell in different ways depending on the nature of the underlying result. 
 
-For Eclipse results the cell face value is used directly. This is normally the same as the corresponding cell value, but if a **Directional combined results** is used, (See [ Derived Results ]({{ site.baseurl }}/docs/derivedresults) ) it will be that particular face's value.
+For Eclipse results the cell face value is used directly. This is normally the same as the corresponding cell value, but if a **Directional combined results** is used, ( See [ Derived Results ]({{ site.baseurl }}/docs/derivedresults) ) it will be that particular face's value.
 
 Abaqus results are interpolated across the intersected cell-face from the result values associated with the nodes of that face. This is also the case for integration point results, as they are directly associated with their corresponding element node in ResInsight. 
+
+#### Change Data Source for several curves
+
+It is possible to change either the Case or the Well Path in several Well Log Extraction curves in one go. To do this, select the curves to change, and access the context menu. Select the command **Change Data Source**. The following dialog will appear:
+
+![]({{ site.baseurl }}/images/WellLogExtractionChangeDataSource.png)
+
+- **Case** -- Sets this case for all the curves
+- **Well Path** -- Applies this well path to all the curves. Will not affect curves using a Simulation Well.
 
 ### Well Log LAS Curves
 
@@ -110,11 +135,11 @@ If the LAS-file does not contain a well name, the file name is used instead.
 
 ### Exporting LAS-files
 
-A set of curves can be exported to LAS files by right clicking the curves, well log track, or well log plots and select **Export To LAS Files ...**. An export dialog is diplayed, allowing the user to configure how to export curve data.
+A set of curves can be exported to LAS files by right-clicking the curves, well log track, or well log plots and select **Export To LAS Files ...**. An export dialog is displayed, allowing the user to configure how to export curve data.
 
 ![]({{ site.baseurl }}/images/export_to_las_files.png)
 
-- **Export Folder** - Location of the exported LAS files, one file per unique triplet of well path, case and time step
-- **Resample Curve Data** - If enabled, all curves are resampled at the given resample interval before export
-- **TVDRKB** - If enabled, TVDRKB for all curves based on the listed well paths are exported. If the difference field is blank, no TVDRKB values are exported.
+- **Export Folder** -- Location of the exported LAS files, one file per unique triplet of well path, case and time step
+- **Resample Curve Data** -- If enabled, all curves are resampled at the given resample interval before export
+- **TVDRKB** -- If enabled, TVDRKB for all curves based on the listed well paths are exported. If the difference field is blank, no TVDRKB values are exported.
 

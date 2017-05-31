@@ -4,38 +4,43 @@
   
 - title: Getting Started
   docs:
-  - gettingstarted
   - installation
   - installationlinux
-
+  - gettingstarted
+  - gridimportexport
+  - modelnavigation
+  
 - title: Application
   docs:
-  - gridimportexport
   - reservoirviews
-  - modelnavigation
+  - cellresults
   - resultcolorlegend
+  - resultinspection
   - simulationwells
   - faults
   - intersections
   - filters
   - formations
   - wellpaths
-  - resultinspection
   - linkedviews
-  - exporteclipseproperties
+  - casegroupsandstatistics 
   - summaryplots
   - welllogsandplots
+  - flowdiagnosticsplots
+  - preferences  
+   
+- title: Export and Interfaces  
+  docs:
   - snapshots
-  - casegroupsandstatistics
+  - batchcommands
+  - exporteclipseproperties
   - octaveinterface
   - odbsupport
-  - derivedresults
-  - batchcommands
-  - preferences
 
 - title: Appendix
   docs:
   - commandlineparameters
+  - derivedresults
   - octaveinterfacereference
   - buildinstructions
   - regressiontestsystem

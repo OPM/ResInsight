@@ -19,7 +19,7 @@ The layout of the site is mainly controlled by the css-files located in _include
 The history is not important, so publishing of the new site to ResInsight gh-pages is easiest done by manually copying your site changes into a single checkin on ResInsight/gh-pages. 
 
 You will then have to delete all the files in ResInsight/gh-pages **exept** the .git directory and CNAME.
-Then copy all the files from the new "site" **exept** the .git directory, CNAME and _config.yml.
+Then copy all the files from the new "site" **exept** the .git directory and CNAME.
 
 
 # MathJax

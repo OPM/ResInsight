@@ -8,6 +8,10 @@ published: true
 ## Introduction
 To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the "Current Case"), or the script is designed to access the selection and traverse the cases by itself.
 
+<div class="note info"> 
+<b>Note:</b> The Octave interface does not support Geomechanical cases and flow diagnostic results. 
+</div>
+
 ### Single case scripts
 Single case scripts do not need to address cases explicitly, but works on what ResInsight considers being the "Current Case". When the user selects several cases and executes a script on them, ResInsight loops over all cases in the selection, sets the current case and executes the script. All references to the "Current Case" from the script will then refer to the case currently being processed by ResInsight. 
 The Current Case can be accessed directly using **riGetCurrentCase()**, but the more direct way is to *omit the CaseId parameter* in the functions, the Current Case is then automatically used. 

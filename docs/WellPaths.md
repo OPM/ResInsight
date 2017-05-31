@@ -15,14 +15,14 @@ The command **File -> Import -> Import Well Paths From File** will read the well
 
 The supported ASCII format is quite flexible but the main requirements are: 
 
-1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
-2. Lines starting with "--" or "#" is considered to be comment lines
-3. A line starting with none-number-characters are used as a well name after the following rules:
-	1. If the line contains a pair of :  ', `, ´, ’ or ‘ the text between the quotation marks is used as a well name.
-	2. If the line contains the case insensitive string "name" with an optional ":" after, the rest of the line is used as a well name. 
-	3. If there are no quotes or "name"'s, the complete line is used as a well name.
-	4. If there are several consecutive name-like lines, only the last one will be used 
-3. If a well name is found, a new well is created and the following data points ends up in it.
+- Each data line must contain four numbers: X Y TVD MD separated with white-space.
+- Lines starting with "--" or "#" is considered to be comment lines
+- A line starting with none-number-characters are used as a well name after the following rules:
+  - If the line contains a pair of : _```  "'", "`", "´", "’" or "‘" ```_ the text between the quotation marks is used as a well name.
+  - If the line contains the case insensitive string "name" with an optional ":" after then the rest of the line is used as a well name. 
+  - If there are no quotes or "name"'s, the complete line is used as a well name.
+  - If there are several consecutive name-like lines, only the last one will be used 
+- If a well name is found, a new well is created and the following data points are added to it.
 
 #### Example 1:
 
@@ -91,7 +91,7 @@ The visible wells are always shown in all the 3D Views in the complete project, 
 
 ![]({{ site.baseurl }}/images/WellPathCollectionProperties.png)
 
-- **Global well path visibility** This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.
-- **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
-- **Well Path clipping depth distance** This number is the distance from the top of the reservoir to the clipping depth.
+- **Global well path visibility** -- This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.
+- **Clip Well Paths** -- This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
+- **Well Path clipping depth distance** -- This number is the distance from the top of the reservoir to the clipping depth.
 

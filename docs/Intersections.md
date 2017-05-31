@@ -15,7 +15,7 @@ Intersections are stored in a folder named **Intersections** in a **View** as sh
 
 ![]({{ site.baseurl }}/images/IntersectionInTree.png)
 
-### Curve Based **Intersections**
+## Curve Based **Intersections**
 
 There are three types of curve based intersections: Well Path, Simulation Well, and Polyline intersections.
 
@@ -27,21 +27,19 @@ They can also be created from the context menu in the 3D view, as described belo
 To be able to see the intersections in the 3D view, the grid cells can be hidden by disabling the <b>Grids</b> item in the Project Tree or activating the <b>Hide Grid Cells</b> toolbar button.
 </div>
 
-#### Common Curve based Intersection Options
+### Common Curve based Intersection Options
 
 The property panel of a Well Path based Intersection is shown below:
 
  ![]({{ site.baseurl }}/images/IntersectionWellPath.png)
  
-Property       | Description
----------------|------------
-Name           | Automatically created based on the item specifying the intersection. The user can customize the name by editing, but will be updated if you change the well or well path.
-Intersecting Geometry | These options controls the curve to be used for the cross section, and depends on the type of intersection you choose.
-Direction      | Horizontal, vertical or Defined by two points
-Extent length  | Defines how far an intersection for Well Path or Simulation Well is extended at intersection ends
-Show Inactive Cells | Controls if inactive cells are included when creating the intersection geometry
+- **Name** -- Automatically created based on the item specifying the intersection. The user can customize the name by editing, but will be updated if you change the well or well path.
+- **Intersecting Geometry** -- These options controls the curve to be used for the cross section, and depends on the type of intersection you choose.
+- **Direction** -- Horizontal, vertical or Defined by two points
+- **Extent length** -- Defines how far an intersection for Well Path or Simulation Well is extended at intersection ends
+- **Show Inactive Cells** -- Controls if inactive cells are included when creating the intersection geometry
 
-**Direction**
+#### Direction
 
 The direction defined is used to extrude the curve in the defined direction, and thereby create a set of planes. 
 
@@ -53,23 +51,23 @@ When **Defined by two points** is the active option, the user can define the dir
 - To finish adding points, click the button **Stop picking points** in the **Property Editor**. 
 - The background color of the point list is then set to white. 
 
-#### Well Path Intersection
+### Well Path Intersection
 A new **Well Path** intersection can be created by right-clicking the well path in the 3D view or in the **Project Tree**. 
  
 ![]({{ site.baseurl }}/images/IntersectionWellPath.png)
  
 When a well path intersection is created, the source well path can be changed by using the **Well Path** selection combo box in the **Property Editor**.
 
-#### Simulation Well Intersection
+### Simulation Well Intersection
 A new **Simulation Well** intersection can be created by right-clicking the simulation well in the 3D view or in the **Project Tree**.
 
 ![]({{ site.baseurl }}/images/IntersectionSimulationWellProperties.png)
 
 When a simulation well intersection is created, the source simulation well can be changed by using the **Simulation Well** selection combo box in the **Property Editor**. 
 
-If the well contains more than one branch, the intersection geometry will be created for the selected brach in the **Branch** combo box.
+If the well contains more than one branch, the intersection geometry will be created for the selected branch in the **Branch** combo box.
 
-#### Polyline Intersection
+### Polyline Intersection
 A new **Polyline** intersection can be created from the context menu in the 3D view. Then, by left-clicking on reservoir geometry, a polyline is created. The points are added to the point list in the **Property Editor**. 
 
 ![]({{ site.baseurl }}/images/IntersectionPolyline.png)
@@ -83,24 +81,22 @@ To append more points by clicking in the 3D view, push the button **Start pickin
 
 The points in the list can be copied to clipboard using **CTRL-C** when keyboard focus is inside the point list. A new list of points can be pasted into the point list by using **CTRL-V**.
 
-### Intersection Box and Intersection Planes
+## Intersection Box and Intersection Planes
 
 A new **Intersection Box** or **Intersection Plane** can be created from the context menu in the 3D view or the context menu in the **Project Tree**.
 
 ![]({{ site.baseurl }}/images/3d_view_context_menu.png)
 
-The following table describes the properties for an **Intersection Box**:
+The following list describes the properties for an **Intersection Box**:
 
-Property       | Description
----------------|------------
-Name           | Automatically created based on the item specifying the intersection
-Box Type       | Box or x-plane, y-plane or z-plane
-Show Inactive Cells | Controls if inactive cells are included when creating the intersection geometry
-X Coordinates  | Coordinates for x range
-Y Coordinates  | Coordinates for y range
-Depth          | Coordinates for depth range
-XY Slider Step Size | Defines how much the value changes when the slider for XY values is changed, default value 1.0
-Depth Slider Step Size | Defines how much the value changes when the slider for depth values is changed, default value 0.5
+- **Name** -- Automatically created based on the item specifying the intersection
+- **Box Type** -- Box or x-plane, y-plane or z-plane
+- **Show Inactive Cells** -- Controls if inactive cells are included when creating the intersection geometry
+- **X Coordinates** -- Coordinates for x range
+- **Y Coordinates** -- Coordinates for y range
+- **Depth** -- Coordinates for depth range
+- **XY Slider Step Size** -- Defines how much the value changes when the slider for XY values is changed, default value 1.0
+- **Depth Slider Step Size** -- Defines how much the value changes when the slider for depth values is changed, default value 0.5
 
 Direct interaction in a 3D view is activated when **Show 3D manipulator** is pressed. Handles are displayed at the sides of the intersection object, and interactive modification is done by dragging a handle in the 3D view.
 

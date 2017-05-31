@@ -12,7 +12,7 @@ published: true
 
 Each item has a set of properties that can be editied in the **Property Editor**.
 
-Several views can be added to the same case by right clicking the case or a view and select **New View**. You can also **Copy** and then **Paste** a view into a Case. All the settings are then copied to the new view.  
+Several views can be added to the same case by right-clicking the case or a view and select **New View**. You can also **Copy** and then **Paste** a view into a Case. All the settings are then copied to the new view.  
 
 Views of Eclipse models and Geomechanical models has a lot in common, but Eclipse views has some features that applies to Eclipse simulations only.
 
@@ -20,13 +20,13 @@ Views of Eclipse models and Geomechanical models has a lot in common, but Eclips
 
 ### View properties
 
-Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibilty controls of inactive and invalid cells. ![]({{ site.baseurl }}/images/ViewProperties.png) 
+Grid appearance can be controlled from the **Property Editor** when a view is selected. This includes background color and z scaling. In addition, cell visibility controls of inactive and invalid cells. ![]({{ site.baseurl }}/images/ViewProperties.png) 
 
 Visibility of the grid box with labels displaying the coordinates for the reservoir can also be controlled using **Show Grid Box**. 
 
 ### Cell Result &nbsp;![]({{ site.baseurl }}/images/CellResult.png)
 
-The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![]({{ site.baseurl }}/images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
+The **Cell Result** item defines which Eclipse or Geomechanical property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![]({{ site.baseurl }}/images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
 
 Please refer to [Result Color Legend]({{ site.baseurl }}/docs/resultcolorlegend) for details.
 
@@ -53,11 +53,13 @@ The **Histogram** shows a histogram of the complete time series of the currently
 
 ![]({{ site.baseurl }}/images/HistogramExample.png)
 
-**Statistics Time Range** controls if a single time step or all time steps are included when statistics is computed.
-**Statistics Cell Range** controls if visible cells or all active cells is included when statistics is computed.
+#### Statistics Options
+
+- **Statistics Time Range** -- controls whether all time steps or only the current time step are included when statistics is computed. Flow Diagnostic results can only use the current time step option.  
+- **Statistics Cell Range** -- controls if visible cells or all active cells is included when statistics is computed.
 
 <div class="note">
-The <b>Text Box</b> settings can be activated by clicking on the text info window in the 3D view.
+The <b>Info Box</b> settings can be activated by clicking on the Info Text in the 3D view.
 </div>
 
 ### Grids &nbsp;![]({{ site.baseurl }}/images/draw_style_faults_24x24.png)

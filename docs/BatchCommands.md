@@ -14,7 +14,7 @@ ResInsight stores data computed by statistics calculation in a cache file. When 
 
 - Open the project file used to produce statistics
 - Select the statistics object in the project tree
-- Click the button "Edit (Will DELETE current result)"
+- Click the button **Edit (Will DELETE current result)**
 - Save the project file
 
 ### Examples
