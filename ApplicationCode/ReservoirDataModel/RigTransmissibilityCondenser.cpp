@@ -33,9 +33,9 @@ void RigTransmissibilityCondenser::addNeighborTransmissibility(CellAddress cell1
     m_condensedTransmissibilities.clear();
     m_externalCellAddrSet.clear();
     if ( cell1 < cell2 )
-        m_neighborTransmissibilities[cell1][cell2] = transmissibility;
+        m_neighborTransmissibilities[cell1][cell2] += transmissibility;
     else
-        m_neighborTransmissibilities[cell2][cell1] = transmissibility;
+        m_neighborTransmissibilities[cell2][cell1] += transmissibility;
 }
 
 //--------------------------------------------------------------------------------------------------
