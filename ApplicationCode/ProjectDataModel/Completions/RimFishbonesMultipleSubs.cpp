@@ -179,7 +179,7 @@ double RimFishbonesMultipleSubs::tubingDiameter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::lateralCountPerSub() const
+size_t RimFishbonesMultipleSubs::lateralCountPerSub() const
 {
     return m_lateralCountPerSub;
 }
