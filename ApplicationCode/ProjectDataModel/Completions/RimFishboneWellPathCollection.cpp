@@ -97,14 +97,14 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(completion);
 
-    RimView* rimView = NULL;
-    firstAncestorOrThisOfType(rimView);
-    if (rimView)
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
-
     uiCapability()->setUiHidden(!m_wellPaths.empty());
+
+    RimProject* project = NULL;
+    firstAncestorOrThisOfTypeAsserted(project);
+    if (project)
+    {
+        project->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

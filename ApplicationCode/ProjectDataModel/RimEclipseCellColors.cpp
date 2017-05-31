@@ -377,14 +377,23 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            if (this->resultType() != RimDefines::FORMATION_NAMES)
-            {
-                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
-            }
-            else
+            if (this->resultType() == RimDefines::FORMATION_NAMES)
             {
                 const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
                 this->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+            else if (this->resultType() == RimDefines::DYNAMIC_NATIVE && this->resultVariable() == RimDefines::completionTypeResultName())
+            {
+                std::vector<QString> ctNames;
+                for (QString ctName : caf::AppEnum<RimDefines::CompletionType>::uiTexts())
+                {
+                    ctNames.push_back(ctName);
+                }
+                this->legendConfig()->setNamedCategoriesInverse(ctNames);
+            }
+            else
+            {
+                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
             }
         }
     }

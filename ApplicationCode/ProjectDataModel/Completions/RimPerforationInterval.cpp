@@ -20,6 +20,7 @@
 #include "RimPerforationInterval.h"
 
 #include "RigWellPath.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -136,14 +137,15 @@ cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
 
     if (changedField == &m_startOfHistory)
     {
         m_date.uiCapability()->setUiReadOnly(m_startOfHistory());
     }
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------

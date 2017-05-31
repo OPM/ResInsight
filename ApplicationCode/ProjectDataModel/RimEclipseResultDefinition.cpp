@@ -966,6 +966,9 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
         && m_eclipseCase->eclipseCaseData() 
         && m_eclipseCase->eclipseCaseData()->activeFormationNames() ) return true;
 
+    if (this->m_resultType() == RimDefines::DYNAMIC_NATIVE
+        && this->resultVariable() == RimDefines::completionTypeResultName()) return true;
+
     if (this->m_resultType() == RimDefines::FLOW_DIAGNOSTICS
         && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME) return true;
 

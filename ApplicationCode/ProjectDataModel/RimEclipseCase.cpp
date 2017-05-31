@@ -249,50 +249,13 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::removeResult(const QString& resultName)
+void RimEclipseCase::removeResult(RimDefines::ResultCatType type, const QString& resultName)
 {
-    size_t i;
-    for (i = 0; i < reservoirViews().size(); i++)
+    m_matrixModelResults->clearScalarResult(type, resultName);
+
+    for (RimView* view : views())
     {
-        RimEclipseView* reservoirView = reservoirViews()[i];
-        CVF_ASSERT(reservoirView);
-
-        RimEclipseCellColors* result = reservoirView->cellResult;
-        CVF_ASSERT(result);
-
-        bool rebuildDisplayModel = false;
-
-        // Set cell result variable to none if displaying 
-        if (result->resultVariable() == resultName)
-        {
-            result->setResultVariable(RimDefines::undefinedResultName());
-            result->loadResult();
-
-            rebuildDisplayModel = true;
-        }
-
-        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->eclipsePropertyFilterCollection();
-        for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
-        {
-            RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
-            if (propertyFilter->resultDefinition->resultVariable() == resultName)
-            {
-                propertyFilter->resultDefinition->setResultVariable(RimDefines::undefinedResultName());
-                propertyFilter->resultDefinition->loadResult();
-                propertyFilter->setToDefaultValues();
-
-                rebuildDisplayModel = true;
-            }
-        }
-
-        if (rebuildDisplayModel)
-        {
-            reservoirViews()[i]->createDisplayModelAndRedraw();
-        }
-
-
-        // TODO
-        // CellEdgeResults are not considered, as they do not support display of input properties yet
+        view->loadDataAndUpdate();
     }
 }
 
