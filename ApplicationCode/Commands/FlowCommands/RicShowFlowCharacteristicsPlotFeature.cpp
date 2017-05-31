@@ -23,6 +23,8 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowCharacteristicsPlot.h"
+#include "RigFlowDiagResults.h"
+#include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -71,6 +73,16 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecked)
 
     if (eclCase &&  eclCase->defaultFlowDiagSolution())
     {
+        // Make sure flow results for the the active timestep is calculated, to avoid an empty plot
+        {
+            RimView * activeView = RiaApplication::instance()->activeReservoirView();
+            if (activeView && eclCase->defaultFlowDiagSolution()->flowDiagResults()) 
+            {
+                // Trigger calculation
+                eclCase->defaultFlowDiagSolution()->flowDiagResults()->maxAbsPairFlux(activeView->currentTimeStep()); 
+            }
+        }
+
         if (RiaApplication::instance()->project())
         {
             RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
