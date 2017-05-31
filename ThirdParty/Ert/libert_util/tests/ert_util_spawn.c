@@ -38,6 +38,8 @@ void make_script(const char * name , const char * stdout_msg, const char * stder
   fclose( stream );
 
   util_addmode_if_owner( name , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
+
+  usleep(100000); // Seems to be required to ensure that the script is actually found on disk. NFS?
 }
 
 
@@ -94,7 +96,7 @@ void * test_spawn_redirect__( void * path ) {
       if (script_status == 0)
         break;
       else if (script_status == 127)
-        usleep(100000); // Seems to be required to ensure that the script is actually found on disk.
+        test_error_exit("Spawn failed, cannot find executable: %s\n", script);
       else
         test_assert_int_equal( status , 0 );
     } else

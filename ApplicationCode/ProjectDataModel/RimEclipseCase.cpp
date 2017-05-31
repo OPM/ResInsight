@@ -21,10 +21,14 @@
 #include "RimEclipseCase.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -38,6 +42,12 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimFlowPlotCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimSummaryPlot.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimWellAllocationPlot.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -103,22 +113,22 @@ RimEclipseCase::~RimEclipseCase()
             RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
             if (plotCollection)
             {
-                plotCollection->removeExtractors(this->reservoirData());
+                plotCollection->removeExtractors(this->eclipseCaseData());
             }
         }
     }
 
-    if (this->reservoirData())
+    if (this->eclipseCaseData())
     {
         // At this point, we assume that memory should be released
-        CVF_ASSERT(this->reservoirData()->refCount() == 1);
+        CVF_ASSERT(this->eclipseCaseData()->refCount() == 1);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseData* RimEclipseCase::reservoirData()
+RigEclipseCaseData* RimEclipseCase::eclipseCaseData()
 {
     return m_rigEclipseCase.p();
 }
@@ -126,9 +136,51 @@ RigCaseData* RimEclipseCase::reservoirData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigCaseData* RimEclipseCase::reservoirData() const
+const RigEclipseCaseData* RimEclipseCase::eclipseCaseData() const
 {
     return m_rigEclipseCase.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimEclipseCase::defaultWellColor(const QString& wellName)
+{
+    if ( m_wellToColorMap.empty() )
+    {
+        const caf::ColorTable& colorTable = RiaColorTables::wellsPaletteColors();
+        cvf::Color3ubArray wellColors = colorTable.color3ubArray();
+        cvf::Color3ubArray interpolatedWellColors = wellColors;
+
+        const cvf::Collection<RigSingleWellResultsData>& wellResults = this->eclipseCaseData()->wellResults();
+        if ( wellResults.size() > 1 )
+        {
+            interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellResults.size());
+        }
+
+        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        {
+            m_wellToColorMap[wellResults[wIdx]->m_wellName] = cvf::Color3f::BLACK;
+        }
+
+        size_t wIdx = 0;
+        for ( auto & wNameColorPair: m_wellToColorMap )
+        {
+            wNameColorPair.second = cvf::Color3f(interpolatedWellColors[wIdx]);
+
+            ++wIdx;
+        }
+    }
+
+    auto nmColor = m_wellToColorMap.find(wellName);
+    if (nmColor != m_wellToColorMap.end()) 
+    {
+        return nmColor->second;
+    }
+    else
+    {
+        return cvf::Color3f::LIGHT_GRAY;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,19 +208,42 @@ void RimEclipseCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimEclipseCase::createAndAddReservoirView()
 {
-    RimEclipseView* riv = new RimEclipseView();
-    riv->setEclipseCase(this);
-    riv->cellEdgeResult()->setResultVariable("MULT");
-    riv->cellEdgeResult()->enableCellEdgeColors = false;
+    RimEclipseView* rimEclipseView = new RimEclipseView();
+    rimEclipseView->setEclipseCase(this);
+    rimEclipseView->cellEdgeResult()->setResultVariable("MULT");
+    rimEclipseView->cellEdgeResult()->enableCellEdgeColors = false;
 
-    caf::PdmDocument::updateUiIconStateRecursively(riv);
+    caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
 
     size_t i = reservoirViews().size();
-    riv->name = QString("View %1").arg(i + 1);
+    rimEclipseView->name = QString("View %1").arg(i + 1);
 
-    reservoirViews().push_back(riv);
+    reservoirViews().push_back(rimEclipseView);
 
-    return riv;
+    return rimEclipseView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourceView)
+{
+    CVF_ASSERT(sourceView);
+
+    RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(sourceView->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(rimEclipseView);
+
+    rimEclipseView->setEclipseCase(this);
+   
+    caf::PdmDocument::updateUiIconStateRecursively(rimEclipseView);
+
+    reservoirViews().push_back(rimEclipseView);
+
+    // Resolve references after reservoir view has been inserted into Rim structures
+    rimEclipseView->resolveReferencesRecursively();
+    rimEclipseView->initAfterReadRecursively();
+
+    return rimEclipseView;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,46 +303,13 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &releaseResultMemory)
     {
-        if (this->reservoirData())
-        {
-            for (size_t i = 0; i < reservoirViews().size(); i++)
-            {
-                RimEclipseView* reservoirView = reservoirViews()[i];
-                CVF_ASSERT(reservoirView);
-
-                RimEclipseCellColors* result = reservoirView->cellResult;
-                CVF_ASSERT(result);
-
-                result->setResultVariable(RimDefines::undefinedResultName());
-                result->loadResult();
-
-                RimCellEdgeColors* cellEdgeResult = reservoirView->cellEdgeResult;
-                CVF_ASSERT(cellEdgeResult);
-
-                cellEdgeResult->setResultVariable(RimDefines::undefinedResultName());
-                cellEdgeResult->loadResult();
-
-                reservoirView->createDisplayModelAndRedraw();
-            }
-
-            RigCaseCellResultsData* matrixModelResults = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
-            if (matrixModelResults)
-            {
-                matrixModelResults->clearAllResults();
-            }
-
-            RigCaseCellResultsData* fractureModelResults = reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS);
-            if (fractureModelResults)
-            {
-                fractureModelResults->clearAllResults();
-            }
-        }
+        reloadDataAndUpdate();
 
         releaseResultMemory = oldValue.toBool();
     }
     else if (changedField == &flipXAxis || changedField == &flipYAxis)
     {
-        RigCaseData* rigEclipseCase = reservoirData();
+        RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
         if (rigEclipseCase)
         {
             rigEclipseCase->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
@@ -279,7 +321,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
                 RimEclipseView* reservoirView = reservoirViews()[i];
 
                 reservoirView->scheduleReservoirGridGeometryRegen();
-                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->scheduleSimWellGeometryRegen();
                 reservoirView->createDisplayModelAndRedraw();
             }
         }
@@ -296,7 +338,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::updateFormationNamesData()
 {
-    RigCaseData* rigEclipseCase = reservoirData();
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if(rigEclipseCase)
     {
         if(activeFormationNames())
@@ -354,7 +396,7 @@ void RimEclipseCase::updateFormationNamesData()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::computeCachedData()
 {
-    RigCaseData* rigEclipseCase = reservoirData();
+    RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if (rigEclipseCase)
     {
         caf::ProgressInfo pInf(30, "");
@@ -398,15 +440,15 @@ RimCaseCollection* RimEclipseCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::setReservoirData(RigCaseData* eclipseCase)
+void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;
-    if (this->reservoirData())
+    if (this->eclipseCaseData())
     {
-        m_fractureModelResults()->setCellResults(reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS));
-        m_matrixModelResults()->setCellResults(reservoirData()->results(RifReaderInterface::MATRIX_RESULTS));
-        m_fractureModelResults()->setMainGrid(this->reservoirData()->mainGrid());
-        m_matrixModelResults()->setMainGrid(this->reservoirData()->mainGrid());
+        m_fractureModelResults()->setCellResults(eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS));
+        m_matrixModelResults()->setCellResults(eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS));
+        m_fractureModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
+        m_matrixModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
     }
     else
     {
@@ -484,7 +526,7 @@ bool RimEclipseCase::openReserviorCase()
 {
     // If read already, return
 
-    if (this->reservoirData() != NULL) return true;
+    if (this->eclipseCaseData() != NULL) return true;
     
     if (!openEclipseGridFile())
     {
@@ -501,7 +543,7 @@ bool RimEclipseCase::openReserviorCase()
             size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                reservoirData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
             }
         }
 
@@ -534,7 +576,7 @@ QStringList RimEclipseCase::timeStepStrings()
 {
     QStringList stringList;
 
-    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepCount(0));
+    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->maxTimeStepCount());
     for (int i = 0; i < timeStepCount; i++)
     {
         stringList += this->timeStepName(i);
@@ -546,32 +588,119 @@ QStringList RimEclipseCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
 QString RimEclipseCase::timeStepName(int frameIdx)
 {
+    std::vector<QDateTime> timeStepDates = this->timeStepDates();
+    CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
+
     if (m_timeStepFormatString.isEmpty())
     {
-        std::vector<QDateTime> timeStepDates = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
-
-        bool hasHrsAndMinutesInTimesteps = false;
+        bool hasHoursAndMinutesInTimesteps = false;
+        bool hasSecondsInTimesteps = false;
+        bool hasMillisecondsInTimesteps = false;
         for (size_t i = 0; i < timeStepDates.size(); i++)
         {
-            if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            if (timeStepDates[i].time().msec() != 0.0)
             {
-                hasHrsAndMinutesInTimesteps = true;
+                hasMillisecondsInTimesteps = true;
+                hasSecondsInTimesteps = true;
+                hasHoursAndMinutesInTimesteps = true;
                 break;
+            }
+            else if (timeStepDates[i].time().second() != 0.0) {
+                hasHoursAndMinutesInTimesteps = true;
+                hasSecondsInTimesteps = true;
+            }
+            else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+            {
+                hasHoursAndMinutesInTimesteps = true;
             }
         }
 
         m_timeStepFormatString = "dd.MMM yyyy";
-        if (hasHrsAndMinutesInTimesteps)
+        if (hasHoursAndMinutesInTimesteps)
         {
             m_timeStepFormatString += " - hh:mm";
+            if (hasSecondsInTimesteps)
+            {
+                m_timeStepFormatString += ":ss";
+                if (hasMillisecondsInTimesteps)
+                {
+                    m_timeStepFormatString += ".zzz";
+                }
+            }
         }
     }
 
+    QDateTime date = timeStepDates.at(frameIdx);
 
-    QDateTime date = results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDate(0,frameIdx);
     return date.toString(m_timeStepFormatString);
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::reloadDataAndUpdate()
+{
+    if (this->eclipseCaseData())
+    {
+        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
+        if (matrixModelResults)
+        {
+            matrixModelResults->clearAllResults();
+        }
+
+        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
+        if (fractureModelResults)
+        {
+            fractureModelResults->clearAllResults();
+        }
+
+        reloadEclipseGridFile();
+
+        for (size_t i = 0; i < reservoirViews().size(); i++)
+        {
+            RimEclipseView* reservoirView = reservoirViews()[i];
+            CVF_ASSERT(reservoirView);
+            reservoirView->loadDataAndUpdate();
+        }
+
+        RimProject* project = RiaApplication::instance()->project();
+        if (project)
+        {
+            if (project->mainPlotCollection())
+            {
+                RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+                RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
+                RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
+
+                if (wellPlotCollection)
+                {
+                    for (size_t i = 0; i < wellPlotCollection->wellLogPlots().size(); ++i)
+                    {
+                        wellPlotCollection->wellLogPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (summaryPlotCollection)
+                {
+                    for (size_t i = 0; i < summaryPlotCollection->summaryPlots().size(); ++i)
+                    {
+                        summaryPlotCollection->summaryPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (flowPlotCollection)
+                {
+                    flowPlotCollection->loadDataAndUpdate();
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimEclipseCase::timeStepDates()
+{
+    return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();
 }

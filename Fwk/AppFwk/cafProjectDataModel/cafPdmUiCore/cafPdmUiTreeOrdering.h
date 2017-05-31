@@ -63,19 +63,22 @@ class PdmUiTreeOrdering;
 class PdmUiTreeOrdering 
 {
 public:
-    PdmUiTreeOrdering(PdmObjectHandle* pdmItem );
-    PdmUiTreeOrdering(PdmFieldHandle* pdmField );
+    explicit PdmUiTreeOrdering(PdmObjectHandle* pdmItem );
+    explicit PdmUiTreeOrdering(PdmFieldHandle* pdmField );
     PdmUiTreeOrdering(const QString & title, const QString& iconResourceName );
     
     ~PdmUiTreeOrdering();
+
+    PdmUiTreeOrdering(const PdmUiTreeOrdering&) = delete;
+    PdmUiTreeOrdering& operator=(const PdmUiTreeOrdering&) = delete;
 
     void                        add(PdmFieldHandle * field, QString uiConfigName = "");
     void                        add(PdmObjectHandle* object);
     PdmUiTreeOrdering*          add(const QString & title, const QString& iconResourceName );
     
-    /// If the rest of the fields containing children is supposed to be omitted, setForgetRemainingFileds to true.
-    void                        setForgetRemainingFields(bool val)          { m_forgetRemainingFields = val; }
-    /// To stop the tree generation at this level, doIgnoreSubTree to true
+    /// If the rest of the fields containing children is supposed to be omitted, set skipRemainingFields to true.
+    void                        skipRemainingChildren(bool doSkip = true)     { m_forgetRemainingFields = doSkip; }
+    /// To stop the tree generation at this level, setIgnoreSubTree to true
     void                        setIgnoreSubTree(bool doIgnoreSubTree )     { m_isToIgnoreSubTree = doIgnoreSubTree; }
 
     // Testing for the PdmItem being represented
@@ -86,7 +89,7 @@ public:
 
     // Access to the PdmItem being represented
     PdmUiItem*                  activeItem() const;
-    PdmObjectHandle*                  object() const;
+    PdmObjectHandle*            object() const;
     PdmFieldHandle*             field()  const;
     PdmUiItem*                  uiItem() const;
 
@@ -101,8 +104,8 @@ public:
 
 private:
     friend class PdmObjectHandle;  friend class PdmUiObjectHandle;
-    bool                        forgetRemainingFields() const       { return m_forgetRemainingFields; }
-    bool                        ignoreSubTree() const            { return m_isToIgnoreSubTree; }
+    bool                        isIncludingRemainingChildren() const { return !m_forgetRemainingFields; }
+    bool                        ignoreSubTree() const              { return m_isToIgnoreSubTree; }
     bool                        containsField(const PdmFieldHandle* field);
     bool                        containsObject(const PdmObjectHandle* object);
     void                        appendChild( PdmUiTreeOrdering* child);

@@ -66,6 +66,8 @@ class RicSnapshotAllPlotsToFileFeature : public caf::CmdFeature
 public:
     static void saveAllPlots();
 
+    static void exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName);
+
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;

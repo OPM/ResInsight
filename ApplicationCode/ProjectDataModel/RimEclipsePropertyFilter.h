@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimCellFilter.h"
+#include "RimPropertyFilter.h"
 
 #include "cafPdmChildField.h"
 
@@ -36,7 +36,7 @@ class RigCaseCellResultsData;
 ///  
 ///  
 //==================================================================================================
-class RimEclipsePropertyFilter : public RimCellFilter
+class RimEclipsePropertyFilter : public RimPropertyFilter
 {
     CAF_PDM_HEADER_INIT;
  
@@ -49,14 +49,13 @@ public:
     void                                    rangeValues(double* lower, double* upper) const;
     bool                                    isCategorySelectionActive() const;
 
-    RimEclipsePropertyFilterCollection*     parentContainer();
     void                                    setToDefaultValues();
     void                                    updateFilterName();
     void                                    computeResultValueRange();
+    void                                    updateFromCurrentTimeStep();
 
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            initAfterRead();
-
 
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
@@ -69,15 +68,19 @@ private:
     friend class RicEclipsePropertyFilterFeatureImpl;
 
     void                                    updateActiveState();
-    void                                    updateFieldVisibility();
     void                                    updateReadOnlyStateOfAllFields();
+    void                                    updateRangeLabel();
     bool                                    isPropertyFilterControlled();
+    void                                    setCategoriesFromTracerNames(const std::vector<QString>& tracerNames);
+
+    RimEclipsePropertyFilterCollection*     parentContainer();
 
 private:
+    caf::PdmField<QString>                  m_rangeLabelText;
     caf::PdmField<double>                   m_lowerBound;
     caf::PdmField<double>                   m_upperBound;
 
-    caf::PdmField<bool>                     m_categorySelection;
+    caf::PdmField<bool>                     m_useCategorySelection;
 
     double                                  m_minimumResultValue;
     double                                  m_maximumResultValue;

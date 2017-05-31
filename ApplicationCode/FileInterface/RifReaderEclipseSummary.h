@@ -64,8 +64,8 @@ private:
     typedef struct ecl_sum_struct    ecl_sum_type;
     typedef struct ecl_smspec_struct ecl_smspec_type;
 
-    ecl_sum_type*               ecl_sum;
-    const ecl_smspec_type *     eclSmSpec;
+    ecl_sum_type*               m_ecl_sum;
+    const ecl_smspec_type *     m_ecl_SmSpec;
     std::vector<time_t>         m_timeSteps;
 
     std::vector<RifEclipseSummaryAddress> m_allResultAddresses;

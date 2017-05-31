@@ -1,9 +1,0 @@
-{"name" : "COMPLUMP", "sections" : ["SCHEDULE"], "items" : [
-    {"name" : "WELL" , "value_type" : "STRING"},
-    {"name" : "I"  , "value_type" : "INT" },
-    {"name" : "J"  , "value_type" : "INT" },
-    {"name" : "K1"  , "value_type" : "INT" },
-    {"name" : "K2" , "value_type" : "INT" },
-    {"name" : "N" , "value_type" : "INT" }
-
-]}

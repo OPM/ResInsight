@@ -367,7 +367,7 @@ std::map<std::string, std::vector<std::string> > RigFemPartResultsCollection::sc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string fieldNameToConvert)
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateBarConvertedResult(int partIndex, const RigFemResultAddress &convertedResultAddr, const std::string& fieldNameToConvert)
 {
     caf::ProgressInfo frameCountProgress(this->frameCount() * 2, "");
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(convertedResultAddr.fieldName + ": " + convertedResultAddr.componentName));
@@ -535,15 +535,11 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSEM(in
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
     
-    RigFemScalarResultFrames * sa11 = nullptr;
-    RigFemScalarResultFrames * sa22 = nullptr;
-    RigFemScalarResultFrames * sa33 = nullptr;
-
-    sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S11"));
+    RigFemScalarResultFrames * sa11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S11"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S22"));
+    RigFemScalarResultFrames * sa22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S22"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S33"));
+    RigFemScalarResultFrames * sa33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S33"));
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -581,12 +577,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI(int partInde
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * se1Frames = nullptr;
-    RigFemScalarResultFrames * se3Frames = nullptr;
-
-    se1Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S1"));
+    RigFemScalarResultFrames * se1Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S1"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    se3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S3"));
+    RigFemScalarResultFrames * se3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S3"));
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
     
@@ -617,7 +610,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateSFI(int partInde
             }
             else
             {
-                dstFrameData[vIdx] =  ((cohPrFricAngle + 0.5*(se1Data[vIdx] + se3Data[vIdx])) * sin(m_frictionAngleRad)) / (0.5*(se1Data[vIdx] - se3Data[vIdx]));
+                dstFrameData[vIdx] =  ((cohPrFricAngle + 0.5*(se1Data[vIdx] + se3Data[vIdx])) * sinFricAng ) / (0.5*(se1Data[vIdx] - se3Data[vIdx]));
             }
         }
 
@@ -638,12 +631,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDSM(int partInde
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * se1Frames = nullptr;
-    RigFemScalarResultFrames * se3Frames = nullptr;
-
-    se1Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S1"));
+    RigFemScalarResultFrames * se1Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S1"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    se3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S3"));
+    RigFemScalarResultFrames * se3Frames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "S3"));
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -690,10 +680,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateFOS(int partInde
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
 
-    RigFemScalarResultFrames * dsmFrames = nullptr;
-    RigFemScalarResultFrames * se3Frames = nullptr;
-
-    dsmFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "DSM"));
+    RigFemScalarResultFrames * dsmFrames = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "SE", "DSM"));
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -730,17 +717,12 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateMeanStressSTM(in
     caf::ProgressInfo frameCountProgress(this->frameCount() * 4, "");
     frameCountProgress.setProgressDescription("Calculating " + QString::fromStdString(resVarAddr.fieldName + ": " + resVarAddr.componentName));
     frameCountProgress.setNextProgressIncrement(this->frameCount());
-
     
-    RigFemScalarResultFrames * st11 = nullptr;
-    RigFemScalarResultFrames * st22 = nullptr;
-    RigFemScalarResultFrames * st33 = nullptr;
-
-    st11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S11"));
+    RigFemScalarResultFrames * st11 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S11"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    st22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S22"));
+    RigFemScalarResultFrames * st22 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S22"));
     frameCountProgress.incrementProgress(); frameCountProgress.setNextProgressIncrement(this->frameCount());
-    st33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S33"));
+    RigFemScalarResultFrames * st33 = this->findOrLoadScalarResult(partIndex, RigFemResultAddress(resVarAddr.resultPosType, "ST", "S33"));
 
     RigFemScalarResultFrames * dstDataFrames = m_femPartResults[partIndex]->createScalarResult(resVarAddr);
 
@@ -2109,7 +2091,6 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
 
         if ( closestLocalNode >= 0 )
         {
-            float scalarValue = std::numeric_limits<float>::infinity();
             int nodeIdx = elmentConn[closestLocalNode];
             m_closestElementNodeResIdx = static_cast<int>(femPart->elementNodeResultIdx(elementIndex, closestLocalNode));
 
@@ -2138,7 +2119,6 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator(RigFemPar
             int closestLocalElmNode = -1;
             {
                 RigElementType elmType =  femPart->elementType(elementIndex);
-                int faceCount = RigFemTypes::elmentFaceCount(elmType);
                 const int* elmNodeIndices =  femPart->connectivities(elementIndex);
                 int faceNodeCount = 0;
                 const int*  localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace(elmType, m_face, &faceNodeCount);

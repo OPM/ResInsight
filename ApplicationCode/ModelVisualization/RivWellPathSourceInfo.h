@@ -33,7 +33,7 @@ class RimWellPath;
 class RivWellPathSourceInfo : public cvf::Object
 {
 public:
-    RivWellPathSourceInfo(RimWellPath* wellPath);
+    explicit RivWellPathSourceInfo(RimWellPath* wellPath);
 
     RimWellPath* wellPath() const;
 

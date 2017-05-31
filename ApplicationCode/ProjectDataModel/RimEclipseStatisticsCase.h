@@ -20,14 +20,16 @@
 
 #pragma once
 
+#include "RimEclipseCase.h"
+#include "RimDefines.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafAppEnum.h"
+#include "cvfCollection.h"
 
-#include "RimEclipseCase.h"
-#include "RimDefines.h"
 
 class RimIdenticalGridCaseGroup;
 class RimEclipseResultDefinition;
@@ -59,6 +61,7 @@ public:
     void updateConnectedEditorsAndReservoirViews();
 
     virtual bool openEclipseGridFile();
+    virtual void reloadEclipseGridFile();
 
     RimCaseCollection* parentStatisticsCaseCollection();
 

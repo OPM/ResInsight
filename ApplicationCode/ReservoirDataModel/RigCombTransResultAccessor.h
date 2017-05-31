@@ -32,7 +32,7 @@ class RigGridBase;
 class RigCombTransResultAccessor : public RigResultAccessor
 {
 public:
-    RigCombTransResultAccessor(const RigGridBase* grid);
+    explicit RigCombTransResultAccessor(const RigGridBase* grid);
 
     void setTransResultAccessors(RigResultAccessor* xTransAccessor,
                                  RigResultAccessor* yTransAccessor,

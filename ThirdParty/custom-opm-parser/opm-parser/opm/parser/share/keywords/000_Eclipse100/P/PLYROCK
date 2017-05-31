@@ -1,9 +1,0 @@
-{"name" : "PLYROCK" , "sections" : ["SPECIAL", "PROPS"], "size" : {"keyword":"TABDIMS" , "item":"NTSFUN"}, "items":
-    [   {"name":"IPV", "value_type" : "DOUBLE", "dimension":"1" },
-        {"name":"RRF", "value_type" : "DOUBLE", "dimension":"1" },
-        {"name":"ROCK_DENSITY", "value_type" : "DOUBLE", "dimension":"Density"},
-        {"name":"AI", "value_type" : "DOUBLE", "default" : 1, "dimension":"1"},
-        {"name":"MAX_ADSORPTION", "value_type" : "DOUBLE", "dimension":"1"}
-    ]
-}
-

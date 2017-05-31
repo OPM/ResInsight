@@ -32,6 +32,7 @@ class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RifReaderEclipseSummary;
 class RimEclipseResultCase;
+class RimFlowPlotCollection;
 
 
 //==================================================================================================
@@ -45,39 +46,22 @@ public:
     RimMainPlotCollection();
     virtual ~RimMainPlotCollection();
 
-    RimWellLogPlotCollection* wellLogPlotCollection();
-    RimSummaryPlotCollection* summaryPlotCollection();
+    RimWellLogPlotCollection*   wellLogPlotCollection();
+    RimSummaryPlotCollection*   summaryPlotCollection();
+    RimFlowPlotCollection*      flowPlotCollection();
 
-    #if 0
-    // Separate Window stuff 
-    void showPlotWindow();
-    void hidePlotWindow();
+    void                        deleteAllContainedObjects();
+    void                        updateCurrentTimeStepInPlots();
 
-    void redrawAllPlots();
-    void createDockWindowsForAllPlots();
-    QMainWindow*            windowWithGraphPlots();
-private:
-
-    QDockWidget* dockWidgetFromPlot(RimSummaryPlot* graphPlot);
-    void createPlotDockWidget(RimSummaryPlot* graphPlot);
-    void eraseDockWidget(RimSummaryPlot* graphPlot);
-    
-private:
-    QMainWindow*              m_plotManagerMainWindow; // Outer main Window
-    QMainWindow*              m_plotMainWindow; // Inner main window
-
-    std::vector<QPointer<QDockWidget> > m_plotViewDockWidgets; // ChildPlotWidgets
-    #endif
 protected:
 
     // Overridden PDM methods
     virtual caf::PdmFieldHandle* objectToggleField();
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    //virtual void initAfterRead();
-
+    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     caf::PdmChildField<RimWellLogPlotCollection*> m_wellLogPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*> m_summaryPlotCollection;
+    caf::PdmChildField<RimFlowPlotCollection*>    m_flowPlotCollection;
 
-    caf::PdmField<bool> show;
+    caf::PdmField<bool>                           show;
 };

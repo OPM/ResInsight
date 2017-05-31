@@ -19,23 +19,26 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSocketCommand.h"
+
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseCase.h"
-
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include <QTcpSocket>
 
@@ -62,11 +65,11 @@ public:
         size_t jCount = 0;
         size_t kCount = 0;
 
-        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
+        if (rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid())
         {
-            iCount = rimCase->reservoirData()->mainGrid()->cellCountI();
-            jCount = rimCase->reservoirData()->mainGrid()->cellCountJ();
-            kCount = rimCase->reservoirData()->mainGrid()->cellCountK();
+            iCount = rimCase->eclipseCaseData()->mainGrid()->cellCountI();
+            jCount = rimCase->eclipseCaseData()->mainGrid()->cellCountJ();
+            kCount = rimCase->eclipseCaseData()->mainGrid()->cellCountK();
         }
 
         socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
@@ -106,7 +109,7 @@ public:
         // Write data back to octave: columnCount, bytesPrTimestep, GridNr I J K ParentGridNr PI PJ PK CoarseBoxIdx
 
         caf::FixedArray<std::vector<qint32>, 9> activeCellInfo;
-        if (!(rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid()) )
+        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()) )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
@@ -153,12 +156,12 @@ public:
         hostCellK.clear();
         globalCoarseningBoxIdx.clear();
 
-        if (!reservoirCase || !reservoirCase->reservoirData() || !reservoirCase->reservoirData()->mainGrid())
+        if (!reservoirCase || !reservoirCase->eclipseCaseData() || !reservoirCase->eclipseCaseData()->mainGrid())
         {
             return;
         }
 
-        RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(porosityModel);
+        RigActiveCellInfo* actCellInfo = reservoirCase->eclipseCaseData()->activeCellInfo(porosityModel);
         size_t numMatrixModelActiveCells = actCellInfo->reservoirActiveCellCount();
 
         gridNumber.reserve(numMatrixModelActiveCells);
@@ -171,18 +174,18 @@ public:
         hostCellK.reserve(numMatrixModelActiveCells);
         globalCoarseningBoxIdx.reserve(numMatrixModelActiveCells);
 
-        const std::vector<RigCell>& reservoirCells = reservoirCase->reservoirData()->mainGrid()->globalCellArray();
+        const std::vector<RigCell>& reservoirCells = reservoirCase->eclipseCaseData()->mainGrid()->globalCellArray();
 
 
         std::vector<size_t> globalCoarseningBoxIndexStart;
         {
             size_t globalCoarseningBoxCount = 0;
 
-            for (size_t gridIdx = 0; gridIdx < reservoirCase->reservoirData()->gridCount(); gridIdx++)
+            for (size_t gridIdx = 0; gridIdx < reservoirCase->eclipseCaseData()->gridCount(); gridIdx++)
             {
                 globalCoarseningBoxIndexStart.push_back(globalCoarseningBoxCount);
 
-                RigGridBase* grid = reservoirCase->reservoirData()->grid(gridIdx);
+                RigGridBase* grid = reservoirCase->eclipseCaseData()->grid(gridIdx);
 
                 size_t localCoarseningBoxCount = grid->coarseningBoxCount();
                 globalCoarseningBoxCount += localCoarseningBoxCount;
@@ -267,7 +270,7 @@ public:
         }
 
         RimEclipseCase* rimCase = server->findReservoir(argCaseGroupId);
-        if (!rimCase || !rimCase->reservoirData() || !rimCase->reservoirData()->mainGrid())
+        if (!rimCase || !rimCase->eclipseCaseData() || !rimCase->eclipseCaseData()->mainGrid())
         {
             quint64 byteCount = 0;
 
@@ -278,13 +281,13 @@ public:
 
         // Write data back to octave: I1, I2, J1, J2, K1, K2 for all coarsening boxes
 
-        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
+        if (rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid())
         {
             size_t globalCoarseningBoxCount = 0;
 
-            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++)
+            for (size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++)
             {
-                RigGridBase* grid = rimCase->reservoirData()->grid(gridIdx);
+                RigGridBase* grid = rimCase->eclipseCaseData()->grid(gridIdx);
 
                 size_t localCoarseningBoxCount = grid->coarseningBoxCount();
                 globalCoarseningBoxCount += localCoarseningBoxCount;
@@ -293,9 +296,9 @@ public:
             quint64 byteCount = globalCoarseningBoxCount * 6 * sizeof(qint32);
             socketStream << byteCount;
 
-            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++)
+            for (size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++)
             {
-                RigGridBase* grid = rimCase->reservoirData()->grid(gridIdx);
+                RigGridBase* grid = rimCase->eclipseCaseData()->grid(gridIdx);
 
                 size_t localCoarseningBoxCount = grid->coarseningBoxCount();
                 for (size_t boxIdx = 0; boxIdx < localCoarseningBoxCount; boxIdx++)
@@ -339,7 +342,7 @@ public:
         }
 
         RimEclipseCase* rimCase = server->findReservoir(argCaseGroupId);
-        if (!rimCase || !rimCase->reservoirData() || !rimCase->reservoirData()->mainGrid())
+        if (!rimCase || !rimCase->eclipseCaseData() || !rimCase->eclipseCaseData()->mainGrid())
         {
             quint64 byteCount = 0;
 
@@ -351,10 +354,10 @@ public:
         // Write data back to octave: I, J, K dimensions
 
 
-        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
+        if (rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid())
         {
             std::vector<RigGridBase*> grids;
-            rimCase->reservoirData()->allGrids(&grids);
+            rimCase->eclipseCaseData()->allGrids(&grids);
 
             quint64 byteCount = grids.size() * 3 * sizeof(quint64);
             socketStream << byteCount;
@@ -401,15 +404,15 @@ public:
 
         bool canFetchData = true;
 
-        if (!rimCase || !rimCase->reservoirData())
+        if (!rimCase || !rimCase->eclipseCaseData())
         {
             canFetchData = false;
         }
 
         size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
-        if (rimCase && rimCase->reservoirData())
+        if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
             if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
             {
                 canFetchData = false;
@@ -428,7 +431,7 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
@@ -488,15 +491,15 @@ public:
 
         bool canFetchData = true;
 
-        if (!rimCase || !rimCase->reservoirData())
+        if (!rimCase || !rimCase->eclipseCaseData())
         {
             canFetchData = false;
         }
 
         size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
-        if (rimCase && rimCase->reservoirData())
+        if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
             if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
             {
                 canFetchData = false;
@@ -515,26 +518,17 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
 
-        quint64 timeStepCount = timeStepDates.size();
+        quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
 
         socketStream << byteCount;
         socketStream << timeStepCount;
 
-        if (timeStepCount > 0)
+        for (double day : daysSinceSimulationStart)
         {
-            double secondsInADay = 24 * 60 * 60;
-
-            for (size_t i = 0; i < timeStepCount; i++)
-            {
-                double secondsDiff = timeStepDates[0].secsTo(timeStepDates[i]);
-
-                double decimalDaysDiff = secondsDiff / secondsInADay;
-
-                socketStream << decimalDaysDiff;
-            }
+            socketStream << day;
         }
 
         return true;

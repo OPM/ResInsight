@@ -40,7 +40,7 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   stringlist_type * stringlist_alloc_deep_copy_with_offset(const stringlist_type * src , int offset);
   stringlist_type * stringlist_alloc_deep_copy( const stringlist_type * src ); 
 
-  stringlist_type * stringlist_alloc_new();
+  stringlist_type * stringlist_alloc_new(void);
   void              stringlist_free__(void * );
   void              stringlist_free(stringlist_type *);
   void              stringlist_clear(stringlist_type * );

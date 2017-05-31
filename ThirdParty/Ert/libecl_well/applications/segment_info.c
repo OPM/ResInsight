@@ -43,6 +43,7 @@ int main(int argc , char ** argv) {
   well_rseg_loader_type * rseg_loader = well_rseg_loader_alloc(ecl_file_get_global_view(rst_file));
   const ecl_kw_type * icon_kw = ecl_file_iget_named_kw( rst_file , ICON_KW , 0 );
   const ecl_kw_type * scon_kw = ecl_file_iget_named_kw( rst_file , SCON_KW , 0 );
+  const ecl_kw_type * xcon_kw = ecl_file_iget_named_kw( rst_file , XCON_KW , 0 );
   const ecl_kw_type * zwel_kw = ecl_file_iget_named_kw( rst_file , ZWEL_KW , 0 );
 
   { 
@@ -62,7 +63,7 @@ int main(int argc , char ** argv) {
         if (well_segment_collection_load_from_kw( segments , well_nr , iwel_kw , iseg_kw , rseg_loader , rst_head , load_segment_information , &is_MSW_well)) {
           well_branch_collection_type * branches = well_branch_collection_alloc();
 
-          well_conn_collection_load_from_kw( connections , iwel_kw , icon_kw , scon_kw , well_nr , rst_head);
+          well_conn_collection_load_from_kw( connections , iwel_kw , icon_kw , scon_kw, xcon_kw , well_nr , rst_head);
           well_segment_collection_link( segments );
           well_segment_collection_add_branches( segments , branches );
           well_segment_collection_add_connections( segments , ECL_GRID_GLOBAL_GRID , connections ); 

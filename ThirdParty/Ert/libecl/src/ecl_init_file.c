@@ -37,12 +37,14 @@
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_type.h>
 
-static ecl_kw_type * ecl_init_file_alloc_INTEHEAD( const ecl_grid_type * ecl_grid , int phases, time_t start_date , int simulator) {
-  ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_INIT_SIZE , ECL_INT_TYPE );
+static ecl_kw_type * ecl_init_file_alloc_INTEHEAD( const ecl_grid_type * ecl_grid , ert_ecl_unit_enum unit_system, int phases, time_t start_date , int simulator) {
+  ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_INIT_SIZE , ECL_INT );
   ecl_kw_scalar_set_int( intehead_kw , 0 );
 
-  ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , INTEHEAD_METRIC_VALUE );
+  ecl_kw_iset_int( intehead_kw , INTEHEAD_UNIT_INDEX    , unit_system );
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NX_INDEX      , ecl_grid_get_nx( ecl_grid ));
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NY_INDEX      , ecl_grid_get_ny( ecl_grid ));
   ecl_kw_iset_int( intehead_kw , INTEHEAD_NZ_INDEX      , ecl_grid_get_nz( ecl_grid ));
@@ -88,7 +90,7 @@ static ecl_kw_type * ecl_init_file_alloc_LOGIHEAD( int simulator ) {
   bool scale_gas_PC_at_max_sat            = false;
 
 
-  ecl_kw_type * logihead_kw = ecl_kw_alloc( LOGIHEAD_KW , LOGIHEAD_INIT_SIZE , ECL_BOOL_TYPE );
+  ecl_kw_type * logihead_kw = ecl_kw_alloc( LOGIHEAD_KW , LOGIHEAD_INIT_SIZE , ECL_BOOL );
 
   ecl_kw_scalar_set_bool( logihead_kw , false );
 
@@ -119,7 +121,7 @@ static ecl_kw_type * ecl_init_file_alloc_LOGIHEAD( int simulator ) {
 
 
 static ecl_kw_type * ecl_init_file_alloc_DOUBHEAD( ) {
-  ecl_kw_type * doubhead_kw = ecl_kw_alloc( DOUBHEAD_KW , DOUBHEAD_INIT_SIZE , ECL_DOUBLE_TYPE );
+  ecl_kw_type * doubhead_kw = ecl_kw_alloc( DOUBHEAD_KW , DOUBHEAD_INIT_SIZE , ECL_DOUBLE );
 
   ecl_kw_scalar_set_double( doubhead_kw , 0);
 
@@ -146,7 +148,7 @@ static ecl_kw_type * ecl_init_file_alloc_DOUBHEAD( ) {
 
 static void ecl_init_file_fwrite_poro( fortio_type * fortio , const ecl_grid_type * ecl_grid , const ecl_kw_type * poro ) {
   {
-    ecl_kw_type * porv = ecl_kw_alloc( PORV_KW , ecl_grid_get_global_size( ecl_grid ) , ECL_FLOAT_TYPE);
+    ecl_kw_type * porv = ecl_kw_alloc( PORV_KW , ecl_grid_get_global_size( ecl_grid ) , ECL_FLOAT);
     int global_index;
     bool global_poro = (ecl_kw_get_size( poro ) == ecl_grid_get_global_size( ecl_grid )) ? true : false;
     for ( global_index = 0; global_index < ecl_grid_get_global_size( ecl_grid ); global_index++) {
@@ -171,10 +173,10 @@ static void ecl_init_file_fwrite_poro( fortio_type * fortio , const ecl_grid_typ
   that.
 */
 
-void ecl_init_file_fwrite_header( fortio_type * fortio , const ecl_grid_type * ecl_grid , const ecl_kw_type * poro , int phases , time_t start_date) {
+void ecl_init_file_fwrite_header( fortio_type * fortio , const ecl_grid_type * ecl_grid , const ecl_kw_type * poro , ert_ecl_unit_enum unit_system, int phases , time_t start_date) {
   int simulator = INTEHEAD_ECLIPSE100_VALUE;
   {
-    ecl_kw_type * intehead_kw = ecl_init_file_alloc_INTEHEAD( ecl_grid , phases , start_date , simulator );
+    ecl_kw_type * intehead_kw = ecl_init_file_alloc_INTEHEAD( ecl_grid , unit_system , phases , start_date , simulator );
     ecl_kw_fwrite( intehead_kw , fortio );
     ecl_kw_free( intehead_kw );
   }

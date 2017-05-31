@@ -23,8 +23,6 @@
 #include "RimCaseCollection.h"
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
-#include "RimIntersection.h"
-#include "RimIntersectionCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -35,6 +33,9 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimFault.h"
+#include "RimFlowDiagSolution.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
@@ -42,7 +43,9 @@
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimIntersectionCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -51,6 +54,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
@@ -71,7 +75,6 @@
 #include <vector>
 
 #include <QMenu>
-#include "RimFault.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -136,6 +139,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
 
             commandIds << "RicNewViewFeature";
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
@@ -161,7 +165,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipseInputPropertyCollection*>(uiItem))
         {
             commandIds << "RicAddEclipseInputPropertyFeature";
-            commandIds << "RicAddOpmInputPropertyFeature";
         }
         else if (dynamic_cast<RimEclipseInputProperty*>(uiItem))
         {
@@ -188,6 +191,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimEclipsePropertyFilter*>(uiItem))
         {
             commandIds << "RicEclipsePropertyFilterInsertFeature";
+            commandIds << "RicApplyPropertyFilterAsCellResultFeature";
         }
         else if (dynamic_cast<RimGeoMechPropertyFilterCollection*>(uiItem))
         {
@@ -196,22 +200,19 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimGeoMechPropertyFilter*>(uiItem))
         {
             commandIds << "RicGeoMechPropertyFilterInsertFeature";
+            commandIds << "RicApplyPropertyFilterAsCellResultFeature";
         }
         else if (dynamic_cast<RimWellPathCollection*>(uiItem))
         {
             commandIds << "RicWellPathsImportFileFeature";
             commandIds << "RicWellPathsImportSsihubFeature";
             commandIds << "RicWellLogsImportFileFeature";
-            commandIds << "Separator";
-            commandIds << "RicWellPathsDeleteAllFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
-            commandIds << "Separator";
-            commandIds << "RicWellPathDeleteFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
@@ -258,6 +259,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteWellLogTrackFeature";
             commandIds << "Separator";
             commandIds << "RicNewWellLogPlotTrackFeature";
+            commandIds << "RicAsciiExportWellLogPlotFeature";
         }
         else if (dynamic_cast<RimWellLogTrack*>(uiItem))
         {
@@ -282,6 +284,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "RicAsciiExportSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "Separator";
@@ -295,8 +298,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "Separator";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
         {
@@ -306,8 +307,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "Separator";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
@@ -334,7 +333,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
+            commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewSimWellIntersectionFeature";
+            commandIds << "RicShowWellAllocationPlotFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {
@@ -350,6 +351,18 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimFault*>(uiItem) )
         {
             commandIds << "RicExportFaultsFeature";
+        }
+        else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
+        {
+            commandIds << "RicAddStoredWellAllocationPlotFeature";
+        }
+        else if (dynamic_cast<RimFlowDiagSolution*>(uiItem))
+        {
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
+        }
+        else if (dynamic_cast<RimFlowPlotCollection*>(uiItem))
+        {
+            commandIds << "RicShowFlowCharacteristicsPlotFeature";
         }
 
 
@@ -367,6 +380,23 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     // Command supporting multiple selected objects
     if (uiItems.size() > 0)
     {
+        // Work in progress -- Start
+        // All commands should be aware of selection of multiple objects
+        // Based on the selection, the command feature can decide if the command
+        // can be executed, communicated by isCommandEnabled(). When a command feature
+        // is aware of multiple selected items, move the command to this list
+        // without using dyncamic_cast.
+
+        commandIds << "RicPasteTimeHistoryCurveFeature";
+        commandIds << "RicCopyReferencesToClipboardFeature";
+        
+        commandIds << "RicShowPlotDataFeature";
+        commandIds << "RicShowTotalAllocationDataFeature";
+        
+        commandIds << "RicSummaryCurveSwitchAxisFeature";
+
+        // Work in progress -- End
+
         caf::PdmUiItem* uiItem = uiItems[0];
         if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
@@ -378,21 +408,23 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
+            commandIds << "RicReloadCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
         }
-        else if (dynamic_cast<RimSummaryCurve*>(uiItem) ||
-                 dynamic_cast<RimSummaryCurveFilter*>(uiItem) )
+        else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
-            commandIds << "RicCopyReferencesToClipboardFeature";
-            commandIds << "RicSummaryCurveSwitchAxisFeature";
-
+            commandIds << "RicAsciiExportSummaryPlotFeature";
+        }
+        else if (dynamic_cast<RimWellLogPlot*>(uiItem))
+        {
+            commandIds << "RicAsciiExportWellLogPlotFeature";
         }
         else if (dynamic_cast<RimWellLogCurve*>(uiItem) ||
                  dynamic_cast<RimWellLogTrack*>(uiItem) ||
                  dynamic_cast<RimWellLogPlot*>(uiItem))
         {
-            commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "RicExportToLasFileFeature";
+            commandIds << "RicChangeDataSourceFeature";
         }
         else if (dynamic_cast<RimWellLogPlotCollection*>(uiItem))
         {
@@ -401,6 +433,18 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimFault*>(uiItem) )
         {
             commandIds << "RicExportFaultsFeature";
+        }
+        else if (dynamic_cast<RimEclipseWell*>(uiItem))
+        {
+            commandIds << "RicPlotProductionRateFeature";
+            commandIds << "RicShowContributingWellsFeature";
+            commandIds << "Separator";
+            commandIds << "RicEclipseWellShowLabelFeature";
+            commandIds << "RicEclipseWellShowHeadFeature";
+            commandIds << "RicEclipseWellShowPipeFeature";
+            commandIds << "RicEclipseWellShowSpheresFeature";
+            commandIds << "RicEclipseWellShowWellCellsFeature";
+            commandIds << "RicEclipseWellShowWellCellFenceFeature";
         }
     }
 
@@ -417,6 +461,20 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     {
         commandIds << "Separator";
         commandIds << "RicDeleteItemFeature";
+    }
+
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicDeleteSubItemsFeature")->canFeatureBeExecuted())
+    {
+        commandIds << "Separator";
+        commandIds << "RicDeleteSubItemsFeature";
+    }
+
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellPathDeleteFeature")->canFeatureBeExecuted())
+    {
+        // Special delete command for Well paths
+        // Placed here to fit context menu location of general delete feature
+        commandIds << "Separator";
+        commandIds << "RicWellPathDeleteFeature";
     }
 
     if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicCloseCaseFeature")->canFeatureBeExecuted() )
@@ -438,15 +496,29 @@ void RimContextCommandBuilder::appendCommandsToMenu(const QStringList& commandId
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
     for (int i = 0; i < commandIds.size(); i++)
     {
-        caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
-        CVF_ASSERT(feature);
-
-        if (feature->canFeatureBeExecuted())
+        if (commandIds[i] == "Separator")
         {
-            QAction* act = commandManager->action(commandIds[i]);
-            CVF_ASSERT(act);
+            menu->addSeparator();
+        }
+        else
+        {
+            caf::CmdFeature* feature = commandManager->getCommandFeature(commandIds[i].toStdString());
+            CVF_ASSERT(feature);
 
-            menu->addAction(act);
+            if (feature->canFeatureBeExecuted())
+            {
+                QAction* act = commandManager->action(commandIds[i]);
+                CVF_ASSERT(act);
+
+                for (QAction* existingAct : menu->actions())
+                {
+                    // If action exist, continue to make sure the action is positioned at the first
+                    // location of a command ID
+                    if (existingAct == act) continue;
+                }
+
+                menu->addAction(act);
+            }
         }
     }
 }

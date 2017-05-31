@@ -20,7 +20,6 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 
 
@@ -45,22 +44,9 @@ public:
     caf::PdmField<bool>     isActive;
     caf::PdmField< caf::AppEnum< FilterModeType > > filterMode;
 
-    std::vector<int>                        selectedCategoryValues() const;
-
     void updateIconState();
 
 protected:
     virtual caf::PdmFieldHandle*            userDescriptionField();
     virtual caf::PdmFieldHandle*            objectToggleField();
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-
-    void                        setCategoryValues(const std::vector<int>& categoryValues);
-    void                        setCategoryNames(const std::vector<QString>& categoryNames);
-    void                        clearCategories();
-
-protected:
-    std::vector<int>        m_categoryValues;
-    std::vector<QString>    m_categoryNames;
-
-    caf::PdmField< std::vector<int> >       m_selectedCategoryValues;
 };

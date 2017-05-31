@@ -75,14 +75,14 @@ RimView* RicLinkVisibleViewsFeatureUi::masterView()
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_masterView)
     {
-        for (size_t i = 0; i < m_allViews.size(); i++)
+        for (RimView* v : m_allViews)
         {
-            RimCase* rimCase = NULL;
-            m_allViews[i]->firstAncestorOrThisOfType(rimCase);
+            RimCase* rimCase = nullptr;
+            v->firstAncestorOrThisOfType(rimCase);
 
             QIcon icon;
             if (rimCase)
@@ -90,13 +90,9 @@ QList<caf::PdmOptionItemInfo> RicLinkVisibleViewsFeatureUi::calculateValueOption
                 icon = rimCase->uiCapability()->uiIcon();
             }
 
-
-            optionList.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(m_allViews[i]), 
-                QVariant::fromValue(caf::PdmPointer<PdmObjectHandle>(m_allViews[i])),
-                false,
-                icon));
+            options.push_back(caf::PdmOptionItemInfo(RimViewLinker::displayNameForView(v), v, false, icon));
         }
     }
 
-    return optionList;
+    return options;
 }

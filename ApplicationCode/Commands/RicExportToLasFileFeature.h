@@ -37,8 +37,5 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook( QAction* actionToSetup );
-
-private:
-    std::vector<RimWellLogCurve*> selectedWellLogCurves() const;
 };
 

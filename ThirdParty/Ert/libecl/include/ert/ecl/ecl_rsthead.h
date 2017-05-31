@@ -41,6 +41,8 @@ extern "C" {
     int    version;         // 100, 300, 500 (Eclipse300-Thermal)
     int    phase_sum;       // Oil = 1   Gas = 2    Water = 4
 
+    ert_ecl_unit_enum unit_system;
+
     int    nx;
     int    ny;
     int    nz;
@@ -56,11 +58,13 @@ extern "C" {
     int    nwells;          // Number of wells
     int    niwelz;          // Number of elements pr well in IWEL array
     int    nzwelz;          // Number of 8 character words pr well in ZWEL array
+    int    nxwelz;          // Number of elements pr well in XWEL array.
 
     // Connection properties
     int    niconz;          // Number of elements per completion in ICON array
     int    ncwmax;          // Maximum number of completions per well
     int    nsconz;          // Number of elements per completion in SCON array
+    int    nxconz;          // Number of elements per completion in XCON array
 
     // Segment properties
     int    nisegz;          // Number of entries pr segment in the ISEG array
@@ -83,7 +87,7 @@ extern "C" {
   void                ecl_rsthead_free( ecl_rsthead_type * rsthead );
   ecl_rsthead_type  * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_type * intehead_kw , const ecl_kw_type * doubhead_kw , const ecl_kw_type * logihead_kw );
   ecl_rsthead_type  * ecl_rsthead_alloc( const ecl_file_view_type * rst_file , int report_step);
-  ecl_rsthead_type  * ecl_rsthead_alloc_empty();
+  ecl_rsthead_type  * ecl_rsthead_alloc_empty(void);
   time_t              ecl_rsthead_date( const ecl_kw_type * intehead_kw );
   void                ecl_rsthead_fprintf( const ecl_rsthead_type * header , FILE * stream);
   void                ecl_rsthead_fprintf_struct( const ecl_rsthead_type * header , FILE * stream);

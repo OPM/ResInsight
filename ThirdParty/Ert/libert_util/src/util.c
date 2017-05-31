@@ -363,39 +363,52 @@ double util_kahan_sum(const double *data, size_t N) {
 }
 
 
-bool util_float_approx_equal__( float d1 , float d2, float epsilon) {
-  if (d1 == d2)
+bool util_float_approx_equal__( float d1 , float d2, float rel_eps, float abs_eps) {
+  if ((fabsf(d1) + fabsf(d2)) == 0)
     return true;
   else {
-    float diff = fabs(d1 - d2);
-    float sum  = fabs(d1) + fabs(d2);
-
-    if ((diff / sum) < epsilon)
-      return true;
-    else
+    float diff = fabsf(d1 - d2);
+    if ((abs_eps > 0) && (diff > abs_eps))
       return false;
+    {
+      float sum  = fabsf(d1) + fabsf(d2);
+      float rel_diff = diff / sum;
+
+      if ((rel_eps > 0) && (rel_diff > rel_eps))
+        return false;
+    }
+    return true;
   }
 }
 
 
-bool util_double_approx_equal__( double d1 , double d2, double epsilon) {
-  if (d1 == d2)
+/*
+  If an epsilon value is identically equal to zero that comparison
+  will be ignored.
+*/
+
+bool util_double_approx_equal__( double d1 , double d2, double rel_eps, double abs_eps) {
+  if ((fabs(d1) + fabs(d2)) == 0)
     return true;
   else {
     double diff = fabs(d1 - d2);
-    double sum  = fabs(d1) + fabs(d2);
-
-    if ((diff / sum) < epsilon)
-      return true;
-    else
+    if ((abs_eps > 0) && (diff > abs_eps))
       return false;
+    {
+      double sum  = fabs(d1) + fabs(d2);
+      double rel_diff = diff / sum;
+
+      if ((rel_eps > 0) && (rel_diff > rel_eps))
+        return false;
+    }
+    return true;
   }
 }
 
 
 bool util_double_approx_equal( double d1 , double d2) {
   double epsilon = 1e-6;
-  return util_double_approx_equal__( d1 , d2 , epsilon );
+  return util_double_approx_equal__( d1 , d2 , epsilon , 0.0 );
 }
 
 

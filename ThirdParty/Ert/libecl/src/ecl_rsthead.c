@@ -73,9 +73,10 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
 
       rsthead->nwells    = data[INTEHEAD_NWELLS_INDEX];
       rsthead->niwelz    = data[INTEHEAD_NIWELZ_INDEX];
+      rsthead->nxwelz    = data[INTEHEAD_NXWELZ_INDEX];
       rsthead->nzwelz    = data[INTEHEAD_NZWELZ_INDEX];
-
       rsthead->nsconz    = data[INTEHEAD_NSCONZ_INDEX];
+      rsthead->nxconz    = data[INTEHEAD_NXCONZ_INDEX];
       rsthead->niconz    = data[INTEHEAD_NICONZ_INDEX];
       rsthead->ncwmax    = data[INTEHEAD_NCWMAX_INDEX];
 
@@ -88,7 +89,7 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
       rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );
   }
   if (doubhead_kw)
-    rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
+      rsthead->sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX );
   if (logihead_kw)
     rsthead->dualp    = ecl_kw_iget_bool( logihead_kw , LOGIHEAD_DUALP_INDEX);
 
@@ -109,8 +110,7 @@ ecl_rsthead_type * ecl_rsthead_alloc_from_kw( int report_step , const ecl_kw_typ
 
 ecl_rsthead_type * ecl_rsthead_alloc( const ecl_file_view_type * rst_view, int report_step) {
   const ecl_kw_type * intehead_kw = ecl_file_view_iget_named_kw( rst_view , INTEHEAD_KW , 0);
-//  const ecl_kw_type * doubhead_kw = ecl_file_view_iget_named_kw(rst_view, DOUBHEAD_KW, 0);
-  const ecl_kw_type * doubhead_kw = NULL;//ecl_file_view_iget_named_kw( rst_view , DOUBHEAD_KW , 0);
+  const ecl_kw_type * doubhead_kw = NULL;
   const ecl_kw_type * logihead_kw = NULL;
 
   if (ecl_file_view_has_kw(rst_view, LOGIHEAD_KW))
@@ -232,4 +232,14 @@ void ecl_rsthead_fprintf_struct( const ecl_rsthead_type * header , FILE * stream
 
 void ecl_rsthead_free( ecl_rsthead_type * rsthead ) {
   free( rsthead );
+}
+
+
+int ecl_rsthead_get_nxconz( const ecl_rsthead_type * rsthead ) {
+  return rsthead->nxconz;
+}
+
+
+int ecl_rsthead_get_ncwmax( const ecl_rsthead_type * rsthead ) {
+  return rsthead->ncwmax;
 }

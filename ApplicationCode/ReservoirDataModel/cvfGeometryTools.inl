@@ -245,14 +245,12 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
 
     for (cv1Idx = 0 ; cv1Idx < 4 ; ++cv1Idx)
     {
-        bool found = false;
         for (cv2Idx = 0; cv2Idx < 4; ++cv2Idx)
         {
             if (cv1CubeFaceIndices[cv1Idx] == cv2CubeFaceIndices[cv2Idx])
             {
                 cv1VxTouchCv2[cv1Idx] = true;
                 cv2VxTouchCv1[cv2Idx] = true;
-                found = true;
                 ++numMatchedNodes;
                 continue;
             }
@@ -577,7 +575,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     ArrayWrapperConst<PolygonArrayType, IndexType>   completeFacePolygon, 
     const cvf::Vec3d&            faceNormal, 
     const std::vector< std::vector<IndexType>* >& faceOverlapPolygons, 
-    const std::vector<bool>      faceOverlapPolygonWindingSameAsCubeFaceFlags,
+    const std::vector<bool>&      faceOverlapPolygonWindingSameAsCubeFaceFlags,
     std::vector<IndexType>*         partialFacePolygon, 
     bool*                        m_partiallyFreeCubeFaceHasHoles)
 {

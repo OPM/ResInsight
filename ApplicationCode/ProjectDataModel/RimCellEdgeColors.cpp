@@ -21,6 +21,7 @@
 #include "RimCellEdgeColors.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigFlowDiagResults.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -90,7 +91,6 @@ RimCellEdgeColors::~RimCellEdgeColors()
 void RimCellEdgeColors::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
-    this->m_legendConfig()->setReservoirView(ownerReservoirView);
     m_singleVarEdgeResultColors->setReservoirView(ownerReservoirView);
 }
 
@@ -103,9 +103,9 @@ void RimCellEdgeColors::loadResult()
 
     if (isUsingSingleVariable())
     {
-        size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(m_singleVarEdgeResultColors->resultType(), 
-                                                                                               m_singleVarEdgeResultColors->resultVariable());
-
+        m_singleVarEdgeResultColors->loadResult();;
+        
+        size_t resultindex = m_singleVarEdgeResultColors->scalarResultIndex();
         for (int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
         {
             m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(m_singleVarEdgeResultColors->resultVariable(), resultindex);
@@ -139,8 +139,6 @@ void RimCellEdgeColors::loadResult()
         }
     }
 
-    updateFieldVisibility();
-
     updateConnectedEditors();
 }
 
@@ -150,8 +148,6 @@ void RimCellEdgeColors::loadResult()
 void RimCellEdgeColors::initAfterRead()
 {
     m_singleVarEdgeResultColors->initAfterRead();
-
-    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +191,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
             //TODO: Must also handle input properties
             //varList += m_reservoirView->gridCellResults()->resultNames(RimDefines::INPUT_PROPERTY);
 
-            QList<caf::PdmOptionItemInfo> optionList;
+            QList<caf::PdmOptionItemInfo> options;
 
             std::map<QString, caf::FixedArray<QString, 6> > varBaseNameToVarsMap;
 
@@ -242,15 +238,15 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
                 }
                 optionUiName += ")";
 
-                optionList.push_back(caf::PdmOptionItemInfo( optionUiName, QVariant(it->first)));
+                options.push_back(caf::PdmOptionItemInfo( optionUiName, QVariant(it->first)));
 
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
+            options.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
             
             if (useOptionsOnly) *useOptionsOnly = true;
 
-            return optionList;
+            return options;
         }
     }
 
@@ -266,9 +262,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     if (isUsingSingleVariable())
     {
-        uiOrdering.add(&(m_singleVarEdgeResultColors->m_resultTypeUiField));
-        uiOrdering.add(&(m_singleVarEdgeResultColors->m_porosityModelUiField));
-        uiOrdering.add(&(m_singleVarEdgeResultColors->m_resultVariableUiField));
+        m_singleVarEdgeResultColors->uiOrdering(uiConfigName,uiOrdering );
     }
     else
     {
@@ -279,7 +273,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
         uiOrdering.add(&useZVariable);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,7 +282,7 @@ void RimCellEdgeColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 void RimCellEdgeColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
     uiTreeOrdering.add(legendConfig());
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -388,14 +382,6 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::updateFieldVisibility()
-{
-    m_singleVarEdgeResultColors->updateFieldVisibility();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::resetResultIndices()
 {
     int cubeFaceIndex;
@@ -411,6 +397,11 @@ void RimCellEdgeColors::resetResultIndices()
 bool RimCellEdgeColors::hasResult() const
 {
     if (!enableCellEdgeColors()) return false;
+
+    if (isUsingSingleVariable() && m_singleVarEdgeResultColors->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        return true;
+    }
 
     bool hasResult = false;
     int cubeFaceIndex;
@@ -446,22 +437,34 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
     globalMin = HUGE_VAL;
     globalMax = -HUGE_VAL;
 
-    size_t resultIndices[6];
-    this->gridScalarIndices(resultIndices);
-
-    size_t idx;
-    for (idx = 0; idx < 6; idx++)
+    if (isUsingSingleVariable() && singleVarEdgeResultColors()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
     {
-        if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+        int currentTimeStep = m_reservoirView->currentTimeStep();
 
+        RigFlowDiagResults* fldResults = singleVarEdgeResultColors()->flowDiagSolution()->flowDiagResults();
+        RigFlowDiagResultAddress resAddr = singleVarEdgeResultColors()->flowDiagResAddress();
+
+        fldResults->minMaxScalarValues(resAddr, currentTimeStep, &globalMin, &globalMax);
+    }
+    else
+    {
+        size_t resultIndices[6];
+        this->gridScalarIndices(resultIndices);
+
+        size_t idx;
+        for (idx = 0; idx < 6; idx++)
         {
-            double cMin, cMax;
-            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+            if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
-            globalMin = CVF_MIN(globalMin, cMin);
-            globalMax = CVF_MAX(globalMax, cMax);
+            {
+                double cMin, cMax;
+                m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+
+                globalMin = CVF_MIN(globalMin, cMin);
+                globalMax = CVF_MAX(globalMax, cMax);
+            }
+
         }
-
     }
 
     min = globalMin;
@@ -528,6 +531,36 @@ QString RimCellEdgeColors::resultVariable() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimCellEdgeColors::resultVariableUiName() const
+{
+    if (isUsingSingleVariable())
+    {
+        return m_singleVarEdgeResultColors->resultVariableUiName();
+    }
+    else
+    {
+        return m_resultVariable;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimCellEdgeColors::resultVariableUiShortName() const
+{
+    if (isUsingSingleVariable())
+    {
+        return m_singleVarEdgeResultColors->resultVariableUiShortName();
+    }
+    else
+    {
+        return m_resultVariable;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellEdgeColors::objectToggleField()
 {
    return &enableCellEdgeColors;
@@ -562,5 +595,13 @@ RimLegendConfig* RimCellEdgeColors::legendConfig()
     {
         return m_legendConfig;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCellEdgeColors::PropertyType RimCellEdgeColors::propertyType() const
+{
+    return m_propertyType();
 }
 

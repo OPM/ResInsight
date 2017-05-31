@@ -43,7 +43,8 @@ add_library( ${PROJECT_NAME}
 	cvfStructGrid.h
 	cvfCellRange.cpp
 	cvfCellRange.h
-	
+	cafColorTable.cpp
+	cafColorTable.h
 	
 	cvfStructGridGeometryGenerator.cpp
 	cvfStructGridGeometryGenerator.h

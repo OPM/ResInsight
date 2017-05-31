@@ -15,6 +15,6 @@
 #cmakedefine ERT_TIME_T_64BIT_ACCEPT_PRE1970
 #cmakedefine ERT_WINDOWS_LFS
 #cmakedefine ERT_HAVE_PING
-
+#cmakedefine PING_CMD "@PING_PATH@"
 
 

@@ -39,7 +39,9 @@
 
 #include "cafCategoryLegend.h"
 #include "cafCeetronPlusNavigation.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
+#include "cafFrameAnimationControl.h"
 
 #include "cvfCamera.h"
 #include "cvfFont.h"
@@ -169,8 +171,9 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     setContextMenuPolicy(Qt::PreventContextMenu);
 
     m_gridBoxGenerator = new RivGridBoxGenerator;
-}
 
+    m_cursorPositionDomainCoords = cvf::Vec3d::UNDEFINED;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -179,8 +182,7 @@ RiuViewer::~RiuViewer()
 {
     if (m_rimView)
     {
-        m_rimView->showWindow = false;
-        m_rimView->uiCapability()->updateUiIconFromToggleField();
+        m_rimView->handleMdiWindowClosed();
 
         m_rimView->cameraPosition = m_mainCamera->viewMatrix();
         m_rimView->cameraPointOfInterest = pointOfInterest();
@@ -396,16 +398,38 @@ void RiuViewer::paintOverlayItems(QPainter* painter)
     {
         m_histogramWidget->resize(columnWidth, 40);
         m_histogramWidget->render(painter,QPoint(columnPos, yPos));
-        yPos +=  m_histogramWidget->height() + margin;
+        //yPos +=  m_histogramWidget->height() + margin;
     }
 
-    if (m_showInfoText)
+    if (m_showInfoText) // Version Label
     {
         QSize size(m_versionInfoLabel->sizeHint().width(), m_versionInfoLabel->sizeHint().height());
         QPoint pos(this->width() - size.width() - margin, this->height() - size.height() - margin);
         m_versionInfoLabel->resize(size.width(), size.height());
         m_versionInfoLabel->render(painter, pos);
-        yPos +=  size.height() + margin;
+    }
+
+    if (!m_cursorPositionDomainCoords.isUndefined())
+    {
+        if (mainCamera())
+        {
+            cvf::ref<caf::DisplayCoordTransform> trans = m_rimView->displayCoordTransform();
+
+            cvf::Vec3d displayCoord = trans->transformToDisplayCoord(m_cursorPositionDomainCoords);
+
+            cvf::Vec3d screenCoords;
+            if (mainCamera()->project(displayCoord, &screenCoords))
+            {
+                int translatedMousePosY = height() - screenCoords.y();
+                QPoint centerPos(screenCoords.x(), translatedMousePosY);
+
+                // Draw a cross hair marker
+                int markerHalfLength = 6;
+
+                painter->drawLine(centerPos.x(), centerPos.y() - markerHalfLength, centerPos.x(), centerPos.y() + markerHalfLength);
+                painter->drawLine(centerPos.x() - markerHalfLength, centerPos.y(), centerPos.x() + markerHalfLength, centerPos.y());
+            }
+        }
     }
 }
 
@@ -609,7 +633,9 @@ void RiuViewer::setCurrentFrame(int frameIndex)
     cvf::Rendering* firstRendering = m_mainRendering.p();
     CVF_ASSERT(firstRendering);
 
-    if (m_rimView) m_rimView->setCurrentTimeStep(frameIndex);
+    if (m_rimView) m_rimView->setCurrentTimeStepAndUpdate(frameIndex);
+    
+    animationControl()->setCurrentFrameOnly(frameIndex);
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }
@@ -618,6 +644,14 @@ void RiuViewer::setCurrentFrame(int frameIndex)
 /// 
 //--------------------------------------------------------------------------------------------------
 RimView* RiuViewer::ownerReservoirView()
+{
+    return m_rimView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuViewer::ownerViewWindow() const
 {
     return m_rimView;
 }
@@ -652,6 +686,54 @@ void RiuViewer::resizeGL(int width, int height)
     if (hasCategoryLegend)
     {
         m_rimView->updateCurrentTimeStepAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::mouseMoveEvent(QMouseEvent* mouseEvent)
+{
+    if (m_rimView)
+    {
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            int translatedMousePosX = mouseEvent->pos().x();
+            int translatedMousePosY = height() - mouseEvent->pos().y();
+
+            cvf::Vec3d displayCoord(0, 0, 0);
+            if (mainCamera()->unproject(cvf::Vec3d(static_cast<double>(translatedMousePosX), static_cast<double>(translatedMousePosY), 0), &displayCoord))
+            {
+                if (m_cursorPositionDomainCoords != cvf::Vec3d::UNDEFINED)
+                {
+                    // Reset the extra cursor if the view currently is receiving mouse cursor events
+                    // Set undefined and redraw to remove the previously displayed cursor
+                    m_cursorPositionDomainCoords = cvf::Vec3d::UNDEFINED;
+
+                    update();
+                }
+
+                cvf::ref<caf::DisplayCoordTransform> trans = m_rimView->displayCoordTransform();
+                cvf::Vec3d domainCoord = trans->transformToDomainCoord(displayCoord);
+
+                viewLinker->updateCursorPosition(m_rimView, domainCoord);
+            }
+        }
+    }
+
+    caf::Viewer::mouseMoveEvent(mouseEvent);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::leaveEvent(QEvent *)
+{
+    if (m_rimView && m_rimView->assosiatedViewLinker())
+    {
+        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
+        viewLinker->updateCursorPosition(m_rimView, cvf::Vec3d::UNDEFINED);
     }
 }
 
@@ -750,6 +832,19 @@ void RiuViewer::updateParallelProjectionSettings(RiuViewer* sourceViewer)
     cvf::Vec3d poi = sourceViewer->m_navigationPolicy->pointOfInterest();
     this->updateParallelProjectionHeightFromMoveZoom(poi);
     this->updateParallelProjectionCameraPosFromPointOfInterestMove(poi);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::setCursorPosition(const cvf::Vec3d& domainCoord)
+{
+    if (m_cursorPositionDomainCoords != domainCoord)
+    {
+        m_cursorPositionDomainCoords = domainCoord;
+
+        update();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

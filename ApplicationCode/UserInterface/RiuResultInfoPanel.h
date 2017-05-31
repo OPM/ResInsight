@@ -35,7 +35,7 @@ class RiuResultInfoPanel : public QWidget
     Q_OBJECT
 
 public:
-    RiuResultInfoPanel(QDockWidget* parent);
+    explicit RiuResultInfoPanel(QDockWidget* parent);
 
     void            setInfo(const QString& info);
 

@@ -19,8 +19,9 @@
 
 #include "RimWellLogCurve.h"
 
-#include "RimWellLogPlot.h"
+#include "RigWellLogCurveData.h" 
 
+#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"

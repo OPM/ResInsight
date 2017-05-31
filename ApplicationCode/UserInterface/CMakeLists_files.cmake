@@ -10,6 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RiuCursors.h
 ${CEE_CURRENT_LIST_DIR}RiuDragDrop.h
 ${CEE_CURRENT_LIST_DIR}RiuFemResultTextBuilder.h
 ${CEE_CURRENT_LIST_DIR}RiuGeoQuestNavigation.h
+${CEE_CURRENT_LIST_DIR}RiuInterfaceToViewWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuLineSegmentQwtPlotCurve.h
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.h
@@ -20,13 +21,15 @@ ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.h
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuResultTextBuilder.h
 ${CEE_CURRENT_LIST_DIR}RiuRmsNavigation.h
 ${CEE_CURRENT_LIST_DIR}RiuSelectionChangedHandler.h
-${CEE_CURRENT_LIST_DIR}RiuSelectionColors.h
 ${CEE_CURRENT_LIST_DIR}RiuSelectionManager.h
 ${CEE_CURRENT_LIST_DIR}RiuSimpleHistogramWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
@@ -38,6 +41,13 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
+${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
+${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
+${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
+${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
+${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.h
+${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -46,6 +56,7 @@ ${CEE_CURRENT_LIST_DIR}RiuCursors.cpp
 ${CEE_CURRENT_LIST_DIR}RiuDragDrop.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFemResultTextBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGeoQuestNavigation.cpp
+${CEE_CURRENT_LIST_DIR}RiuInterfaceToViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RiuLineSegmentQwtPlotCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.cpp
@@ -56,13 +67,14 @@ ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.cpp
+${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.cpp
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultTextBuilder.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRmsNavigation.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSelectionChangedHandler.cpp
-${CEE_CURRENT_LIST_DIR}RiuSelectionColors.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSelectionManager.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSimpleHistogramWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.cpp
@@ -74,6 +86,13 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.cpp
 ${CEE_CURRENT_LIST_DIR}RiuGeoMechXfTensorResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.cpp
+${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.cpp
+${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.cpp
+${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.cpp
+${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
+${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
+${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.cpp
+${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -99,6 +118,12 @@ ${CEE_CURRENT_LIST_DIR}RiuWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
+${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
+${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
+${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
+${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
+${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
+${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 )
 
 list(APPEND QT_UI_FILES

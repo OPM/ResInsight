@@ -1,9 +1,9 @@
 #include "cafPdmUiFieldHandle.h"
+
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
-
+#include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiObjectHandle.h"
-
-#include <assert.h>
 
 namespace caf
 {
@@ -27,7 +27,7 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
     if (oldFieldValue != newFieldValue)
     {
         PdmFieldHandle* fieldHandle = this->fieldHandle();
-        assert(fieldHandle && fieldHandle->ownerObject());
+        CAF_ASSERT(fieldHandle && fieldHandle->ownerObject());
 
         PdmUiObjectHandle* uiObjHandle = uiObj(fieldHandle->ownerObject());
         if (uiObjHandle)
@@ -38,6 +38,8 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
 
         // Update field editors
         this->updateConnectedEditors();
+
+        PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 }
 
@@ -47,7 +49,7 @@ void PdmUiFieldHandle::notifyFieldChanged(const QVariant& oldFieldValue, const Q
 PdmUiFieldHandle* PdmFieldHandle::uiCapability()
 {
     PdmUiFieldHandle* uiField = capability<PdmUiFieldHandle>();
-    assert(uiField);
+    CAF_ASSERT(uiField);
 
     return uiField;
 }

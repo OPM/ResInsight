@@ -2,7 +2,6 @@
 
 #include "cafPdmFieldCapability.h"
 
-#include <assert.h>
 
 namespace caf
 {

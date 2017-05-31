@@ -145,10 +145,11 @@ RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogTrack* pl
     CVF_ASSERT(plotTrack);
 
     RimWellLogFileCurve* curve = new RimWellLogFileCurve();
-    plotTrack->addCurve(curve);
 
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable();
+    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
     curve->setColor(curveColor);
+
+    plotTrack->addCurve(curve);
 
     plotTrack->updateConnectedEditors();
 

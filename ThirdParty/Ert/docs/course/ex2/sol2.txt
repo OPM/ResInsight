@@ -1,0 +1,35 @@
+The [] operator for python objects is implemeted with the
+__getitem__() and __setitem__() methods.
+
+1. The __setitem__ and __getitem__ methods should clearly be based on
+   C functions which set and get an item based on an index. Going to
+   libenkf/src/gen_data.c we see that two such functions already exist:
+
+      double gen_data_iget_double(const gen_data_type * gen_data, int index);
+      void   gen_data_iset_double(gen_data_type * gen_data, int index, double value);
+      
+
+2. We must add bindings from Python to these C functions. Add the
+   following lines to at the top of the declaration of class GenData:
+
+      _iset = EnkfPrototype("void   gen_data_iset_double(gen_data, int , double)")
+      _iget = EnkfPrototype("double gen_data_iget_double(gen_data, int )")
+
+
+3. Create (simple) Python methods:
+
+   def __getitem__(self , index):
+       if index < len(self):
+          return self._iget( index )
+       else:
+          raise IndexError("Invalid index:%d - valid range: [0,%d)" % (index , len(self)))
+
+
+   def __setitem__(self , index, value):
+       if index < len(self):
+          self._iset( index , value )
+       else:
+          raise IndexError("Invalid index:%d - valid range: [0,%d)" % (index , len(self)))
+   
+
+

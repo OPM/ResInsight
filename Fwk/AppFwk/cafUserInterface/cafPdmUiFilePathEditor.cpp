@@ -49,7 +49,6 @@
 #include <QLabel>
 #include <QIntValidator>
 
-#include <assert.h>
 #include "cafFactory.h"
 #include "qboxlayout.h"
 #include "qtoolbutton.h"
@@ -67,8 +66,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiFilePathEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_lineEdit.isNull());
-    assert(!m_label.isNull());
+    CAF_ASSERT(!m_lineEdit.isNull());
+    CAF_ASSERT(!m_label.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())

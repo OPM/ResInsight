@@ -27,7 +27,7 @@
 class RimEclipseView;
 class RimEclipseCellColors;
 class QString;
-class RigCaseData;
+class RigEclipseCaseData;
 
 namespace cvf {
     class Part;
@@ -47,7 +47,7 @@ public:
 
     QString mainResultText();
 
-    QString topologyText(QString itemSeparator);
+    QString geometrySelectionText(QString itemSeparator);
     
 private:
     void appendDetails(QString& text, const QString& details);
@@ -65,7 +65,7 @@ private:
 
     QString cellResultText(RimEclipseCellColors* resultColors);
 
-    void appendTextFromResultColors(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText);
+    void appendTextFromResultColors(RigEclipseCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimEclipseCellColors* resultColors, QString* resultInfoText);
 
 private:
     caf::PdmPointer<RimEclipseView> m_reservoirView;

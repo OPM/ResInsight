@@ -29,6 +29,7 @@
 #include "RimWellPathCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
+#include "RivPartPriority.h"
 #include "RivWellPathSourceInfo.h"
 
 #include "cafEffectGenerator.h"
@@ -218,7 +219,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
         part->setEffect(eff.p());
-        part->setPriority(1000);
+        part->setPriority(RivPartPriority::Text);
 
         m_wellLabelPart = part;
     }

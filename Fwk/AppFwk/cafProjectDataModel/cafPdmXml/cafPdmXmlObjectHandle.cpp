@@ -1,5 +1,6 @@
 #include "cafPdmXmlObjectHandle.h"
 
+#include "cafAssert.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmXmlFieldHandle.h"
 
@@ -9,7 +10,6 @@
 #include <QXmlStreamWriter>
 
 #include <iostream>
-#include <assert.h>
 
 namespace caf
 {
@@ -30,7 +30,7 @@ PdmXmlObjectHandle* xmlObj(PdmObjectHandle* obj)
 {
     if (!obj) return NULL;
     PdmXmlObjectHandle* xmlObject = obj->capability<PdmXmlObjectHandle>();
-    assert(xmlObject);
+    CAF_ASSERT(xmlObject);
     return xmlObject;
 }
 
@@ -108,17 +108,17 @@ void PdmXmlObjectHandle::readFields(QXmlStreamReader& xmlStream, PdmObjectFactor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmXmlObjectHandle::writeFields(QXmlStreamWriter& xmlStream)
+void PdmXmlObjectHandle::writeFields(QXmlStreamWriter& xmlStream) const
 {
     std::vector<PdmFieldHandle*> fields;
     m_owner->fields(fields);
     for (size_t it = 0; it < fields.size(); ++it)
     {
-        PdmXmlFieldHandle* field = fields[it]->xmlCapability();
+        const PdmXmlFieldHandle* field = fields[it]->xmlCapability();
         if (field && field->isIOWritable())
         {
             QString keyword = field->fieldHandle()->keyword();
-            assert(PdmXmlObjectHandle::isValidXmlElementName(keyword));
+            CAF_ASSERT(PdmXmlObjectHandle::isValidXmlElementName(keyword));
 
             xmlStream.writeStartElement("", keyword);
             field->writeFieldData(xmlStream);
@@ -147,7 +147,7 @@ void PdmXmlObjectHandle::readObjectFromXmlString(const QString& xmlString,  PdmO
     tt = inputStream.readNext(); // Start of document
     tt = inputStream.readNext();
     QString classKeyword = inputStream.name().toString();
-    assert(classKeyword == this->classKeyword());
+    CAF_ASSERT(classKeyword == this->classKeyword());
    
     this->readFields(inputStream, objectFactory);
 }
@@ -188,7 +188,7 @@ PdmObjectHandle* PdmXmlObjectHandle::copyByXmlSerialization(PdmObjectFactory* ob
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString PdmXmlObjectHandle::writeObjectToXmlString()
+QString PdmXmlObjectHandle::writeObjectToXmlString() const
 {
     QString xmlString;
     QXmlStreamWriter outputStream(&xmlString);
@@ -340,7 +340,7 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively(PdmObjectHandle* object)
 PdmXmlObjectHandle* PdmObjectHandle::xmlCapability() const
  {
     PdmXmlObjectHandle* xmlField = capability<PdmXmlObjectHandle>();
-    assert(xmlField);
+    CAF_ASSERT(xmlField);
     
     return xmlField;
 }

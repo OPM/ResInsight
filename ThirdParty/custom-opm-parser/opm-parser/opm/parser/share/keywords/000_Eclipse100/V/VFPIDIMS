@@ -1,5 +1,0 @@
-{"name" : "VFPIDIMS" , "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
-        {"name" : "MAX_FLOW_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_THP_TABLE" , "value_type" : "INT" , "default" : 0},
-        {"name" : "MAX_INJ_VFP_TABLE" , "value_type" : "INT" , "default" : 0}]}
-

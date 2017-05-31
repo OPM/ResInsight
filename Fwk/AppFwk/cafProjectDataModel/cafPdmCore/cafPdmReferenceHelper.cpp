@@ -37,11 +37,11 @@
 
 #include "cafPdmReferenceHelper.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 
 #include <QStringList>
 
-#include <assert.h>
 #include <algorithm>
 
 
@@ -323,8 +323,8 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fr
 
     QStringList decodedReference = reference.split(QRegExp("\\s+"), QString::SkipEmptyParts);
     PdmObjectHandle* lastCommonAnchestor = fromField->ownerObject();
-    assert(lastCommonAnchestor);
-    assert(decodedReference.size());
+    CAF_ASSERT(lastCommonAnchestor);
+    CAF_ASSERT(decodedReference.size());
 
     while (decodedReference.front() == "..")
     {
@@ -336,7 +336,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromFieldReference(PdmFieldHandle* fr
         }
 
         lastCommonAnchestor = parentField->ownerObject();
-        assert(lastCommonAnchestor);
+        CAF_ASSERT(lastCommonAnchestor);
         decodedReference.pop_front();
     }
 

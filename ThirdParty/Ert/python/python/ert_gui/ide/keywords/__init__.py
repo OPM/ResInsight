@@ -1,2 +1,0 @@
-from .configuration_line_parser import ConfigurationLineParser
-from .ert_keywords import ErtKeywords

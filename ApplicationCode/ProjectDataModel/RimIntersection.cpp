@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellPath.h"
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
@@ -29,6 +30,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimView.h"
 #include "RimWellPath.h"
 
@@ -39,6 +41,9 @@
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+
+#include "cvfBoundingBox.h"
+#include "cvfPlane.h"
 
 
 namespace caf {
@@ -223,7 +228,7 @@ void RimIntersection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     updateWellExtentDefaultValue();
 
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,21 +240,11 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
 
     if (fieldNeedingOptions == &wellPath)
     {
-        RimProject* proj = RiaApplication::instance()->project();
-        if (proj->activeOilField()->wellPathCollection())
-        {
-            caf::PdmChildArrayField<RimWellPath*>& wellPaths = proj->activeOilField()->wellPathCollection()->wellPaths;
-            
-            QIcon wellIcon(":/Well.png");
-            for (size_t i = 0; i < wellPaths.size(); i++)
-            {
-                options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i])), false, wellIcon));
-            }
-        }
+        RimTools::wellPathOptionItems(&options);
 
-        if (options.size() == 0)
+        if (options.size() > 0)
         {
-            options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if (fieldNeedingOptions == &simulationWell)
@@ -260,15 +255,15 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
             caf::PdmChildArrayField<RimEclipseWell*>& eclWells = coll->wells;
 
             QIcon simWellIcon(":/Well.png");
-            for (size_t i = 0; i < eclWells.size(); i++)
+            for (RimEclipseWell* eclWell : eclWells)
             {
-                options.push_back(caf::PdmOptionItemInfo(eclWells[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(eclWells[i])), false, simWellIcon));
+                options.push_back(caf::PdmOptionItemInfo(eclWell->name(), eclWell, false, simWellIcon));
             }
         }
 
         if (options.size() == 0)
         {
-            options.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if (fieldNeedingOptions == &m_branchIndex)
@@ -400,7 +395,7 @@ void RimIntersection::updateWellCenterline() const
         {
             std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
-            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterline(simulationWell(), m_wellBranchCenterlines, pipeBranchesCellIds);
+            simulationWell->calculateWellPipeStaticCenterLine(m_wellBranchCenterlines, pipeBranchesCellIds);
         }
     }
     else
@@ -558,13 +553,16 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (inputPolyLineFromViewerEnabled)
+        if (attrib)
         {
-            attrib->m_buttonText = "Stop picking points";
-        }
-        else
-        {
-            attrib->m_buttonText = "Start picking points";
+            if (inputPolyLineFromViewerEnabled)
+            {
+                attrib->m_buttonText = "Stop picking points";
+            }
+            else
+            {
+                attrib->m_buttonText = "Start picking points";
+            }
         }
     }
     else if (field == &m_userPolyline)
@@ -579,13 +577,16 @@ void RimIntersection::defineEditorAttribute(const caf::PdmFieldHandle* field, QS
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (inputExtrusionPointsFromViewerEnabled)
+        if (attrib)
         {
-            attrib->m_buttonText = "Stop picking points";
-        }
-        else
-        {
-            attrib->m_buttonText = "Start picking points";
+            if (inputExtrusionPointsFromViewerEnabled)
+            {
+                attrib->m_buttonText = "Stop picking points";
+            }
+            else
+            {
+                attrib->m_buttonText = "Start picking points";
+            }
         }
     }
     else if (field == &m_customExtrusionPoints)

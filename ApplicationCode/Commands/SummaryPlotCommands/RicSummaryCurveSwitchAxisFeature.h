@@ -24,7 +24,7 @@
 
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
-
+class RimGridTimeHistoryCurve;
 
 
 //==================================================================================================
@@ -41,5 +41,6 @@ protected:
 
 private:
     static void extractSelectedCurveFiltersAndSoloCurves(std::set<RimSummaryCurveFilter*>* selectedCurveFilters, 
-                                                         std::set<RimSummaryCurve*>* selectedSoloCurves);
+                                                         std::set<RimSummaryCurve*>* selectedSoloCurves,
+                                                         std::vector<RimGridTimeHistoryCurve*>* gridTimeHistoryCurves);
 };

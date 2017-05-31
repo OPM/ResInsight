@@ -47,6 +47,8 @@ bool RicSaveEclipseResultAsInputPropertyFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     std::vector<RimEclipseCellColors*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
     if (selection.size() == 1)
@@ -61,7 +63,7 @@ void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered(bool isChecke
 //--------------------------------------------------------------------------------------------------
 void RicSaveEclipseResultAsInputPropertyFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Save Property To File");
+    actionToSetup->setText("Export Property To File");
 }
 
 

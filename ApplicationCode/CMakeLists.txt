@@ -29,10 +29,10 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
 	${ERT_INCLUDE_DIRS}
 
-    ${Boost_INCLUDE_DIRS}
-    ${ResInsight_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common/
-    ${custom-opm-parser_SOURCE_DIR}/opm-parser/
+    ${boost-Subset_SOURCE_DIR}
     ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
+    ${custom-opm-flowdiag-app_SOURCE_DIR}/opm-flowdiagnostics-applications/
+    ${custom-opm-flowdiag-app_SOURCE_DIR}/opmCore
 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
@@ -45,8 +45,11 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
+
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
@@ -74,6 +77,9 @@ set( APPLICATION_FILES
     Application/RiaImageCompareReporter.cpp
     Application/RiaProjectModifier.cpp
     Application/RiaRegressionTest.cpp
+    Application/RiaColorTables.cpp
+    Application/RiaLogging.h
+    Application/RiaLogging.cpp
 )
 
 set( SOCKET_INTERFACE_FILES
@@ -100,6 +106,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
+    ProjectDataModel/Flow/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -113,6 +120,8 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/ApplicationCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
+    Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
+    Commands/FlowCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
 	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
@@ -267,23 +276,8 @@ endif ()
 # Set up libraries and dependent projects to link with
 #############################################################################
 
-if (MSVC)
-  set (RI_BOOST_LIBRARIES
-    debug     ${Boost_SYSTEM_LIBRARY_DEBUG}
-    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
-    debug     ${Boost_FILESYSTEM_LIBRARY_DEBUG}
-    optimized ${Boost_FILESYSTEM_LIBRARY_RELEASE}
-    debug     ${Boost_REGEX_LIBRARY_DEBUG}
-    optimized ${Boost_REGEX_LIBRARY_RELEASE}
-  )
-else()
-  set (RI_BOOST_LIBRARIES ${Boost_LIBRARIES})
-endif()
-
-
 set( LINK_LIBRARIES
-    custom-opm-parser
-    custom-opm-flowdiagnostics
+    ${OPM_LIBRARIES}
         
     WellPathImportSsihub
 
@@ -295,15 +289,12 @@ set( LINK_LIBRARIES
     
     ${ERT_LIBRARIES}
     
-    NRLib
+    ${THIRD_PARTY_LIBRARIES}
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
-    
-    ${RI_BOOST_LIBRARIES}
-
-	Qwt
 )
+
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
@@ -332,9 +323,6 @@ if(RESINSIGHT_ENABLE_COTIRE)
   
     # multiple QRC files are not supported
     set_source_files_properties (qrc_cafAnimControl.cxx                                     PROPERTIES COTIRE_EXCLUDED TRUE)
-
-    # TODO: Revisit why opm-parser is not working
-    set_source_files_properties (UnitTests/opm-parser-Test.cpp                              PROPERTIES COTIRE_EXCLUDED TRUE)
  
     # variables at global file scope
     set_source_files_properties (ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
@@ -347,13 +335,9 @@ if(RESINSIGHT_ENABLE_COTIRE)
     # using namespace cvf
     set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
 
     # opm parser
-    set_source_files_properties (FileInterface/RifReaderOpmParserInput.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
     set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/opm-parser-Performance-Test.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/opm-Test.cpp                                 PROPERTIES COTIRE_EXCLUDED TRUE)
     
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    
@@ -452,21 +436,11 @@ if (RESINSIGHT_PRIVATE_INSTALL)
 
       set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_INSTALL_RPATH}")
       
-        # Find Qt libraries and sym links
-        file (GLOB RESINSIGHT_FILES
-                ${QT_LIBRARY_DIR}/libQtCore.so*
-                ${QT_LIBRARY_DIR}/libQtGui.so*
-                ${QT_LIBRARY_DIR}/libQtOpenGL.so*
-                ${QT_LIBRARY_DIR}/libQtNetwork.so*
-                ${QT_LIBRARY_DIR}/libQtScript.so*
-                ${QT_LIBRARY_DIR}/libQtScriptTools.so*
-            )
-
     endif()
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
       # put a .exe.local file in the target directory to pick up DLLs from there
-      install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+      install (CODE "exec_program (\"${CMAKE_COMMAND}\" ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
 
         set (RESINSIGHT_FILES
                 ${QT_BINARY_DIR}/QtCore4.dll
@@ -485,19 +459,19 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
         set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
         include(InstallRequiredSystemLibraries)
-        install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${RESINSIGHT_FINAL_NAME})
+        install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 
     endif()
 
     set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
 
-    install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
+    install(TARGETS ResInsight DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 
-    install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+    install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_INSTALL_FOLDER} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
     endif()
 
 else (RESINSIGHT_PRIVATE_INSTALL)

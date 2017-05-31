@@ -23,12 +23,14 @@
 
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
+#include "cvfCollection.h"
 
 class RimCase;
 class RimEclipseResultDefinition;
 class RimGeoMechResultDefinition;
 class RimView;
 class RimWellPath;
+class RigWellPath;
 
 //==================================================================================================
 ///  
@@ -41,8 +43,16 @@ public:
     RimWellLogExtractionCurve();
     virtual ~RimWellLogExtractionCurve();
     
-    
+    enum TrajectoryType { WELL_PATH, SIMULATION_WELL};
+
     void setWellPath(RimWellPath* wellPath);
+    RimWellPath* wellPath() const;
+
+    void setFromSimulationWellName(const QString& simWellName, int branchIndex);
+
+    void setCase(RimCase* rimCase);
+    RimCase* rimCase() const;
+
     void setPropertiesFromView(RimView* view);
 
     virtual QString wellName() const;
@@ -52,6 +62,8 @@ public:
     bool isEclipseCurve() const;
     QString caseName() const;
     double rkbDiff() const;
+
+    int currentTimeStep() const;
 
 protected:
     virtual QString createCurveAutoName();
@@ -69,9 +81,16 @@ protected:
 private:
     void setLogScaleFromSelectedResult();
     void clampTimestep();
+    void clampBranchIndex();
+    std::set<QString> findSortedWellNames();
+    void updateGeneratedSimulationWellpath();
+    void clearGeneratedSimWellPaths();
 
 private:
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
+    caf::PdmField<caf::AppEnum<TrajectoryType> >    m_trajectoryType;
+    caf::PdmField<QString>                          m_simWellName;
+    caf::PdmField<int>                              m_branchIndex;
     caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
@@ -82,5 +101,7 @@ private:
     caf::PdmField<bool>                             m_addWellNameToCurveName;
     caf::PdmField<bool>                             m_addTimestepToCurveName;
     caf::PdmField<bool>                             m_addDateToCurveName;
+
+    cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
 };
 

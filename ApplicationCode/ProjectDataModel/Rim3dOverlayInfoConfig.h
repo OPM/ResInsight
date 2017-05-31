@@ -65,6 +65,9 @@ public:
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*                objectToggleField();
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 private:
 
     void updateEclipse3DInfo(RimEclipseView * reservoirView);

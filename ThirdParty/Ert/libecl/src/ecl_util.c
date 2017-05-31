@@ -30,20 +30,7 @@
 #include <ert/util/parser.h>
 
 #include <ert/ecl/ecl_util.h>
-
-
-/*****************************************************************/
-/* The string names for the different ECLIPSE low-level
-   types.
-*/
-
-
-#define ECL_TYPE_NAME_CHAR     "CHAR"
-#define ECL_TYPE_NAME_FLOAT    "REAL"
-#define ECL_TYPE_NAME_INT      "INTE"
-#define ECL_TYPE_NAME_DOUBLE   "DOUB"
-#define ECL_TYPE_NAME_BOOL     "LOGI"
-#define ECL_TYPE_NAME_MESSAGE  "MESS"
+#include <ert/ecl/ecl_type.h>
 
 
 #define ECL_PHASE_NAME_OIL   "SOIL"   // SHould match the keywords found in restart file
@@ -103,104 +90,6 @@ const char * ecl_util_get_phase_name( ecl_phase_enum phase ) {
     return NULL;
   }
 }
-
-
-
-
-
-const char * ecl_util_get_type_name( ecl_type_enum ecl_type ) {
-  switch (ecl_type) {
-  case(ECL_CHAR_TYPE):
-    return ECL_TYPE_NAME_CHAR ;
-    break;
-  case(ECL_FLOAT_TYPE):
-    return ECL_TYPE_NAME_FLOAT;
-    break;
-  case(ECL_DOUBLE_TYPE):
-    return ECL_TYPE_NAME_DOUBLE;
-    break;
-  case(ECL_INT_TYPE):
-    return ECL_TYPE_NAME_INT;
-    break;
-  case(ECL_BOOL_TYPE):
-    return ECL_TYPE_NAME_BOOL;
-    break;
-  case(ECL_MESS_TYPE):
-    return ECL_TYPE_NAME_MESSAGE;
-    break;
-  default:
-    util_abort("Internal error in %s - internal eclipse_type: %d not recognized - aborting \n",__func__ , ecl_type);
-  }
-  return NULL; /* Dummy */
-}
-
-
-ecl_type_enum ecl_util_get_type_from_name( const char * type_name ) {
-  ecl_type_enum ecl_type;
-
-  if (strncmp( type_name , ECL_TYPE_NAME_FLOAT , ECL_TYPE_LENGTH) == 0)
-    ecl_type = ECL_FLOAT_TYPE;
-  else if (strncmp( type_name , ECL_TYPE_NAME_INT , ECL_TYPE_LENGTH) == 0)
-    ecl_type = ECL_INT_TYPE;
-  else if (strncmp( type_name , ECL_TYPE_NAME_DOUBLE , ECL_TYPE_LENGTH) == 0)
-    ecl_type = ECL_DOUBLE_TYPE;
-  else if (strncmp( type_name , ECL_TYPE_NAME_CHAR , ECL_TYPE_LENGTH) == 0)
-    ecl_type = ECL_CHAR_TYPE;
-  else if (strncmp( type_name , ECL_TYPE_NAME_MESSAGE , ECL_TYPE_LENGTH) == 0)
-    ecl_type = ECL_MESS_TYPE;
-  else if (strncmp( type_name , ECL_TYPE_NAME_BOOL , ECL_TYPE_LENGTH) == 0)
-    ecl_type = ECL_BOOL_TYPE;
-  else {
-    util_abort("%s: unrecognized type name:%s \n",__func__ , type_name);
-    ecl_type = -1; /* Dummy */
-  }
-  return ecl_type;
-}
-
-
-int ecl_util_get_sizeof_ctype_fortio(ecl_type_enum ecl_type) {
-  int size = ecl_util_get_sizeof_ctype ( ecl_type );
-  if (ecl_type == ECL_CHAR_TYPE)
-    size = ECL_STRING_LENGTH  * sizeof(char);
-
-  return size;
-}
-
-int ecl_util_get_sizeof_ctype(ecl_type_enum ecl_type) {
-  int sizeof_ctype = -1;
-  switch (ecl_type) {
-  case(ECL_CHAR_TYPE):
-    /*
-       One element of character data is a string section of 8
-       characters + \0.  Observe that the return value here
-       corresponds to the size requirements of ECL_CHAR_TYPE instance
-       in memory; on disk the trailing \0 is not stored.
-    */
-    sizeof_ctype = (ECL_STRING_LENGTH + 1) * sizeof(char);
-    break;
-  case(ECL_FLOAT_TYPE):
-    sizeof_ctype = sizeof(float);
-    break;
-  case(ECL_DOUBLE_TYPE):
-    sizeof_ctype = sizeof(double);
-    break;
-  case(ECL_INT_TYPE):
-    sizeof_ctype = sizeof(int);
-    break;
-  case(ECL_BOOL_TYPE):
-    sizeof_ctype = sizeof(int); // The ECL_BOOL_TYPE type is internally implemented as an integer - and not a bool.
-    break;
-  case(ECL_MESS_TYPE):
-    sizeof_ctype = sizeof(char);
-    break;
-  default:
-    util_abort("Internal error in %s - internal eclipse_type: %d not recognized - aborting \n",__func__ , ecl_type);
-  }
-  return sizeof_ctype;
-}
-
-
-
 
 
 /*****************************************************************/
@@ -723,7 +612,7 @@ bool ecl_util_fmt_file(const char *filename , bool * __fmt_file) {
   int report_nr;
   ecl_file_enum file_type;
   bool status = true;
-  bool fmt_file;
+  bool fmt_file = 0;
 
   if (util_file_exists(filename)) {
     file_type = ecl_util_get_file_type(filename , &fmt_file , &report_nr);
@@ -756,17 +645,17 @@ bool ecl_util_fmt_file(const char *filename , bool * __fmt_file) {
  appropriate numerical conversion is applied.
 */
 
-void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ecl_type_enum target_type , ecl_type_enum src_type, int size) {
+void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ecl_data_type target_type , ecl_data_type src_type, int size) {
   int i;
 
-  if (target_type == src_type)
-    memcpy(_target_data , _src_data , size * ecl_util_get_sizeof_ctype(src_type));
+  if (ecl_type_is_equal(target_type, src_type))
+    memcpy(_target_data , _src_data , size * ecl_type_get_sizeof_ctype(src_type));
   else {
-    switch (target_type) {
+    switch (ecl_type_get_type(target_type)) {
     case(ECL_DOUBLE_TYPE):
       {
         double * target_data = (double *) _target_data;
-        switch(src_type) {
+        switch(ecl_type_get_type(src_type)) {
         case(ECL_FLOAT_TYPE):
           util_float_to_double(target_data , (const float *) _src_data , size);
           break;
@@ -782,7 +671,7 @@ void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ec
     case(ECL_FLOAT_TYPE):
       {
         float * target_data = (float *) _target_data;
-        switch(src_type) {
+        switch(ecl_type_get_type(src_type)) {
         case(ECL_FLOAT_TYPE):
           util_double_to_float(target_data , (const double *) _src_data , size);
           break;
@@ -796,7 +685,7 @@ void ecl_util_memcpy_typed_data(void *_target_data , const void * _src_data , ec
         break;
       }
     default:
-      util_abort("%s con not convert %d -> %d \n",__func__ , src_type , target_type);
+      util_abort("%s con not convert %s -> %s \n",__func__ , ecl_type_alloc_name(src_type) , ecl_type_alloc_name(target_type));
     }
   }
 }
@@ -1318,8 +1207,15 @@ static int ecl_util_get_num_slave_cpu__(basic_parser_type* parser, FILE* stream,
         if (first_item[0] == '/') {
           break;
         }
-        else
-          ++num_cpu;
+        else{
+                int no_of_tokens = stringlist_get_size(tokens);
+                int no_of_slaves =0;
+                if(no_of_tokens == 6 && util_sscanf_int(stringlist_iget(tokens, 4), &no_of_slaves)){
+                    num_cpu += no_of_slaves;
+                }else{
+                    ++num_cpu;
+                }
+            }
       }
       stringlist_free( tokens );
     }
@@ -1353,14 +1249,14 @@ int ecl_util_get_num_cpu(const char * data_file) {
 
 
 ert_ecl_unit_enum ecl_util_get_unit_set(const char * data_file) {
-  ert_ecl_unit_enum units = ERT_ECL_METRIC_UNITS;
+  ert_ecl_unit_enum units = ECL_METRIC_UNITS;
   basic_parser_type * parser = basic_parser_alloc(" \t\r\n" , "\"\'" , NULL , NULL , "--" , "\n");
   FILE * stream = util_fopen(data_file , "r");
 
   if (basic_parser_fseek_string( parser , stream , "FIELD" , true , true)) {  /* Seeks case insensitive. */
-    units = ERT_ECL_FIELD_UNITS;
+    units = ECL_FIELD_UNITS;
   } else if (basic_parser_fseek_string( parser , stream , "LAB" , true , true)) {  /* Seeks case insensitive. */
-    units = ERT_ECL_LAB_UNITS;
+    units = ECL_LAB_UNITS;
   }
 
   basic_parser_free( parser );

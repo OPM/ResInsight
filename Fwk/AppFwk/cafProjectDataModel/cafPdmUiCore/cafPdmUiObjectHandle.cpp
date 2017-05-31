@@ -1,12 +1,11 @@
 #include "cafPdmUiObjectHandle.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmUiTreeOrdering.h"
-
-#include <assert.h>
 
 
 namespace caf
@@ -28,7 +27,7 @@ PdmUiObjectHandle* uiObj(PdmObjectHandle* obj)
 {
     if (!obj) return NULL;
     PdmUiObjectHandle* uiObject = obj->capability<PdmUiObjectHandle>();
-    assert(uiObject);
+    CAF_ASSERT(uiObject);
     return uiObject;
 }
 
@@ -38,9 +37,12 @@ PdmUiObjectHandle* uiObj(PdmObjectHandle* obj)
 //--------------------------------------------------------------------------------------------------
 void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)
 {
-#if 1
+    // Restore state for includeRemainingFields, as this flag
+    // can be changed in defineUiOrdering()
+    bool includeRemaining_originalState = uiOrdering.isIncludingRemainingFields();
+
     this->defineUiOrdering(uiConfigName, uiOrdering);
-    if (!uiOrdering.forgetRemainingFields())
+    if (uiOrdering.isIncludingRemainingFields())
     {
         // Add the remaining Fields To UiConfig
         std::vector<PdmFieldHandle*> fields;
@@ -54,7 +56,11 @@ void PdmUiObjectHandle::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrderi
             }
         }
     }
-#endif
+
+    // Restore incoming value
+    uiOrdering.skipRemainingFields(!includeRemaining_originalState);
+
+    CAF_ASSERT(includeRemaining_originalState == uiOrdering.isIncludingRemainingFields());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +90,7 @@ void PdmUiObjectHandle::objectEditorAttribute(QString uiConfigName, PdmUiEditorA
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""*/)
 {
-    assert(this); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert instead.
+    CAF_ASSERT(this); // This method actually is possible to call on a NULL ptr without getting a crash, so we assert instead.
 
     PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering(NULL, m_owner);
 
@@ -104,7 +110,7 @@ PdmUiTreeOrdering* PdmUiObjectHandle::uiTreeOrdering(QString uiConfigName /*= ""
 void PdmUiObjectHandle::addDefaultUiTreeChildren(PdmUiTreeOrdering* uiTreeOrdering)
 {
 #if 1
-    if (!uiTreeOrdering->forgetRemainingFields())
+    if (uiTreeOrdering->isIncludingRemainingChildren())
     {
         // Add the remaining Fields To UiConfig
         std::vector<PdmFieldHandle*> fields;
@@ -231,7 +237,7 @@ void PdmUiObjectHandle::updateUiIconFromToggleField()
 PdmUiObjectHandle* PdmObjectHandle::uiCapability() const
 {
     PdmUiObjectHandle* uiField = capability<PdmUiObjectHandle>();
-    assert(uiField);
+    CAF_ASSERT(uiField);
 
     return uiField;
 }

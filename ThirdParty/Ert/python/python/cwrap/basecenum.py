@@ -14,13 +14,15 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import six
+
 import ctypes
 from .metacwrap import MetaCWrap
-from .cwrap import CWrapper
 
-
+@six.add_metaclass(MetaCWrap)
 class BaseCEnum(object):
-    __metaclass__ = MetaCWrap
     enum_namespace = {}
 
     def __init__(self, *args, **kwargs):
@@ -49,6 +51,7 @@ class BaseCEnum(object):
 
     @classmethod
     def addEnum(cls, name, value):
+        name = str(name)
         if not isinstance(value, int):
             raise ValueError("Value must be an integer!")
 
@@ -81,6 +84,12 @@ class BaseCEnum(object):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        cn = self.__class__.__name__
+        na = self.name
+        va = self.value
+        return '%s(name = "%s", value = %s)' % (cn, na, va)
 
     def __add__(self, other):
         self.__assertOtherIsSameType(other)
@@ -158,7 +167,3 @@ class BaseCEnum(object):
             else:
                 break
 
-    @classmethod
-    def registerEnum(cls, library, enum_name):
-        cwrapper = CWrapper(library)
-        cwrapper.registerType(enum_name, cls)

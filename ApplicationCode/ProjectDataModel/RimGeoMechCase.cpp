@@ -40,6 +40,8 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechPropertyFilter.h"
 
+#include "cafUtils.h"
+
 #include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimGeoMechCase, "ResInsightGeoMechCase");
@@ -50,7 +52,7 @@ RimGeoMechCase::RimGeoMechCase(void)
 {
     CAF_PDM_InitObject("Geomechanical Case", ":/GeoMechCase48x48.png", "", "");
 
-    CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case file name", "", "", "");
+    CAF_PDM_InitField(&m_caseFileName, "CaseFileName", QString(), "Case File Name", "", "", "");
     m_caseFileName.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&geoMechViews, "GeoMechViews", "",  "", "", "");
     geoMechViews.uiCapability()->setUiHidden(true);
@@ -110,7 +112,7 @@ bool RimGeoMechCase::openGeoMechCase(std::string* errorMessage)
     // If read already, return
     if (this->m_geoMechCaseData.notNull()) return true;
 
-    if (!QFile::exists(m_caseFileName()))
+    if (!caf::Utils::fileExists(m_caseFileName()))
     {
         return false;
     }

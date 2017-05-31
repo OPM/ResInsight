@@ -35,13 +35,18 @@ ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.h
+${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.h
+
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
+${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
+
+${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -72,11 +77,16 @@ ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.cpp
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.cpp
+
+${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.cpp
+
+${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

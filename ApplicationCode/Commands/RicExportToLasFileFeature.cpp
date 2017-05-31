@@ -19,9 +19,14 @@
 
 #include "RicExportToLasFileFeature.h"
 
-#include "RiaApplication.h"
 #include "RicExportToLasFileResampleUi.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+
+#include "RiaApplication.h"
+
 #include "RigLasFileExporter.h"
+#include "RigWellLogCurveData.h"
+
 #include "RimWellLogCurve.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
@@ -39,7 +44,9 @@ CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicExportToLasFileFeature::isCommandEnabled()
 {
-    return selectedWellLogCurves().size() > 0;
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+
+    return RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves().size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +54,11 @@ bool RicExportToLasFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimWellLogCurve*> curves = selectedWellLogCurves();
+    this->disableModelChangeContribution();
+
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
+
+    std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
     if (curves.size() == 0) return;
 
     RiaApplication* app = RiaApplication::instance();
@@ -101,41 +112,5 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
 void RicExportToLasFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Export To LAS Files...");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogCurve*> RicExportToLasFileFeature::selectedWellLogCurves() const
-{
-    std::set<RimWellLogCurve*> curveSet;
-
-    {
-        std::vector<caf::PdmUiItem*> selectedItems;
-        caf::SelectionManager::instance()->selectedItems(selectedItems);
-
-        for (auto selectedItem : selectedItems)
-        {
-            caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(selectedItem);
-            if (objHandle)
-            {
-                std::vector<RimWellLogCurve*> childCurves;
-                objHandle->descendantsIncludingThisOfType(childCurves);
-
-                for (auto curve : childCurves)
-                {
-                    curveSet.insert(curve);
-                }
-            }
-        }
-    }
-
-    std::vector<RimWellLogCurve*> allCurves;
-    for (auto curve : curveSet)
-    {
-        allCurves.push_back(curve);
-    }
-
-    return allCurves;
 }
 

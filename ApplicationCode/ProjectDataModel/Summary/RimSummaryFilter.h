@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "RifEclipseSummaryAddress.h"
 
 class RimSummaryFilter: public caf::PdmObject
 {
@@ -49,18 +51,22 @@ public:
     RimSummaryFilter();
     virtual ~RimSummaryFilter();
 
-    bool isIncludedByFilter(const RifEclipseSummaryAddress& addr) const;
+    void            updateFromAddress(const RifEclipseSummaryAddress& address);
+    void            setCompleteVarStringFilter(const QString& stringFilter);
 
-    void setCompleteVarStringFilter(const QString& stringFilter);
+    bool            isIncludedByFilter(const RifEclipseSummaryAddress& addr) const;
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     friend class RimSummaryCurve;
     friend class RimSummaryCurveFilter;
 
-    static bool isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
+    static bool     isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
 
+    virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
     caf::PdmField<caf::AppEnum<SummaryFilterType> >
                                             m_filterType;
     caf::PdmField<QString>                  m_completeVarStringFilter;
@@ -73,7 +79,4 @@ private:
     caf::PdmField<QString>                  m_wellSegmentNumberFilter;
     caf::PdmField<QString>                  m_lgrNameFilter;
     caf::PdmField<QString>                  m_cellIJKFilter;
-
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
 };

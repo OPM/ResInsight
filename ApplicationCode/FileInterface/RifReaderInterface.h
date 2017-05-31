@@ -22,7 +22,6 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
-#include "cvfLibCore.h"
 
 #include "cafPdmPointer.h"
 
@@ -30,8 +29,10 @@
 #include <QStringList>
 #include <QDateTime>
 
+#include <vector>
 
-class RigCaseData;
+
+class RigEclipseCaseData;
 class RifReaderSettings;
 
 
@@ -58,8 +59,9 @@ public:
     bool                        isFaultImportEnabled();
     bool                        isImportOfCompleteMswDataEnabled();
     bool                        isNNCsEnabled();
+    const QString               faultIncludeFileAbsolutePathPrefix();
 
-    virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
+    virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;

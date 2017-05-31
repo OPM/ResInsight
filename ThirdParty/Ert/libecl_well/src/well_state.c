@@ -37,6 +37,8 @@
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_units.h>
+#include <ert/ecl/ecl_util.h>
 
 #include <ert/ecl_well/well_const.h>
 #include <ert/ecl_well/well_conn.h>
@@ -169,6 +171,11 @@ struct well_state_struct {
   bool             open;
   well_type_enum   type;
   bool             is_MSW_well;
+  double           oil_rate;
+  double           gas_rate;
+  double           water_rate;
+  double           volume_rate;
+  ert_ecl_unit_enum unit_system;
 
   hash_type      * connections;                                                       // hash<grid_name,well_conn_collection>
   well_segment_collection_type * segments;
@@ -201,15 +208,83 @@ well_state_type * well_state_alloc(const char * well_name , int global_well_nr ,
   well_state->segments = well_segment_collection_alloc();
   well_state->branches = well_branch_collection_alloc();
   well_state->is_MSW_well = false;
+  well_state->oil_rate = 0;
+  well_state->gas_rate = 0;
+  well_state->water_rate = 0;
+  well_state->volume_rate = 0;
+  well_state->unit_system = ECL_METRIC_UNITS;
 
   /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
-  if ((type == ERT_UNDOCUMENTED_ZERO) && open)
+  if ((type == ECL_WELL_ZERO) && open)
     util_abort("%s: Invalid type value for open wells.\n",__func__ );
   return well_state;
 }
 
 
 
+
+double well_state_get_oil_rate( const well_state_type * well_state ) {
+  return well_state->oil_rate;
+}
+
+
+double well_state_get_gas_rate( const well_state_type * well_state ) {
+  return well_state->gas_rate;
+}
+
+
+double well_state_get_water_rate( const well_state_type * well_state) {
+  return well_state->water_rate;
+}
+
+double well_state_get_volume_rate( const well_state_type * well_state) {
+  return well_state->volume_rate;
+}
+
+double well_state_get_oil_rate_si( const well_state_type * well_state ) {
+  double conversion_factor = 1;
+
+  if (well_state->unit_system == ECL_METRIC_UNITS)
+    conversion_factor = 1.0 / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_FIELD_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_BARREL / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_LAB_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_MILLI_LITER / ECL_UNITS_TIME_HOUR;
+
+  return well_state->oil_rate * conversion_factor;
+}
+
+
+double well_state_get_gas_rate_si( const well_state_type * well_state ) {
+  double conversion_factor = 1;
+
+  if (well_state->unit_system == ECL_METRIC_UNITS)
+    conversion_factor = 1.0 / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_FIELD_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_GAS_FIELD / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_LAB_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_MILLI_LITER / ECL_UNITS_TIME_HOUR;
+
+  return well_state->gas_rate * conversion_factor;
+}
+
+
+double well_state_get_water_rate_si( const well_state_type * well_state) {
+  double conversion_factor = 1;
+
+  if (well_state->unit_system == ECL_METRIC_UNITS)
+    conversion_factor = 1.0 / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_FIELD_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_BARREL / ECL_UNITS_TIME_DAY;
+  else if (well_state->unit_system == ECL_LAB_UNITS)
+    conversion_factor = ECL_UNITS_VOLUME_MILLI_LITER / ECL_UNITS_TIME_HOUR;
+
+  return well_state->water_rate * conversion_factor;
+}
+
+double well_state_get_volume_rate_si( const well_state_type * well_state) {
+  return well_state->volume_rate;
+}
 
 
 void well_state_add_wellhead( well_state_type * well_state , const ecl_rsthead_type * header , const ecl_kw_type * iwel_kw , int well_nr , const char * grid_name , int grid_nr) {
@@ -220,6 +295,27 @@ void well_state_add_wellhead( well_state_type * well_state , const ecl_rsthead_t
     hash_insert_ref( well_state->name_wellhead , grid_name , wellhead );
   }
 
+}
+
+static bool well_state_add_rates( well_state_type * well_state ,
+                                  ecl_file_view_type * rst_view ,
+                                  int well_nr) {
+
+  bool has_xwel_kw = ecl_file_view_has_kw(rst_view, XWEL_KW);
+  if (has_xwel_kw) {
+    const ecl_kw_type *xwel_kw = ecl_file_view_iget_named_kw(rst_view, XWEL_KW, 0);
+    ecl_rsthead_type *header = ecl_rsthead_alloc(rst_view, -1);
+    int offset = header->nxwelz * well_nr;
+
+    well_state->unit_system = header->unit_system;
+    well_state->oil_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RES_ORAT_ITEM);
+    well_state->gas_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RES_GRAT_ITEM);
+    well_state->water_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RES_WRAT_ITEM);
+    well_state->volume_rate = ecl_kw_iget_double(xwel_kw, offset + XWEL_RESV_ITEM);
+
+    ecl_rsthead_free(header);
+  }
+  return has_xwel_kw;
 }
 
 
@@ -271,24 +367,24 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
 
 
 well_type_enum well_state_translate_ecl_type_int(int int_type) {
-  well_type_enum type = ERT_UNDOCUMENTED_ZERO;
+  well_type_enum type = ECL_WELL_ZERO;
 
   switch (int_type) {
     /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
   case(IWEL_UNDOCUMENTED_ZERO):
-    type = ERT_UNDOCUMENTED_ZERO;
+    type = ECL_WELL_ZERO;
     break;
   case(IWEL_PRODUCER):
-    type = ERT_PRODUCER;
+    type = ECL_WELL_PRODUCER;
     break;
   case(IWEL_OIL_INJECTOR):
-    type = ERT_OIL_INJECTOR;
+    type = ECL_WELL_OIL_INJECTOR;
     break;
   case(IWEL_GAS_INJECTOR):
-    type = ERT_GAS_INJECTOR;
+    type = ECL_WELL_GAS_INJECTOR;
     break;
   case(IWEL_WATER_INJECTOR):
-    type = ERT_WATER_INJECTOR;
+    type = ECL_WELL_WATER_INJECTOR;
     break;
   default:
     util_abort("%s: Invalid type value %d\n",__func__ , int_type);
@@ -321,11 +417,16 @@ static void well_state_add_connections__( well_state_type * well_state ,
 
   {
     ecl_kw_type * scon_kw = NULL;
-    well_conn_collection_type * wellcc = hash_get( well_state->connections , grid_name );
     if (ecl_file_view_has_kw( rst_view , SCON_KW))
       scon_kw = ecl_file_view_iget_named_kw( rst_view , SCON_KW , 0);
 
-    well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw , well_nr , header );
+    ecl_kw_type * xcon_kw = NULL;
+    if (ecl_file_view_has_kw( rst_view , XCON_KW)) {
+      xcon_kw = ecl_file_view_iget_named_kw(rst_view, XCON_KW, 0);
+    }
+
+    well_conn_collection_type * wellcc = hash_get( well_state->connections , grid_name );
+    well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw, xcon_kw , well_nr , header );
   }
   ecl_rsthead_free( header );
 }
@@ -373,6 +474,7 @@ void well_state_add_connections2( well_state_type * well_state ,
   well_state_add_LGR_connections( well_state , grid , rst_view , well_nr );
 
 }
+
 
 
 bool well_state_add_MSW( well_state_type * well_state ,
@@ -462,7 +564,7 @@ well_state_type * well_state_alloc_from_file2( ecl_file_view_type * file_view , 
     {
       char * name;
       bool open;
-      well_type_enum type = ERT_UNDOCUMENTED_ZERO;
+      well_type_enum type = ECL_WELL_ZERO;
       {
         int int_state = ecl_kw_iget_int( global_iwel_kw , iwel_offset + IWEL_STATUS_INDEX );
         if (int_state > 0)
@@ -488,7 +590,7 @@ well_state_type * well_state_alloc_from_file2( ecl_file_view_type * file_view , 
       if (ecl_file_view_has_kw( file_view , ISEG_KW))
         well_state_add_MSW2( well_state , file_view , global_well_nr , load_segment_information);
 
-
+      well_state_add_rates(well_state, file_view, global_well_nr);
     }
     ecl_rsthead_free( global_header );
     return well_state;
@@ -535,6 +637,13 @@ const well_conn_type * well_state_iget_wellhead( const well_state_type * well_st
 const well_conn_type * well_state_get_wellhead( const well_state_type * well_state , const char * grid_name) {
   if (hash_has_key( well_state->name_wellhead , grid_name))
     return hash_get( well_state->name_wellhead , grid_name );
+  else
+    return NULL;
+}
+
+const well_conn_type * well_state_get_global_wellhead( const well_state_type * well_state ) {
+  if (hash_has_key( well_state->name_wellhead , ECL_GRID_GLOBAL_GRID))
+    return hash_get( well_state->name_wellhead , ECL_GRID_GLOBAL_GRID );
   else
     return NULL;
 }

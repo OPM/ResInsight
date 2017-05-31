@@ -31,7 +31,7 @@ RimExportInputSettings::RimExportInputSettings()
 
     CAF_PDM_InitFieldNoDefault(&fileName, "Filename", "Export filename", "", "", "");
     fileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-    CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "Eclipse Keyword", "Keyword", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&eclipseKeyword, "Keyword", "Eclipse Keyword", "", "", "");
 
 }
 
@@ -42,7 +42,7 @@ void RimExportInputSettings::defineEditorAttribute(const caf::PdmFieldHandle* fi
 {
     if (field == &fileName)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_selectSaveFileName = true;

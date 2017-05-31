@@ -1,4 +1,0 @@
-STDOUT perlin.stdout
-STDERR perlin.stderr
-
-EXECUTABLE perlin.py

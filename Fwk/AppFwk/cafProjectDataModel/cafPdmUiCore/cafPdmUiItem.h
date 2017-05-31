@@ -90,6 +90,8 @@ public:
         :  value(aValue), optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
     {}
 
+    PdmOptionItemInfo(QString  anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
+
     QString  optionUiText;
     bool     isDimmed;
     QIcon    icon;
@@ -135,7 +137,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
             for (int i = 0; i < valuesSelectedInField.size(); ++i)
             {
                 std::list<std::pair<QVariant, unsigned int> >::iterator it;
-                for (it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); it++)
+                for (it = optionVariantAndIndexPairs.begin(); it != optionVariantAndIndexPairs.end(); ++it)
                 {
                     if (PdmUiFieldSpecialization<T>::isDataElementEqual(valuesSelectedInField[i], it->first))
                     {
@@ -180,10 +182,9 @@ public:
     PdmUiItem() : m_staticItemInfo(NULL)                                                   { }
     virtual ~PdmUiItem();
 
-    // Copy and assignment to avoid hampering our internal pointer.
-    PdmUiItem(const PdmUiItem& ) : m_staticItemInfo(NULL)                                  { }
-    PdmUiItem&       operator=(const PdmUiItem& )                                          { return *this; }
-    
+    PdmUiItem(const PdmUiItem&) = delete;
+    PdmUiItem&       operator=(const PdmUiItem&) = delete;
+
     const QString    uiName(QString uiConfigName = "")      const;
     void             setUiName(const QString& uiName, QString uiConfigName = "")           { m_configItemInfos[uiConfigName].m_uiName = uiName; } 
 
@@ -219,7 +220,7 @@ public:
 
     void             updateConnectedEditors();
 
-    void             updateUiIconFromState(bool active);
+    void             updateUiIconFromState(bool isActive,  QString uiConfigName = "");
 
 public: // Pdm-Private only
     //==================================================================================================

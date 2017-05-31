@@ -158,6 +158,26 @@ void RicCloseCaseFeature::deleteEclipseCase(RimEclipseCase* eclipseCase)
         }
         else
         {
+            RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
+            if (caseGroup)
+            {
+                // When deleting the last source case for statistics, remove any views on statistics cases.
+                // This is done because the views do not work well
+                if (caseGroup->caseCollection()->reservoirs.size() == 1)
+                {
+                    std::vector<caf::PdmObjectHandle*> children;
+                    caseGroup->statisticsCaseCollection()->reservoirs.childObjects(&children);
+
+                    for (size_t i = children.size(); i-- > 0;)
+                    {
+                        caf::PdmObjectHandle* obj = children[i];
+                        delete obj;
+                        caseGroup->statisticsCaseCollection()->reservoirs.erase(i);
+                    }
+
+                    caseGroup->statisticsCaseCollection()->uiCapability()->updateConnectedEditors();
+                }
+            }
             removeCaseFromAllGroups(eclipseCase);
         }
     }

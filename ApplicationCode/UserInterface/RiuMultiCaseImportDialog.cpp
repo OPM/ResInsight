@@ -27,7 +27,7 @@
 class FileListModel: public QStringListModel
 {
 public:
-    FileListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) 
+    explicit FileListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) 
     {
     }
 
@@ -76,7 +76,7 @@ private:
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuMultiCaseImportDialog::RiuMultiCaseImportDialog(QWidget *parent /*= 0*/)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     ui = new Ui::RiuMultiCaseImportDialog;
     ui->setupUi(this);

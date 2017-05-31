@@ -30,7 +30,7 @@ class RimEclipsePropertyFilterCollection;
 class RicEclipsePropertyFilterNewExec : public caf::CmdExecuteCommand
 {
 public:
-    RicEclipsePropertyFilterNewExec(RimEclipsePropertyFilterCollection* propertyFilterCollection);
+    explicit RicEclipsePropertyFilterNewExec(RimEclipsePropertyFilterCollection* propertyFilterCollection);
     virtual ~RicEclipsePropertyFilterNewExec();
 
     virtual QString name();

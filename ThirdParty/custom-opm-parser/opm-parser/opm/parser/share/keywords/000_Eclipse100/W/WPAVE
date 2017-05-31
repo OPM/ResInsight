@@ -1,6 +1,0 @@
-{"name" : "WPAVE" , "sections" : ["SCHEDULE"], "size" : 1 , "items" : [
-        {"name" : "WEIGTH_FACTOR1" , "value_type" : "DOUBLE" , "default" : 0.5},
-        {"name" : "WEIGTH_FACTOR2" , "value_type" : "DOUBLE" , "default" : 1.0},
-        {"name" : "DEPTH_CORRECTION" , "value_type" : "STRING" , "default" : "WELL"},
-        {"name" : "CONNECTION" , "value_type" : "STRING" , "default" : "OPEN"}
-]}

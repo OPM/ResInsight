@@ -19,13 +19,15 @@
 
 #include "RivSingleCellPartGenerator.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigGeoMechCaseData.h"
+#include "RigGridBase.h"
 
 #include "RimGeoMechCase.h"
 
 #include "RivFemPartGeometryGenerator.h"
+#include "RivPartPriority.h"
 
 #include "cafEffectGenerator.h"
 #include "cvfPart.h"
@@ -36,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigCaseData* rigCaseData, size_t gridIndex, size_t cellIndex)
+RivSingleCellPartGenerator::RivSingleCellPartGenerator(RigEclipseCaseData* rigCaseData, size_t gridIndex, size_t cellIndex)
     : m_rigCaseData(rigCaseData),
     m_gridIndex(gridIndex),
     m_cellIndex(cellIndex),
@@ -74,7 +76,7 @@ cvf::ref<cvf::Part> RivSingleCellPartGenerator::createPart(const cvf::Color3f co
 
     part->setEffect(eff.p());
 
-    part->setPriority(10000);
+    part->setPriority(RivPartPriority::PartType::Highlight);
 
     return part;
 }

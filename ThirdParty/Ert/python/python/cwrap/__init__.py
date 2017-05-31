@@ -18,21 +18,10 @@
 The cwrap package contains several small utility modules to simplify
 the process of interacting with a C library:
 
-  cenum: This module contains a function 'create_enum()' which can
-     internalize enum symbols with the corresponding values in the
-     calling scope. The enum symbols are not part of the shared
-     library as such, and the working of create_enum() requires a
-     special function for 'enum-introspection' to be available in the
-     shared library.
-
   clib: This module contains the function load() which will load a
      shared library using the ctypes.CDLL(); the function has
      facilities for trying several different names when loading the
      library.
-
-  cwrap: This module contains support for a Python <-> C type map. The
-     whole type mapping in the ert python bindings is based on this
-     module.
 
   cfile: This module implemenets the class CFILE which can be used to
      extract the underlying FILE pointer from a Python filehandle, to
@@ -53,18 +42,11 @@ from .basecclass import BaseCClass
 from .basecenum import BaseCEnum
 from .basecvalue import BaseCValue
 
-from .cclass import CClass
-from .cenum import create_enum
 from .cfile import CFILE
 from .clib import load, lib_name
-
-from .cnamespace import CNamespace
-
-from .cwrap import CWrapper, CWrapperNameSpace, CWrapError
 
 from .metacwrap import MetaCWrap
 from .prototype import REGISTERED_TYPES, Prototype, PrototypeError
 
-__all__ = ['BaseCClass', 'BaseCEnum', 'BaseCValue', 'CClass', 'CFILE',
-           'CNamespace', 'CWrapper', 'CWrapperNameSpace', 'CWrapError',
+__all__ = ['BaseCClass', 'BaseCEnum', 'BaseCValue', 'CFILE',
            'MetaCWrap', 'Prototype', 'load', 'lib_name']

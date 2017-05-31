@@ -1,10 +1,11 @@
 #pragma once
 
+#include "cafPdmPtrArrayFieldHandle.h"
+
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPointer.h"
-#include <assert.h>
 
-#include "cafPdmPtrArrayFieldHandle.h"
 
 namespace caf
 {
@@ -39,7 +40,7 @@ class PdmChildArrayField : public PdmFieldHandle
 public:
     PdmChildArrayField()
     {
-        bool doNotUsePdmPointersFieldForAnythingButPointersToPdmObject = false; assert(doNotUsePdmPointersFieldForAnythingButPointersToPdmObject);
+        bool doNotUsePdmPointersFieldForAnythingButPointersToPdmObject = false; CAF_ASSERT(doNotUsePdmPointersFieldForAnythingButPointersToPdmObject);
     }
 };
 

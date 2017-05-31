@@ -20,24 +20,27 @@
 
 #include "RifReaderEclipseOutput.h"
 
-#include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
-
+#include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifReaderOpmParserInput.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 #include "cafProgressInfo.h"
 
-#include "ert/ecl/ecl_nnc_export.h"
-#include "ert/ecl/ecl_kw_magic.h"
+#include "cvfTrace.h"
 
+#include "ert/ecl/ecl_kw_magic.h"
+#include "ert/ecl/ecl_nnc_export.h"
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
 #include <map>
-#include <cmath> // Needed for HUGE_VAL on Linux
-#include "RifEclipseInputFileTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +233,7 @@ void RifReaderEclipseOutput::close()
 //--------------------------------------------------------------------------------------------------
 /// Read geometry from file given by name into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigCaseData* eclipseCase)
+bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -348,7 +351,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseCase)
+bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
     caf::ProgressInfo progInfo(100, "");
@@ -387,7 +390,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     {
         cvf::Collection<RigFault> faults;
 
-        //importFaultsOpmParser(fileSet, &faults);
         importFaults(fileSet, &faults);
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
@@ -437,20 +439,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const
-{
-    foreach(QString fname, fileSet)
-    {
-        if (fname.endsWith(".DATA"))
-        {
-            RifReaderOpmParserInput::readFaults(fname, faults);
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults)
 {
     if (this->filenamesWithFaults().size() > 0)
@@ -469,7 +457,7 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
             if (fname.endsWith(".DATA"))
             {
                 std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults);
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, &filenamesWithFaults, faultIncludeFileAbsolutePathPrefix());
 
                 std::sort(filenamesWithFaults.begin(), filenamesWithFaults.end());
                 std::vector<QString>::iterator last = std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
@@ -522,7 +510,7 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase)
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -668,9 +656,9 @@ void RifReaderEclipseOutput::buildMetaData()
 
         progInfo.incrementProgress();
 
-
         // Get time steps 
-        m_timeSteps = m_dynamicResultsAccess->timeSteps();
+        m_dynamicResultsAccess->timeSteps(&m_timeSteps, &m_daysSinceSimulationStart);
+        std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
 
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
@@ -685,7 +673,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps);
+                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
             }
         }
 
@@ -698,21 +686,21 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
+                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
             }
         }
 
         // Default units type is METRIC
-        RigCaseData::UnitsType unitsType = RigCaseData::UNITS_METRIC;
+        RigEclipseCaseData::UnitsType unitsType = RigEclipseCaseData::UNITS_METRIC;
         {
             int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
             if (unitsTypeValue == 2)
             {
-                unitsType = RigCaseData::UNITS_FIELD;
+                unitsType = RigEclipseCaseData::UNITS_FIELD;
             }
             else if (unitsTypeValue == 3)
             {
-                unitsType = RigCaseData::UNITS_LAB;
+                unitsType = RigEclipseCaseData::UNITS_LAB;
             }
         }
 
@@ -734,25 +722,44 @@ void RifReaderEclipseOutput::buildMetaData()
 
         RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
+        std::vector<QDateTime> staticDate;
+        std::vector<double> staticDay;
+        std::vector<int> staticReportNumber;
+        {
+            if ( m_timeSteps.size() > 0 )
+            {
+                staticDate.push_back(m_timeSteps.front());
+            }
+            if (m_daysSinceSimulationStart.size() > 0)
+            {
+                staticDay.push_back(m_daysSinceSimulationStart.front());
+            }
+
+            std::vector<int> reportNumbers;
+            if (m_dynamicResultsAccess.notNull())
+            {
+                reportNumbers = m_dynamicResultsAccess->reportNumbers();
+            }
+
+            if ( reportNumbers.size() > 0 )
+            {
+                staticReportNumber.push_back(reportNumbers.front());
+            }
+        }
+
         {
             QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
                                                                             RifReaderInterface::MATRIX_RESULTS, 1);
-
-            std::vector<QDateTime> staticDate;
-            if (m_timeSteps.size() > 0)
-            {
-                staticDate.push_back(m_timeSteps.front());
-            }
-
+          
             // Add ACTNUM
             matrixResultNames += "ACTNUM";
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, staticDate);
+                matrixModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
             }
         }
 
@@ -761,20 +768,13 @@ void RifReaderEclipseOutput::buildMetaData()
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
                                                                             RifReaderInterface::FRACTURE_RESULTS, 1);
-
-            std::vector<QDateTime> staticDate;
-            if (m_timeSteps.size() > 0)
-            {
-                staticDate.push_back(m_timeSteps.front());
-            }
-
             // Add ACTNUM
             fractureResultNames += "ACTNUM";
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, staticDate);
+                fractureModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
             }
         }
     }
@@ -912,6 +912,10 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     int cellJ = well_conn_get_j( ert_connection );
     int cellK = well_conn_get_k( ert_connection );
     bool isCellOpen = well_conn_open( ert_connection );
+    double volumeRate = well_conn_get_volume_rate( ert_connection);
+    double oilRate   = well_conn_get_oil_rate(ert_connection) ;
+    double gasRate   = well_conn_get_gas_rate(ert_connection);
+    double waterRate = well_conn_get_water_rate(ert_connection);
 
     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
     // Adjust K so index is always in valid grid region
@@ -951,8 +955,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     // Introduced based on discussion with Håkon Høgstøl 08.09.2016
     if (cellK >= static_cast<int>(grid->cellCountK()))
     {
-        int maxCellKIndex = static_cast<int>(grid->cellCountK() - 1);
-        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ") for well : " + cvf::String(wellName));
+        int maxCellK = static_cast<int>(grid->cellCountK());
+        cvf::Trace::show("Well Connection for grid " + cvf::String(grid->gridName()) + "\n - Ignored connection with invalid K value (K=" + cvf::String(cellK) + ", max K = " + cvf::String(maxCellK) + ") for well : " + cvf::String(wellName));
     }
     else
     {
@@ -963,6 +967,28 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
 
         resultPoint.m_ertBranchId = ertBranchId;
         resultPoint.m_ertSegmentId = ertSegmentId;
+        resultPoint.m_flowRate = volumeRate; 
+        resultPoint.m_oilRate   =   oilRate;
+        resultPoint.m_waterRate = waterRate;
+
+        /// Unit conversion for use with Well Allocation plots
+        // Convert Gas to oil equivalents
+        // If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel) 
+
+        // Unused Gas to Barrel conversion 
+        // we convert gas to stb as well. Based on 
+        // 1 [stb] = 0.15898729492800007 [m^3]
+        // 1 [ft]  = 0.3048 [m]
+        // megaFt3ToStbFactor = 1.0 / (1.0e-6 * 0.15898729492800007 * ( 1.0 / 0.3048 )^3 )
+        // double megaFt3ToStbFactor = 178107.60668;
+        
+        double fieldGasToOilEquivalent  = 1.0e6/5800; // Mega ft^3 to BOE
+        double metricGasToOilEquivalent = 1.0/1.0e3; // Sm^3 Gas to Sm^3 oe  
+
+        if (m_eclipseCase->unitsType() == RigEclipseCaseData::UNITS_FIELD)  gasRate = fieldGasToOilEquivalent * gasRate; 
+        if (m_eclipseCase->unitsType() == RigEclipseCaseData::UNITS_METRIC) gasRate = metricGasToOilEquivalent * gasRate; 
+
+        resultPoint.m_gasRate   =   gasRate;
     }
 
     return resultPoint;
@@ -1014,14 +1040,13 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution>&
 
     double denominator = 0.0;
     cvf::Vec3d interpolatedValue = cvf::Vec3d::ZERO;
-    double distance;
 
     for (size_t i = 0; i < filteredPositions.size(); i++)
     {
 #if 0 // Pure average test
         nominators[i] = 1.0;
 #else
-        distance = filteredPositions[i].m_lengthFromConnection;
+        double distance = filteredPositions[i].m_lengthFromConnection;
 
         if (distance < 1e-6)
         {
@@ -1122,8 +1147,11 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
     m_dynamicResultsAccess->readWellData(ert_well_info, importCompleteMswData);
 
-    std::vector<QDateTime> timeSteps = m_dynamicResultsAccess->timeSteps();
+    std::vector<double> daysSinceSimulationStart;
+    std::vector<QDateTime> timeSteps;
+    m_dynamicResultsAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
     std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+
     bool sameCount = false;
     if (timeSteps.size() == reportNumbers.size())
     {

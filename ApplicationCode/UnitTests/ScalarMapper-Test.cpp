@@ -14,11 +14,8 @@ TEST(ScalarMapperTest, TestHumanReadableTickmarks)
     cvf::ref<cvf::ScalarMapperDiscreteLinear> m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
 
 
-    double adjustedMin = 0.0;
-    double adjustedMax = 0.0;
-
-    adjustedMin = 2141234;
-    adjustedMax = 2165239;
+    double adjustedMin = 2141234;
+    double adjustedMax = 2165239;
 
     size_t m_numLevels = 10;
 

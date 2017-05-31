@@ -78,6 +78,9 @@ public:
     QString                         curveName() const { return m_curveName; }
 
     void                            updateCurveVisibility();
+    void                            updateLegendVisibility();
+
+    void                            showLegend(bool show);
 
 protected:
 
@@ -86,7 +89,7 @@ protected:
     virtual void                    onLoadDataAndUpdate() = 0;
 
     void                            updateCurvePresentation();
-    void                            updateCurveAppearance();
+    virtual void                    updateCurveAppearance();
 
     void                            updateOptionSensitivity();
 
@@ -96,8 +99,9 @@ protected:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual void                    initAfterRead();
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
+    void                            appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering);
+    void                            curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering);
 
 protected:
     QPointer<QwtPlot>               m_parentQwtPlot;
@@ -106,6 +110,7 @@ protected:
     caf::PdmField<bool>             m_showCurve;
     caf::PdmField<QString>          m_curveName;
     caf::PdmField<QString>          m_customCurveName;
+    caf::PdmField<bool>             m_showLegend;
 
     caf::PdmField<bool>             m_isUsingAutoName;
     caf::PdmField<cvf::Color3f>     m_curveColor;

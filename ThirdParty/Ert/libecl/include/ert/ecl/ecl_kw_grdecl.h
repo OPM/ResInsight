@@ -32,17 +32,17 @@ extern "C" {
   
   bool            ecl_kw_grdecl_fseek_kw(const char *  , bool  , FILE * );
   
-  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic__( FILE * stream , const char * kw , bool strict , ecl_type_enum ecl_type);
-  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic( FILE * stream , const char * kw , ecl_type_enum ecl_type);
+  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic__( FILE * stream , const char * kw , bool strict , ecl_data_type );
+  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic( FILE * stream , const char * kw , ecl_data_type);
   
-  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_data__(FILE * stream , bool strict , int size, ecl_type_enum ecl_type );
-  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_data(  FILE * stream , int size , ecl_type_enum ecl_type);
+  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_data__(FILE * stream , bool strict , int size, ecl_data_type data_type );
+  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_data(  FILE * stream , int size , ecl_data_type data_type);
   
-  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl__(FILE * stream, const char * kw , bool strict , int size, ecl_type_enum ecl_type);
-  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl(FILE * stream , const char * kw, int size, ecl_type_enum ecl_type);
+  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl__(FILE * stream, const char * kw , bool strict , int size, ecl_data_type data_type);
+  ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl(FILE * stream , const char * kw, int size, ecl_data_type data_type);
 
-  ecl_kw_type  * ecl_kw_fscanf_alloc_current_grdecl__( FILE * stream , bool strict , ecl_type_enum ecl_type);
-  ecl_kw_type  * ecl_kw_fscanf_alloc_current_grdecl( FILE * stream , ecl_type_enum ecl_type);
+  ecl_kw_type  * ecl_kw_fscanf_alloc_current_grdecl__( FILE * stream , bool strict , ecl_data_type data_type);
+  ecl_kw_type  * ecl_kw_fscanf_alloc_current_grdecl( FILE * stream , ecl_data_type data_type);
   
   bool           ecl_kw_grdecl_fseek_next_kw( FILE * stream );
   char         * ecl_kw_grdecl_alloc_next_header( FILE * stream );

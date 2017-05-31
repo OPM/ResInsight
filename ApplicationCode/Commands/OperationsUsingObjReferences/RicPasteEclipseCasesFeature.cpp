@@ -28,6 +28,7 @@
 #include "RimCaseCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimOilField.h"
@@ -116,7 +117,8 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
         RimEclipseResultCase* eclCase = dynamic_cast<RimEclipseResultCase*>(objectGroup.objects[i]);
         if (eclCase)
         {
-            RimEclipseResultCase* eclCaseCopy = dynamic_cast<RimEclipseResultCase*>(eclCase->copyByXmlSerialization(PdmDefaultObjectFactory::instance()));
+            RimEclipseResultCase* eclCaseCopy = new RimEclipseResultCase();
+            eclCaseCopy->setCaseInfo(eclCase->caseUserDescription(), eclCase->gridFileName());
             resultCases.push_back(eclCaseCopy);
         }
     }
@@ -178,7 +180,7 @@ void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup(PdmObjectGroup& object
                 continue;
             }
 
-            if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->eclipseCaseData()))
             {
                 CVF_ASSERT(false);
             }

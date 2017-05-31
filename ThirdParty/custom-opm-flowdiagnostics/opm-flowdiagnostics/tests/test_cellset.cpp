@@ -56,6 +56,12 @@ BOOST_AUTO_TEST_CASE (Construct)
 
         BOOST_CHECK_EQUAL(i.to_string(), name);
     }
+    {
+        const auto i1 = CellSetID("I-1");
+        const auto i2 = CellSetID("I-2");
+        BOOST_CHECK_EQUAL(i1 < i2, true);
+        BOOST_CHECK_EQUAL(i1 < i2, i1.to_string() < i2.to_string());
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -66,18 +72,9 @@ BOOST_AUTO_TEST_SUITE(CellSetTest)
 BOOST_AUTO_TEST_CASE (Constructor)
 {
     {
-        auto s = CellSet{};
-
-        BOOST_CHECK_EQUAL(s.id().to_string(), "");
-    }
-
-    {
         const auto name = std::string("Test-Ctor");
 
-        auto s = CellSet{};
-        {
-            s.identify(CellSetID(name));
-        }
+        auto s = CellSet{CellSetID(name)};
 
         BOOST_CHECK_EQUAL(s.id().to_string(), name);
     }
@@ -85,27 +82,43 @@ BOOST_AUTO_TEST_CASE (Constructor)
 
 BOOST_AUTO_TEST_CASE (AssignCells)
 {
-    auto s = CellSet{};
-
     const auto cells = std::vector<int>
         { 0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000 };
 
-    for (const auto& cell : cells) {
-        s.insert(cell);
-    }
-
-    auto out = std::vector<int>(s.begin(), s.end());
     {
-        std::sort(out.begin(), out.end());
+        // Using insert() to populate.
+        auto s = CellSet{CellSetID("TestSet")};
+        for (const auto& cell : cells) {
+            s.insert(cell);
+        }
+
+        auto out = std::vector<int>(s.begin(), s.end());
+        {
+            std::sort(out.begin(), out.end());
+        }
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(out  .begin(), out  .end(),
+                                      cells.begin(), cells.end());
     }
 
-    BOOST_CHECK_EQUAL_COLLECTIONS(out  .begin(), out  .end(),
-                                  cells.begin(), cells.end());
+    {
+        // Using direct constructor to populate.
+        auto s = CellSet{CellSetID("TestSet"), cells};
+
+        auto out = std::vector<int>(s.begin(), s.end());
+        {
+            std::sort(out.begin(), out.end());
+        }
+
+        BOOST_CHECK_EQUAL_COLLECTIONS(out  .begin(), out  .end(),
+                                      cells.begin(), cells.end());
+    }
 }
+
 
 BOOST_AUTO_TEST_CASE (Duplicates)
 {
-    auto s = CellSet{};
+    auto s = CellSet{CellSetID("TestSet")};
 
     const auto cells = std::vector<int>
         { 0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000 };
@@ -124,5 +137,26 @@ BOOST_AUTO_TEST_CASE (Duplicates)
     BOOST_CHECK_EQUAL_COLLECTIONS(out  .begin(), out  .end(),
                                   cells.begin(), cells.end());
 }
+
+
+BOOST_AUTO_TEST_CASE (DuplicatesDirectConstruction)
+{
+    const auto cells = std::vector<int>
+        { 0, 100, 100, 100, 2, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000 };
+
+    const auto expected = std::vector<int>
+        { 0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000 };
+
+    auto s = CellSet{CellSetID("TestSet"), cells};
+
+    auto out = std::vector<int>(s.begin(), s.end());
+    {
+        std::sort(out.begin(), out.end());
+    }
+
+    BOOST_CHECK_EQUAL_COLLECTIONS(out     .begin(), out     .end(),
+                                  expected.begin(), expected.end());
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

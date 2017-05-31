@@ -174,20 +174,20 @@ static bool ecl_sum_fread_data( ecl_sum_type * ecl_sum , const stringlist_type *
   ecl_sum->data = ecl_sum_data_alloc( ecl_sum->smspec );
   if (ecl_sum_data_fread( ecl_sum->data , data_files )) {
     if (include_restart) {
-      const char * path                     = ecl_sum->path;
-      const stringlist_type * restart_cases = ecl_smspec_get_restart_list( ecl_sum->smspec );
-      stringlist_type       * restart_files = stringlist_alloc_new();
 
-      int restart_nr;
-      for (restart_nr = 0; restart_nr < stringlist_get_size( restart_cases ); restart_nr++) {
-        ecl_util_alloc_summary_data_files(path , stringlist_iget( restart_cases , restart_nr ) , ecl_sum->fmt_case , restart_files );
-        ecl_sum_data_fread_restart( ecl_sum->data , restart_files );
-      }
-      stringlist_free( restart_files );
     }
     return true;
   } else
     return false;
+}
+
+
+static void ecl_sum_fread_history( ecl_sum_type * ecl_sum ) {
+  ecl_sum_type * history = ecl_sum_fread_alloc_case__( ecl_smspec_get_restart_case( ecl_sum->smspec ) , ":" , true);
+  if (history) {
+    ecl_sum_data_add_case(ecl_sum->data , history->data );
+    ecl_sum_free( history );
+  }
 }
 
 
@@ -212,6 +212,9 @@ static bool ecl_sum_fread(ecl_sum_type * ecl_sum , const char *header_file , con
       util_abort("%s: what the fuck? \n",__func__);
   } else
     return false;
+
+  if (include_restart && ecl_smspec_get_restart_case( ecl_sum->smspec ))
+    ecl_sum_fread_history( ecl_sum );
 
   return true;
 }

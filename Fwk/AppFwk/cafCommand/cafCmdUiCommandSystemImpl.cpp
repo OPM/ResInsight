@@ -121,7 +121,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand(PdmFieldHandle* editorField, co
                 QString reference = PdmReferenceHelper::referenceFromRootToField(rootObjHandle, field);
                 if (reference.isEmpty())
                 {
-                    assert(false);
+                    CAF_ASSERT(false);
                     return;
                 }
 

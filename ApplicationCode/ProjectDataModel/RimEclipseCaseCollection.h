@@ -27,7 +27,7 @@
 
 #include "cvfObject.h"
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
 class RimEclipseCase;
@@ -59,6 +59,6 @@ public:
     void                                                recomputeStatisticsForAllCaseGroups();
 
 private:
-    RigMainGrid*                                        registerCaseInGridCollection(RigCaseData* rigEclipseCase);
+    RigMainGrid*                                        registerCaseInGridCollection(RigEclipseCaseData* rigEclipseCase);
     cvf::ref<RigGridManager>                            m_gridCollection;
 };

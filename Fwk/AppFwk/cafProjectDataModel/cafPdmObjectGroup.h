@@ -58,7 +58,7 @@ void PdmObjectGroup::createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedOb
         PdmObjectHandle* objectCopy = PdmXmlObjectHandle::readUnknownObjectFromXmlString(xml, PdmDefaultObjectFactory::instance());
 
         T* typedObject = dynamic_cast<T*>(objectCopy);
-        assert(typedObject);
+        CAF_ASSERT(typedObject);
 
         copyOfTypedObjects->push_back(typedObject);
     }

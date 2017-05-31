@@ -64,7 +64,7 @@ class PdmUiTableViewModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    PdmUiTableViewModel(QWidget* parent);
+    explicit PdmUiTableViewModel(QWidget* parent);
 
     QItemSelection          modelIndexFromPdmObject(PdmObjectHandle* pdmObject);
     PdmFieldHandle*         getField(const QModelIndex &index) const;
@@ -82,8 +82,6 @@ public:
 
     void                    selectedUiItems(std::vector<PdmUiItem*>& objects);
 
-    PdmUiFieldEditorHandle* getEditor(const QModelIndex &index);
-    QWidget*                getEditorWidgetAndTransferOwnership(QWidget* parent, const QModelIndex &index);
     void                    notifyDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
     bool                    isRepresentingBoolean(const QModelIndex &index) const;
@@ -91,6 +89,10 @@ public:
 private:
     int                     getFieldIndex(PdmFieldHandle* field) const;
     void                    recreateTableItemEditors();
+
+    friend class PdmUiTableViewDelegate;
+    QWidget*                getEditorWidgetAndTransferOwnership(QWidget* parent, const QModelIndex &index);
+    PdmUiFieldEditorHandle* getEditor(const QModelIndex &index);
 
 private:
     PdmChildArrayFieldHandle*                   m_pdmList;

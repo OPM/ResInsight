@@ -22,7 +22,6 @@
 #include "RimCellRangeFilter.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigCaseData.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 
@@ -172,7 +171,7 @@ RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    caf::PdmUiSliderEditorAttribute* myAttr = static_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
+    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
     if (!myAttr || !parentContainer())
     {
         return;
@@ -296,7 +295,7 @@ bool RimCellRangeFilter::isRangeFilterControlled()
     CVF_ASSERT(rimView);
 
     bool isRangeFilterControlled = false;
-    if (rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
+    if (rimView && rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
     {
         isRangeFilterControlled = true;
     }

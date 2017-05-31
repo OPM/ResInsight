@@ -50,6 +50,11 @@ struct  well_conn_struct {
   int                segment_id;             // -1: Ordinary well
   bool               matrix_connection;   // k >= nz => fracture (and k -= nz )
   double             connection_factor;
+  double             oil_rate;
+  double             gas_rate;
+  double             water_rate;
+  double             volume_rate;
+
 };
 
 
@@ -102,6 +107,11 @@ static well_conn_type * well_conn_alloc__( int i , int j , int k , double connec
     else
       conn->segment_id = segment_id;
 
+    conn->water_rate = 0;
+    conn->gas_rate = 0;
+    conn->oil_rate = 0;
+    conn->volume_rate = 0;
+
     return conn;
   } else {
     printf("assert-direction failed.  dir:%d  matrix_connection:%d \n",dir , matrix_connection);
@@ -141,6 +151,7 @@ well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , double co
 */
 well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
                                           const ecl_kw_type * scon_kw ,
+                                          const ecl_kw_type * xcon_kw ,
                                           const ecl_rsthead_type * header ,
                                           int well_nr ,
                                           int conn_nr ) {
@@ -211,9 +222,16 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
       connection_factor = ecl_kw_iget_as_double(scon_kw , scon_offset + SCON_CF_INDEX);
     }
 
-    {
-      int segment_id = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_INDEX ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET;
-      conn = well_conn_alloc__(i,j,k,connection_factor,dir,open,segment_id,matrix_connection);
+    int segment_id = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_INDEX ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET;
+    conn = well_conn_alloc__(i,j,k,connection_factor,dir,open,segment_id,matrix_connection);
+
+    if (xcon_kw) {
+      const int xcon_offset = header->nxconz * (header->ncwmax * well_nr + conn_nr);
+
+      conn->water_rate = ecl_kw_iget_as_double(xcon_kw, xcon_offset + XCON_WRAT_INDEX);
+      conn->gas_rate = ecl_kw_iget_as_double(xcon_kw, xcon_offset + XCON_GRAT_INDEX);
+      conn->oil_rate = ecl_kw_iget_as_double(xcon_kw, xcon_offset + XCON_ORAT_INDEX);
+      conn->volume_rate = ecl_kw_iget_double(xcon_kw, xcon_offset + XCON_QR_INDEX);
     }
 
     /**
@@ -310,3 +328,34 @@ bool well_conn_matrix_connection( const well_conn_type * conn) {
   return conn->matrix_connection;
 }
 
+double well_conn_get_oil_rate(const well_conn_type *conn) {
+  return conn->oil_rate;
+}
+
+double well_conn_get_gas_rate(const well_conn_type *conn) {
+  return conn->gas_rate;
+}
+
+double well_conn_get_water_rate(const well_conn_type *conn) {
+  return conn->water_rate;
+}
+
+double well_conn_get_volume_rate(const well_conn_type *conn) {
+  return conn->volume_rate;
+}
+
+double well_conn_get_oil_rate_si(const well_conn_type *conn) {
+  return conn->oil_rate;
+}
+
+double well_conn_get_gas_rate_si(const well_conn_type *conn) {
+  return conn->gas_rate;
+}
+
+double well_conn_get_water_rate_si(const well_conn_type *conn) {
+  return conn->water_rate;
+}
+
+double well_conn_get_volume_rate_si(const well_conn_type *conn) {
+  return conn->volume_rate;
+}

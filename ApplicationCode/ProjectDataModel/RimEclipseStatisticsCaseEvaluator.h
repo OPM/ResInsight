@@ -28,7 +28,7 @@
 
 
 class RimEclipseCase;
-class RigCaseData;
+class RigEclipseCaseData;
 class RigCaseCellResultsData;
 
 
@@ -59,7 +59,7 @@ public:
     RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases,
                                const std::vector<size_t>& timeStepIndices,
                                const RimStatisticsConfig& statisticsConfig,
-                               RigCaseData* destinationCase,
+                               RigEclipseCaseData* destinationCase,
                                RimIdenticalGridCaseGroup* identicalGridCaseGroup);
 
     struct ResSpec 
@@ -90,7 +90,7 @@ private:
 
     size_t                 m_reservoirCellCount;
     RimStatisticsConfig    m_statisticsConfig;
-    RigCaseData*           m_destinationCase;
+    RigEclipseCaseData*           m_destinationCase;
     RimIdenticalGridCaseGroup* m_identicalGridCaseGroup;
     bool                    m_useZeroAsInactiveCellValue;
 };

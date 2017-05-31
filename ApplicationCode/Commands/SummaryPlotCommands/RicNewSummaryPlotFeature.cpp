@@ -96,9 +96,9 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
-    summaryPlotColl->m_summaryPlots().push_back(plot);
+    summaryPlotColl->summaryPlots().push_back(plot);
 
-    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->m_summaryPlots.size()));
+    plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots.size()));
 
     RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
 

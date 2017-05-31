@@ -22,7 +22,6 @@
 #include "cvfAssert.h"
 #include "cvfObject.h"
 #include "cafPdmPointer.h"
-#include "cvfCollection.h"
 
 namespace cvf
 {
@@ -48,12 +47,17 @@ public:
 
 private:
     void buildWellHeadParts(size_t frameIndex);
+    void clearAllGeometry();
 
 
 private:
-    caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimEclipseWell>            m_rimWell;
+    caf::PdmPointer<RimEclipseView> m_rimReservoirView;
+    caf::PdmPointer<RimEclipseWell> m_rimWell;
     
-    cvf::ref<cvf::Transform>            m_scaleTransform; 
-    cvf::Collection< cvf::Part >        m_wellHeadParts;
+    cvf::ref<cvf::Transform>        m_scaleTransform; 
+
+    cvf::ref< cvf::Part >           m_wellHeadArrowPart;
+    cvf::ref< cvf::Part >           m_wellHeadLabelPart;
+    cvf::ref< cvf::Part >           m_wellHeadPipeSurfacePart;
+    cvf::ref< cvf::Part >           m_wellHeadPipeCenterPart;
 };

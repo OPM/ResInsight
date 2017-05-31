@@ -62,6 +62,13 @@ protected:
     {
         OverlayColorLegendLayoutInfo(const cvf::Vec2i& pos, const cvf::Vec2ui& setSize)
         {
+            charHeight = 0.0f;
+            lineSpacing = 0.0f;
+            margins = cvf::Vec2f::ZERO;
+            tickX = 0.0f;
+            x0 = 0.0f;
+            x1 = 0.0f;
+
             position = pos;
             size = setSize;
         }

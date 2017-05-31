@@ -1,6 +1,0 @@
-{"name" : "EQLOPTS", "sections" : ["RUNSPEC"], "size"  : 1, "items" : [
-        {"name" : "OPTION1" , "value_type" : "STRING"},
-        {"name" : "OPTION2" , "value_type" : "STRING"},
-        {"name" : "OPTION3" , "value_type" : "STRING"},
-        {"name" : "OPTION4" , "value_type" : "STRING"}
-     ]}

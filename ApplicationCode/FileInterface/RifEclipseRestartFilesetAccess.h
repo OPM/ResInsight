@@ -43,7 +43,7 @@ public:
 
     void                        setTimeSteps(const std::vector<QDateTime>& timeSteps);
     size_t                      timeStepCount();
-    std::vector<QDateTime>      timeSteps();
+    void                        timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart) override;
     std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
@@ -58,6 +58,7 @@ private:
 private:
     QStringList                     m_fileNames;
     std::vector<QDateTime>          m_timeSteps;
+    std::vector<double>             m_daysSinceSimulationStart;
 
     std::vector< ecl_file_type* >   m_ecl_files;
 };

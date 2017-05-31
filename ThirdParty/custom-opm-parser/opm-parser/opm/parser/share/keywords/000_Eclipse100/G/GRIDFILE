@@ -1,3 +1,0 @@
-{"name" : "GRIDFILE" , "sections" : ["GRID"], "size" : 1 , "items" : [
-        {"name" : "GRID" , "value_type" : "INT" , "default" : 0},
-        {"name" : "EGRID" , "value_type" : "INT" , "default" : 1}]}

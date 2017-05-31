@@ -43,7 +43,7 @@ class RiaPreferences;
 class RiaProjectModifier;
 class RiaSocketServer;
 
-class RigCaseData;
+class RigEclipseCaseData;
 
 class RimCommandObject;
 class RimEclipseCase;
@@ -53,7 +53,9 @@ class RimSummaryPlot;
 class RimView;
 class RimViewWindow;
 class RimWellLogPlot;
+class RimWellAllocationPlot;
 
+class RiuMainWindowBase;
 class RiuMainPlotWindow;
 class RiuRecentFileActionProvider;
 
@@ -94,11 +96,7 @@ public:
     RimView*                activeReservoirView();
     const RimView*          activeReservoirView() const;
 
-    void                    setActiveWellLogPlot(RimWellLogPlot*);
-    RimWellLogPlot*         activeWellLogPlot();
-
-    void                    setActiveSummaryPlot(RimSummaryPlot*);
-    RimSummaryPlot*         activeSummaryPlot();
+    RimViewWindow*          activePlotWindow() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
 
@@ -128,15 +126,17 @@ public:
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
+    static bool         hasValidProjectFileExtension(const QString& fileName);
+    
+    bool                askUserToSaveModifiedProject();
     void                closeProject();
+    
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
-    void                updateRegressionTest(const QString& testRootPath );
-    void                regressionTestConfigureProject();
 
     void                processNonGuiEvents();
 
@@ -181,8 +181,12 @@ public:
 
     RiuMainPlotWindow*  getOrCreateAndShowMainPlotWindow();
     RiuMainPlotWindow*  mainPlotWindow();
+    RiuMainWindowBase*  mainWindowByID(int mainWindowID);
 
     static RimViewWindow* activeViewWindow();
+
+    bool                isMain3dWindowVisible() const;
+    bool                isMainPlotWindowVisible() const;
 
     bool                tryCloseMainWindow();
     bool                tryClosePlotWindow();
@@ -209,16 +213,26 @@ private:
     void                    deleteMainPlotWindow();
     
     void                    loadAndUpdatePlotData();
+    
+    void                    storeTreeViewState();
+
+    void                    resizeMaximizedPlotWindows();
+    void                    updateRegressionTest(const QString& testRootPath);
+    void                    regressionTestConfigureProject();
+    static QSize            regressionDefaultImageSize();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
     void                slotUpdateScheduledDisplayModels();
+
+    // Friend classes required to have access to slotUpdateScheduledDisplayModels
+    // As snapshots are produced fast in sequence, the feature must have access to force redraw
+    // of scheduled redraws
+    friend class RimView;
+    friend class RicExportMultipleSnapshotsFeature;
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
-    caf::PdmPointer<RimWellLogPlot>     m_activeWellLogPlot;
-    caf::PdmPointer<RimSummaryPlot>     m_activeSummaryPlot;
 
     caf::PdmPointer<RimProject>         m_project;
 

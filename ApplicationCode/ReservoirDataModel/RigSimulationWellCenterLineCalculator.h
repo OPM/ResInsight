@@ -23,14 +23,34 @@
 #include <vector>
 
 class RimEclipseWell;
+class RigEclipseCaseData;
 
 class RigSimulationWellCenterLineCalculator
 {
 public:
-    static void calculateWellPipeCenterline(RimEclipseWell* m_rimWell, 
-                                            std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                            std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
+    static void calculateWellPipeStaticCenterline(RimEclipseWell* rimWell, 
+                                                  std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                  std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
+
+    static void calculateWellPipeDynamicCenterline(RimEclipseWell* rimWell, 
+                                                   size_t timeStepIndex,
+                                                   std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                   std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
+
+
+    static void calculateWellPipeCenterlineFromWellFrame(const RigEclipseCaseData* eclipseCaseData, 
+                                                         const RigSingleWellResultsData* wellResults,
+                                                         int timeStepIndex,
+                                                         bool isAutoDetectBranches,
+                                                         bool useAllCellCenters,
+                                                         std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, 
+                                                         std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds);
 private:
+
+    static bool hasAnyResultCells(const std::vector<RigWellResultBranch> &resBranches);
+    static bool hasAnyValidDataCells(const RigWellResultBranch& branch);
     static void finishPipeCenterLine( std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter ) ;
+
+    static void addCellCenterPoints(const RigEclipseCaseData* eclipseCaseData, std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds);
 };
 

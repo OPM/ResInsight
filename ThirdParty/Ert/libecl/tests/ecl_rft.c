@@ -42,7 +42,7 @@ void test_rft_read_write(const char * rft_file){
     nodes[2]=new_node;
     test_work_area_type * work_area = test_work_area_alloc("RFT_RW");
     
-    ecl_rft_file_update("eclipse.rft", nodes,3, ERT_ECL_METRIC_UNITS);
+    ecl_rft_file_update("eclipse.rft", nodes,3, ECL_METRIC_UNITS);
     test_work_area_free(work_area);
     free(nodes);
 }

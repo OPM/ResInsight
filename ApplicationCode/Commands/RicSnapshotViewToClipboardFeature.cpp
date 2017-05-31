@@ -19,13 +19,12 @@
 #include "RicSnapshotViewToClipboardFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
+#include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSummaryPlot.h"
 #include "RimViewWindow.h"
-#include "RimWellLogPlot.h"
 #include "RiuMainPlotWindow.h"
-#include "RiuWellLogPlot.h"
 
 #include "cafUtils.h"
 
@@ -35,6 +34,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMdiSubWindow>
+#include <QMessageBox>
 
 
 CAF_CMD_SOURCE_INIT(RicSnapshotViewToClipboardFeature, "RicSnapshotViewToClipboardFeature");
@@ -52,6 +52,8 @@ bool RicSnapshotViewToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToClipboardFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RimViewWindow* viewWindow = RiaApplication::activeViewWindow();
 
     if (viewWindow)
@@ -94,11 +96,11 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, RimVi
         {
             if (image.save(fileName))
             {
-                qDebug() << "Saved snapshot image to " << fileName;
+                qDebug() << "Exported snapshot image to " << fileName;
             }
             else
             {
-                qDebug() << "Error when trying to save snapshot image to " << fileName;
+                qDebug() << "Error when trying to export snapshot image to " << fileName;
             }
         }
     }
@@ -120,6 +122,17 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
 
+    // Get active view window before displaying the file selection dialog
+    // If this is done after the file save dialog is displayed (and closed)
+    // app->activeViewWindow() returns NULL on Linux
+    RimViewWindow* viewWindow = app->activeViewWindow();
+    if (!viewWindow)
+    {
+        RiaLogging::error("No view window is available, nothing to do");
+        
+        return;
+    }
+
     QString startPath;
     if (!proj->fileName().isEmpty())
     {
@@ -133,7 +146,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 
     startPath += "/image.png";
 
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
     if (fileName.isEmpty())
     {
         return;
@@ -142,7 +155,6 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
     // Remember the directory to next time
     app->setLastUsedDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
 
-    RimViewWindow* viewWindow = app->activeViewWindow();
     RicSnapshotViewToFileFeature::saveSnapshotAs(fileName, viewWindow);
 }
 
@@ -178,6 +190,22 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath("snapshots");
 
+    exportSnapshotOfAllPlotsIntoFolder(snapshotFolderName);
+
+    QString text = QString("Exported snapshots to folder : \n%1").arg(snapshotFolderName);
+    QMessageBox::information(nullptr, "Export Snapshots To Folder", text);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName)
+{
+    RiaApplication* app = RiaApplication::instance();
+
+    RimProject* proj = app->project();
+    if (!proj) return;
+
     QDir snapshotPath(snapshotFolderName);
     if (!snapshotPath.exists())
     {
@@ -186,39 +214,29 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
-    // Well log plots
+    std::vector<RimViewWindow*> viewWindows;
+    proj->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+
+    for (auto viewWindow : viewWindows)
     {
-        std::vector<RimWellLogPlot*> wellLogPlots;
-        proj->descendantsIncludingThisOfType(wellLogPlots);
-        for (RimWellLogPlot* wellLogPlot : wellLogPlots)
+        if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
         {
-            if (wellLogPlot && wellLogPlot->viewWidget())
+            QString fileName;
+            if ( viewWindow->userDescriptionField())
             {
-                QString fileName = wellLogPlot->description();
-                fileName.replace(" ", "_");
-
-                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, wellLogPlot);
+                fileName = viewWindow->userDescriptionField()->uiCapability()->uiValue().toString();
             }
-        }
-    }
-
-    // Summary plots
-    {
-        std::vector<RimSummaryPlot*> summaryPlots;
-        proj->descendantsIncludingThisOfType(summaryPlots);
-        for (RimSummaryPlot* summaryPlot : summaryPlots)
-        {
-            if (summaryPlot && summaryPlot->viewWidget())
+            else
             {
-                QString fileName = summaryPlot->description();
-                fileName.replace(" ", "_");
-
-                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, summaryPlot);
+                fileName = viewWindow->uiCapability()->uiName();
             }
+
+            fileName = caf::Utils::makeValidFileBasename(fileName);
+
+            QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+            absoluteFileName.replace(" ", "_");
+
+            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, viewWindow);
         }
     }
 }
@@ -260,6 +278,6 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 void RicSnapshotAllPlotsToFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Snapshot All Plots To File");
-    actionToSetup->setIcon(QIcon(":/SnapShotSave.png"));
+    actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
 }
 

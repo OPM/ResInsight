@@ -30,7 +30,7 @@ class RimGeoMechPropertyFilterCollection;
 class RicGeoMechPropertyFilterNewExec : public caf::CmdExecuteCommand
 {
 public:
-    RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
+    explicit RicGeoMechPropertyFilterNewExec(RimGeoMechPropertyFilterCollection* propertyFilterCollection);
     virtual ~RicGeoMechPropertyFilterNewExec();
 
     virtual QString name();

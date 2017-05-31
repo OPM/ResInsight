@@ -21,7 +21,8 @@
 #include "RimEclipseStatisticsCaseEvaluator.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
@@ -43,11 +44,13 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     CVF_ASSERT(m_sourceCases.size() > 0);
 
     std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+    std::vector<double> sourceDaysSinceSimulationStart = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->daysSinceSimulationStart(0);
+    std::vector<int> sourceReportStepNumbers = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->reportStepNumbers(0);
 
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
-    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates);
+    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates, sourceDaysSinceSimulationStart, sourceReportStepNumbers);
     std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
     dataValues.resize(sourceTimeStepDates.size());
 
@@ -161,7 +164,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                     // Trigger loading of dataset
                     sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
+                    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(sourceCase->eclipseCaseData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())
                     {
                         sourceDataAccessList.push_back(resultAccessor.p());
@@ -316,7 +319,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase, RimIdenticalGridCaseGroup* identicalGridCaseGroup)
+RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::vector<RimEclipseCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigEclipseCaseData* destinationCase, RimIdenticalGridCaseGroup* identicalGridCaseGroup)
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
@@ -327,7 +330,7 @@ RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator(const std::
 {
     if (sourceCases.size() > 0)
     {
-        m_reservoirCellCount = sourceCases[0]->reservoirData()->mainGrid()->globalCellArray().size();
+        m_reservoirCellCount = sourceCases[0]->eclipseCaseData()->mainGrid()->globalCellArray().size();
     }
 
     CVF_ASSERT(m_destinationCase);

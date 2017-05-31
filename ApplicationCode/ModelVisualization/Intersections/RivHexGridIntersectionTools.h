@@ -71,7 +71,7 @@ private:
 class RivFemIntersectionGrid : public RivIntersectionHexGridInterface
 {
 public:
-    RivFemIntersectionGrid(const RigFemPart * femPart);
+    explicit RivFemIntersectionGrid(const RigFemPart * femPart);
 
     virtual cvf::Vec3d displayOffset() const;
     virtual cvf::BoundingBox boundingBox() const;

@@ -58,7 +58,7 @@ class AnimationToolBar : public QToolBar
     Q_OBJECT
 
 public:
-    AnimationToolBar(QWidget *parent = 0);
+    explicit AnimationToolBar(QWidget *parent = 0);
     AnimationToolBar(const QString &title, QWidget *parent = 0);
 
     void connectAnimationControl(caf::FrameAnimationControl* animationControl);

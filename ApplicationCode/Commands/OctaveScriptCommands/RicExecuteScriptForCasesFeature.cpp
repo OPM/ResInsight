@@ -21,6 +21,7 @@
 
 #include "RimCase.h"
 #include "RiaApplication.h"
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -73,6 +74,9 @@ void RicExecuteScriptForCasesFeature::slotExecuteScriptForSelectedCases()
     if (!action) return;
 
     QString scriptAbsolutePath = action->data().toString();
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    mainWindow->showProcessMonitorDockPanel();
 
     RiaApplication* app = RiaApplication::instance();
     QString octavePath = app->octavePath();

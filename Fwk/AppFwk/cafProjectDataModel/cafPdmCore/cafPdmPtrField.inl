@@ -29,7 +29,7 @@ caf::PdmPtrField<DataType*>::~PdmPtrField()
 template<typename DataType >
 void PdmPtrField<DataType*>::setValue(const DataTypePtr& fieldValue)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     if (m_fieldValue) m_fieldValue->removeReferencingPtrField(this);
     m_fieldValue = fieldValue;
@@ -42,7 +42,7 @@ void PdmPtrField<DataType*>::setValue(const DataTypePtr& fieldValue)
 template<typename DataType >
 void PdmPtrField<DataType*>::setRawPtr(PdmObjectHandle* obj)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     if (m_fieldValue.notNull()) m_fieldValue.rawPtr()->removeReferencingPtrField(this);
     m_fieldValue.setRawPtr(obj);
@@ -56,7 +56,7 @@ void PdmPtrField<DataType*>::setRawPtr(PdmObjectHandle* obj)
 template<typename DataType >
 caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=(const DataTypePtr & fieldValue)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     if (m_fieldValue) m_fieldValue->removeReferencingPtrField(this);
     m_fieldValue = fieldValue;
@@ -72,7 +72,7 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=(const DataTypePtr
 template<typename DataType >
 caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=(const FieldDataType & fieldValue)
 {
-    assert(isInitializedByInitFieldMacro());
+	CAF_ASSERT(isInitializedByInitFieldMacro());
 
     if (m_fieldValue) m_fieldValue->removeReferencingPtrField(this);
     m_fieldValue = fieldValue;

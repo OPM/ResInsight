@@ -41,7 +41,6 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 
-#include <assert.h>
 
 namespace caf
 {
@@ -75,7 +74,7 @@ PdmUiGroup* PdmUiOrdering::addNewGroup(QString displayName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiOrdering::contains(const PdmUiItem* item)
+bool PdmUiOrdering::contains(const PdmUiItem* item) const
 {
     for (size_t i = 0; i < m_ordering.size(); ++i)
     {
@@ -94,8 +93,8 @@ bool PdmUiOrdering::contains(const PdmUiItem* item)
 void PdmUiOrdering::add(const PdmFieldHandle* field)
 {
     PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
-    assert(uiItem);
-    assert(!this->contains(uiItem));
+    CAF_ASSERT(uiItem);
+    CAF_ASSERT(!this->contains(uiItem));
 
     m_ordering.push_back(uiItem);
 }
@@ -106,10 +105,34 @@ void PdmUiOrdering::add(const PdmFieldHandle* field)
 void PdmUiOrdering::add(const PdmObjectHandle* obj)
 {
     PdmUiObjectHandle* uiItem = uiObj(const_cast<PdmObjectHandle*>(obj));
-    assert(uiItem);
-    assert(!this->contains(uiItem));
+    CAF_ASSERT(uiItem);
+    CAF_ASSERT(!this->contains(uiItem));
 
     m_ordering.push_back(uiItem);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiOrdering::isIncludingRemainingFields() const
+{
+    return !m_skipRemainingFields;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiOrdering::skipRemainingFields(bool doSkip /*= true*/)
+{
+    m_skipRemainingFields = doSkip;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<PdmUiItem*>& PdmUiOrdering::uiItems() const
+{
+    return m_ordering;
 }
 
 } //End of namespace caf

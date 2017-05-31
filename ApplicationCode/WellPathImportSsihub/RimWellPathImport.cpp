@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellPathImport.h"
+
+#include "RimOilFieldEntry.h"
+#include "RimOilRegionEntry.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"

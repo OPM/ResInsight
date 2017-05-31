@@ -32,6 +32,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
@@ -41,7 +42,6 @@
 #include "cafPdmUiTreeOrdering.h"
 
 #include "qwt_date.h"
-#include "RimSummaryTimeAxisProperties.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
@@ -156,8 +156,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
-    m_summaryFilter = m_summaryFilterObject.get();
+    m_summaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultSelection, "FilterResultSelection", "Filter Result", "", "", "");
     m_uiFilterResultSelection.xmlCapability()->setIOWritable(false);
@@ -170,8 +169,7 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveVariable.uiCapability()->setUiHidden(true);
     m_curveVariable.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveVariableObject = std::unique_ptr<RimSummaryAddress>(new RimSummaryAddress);
-    m_curveVariable = m_curveVariableObject.get();
+    m_curveVariable = new RimSummaryAddress;
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
 
@@ -179,12 +177,10 @@ RimSummaryCurve::RimSummaryCurve()
     m_curveNameConfig.uiCapability()->setUiHidden(true);
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
-    m_curveNameConfig = m_curveNameConfigObject.get();
+    m_curveNameConfig = new RimSummaryCurveAutoName;
 
     m_symbolSkipPixelDistance = 10.0f;
     m_curveThickness = 2;
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,14 +209,6 @@ RimSummaryCase* RimSummaryCurve::summaryCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setVariable(QString varName)
-{
-    m_curveVariable->setAddress(RifEclipseSummaryAddress::fieldVarAddress(varName.toStdString()));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
 {
     return m_curveVariable->address();
@@ -232,6 +220,8 @@ RifEclipseSummaryAddress RimSummaryCurve::summaryAddress()
 void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
 {
     m_curveVariable->setAddress(address);
+
+    m_summaryFilter->updateFromAddress(address);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,8 +285,8 @@ RimDefines::PlotAxis RimSummaryCurve::yAxis() const
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
-    if (!optionList.isEmpty()) return optionList;
+    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions(fieldNeedingOptions,useOptionsOnly);
+    if (!options.isEmpty()) return options;
 
 
     if (fieldNeedingOptions == &m_summaryCase)
@@ -306,16 +296,14 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
 
         proj->allSummaryCases(cases);
 
-        for (size_t i = 0; i < cases.size(); i++)
+        for (RimSummaryCase* rimCase : cases)
         {
-            RimSummaryCase* rimCase = cases[i];
-
-            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
+            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
 
-        if (optionList.size() > 0)
+        if (options.size() > 0)
         {
-            optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+            options.push_front(caf::PdmOptionItemInfo("None", nullptr));
         }
     }
     else if(fieldNeedingOptions == &m_uiFilterResultSelection)
@@ -339,16 +327,16 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
                 {
                     std::string name = addrIntPair.first.uiText();
                     QString s = QString::fromStdString(name);
-                    optionList.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
+                    options.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
                 }
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
+            options.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
 
             if(useOptionsOnly) *useOptionsOnly = true;
         }
     }
-    return optionList;
+    return options;
 
 }
 
@@ -446,33 +434,33 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimPlotCurve::updateOptionSensitivity();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vector");
     curveDataGroup->add(&m_summaryCase);
     curveDataGroup->add(&m_selectedVariableDisplayField);
 
     caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
-    m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
-
+    curveVarSelectionGroup->setCollapsedByDefault(true);
+    m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
     curveVarSelectionGroup->add(&m_uiFilterResultSelection);
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    appearanceGroup->add(&m_curveColor);
-    appearanceGroup->add(&m_curveThickness);
-    appearanceGroup->add(&m_pointSymbol);
-    appearanceGroup->add(&m_symbolSkipPixelDistance);
-    appearanceGroup->add(&m_lineStyle);
-    appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_isUsingAutoName);
-
-    if (m_isUsingAutoName)
-    {
-        caf::PdmUiGroup* autoNameGroup = appearanceGroup->addNewGroup("Auto Name Config");
-        m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
-    }
 
     uiOrdering.add(&m_plotAxis);
 
-    uiOrdering.setForgetRemainingFields(true); // For now. 
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->setCollapsedByDefault(true);
+    nameGroup->add(&m_showLegend);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
+
+    if (m_isUsingAutoName)
+    {
+        m_curveNameConfig->uiOrdering(uiConfigName, *nameGroup);
+    }
+
+    uiOrdering.skipRemainingFields(); // For now. 
 }
 
 //--------------------------------------------------------------------------------------------------

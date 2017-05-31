@@ -1,8 +1,9 @@
 SLAVES
 -- slave datafile machine directory
 -- name root hostname of data file
-'RES-R2' 'base' 'rios' '/usr/models/res2' /
-'RES-R3' 'base' 'sg-indigo' '/usr/models/res3' /
+'RES-R2' 'base' 'rios' '/usr/models/res2' 3 /
+'RES-R3' 'base' 'sg-indigo' '/usr/models/res3' A / -- a wrongfully added character in the
+-- "slaves token" position doesn't brake parsing
 -- Testing comments in middle
-'RES-R5' 'base' 'sg-indigo' '/usr/models/res5' /
-   /testRubbish
+'RES-R5' 'base' 'sg-indigo' '/usr/models/res5' 10 /
+   /testRubbish -- this line also counts

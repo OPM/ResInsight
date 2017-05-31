@@ -1,3 +1,0 @@
-{"name" : "SMRYDIMS" , "sections" : ["RUNSPEC"], "size" : 1 ,
-   "items" : [
-   {"name" : "DIMS" , "value_type" : "INT" , "default" : 10000}]}

@@ -21,7 +21,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
 
@@ -29,6 +29,7 @@
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
+#include "cafUtils.h"
 
 #include "cvfGeometryTools.h"
 
@@ -137,6 +138,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                 cacheEntry->m_resultType = resInfo[rIdx].m_resultType;
                 cacheEntry->m_resultName = resInfo[rIdx].m_resultName;
                 cacheEntry->m_timeStepDates = resInfo[rIdx].m_timeStepDates;
+                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].m_daysSinceSimulationStart;
 
                 // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
@@ -649,19 +651,19 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
         if (computeDx)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
-            dx[0][cellIdx] =  cvf::Math::abs(cellWidth.x());
+            dx[0][cellIdx] =  cellWidth.length();
         }
 
         if (computeDy)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
-            dy[0][cellIdx] =  cvf::Math::abs(cellWidth.y());
+            dy[0][cellIdx] =  cellWidth.length();
         }
 
         if (computeDz)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
-            dz[0][cellIdx] = cvf::Math::abs(cellWidth.z());
+            dz[0][cellIdx] = cellWidth.length();
         }
 
         if (computeTops)
@@ -1393,16 +1395,15 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
     // Get the name of the cache name relative to the current project file position
     QString newValidCacheFileName = getValidCacheFileName();
 
-    QFile storageFile(newValidCacheFileName);
-
     // Warn if we thought we were to find some data on the storage file
 
-    if (!storageFile.exists() && m_resultCacheMetaData.size())
+    if (!caf::Utils::fileExists(newValidCacheFileName) && m_resultCacheMetaData.size())
     {
         qWarning() << "Reading stored results: Missing the storage file : " + newValidCacheFileName; 
         return;
     }
 
+    QFile storageFile(newValidCacheFileName);
     if (!storageFile.open(QIODevice::ReadOnly)) 
     {
         qWarning() << "Reading stored results: Can't open the file : " + newValidCacheFileName; 
@@ -1436,7 +1437,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
         size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
 
-        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates());
+        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates(), resInfo->m_daysSinceSimulationStart(), std::vector<int>()); // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
 
         progress.setProgressDescription(resInfo->m_resultName);
 
@@ -1516,19 +1517,19 @@ double RimReservoirCellResultsStorage::darchysValue()
     RimEclipseCase* rimCase = NULL;
     this->firstAncestorOrThisOfType(rimCase);
 
-    if (rimCase && rimCase->reservoirData())
+    if (rimCase && rimCase->eclipseCaseData())
     {
-        RigCaseData::UnitsType unitsType = rimCase->reservoirData()->unitsType();
+        RigEclipseCaseData::UnitsType unitsType = rimCase->eclipseCaseData()->unitsType();
 
-        if (unitsType == RigCaseData::UNITS_FIELD)
+        if (unitsType == RigEclipseCaseData::UNITS_FIELD)
         {
             darchy = 0.001127;
         }
-        else if (unitsType == RigCaseData::UNITS_METRIC)
+        else if (unitsType == RigEclipseCaseData::UNITS_METRIC)
         {
             darchy = 0.008527;
         }
-        else if (unitsType == RigCaseData::UNITS_LAB)
+        else if (unitsType == RigEclipseCaseData::UNITS_LAB)
         {
             darchy = 3.6;
         }
@@ -1556,6 +1557,7 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
     CAF_PDM_InitField(&m_resultType, "ResultType",  caf::AppEnum<RimDefines::ResultCatType>(RimDefines::REMOVED), "ResultType", "", "" ,"");
     CAF_PDM_InitField(&m_resultName, "ResultName",  QString(), "ResultName", "", "" ,"");
     CAF_PDM_InitFieldNoDefault(&m_timeStepDates, "TimeSteps", "TimeSteps", "", "" ,"");
+    CAF_PDM_InitFieldNoDefault(&m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart", "", "", "");
     CAF_PDM_InitField(&m_filePosition, "FilePositionDataStart",  qint64(-1), "FilePositionDataStart", "", "" ,"");
 
 }

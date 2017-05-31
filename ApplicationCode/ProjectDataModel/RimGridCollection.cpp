@@ -61,7 +61,7 @@ void RimGridCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         this->firstAncestorOrThisOfType(rimView);
         CVF_ASSERT(rimView);
 
-        rimView->showGridCells(isActive);
+        if (rimView) rimView->showGridCells(isActive);
 
         updateUiIconFromState(isActive);
     }

@@ -38,7 +38,7 @@ class Font;
 class RivTernarySaturationOverlayItem : public cvf::OverlayItem
 {
 public:
-    RivTernarySaturationOverlayItem(cvf::Font* font);
+    explicit RivTernarySaturationOverlayItem(cvf::Font* font);
     ~RivTernarySaturationOverlayItem();
 
     void setRangeText(const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange);

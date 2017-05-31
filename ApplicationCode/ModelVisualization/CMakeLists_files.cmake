@@ -6,7 +6,6 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.h
-${CEE_CURRENT_LIST_DIR}RivColorTableArray.h
 ${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.h
@@ -16,12 +15,12 @@ ${CEE_CURRENT_LIST_DIR}RivReservoirPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirFaultsPartMgr.h
-${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivReservoirSimWellsPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
-${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivSimWellPipesPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivResultToTextureMapper.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryResultToTextureMapper.h
@@ -33,12 +32,15 @@ ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.h
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.h
 ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.h
 ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.h
-${CEE_CURRENT_LIST_DIR}RivWellPipeSourceInfo.h
+${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.h
+${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivPartPriority.h
+${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.h
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.cpp
-${CEE_CURRENT_LIST_DIR}RivColorTableArray.cpp
 ${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.cpp
@@ -48,12 +50,12 @@ ${CEE_CURRENT_LIST_DIR}RivReservoirFaultsPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.cpp
-${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivReservoirSimWellsPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.cpp
-${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivSimWellPipesPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.cpp
@@ -63,7 +65,9 @@ ${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.cpp
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeGeometryUtils.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeQuadToSegmentMapper.cpp
 ${CEE_CURRENT_LIST_DIR}RivSingleCellPartGenerator.cpp
-${CEE_CURRENT_LIST_DIR}RivWellPipeSourceInfo.cpp
+${CEE_CURRENT_LIST_DIR}RivSimWellPipeSourceInfo.cpp
+${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

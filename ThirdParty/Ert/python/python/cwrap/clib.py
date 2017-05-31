@@ -17,13 +17,13 @@
 
 Observe that to ensure that all libraries are loaded through the same
 code path, all required libraries should be loaded explicitly through
-the use of import statements; i.e. the ert.geo package requires the
+the use of import statements; i.e. the ecl.geo package requires the
 libert_util librarary, to ensure that the correct version of the
 libert_util.so library file is loaded we should manually load that
 first as:
 
-   import ert.util
-   GEO_LIB = ert.load("libert_geometry")
+   import ecl.util
+   GEO_LIB = ecl.load("libert_geometry")
 
 Otherwise the standard operating system dependency resolve code will
 be invoked when loading libert_geometry, and that could in principle
@@ -83,7 +83,7 @@ def load( lib, so_version = None, path = None):
         try:
             dll = ctypes.CDLL(lib_file , ctypes.RTLD_GLOBAL)
             return dll
-        except Exception, exc:
+        except Exception as exc:
             error = exc
 
     error_msg = "\nFailed to load shared library:%s\n\ndlopen() error: %s\n" % (lib , error)

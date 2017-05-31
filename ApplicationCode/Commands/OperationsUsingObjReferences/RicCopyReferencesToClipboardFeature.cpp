@@ -19,8 +19,17 @@
 
 #include "RicCopyReferencesToClipboardFeature.h"
 
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimGeoMechView.h"
 #include "RimMimeData.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimWellAllocationPlot.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 
+#include "cafPdmObject.h"
 #include "cafPdmUiItem.h"
 #include "cafSelectionManager.h"
 
@@ -40,7 +49,7 @@ CAF_CMD_SOURCE_INIT(RicCopyReferencesToClipboardFeature, "RicCopyReferencesToCli
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 {
-    return true;
+    return isAnyCopyableObjectSelected();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,8 +57,24 @@ bool RicCopyReferencesToClipboardFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCopyReferencesToClipboardFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
+    if (!isAnyCopyableObjectSelected()) return;
+
     std::vector<QString> referenceList;
-    SelectionManager::instance()->selectionAsReferences(referenceList);
+
+    std::vector<PdmObject*> selectedFormationNamesCollObjs;
+    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
+
+    for (PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    {
+        if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
+        {
+            QString itemRef = PdmReferenceHelper::referenceFromRootToObject(SelectionManager::instance()->pdmRootObject(), pdmObject);
+            
+            referenceList.push_back(itemRef);
+        }
+    }
 
     MimeDataWithReferences* myObject = new MimeDataWithReferences;
     myObject->setReferences(referenceList);
@@ -69,6 +94,72 @@ void RicCopyReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup
     actionToSetup->setText("Copy");
     actionToSetup->setIcon(QIcon(":/Copy.png"));
     actionToSetup->setShortcuts(QKeySequence::Copy);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
+{
+    std::vector<PdmObject*> selectedFormationNamesCollObjs;
+    caf::SelectionManager::instance()->objectsByType(&selectedFormationNamesCollObjs);
+
+    for (PdmObject* pdmObject : selectedFormationNamesCollObjs)
+    {
+        if (RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(pdmObject))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported(PdmObject* pdmObject)
+{
+    RimWellAllocationPlot* wellAllocPlot = nullptr;
+    pdmObject->firstAncestorOrThisOfType(wellAllocPlot);
+
+    if (dynamic_cast<RimGeoMechView*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimEclipseView*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimEclipseCase*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimSummaryPlot*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimPlotCurve*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimSummaryCurveFilter*>(pdmObject))
+    {
+        return true;
+    }
+    else if (dynamic_cast<RimWellLogTrack*>(pdmObject))
+    {
+        if (!wellAllocPlot) return true;
+    }
+    else if (dynamic_cast<RimWellLogPlot*>(pdmObject))
+    {
+        if (!wellAllocPlot) return true;
+    }
+
+    return false;
 }
 
 } // end namespace caf

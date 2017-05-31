@@ -39,9 +39,12 @@ public:
     caf::PdmField<bool> importFaults;
     caf::PdmField<bool> importNNCs;
     caf::PdmField<bool> importAdvancedMswData;
+    caf::PdmField<QString> faultIncludeFileAbsolutePathPrefix;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 };
 

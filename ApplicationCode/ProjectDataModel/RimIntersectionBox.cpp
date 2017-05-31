@@ -351,6 +351,8 @@ void RimIntersectionBox::updateBoxManipulatorGeometry()
 
     RimView* rimView = nullptr;
     this->firstAncestorOrThisOfType(rimView);
+    if (!rimView) return;
+
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
 
     m_boxManipulator->setOrigin(transForm->transformToDisplayCoord(boxOrigin().translation()));
@@ -402,14 +404,18 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (m_show3DManipulator)
+        if (attrib)
         {
-            attrib->m_buttonText = "Hide 3D manipulator";
+            if (m_show3DManipulator)
+            {
+                attrib->m_buttonText = "Hide 3D manipulator";
+            }
+            else
+            {
+                attrib->m_buttonText = "Show 3D manipulator";
+            }
         }
-        else
-        {
-            attrib->m_buttonText = "Show 3D manipulator";
-        }
+
     }
 }
 
@@ -468,10 +474,12 @@ void RimIntersectionBox::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionBox::slotScheduleRedraw()
 {
-    RimView* rimView = nullptr;
+    RimView* rimView = NULL;
     this->firstAncestorOrThisOfType(rimView);
-        
-    rimView->scheduleCreateDisplayModelAndRedraw();
+    if (rimView)
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,12 +524,7 @@ void RimIntersectionBox::rebuildGeometryAndScheduleCreateDisplayModel()
 {
     m_intersectionBoxPartMgr = nullptr;
 
-    RimView* rimView = NULL;
-    this->firstAncestorOrThisOfType(rimView);
-    if (rimView)
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    slotScheduleRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -633,7 +636,7 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
     this->firstAncestorOrThisOfType(rimCase);
     
     CVF_ASSERT(rimCase);
-
+    /*
     RimEclipseView* eclView = nullptr;
     this->firstAncestorOrThisOfType(eclView);
 
@@ -645,7 +648,7 @@ cvf::BoundingBox RimIntersectionBox::currentCellBoundingBox()
 
     if(false)//useAllCells) // For now, only use the active CellsBBox. 
         return rimCase->allCellsBoundingBox();
-    else
+    else */
         return rimCase->activeCellsBoundingBox();
 
 }

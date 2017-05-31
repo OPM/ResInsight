@@ -24,7 +24,7 @@
 #include "RiaPreferences.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigResultAccessorFactory.h"
 
 #include "RimCellEdgeColors.h"
@@ -37,6 +37,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RivCellEdgeEffectGenerator.h"
+#include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivSourceInfo.h"
@@ -53,15 +54,17 @@
 #include "cvfMath.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfRenderState_FF.h"
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStatePolygonOffset.h"
-#include "cvfRenderState_FF.h"
 #include "cvfShaderProgram.h"
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
+#include "cvfTransform.h"
 #include "cvfUniform.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -164,8 +167,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
             eff = effGen.generateCachedEffect();
 
-            // Set priority to make sure fault lines are rendered first
-            part->setPriority(10);
+            part->setPriority(RivPartPriority::PartType::MeshLines);
 
             part->setEnableMask(meshSurfaceBit);
             part->setEffect(eff.p());
@@ -200,8 +202,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
 
     if (color.a() < 1.0f)
     {
-        // Set priority to make sure this transparent geometry are rendered last
-        if (m_surfaceFaces.notNull()) m_surfaceFaces->setPriority(100);
+        if (m_surfaceFaces.notNull()) m_surfaceFaces->setPriority(RivPartPriority::PartType::Transparent);
     }
 
     m_opacityLevel = color.a();
@@ -234,21 +235,26 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
         if (cellResultColors->isTernarySaturationSelected())
         {
             RivTernaryTextureCoordsCreator texturer(cellResultColors, cellResultColors->ternaryLegendConfig(),
-                timeStepIndex,
-                m_grid->gridIndex(),
-                m_surfaceGenerator.quadToCellFaceMapper());
+                                                    timeStepIndex,
+                                                    m_grid->gridIndex(),
+                                                    m_surfaceGenerator.quadToCellFaceMapper());
 
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
             const RivTernaryScalarMapper* mapper = cellResultColors->ternaryLegendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
+            RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), 
+                                                                   m_surfaceFacesTextureCoords.p(), 
+                                                                   mapper, 
+                                                                   m_opacityLevel, 
+                                                                   caf::FC_NONE, 
+                                                                   cellResultColors->reservoirView()->isLightingDisabled());
         }
         else
         {
             RivTextureCoordsCreator texturer(cellResultColors,
-                timeStepIndex,
-                m_grid->gridIndex(),
-                m_surfaceGenerator.quadToCellFaceMapper());
+                                             timeStepIndex,
+                                             m_grid->gridIndex(),
+                                             m_surfaceGenerator.quadToCellFaceMapper());
             if (!texturer.isValid())
             {
                 return;
@@ -257,7 +263,12 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
             const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
-            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel, caf::FC_NONE, cellResultColors->reservoirView()->isLightingDisabled());
+            RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), 
+                                                            m_surfaceFacesTextureCoords.p(), 
+                                                            mapper, 
+                                                            m_opacityLevel, 
+                                                            caf::FC_NONE, 
+                                                            cellResultColors->reservoirView()->isLightingDisabled());
         }
     }
 }

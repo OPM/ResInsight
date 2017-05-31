@@ -18,7 +18,6 @@ struct stepwise_struct {
   matrix_type      * X0;             // Externally supplied data.
   matrix_type      * E0;             // Externally supplied data.
   matrix_type      * Y0;
-  bool               data_owner;     // Does the stepwise estimator own the data matrices X0 and Y0?
 
   matrix_type      * beta;           // Quantities estimated by the stepwise algorithm
   double             Y_mean;
@@ -37,11 +36,11 @@ static double stepwise_estimate__( stepwise_type * stepwise , bool_vector_type *
   matrix_type * Y;
 
   double y_mean    = 0;
-  int nvar         = matrix_get_columns( stepwise->X0 );
-  int nsample      = matrix_get_rows( stepwise->X0 );
+  int ncols         = matrix_get_columns( stepwise->X0 );
+  int nrows         = matrix_get_rows( stepwise->X0 );
 
-  nsample = bool_vector_count_equal( active_rows , true );
-  nvar = bool_vector_count_equal( stepwise->active_set , true );
+  int nsample = bool_vector_count_equal( active_rows , true );
+  int nvar = bool_vector_count_equal( stepwise->active_set , true );
 
 
   matrix_set( stepwise->beta , 0 ); // It is essential to make sure that old finite values in the beta0 vector do not hang around.
@@ -54,7 +53,7 @@ static double stepwise_estimate__( stepwise_type * stepwise , bool_vector_type *
     should be used for regression, versus which should be used for
     validation (@active_rows).
   */
-  if ((nsample < matrix_get_rows( stepwise->X0 )) || (nvar < matrix_get_columns( stepwise->X0 ))) {
+  if ((nsample < nrows) || (nvar < ncols)) {
     X = matrix_alloc( nsample , nvar );
     E = matrix_alloc( nsample , nvar );
     Y = matrix_alloc( nsample , 1);
@@ -63,10 +62,10 @@ static double stepwise_estimate__( stepwise_type * stepwise , bool_vector_type *
       int icol,irow;   // Running over all values.
       int arow,acol;   // Running over active values.
       arow = 0;
-      for (irow = 0; irow < matrix_get_rows( stepwise->X0 ); irow++) {
+      for (irow = 0; irow < nrows; irow++) {
         if (bool_vector_iget( active_rows , irow )) {
           acol = 0;
-          for (icol = 0; icol < matrix_get_columns( stepwise->X0 ); icol++) {
+          for (icol = 0; icol < ncols; icol++) {
             if (bool_vector_iget( stepwise->active_set , icol )) {
               matrix_iset( X , arow , acol , matrix_iget( stepwise->X0 , irow , icol ));
               matrix_iset( E , arow , acol , matrix_iget( stepwise->E0 , irow , icol ));
@@ -111,7 +110,7 @@ static double stepwise_estimate__( stepwise_type * stepwise , bool_vector_type *
     {
       int ivar,avar;
       avar = 0;
-      for (ivar = 0; ivar < matrix_get_columns( stepwise->X0 ); ivar++) {
+      for (ivar = 0; ivar < ncols; ivar++) {
         if (bool_vector_iget( stepwise->active_set , ivar )) {
           matrix_iset( stepwise->beta , ivar , 0 , matrix_iget( beta , avar , 0));
           avar++;
@@ -336,7 +335,6 @@ stepwise_type * stepwise_alloc0( rng_type * rng) {
   stepwise->Y0          = NULL;
   stepwise->beta        = NULL;
   stepwise->active_set  = NULL;
-  stepwise->data_owner  = true;
   stepwise->X_mean      = NULL;
   stepwise->X_norm      = NULL;
   stepwise->Y_mean      = 0.0;
@@ -347,40 +345,27 @@ stepwise_type * stepwise_alloc0( rng_type * rng) {
 
 
 
-stepwise_type * stepwise_alloc1( int nsample , int nvar, rng_type * rng) {
+stepwise_type * stepwise_alloc1( int nsample , int nvar, rng_type * rng, const matrix_type* St, const matrix_type* Et) {
   stepwise_type * stepwise = stepwise_alloc__( nsample , nvar , rng);
 
   stepwise->rng         = rng;
-  stepwise->X0          = matrix_alloc( nsample , nvar );
-  stepwise->E0          = matrix_alloc( nsample , nvar );
-  stepwise->Y0          = matrix_alloc( nsample , 1 );
-  stepwise->data_owner  = true;
+  stepwise->X0          = matrix_alloc_copy(St); // It would be nice to get rid of these copies, but due to data race it is not possible at the moment
+  stepwise->E0          = matrix_alloc_copy(Et);
+  stepwise->Y0          = NULL; //matrix_alloc( nsample , 1 );
 
   return stepwise;
 }
 
 
 void stepwise_set_Y0( stepwise_type * stepwise , matrix_type * Y) {
-  if (stepwise->Y0 != NULL) {
-    matrix_free( stepwise->Y0 );
-  }
-
   stepwise->Y0 = Y;
 }
 
 void stepwise_set_X0( stepwise_type * stepwise ,  matrix_type * X) {
-  if (stepwise->X0 != NULL)
-    matrix_free( stepwise->X0 );
-
-
   stepwise->X0 = X;
 }
 
 void stepwise_set_E0( stepwise_type * stepwise ,  matrix_type * E) {
-  if (stepwise->E0 != NULL)
-    matrix_free( stepwise->E0 );
-
-
   stepwise->E0 = E;
 }
 
@@ -454,7 +439,6 @@ void stepwise_free( stepwise_type * stepwise ) {
     matrix_free( stepwise->beta );
 
 
-
   if (stepwise->X_mean != NULL)
     matrix_free( stepwise->X_mean );
 
@@ -463,13 +447,10 @@ void stepwise_free( stepwise_type * stepwise ) {
     matrix_free( stepwise->X_norm );
 
 
+  matrix_free( stepwise->X0 );
+  matrix_free( stepwise->E0 );
+  matrix_free( stepwise->Y0 );
 
-  if (stepwise->data_owner) {
-    matrix_free( stepwise->X0 );
-    matrix_free( stepwise->E0 );
-    matrix_free( stepwise->Y0 );
-  }
   free( stepwise );
-
 }
 

@@ -37,7 +37,11 @@ bool RicExitApplicationFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExitApplicationFeature::onActionTriggered(bool isChecked)
 {
+    this->disableModelChangeContribution();
+
     RiaApplication* app = RiaApplication::instance();
+    if (!app->askUserToSaveModifiedProject()) return;
+
     app->closeAllWindows();
 }
 
@@ -47,4 +51,5 @@ void RicExitApplicationFeature::onActionTriggered(bool isChecked)
 void RicExitApplicationFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("E&xit");
+    actionToSetup->setShortcuts(QKeySequence::Quit);
 }

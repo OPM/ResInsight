@@ -16,7 +16,8 @@ namespace caf {
 /// 
 //--------------------------------------------------------------------------------------------------
 CategoryMapper::CategoryMapper()
-    : m_textureSize(2048)
+    : m_textureSize(2048),
+    m_maxTexCoord(1.0)
 {
 }
 

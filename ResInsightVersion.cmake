@@ -1,19 +1,24 @@
 
-set(CMAKE_MAJOR_VERSION 2016)
-set(CMAKE_MINOR_VERSION 11)
-set(CMAKE_PATCH_VERSION 0)
-#set(DEV_VERSION "-dev")
+set(RESINSIGHT_MAJOR_VERSION 2017)
+set(RESINSIGHT_MINOR_VERSION 05)
+set(RESINSIGHT_INCREMENT_VERSION "1")
 
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
-# https://github.com/Ensembles/ert
-set(ERT_GITHUB_SHA "236164870f011305aed2eca85c45944b021e4107") 
+# https://github.com/Statoil/libecl
+set(ERT_GITHUB_SHA "06a39878636af0bc52582430ad0431450e51139c") 
 
-set(OPM_COMMON_GITHUB_SHA "1216bc052542f24ec6fcfbe1947d52e6300ff754")
-set(OPM_PARSER_GITHUB_SHA "a3496df501a4369fd827fbf0ff893d03deff425f")
+# https://github.com/OPM/opm-flowdiagnostics
+set(OPM_FLOWDIAGNOSTICS_SHA "b6e59ddcd2feba450c8612a7402c9239e442c0d4")
 
-set(PRODUCTVER ${CMAKE_MAJOR_VERSION},${CMAKE_MINOR_VERSION},0,${CMAKE_PATCH_VERSION})
-set(STRPRODUCTVER ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}${DEV_VERSION})
+# https://github.com/OPM/opm-flowdiagnostics-applications
+set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "ccaaa4dd1b553e131a3051687fd615fe728b76ee")
+
+# https://github.com/OPM/opm-parser/blob/master/opm/parser/eclipse/Units/Units.hpp
+# This file was moved from opm-core to opm-parser october 2016
+# sha for Units.hpp 9a679071dd0066236154852c39a9e0b3c3ac4873
+
+set(STRPRODUCTVER ${RESINSIGHT_MAJOR_VERSION}.${RESINSIGHT_MINOR_VERSION}.${RESINSIGHT_INCREMENT_VERSION})
 

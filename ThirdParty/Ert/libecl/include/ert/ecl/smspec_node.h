@@ -73,7 +73,9 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
   char * smspec_alloc_local_block_key( const char * join_string , const char * keyword , const char * lgr_name , int i , int j , int k);
   char * smspec_alloc_local_completion_key( const char * join_string, const char * keyword , const char * lgr_name , const char * wgname , int i , int j , int k);
 
+  bool smspec_node_equal( const smspec_node_type * node1,  const smspec_node_type * node2);
 
+  
   bool smspec_node_init( smspec_node_type * smspec_node, 
                          ecl_smspec_var_type var_type , 
                          const char * wgname  , 

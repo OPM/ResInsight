@@ -49,7 +49,7 @@ public:
 
     QString mainResultText();
 
-    QString topologyText(QString itemSeparator);
+    QString geometrySelectionText(QString itemSeparator);
     
 private:
     void appendDetails(QString& text, const QString& details);

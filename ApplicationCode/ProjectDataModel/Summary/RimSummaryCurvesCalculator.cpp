@@ -97,12 +97,12 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisFormater::RimSummaryPlotYAxisFormater(RimSummaryYAxisProperties* axisProperties,
-    const std::vector<RimSummaryCurve*>& curves, 
-    const std::vector<RimSummaryCurveFilter*>& curveFilters)
+RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimSummaryYAxisProperties* axisProperties,
+    const std::vector<RimSummaryCurve*>& curves,
+    const std::set<QString>& timeHistoryCurveQuantities)
 :   m_axisProperties(axisProperties),
     m_singleCurves(curves),
-    m_curveFilters(curveFilters)
+    m_timeHistoryCurveQuantities(timeHistoryCurveQuantities)
 {
 }
 
@@ -110,7 +110,7 @@ RimSummaryPlotYAxisFormater::RimSummaryPlotYAxisFormater(RimSummaryYAxisProperti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot)
+void RimSummaryPlotYAxisFormatter::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* qwtPlot)
 {
     if (!qwtPlot) return;
 
@@ -189,31 +189,15 @@ void RimSummaryPlotYAxisFormater::applyYAxisPropertiesToPlot(RiuSummaryQwtPlot* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
+QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string> > unitToQuantityNameMap;
 
     for ( RimSummaryCurve* rimCurve : m_singleCurves )
     {
-        if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
+        if ( rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
         {
             unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
-        }
-    }
-
-    for ( RimSummaryCurveFilter* curveFilter : m_curveFilters )
-    {
-        if ( curveFilter->isCurvesVisible() )
-        {
-            std::vector<RimSummaryCurve*> curveFilterCurves = curveFilter->curves();
-
-            for ( RimSummaryCurve* rimCurve : curveFilterCurves )
-            {
-                if ( rimCurve->isCurveVisible() && rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
-                {
-                    unitToQuantityNameMap[rimCurve->unitName()].insert(rimCurve->summaryAddress().quantityName());
-                }
-            }
         }
     }
 
@@ -226,6 +210,19 @@ QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
             assembledYAxisText += QString::fromStdString(quantIt) + " ";
         }
         assembledYAxisText += "[" + QString::fromStdString(unitIt.first) + "] ";
+    }
+
+    if (m_timeHistoryCurveQuantities.size() > 0)
+    {
+        if (!assembledYAxisText.isEmpty())
+        {
+            assembledYAxisText += " : ";
+        }
+
+        for (auto timeQuantity : m_timeHistoryCurveQuantities)
+        {
+            assembledYAxisText += timeQuantity + " ";
+        }
     }
 
     return assembledYAxisText;
@@ -241,9 +238,12 @@ QString RimSummaryPlotYAxisFormater::autoAxisTitle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotYAxisRangeCalculator::RimSummaryPlotYAxisRangeCalculator(RimSummaryYAxisProperties* axisProperties, const std::vector<RimSummaryCurve*>& curves)
-    : m_axisProperties(axisProperties),
-    m_singleCurves(curves)
+RimSummaryPlotYAxisRangeCalculator::RimSummaryPlotYAxisRangeCalculator(
+    const std::vector<QwtPlotCurve*>& qwtCurves,
+    const std::vector<double>& yValuesForAllCurves)
+    : 
+    m_singleCurves(qwtCurves),
+    m_yValuesForAllCurves(yValuesForAllCurves)
 {
 }
 
@@ -255,12 +255,12 @@ void RimSummaryPlotYAxisRangeCalculator::computeYRange(double* min, double* max)
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
-    for (RimSummaryCurve* curve : m_singleCurves)
+    for (QwtPlotCurve* curve : m_singleCurves)
     {
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if (curve->isCurveVisible() && curveValueRangeY(curve->qwtPlotCurve(), &minCurveValue, &maxCurveValue))
+        if (curveValueRangeY(curve, &minCurveValue, &maxCurveValue))
         {
             if (minCurveValue < minValue)
             {
@@ -280,26 +280,17 @@ void RimSummaryPlotYAxisRangeCalculator::computeYRange(double* min, double* max)
         maxValue = RimDefines::maximumDefaultValuePlot();
     }
 
-    if (m_axisProperties->isLogarithmicScaleEnabled)
+    // For logarithmic auto scaling, compute positive curve value closest to zero and use
+    // this value as the plot visible minimum
+
+    double pos = HUGE_VAL;
+    double neg = -HUGE_VAL;
+
+    RigStatisticsCalculator::posNegClosestToZero(m_yValuesForAllCurves, pos, neg);
+
+    if (pos != HUGE_VAL)
     {
-        // For logarithmic auto scaling, compute positive curve value closest to zero and use
-        // this value as the plot visible minimum
-
-        double pos = HUGE_VAL;
-        double neg = -HUGE_VAL;
-
-        for (RimSummaryCurve* curve : m_singleCurves)
-        {
-            if (curve->isCurveVisible())
-            {
-                RigStatisticsCalculator::posNegClosestToZero(curve->yValues(), pos, neg);
-            }
-        }
-
-        if (pos != HUGE_VAL)
-        {
-            minValue = pos;
-        }
+        minValue = pos;
     }
 
     *min = minValue;

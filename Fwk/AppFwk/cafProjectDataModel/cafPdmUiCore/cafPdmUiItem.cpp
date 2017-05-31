@@ -37,9 +37,20 @@
 
 #include "cafPdmUiItem.h"
 #include "cafPdmUiEditorHandle.h"
+#include "cafPdmPtrField.h"
 
 namespace caf
 {
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmOptionItemInfo::PdmOptionItemInfo(QString anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
+    : optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
+{
+    value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -269,26 +280,28 @@ PdmUiItem::~PdmUiItem()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiItem::updateUiIconFromState(bool active)
+void PdmUiItem::updateUiIconFromState(bool isActive, QString uiConfigName)
 {
-    // Reset dynamic icon
-    this->setUiIcon(QIcon());
-    // Get static one
-    QIcon icon = this->uiIcon();
+    static const QString iconStorageConfigNamePostfix = "_Internally_StoredNormalIcon";
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName + iconStorageConfigNamePostfix);
+    QIcon normalIcon;
 
-    // Get a pixmap, and modify it
+    if (conInfo)  normalIcon = conInfo->m_icon;
+    else          normalIcon = this->uiIcon(uiConfigName);
 
-    QPixmap icPixmap;
-    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
+    this->setUiIcon(normalIcon, uiConfigName + iconStorageConfigNamePostfix);
 
-    if (!active)
+    if ( isActive )
     {
-        QIcon temp(icPixmap);
-        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
+        this->setUiIcon(normalIcon, uiConfigName);
+        m_configItemInfos.erase(uiConfigName + iconStorageConfigNamePostfix);
     }
-
-    QIcon newIcon(icPixmap);
-    this->setUiIcon(newIcon);
+    else
+    {
+        QIcon disabledIcon(normalIcon.pixmap(16, 16, QIcon::Disabled));
+        this->setUiIcon(disabledIcon, uiConfigName);
+        this->setUiIcon(normalIcon, uiConfigName + iconStorageConfigNamePostfix);
+    }
 }
 
 } //End of namespace caf

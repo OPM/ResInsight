@@ -26,20 +26,22 @@
 
 #include <vector>
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
+
 class RimCase;
 class RimCommandObject;
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
-class RimViewLinker;
-class RimViewLinkerCollection;
 class RimMainPlotCollection;
+class RimMultiSnapshotDefinition;
 class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;
 class RimView;
+class RimViewLinker;
+class RimViewLinkerCollection;
 class RimWellPathImport;
 
 namespace caf
@@ -69,6 +71,8 @@ public:
     caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>        viewLinkerCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
+    
+    caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
     
     caf::PdmField<QString>                              mainWindowTreeViewState;
     caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;

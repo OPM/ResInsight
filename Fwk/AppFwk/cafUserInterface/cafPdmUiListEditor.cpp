@@ -57,8 +57,6 @@
 #include <QStringListModel>
 
 
-#include <assert.h>
-
 
 //==================================================================================================
 /// Helper class used to override flags to disable editable items
@@ -66,7 +64,7 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
+    explicit MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
 
     virtual Qt::ItemFlags flags (const QModelIndex& index) const
     {
@@ -86,6 +84,45 @@ private:
 };
 
 
+//==================================================================================================
+/// Helper class used to control height of size hint
+//==================================================================================================
+class QListViewHeightHint : public QListView
+{
+public:
+    explicit QListViewHeightHint(QWidget *parent = 0)
+        : m_heightHint(-1)
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QSize sizeHint() const override
+    {
+        QSize mySize = QListView::sizeHint();
+
+        if (m_heightHint > 0)
+        {
+            mySize.setHeight(m_heightHint);
+        }
+
+        return mySize;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void setHeightHint(int heightHint)
+    {
+        m_heightHint = heightHint;
+    }
+
+private:
+    int m_heightHint;
+};
+
+
 
 namespace caf
 {
@@ -99,11 +136,11 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiListEditor::PdmUiListEditor(): m_optionsOnly(false)
+PdmUiListEditor::PdmUiListEditor() :
+    m_isEditOperationsAvailable(true),
+    m_optionItemCount(0)
 {
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -117,13 +154,13 @@ PdmUiListEditor::~PdmUiListEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    // TODO: Fix assert here when undoing in testapp
+    // TODO: Fix CAF_ASSERT( here when undoing in testapp
     // See PdmUiComboBoxEditor for pattern
     // This might also apply to other editors
 
-    assert(!m_listView.isNull());
-    assert(!m_label.isNull());
-    assert(m_listView->selectionModel());
+    CAF_ASSERT(!m_listView.isNull());
+    CAF_ASSERT(!m_label.isNull());
+    CAF_ASSERT(m_listView->selectionModel());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())
@@ -142,6 +179,14 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_listView->setToolTip(field()->uiToolTip(uiConfigName));
 
+    bool optionsOnly = true;
+    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
+    m_optionItemCount = options.size();
+    if (options.size() > 0 || field()->isUiReadOnly(uiConfigName))
+    {
+        m_isEditOperationsAvailable = false;
+    }
+
     PdmUiListEditorAttribute attributes;
     caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
     if (uiObject)
@@ -152,20 +197,20 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         myPalette.setColor(QPalette::Base, attributes.m_baseColor);
 
         m_listView->setPalette(myPalette);
+        m_listView->setHeightHint(attributes.m_heightHint);
     }
 
     MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
 
-    assert(strListModel);
+    CAF_ASSERT(strListModel);
 
-    m_options = field()->valueOptions(&m_optionsOnly);
-    if (!m_options.isEmpty())
+    if (!options.isEmpty())
     {
-        assert(m_optionsOnly); // Handling Additions on the fly not implemented
+        CAF_ASSERT(optionsOnly); // Handling Additions on the fly not implemented
 
         strListModel->setItemsEditable(false);
         QModelIndex currentItem =     m_listView->selectionModel()->currentIndex();
-        QStringList texts = PdmOptionItemInfo::extractUiTexts(m_options);
+        QStringList texts = PdmOptionItemInfo::extractUiTexts(options);
         strListModel->setStringList(texts);
 
         QVariant fieldValue = field()->uiValue();
@@ -231,20 +276,24 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
 {
-    m_listView = new QListView(parent);
+    m_listView = new QListViewHeightHint(parent);
 
     m_model = new MyStringListModel(m_listView);
     m_listView->setModel(m_model);
 
     connect(m_listView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection& )), this, SLOT(slotSelectionChanged(const QItemSelection&, const QItemSelection& )));
     connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slotListItemEdited(const QModelIndex&, const QModelIndex&)));
+
+    // Used to track key press
     m_listView->installEventFilter(this);
+
+    // Used to track mouse events
+    m_listView->viewport()->installEventFilter(this);
 
     return m_listView;
 }
@@ -263,7 +312,7 @@ QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-    if (m_options.isEmpty()) return;
+    if (m_optionItemCount == 0) return;
 
     QVariant fieldValue = field()->uiValue();
     if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
@@ -280,7 +329,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
         if (idxList.size() >= 1)
         {
-            if (idxList[0].row() < m_options.size())
+            if (idxList[0].row() < m_optionItemCount)
             {
                 this->setValueToField(QVariant(static_cast<unsigned int>(idxList[0].row())));
             }
@@ -290,7 +339,10 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
     {
         QModelIndexList idxList = m_listView->selectionModel()->selectedIndexes();
 
-        if (idxList.size() == 1)
+        QVariant fieldValue = field()->uiValue();
+        QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+        if (idxList.size() == 1 && valuesSelectedInField.size() == 1)
         {
             // NOTE : Workaround for update issue seen on RHEL6 with Qt 4.6.2 
             // An invalid call to setSelection() from QAbstractItemView::keyPressEvent() causes the stepping using arrow keys
@@ -308,7 +360,7 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
         QList<QVariant> valuesToSetInField;
         for (int i = 0; i < idxList.size(); ++i)
         {
-            if (idxList[i].row() < m_options.size())
+            if (idxList[i].row() < m_optionItemCount)
             {
                 valuesToSetInField.push_back(QVariant(static_cast<unsigned int>(idxList[i].row())));
             }
@@ -317,13 +369,13 @@ void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, cons
         this->setValueToField(valuesToSetInField);
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
 {
-    if (m_optionsOnly) return;
-    assert(m_options.isEmpty()); // Not supported yet
+    CAF_ASSERT(m_isEditOperationsAvailable);
 
     QStringList uiList = m_model->stringList();
 
@@ -368,41 +420,66 @@ void PdmUiListEditor::pasteFromString(const QString& content)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
+bool PdmUiListEditor::eventFilter(QObject* object, QEvent * event)
 {
-    if (listView == m_listView && event->type() == QEvent::KeyPress)
+    if (!m_listView)
     {
-        if (m_optionsOnly) return false;
-        assert(m_options.isEmpty()); // Not supported yet
-
-        QKeyEvent* keyEv = static_cast<QKeyEvent*>(event);
-        if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
+        return false;
+    }
+    if (object == m_listView->viewport() && event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+        if (mouseEvent)
         {
-            QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
-            bool isAnyDeleted = false;
-            while(idxList.size())
+            if (mouseEvent->buttons() & Qt::LeftButton
+                && mouseEvent->modifiers() & Qt::ControlModifier)
             {
-                m_model->removeRow(idxList[0].row());
-                idxList =  m_listView->selectionModel()->selectedIndexes();
-                isAnyDeleted = true;
+                // When Ctrl button is pressed, left mouse button is pressed, and the mouse is moving,
+                // a possible bug in Qt is observed causing the selection to end up with single item selection
+                // When returning here without doing anything, system behaves as expected
+
+                // NOTE: The mouse event is handled by the viewport() of the list view, not the list view itself
+
+                return true;
             }
-
-            if (isAnyDeleted)
-            {
-                QStringList uiList = m_model->stringList();
-
-                // Remove dummy elements specifically at the  end of list.
-
-                QStringList result;
-                foreach (const QString &str, uiList) 
-                {
-                    if (str != "" && str != " ") result += str;
-                }
-                this->setValueToField(result);
-            }
-            return true;
         }
-        else if (keyEv->modifiers() & Qt::ControlModifier)
+    }
+
+    if (object == m_listView && event->type() == QEvent::KeyPress)
+    {
+        QKeyEvent* keyEv = static_cast<QKeyEvent*>(event);
+
+        if (m_isEditOperationsAvailable)
+        {
+            if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
+            {
+                QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
+                bool isAnyDeleted = false;
+                while(idxList.size())
+                {
+                    m_model->removeRow(idxList[0].row());
+                    idxList =  m_listView->selectionModel()->selectedIndexes();
+                    isAnyDeleted = true;
+                }
+
+                if (isAnyDeleted)
+                {
+                    QStringList uiList = m_model->stringList();
+
+                    // Remove dummy elements specifically at the  end of list.
+
+                    QStringList result;
+                    foreach (const QString &str, uiList) 
+                    {
+                        if (str != "" && str != " ") result += str;
+                    }
+                    this->setValueToField(result);
+                }
+                return true;
+            }
+        }
+
+        if (keyEv->modifiers() & Qt::ControlModifier)
         {
             if (keyEv->key() == Qt::Key_C)
             {
@@ -415,7 +492,7 @@ bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
                     return true;
                 }
             }
-            else if (keyEv->key() == Qt::Key_V)
+            else if (m_isEditOperationsAvailable && keyEv->key() == Qt::Key_V)
             {
                 QClipboard* clipboard = QApplication::clipboard();
                 if (clipboard)

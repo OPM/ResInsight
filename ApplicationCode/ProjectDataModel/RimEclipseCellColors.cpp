@@ -20,9 +20,17 @@
 
 #include "RimEclipseCellColors.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigFlowDiagResults.h"
+#include "RigFormationNames.h"
+
 #include "RimCellEdgeColors.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -110,8 +118,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
     if (resultVarNameOfNewLegend != RimDefines::ternarySaturationResultName())
     {
-        bool found = false;
-
         QString legendResultVariable;
 
         if (this->m_legendConfigPtrField())
@@ -121,6 +127,7 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 
         if (!this->m_legendConfigPtrField() || legendResultVariable != resultVarNameOfNewLegend)
         {
+            bool found = false;
             for (size_t i = 0; i < m_legendConfigData.size(); i++)
             {
                 if (m_legendConfigData[i]->resultVariableName() == resultVarNameOfNewLegend)
@@ -135,7 +142,6 @@ void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
             if (!found)
             {
                     RimLegendConfig* newLegend = new RimLegendConfig;
-                    newLegend->setReservoirView(m_reservoirView);
                     newLegend->resultVariableName = resultVarNameOfNewLegend;
                     m_legendConfigData.push_back(newLegend);
 
@@ -188,7 +194,7 @@ void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOr
         uiTreeOrdering.add(m_legendConfigPtrField());
     }
 
-   uiTreeOrdering.setForgetRemainingFields(true);
+   uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,13 +231,6 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
     this->setEclipseCase(ownerReservoirView->eclipseCase());
 
     m_reservoirView = ownerReservoirView;
-
-    for (size_t i = 0; i < m_legendConfigData.size(); i++)
-    {
-        m_legendConfigData[i]->setReservoirView(ownerReservoirView);
-    }
-
-    this->ternaryLegendConfig()->setReservoirView(ownerReservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,6 +239,155 @@ void RimEclipseCellColors::setReservoirView(RimEclipseView* ownerReservoirView)
 RimEclipseView* RimEclipseCellColors::reservoirView()
 {
     return m_reservoirView;
+}
+
+bool operator<(const cvf::Color3ub first, const cvf::Color3ub second)
+{
+    if (first.r() != second.r()) return  first.r() < second.r();
+    if (first.g() != second.g()) return  first.g() < second.g();
+    if (first.b() != second.b()) return  first.b() < second.b();
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class TupleCompare
+{
+public :
+    bool operator() (const std::tuple<QString, int, cvf::Color3ub>& t1, const std::tuple<QString, int, cvf::Color3ub>& t2) const
+    {
+        using namespace std;
+        if (get<0>(t1) != get<0>(t2)) return get<0>(t1) < get<0>(t2);
+        if (get<1>(t1) != get<1>(t2)) return get<1>(t1) < get<1>(t2);
+        if (get<2>(t1) != get<2>(t2)) return get<2>(t1) < get<2>(t2);
+
+        return false;
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
+{
+    if (this->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    {
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        RigFlowDiagResults* flowResultsData = this->flowDiagSolution()->flowDiagResults();
+        RigFlowDiagResultAddress resAddr = this->flowDiagResAddress();
+
+        int integerTimeStep = static_cast<int>(currentTimeStep);
+
+        flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &globalMin, &globalMax);
+        flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &globalPosClosestToZero, &globalNegClosestToZero);
+
+        double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
+        if (this->hasDynamicResult())
+        {
+            flowResultsData->minMaxScalarValues(resAddr, integerTimeStep, &localMin, &localMax);
+            flowResultsData->posNegClosestToZero(resAddr, integerTimeStep, &localPosClosestToZero, &localNegClosestToZero);
+        }
+        else
+        {
+            localMin = globalMin;
+            localMax = globalMax;
+
+            localPosClosestToZero = globalPosClosestToZero;
+            localNegClosestToZero = globalNegClosestToZero;
+        }
+
+        CVF_ASSERT(this->legendConfig());
+
+        this->legendConfig()->disableAllTimeStepsRange(true);
+        this->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        this->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        if (this->hasCategoryResult())
+        {
+            std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare > categories;
+            //std::set<std::tuple<QString, int, cvf::Color3ub> > categories;
+
+            std::vector<QString> tracerNames = this->flowDiagSolution()->tracerNames();
+            int tracerIndex = 0;
+            for (const auto& tracerName : tracerNames)
+            {
+                RimEclipseWell* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
+                cvf::Color3ub color(cvf::Color3::GRAY);
+                if (well) color = cvf::Color3ub(well->wellPipeColor());
+
+                categories.insert(std::make_tuple(tracerName, tracerIndex, color));
+                ++tracerIndex;
+            }
+
+            std::vector<std::tuple<QString, int, cvf::Color3ub>> reverseCategories;
+            for (auto tupIt = categories.rbegin(); tupIt != categories.rend(); ++tupIt)
+            {
+                reverseCategories.push_back(*tupIt);
+            }
+           
+            this->legendConfig()->setCategoryItems(reverseCategories);
+        }
+    }
+    else
+    {
+        RimEclipseCase* rimEclipseCase = nullptr;
+        this->firstAncestorOrThisOfType(rimEclipseCase);
+        CVF_ASSERT(rimEclipseCase);
+        if (!rimEclipseCase) return;
+
+        RigEclipseCaseData* eclipseCase = rimEclipseCase->eclipseCaseData();
+        CVF_ASSERT(eclipseCase);
+        if (!eclipseCase) return;
+
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(this->porosityModel());
+        RigCaseCellResultsData* cellResultsData = eclipseCase->results(porosityModel);
+        CVF_ASSERT(cellResultsData);
+
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), globalMin, globalMax);
+        cellResultsData->posNegClosestToZero(this->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
+
+        double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
+        if (this->hasDynamicResult())
+        {
+            cellResultsData->minMaxCellScalarValues(this->scalarResultIndex(), currentTimeStep, localMin, localMax);
+            cellResultsData->posNegClosestToZero(this->scalarResultIndex(), currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+        }
+        else
+        {
+            localMin = globalMin;
+            localMax = globalMax;
+
+            localPosClosestToZero = globalPosClosestToZero;
+            localNegClosestToZero = globalNegClosestToZero;
+        }
+
+        CVF_ASSERT(this->legendConfig());
+
+        this->legendConfig()->disableAllTimeStepsRange(false);
+        this->legendConfig()->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        this->legendConfig()->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        if (this->hasCategoryResult())
+        {
+            if (this->resultType() != RimDefines::FORMATION_NAMES)
+            {
+                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
+            }
+            else
+            {
+                const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
+                this->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

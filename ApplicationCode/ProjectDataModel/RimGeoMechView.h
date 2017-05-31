@@ -99,7 +99,6 @@ private:
     virtual void                                        updateCurrentTimeStep();
     virtual void                                        updateStaticCellColors();
 
-    virtual void                                        updateViewerWidgetWindowTitle();
     virtual void                                        resetLegendsInViewer();
 
     void                                                updateLegends();

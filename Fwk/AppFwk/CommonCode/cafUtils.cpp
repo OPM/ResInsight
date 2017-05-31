@@ -44,6 +44,9 @@
 
 #include <QtOpenGL/QGLContext>
 
+#include <QFileDialog>
+#include <QMessageBox>
+
 namespace caf {
 
 
@@ -124,6 +127,32 @@ QString Utils::constructFullFileName(const QString& folder, const QString& baseF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString Utils::makeValidFileBasename(const QString& fileBasenameCandidate)
+{
+    QString cleanBasename = fileBasenameCandidate.trimmed();
+    cleanBasename.replace(".", "_");
+    cleanBasename.replace(",", "_");
+    cleanBasename.replace(":", "_");
+    cleanBasename.replace(";", "_");
+    cleanBasename.replace(" ", "_");
+    cleanBasename.replace("/", "_");
+    cleanBasename.replace("\\", "_");
+    cleanBasename.replace("<", "_");
+    cleanBasename.replace(">", "_");
+    cleanBasename.replace("\"", "_");
+    cleanBasename.replace("|", "_");
+    cleanBasename.replace("?", "_");
+    cleanBasename.replace("*", "_");
+
+
+    cleanBasename.replace(QRegExp("_+"), "_");
+
+    return cleanBasename;  
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString Utils::indentString(int numSpacesToIndent, const QString& str)
 {
     QString indentString;
@@ -135,5 +164,81 @@ QString Utils::indentString(int numSpacesToIndent, const QString& str)
     return retStr;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::getSaveDirectoryAndCheckOverwriteFiles(const QString& defaultDir, std::vector<QString> fileNames, QString* saveDir)
+{
+    bool overWriteFiles = false;
+    (*saveDir) = QFileDialog::getExistingDirectory(NULL, "Select save directory", defaultDir);
+
+    std::vector<QString> filesToOverwrite;
+    for (QString fileName : fileNames)
+    {
+        QFileInfo fileInfo((*saveDir) + "/" +fileName);
+        if (fileInfo.exists())
+        {
+            filesToOverwrite.push_back(fileName);
+        }
+    }
+
+    if (filesToOverwrite.size() == 0)
+    {
+        overWriteFiles = true;
+        return overWriteFiles;
+    }
+    else if (filesToOverwrite.size() > 0)
+    {
+        QMessageBox msgBox;
+
+        QString message = "The following files will be overwritten in the export:";
+        for (QString fileName : filesToOverwrite)
+        {
+            message += "\n" + (*saveDir) + "/" + fileName;
+        }
+        msgBox.setText(message);
+
+
+        msgBox.setInformativeText("Do you want to continue?");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        int ret = msgBox.exec();
+
+        switch (ret)
+        {
+        case QMessageBox::Ok:
+            overWriteFiles = true;
+            break;
+        case QMessageBox::Cancel:
+            overWriteFiles = false;
+            break;
+        default:
+            // should never be reached
+            break;
+        }
+
+    }
+
+    return overWriteFiles;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::fileExists(const QString& fileName)
+{
+    QFileInfo fi(fileName);
+
+    // QFileInfo::exists returns true for both files and folders
+    // Also check if the path points to a file
+
+    if (fi.exists() && fi.isFile())
+    {
+        return true;
+    }
+
+    return false;
+}
 
 } // namespace caf

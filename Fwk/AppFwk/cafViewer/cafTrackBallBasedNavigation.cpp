@@ -50,7 +50,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::TrackBallBasedNavigation::TrackBallBasedNavigation() : m_consumeEvents(false)
+caf::TrackBallBasedNavigation::TrackBallBasedNavigation() : 
+    m_isRotCenterInitialized(false),
+    m_isNavigating(false),
+    m_hasMovedMouseDuringNavigation(false),
+    m_isZooming(false),
+    m_lastPosX(0),
+    m_lastPosY(0),
+    m_consumeEvents(false)
 {
 
 }

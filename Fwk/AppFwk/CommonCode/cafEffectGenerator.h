@@ -206,7 +206,7 @@ private:
 class ScalarMapperMeshEffectGenerator : public EffectGenerator
 {
 public:
-    ScalarMapperMeshEffectGenerator(const cvf::ScalarMapper* scalarMapper);
+    explicit ScalarMapperMeshEffectGenerator(const cvf::ScalarMapper* scalarMapper);
 
     void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
@@ -237,8 +237,9 @@ private:
 class MeshEffectGenerator : public EffectGenerator
 {
 public:
-    MeshEffectGenerator(const cvf::Color3f& color);
+    explicit MeshEffectGenerator(const cvf::Color3f& color);
     void setLineStipple(bool enable) { m_lineStipple = enable; }
+    void setLineWidth(float lineWidth);
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -250,6 +251,7 @@ protected:
 private:
     cvf::Color3f m_color;
     bool         m_lineStipple;
+    float        m_lineWidth;
 };
 
 

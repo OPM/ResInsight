@@ -75,7 +75,7 @@ void RicNewSimWellIntersectionFeature::setupActionLook(QAction* actionToSetup)
 RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd(RimIntersectionCollection* intersectionCollection, RimEclipseWell* simWell)
     : CmdExecuteCommand(NULL),
     m_intersectionCollection(intersectionCollection),
-    m_wellPath(simWell)
+    m_simWell(simWell)
 {
 }
 
@@ -100,12 +100,12 @@ QString RicNewSimWellIntersectionCmd::name()
 void RicNewSimWellIntersectionCmd::redo()
 {
     CVF_ASSERT(m_intersectionCollection);
-    CVF_ASSERT(m_wellPath);
+    CVF_ASSERT(m_simWell);
 
     RimIntersection* intersection = new RimIntersection();
-    intersection->name = m_wellPath->name;
+    intersection->name = m_simWell->name;
     intersection->type = RimIntersection::CS_SIMULATION_WELL;
-    intersection->simulationWell = m_wellPath;
+    intersection->simulationWell = m_simWell;
 
     m_intersectionCollection->appendIntersection(intersection);
 }

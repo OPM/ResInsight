@@ -20,9 +20,11 @@
 
 #include "RivReservoirViewPartMgr.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigCaseToCaseCellMapper.h"
+#include "RigCell.h"
 #include "RigGridBase.h"
 #include "RigResultAccessorFactory.h"
 
@@ -31,6 +33,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
@@ -147,10 +150,10 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(RivCellSetEnum geometryType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache(RivCellSetEnum geomType)
 {
-    RigCaseData* eclipseCase = NULL;
+    RigEclipseCaseData* eclipseCase = NULL;
     if (m_reservoirView != NULL && m_reservoirView->eclipseCase())
     {
-        eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
+        eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
     }
 
     if (geomType == PROPERTY_FILTERED)
@@ -247,7 +250,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::createGeometry(RivCellSetEnum geometryType)
 {
-    RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* res = m_reservoirView->eclipseCase()->eclipseCaseData();
     m_geometries[geometryType].clearAndSetReservoir(res, m_reservoirView);
     m_geometries[geometryType].setTransform(m_scaleTransform.p());
     
@@ -270,7 +273,7 @@ void RivReservoirViewPartMgr::createGeometry(RivCellSetEnum geometryType)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx)
 {
-    RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = m_reservoirView->eclipseCase()->eclipseCaseData();
     RigActiveCellInfo* activeCellInfo = m_reservoirView->currentActiveCellInfo();
 
     switch (geometryType)
@@ -397,7 +400,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t frameIndex)
 {
-    RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* res = m_reservoirView->eclipseCase()->eclipseCaseData();
 
     if ( frameIndex >= m_propFilteredGeometryFrames.size())
     { 
@@ -474,7 +477,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameIndex)
 {
-    RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* res = m_reservoirView->eclipseCase()->eclipseCaseData();
 
     if ( frameIndex >= m_propFilteredWellGeometryFrames.size())
     { 
@@ -787,18 +790,9 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
             {
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
-                RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
+                RigEclipseCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->eclipseCaseData();
 
-                size_t adjustedTimeStepIndex = timeStepIndex;
-
-                // Set time step to zero for static results
-                if (propertyFilter->resultDefinition()->hasStaticResult())
-                {
-                    adjustedTimeStepIndex = 0;
-                }
-
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(propertyFilter->resultDefinition()->porosityModel());
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, propertyFilter->resultDefinition->resultVariable(), propertyFilter->resultDefinition->resultType());
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, grid->gridIndex(),  timeStepIndex, propertyFilter->resultDefinition);
 
                 CVF_ASSERT(resultAccessor.notNull());
 
@@ -909,7 +903,7 @@ void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geom
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::cref<cvf::UByteArray> RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex) const
+const cvf::UByteArray* RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex) const
 {
     RivReservoirPartMgr * pmgr = (const_cast<RivReservoirViewPartMgr*>(this))->reservoirPartManager( geometryType,  timeStepIndex );
     return pmgr->cellVisibility(gridIndex).p();

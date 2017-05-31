@@ -35,7 +35,7 @@ class RigFemPartResultsCollection;
 class RigGeoMechCaseData: public cvf::Object
 {
 public:
-    RigGeoMechCaseData(const std::string& fileName);
+    explicit RigGeoMechCaseData(const std::string& fileName);
     ~RigGeoMechCaseData();
 
     bool                                 openAndReadFemParts(std::string* errorMessage);

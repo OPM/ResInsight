@@ -1,7 +1,0 @@
-{"name" : "TRACER" , "sections" : ["PROPS"], "items" : [
-    {"name" : "NAME"           , "value_type" : "STRING"},
-    {"name" : "FLUID"          , "value_type" : "STRING"},
-    {"name" : "UNIT"           , "value_type" : "STRING"},
-    {"name" : "SOLUTION_PHASE" , "value_type" : "STRING"},
-    {"name" : "NUM_PART_TABLE" , "value_type" : "INT"},
-    {"name" : "ADSORB_PHASE"   , "value_type" : "STRING"}]}

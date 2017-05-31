@@ -39,7 +39,7 @@ struct well_segment_collection_struct {
 
 
 
-well_segment_collection_type * well_segment_collection_alloc() {
+well_segment_collection_type * well_segment_collection_alloc(void) {
   well_segment_collection_type * segment_collection = util_malloc( sizeof * segment_collection );
 
   segment_collection->__segment_storage = vector_alloc_new();

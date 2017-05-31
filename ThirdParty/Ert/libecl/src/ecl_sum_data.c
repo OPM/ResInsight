@@ -324,7 +324,7 @@ ecl_sum_data_type * ecl_sum_data_alloc_writer( ecl_smspec_type * smspec ) {
 
 static void ecl_sum_data_fwrite_report__( const ecl_sum_data_type * data , int report_step , fortio_type * fortio) {
   {
-    ecl_kw_type * seqhdr_kw = ecl_kw_alloc( SEQHDR_KW , SEQHDR_SIZE , ECL_INT_TYPE );
+    ecl_kw_type * seqhdr_kw = ecl_kw_alloc( SEQHDR_KW , SEQHDR_SIZE , ECL_INT );
     ecl_kw_iset_int( seqhdr_kw , 0 , 0 );
     ecl_kw_fwrite( seqhdr_kw , fortio );
     ecl_kw_free( seqhdr_kw );
@@ -712,7 +712,7 @@ double_vector_type * ecl_sum_data_alloc_seconds_solution( const ecl_sum_data_typ
 
 
 
-static void ecl_sum_data_append_tstep__( ecl_sum_data_type * data , int ministep_nr , ecl_sum_tstep_type * tstep) {
+static void ecl_sum_data_append_tstep__( ecl_sum_data_type * data , ecl_sum_tstep_type * tstep) {
   /*
      Here the tstep is just appended naively, the vector will be
      sorted by ministep_nr before the data instance is returned.
@@ -854,7 +854,7 @@ ecl_sum_tstep_type * ecl_sum_data_add_new_tstep( ecl_sum_data_type * data , int 
   if (vector_get_size( data->data ) > 0)
     prev_tstep = vector_get_last( data->data );
 
-  ecl_sum_data_append_tstep__( data , ministep_nr , tstep );
+  ecl_sum_data_append_tstep__( data , tstep );
   {
     bool rebuild_index = true;
 
@@ -938,7 +938,7 @@ static void ecl_sum_data_add_ecl_file(ecl_sum_data_type * data         ,
 
         if (tstep != NULL) {
           if (load_end == 0 || (ecl_sum_tstep_get_sim_time( tstep ) < load_end))
-            ecl_sum_data_append_tstep__( data , ministep_nr , tstep );
+            ecl_sum_data_append_tstep__( data , tstep );
           else
             /* This tstep is in a time-period overlapping with data we
                already have; discard this. */
@@ -947,6 +947,42 @@ static void ecl_sum_data_add_ecl_file(ecl_sum_data_type * data         ,
       }
     }
   }
+}
+
+
+void ecl_sum_data_add_case(ecl_sum_data_type * self, const ecl_sum_data_type * other) {
+  int * param_mapping = NULL;
+  bool  header_equal = ecl_smspec_equal( self->smspec , other->smspec);
+  float default_value = 0;
+
+  if (!header_equal)
+    param_mapping = ecl_smspec_alloc_mapping( self->smspec , other->smspec );
+
+
+  for (int tstep_nr = 0; tstep_nr < ecl_sum_data_get_length( other ); tstep_nr++) {
+    ecl_sum_tstep_type * other_tstep = ecl_sum_data_iget_ministep( other , tstep_nr );
+
+    /*
+      The dataset 'self' is the authorative in the timeinterval where
+      it has data, so if 'other' also has data in the same time interval
+      that is discarded.
+    */
+
+    if (!time_interval_contains( self->sim_time , ecl_sum_tstep_get_sim_time( other_tstep ))) {
+      ecl_sum_tstep_type * new_tstep;
+
+      if (header_equal)
+        new_tstep = ecl_sum_tstep_alloc_copy( other_tstep );
+      else
+        new_tstep = ecl_sum_tstep_alloc_remap_copy( other_tstep , self->smspec , default_value , param_mapping );
+
+      ecl_sum_data_append_tstep__( self , new_tstep );
+
+    }
+  }
+
+  ecl_sum_data_build_index( self );
+  free( param_mapping );
 }
 
 

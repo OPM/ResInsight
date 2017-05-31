@@ -49,15 +49,17 @@ namespace FlowDiagnostics
     public:
         /// Initialize solver with a given flow graph (a weighted,
         /// directed asyclic graph) containing the out-fluxes from
-        /// each cell, pore volumes and inflow sources (positive).
+        /// each cell, the reverse graph (with in-fluxes from each
+        /// cell), pore volumes and inflow sources (positive).
         TracerTofSolver(const AssembledConnections& graph,
+                        const AssembledConnections& reverse_graph,
                         const std::vector<double>& pore_volumes,
                         const CellSetValues& source_inflow);
 
         /// Compute the global (combining all sources) time-of-flight of each cell.
         ///
         /// TODO: also compute tracer solution.
-        std::vector<double> solveGlobal(const std::vector<CellSet>& all_startsets);
+        std::vector<double> solveGlobal();
 
         /// Output data struct for solveLocal().
         struct LocalSolution {
@@ -77,6 +79,7 @@ namespace FlowDiagnostics
         // --------------  Private data members --------------
 
         const AssembledConnections& g_;
+        const AssembledConnections& g_reverse_;
         const std::vector<double>& pv_;
         const std::vector<double> influx_;
         const std::vector<double> outflux_;
@@ -84,8 +87,8 @@ namespace FlowDiagnostics
         std::vector<char> is_start_; // char to avoid the nasty vector<bool> specialization
         std::vector<int> sequence_;
         std::vector<int> component_starts_;
-        std::vector<double> upwind_contrib_;
         std::vector<double> tof_;
+        std::vector<double> tracer_;
         int num_multicell_ = 0;
         int max_size_multicell_ = 0;
         int max_iter_multicell_ = 0;
@@ -99,6 +102,7 @@ namespace FlowDiagnostics
         // --------------  Private methods --------------
 
         TracerTofSolver(const AssembledConnections& graph,
+                        const AssembledConnections& reverse_graph,
                         const std::vector<double>& pore_volumes,
                         const CellSetValues& source_inflow,
                         InOutFluxComputer&& inout);
@@ -106,6 +110,8 @@ namespace FlowDiagnostics
         void prepareForSolve();
 
         void setupStartArray(const CellSet& startset);
+
+        void setupStartArrayFromSource();
 
         void computeOrdering();
 

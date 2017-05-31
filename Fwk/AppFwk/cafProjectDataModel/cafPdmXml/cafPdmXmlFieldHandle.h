@@ -25,17 +25,18 @@ public:
     PdmXmlFieldHandle(PdmFieldHandle* owner , bool giveOwnership);
     virtual ~PdmXmlFieldHandle() { }
 
-    PdmFieldHandle* fieldHandle() { return m_owner; }
+    PdmFieldHandle* fieldHandle()                       { return m_owner; }
+    const PdmFieldHandle* fieldHandle() const           { return m_owner; }
 
-    bool            isIOReadable()                                 { return m_isIOReadable; }
-    bool            isIOWritable()                                 { return m_isIOWritable; }
-    void            setIOWritable(bool isWritable)                 { m_isIOWritable = isWritable; }
-    void            setIOReadable(bool isReadable)                 { m_isIOReadable = isReadable; }
+    bool            isIOReadable() const                { return m_isIOReadable; }
+    bool            isIOWritable() const                { return m_isIOWritable; }
+    void            setIOWritable(bool isWritable)      { m_isIOWritable = isWritable; }
+    void            setIOReadable(bool isReadable)      { m_isIOReadable = isReadable; }
 
     QString         childClassKeyword();
 
     virtual void    readFieldData(QXmlStreamReader& xmlStream, PdmObjectFactory* objectFactory)  = 0;
-    virtual void    writeFieldData(QXmlStreamWriter& xmlStream) = 0;
+    virtual void    writeFieldData(QXmlStreamWriter& xmlStream) const = 0;
 
     virtual void    resolveReferences() { };
 

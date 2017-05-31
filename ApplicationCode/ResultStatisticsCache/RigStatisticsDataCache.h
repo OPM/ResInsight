@@ -33,7 +33,7 @@
 class RigStatisticsDataCache : public cvf::Object
 {
 public:
-    RigStatisticsDataCache(RigStatisticsCalculator* statisticsCalculator);
+    explicit RigStatisticsDataCache(RigStatisticsCalculator* statisticsCalculator);
 
     void                                    clearAllStatistics();
 
@@ -56,12 +56,14 @@ public:
     const std::vector<size_t>&              cellScalarValuesHistogram(size_t timeStepIndex);
 
     const std::vector<int>&                 uniqueCellScalarValues();
+    const std::vector<int>&                 uniqueCellScalarValues(size_t timeStepIndex);
 
 private:
     void                                    computeHistogramStatisticsIfNeeded();
     void                                    computeHistogramStatisticsIfNeeded(size_t timeStepIndex);
 
     void                                    computeUniqueValuesIfNeeded();
+    void                                    computeUniqueValuesIfNeeded(size_t timeStepIndex);
 
 private:
     struct StatisticsValues
@@ -100,11 +102,12 @@ private:
         bool                m_isValueSumCalculated;
 
         std::vector<size_t> m_histogram;
+        std::vector<int>    m_uniqueValues;
     };
 
     StatisticsValues                m_statsAllTimesteps;
     std::vector<StatisticsValues>   m_statsPrTs;
-    std::vector<int>                m_uniqueValues;
+    
 
     cvf::ref<RigStatisticsCalculator>       m_statisticsCalculator;
 };

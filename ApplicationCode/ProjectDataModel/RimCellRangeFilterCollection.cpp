@@ -20,13 +20,13 @@
 
 #include "RimCellRangeFilterCollection.h"
 
-#include "RigCaseData.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
-#include "RigGridBase.h"
+#include "RigMainGrid.h"
 
+#include "RimCellRangeFilter.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
@@ -107,16 +107,13 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
 {
     RimEclipseView* eclipseView = this->eclipseView();
-    if (eclipseView &&
-        eclipseView->eclipseCase() &&
-        eclipseView->eclipseCase()->reservoirData() &&
-        eclipseView->eclipseCase()->reservoirData()->mainGrid())
+    if (eclipseView && eclipseView->mainGrid())
     {
 
-        return eclipseView->eclipseCase()->reservoirData()->mainGrid();
+        return eclipseView->mainGrid();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,6 +148,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
 {
     RimView* view = NULL;
     firstAncestorOrThisOfType(view);
+    if (!view) return;
 
     if (view->isMasterView())
     {
@@ -163,6 +161,7 @@ void RimCellRangeFilterCollection::updateDisplayModeNotifyManagedViews(RimCellRa
         }
     }
 
+    view->scheduleGeometryRegen(VISIBLE_WELL_CELLS);
     view->scheduleGeometryRegen(RANGE_FILTERED);
     view->scheduleGeometryRegen(RANGE_FILTERED_INACTIVE);
 
@@ -225,9 +224,7 @@ const cvf::StructGridInterface* RimCellRangeFilterCollection::gridByIndex(int gr
 
     if (mnGrid)
     {
-        RigGridBase* grid = NULL;
-
-        grid = mnGrid->gridByIndex(gridIndex);
+        RigGridBase* grid = mnGrid->gridByIndex(gridIndex);
 
         CVF_ASSERT(grid);
 

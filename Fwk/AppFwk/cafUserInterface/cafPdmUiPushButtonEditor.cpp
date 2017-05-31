@@ -46,7 +46,6 @@
 
 #include "cafFactory.h"
 
-#include <assert.h>
 
 
 namespace caf
@@ -60,8 +59,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiPushButtonEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_pushButton.isNull());
-    assert(!m_label.isNull());
+    CAF_ASSERT(!m_pushButton.isNull());
+    CAF_ASSERT(!m_label.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())
@@ -93,7 +92,8 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_pushButton->setIcon(attributes.m_buttonIcon);
     }
-    else if (!attributes.m_buttonText.isEmpty())
+    
+    if (!attributes.m_buttonText.isEmpty())
     {
         m_pushButton->setText(attributes.m_buttonText);
     }

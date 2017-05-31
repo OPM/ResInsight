@@ -14,17 +14,20 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+
+import six
+
 import ctypes
 from .metacwrap import MetaCWrap
-from .cnamespace import CNamespace
 
+@six.add_metaclass(MetaCWrap)
 class BaseCClass(object):
-    __metaclass__ = MetaCWrap
-
     namespaces = {}
 
     def __init__(self, c_pointer, parent=None, is_reference=False):
-        if c_pointer == 0 or c_pointer is None:
+        if not c_pointer:
             raise ValueError("Must have a valid (not null) pointer value!")
 
         if c_pointer < 0:
@@ -42,13 +45,11 @@ class BaseCClass(object):
 
         return obj
 
+    def _address(self):
+        return self.__c_pointer
 
-    @classmethod
-    def cNamespace(cls):
-        """ @rtype: CNamespace """
-        if cls not in BaseCClass.namespaces:
-            BaseCClass.namespaces[cls] = CNamespace(cls.__name__)
-        return BaseCClass.namespaces[cls]
+    def _ad_str(self):
+        return 'at 0x%x' % self._address()
 
     @classmethod
     def from_param(cls, c_class_object):
@@ -109,7 +110,7 @@ class BaseCClass(object):
         if isinstance(other, BaseCClass):
             return self.__c_pointer == other.__c_pointer
         else:
-            return super(BaseCClass , self).__eq__(other)
+            return super(BaseCClass , self) == other
 
     def __hash__(self):
         # Similar to last resort comparison; this returns the hash of the
@@ -119,13 +120,20 @@ class BaseCClass(object):
     def free(self):
         raise NotImplementedError("A BaseCClass requires a free method implementation!")
 
+    def _create_repr(self, args = ''):
+        """Representation on the form (e.g.) 'EclFile(...) at 0x1729'."""
+        return "{0}({1}) {2}".format(self.__class__.__name__, args, self._ad_str())
+
+    def __repr__(self):
+        """Representation on the form (e.g.) 'EclFile(...) at 0x1729'."""
+        return self._create_repr()
 
     def __del__(self):
         if self.free is not None:
             if not self.__is_reference:
                 # Important to check the c_pointer; in the case of failed object creation
                 # we can have a Python object with c_pointer == None.
-                if self.__c_pointer > 0:
+                if self.__c_pointer:
                     self.free()
 
     def _invalidateCPointer(self):

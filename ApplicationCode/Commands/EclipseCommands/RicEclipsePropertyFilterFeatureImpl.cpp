@@ -63,6 +63,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(RimEclipsePropertyFi
     setDefaults(propertyFilter);
 
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
+    propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
@@ -79,6 +80,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter(RimEclipsePropert
     setDefaults(propertyFilter);
 
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen(PROPERTY_FILTERED);
+    propertyFilterCollection->reservoirView()->scheduleCreateDisplayModelAndRedraw();
 
     propertyFilterCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(propertyFilter);
@@ -110,18 +112,17 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults(RimEclipsePropertyFilter* 
 {
     CVF_ASSERT(propertyFilter);
 
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
-    CVF_ASSERT(propertyFilterCollection);
+    RimEclipsePropertyFilterCollection* propertyFilterCollection = nullptr;
+    propertyFilter->firstAncestorOrThisOfTypeAsserted(propertyFilterCollection);
 
-    RimEclipseView* reservoirView = propertyFilterCollection->reservoirView();
-    CVF_ASSERT(reservoirView);
+    RimEclipseView* reservoirView = nullptr;
+    propertyFilter->firstAncestorOrThisOfTypeAsserted(reservoirView);
 
     propertyFilter->resultDefinition->setEclipseCase(reservoirView->eclipseCase());
-    propertyFilter->resultDefinition->setResultVariable(reservoirView->cellResult->resultVariable());
-    propertyFilter->resultDefinition->setPorosityModel(reservoirView->cellResult->porosityModel());
-    propertyFilter->resultDefinition->setResultType(reservoirView->cellResult->resultType());
+    propertyFilter->resultDefinition->simpleCopy(reservoirView->cellResult);
+
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setToDefaultValues();
     propertyFilter->updateFilterName();
-    propertyFilter->m_categorySelection = true;
+    propertyFilter->m_useCategorySelection = true;
 }

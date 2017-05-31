@@ -20,19 +20,21 @@
 
 #pragma once
 
-#include "RigSingleWellResultsData.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
 
-#include "cvfObject.h"
-
 // Include to make Pdm work for cvf::Color
-#include "cafPdmFieldCvfColor.h"    
+#include "cafPdmFieldCvfColor.h"   
 
-class RimEclipseView;
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
+class RigSingleWellResultsData;
+class RigWellResultFrame;
+struct RigWellResultPoint;
+
 
 //==================================================================================================
 ///  
@@ -46,37 +48,58 @@ public:
     RimEclipseWell();
     virtual ~RimEclipseWell();
     
-    void                                setReservoirView(RimEclipseView* ownerReservoirView);
-
     void                                setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex);
-    RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
-    size_t                              resultWellIndex() { return m_resultWellIndex; }
+    RigSingleWellResultsData*           wellResults();
+    const RigSingleWellResultsData*     wellResults() const;
+    size_t                              resultWellIndex() const;
 
-    bool                                isWellPipeVisible(size_t frameIndex);
+    bool                                isWellCellsVisible() const;
+    bool                                isWellPipeVisible(size_t frameIndex) const;
+    bool                                isWellSpheresVisible(size_t frameIndex) const;
+    bool                                isUsingCellCenterForPipe() const;
 
-    bool                                calculateWellPipeVisibility(size_t frameIndex);
 
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
+    virtual caf::PdmFieldHandle*        userDescriptionField() override;
+    virtual caf::PdmFieldHandle*        objectToggleField() override;
 
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                                calculateWellPipeStaticCenterLine( std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                                           std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
 
+    void                                calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
+                                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
+
+    void                                wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
+    double                              pipeRadius();
     caf::PdmField<bool>                 showWell;
 
     caf::PdmField<QString>              name;
+    
     caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<bool>                 showWellHead;
+    caf::PdmField<bool>                 showWellPipe;
+    caf::PdmField<bool>                 showWellSpheres;
+    
+    caf::PdmField<double>               wellHeadScaleFactor;
+    caf::PdmField<double>               pipeScaleFactor;
+
+    caf::PdmField<cvf::Color3f>         wellPipeColor;
     
     caf::PdmField<bool>                 showWellCells;
     caf::PdmField<bool>                 showWellCellFence;
-    
-    caf::PdmField<bool>                 showWellPipes;
-    caf::PdmField<cvf::Color3f>         wellPipeColor;
-    caf::PdmField<double>               pipeRadiusScaleFactor;
+
+protected:
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+
+private:
+    bool                                intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const;
+    bool                                intersectsStaticWellCellsFilteredCells() const;
+
+    bool                                intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const;
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;
     size_t                              m_resultWellIndex;
-
-    RimEclipseView*                   m_reservoirView;
 };

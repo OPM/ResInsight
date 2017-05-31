@@ -42,7 +42,7 @@ public:
 
 private:
     caf::PdmPointer<RimIntersectionCollection> m_intersectionCollection;
-    caf::PdmPointer<RimEclipseWell> m_wellPath;
+    caf::PdmPointer<RimEclipseWell> m_simWell;
 };
 
 

@@ -20,6 +20,7 @@
 #include "RiuViewerCommands.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RicViewerEventInterface.h"
 #include "RicEclipsePropertyFilterNewExec.h"
@@ -27,11 +28,12 @@
 #include "RicRangeFilterNewExec.h"
 #include "WellPathCommands/RicWellPathViewerEventHandler.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigFault.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
 #include "RigGeoMechCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
@@ -54,7 +56,6 @@
 #include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
-#include "RiuSelectionColors.h"
 #include "RiuSelectionManager.h"
 #include "RiuViewer.h"
 
@@ -65,7 +66,7 @@
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
-#include "RivWellPipeSourceInfo.h"
+#include "RivSimWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
@@ -76,6 +77,7 @@
 #include "cvfOverlayAxisCross.h"
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
+#include "cvfTransform.h"
 
 #include <QMenu>
 #include <QMouseEvent>
@@ -254,8 +256,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 }
 
                 // Hide faults command
-                const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-                const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+                const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
                 if (fault)
                 {
                     menu.addSeparator();
@@ -293,13 +294,14 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
-                commandIds << "RicNewWellLogFileCurveFeature";
                 commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicNewWellLogFileCurveFeature";
+                commandIds << "Separator";
                 commandIds << "RicNewWellPathIntersectionFeature";
             }
         }
 
-        const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
+        const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
         if (eclipseWellSourceInfo)
         {
             RimEclipseWell* well = eclipseWellSourceInfo->well();
@@ -307,7 +309,16 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
+                commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicShowWellAllocationPlotFeature";
+                commandIds << "RicPlotProductionRateFeature";
+                commandIds << "Separator";
+                commandIds << "RicShowContributingWellsFeature";
+                commandIds << "Separator";
                 commandIds << "RicNewSimWellIntersectionFeature";
+
+                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
             }
         }
 
@@ -322,13 +333,20 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         commandIds << "RicUnLinkViewFeature";
     }
 
+    commandIds << "Separator";
+    commandIds << "RicNewGridTimeHistoryCurveFeature";
+    commandIds << "RicShowFlowCharacteristicsPlotFeature";
+
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
-    if (menu.actions().size() > 0)
+    if (!menu.isEmpty())
     {
         menu.exec(event->globalPos());
     }
+
+    // Delete items in temporary selection
+    RiuSelectionManager::instance()->deleteAllItems(RiuSelectionManager::RUI_TEMPORARY);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,8 +415,7 @@ void RiuViewerCommands::slotHideFault()
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     if(!eclipseView) return;
 
-    const RigCaseData* reservoir = eclipseView->eclipseCase()->reservoirData();
-    const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+    const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
     if (fault)
     {
         QString faultName = fault->name();
@@ -507,7 +524,7 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
-            const RivEclipseWellSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivEclipseWellSourceInfo*>(firstHitPart->sourceInfo());
+            const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
 
             if (rivSourceInfo)
             {
@@ -576,10 +593,16 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
             appendToSelection = true;
         }
 
-        cvf::Color3f curveColor = RiuSelectionColors::curveColorFromTable();
-        if (RiuSelectionManager::instance()->isEmpty() || !appendToSelection)
+        std::vector<RiuSelectionItem*> items;
+        RiuSelectionManager::instance()->selectedItems(items);
+
+        const caf::ColorTable& colorTable = RiaColorTables::selectionPaletteColors();
+
+        cvf::Color3f curveColor = colorTable.cycledColor3f(items.size());
+
+        if (!appendToSelection)
         {
-            curveColor = RiuSelectionColors::singleCurveColor();
+            curveColor = colorTable.cycledColor3f(0);
         }
 
         RiuSelectionItem* selItem = NULL;
@@ -638,7 +661,7 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionSourceInfo* cr
     {
         size_t globalCellIndex = crossSectionSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
 
-        const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
+        const RigCell& cell = eclipseView->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex = cell.gridLocalCellIndex();
         *gridIndex = cell.hostGrid()->gridIndex();
     }
@@ -662,7 +685,7 @@ void RiuViewerCommands::findCellAndGridIndex(const RivIntersectionBoxSourceInfo*
     {
         size_t globalCellIndex = intersectionBoxSourceInfo->triangleToCellIndex()[firstPartTriangleIndex];
 
-        const RigCell& cell = eclipseView->eclipseCase()->reservoirData()->mainGrid()->globalCellArray()[globalCellIndex];
+        const RigCell& cell = eclipseView->mainGrid()->globalCellArray()[globalCellIndex];
         *cellIndex = cell.gridLocalCellIndex();
         *gridIndex = cell.hostGrid()->gridIndex();
     }
@@ -688,9 +711,9 @@ void RiuViewerCommands::extractIntersectionData(const cvf::HitItemCollection& hi
     {
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
 
-        if (eclipseView && eclipseView->eclipseCase())
+        if (eclipseView && eclipseView->mainGrid())
         {
-            double characteristicCellSize = eclipseView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+            double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
             pickDepthThresholdSquared = characteristicCellSize / 100.0;
             pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
         }
@@ -813,7 +836,7 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 
     if (eclipseView && eclipseView->eclipseCase())
     {
-        eclipseView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
+        eclipseView->eclipseCase()->eclipseCaseData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
     }
     
     if (geomView && geomView->geoMechCase())

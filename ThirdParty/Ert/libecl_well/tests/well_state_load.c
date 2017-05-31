@@ -43,7 +43,7 @@ int main(int argc , char ** argv) {
     int report_nr = 100;
     time_t valid_from = -1;
     bool open = false;
-    well_type_enum type = ERT_GAS_INJECTOR;
+    well_type_enum type = ECL_WELL_GAS_INJECTOR;
     int global_well_nr = 0;
     bool load_segment_information = true;
     ecl_file_view_type * rst_view = ecl_file_get_global_view( rst_file );

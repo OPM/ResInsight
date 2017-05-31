@@ -22,7 +22,7 @@
 class RigLocalGrid : public RigGridBase
 {
 public:
-    RigLocalGrid(RigMainGrid* mainGrid);
+    explicit RigLocalGrid(RigMainGrid* mainGrid);
     virtual ~RigLocalGrid();
 
     RigGridBase *   parentGrid() const { return m_parentGrid; }

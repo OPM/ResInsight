@@ -43,7 +43,7 @@ public:
     enum { NO_FAULT = -1, UNKNOWN_FAULT = -2 };
 
 public:
-    RigFaultsPrCellAccumulator(size_t reservoirCellCount) 
+    explicit RigFaultsPrCellAccumulator(size_t reservoirCellCount) 
     { 
         const int  initVals[6] = { NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT}; 
         caf::IntArray6 initVal;

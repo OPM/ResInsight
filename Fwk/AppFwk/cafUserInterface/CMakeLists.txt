@@ -20,8 +20,10 @@ include_directories (
 set( QOBJECT_HEADERS    
     cafPdmUiCheckBoxDelegate.h
     cafPdmUiCheckBoxEditor.h
+    cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
+    cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
     cafPdmUiLineEditor.h
@@ -41,6 +43,7 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeViewModel.h
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
+    QMinimizePanel.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -55,6 +58,8 @@ set( PROJECT_FILES
     cafPdmUiCheckBoxDelegate.h
     cafPdmUiCheckBoxEditor.cpp
     cafPdmUiCheckBoxEditor.h
+    cafPdmUiCheckBoxTristateEditor.cpp
+    cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.cpp
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.cpp
@@ -118,6 +123,8 @@ set( PROJECT_FILES
     cafProgressInfo.h
     cafUiProcess.cpp
     cafUiProcess.h
+    QMinimizePanel.cpp
+    QMinimizePanel.h
 )
 
 add_library( ${PROJECT_NAME}
@@ -134,7 +141,7 @@ target_link_libraries ( ${PROJECT_NAME}
     ${QT_LIBRARIES}
 )
 
-if (CAF_USE_COTIRE)
+if (COMMAND cotire)
     cotire(${PROJECT_NAME})
   
     # make sure the unity target is included in the active builds to trigger rebuild before debug

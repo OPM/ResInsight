@@ -39,7 +39,6 @@
 
 //#include <QAbstractItemModel>
 #include <QList>
-#include <assert.h>
 #include <iostream>
 
 namespace caf
@@ -73,7 +72,7 @@ public:
 
     UiTreeItem* child(int row) const
     {
-        assert(row < m_childItems.size());
+        CAF_ASSERT(row < m_childItems.size());
         return m_childItems.value(row);
     }
 

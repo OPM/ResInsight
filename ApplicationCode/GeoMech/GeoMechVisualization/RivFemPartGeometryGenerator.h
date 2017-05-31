@@ -43,7 +43,7 @@ private:
 class RivFemPartGeometryGenerator : public cvf::Object
 {
 public:
-    RivFemPartGeometryGenerator(const RigFemPart* part);
+    explicit RivFemPartGeometryGenerator(const RigFemPart* part);
     ~RivFemPartGeometryGenerator();
 
     // Setup methods

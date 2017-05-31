@@ -55,40 +55,56 @@ class PdmObjectHandle;
 class PdmUiOrdering
 {
 public:
-    PdmUiOrdering(): m_forgetRemainingFields(false) { };
+    PdmUiOrdering(): m_skipRemainingFields(false) { };
     virtual ~PdmUiOrdering();
 
-    PdmUiGroup*                     addNewGroup(QString displayName);
-    //void                            add(PdmUiItem* item)               { m_ordering.push_back(item); }
+    PdmUiOrdering(const PdmUiOrdering&) = delete;
+    PdmUiOrdering& operator=(const PdmUiOrdering&) = delete;
 
-    /// HACK constness of this class and functions must be revisited
-    //void                            add(const PdmUiItem* item)         { m_ordering.push_back(const_cast<PdmUiItem*>(item)); }
+    PdmUiGroup*                     addNewGroup(QString displayName);
+
     void                            add(const PdmFieldHandle* field);
     void                            add(const PdmObjectHandle* obj);
 
-    bool                            forgetRemainingFields() const      { return m_forgetRemainingFields; }
-    void                            setForgetRemainingFields(bool val) { m_forgetRemainingFields = val; }
+    void                            skipRemainingFields(bool doSkip = true);
 
-    const std::vector<PdmUiItem*>&  uiItems() const                    { return m_ordering; }
-    bool                            contains(const PdmUiItem* item);
+    // Pdm internal methods
+
+    const std::vector<PdmUiItem*>&  uiItems() const;
+    bool                            contains(const PdmUiItem* item) const;
+    bool                            isIncludingRemainingFields() const;
 
 private:
-    // Private copy constructor and assignment to prevent this. (The vectors below will make trouble)
-    PdmUiOrdering(const PdmUiOrdering& other)                                 { }
-    PdmUiOrdering&                  operator= (const PdmUiOrdering& other)    { }
-
-    std::vector<PdmUiItem*>         m_ordering;      ///< The order of groups and fields
-    std::vector<PdmUiGroup*>        m_createdGroups; ///< Owned PdmUiGroups, for mem management
-    bool                            m_forgetRemainingFields;
+    std::vector<PdmUiItem*>         m_ordering;            ///< The order of groups and fields
+    std::vector<PdmUiGroup*>        m_createdGroups;       ///< Owned PdmUiGroups, for memory management only
+    bool                            m_skipRemainingFields;
 };
 
 //==================================================================================================
-/// Class representing a group of fields
+/// Class representing a group of fields communicated to the Gui
 //==================================================================================================
 
 class PdmUiGroup : public PdmUiItem, public PdmUiOrdering
 {
+public:
+    PdmUiGroup() { m_isCollapsedByDefault = false; m_hasForcedExpandedState = false; m_forcedCollapseState = false;}
+
     virtual bool isUiGroup() { return true; }
+
+    /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect. 
+    void         setCollapsedByDefault(bool doCollapse) { m_isCollapsedByDefault = doCollapse;} 
+    /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
+    void         setCollapsed(bool doCollapse)          { m_hasForcedExpandedState = true; m_forcedCollapseState = doCollapse;}
+
+    // Pdm internal methods
+    bool         isExpandedByDefault()    const { return !m_isCollapsedByDefault;} 
+    bool         hasForcedExpandedState() const { return m_hasForcedExpandedState;} 
+    bool         forcedExpandedState()    const { return !m_forcedCollapseState;}
+
+private:
+    bool         m_isCollapsedByDefault;
+    bool         m_hasForcedExpandedState;
+    bool         m_forcedCollapseState;
 };
 
 

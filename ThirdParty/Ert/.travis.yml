@@ -1,63 +1,38 @@
+dist: trusty
+sudo: false
 language: c
-
-matrix:
-  fast_finish: true
-  allow_failures:
-    - os: osx
-  include:
-    - os: osx
-      osx_image: xcode7.3
-      compiler: clang
-    - os: linux
-      compiler: gcc
 
 addons:
   apt:
     sources:
-      - ubuntu-toolchain-r-test
+    - ubuntu-toolchain-r-test
     packages:
-      - liblapack-dev
-      - valgrind
-      - gcc-4.8
-      - g++-4.8
-      - clang
-
-install:
-    - if [[ "$CC" == "gcc" ]]; then export CXX="g++-4.8"; fi
-
-    - export TRAVIS_PYTHON_VERSION="2.7"
-    # We do this conditionally because it saves us some downloading if the version is the same.
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-          wget https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh;
-        else
-          wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-        fi
-      else
-        if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh;
-        else
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-        fi
-      fi
-
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export CONDA_HOME="$HOME/miniconda"
-    - export PATH="$CONDA_HOME/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
-    # Useful for debugging any issues with conda
-    - conda info -a
-    - conda install pyqt=4 scipy=0.16.1 numpy pandas matplotlib
+    - liblapack-dev
+    - valgrind
+    - gcc-4.8
+    - g++-4.8
 
 env:
   global:
-     - ERT_SHOW_BACKTRACE=1 
+  - ERT_SHOW_BACKTRACE=1
+
+install:
+- if [[ "$CC" == "gcc" ]]; then export CXX="g++-4.8"; fi
+- wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+- bash miniconda.sh -b -p $HOME/miniconda
+- export CONDA_HOME="$HOME/miniconda"
+- export PATH="$CONDA_HOME/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda update -q conda
+- conda info -a  # Useful for debugging any issues with conda
+- conda install pylint numpy pandas
 
 before_script:
-  - mkdir build
-  - cd build
-  - cmake -DPYTHON_INSTALL_PREFIX=python -DBUILD_ERT=ON -DERT_BUILD_GUI=ON -DBUILD_TESTS=ON -DBUILD_APPLICATIONS=ON -DUSE_RUNPATH=ON -DBUILD_PYTHON=ON -DERT_USE_OPENMP=ON -DERT_DOC=OFF -DERT_BUILD_CXX=ON ..
+- mkdir build
+- cd build
+- cmake -DBUILD_TESTS=ON -DBUILD_PYTHON=ON -DERT_BUILD_CXX=ON -DBUILD_APPLICATIONS=ON ..
 
-script: make && ctest --output-on-failure
+script:
+- make
+- ctest --output-on-failure -E ert_util_ping

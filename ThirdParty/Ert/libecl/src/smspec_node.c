@@ -52,22 +52,55 @@
 
 struct smspec_node_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char                 * gen_key1;           /* The main composite key, i.e. WWCT:OP3 for this element. */
-  char                 * gen_key2;           /* Some of the ijk based elements will have both a xxx:i,j,k and a xxx:num key. Some of the region_2_region elements will have both a xxx:num and a xxx:r2-r2 key. Mostly NULL. */
-  ecl_smspec_var_type    var_type;           /* The variable type */
   char                 * wgname;             /* The value of the WGNAMES vector for this element. */
   char                 * keyword;            /* The value of the KEYWORDS vector for this elements. */
   char                 * unit;               /* The value of the UNITS vector for this elements. */
   int                    num;                /* The value of the NUMS vector for this elements - NB this will have the value SMSPEC_NUMS_INVALID if the smspec file does not have a NUMS vector. */
-  int                  * ijk;                /* The ijk coordinates (NB: OFFSET 1) corresponding to the nums value - will be NULL if not relevant. */
   char                 * lgr_name;           /* The lgr name of the current variable - will be NULL for non-lgr variables. */
   int                  * lgr_ijk;            /* The (i,j,k) coordinate, in the local grid, if this is a LGR variable. WIll be NULL for no-lgr variables. */
+
+  /*------------------------------------------- All members below this line are *derived* quantities. */
+
+  char                 * gen_key1;           /* The main composite key, i.e. WWCT:OP3 for this element. */
+  char                 * gen_key2;           /* Some of the ijk based elements will have both a xxx:i,j,k and a xxx:num key. Some of the region_2_region elements will have both a xxx:num and a xxx:r2-r2 key. Mostly NULL. */
+  ecl_smspec_var_type    var_type;           /* The variable type */
+  int                  * ijk;                /* The ijk coordinates (NB: OFFSET 1) corresponding to the nums value - will be NULL if not relevant. */
   bool                   rate_variable;      /* Is this a rate variable (i.e. WOPR) or a state variable (i.e. BPR). Relevant when doing time interpolation. */
   bool                   total_variable;     /* Is this a total variable like WOPT? */
   bool                   historical;         /* Does the name end with 'H'? */
   int                    params_index;       /* The index of this variable (applies to all the vectors - in particular the PARAMS vectors of the summary files *.Snnnn / *.UNSMRY ). */
   float                  default_value;      /* Default value for this variable. */
 };
+
+
+static bool string_equal(const char * s1 , const char * s2)
+{
+  if ((s1 == NULL) && (s2 == NULL))
+    return true;
+  else
+    return util_string_equal( s1 , s2 );
+}
+
+bool smspec_node_equal( const smspec_node_type * node1,  const smspec_node_type * node2) {
+  if ((node1->params_index == node2->params_index) &&
+      (node1->num == node2->num) &&
+      (node1->var_type == node2->var_type) &&
+      (string_equal( node1->keyword, node2->keyword)) &&
+      (string_equal( node1->wgname, node2->wgname)) &&
+      (string_equal( node1->unit, node2->unit)) &&
+      (string_equal( node1->lgr_name, node2->lgr_name)))
+    {
+      if (node1->lgr_ijk)
+        return ((node1->lgr_ijk[0] == node2->lgr_ijk[0]) &&
+                (node1->lgr_ijk[1] == node2->lgr_ijk[1]) &&
+                (node1->lgr_ijk[2] == node2->lgr_ijk[2]));
+
+      return true;
+    }
+
+  return false;
+}
+
 
 
 /*****************************************************************/
@@ -308,6 +341,7 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     if (smspec_node->var_type == ECL_SMSPEC_WELL_VAR ||
         smspec_node->var_type == ECL_SMSPEC_GROUP_VAR ||
         smspec_node->var_type == ECL_SMSPEC_FIELD_VAR ||
+        smspec_node->var_type == ECL_SMSPEC_REGION_VAR ||
         smspec_node->var_type == ECL_SMSPEC_COMPLETION_VAR ) {
       const char *total_vars[] = {"OPT"  , "GPT"  , "WPT" , "GIT", "WIT", "OPTF" , "OPTS" , "OIT"  , "OVPT" , "OVIT" , "MWT" ,
                                   "WVPT" , "WVIT" , "GMT"  , "GPTF" , "SGT"  , "GST" , "FGT" , "GCT" , "GIMT" ,
@@ -373,20 +407,12 @@ smspec_node_type * smspec_node_alloc_new(int params_index, float default_value) 
 }
 
 
-/**
-   Observe that the wellname can have max 8 characters; anything
-   beyond that is silently dropped.
-*/
-
 static void smspec_node_set_wgname( smspec_node_type * index , const char * wgname ) {
   if (wgname == NULL) {
     util_safe_free( index->wgname );
     index->wgname = NULL;
   } else {
-    if (strlen(wgname) > 8)
-      index->wgname = util_realloc_substring_copy(index->wgname , wgname , 8);
-    else
-      index->wgname = util_realloc_string_copy(index->wgname , wgname );
+    index->wgname = util_realloc_string_copy(index->wgname , wgname );
   }
 }
 

@@ -19,10 +19,11 @@
 
 #include "RicNewWellLogPlotTrackFeature.h"
 
+#include "RicNewWellLogCurveExtractionFeature.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
+
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-
-#include "RicNewWellLogCurveExtractionFeature.h"
 
 #include "cafSelectionManager.h"
 
@@ -36,6 +37,8 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogPlotTrackFeature, "RicNewWellLogPlotTrackFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogPlotTrackFeature::isCommandEnabled()
 {
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+ 
     return selectedWellLogPlot() != NULL;
 }
 
@@ -44,6 +47,8 @@ bool RicNewWellLogPlotTrackFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
 {
+    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return;
+
     RimWellLogPlot* wellLogPlot = selectedWellLogPlot();
     if (wellLogPlot)
     {
@@ -52,7 +57,7 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
          plotTrack->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
 
          wellLogPlot->updateConnectedEditors();
-         RicNewWellLogCurveExtractionFeature::addCurve(plotTrack, NULL, NULL);
+         RicNewWellLogCurveExtractionFeature::addCurve(plotTrack, NULL, NULL, nullptr, -1);
     }
 }
 

@@ -24,6 +24,8 @@
 
 class RifReaderInterface;
 class RigMainGrid;
+class RimFlowDiagSolution;
+class RigFlowDiagSolverInterface;
 
 //==================================================================================================
 //
@@ -42,13 +44,18 @@ public:
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
 
     virtual bool                openEclipseGridFile();
-    bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
+    virtual void                reloadEclipseGridFile();
+    bool                        openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 
     // Overrides from RimCase
     virtual QString             locationOnDisc() const;
     virtual QString             gridFileName() const { return caseFileName();}
     virtual void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+
+    RimFlowDiagSolution*              defaultFlowDiagSolution();
+    std::vector<RimFlowDiagSolution*> flowDiagSolutions();
+    RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
@@ -57,8 +64,12 @@ private:
 
     virtual void                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
+    cvf::ref<RigFlowDiagSolverInterface>        m_flowDagSolverInterface;
+
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
+    caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
+
 
     // Obsolete field
     caf::PdmField<QString>      caseDirectory; 

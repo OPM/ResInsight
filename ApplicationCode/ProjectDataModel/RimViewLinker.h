@@ -28,6 +28,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfBase.h"
+#include "cvfVector3.h"
+
 namespace cvf
 {
     class BoundingBox;
@@ -50,10 +53,10 @@ public:
     RimViewLinker(void);
     virtual ~RimViewLinker(void);
     
-    bool                                    isActive();
+    bool                                    isActive() const;
 
     void                                    setMasterView(RimView* view);
-    RimView*                                masterView();
+    RimView*                                masterView() const;
 
     void                                    addDependentView(RimView* view);
     void                                    updateDependentViews();
@@ -66,20 +69,23 @@ public:
     void                                    updateScaleZ(RimView* sourceView, double scaleZ);
 
     void                                    updateCellResult();
+
     void                                    updateRangeFilters(RimCellRangeFilter* changedRangeFilter);
     void                                    applyRangeFilterCollectionByUserChoice();
 
     void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
     void                                    scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void                                    allViews(std::vector<RimView*>& views);
+    void                                    allViews(std::vector<RimView*>& views) const;
 
     void                                    updateUiNameAndIcon();
 
-    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering);
+    void                                    addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const;
 
     static void                             applyIconEnabledState(caf::PdmObject* obj, const QIcon& icon, bool disable);
     static void                             findNameAndIconFromView(QString* name, QIcon* icon, RimView* view);
+
+    void                                    updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord);
 
 public:
     static QString                          displayNameForView(RimView* view);
@@ -89,11 +95,9 @@ protected:
     virtual void                            initAfterRead();
 
 private:
-    void                                    allViewsForCameraSync(RimView* source, std::vector<RimView*>& views);
+    void                                    allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const;
     
     void                                    removeOverrides();
-
-    static bool                             isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB);
 
 private:
     caf::PdmChildArrayField<RimViewController*>   m_viewControllers;

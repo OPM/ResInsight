@@ -56,7 +56,7 @@ using namespace cvf;
 class RenderPassPreparator : public cvf::DynamicUniformSet
 {
 public:
-    RenderPassPreparator(TransparentWBRenderConfiguration* renderConfiguration)
+    explicit RenderPassPreparator(TransparentWBRenderConfiguration* renderConfiguration)
     {
         CVF_ASSERT(renderConfiguration);
         m_renderConfiguration = renderConfiguration;

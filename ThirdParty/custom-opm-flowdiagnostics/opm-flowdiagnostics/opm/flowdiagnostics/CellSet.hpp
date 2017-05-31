@@ -23,6 +23,7 @@
 
 #include <string>
 #include <unordered_set>
+#include <vector>
 
 namespace Opm
 {
@@ -41,9 +42,14 @@ namespace FlowDiagnostics
 
         std::string to_string() const;
 
+        bool operator<(const CellSetID& other) const;
+
     private:
         Repr id_;
     };
+
+
+
 
     class CellSet
     {
@@ -51,14 +57,17 @@ namespace FlowDiagnostics
         using IndexSet = std::unordered_set<int>;
 
     public:
-        using const_iterator = IndexSet::const_iterator;
+        /// Contruct empty cell set, use insert() to populate.
+        explicit CellSet(CellSetID id);
 
-        void identify(CellSetID id);
+        /// Construct non-empty cell set.
+        CellSet(CellSetID id, const std::vector<int>& cells);
 
         const CellSetID& id() const;
 
         void insert(const int cell);
 
+        using const_iterator = IndexSet::const_iterator;
         const_iterator begin() const;
         const_iterator end()   const;
 

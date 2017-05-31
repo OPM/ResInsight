@@ -39,9 +39,10 @@
 
 #include "cafPdmObjectFactory.h"
 
+#include "cafAssert.h"
+
 #include <QString>
 
-#include <assert.h>
 #include <map>
 
 namespace caf
@@ -77,8 +78,8 @@ public:
         }
         else
         {
-            assert(classNameKeyword != entryIt->first); // classNameKeyword has already been used
-            assert(false); // To be sure ..
+            CAF_ASSERT(classNameKeyword != entryIt->first); // classNameKeyword has already been used
+            CAF_ASSERT(false); // To be sure ..
             return false;  // never hit;
         }
     }

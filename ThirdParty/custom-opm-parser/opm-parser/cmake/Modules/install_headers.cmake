@@ -1,8 +1,0 @@
-function ( install_headers header-list prefix ) 
-   foreach (header ${header-list})
-       set( abs_path "${CMAKE_CURRENT_SOURCE_DIR}/${header}")
-       get_filename_component( path ${abs_path} PATH )
-       file( RELATIVE_PATH rel_path "${PROJECT_SOURCE_DIR}" "${path}")
-       install ( FILES ${header}  DESTINATION ${prefix}/include/${rel_path} )
-   endforeach()
-endfunction()

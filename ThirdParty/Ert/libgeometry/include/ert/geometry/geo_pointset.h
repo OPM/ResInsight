@@ -30,7 +30,6 @@ typedef struct geo_pointset_struct geo_pointset_type;
 
   geo_pointset_type * geo_pointset_alloc( bool external_z );
   void                geo_pointset_free( geo_pointset_type * pointset );
-  void                geo_pointset_add_xy( geo_pointset_type * pointset , double x , double y);
   void                geo_pointset_add_xyz( geo_pointset_type * pointset , double x , double y, double z);
   int                 geo_pointset_get_size( const geo_pointset_type * pointset );
   void                geo_pointset_iget_xy( const geo_pointset_type * pointset , int index , double * x , double * y);

@@ -37,17 +37,20 @@ class QSpinBox;
 class QUndoView;
 
 class RimCase;
+
+class RiuMessagePanel;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
-class RiuViewer;
 class RiuResultQwtPlot;
+class RiuViewer;
+
 struct RimMdiWindowGeometry;
 
 namespace caf
 {
     class PdmUiTreeView;
     class AnimationToolBar;
-     class PdmObject;
+    class PdmObject;
     class PdmUiPropertyView;
     class PdmUiItem;
 }
@@ -77,9 +80,9 @@ public:
     void            cleanupGuiCaseClose();
     void            cleanupGuiBeforeProjectClose();
 
-    void            removeViewer( QWidget* viewer );
-    void            addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
-    void            setActiveViewer(QWidget* subWindow);
+    void            removeViewer( QWidget* viewer ) override;
+    void            addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
+    void            setActiveViewer(QWidget* subWindow) override;
 
     void            setResultInfo(const QString& info) const;
 
@@ -102,14 +105,16 @@ public:
     void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
     RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
-    RimMdiWindowGeometry    windowGeometryForWidget(QWidget* widget);
 
     void            tileWindows();
     bool            isAnyMdiSubWindowVisible();
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
-    RiuResultQwtPlot* resultPlot();
+    RiuResultQwtPlot*   resultPlot();
+    RiuMessagePanel*    messagePanel();
+
+    void            showProcessMonitorDockPanel();
 
 protected:
     virtual void    closeEvent(QCloseEvent* event);
@@ -121,6 +126,8 @@ private:
     void            createDockPanels();
 
     void            restoreTreeViewState();
+
+    void            showDockPanel(const QString& dockPanelName);
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;
@@ -158,6 +165,7 @@ private:
     RiuViewer*          m_mainViewer;
     RiuResultInfoPanel* m_resultInfoPanel;
     RiuProcessMonitor*  m_processMonitor;
+    QPointer<RiuMessagePanel>               m_messagePanel;
     
     RiuResultQwtPlot*   m_resultQwtPlot;
     
@@ -191,7 +199,7 @@ private slots:
     void slotToggleFaultLabelsAction(bool);
     void slotDisableLightingAction(bool);
 
-    void slotAddWellCellsToRangeFilterAction(bool doAdd);
+    void slotShowWellCellsAction(bool doAdd);
 
     // Debug slots
     void    slotUseShaders(bool enable);
@@ -246,7 +254,7 @@ private:
     QAction*                    m_drawStyleLinesSolidAction;
     QAction*                    m_drawStyleFaultLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
-    QAction*                    m_addWellCellsToRangeFilterAction;
+    QAction*                    m_showWellCellsAction;
 
     std::vector<QPointer<QDockWidget> > additionalProjectViews;
 

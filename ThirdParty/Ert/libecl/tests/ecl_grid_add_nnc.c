@@ -62,7 +62,7 @@ void simple_test() {
   {
     test_work_area_type * test_area = test_work_area_alloc("ecl_grid_nnc");
     ecl_grid_type * grid1;
-    ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ERT_ECL_METRIC_UNITS);
+    ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ECL_METRIC_UNITS);
     grid1 = ecl_grid_alloc( "TEST.EGRID" );
 
     verify_simple_nnc( grid1 );
@@ -92,7 +92,7 @@ void overwrite_test() {
   {
     test_work_area_type * test_area = test_work_area_alloc("ecl_grid_nnc");
     ecl_grid_type * grid1;
-    ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ERT_ECL_METRIC_UNITS);
+    ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ECL_METRIC_UNITS);
     grid1 = ecl_grid_alloc( "TEST.EGRID" );
 
     verify_simple_nnc( grid1 );
@@ -120,7 +120,7 @@ void list_test() {
   {
     test_work_area_type * test_area = test_work_area_alloc("ecl_grid_nnc");
     ecl_grid_type * grid1;
-    ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ERT_ECL_METRIC_UNITS);
+    ecl_grid_fwrite_EGRID2( grid0 , "TEST.EGRID" , ECL_METRIC_UNITS);
     grid1 = ecl_grid_alloc( "TEST.EGRID" );
 
     verify_simple_nnc( grid1 );

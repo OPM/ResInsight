@@ -39,10 +39,11 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot()
     CVF_ASSERT(wellLogPlotColl);
 
     RimWellLogPlot* plot = new RimWellLogPlot();
+    plot->setAsPlotMdiWindow();
     wellLogPlotColl->wellLogPlots().push_back(plot);
 
     // Make sure the summary plot window is created and visible
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
 
     plot->setDescription(QString("Well Log Plot %1").arg(wellLogPlotCollection()->wellLogPlots.size()));
 

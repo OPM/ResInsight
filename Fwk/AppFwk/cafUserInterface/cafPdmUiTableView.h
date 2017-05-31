@@ -71,6 +71,7 @@ public:
     void        setListField(PdmChildArrayFieldHandle* object);
 
     void        enableDefaultContextMenu(bool enable);
+    void        enableHeaderText(bool enable);
     void        setSelectionRole(SelectionManager::SelectionRole role);
 
     QTableView* tableView();

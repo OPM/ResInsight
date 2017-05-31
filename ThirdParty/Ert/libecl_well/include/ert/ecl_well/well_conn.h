@@ -53,7 +53,7 @@ extern "C" {
 
   bool             well_conn_MSW(const well_conn_type * conn);
 
-  well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw , const ecl_kw_type * scon_kw , const ecl_rsthead_type * header , int well_nr , int conn_nr);
+  well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw , const ecl_kw_type * scon_kw , const ecl_kw_type* xcon_kw, const ecl_rsthead_type * header , int well_nr , int conn_nr);
   well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_rsthead_type * header , int well_nr);
 
   int                well_conn_get_i(const well_conn_type * conn);
@@ -67,7 +67,18 @@ extern "C" {
   bool               well_conn_equal( const well_conn_type *conn1  , const well_conn_type * conn2);
   double             well_conn_get_connection_factor( const well_conn_type * conn );
 
-  UTIL_IS_INSTANCE_HEADER( well_conn );
+  double             well_conn_get_oil_rate(const well_conn_type *conn);
+  double             well_conn_get_gas_rate(const well_conn_type *conn);
+  double             well_conn_get_water_rate(const well_conn_type *conn);
+  double             well_conn_get_volume_rate(const well_conn_type *conn);
+
+  double             well_conn_get_oil_rate_si(const well_conn_type *conn);
+  double             well_conn_get_gas_rate_si(const well_conn_type *conn);
+  double             well_conn_get_water_rate_si(const well_conn_type *conn);
+  double             well_conn_get_volume_rate_si(const well_conn_type *conn);
+
+
+UTIL_IS_INSTANCE_HEADER( well_conn );
   UTIL_SAFE_CAST_HEADER( well_conn );
 
 

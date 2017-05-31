@@ -40,15 +40,17 @@ public:
     RimEclipseCase*                 associatedEclipseCase();
 
     virtual QString                 summaryHeaderFilename() const override;
-    virtual QString                 caseName() const override;
+    virtual QString                 caseName() override;
+    virtual void                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
 private:
     QString                         eclipseGridFileName() const;
 
 private:
     caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
+    mutable caf::PdmField<QString>      m_cachedCaseName;
     caf::PdmProxyValueField<QString>    m_eclipseGridFileName;
-    caf::PdmProxyValueField<QString>    m_eclipseSummaryFileName;
+    //caf::PdmProxyValueField<QString>    m_eclipseSummaryFileName;
 };
 
 

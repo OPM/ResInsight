@@ -1,6 +1,0 @@
-{ "name" : "PLYSHLOG" , "size" : 2 , "sections" : ["SPECIAL", "PROPS", "SCHEDULE"] , "records" : [
-    [{"name" : "REF_POLYMER_CONCENTRATION" , "value_type" : "DOUBLE"  , "dimension" : "PolymerDensity"},
-     {"name" : "REF_SALINITY" , "value_type" : "DOUBLE" , "dimension" : "Salinity"},
-     {"name" : "REF_TEMPERATURE" , "value_type" : "DOUBLE" , "dimension" : "Temperature"}],
-    [{"name" : "DATA" , "value_type" : "DOUBLE"  , "size_type" : "ALL" , "dimension" : ["1" , "1"]}]
-]}

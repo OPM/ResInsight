@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 
+#include "RivPartPriority.h"
 #include "RivPatchGenerator.h"
 
 #include "cafEffectGenerator.h"
@@ -620,7 +621,7 @@ void RivGridBoxGenerator::createLegend(EdgeType edge, cvf::Collection<cvf::Part>
         depth->enableDepthTest(false);
         eff->setRenderState(depth.p());
 
-        part->setPriority(1500);
+        part->setPriority(RivPartPriority::PartType::Text);
         part->setEffect(eff.p());
 
         parts->push_back(part.p());

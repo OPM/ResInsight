@@ -23,16 +23,20 @@
 #include "RiaPreferences.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimFault.h"
 #include "RimFaultCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "RivFaultGeometryGenerator.h"
+#include "RivNNCGeometryGenerator.h"
+#include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivSourceInfo.h"
@@ -103,7 +107,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
-    RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
     // Faults
     if (m_nativeFaultFaces.notNull())
@@ -206,10 +210,6 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipse
     }
 }
 
-const int priFaultGeo = 1;
-const int priNncGeo = 2;
-const int priMesh = 3;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -240,7 +240,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
-            part->setPriority(priFaultGeo);
+            part->setPriority(RivPartPriority::PartType::Fault);
 
             m_nativeFaultFaces = part;
         }
@@ -262,7 +262,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(priMesh);
+            part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
             m_nativeFaultGridLines = part;
         }
@@ -292,7 +292,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
-            part->setPriority(priFaultGeo);
+            part->setPriority(RivPartPriority::PartType::Fault);
 
             m_oppositeFaultFaces = part;
         }
@@ -314,7 +314,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(priMesh);
+            part->setPriority(RivPartPriority::PartType::FaultMeshLines);
 
             m_oppositeFaultGridLines = part;
         }
@@ -342,7 +342,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
-            part->setPriority(priNncGeo);
+            part->setPriority(RivPartPriority::PartType::Nnc);
 
             m_NNCFaces = part;
         }
@@ -397,18 +397,18 @@ void RivFaultPartMgr::updatePartEffect()
     if (m_opacityLevel < 1.0f)
     {
         // Set priority to make sure this transparent geometry are rendered last
-        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100 + priFaultGeo);
-        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100 + priFaultGeo);
-        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(100 + priNncGeo);
+        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(RivPartPriority::PartType::TransparentFault);
+        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(RivPartPriority::PartType::TransparentFault);
+        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(RivPartPriority::PartType::TransparentNnc);
 
         if (m_nativeFaultGridLines.notNull())
         {
-            m_nativeFaultGridLines->setPriority(100 + priMesh);
+            m_nativeFaultGridLines->setPriority(RivPartPriority::PartType::FaultMeshLines);
         }
 
         if (m_oppositeFaultGridLines.notNull())
         {
-            m_oppositeFaultGridLines->setPriority(100 + priMesh);
+            m_oppositeFaultGridLines->setPriority(RivPartPriority::PartType::FaultMeshLines);
         }
     }
 }
@@ -481,7 +481,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
         part->setEffect(eff.p());
-        part->setPriority(1000);
+        part->setPriority(RivPartPriority::PartType::Text);
 
         m_faultLabelPart = part;
     }

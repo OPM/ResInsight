@@ -42,6 +42,9 @@ bool RicOpenProjectFeature::isCommandEnabled()
 void RicOpenProjectFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
+    
+    if (!app->askUserToSaveModifiedProject()) return;
+
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
     QString fileName = QFileDialog::getOpenFileName(NULL, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
 
@@ -63,4 +66,5 @@ void RicOpenProjectFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Open Project");
     actionToSetup->setIcon(QIcon(":/openFolder24x24.png"));
+    actionToSetup->setShortcuts(QKeySequence::Open);
 }

@@ -62,7 +62,7 @@ namespace caf
 class FocusEventHandler : public QObject
 {
 public:
-    FocusEventHandler(PdmUiTableViewEditor* tableViewEditor)
+    explicit FocusEventHandler(PdmUiTableViewEditor* tableViewEditor)
         : QObject(tableViewEditor)
     {
         m_tableViewEditor = tableViewEditor;
@@ -93,7 +93,9 @@ PdmUiTableViewEditor::PdmUiTableViewEditor()
 {
     m_layout = NULL;;
     m_tableView = NULL;
+    m_tableHeading = NULL;
     m_tableModelPdm = NULL;
+    m_tableHeadingIcon = NULL;
     m_pdmListField = NULL;
     m_delegate = NULL;
 
@@ -118,7 +120,9 @@ PdmUiTableViewEditor::~PdmUiTableViewEditor()
 QWidget* PdmUiTableViewEditor::createWidget(QWidget* parent)
 {
     m_mainWidget = new QWidget(parent);
-    m_layout     = new QVBoxLayout();
+
+    m_layout = new QVBoxLayout();
+    m_layout->setContentsMargins(0, 0, 0, 0);
     m_mainWidget->setLayout(m_layout);
 
     m_tableModelPdm = new PdmUiTableViewModel(m_mainWidget);
@@ -265,6 +269,15 @@ void PdmUiTableViewEditor::enableDefaultContextMenu(bool enable)
     m_useDefaultContextMenu = enable;
 
     updateContextMenuSignals();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewEditor::enableHeaderText(bool enable)
+{
+    m_tableHeading->setVisible(enable);
+    m_tableHeadingIcon->setVisible(enable);
 }
 
 //--------------------------------------------------------------------------------------------------

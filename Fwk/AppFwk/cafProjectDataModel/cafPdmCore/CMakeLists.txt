@@ -11,41 +11,45 @@ include_directories (
 
 set( PROJECT_FILES
 
-	cafAppEnum.h
-	cafClassTypeName.h
-	cafPdmBase.h
-	cafPdmChildArrayField.h
-	cafPdmChildArrayField.inl
-	cafPdmChildArrayFieldHandle.cpp
-	cafPdmChildField.h
-	cafPdmChildField.inl
-	cafPdmDataValueField.h
-	cafPdmFieldCapability.h
-	cafPdmFieldHandle.cpp
-	cafPdmFieldHandle.h
-	cafPdmObjectCapability.h
-	cafPdmObjectHandle.cpp
-	cafPdmObjectHandle.h
-	cafPdmPointer.cpp
-	cafPdmPointer.h
-	cafPdmProxyValueField.h
-	cafPdmPtrArrayField.h
-	cafPdmPtrArrayField.inl
-	cafPdmPtrArrayFieldHandle.h
-	cafPdmPtrField.h
-	cafPdmPtrField.inl
-	cafPdmReferenceHelper.cpp
-	cafPdmReferenceHelper.h
+    cafAssert.h
+    cafAppEnum.h
+    cafClassTypeName.h
+    cafPdmBase.h
+    cafPdmChildArrayField.h
+    cafPdmChildArrayField.inl
+    cafPdmChildArrayFieldHandle.cpp
+    cafPdmChildField.h
+    cafPdmChildField.inl
+    cafPdmDataValueField.h
+    cafPdmFieldCapability.h
+    cafPdmFieldHandle.cpp
+    cafPdmFieldHandle.h
+    cafPdmObjectCapability.h
+    cafPdmObjectHandle.cpp
+    cafPdmObjectHandle.h
+    cafPdmPointer.cpp
+    cafPdmPointer.h
+    cafPdmProxyValueField.h
+    cafPdmPtrArrayField.h
+    cafPdmPtrArrayField.inl
+    cafPdmPtrArrayFieldHandle.h
+    cafPdmPtrField.h
+    cafPdmPtrField.inl
+    cafPdmReferenceHelper.cpp
+    cafPdmReferenceHelper.h
     cafPdmUiFieldHandleInterface.h
-	cafPdmValueField.h
+    cafPdmValueField.h
 
     cafNotificationCenter.cpp
-	cafNotificationCenter.h
+    cafNotificationCenter.h
+
+    cafTristate.cpp
+    cafTristate.h
 )
 
 
 add_library( ${PROJECT_NAME}
-	${PROJECT_FILES}
+    ${PROJECT_FILES}
 )
 
 source_group("" FILES ${PROJECT_FILES})

@@ -44,7 +44,6 @@
 #include "cafPdmPointer.h"
 
 #include <set>
-#include <assert.h>
 
 class QXmlStreamReader;
 class QXmlStreamWriter;
@@ -97,6 +96,8 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitField(field, keyword, default, uiName, iconResourceName, toolTip, whatsThis) \
 { \
+    CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
+    \
     static bool chekingThePresenceOfHeaderAndSourceInitMacros = \
           Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
     this->isInheritedFromPdmUiObject(); \
@@ -113,6 +114,8 @@ class PdmObjectCapability;
 
 #define CAF_PDM_InitFieldNoDefault(field, keyword, uiName, iconResourceName, toolTip, whatsThis) \
 { \
+    CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
+    \
     static bool chekingThePresenceOfHeaderAndSourceInitMacros =  \
             Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
     this->isInheritedFromPdmUiObject(); \

@@ -51,9 +51,9 @@ public:
     }
 
     RigFemResultPosEnum resultPosType;
-    std::string fieldName;
-    std::string componentName;
-    int         timeLapseBaseFrameIdx;
+    std::string         fieldName;
+    std::string         componentName;
+    int                 timeLapseBaseFrameIdx;
 
     static const int ALL_TIME_LAPSES = -2;
 

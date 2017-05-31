@@ -31,6 +31,7 @@ class QMdiSubWindow;
 class RiuViewer;
 
 struct RimMdiWindowGeometry;
+class RimViewWindow;
 
 namespace caf
 {
@@ -57,9 +58,9 @@ public:
     void                initializeGuiNewProjectLoaded();
     void                cleanupGuiBeforeProjectClose();
 
-    void                removeViewer( QWidget* viewer );
-    void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry);
-    void                setActiveViewer(QWidget* subWindow);
+    void                removeViewer( QWidget* viewer ) override;
+    void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
+    void                setActiveViewer(QWidget* subWindow) override;
 
     caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView;}
 
@@ -71,13 +72,14 @@ public:
 
     void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
 
-    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer);
-    RimMdiWindowGeometry windowGeometryForWidget(QWidget* widget);
+    RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
 
     void                tileWindows();
     bool                isAnyMdiSubWindowVisible();
     QMdiSubWindow*      findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
+
+    void                addToTemporaryWidgets(QWidget* widget);
 
 protected:
     virtual void        closeEvent(QCloseEvent* event);
@@ -113,7 +115,8 @@ private:
 
     QMdiArea*           m_mdiArea;
     RiuViewer*          m_mainViewer;
-    
+    RimViewWindow*      m_activePlotViewWindow;
+
     QMenu*              m_windowMenu;
 
     caf::PdmUiTreeView* m_projectTreeView;
@@ -124,4 +127,6 @@ private:
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 
     bool                        m_blockSlotSubWindowActivated;
+
+    std::vector<QWidget*>       m_temporaryWidgets;
 };

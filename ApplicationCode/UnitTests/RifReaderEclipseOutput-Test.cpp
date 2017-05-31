@@ -20,7 +20,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 
 #include <ert/ecl/ecl_file.h>
 
@@ -441,7 +441,7 @@ TEST(RigReservoirTest, BasicTest)
 TEST(RigReservoirTest, WellTest)
 {
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
 
     // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
 #ifdef WIN32

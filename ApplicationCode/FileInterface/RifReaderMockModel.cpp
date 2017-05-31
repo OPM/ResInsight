@@ -19,13 +19,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifReaderMockModel.h"
-#include "RigCaseCellResultsData.h"
+
 #include "RifReaderInterface.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::open(const QString& fileName, RigCaseData* eclipseCase)
+bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclipseCase)
 {
     m_reservoirBuilder.populateReservoir(eclipseCase);
   
@@ -35,22 +38,31 @@ bool RifReaderMockModel::open(const QString& fileName, RigCaseData* eclipseCase)
 
 
     std::vector<QDateTime> dates;
+    std::vector<double> days;
+    std::vector<int> repNumbers;
 
     for (int i = 0; i < static_cast<int>(m_reservoirBuilder.timeStepCount()); i++)
     {
         dates.push_back(QDateTime(QDate(2012+i, 6, 1)));
+        days.push_back(i);
+        repNumbers.push_back(i);
     }
 
     for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
     {
         size_t resIdx = cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i), false);
-        cellResults->setTimeStepDates(resIdx, dates);
+        cellResults->setTimeStepDates(resIdx, dates, days, repNumbers);
     }
 
     if (m_reservoirBuilder.timeStepCount() == 0) return true;
 
     std::vector<QDateTime> staticDates;
     staticDates.push_back(dates[0]);
+    std::vector<double> staticDays;
+    staticDays.push_back(days[0]);
+    std::vector<int> staticRepNumbers;
+    staticRepNumbers.push_back(0);
+
     for (int i = 0; i < static_cast<int>(m_reservoirBuilder.resultCount()); i++)
     {
         QString varEnd;
@@ -60,7 +72,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigCaseData* eclipseCase)
         if (i > 1) resIndex = i;
 
         size_t resIdx = cellResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd), false);
-        cellResults->setTimeStepDates(resIdx, staticDates);
+        cellResults->setTimeStepDates(resIdx, staticDates, staticDays, staticRepNumbers);
     }
 
 
@@ -69,7 +81,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigCaseData* eclipseCase)
         size_t resIdx; \
         QString resultName(Name); \
         resIdx = cellResults->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, resultName, false); \
-        cellResults->setTimeStepDates(resIdx, staticDates); \
+        cellResults->setTimeStepDates(resIdx, staticDates, staticDays, staticRepNumbers); \
         cellResults->cellScalarResults(resIdx).resize(1); \
         std::vector<double>& values = cellResults->cellScalarResults(resIdx)[0]; \
         this->inputProperty(resultName, &values); \
@@ -170,7 +182,7 @@ void RifReaderMockModel::addLocalGridRefinement(const cvf::Vec3st& minCellPositi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderMockModel::populateReservoir(RigCaseData* eclipseCase)
+void RifReaderMockModel::populateReservoir(RigEclipseCaseData* eclipseCase)
 {
     m_reservoirBuilder.populateReservoir(eclipseCase);
 }

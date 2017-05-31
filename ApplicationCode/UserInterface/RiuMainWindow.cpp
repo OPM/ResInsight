@@ -38,6 +38,7 @@
 
 #include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuMessagePanel.h"
 #include "RiuProcessMonitor.h"
 #include "RiuProjectPropertyView.h"
 #include "RiuPropertyViewTabWidget.h"
@@ -55,6 +56,9 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
+#include "cafUtils.h"
+
+#include "cvfTimer.h"
 
 #include <QAction>
 #include <QCloseEvent>
@@ -68,6 +72,9 @@
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
+
+
+#define DOCK_PANEL_NAME_PROCESS_MONITOR "dockProcessMonitor"
 
 
 
@@ -141,6 +148,11 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     refreshAnimationActions();
     refreshDrawStyleActions();
 
+    if (m_pdmUiPropertyView && m_pdmUiPropertyView->currentObject())
+    {
+        m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
+    }
+
     m_processMonitor->slotClearTextEdit();
 }
 
@@ -186,15 +198,24 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
-    saveWinGeoAndDockToolBarLayout();
-
     RiaApplication* app = RiaApplication::instance();
+
+    if (app->isMainPlotWindowVisible())
+    {
+        return;
+    }
+
+    if (!app->askUserToSaveModifiedProject())
+    {
+        event->ignore();
+        return;
+    }
+
+    saveWinGeoAndDockToolBarLayout();
 
     if (!app->tryClosePlotWindow()) return;
 
-    RiaApplication::instance()->closeProject();
-        
-    event->accept();
+    app->closeProject();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -286,11 +307,10 @@ void RiuMainWindow::createActions()
     m_toggleFaultsLabelAction->setCheckable(true);
     connect(m_toggleFaultsLabelAction,    SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
 
-    m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
-    m_addWellCellsToRangeFilterAction->setCheckable(true);
-    m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
-    connect(m_addWellCellsToRangeFilterAction,    SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
-
+    m_showWellCellsAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Show Well Cells", this);
+    m_showWellCellsAction->setCheckable(true);
+    m_showWellCellsAction->setToolTip("Show Well Cells");
+    connect(m_showWellCellsAction,    SIGNAL(toggled(bool)), SLOT(slotShowWellCellsAction(bool)));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,7 +334,6 @@ void RiuMainWindow::createMenus()
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
-    //importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
     importMenu->addSeparator();
@@ -331,6 +350,7 @@ void RiuMainWindow::createMenus()
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(cmdFeatureMgr->action("RicSnapshotViewToFileFeature"));
     exportMenu->addAction(m_snapshotAllViewsToFile);
+    exportMenu->addAction(cmdFeatureMgr->action("RicExportMultipleSnapshotsFeature"));
 
     fileMenu->addSeparator();
     fileMenu->addAction(cmdFeatureMgr->action("RicSaveProjectFeature"));
@@ -375,8 +395,6 @@ void RiuMainWindow::createMenus()
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
     // Debug menu
-    testMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseOpmFeature"));
-
     testMenu->addAction(m_mockModelAction);
     testMenu->addAction(m_mockResultsModelAction);
     testMenu->addAction(m_mockLargeResultsModelAction);
@@ -470,7 +488,7 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction(m_disableLightingAction);
         dsToolBar->addAction(m_drawStyleHideGridCellsAction);
         dsToolBar->addAction(m_toggleFaultsLabelAction);
-        dsToolBar->addAction(m_addWellCellsToRangeFilterAction);
+        dsToolBar->addAction(m_showWellCellsAction);
     }
 
     // Create animation toolbar
@@ -550,8 +568,6 @@ void RiuMainWindow::createDockPanels()
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
         dockWidget->setWidget(m_pdmUiPropertyView);
 
-        m_pdmUiPropertyView->layout()->setContentsMargins(5,0,0,0);
-
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
 
@@ -567,7 +583,7 @@ void RiuMainWindow::createDockPanels()
 
     {
         QDockWidget* dockPanel = new QDockWidget("Process Monitor", this);
-        dockPanel->setObjectName("dockProcessMonitor");
+        dockPanel->setObjectName(DOCK_PANEL_NAME_PROCESS_MONITOR);
         dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
         m_processMonitor = new RiuProcessMonitor(dockPanel);
         dockPanel->setWidget(m_processMonitor);
@@ -586,6 +602,15 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
  
+    {
+        QDockWidget* dockWidget = new QDockWidget("Messages", this);
+        dockWidget->setObjectName("dockMessages");
+        m_messagePanel = new RiuMessagePanel(dockWidget);
+        dockWidget->setWidget(m_messagePanel);
+        addDockWidget(Qt::BottomDockWidgetArea, dockWidget);
+        dockWidget->hide();
+    }
+
     setCorner(Qt::BottomLeftCorner,    Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
@@ -613,7 +638,7 @@ void RiuMainWindow::slotRefreshFileActions()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    bool projectFileExists = QFile::exists(app->project()->fileName());
+    bool projectFileExists = caf::Utils::fileExists(app->project()->fileName());
 
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);
@@ -798,6 +823,14 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuMessagePanel* RiuMainWindow::messagePanel()
+{
+    return m_messagePanel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1372,7 +1405,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     enable = enable && eclView;
 
     m_toggleFaultsLabelAction->setEnabled(enable);
-    m_addWellCellsToRangeFilterAction->setEnabled(enable);
+    m_showWellCellsAction->setEnabled(enable);
 
     if (enable) 
     {   
@@ -1380,9 +1413,10 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_toggleFaultsLabelAction->setChecked(eclView->faultCollection()->showFaultLabel());
         m_toggleFaultsLabelAction->blockSignals(false);
 
-        m_addWellCellsToRangeFilterAction->blockSignals(true);
-        m_addWellCellsToRangeFilterAction->setChecked(eclView->wellCollection()->wellCellsToRangeFilterMode() != RimEclipseWellCollection::RANGE_ADD_NONE);
-        m_addWellCellsToRangeFilterAction->blockSignals(false);
+        m_showWellCellsAction->blockSignals(true);
+        eclView->wellCollection()->updateStateForVisibilityCheckboxes();
+        m_showWellCellsAction->setChecked(eclView->wellCollection()->showWellCells());
+        m_showWellCellsAction->blockSignals(false);
     }
 }
 
@@ -1420,6 +1454,31 @@ void RiuMainWindow::restoreTreeViewState()
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showDockPanel(const QString &dockPanelName)
+{
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    foreach (QDockWidget* dock, dockWidgets)
+    {
+        if (dock && dock->objectName() == dockPanelName)
+        {
+            dock->show();
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::showProcessMonitorDockPanel()
+{
+    showDockPanel(DOCK_PANEL_NAME_PROCESS_MONITOR);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1569,15 +1628,12 @@ void RiuMainWindow::setDefaultWindowSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
+void RiuMainWindow::slotShowWellCellsAction(bool doAdd)
 {
     RimEclipseView* riv = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (riv)
     {
-        caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> rangeAddType;
-        rangeAddType = doAdd ? RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL : RimEclipseWellCollection::RANGE_ADD_NONE;
-
-        riv->wellCollection()->wellCellsToRangeFilterMode.setValueWithFieldChanged(rangeAddType);
+        riv->wellCollection()->setShowWellCellsState(doAdd);
     }
 }
 
@@ -1618,29 +1674,10 @@ RimMdiWindowGeometry RiuMainWindow::windowGeometryForViewer(QWidget* viewer)
     QMdiSubWindow* mdiWindow = findMdiSubWindow(viewer);
     if (mdiWindow)
     {
-        return windowGeometryForWidget(mdiWindow);
+        return RiuMdiSubWindow::windowGeometryForWidget(mdiWindow);
     }
 
     RimMdiWindowGeometry geo;
-    return geo;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimMdiWindowGeometry RiuMainWindow::windowGeometryForWidget(QWidget* widget)
-{
-    RimMdiWindowGeometry geo;
-
-    if (widget)
-    {
-        geo.x = widget->pos().x();
-        geo.y = widget->pos().y();
-        geo.width = widget->size().width();
-        geo.height = widget->size().height();
-        geo.isMaximized = widget->isMaximized();
-    }
-
     return geo;
 }
 

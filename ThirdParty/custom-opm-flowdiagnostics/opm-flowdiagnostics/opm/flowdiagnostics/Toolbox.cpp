@@ -69,8 +69,8 @@ private:
     CellSetValues       only_inflow_flux_;
     CellSetValues       only_outflow_flux_;
 
-    AssembledConnections inj_conn_;
-    AssembledConnections prod_conn_;
+    AssembledConnections downstream_conn_;
+    AssembledConnections upstream_conn_;
     bool conn_built_ = false;
 
     void buildAssembledConnections();
@@ -111,26 +111,13 @@ Toolbox::Impl::assignConnectionFlux(const ConnectionValues& flux)
 void
 Toolbox::Impl::assignInflowFlux(const CellSetValues& inflow_flux)
 {
-    // Count the inflow (>0) fluxes.
-    const int num_items = inflow_flux.cellValueCount();
-    int num_inflows = 0;
-    for (int item = 0; item < num_items; ++item) {
-        if (inflow_flux.cellValue(item).second > 0.0) {
-            ++num_inflows;
-        }
-    }
-
-    // Reserve memory.
-    only_inflow_flux_ = CellSetValues(num_inflows);
-    only_outflow_flux_ = CellSetValues(num_items - num_inflows);
-
-    // Build in- and out-flow structures.
-    for (int item = 0; item < num_items; ++item) {
-        auto data = inflow_flux.cellValue(item);
+    only_inflow_flux_.clear();
+    only_outflow_flux_.clear();
+    for (const auto& data : inflow_flux) {
         if (data.second > 0.0) {
-            only_inflow_flux_.addCellValue(data.first, data.second);
-        } else {
-            only_outflow_flux_.addCellValue(data.first, -data.second);
+            only_inflow_flux_[data.first] = data.second;
+        } else if (data.second < 0.0) {
+            only_outflow_flux_[data.first] = -data.second;
         }
     }
 }
@@ -143,6 +130,15 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
         throw std::logic_error("Must set pore volumes and fluxes before calling diagnostics.");
     }
 
+    // Check that start sets are valid.
+    for (const auto& start : start_sets) {
+        for (const int cell : start) {
+            if (only_inflow_flux_.count(cell) != 1 || only_outflow_flux_.count(cell) != 0) {
+                throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
+            }
+        }
+    }
+
     if (!conn_built_) {
         buildAssembledConnections();
     }
@@ -151,8 +147,8 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
     using ToF = Solution::TimeOfFlight;
     using Conc = Solution::TracerConcentration;
 
-    TracerTofSolver solver(inj_conn_, pvol_, only_inflow_flux_);
-    sol.assignGlobalToF(solver.solveGlobal(start_sets));
+    TracerTofSolver solver(downstream_conn_, upstream_conn_, pvol_, only_inflow_flux_);
+    sol.assignGlobalToF(solver.solveGlobal());
 
     for (const auto& start : start_sets) {
         auto solution = solver.solveLocal(start);
@@ -171,6 +167,15 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
         throw std::logic_error("Must set pore volumes and fluxes before calling diagnostics.");
     }
 
+    // Check that start sets are valid.
+    for (const auto& start : start_sets) {
+        for (const int cell : start) {
+           if (only_inflow_flux_.count(cell) != 0 || only_outflow_flux_.count(cell) != 1) {
+                 throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
+            }
+        }
+    }
+
     if (!conn_built_) {
         buildAssembledConnections();
     }
@@ -179,8 +184,8 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
     using ToF = Solution::TimeOfFlight;
     using Conc = Solution::TracerConcentration;
 
-    TracerTofSolver solver(prod_conn_, pvol_, only_outflow_flux_);
-    sol.assignGlobalToF(solver.solveGlobal(start_sets));
+    TracerTofSolver solver(upstream_conn_, downstream_conn_, pvol_, only_outflow_flux_);
+    sol.assignGlobalToF(solver.solveGlobal());
 
     for (const auto& start : start_sets) {
         auto solution = solver.solveLocal(start);
@@ -197,8 +202,8 @@ Toolbox::Impl::buildAssembledConnections()
     // Create the data structures needed by the tracer/tof solver.
     const size_t num_connections = g_.numConnections();
     const size_t num_phases = flux_.numPhases();
-    inj_conn_ = AssembledConnections();
-    prod_conn_ = AssembledConnections();
+    downstream_conn_ = AssembledConnections();
+    upstream_conn_ = AssembledConnections();
     for (size_t conn_idx = 0; conn_idx < num_connections; ++conn_idx) {
         auto cells = g_.connection(conn_idx);
         using ConnID = ConnectionValues::ConnID;
@@ -209,16 +214,16 @@ Toolbox::Impl::buildAssembledConnections()
             connection_flux += flux_(ConnID{conn_idx}, PhaseID{phase});
         }
         if (connection_flux > 0.0) {
-            inj_conn_.addConnection(cells.first, cells.second, connection_flux);
-            prod_conn_.addConnection(cells.second, cells.first, connection_flux);
-        } else {
-            inj_conn_.addConnection(cells.second, cells.first, -connection_flux);
-            prod_conn_.addConnection(cells.first, cells.second, -connection_flux);
+            downstream_conn_.addConnection(cells.first, cells.second, connection_flux);
+            upstream_conn_.addConnection(cells.second, cells.first, connection_flux);
+        } else if (connection_flux < 0.0) {
+            downstream_conn_.addConnection(cells.second, cells.first, -connection_flux);
+            upstream_conn_.addConnection(cells.first, cells.second, -connection_flux);
         }
     }
     const int num_cells = g_.numCells();
-    inj_conn_.compress(num_cells);
-    prod_conn_.compress(num_cells);
+    downstream_conn_.compress(num_cells);
+    upstream_conn_.compress(num_cells);
 
     // Mark as built (until flux changed).
     conn_built_ = true;

@@ -1,0 +1,13 @@
+Create a small script which:
+
+1. Loads the configuration file.
+
+2. Initializes the realisations and creates runpath folders.
+
+3. Submit simulations.
+
+4. Wait for simulations to complete.
+
+5. Fetch and print GEN_DATA results - use the GenData[] operator.
+
+

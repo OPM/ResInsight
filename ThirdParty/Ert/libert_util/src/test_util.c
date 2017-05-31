@@ -29,7 +29,7 @@
 #include <ert/util/arg_pack.h>
 #include <ert/util/test_util.h>
 #include <ert/util/stringlist.h>
-
+#include <ert/util/util.h>
 
 void test_error_exit( const char * fmt , ...) {
   char * s;
@@ -229,7 +229,7 @@ void test_assert_mem_not_equal__( const void * p1 , const void * p2 , size_t byt
 
 bool test_check_double_equal( double d1 , double d2) {
   const double tolerance = 1e-5;
-  return util_double_approx_equal__( d1 , d2 , tolerance );
+  return util_double_approx_equal__( d1 , d2 , tolerance , 0);
 }
 
 
@@ -246,7 +246,7 @@ void test_assert_double_not_equal__( double d1 , double d2, const char * file , 
 
 bool test_check_float_equal( float d1 , float d2) {
   const float tolerance = 1e-4;
-  return util_float_approx_equal__( d1 , d2 , tolerance );
+  return util_float_approx_equal__( d1 , d2 , tolerance , 0);
 }
 
 
@@ -287,12 +287,6 @@ void test_install_SIGNALS(void) {
 
 #ifdef HAVE_BACKTRACE
 #include <execinfo.h>
-#include <setjmp.h>
-
-  bool      util_addr2line_lookup(const void * bt_addr , char ** func_name , char ** file_name , int * line_nr);
-  jmp_buf * util_abort_test_jump_buffer();
-  void      util_abort_test_set_intercept_function(const char * function);
-
 
 
 void test_util_addr2line() {
@@ -315,12 +309,6 @@ void test_util_addr2line() {
 }
 
 
-
-
-
-
-
-
 void test_assert_util_abort(const char * function_name , void call_func (void *) , void * arg) {
   bool util_abort_intercepted = false;
 
@@ -341,6 +329,27 @@ void test_assert_util_abort(const char * function_name , void call_func (void *)
     fprintf(stderr,"Expected call to util_abort() from:%s missing \n",function_name);
     test_assert_true( util_abort_intercepted );
   }
+}
+
+#else
+
+/*
+  These are non-functional stubs.
+*/
+
+bool util_addr2line_lookup(const void * bt_addr , char ** func_name , char ** file_name , int * line_nr)
+{
+  return false;
+}
+
+jmp_buf * util_abort_test_jump_buffer()
+{
+  return NULL;
+}
+
+void      util_abort_test_set_intercept_function(const char * function)
+{
+  return;
 }
 
 

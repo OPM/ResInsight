@@ -24,18 +24,19 @@
 #include "RiaSocketTools.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RiuMainWindow.h"
@@ -138,7 +139,7 @@ public:
 
             // then the byte-size of the result values in one timestep
 
-            const RigActiveCellInfo* activeInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
+            const RigActiveCellInfo* activeInfo = rimCase->eclipseCaseData()->activeCellInfo(porosityModelEnum);
             size_t  timestepResultCount = activeInfo->reservoirActiveCellCount();
 
             quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
@@ -240,7 +241,7 @@ public:
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-        if (gridIdx < 0  || rimCase->reservoirData()->gridCount() <= (size_t)gridIdx)
+        if (gridIdx < 0  || rimCase->eclipseCaseData()->gridCount() <= (size_t)gridIdx)
         {
             server->errorMessageDialog()->showMessage("ResInsight SocketServer: riGetGridProperty : \n"
                                                       "The gridIndex \"" + QString::number(gridIdx) + "\" does not point to an existing grid." );
@@ -303,7 +304,7 @@ public:
         }
 
 
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(gridIdx);
+        RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(gridIdx);
 
         quint64 cellCountI = (quint64)rigGrid->cellCountI();
         quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
@@ -320,7 +321,7 @@ public:
 
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(rimCase->reservoirData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
+            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
 
             if (resultAccessor.isNull())
             {
@@ -520,7 +521,7 @@ public:
 
         size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-        RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
+        RigActiveCellInfo* activeCellInfo = m_currentReservoir->eclipseCaseData()->activeCellInfo(m_porosityModelEnum);
 
         size_t activeCellCountReservoir    = activeCellInfo->reservoirActiveCellCount();
         size_t totalCellCount           = activeCellInfo->reservoirCellCount();
@@ -584,7 +585,6 @@ public:
 
         while ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
         {
-            qint64 bytesRead = 0;
             if ( !isCoarseningActive)
             {
                 internalMatrixData = m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead]).data();
@@ -630,8 +630,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = NULL;
-                    inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
@@ -645,8 +644,8 @@ public:
                 }
 
                 if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
-                        m_currentReservoir->reservoirData() &&
-                        m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
+                        m_currentReservoir->eclipseCaseData() &&
+                        m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum) )
                 {
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
@@ -668,7 +667,7 @@ public:
                         }
                     }
 
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -750,7 +749,7 @@ public:
             m_porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        RigGridBase* grid = rimCase->reservoirData()->grid(m_currentGridIndex);
+        RigGridBase* grid = rimCase->eclipseCaseData()->grid(m_currentGridIndex);
         if (!grid)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the grid index : %1").arg(m_currentGridIndex));
@@ -890,7 +889,7 @@ public:
 
         if (!currentClient->bytesAvailable()) return false;
 
-        RigGridBase* grid = m_currentReservoir->reservoirData()->grid(m_currentGridIndex);
+        RigGridBase* grid = m_currentReservoir->eclipseCaseData()->grid(m_currentGridIndex);
         if (!grid)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
@@ -972,7 +971,7 @@ public:
                 return true;
             }
 
-            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_currentReservoir->reservoirData(), grid->gridIndex(), m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_currentReservoir->eclipseCaseData(), grid->gridIndex(), m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
             if (!resultModifier.isNull())
             {
                 for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
@@ -994,8 +993,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>(m_currentReservoir);
                 if (inputRes)
                 {
-                    RimEclipseInputProperty* inputProperty = NULL;
-                    inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                    RimEclipseInputProperty* inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
                     if (!inputProperty)
                     {
                         inputProperty = new RimEclipseInputProperty;
@@ -1009,8 +1007,8 @@ public:
                 }
 
                 if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
-                    m_currentReservoir->reservoirData() &&
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
+                    m_currentReservoir->eclipseCaseData() &&
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum) )
                 {
                     // Adjust the result data if only one time step is requested so the result behaves like a static result
                     if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
@@ -1032,7 +1030,7 @@ public:
                         }
                     }
 
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
+                    m_currentReservoir->eclipseCaseData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -1104,7 +1102,7 @@ public:
         std::vector<QString> propNames;
         std::vector<QString> propTypes;
 
-        RigCaseCellResultsData* results = rimCase->reservoirData()->results(porosityModelEnum);
+        RigCaseCellResultsData* results = rimCase->eclipseCaseData()->results(porosityModelEnum);
        
         std::vector<RimDefines::ResultCatType> resTypes;
         std::vector<QString> resTypeNames;

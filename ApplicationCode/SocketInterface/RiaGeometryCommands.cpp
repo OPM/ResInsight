@@ -19,27 +19,53 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaSocketCommand.h"
+
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
+#include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+
+#include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RimEclipseCase.h"
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
-
 #include <QTcpSocket>
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
 
+//--------------------------------------------------------------------------------------------------
+/// Convert internal ResInsight representation of cells with negative depth to positive depth.
+//--------------------------------------------------------------------------------------------------
+static inline void convertVec3dToPositiveDepth(cvf::Vec3d* vec)
+{
+    double& z = vec->z();
+    z *= -1;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// Retrieve a cell corner where the depth is represented as negative converted to positive depth.
+//--------------------------------------------------------------------------------------------------
+static inline double getCellCornerWithPositiveDepth(const cvf::Vec3d *cornerVerts, size_t cornerIndexMapping, int coordIdx)
+{
+    if (coordIdx == 2)
+    {
+        // Z-value aka depth
+        return -1 * cornerVerts[cornerIndexMapping][coordIdx];
+    }
+    else
+    {
+        return cornerVerts[cornerIndexMapping][coordIdx];
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -54,14 +80,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
 
-        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        if (!rimCase || !rimCase->eclipseCaseData() || (argGridIndex >= rimCase->eclipseCaseData()->gridCount()) )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
             return true;
         }
 
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+        RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(argGridIndex);
 
         quint64 cellCount  = (quint64)rigGrid->cellCount();
         quint64 cellCountI = (quint64)rigGrid->cellCountI();
@@ -105,6 +131,8 @@ public:
                         size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
                         cvf::Vec3d center = rigGrid->cell(gridLocalCellIndex).center();
 
+                        convertVec3dToPositiveDepth(&center);
+
                         doubleValues[valueIndex++] = center[coordIdx];
                     }
                 }
@@ -143,15 +171,15 @@ public:
             porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        if (!rimCase || !rimCase->reservoirData())
+        if (!rimCase || !rimCase->eclipseCaseData())
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
             return true;
         }
 
-        RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-        RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
+        RigActiveCellInfo* actCellInfo = rimCase->eclipseCaseData()->activeCellInfo(porosityModelEnum);
+        RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
 
         size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3;
@@ -184,6 +212,8 @@ public:
 
                 cvf::Vec3d center = mainGrid->globalCellArray()[reservoirCellIndex].center();
 
+                convertVec3dToPositiveDepth(&center);
+
                 doubleValues[valueIndex++] = center[coordIdx];
             }
 
@@ -215,14 +245,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         size_t argGridIndex = args[2].toUInt();
 
-        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        if (!rimCase || !rimCase->eclipseCaseData() || (argGridIndex >= rimCase->eclipseCaseData()->gridCount()) )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
             return true;
         }
 
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+        RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(argGridIndex);
 
         quint64 cellCount  = (quint64)rigGrid->cellCount();
         quint64 cellCountI = (quint64)rigGrid->cellCountI();
@@ -272,7 +302,7 @@ public:
                             size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
                             rigGrid->cellCornerVertices(gridLocalCellIndex, cornerVerts);
 
-                            doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
+                            doubleValues[valueIndex++] = getCellCornerWithPositiveDepth(cornerVerts, cornerIndexMapping, coordIdx);
                         }
                     }
                 }
@@ -312,15 +342,15 @@ public:
             porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        if (!rimCase || !rimCase->reservoirData() )
+        if (!rimCase || !rimCase->eclipseCaseData() )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
             return true;
         }
 
-        RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-        RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
+        RigActiveCellInfo* actCellInfo = rimCase->eclipseCaseData()->activeCellInfo(porosityModelEnum);
+        RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
 
         size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3 * 8;
@@ -358,7 +388,7 @@ public:
 
                     mainGrid->cellCornerVertices(reservoirCellIndex, cornerVerts);
 
-                    doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
+                    doubleValues[valueIndex++] = getCellCornerWithPositiveDepth(cornerVerts, cornerIndexMapping, coordIdx);
                 }
 
                 CVF_ASSERT(valueIndex == activeCellCount);

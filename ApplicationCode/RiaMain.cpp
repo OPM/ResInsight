@@ -17,10 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+
 #include "RiuMainWindow.h"
+#include "RiuMessagePanel.h"
 
 int main(int argc, char *argv[])
 {
+    RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+
     RiaApplication app(argc, argv);
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
@@ -39,10 +44,18 @@ int main(int argc, char *argv[])
     window.loadWinGeoAndDockToolBarLayout();
     window.showWindow();
 
+    RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(window.messagePanel()));
+    RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+
     if (app.parseArguments())
     {
-        return app.exec();
+        int exitCode = app.exec();
+        RiaLogging::deleteLoggerInstance();
+
+        return exitCode;
     }
+
+    RiaLogging::deleteLoggerInstance();
 
     return 0;
 }

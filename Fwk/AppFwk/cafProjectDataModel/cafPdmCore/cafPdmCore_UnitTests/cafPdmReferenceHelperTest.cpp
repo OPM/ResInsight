@@ -16,7 +16,8 @@
 class SimpleObj : public caf::PdmObjectHandle
 {
 public:
-    SimpleObj() : PdmObjectHandle()
+    SimpleObj() : PdmObjectHandle(),
+        m_doubleMember(0.0)
     { 
         this->addField(&m_position, "m_position");
         this->addField(&m_dir, "m_dir");

@@ -36,7 +36,7 @@ extern "C" {
 
   typedef struct well_segment_collection_struct well_segment_collection_type;
 
-  well_segment_collection_type * well_segment_collection_alloc();
+  well_segment_collection_type * well_segment_collection_alloc(void);
   void                           well_segment_collection_free(well_segment_collection_type * segment_collection );
   int                            well_segment_collection_get_size( const well_segment_collection_type * segment_collection );
   void                           well_segment_collection_add( well_segment_collection_type * segment_collection , well_segment_type * segment);

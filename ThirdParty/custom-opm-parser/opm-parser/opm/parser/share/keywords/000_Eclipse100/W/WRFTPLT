@@ -1,5 +1,0 @@
-{"name" : "WRFTPLT" , "sections" : ["SCHEDULE"], "items" : [
-    {"name" : "WELL" , "value_type" : "STRING"},
-    {"name" : "OUTPUT_RFT" , "value_type" : "STRING" , "default" : "NO"},
-    {"name" : "OUTPUT_PLT" , "value_type" : "STRING" , "default" : "NO"},
-    {"name" : "OUTPUT_SEGMENT" , "value_type" : "STRING" , "default" : "NO"}]}

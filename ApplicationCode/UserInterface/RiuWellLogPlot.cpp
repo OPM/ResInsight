@@ -19,20 +19,25 @@
 
 #include "RiuWellLogPlot.h"
 
+#include "RimContextCommandBuilder.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
 #include "RiuMainWindow.h"
 #include "RiuWellLogTrack.h"
 
-#include "qwt_legend.h"
+#include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
+
+#include "qwt_legend.h"
 
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QScrollBar>
 #include <QTimer>
+#include <QMenu>
 
 #include <math.h>
 
@@ -54,6 +59,8 @@ RiuWellLogPlot::RiuWellLogPlot(RimWellLogPlot* plotDefinition, QWidget* parent)
     m_scrollBar = new QScrollBar(this);
     m_scrollBar->setOrientation(Qt::Vertical);
     m_scrollBar->setVisible(true);
+
+    this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     
     connect(m_scrollBar, SIGNAL(valueChanged(int)), this, SLOT(slotSetMinDepth(int)));
 }
@@ -65,7 +72,8 @@ RiuWellLogPlot::~RiuWellLogPlot()
 {
     if (m_plotDefinition)
     {
-        m_plotDefinition->handleViewerDeletion();
+        m_plotDefinition->detachAllCurves();
+        m_plotDefinition->handleMdiWindowClosed();
     }
 }
 
@@ -95,6 +103,11 @@ void RiuWellLogPlot::insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index)
 
     this->connect(trackPlot,  SIGNAL(legendDataChanged(const QVariant &, const QList< QwtLegendData > &)), SLOT(scheduleUpdateChildrenLayout()));
  
+    if (!m_plotDefinition->isTrackLegendsVisible())
+    {
+        legend->hide();
+    }
+
     trackPlot->updateLegend();
 
     if (trackPlot->isRimTrackVisible())
@@ -190,6 +203,35 @@ void RiuWellLogPlot::setDepthZoomAndReplot(double minDepth, double maxDepth)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QSize RiuWellLogPlot::sizeHint() const
+{
+    return QSize(1,1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogPlot::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu;
+    QStringList commandIds;
+
+    caf::SelectionManager::instance()->setSelectedItem(ownerPlotDefinition());
+
+    commandIds << "RicShowPlotDataFeature";
+    commandIds << "RicShowContributingWellsFromPlotFeature";
+
+    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+
+    if (menu.actions().size() > 0)
+    {
+        menu.exec(event->globalPos());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::updateScrollBar(double minDepth, double maxDepth)
 {
     double availableMinDepth;
@@ -234,6 +276,14 @@ RimWellLogPlot* RiuWellLogPlot::ownerPlotDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiuWellLogPlot::ownerViewWindow() const
+{
+    return m_plotDefinition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuWellLogPlot::resizeEvent(QResizeEvent *event)
 {
     int height = event->size().height();
@@ -262,18 +312,20 @@ void RiuWellLogPlot::placeChildWidgets(int height, int width)
 
     int maxLegendHeight = 0;
 
-    for (int tIdx = 0; tIdx < trackCount; ++tIdx)
+    if (m_plotDefinition && m_plotDefinition->isTrackLegendsVisible())
     {
-        if (m_trackPlots[tIdx]->isVisible())
+        for ( int tIdx = 0; tIdx < trackCount; ++tIdx )
         {
-            int legendHeight = m_legends[tIdx]->sizeHint().height();
-            if (legendHeight > maxLegendHeight) maxLegendHeight = legendHeight;
+            if ( m_trackPlots[tIdx]->isVisible() )
+            {
+                int legendHeight = m_legends[tIdx]->sizeHint().height();
+                if ( legendHeight > maxLegendHeight ) maxLegendHeight = legendHeight;
+            }
         }
     }
 
     int trackHeight = height - maxLegendHeight;
     int trackX = 0;
-
 
     if (visibleTrackCount)
     {

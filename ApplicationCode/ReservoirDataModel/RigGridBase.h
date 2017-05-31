@@ -43,7 +43,7 @@ class RigActiveCellInfo;
 class RigGridBase : public cvf::StructGridInterface
 {
 public:
-    RigGridBase(RigMainGrid* mainGrid);
+    explicit RigGridBase(RigMainGrid* mainGrid);
     virtual ~RigGridBase(void);
 
     void                        setGridPointDimensions(const cvf::Vec3st& gridDimensions)   { m_gridPointDimensions = gridDimensions;}
@@ -125,7 +125,7 @@ private:
 class RigGridCellFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
 {
 public:
-    RigGridCellFaceVisibilityFilter(const RigGridBase* grid)
+    explicit RigGridCellFaceVisibilityFilter(const RigGridBase* grid)
         :   m_grid(grid)
     {
     }

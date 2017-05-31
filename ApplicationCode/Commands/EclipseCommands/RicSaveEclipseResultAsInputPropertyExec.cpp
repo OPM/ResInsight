@@ -24,7 +24,6 @@
 #include "RimEclipseView.h"
 #include "RimEclipseCase.h"
 
-#include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
 #include "RifEclipseInputFileTools.h"
@@ -37,6 +36,7 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+#include "cafUtils.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -60,7 +60,7 @@ RicSaveEclipseResultAsInputPropertyExec::~RicSaveEclipseResultAsInputPropertyExe
 //--------------------------------------------------------------------------------------------------
 QString RicSaveEclipseResultAsInputPropertyExec::name()
 {
-    return "Save Property To File";
+    return "Export Property To File";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
 
     if (!m_cellColors->reservoirView()) return;
     if (!m_cellColors->reservoirView()->eclipseCase()) return;
-    if (!m_cellColors->reservoirView()->eclipseCase()->reservoirData()) return;
+    if (!m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData()) return;
 
     RimBinaryExportSettings exportSettings;
     exportSettings.eclipseKeyword = m_cellColors->resultVariable();
@@ -84,18 +84,18 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
             projectFolder = m_cellColors->reservoirView()->eclipseCase()->locationOnDisc();
         }
 
-        QString outputFileName = projectFolder + "/" + m_cellColors->resultVariable();
+        QString outputFileName = projectFolder + "/" + caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiShortName());
 
         exportSettings.fileName = outputFileName;
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Binary Eclipse Data to Text File", "");
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_cellColors->porosityModel());
 
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, m_cellColors->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);

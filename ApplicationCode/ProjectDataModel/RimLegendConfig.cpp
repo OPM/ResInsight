@@ -21,11 +21,13 @@
 #include "RimLegendConfig.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+#include "RimViewLinker.h"
 
 #include "cafCategoryLegend.h"
 #include "cafCategoryMapper.h"
@@ -112,7 +114,8 @@ RimLegendConfig::RimLegendConfig()
         m_globalAutoPosClosestToZero(0),
         m_globalAutoNegClosestToZero(0),
         m_localAutoPosClosestToZero(0),
-        m_localAutoNegClosestToZero(0)
+        m_localAutoNegClosestToZero(0),
+        m_isAllTimeStepsRangeDisabled(false)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "A hint on how many tick marks you whish.","");
@@ -182,7 +185,19 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
     updateLegend();
 
-    if (m_reservoirView) m_reservoirView->updateCurrentTimeStepAndRedraw();
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    if (view)
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateCellResult();
+        }
+
+        view->updateCurrentTimeStepAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,129 +279,7 @@ void RimLegendConfig::updateLegend()
    m_logDiscreteScalarMapper->setRange(adjustedMin, adjustedMax);
    m_logSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
 
-   cvf::Color3ubArray legendColors;
-   switch (m_colorRangeMode())
-   {
-   case NORMAL: 
-       {
-           legendColors.reserve(7);
-           legendColors.add(cvf::Color3ub(  0,   0, 255));
-           legendColors.add(cvf::Color3ub(  0, 127, 255));
-           legendColors.add(cvf::Color3ub(  0, 255, 255));
-           legendColors.add(cvf::Color3ub(  0, 255,   0));
-           legendColors.add(cvf::Color3ub(255, 255,   0));
-           legendColors.add(cvf::Color3ub(255, 127,   0));
-           legendColors.add(cvf::Color3ub(255,   0,   0));
-       }
-       break;
-   case OPPOSITE_NORMAL: 
-       {
-           legendColors.reserve(7);
-           legendColors.add(cvf::Color3ub(255,   0,   0));
-           legendColors.add(cvf::Color3ub(255, 127,   0));
-           legendColors.add(cvf::Color3ub(255, 255,   0));
-           legendColors.add(cvf::Color3ub(  0, 255,   0));
-           legendColors.add(cvf::Color3ub(  0, 255, 255));
-           legendColors.add(cvf::Color3ub(  0, 127, 255));
-           legendColors.add(cvf::Color3ub(  0,   0, 255));
-       }
-       break;  
-   case BLACK_WHITE:
-   case WHITE_BLACK:
-       {
-           legendColors.reserve(2);
-           if (m_colorRangeMode() == BLACK_WHITE)
-           {
-               legendColors.add(cvf::Color3ub::BLACK);
-               legendColors.add(cvf::Color3ub::WHITE);
-           }
-           else
-           {
-               legendColors.add(cvf::Color3ub::WHITE);
-               legendColors.add(cvf::Color3ub::BLACK);
-           }
-       }
-       break;
-   case PINK_WHITE:
-   case WHITE_PINK:
-       {
-           legendColors.reserve(2);
-           if (m_colorRangeMode() == PINK_WHITE)
-           {
-               legendColors.add(cvf::Color3ub::DEEP_PINK);
-               legendColors.add(cvf::Color3ub::WHITE);
-           }
-           else
-           {
-               legendColors.add(cvf::Color3ub::WHITE);
-               legendColors.add(cvf::Color3ub::DEEP_PINK);
-           }
-       }
-       break;
-   case BLUE_WHITE_RED:
-   case RED_WHITE_BLUE:
-       {
-           legendColors.reserve(3);
-           if (m_colorRangeMode() == BLUE_WHITE_RED)
-           {
-               legendColors.add(cvf::Color3ub::BLUE);
-               legendColors.add(cvf::Color3ub::WHITE);
-               legendColors.add(cvf::Color3ub::RED);
-           }
-           else
-           {
-               legendColors.add(cvf::Color3ub::RED);
-               legendColors.add(cvf::Color3ub::WHITE);
-               legendColors.add(cvf::Color3ub::BLUE);
-           }
-       }
-       break;
-
-   case CATEGORY:
-   {
-       // Based on http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors
-       // and Kelly Colors and sorted by hue
-       // See also http://www.w3schools.com/colors/ for palettes etc.
-        legendColors.reserve(20);
-        legendColors.add(cvf::Color3ub(128,  62, 117)); // hwb(310, 24%, 50%) strong_purple
-        legendColors.add(cvf::Color3ub(212,  28, 132)); // hwb(326, 11%, 17%) strong_purplish_red
-        legendColors.add(cvf::Color3ub(246, 118, 142)); // hwb(349, 46%,  4%) strong_purplish_pink
-        legendColors.add(cvf::Color3ub(193,   0,  32)); // hwb(350,  0%, 24%) vivid_red 
-        legendColors.add(cvf::Color3ub(127,  24,  13)); // hwb(  6,  5%, 50%) strong_reddish_brown
-        legendColors.add(cvf::Color3ub(241,  58,  19)); // hwb( 11,  7%,  5%) vivid_reddish_orange 
-        legendColors.add(cvf::Color3ub(255, 122,  92)); // hwb( 11, 36%,  0%) strong_yellowish_pink
-        legendColors.add(cvf::Color3ub(129, 112, 102)); // hwb( 22, 40%, 49%) medium_gray
-        legendColors.add(cvf::Color3ub(255, 104,   0)); // hwb( 24,  0%,  0%) vivid_orange 
-        legendColors.add(cvf::Color3ub( 89,  51,  21)); // hwb( 26,  8%, 65%) deep_yellowish_brown
-        legendColors.add(cvf::Color3ub(255, 142,   0)); // hwb( 33,  0%,  0%) vivid_orange_yellow
-        legendColors.add(cvf::Color3ub(206, 162,  98)); // hwb( 36, 38%, 19%) grayish_yellow
-        legendColors.add(cvf::Color3ub(244, 200,   0)); // hwb( 49,  0%,  4%) vivid_greenish_yellow
-        legendColors.add(cvf::Color3ub(147, 170,   0)); // hwb( 68,  0%, 33%) vivid_yellowish_green
-        legendColors.add(cvf::Color3ub( 59,  84,  23)); // hwb( 85,  9%, 67%) dark_olive_green
-        legendColors.add(cvf::Color3ub(  0, 125,  52)); // hwb(145,  0%, 51%) vivid_green
-        legendColors.add(cvf::Color3ub( 54, 125, 123)); // hwb(178, 21%, 51%) vivid_blueish_green
-        legendColors.add(cvf::Color3ub(  0,  83, 138)); // hwb(204,  0%, 46%) strong_blue
-        legendColors.add(cvf::Color3ub(166, 189, 215)); // hwb(212, 65%, 16%) very_light_blue
-        legendColors.add(cvf::Color3ub( 46,  76, 224)); // hwb(230, 18%, 12%) medium_blue
-   }
-   break;
-
-   case ANGULAR:
-   {
-       legendColors.reserve(9);
-       legendColors.add(cvf::Color3ub(255, 0, 255));
-       legendColors.add(cvf::Color3ub(0, 0, 255));
-       legendColors.add(cvf::Color3ub(0, 127, 255));
-       legendColors.add(cvf::Color3ub(0, 255, 255));
-       legendColors.add(cvf::Color3ub(0, 255, 0));
-       legendColors.add(cvf::Color3ub(255, 255, 0));
-       legendColors.add(cvf::Color3ub(255, 127, 0));
-       legendColors.add(cvf::Color3ub(255, 0, 0));
-       legendColors.add(cvf::Color3ub(255, 0, 255));
-   }
-   break;
-
-   }
+   cvf::Color3ubArray legendColors = colorArrayFromColorType(m_colorRangeMode());
 
    m_linDiscreteScalarMapper->setColors(legendColors);
    m_logDiscreteScalarMapper->setColors(legendColors);
@@ -415,7 +308,15 @@ void RimLegendConfig::updateLegend()
        break;
    case CATEGORY_INTEGER:
        m_categoryMapper->setCategoriesWithNames(m_categories, m_categoryNames);
-       m_categoryMapper->setInterpolateColors(legendColors);
+
+       if (m_categoryColors.size() > 0)
+       {
+            m_categoryMapper->setCycleColors(m_categoryColors);
+       }
+       else
+       {
+            m_categoryMapper->setInterpolateColors(legendColors);
+       }
        m_currentScalarMapper = m_categoryMapper.p();
        break;
    default:
@@ -473,6 +374,21 @@ void RimLegendConfig::updateLegend()
    {
         m_userDefinedMinValue.uiCapability()->setUiName(QString());
    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::disableAllTimeStepsRange(bool doDisable)
+{
+    // If we enable AllTimesteps, and we have used current timestep, then "restore" the default
+    if (m_isAllTimeStepsRangeDisabled && !doDisable &&  m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)  m_rangeMode = AUTOMATIC_ALLTIMESTEPS;
+
+    m_isAllTimeStepsRangeDisabled = doDisable;
+
+    if (doDisable && m_rangeMode == AUTOMATIC_ALLTIMESTEPS) m_rangeMode = AUTOMATIC_CURRENT_TIMESTEP;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -571,55 +487,6 @@ void RimLegendConfig::setMappingMode(MappingType mappingType)
     updateLegend();
 }
 
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Color3ubArray> RimLegendConfig::interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount)
-{
-    uint inputColorCount = static_cast<uint>(colorArray.size());
-    CVF_ASSERT(inputColorCount > 1);
-    CVF_ASSERT(targetColorCount > 1);
-
-    cvf::ref<cvf::Color3ubArray> colors = new cvf::Color3ubArray;
-    colors->reserve(targetColorCount);
-
-    const uint inputLevelCount = inputColorCount - 1;
-    const uint outputLevelCount = targetColorCount - 1;
-
-    uint outputLevelIdx;
-    for (outputLevelIdx = 0; outputLevelIdx < outputLevelCount; outputLevelIdx++)
-    {
-        double dblInputLevelIndex = inputLevelCount * (outputLevelIdx / static_cast<double>(outputLevelCount));
-
-        const uint inputLevelIndex = static_cast<uint>(dblInputLevelIndex);
-        CVF_ASSERT(inputLevelIndex < inputLevelCount);
-
-        double t = dblInputLevelIndex - inputLevelIndex;
-        CVF_ASSERT(t >= 0 && t <= 1.0);
-
-        cvf::Color3ub c1 = colorArray[inputLevelIndex];
-        cvf::Color3ub c2 = colorArray[inputLevelIndex + 1];
-
-        int r = static_cast<int>(c1.r() + t*(c2.r() - c1.r()) + 0.5);
-        int g = static_cast<int>(c1.g() + t*(c2.g() - c1.g()) + 0.5);
-        int b = static_cast<int>(c1.b() + t*(c2.b() - c1.b()) + 0.5);
-
-        r = cvf::Math::clamp(r, 0, 255);
-        g = cvf::Math::clamp(g, 0, 255);
-        b = cvf::Math::clamp(b, 0, 255);
-
-        cvf::Color3ub col((cvf::ubyte)r, (cvf::ubyte)g, (cvf::ubyte)b);
-        colors->add(col);
-    }
-
-    colors->add(colorArray[colorArray.size() - 1]);
-
-    return colors;
-}
-*/
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -711,6 +578,7 @@ void RimLegendConfig::setIntegerCategories(const std::vector<int>& categories)
 {
     m_categories = categories;
     m_categoryNames.clear();
+    m_categoryColors.clear();
 
     updateLegend();
 }
@@ -730,8 +598,50 @@ void RimLegendConfig::setNamedCategoriesInverse(const std::vector<QString>& cate
     
     m_categories = nameIndices;
     m_categoryNames = names;
+    m_categoryColors.clear();
 
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setCategoryItems(const std::vector< std::tuple<QString, int, cvf::Color3ub> >& categories)
+{
+    m_categories.clear();
+    m_categoryNames.clear();
+    m_categoryColors.clear();
+    m_categoryColors.reserve(categories.size());
+
+    for (auto item : categories)
+    {
+        m_categoryNames.push_back(cvfqt::Utils::toString(std::get<0>(item)));
+        m_categories.push_back(std::get<1>(item));
+        m_categoryColors.add(std::get<2>(item));
+    }
+
+    updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimLegendConfig::categoryNameFromCategoryValue(double categoryResultValue) const
+{
+    if (categoryResultValue == HUGE_VAL) return "Undefined";
+
+    if (m_categoryNames.size() > 0)
+    {
+        for (size_t categoryIndex = 0; categoryIndex < m_categories.size(); categoryIndex++)
+        {
+            if (categoryResultValue == m_categories[categoryIndex])
+            {
+                return cvfqt::Utils::toQString(m_categoryNames[categoryIndex]);
+            }
+        }
+    }
+
+    return QString("%1").arg(categoryResultValue);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -756,6 +666,59 @@ cvf::OverlayItem* RimLegendConfig::legend()
     {
         return m_scalarMapperLegend.p();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig)
+{
+    QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
+    this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3ubArray RimLegendConfig::colorArrayFromColorType(ColorRangesType colorType)
+{
+    switch (colorType)
+    {
+    case RimLegendConfig::NORMAL:
+        return RiaColorTables::normalPaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::OPPOSITE_NORMAL:
+        return RiaColorTables::normalPaletteOppositeOrderingColors().color3ubArray();
+        break;
+    case RimLegendConfig::WHITE_PINK:
+        return RiaColorTables::whitePinkPaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::PINK_WHITE:
+        return RiaColorTables::pinkWhitePaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::WHITE_BLACK:
+        return RiaColorTables::whiteBlackPaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::BLACK_WHITE:
+        return RiaColorTables::blackWhitePaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::BLUE_WHITE_RED:
+        return RiaColorTables::blueWhiteRedPaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::RED_WHITE_BLUE:
+        return RiaColorTables::redWhiteBluePaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::CATEGORY:
+        return RiaColorTables::categoryPaletteColors().color3ubArray();
+        break;
+    case RimLegendConfig::ANGULAR:
+        return RiaColorTables::angularPaletteColors().color3ubArray();
+        break;
+    default:
+        break;
+    }
+
+    return RiaColorTables::normalPaletteColors().color3ubArray();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -803,7 +766,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
         }
     }
 
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_mappingMode)
     {
@@ -821,7 +784,7 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
         for(MappingType mapType: mappingTypes)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
+            options.push_back(caf::PdmOptionItemInfo(MappingEnum::uiText(mapType), mapType));
         }
     }
     else if (fieldNeedingOptions == &m_colorRangeMode)
@@ -845,10 +808,18 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
         for(ColorRangesType colType: rangeTypes)
         {
-            optionList.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
+            options.push_back(caf::PdmOptionItemInfo(ColorRangeEnum::uiText(colType), colType));
         }
     }
+    else if (fieldNeedingOptions == &m_rangeMode)
+    {
+        if (!m_isAllTimeStepsRangeDisabled) {
+            options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_ALLTIMESTEPS), RimLegendConfig::AUTOMATIC_ALLTIMESTEPS));
+        }
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP), RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP));
+        options.push_back(caf::PdmOptionItemInfo(RangeModeEnum::uiText(RimLegendConfig::USER_DEFINED), RimLegendConfig::USER_DEFINED));
+    }
  
-    return optionList;
+    return options;
 }
 

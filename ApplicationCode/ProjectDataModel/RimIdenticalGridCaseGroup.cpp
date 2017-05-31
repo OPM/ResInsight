@@ -22,22 +22,26 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
-#include "RimEclipseCase.h"
+#include "RigMainGrid.h"
+
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimEclipseView.h"
-#include "RimEclipseResultCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseResultCase.h"
 #include "RimEclipseStatisticsCase.h"
-#include "RigCaseCellResultsData.h"
+#include "RimEclipseView.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include "RiuMainWindow.h"
 
 #include "cafProgressInfo.h"
-#include "RiuMainWindow.h"
-#include <QMessageBox>
+
 #include <QDir>
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 
@@ -98,11 +102,11 @@ void RimIdenticalGridCaseGroup::addCase(RimEclipseCase* reservoir)
 
     if (!m_mainGrid)
     {
-        m_mainGrid = reservoir->reservoirData()->mainGrid();
+        m_mainGrid = reservoir->eclipseCaseData()->mainGrid();
     }
     else
     {
-        reservoir->reservoirData()->setMainGrid(m_mainGrid);
+        reservoir->eclipseCaseData()->setMainGrid(m_mainGrid);
     }
 
     caseCollection()->reservoirs().push_back(reservoir);
@@ -177,7 +181,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         return;
     }
 
-    RigCaseData* rigCaseData = mainCase->reservoirData();
+    RigEclipseCaseData* rigCaseData = mainCase->eclipseCaseData();
     CVF_ASSERT(rigCaseData);
 
     RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
@@ -235,6 +239,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RifReaderInterface::PorosityModelResultType poroModel = RifReaderInterface::MATRIX_RESULTS;
 
         std::vector<QDateTime> timeStepDates = rigCaseData->results(poroModel)->timeStepDates(0);
+        std::vector<double> daysSinceSimulationStart = rigCaseData->results(poroModel)->daysSinceSimulationStart(0);
+        std::vector<int> reportStepNumbers =  rigCaseData->results(poroModel)->reportStepNumbers(0);
+
         const std::vector<RigCaseCellResultsData::ResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
@@ -258,7 +265,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                     
                     if (mustBeCalculated) cellResultsStorage->cellResults()->setMustBeCalculated(scalarResultIndex);
 
-                    cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates);
+                    cellResultsStorage->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates, daysSinceSimulationStart, reportStepNumbers);
 
                     std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellResults()->cellScalarResults(scalarResultIndex);
                     dataValues.resize(timeStepDates.size());
@@ -279,7 +286,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if (i == 0)
         {
-            rimReservoir->reservoirData()->computeActiveCellBoundingBoxes();
+            rimReservoir->eclipseCaseData()->computeActiveCellBoundingBoxes();
         }
     }
 }
@@ -325,7 +332,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeM[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
                     {
                         activeM[gridLocalCellIndex] = 1;
                     }
@@ -333,7 +340,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeF[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
                     {
                         activeF[gridLocalCellIndex] = 1;
                     }
@@ -381,6 +388,7 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
     
     newStatisticsCase->populateResultSelectionAfterLoadingGrid();
     newStatisticsCase->openEclipseGridFile();
+    newStatisticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
 
     return newStatisticsCase;
 }
@@ -394,13 +402,13 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
     {
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
 
-        if (rimStaticsCase->reservoirData())
+        if (rimStaticsCase->eclipseCaseData())
         {
-            rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
+            rimStaticsCase->eclipseCaseData()->setMainGrid(this->mainGrid());
 
             if (i == 0)
             {
-                rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
+                rimStaticsCase->eclipseCaseData()->computeActiveCellBoundingBoxes();
             }
         }
     }
@@ -515,7 +523,7 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
 //--------------------------------------------------------------------------------------------------
 bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
 {
-    CVF_ASSERT(reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid());
+    CVF_ASSERT(reservoir && reservoir->eclipseCaseData() && reservoir->eclipseCaseData()->mainGrid());
 
     if (!m_mainGrid)
     {
@@ -523,7 +531,7 @@ bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimEclipseCase* reservoir) const
         return true;
     }
 
-    RigMainGrid* incomingMainGrid = reservoir->reservoirData()->mainGrid();
+    RigMainGrid* incomingMainGrid = reservoir->eclipseCaseData()->mainGrid();
     
     if (RigGridManager::isEqual(m_mainGrid, incomingMainGrid))
     {

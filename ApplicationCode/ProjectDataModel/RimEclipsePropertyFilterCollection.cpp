@@ -21,6 +21,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 
 #include "RimEclipseCellColors.h"
+#include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
 #include "RimViewController.h"
@@ -69,7 +70,10 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
+        propertyFilter->resultDefinition->setEclipseCase(reservoirView()->eclipseCase());
         propertyFilter->initAfterRead();
+        propertyFilter->resultDefinition->loadResult();
+        propertyFilter->computeResultValueRange();
     }
 }
 
@@ -141,11 +145,14 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 
     RimEclipseView* view = NULL;
     this->firstAncestorOrThisOfType(view);
-    RimViewController* viewController = view->viewController();
-    if (viewController && (viewController->isPropertyFilterOveridden() 
-                           || viewController->isVisibleCellsOveridden()))
+    if (view)
     {
-        activeIcon = false;
+        RimViewController* viewController = view->viewController();
+        if (viewController && (viewController->isPropertyFilterOveridden() 
+                               || viewController->isVisibleCellsOveridden()))
+        {
+            activeIcon = false;
+        }
     }
 
     if (!isActive)
@@ -160,6 +167,17 @@ void RimEclipsePropertyFilterCollection::updateIconState()
         RimEclipsePropertyFilter* cellFilter = propertyFilters[i];
         cellFilter->updateActiveState();
         cellFilter->updateIconState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::updateFromCurrentTimeStep()
+{
+    for (RimEclipsePropertyFilter* cellFilter : propertyFilters())
+    {
+        cellFilter->updateFromCurrentTimeStep();
     }
 }
 

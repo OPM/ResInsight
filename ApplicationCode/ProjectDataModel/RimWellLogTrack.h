@@ -29,6 +29,7 @@
 
 class RimWellLogCurve;
 class RiuWellLogTrack;
+class RimWellFlowRateCurve;
 
 class QwtPlotCurve;
 
@@ -50,6 +51,7 @@ public:
     void removeCurve(RimWellLogCurve* curve);
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
+    void setXAxisTitle(const QString& text);
 
     void recreateViewer();
     void detachAllCurves();
@@ -66,6 +68,12 @@ public:
 
     void setLogarithmicScale(bool enable);
 
+    std::vector<RimWellFlowRateCurve*> visibleStackedCurves();
+
+    QString description();
+    std::vector<RimWellLogCurve* > curvesVector();
+
+
 protected:
     // Overridden PDM methods
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -80,6 +88,10 @@ private:
     void updateAxisScaleEngine();
 
 private:
+    QString m_xAxisTitle;
+
+    // Fields
+
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
     caf::PdmChildArrayField<RimWellLogCurve*> curves;

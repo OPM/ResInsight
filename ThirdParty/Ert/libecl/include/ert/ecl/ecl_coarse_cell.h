@@ -27,7 +27,7 @@ extern "C" {
   typedef struct ecl_coarse_cell_struct    ecl_coarse_cell_type;
 
   bool                   ecl_coarse_cell_equal( const ecl_coarse_cell_type * coarse_cell1 , const ecl_coarse_cell_type * coarse_cell2);
-  ecl_coarse_cell_type * ecl_coarse_cell_alloc( );
+  ecl_coarse_cell_type * ecl_coarse_cell_alloc( void );
   void                   ecl_coarse_cell_update( ecl_coarse_cell_type * coarse_cell , int i , int j , int k , int global_index );
   void                   ecl_coarse_cell_free( ecl_coarse_cell_type * coarse_cell );
   void                   ecl_coarse_cell_free__( void * arg );

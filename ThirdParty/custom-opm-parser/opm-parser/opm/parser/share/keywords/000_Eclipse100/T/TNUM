@@ -1,4 +1,0 @@
-{"name" : "TNUM" ,
-   "deck_name_regex":"TNUM(F|S).{1,3}",
-   "sections" : ["REGIONS"],
-   "data" : {"value_type" : "INT" }}

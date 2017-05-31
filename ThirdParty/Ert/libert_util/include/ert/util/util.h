@@ -101,7 +101,7 @@ typedef enum {left_pad   = 0,
   //#define UTIL_CXX_MALLOC(var , num_elm) (typeof (var)) util_malloc( (num_elm) * sizeof var)
 
   void         util_bitmask_on(int *  , int );
-  char       * util_get_timezone();
+  char       * util_get_timezone(void);
   time_t       util_make_datetime_utc(int , int , int , int , int , int );
   void         util_fprintf_date_utc(time_t  , FILE * );
   time_t       util_make_date_utc(int , int , int);
@@ -119,7 +119,7 @@ typedef enum {left_pad   = 0,
   bool         util_file_older( const char * file , time_t t0);
 
   char       * util_alloc_date_string_utc( time_t t );
-  char       * util_alloc_date_stamp_utc( );
+  char       * util_alloc_date_stamp_utc( void );
 
   double       util_pow10(double x);
   bool         util_char_in(char c, int , const char *);
@@ -134,7 +134,7 @@ typedef enum {left_pad   = 0,
   bool         util_sscanf_date_utc(const char * , time_t *);
   bool         util_sscanf_isodate(const char * , time_t *);
   bool         util_sscanf_percent(const char * string, double * value);
-  char       * util_alloc_stdin_line();
+  char       * util_alloc_stdin_line(void);
   char       * util_realloc_stdin_line(char * );
   bool         util_is_executable(const char * );
   bool         util_entry_exists( const char * entry );
@@ -174,7 +174,7 @@ typedef enum {left_pad   = 0,
   bool         util_ftruncate(FILE * stream , long size);
 
   void         util_usleep( unsigned long micro_seconds );
-  void         util_yield();
+  void         util_yield(void);
   char       * util_blocking_alloc_stdin_line(unsigned long );
 
   int          util_roundf( float x );
@@ -288,12 +288,14 @@ typedef enum {left_pad   = 0,
 
   void     util_fread_from_buffer(void *  , size_t  , size_t , char ** );
 
-  unsigned int util_clock_seed( );
+  unsigned int util_clock_seed( void );
   void         util_fread_dev_random(int , char * );
   void         util_fread_dev_urandom(int , char * );
   bool         util_string_isspace(const char * s);
 
-  char *  util_alloc_dump_filename();
+  char *  util_alloc_dump_filename(void);
+  void    util_abort_test_set_intercept_function(const char *);
+  bool    util_addr2line_lookup(const void *, char **, char **, int *);
   void    util_exit(const char * fmt , ...);
   void    util_install_signals(void);
   void    util_update_signals(void);
@@ -374,12 +376,12 @@ typedef enum {left_pad   = 0,
   bool     util_files_equal( const char * file1 , const char * file2 );
   double   util_kahan_sum(const double *data, size_t N);
   bool     util_double_approx_equal( double d1 , double d2);
-  bool     util_double_approx_equal__( double d1 , double d2, double epsilon);
-  bool util_float_approx_equal__( float d1 , float d2, float epsilon);
+  bool     util_double_approx_equal__( double d1 , double d2, double rel_eps, double abs_eps);
+  bool     util_float_approx_equal__( float d1 , float d2, float rel_eps, float abs_eps);
   int      util_fnmatch( const char * pattern , const char * string );
   void     util_time_utc( time_t * t , struct tm * ts );
 
-  char      ** util_alloc_PATH_list();
+  char      ** util_alloc_PATH_list(void);
   char       * util_alloc_PATH_executable(const char * executable );
   char       * util_isscanf_alloc_envvar( const char * string , int env_index );
   void         util_setenv( const char * variable , const char * value);
@@ -493,7 +495,7 @@ const char * util_enum_iget( int index , int size , const util_enum_element_type
 void    util_abort__(const char * file , const char * function , int line , const char * fmt , ...);
 void    util_abort_signal(int );
 void    util_abort_append_version_info(const char * );
-void    util_abort_free_version_info();
+void    util_abort_free_version_info(void);
 void    util_abort_set_executable( const char * argv0 );
 
 

@@ -26,7 +26,7 @@
 class RiuToolTipMenu : public QMenu
 {
 public:
-    RiuToolTipMenu(QWidget * parent);
+    explicit RiuToolTipMenu(QWidget * parent);
 
     bool event(QEvent* e);
 };

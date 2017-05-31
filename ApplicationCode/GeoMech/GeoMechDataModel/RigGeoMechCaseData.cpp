@@ -38,8 +38,9 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigGeoMechCaseData::RigGeoMechCaseData(const std::string& fileName)
+    : m_geoMechCaseFileName(fileName)
 {
-    m_geoMechCaseFileName = fileName;
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -39,11 +39,11 @@ extern "C" {
 #define GLOBAL_GRID_NAME   "GLOBAL" // The name assigned to the global grid for name based lookup.
 
   typedef struct well_state_struct well_state_type;
-  
-  well_state_type      * well_state_alloc(const char * well_name , int global_well_nr , bool open, well_type_enum type , int report_nr, time_t valid_from);
-  well_state_type      * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_step , int well_nr , bool load_segment_information);
-  well_state_type      * well_state_alloc_from_file2( ecl_file_view_type * file_view , const ecl_grid_type * grid , int report_nr ,  int global_well_nr ,bool load_segment_information);
-  
+
+  well_state_type  * well_state_alloc(const char * well_name , int global_well_nr , bool open, well_type_enum type , int report_nr, time_t valid_from);
+  well_state_type         * well_state_alloc_from_file( ecl_file_type * ecl_file , const ecl_grid_type * grid , int report_step , int well_nr , bool load_segment_information);
+  well_state_type         * well_state_alloc_from_file2( ecl_file_view_type * file_view , const ecl_grid_type * grid , int report_nr ,  int global_well_nr ,bool load_segment_information);
+
   void well_state_add_connections2( well_state_type * well_state ,
                                     const ecl_grid_type * grid ,
                                     ecl_file_view_type * rst_view ,
@@ -82,6 +82,7 @@ extern "C" {
   bool                   well_state_is_open( const well_state_type * well_state );   
   int                    well_state_get_well_nr( const well_state_type * well_state );
 
+  const well_conn_type * well_state_get_global_wellhead( const well_state_type * well_state );
   const well_conn_type * well_state_iget_wellhead( const well_state_type * well_state , int grid_nr);
   const well_conn_type * well_state_get_wellhead( const well_state_type * well_state , const char * grid_name);
   
@@ -93,6 +94,12 @@ extern "C" {
   bool                              well_state_has_grid_connections( const well_state_type * well_state , const char * grid_name);
   bool                              well_state_has_global_connections( const well_state_type * well_state );
 
+  double well_state_get_oil_rate( const well_state_type * well_state );
+  double well_state_get_gas_rate( const well_state_type * well_state );
+  double well_state_get_water_rate( const well_state_type * well_state);
+  double well_state_get_volume_rate( const well_state_type * well_state);
+
+  
   UTIL_IS_INSTANCE_HEADER( well_state );
   
 #ifdef __cplusplus

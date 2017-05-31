@@ -22,6 +22,7 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
+#include "RiuInterfaceToViewWindow.h"
 
 class QwtPlotCurve;
 class QwtPlotGrid;
@@ -37,7 +38,7 @@ class RimSummaryPlot;
 //
 //
 //==================================================================================================
-class RiuSummaryQwtPlot : public QwtPlot
+class RiuSummaryQwtPlot : public QwtPlot, public RiuInterfaceToViewWindow
 {
     Q_OBJECT;
 public:
@@ -45,6 +46,7 @@ public:
     virtual ~RiuSummaryQwtPlot();
 
     RimSummaryPlot*                 ownerPlotDefinition();
+    virtual RimViewWindow*          ownerViewWindow() const override;
 
     void                            useDateBasedTimeAxis();
     void                            useTimeBasedTimeAxis();
@@ -57,31 +59,26 @@ public:
                                                   const QwtInterval& rightAxis,
                                                   const QwtInterval& timeAxis);
 
+    static void                     setCommonPlotBehaviour(QwtPlot* plot);
+    static void                     enableDateBasedBottomXAxis(QwtPlot* plot);
+
 protected:
     virtual bool                    eventFilter(QObject* watched, QEvent* event) override;
-    virtual void                    leaveEvent(QEvent *) override;
 
     virtual QSize                   sizeHint() const override;
     virtual QSize                   minimumSizeHint() const override;
+    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
-    friend class RiuQwtPlotPicker;
-    QPointF                         closestCurvePoint(const QPoint& pos, QString* valueString, QString* timeString, int* yAxis) const;
-    void                            updateClosestCurvePointMarker(const QPointF& pos, int yAxis);
 
     void                            setDefaults();
     void                            selectClosestCurve(const QPoint& pos);
-    void                            showToolTip(const QPoint& pos);
 
 private slots:
     void                            onZoomedSlot( );
     void                            onAxisClicked(int axis, double value);
 
 private:
-    QwtPlotGrid*                    m_grid;
-    QwtPicker*                      m_plotPicker;
-    QwtPlotMarker*                  m_plotMarker;
-
     caf::PdmPointer<RimSummaryPlot> m_plotDefinition;
 
     QPointer<QwtPlotZoomer>         m_zoomerLeft;

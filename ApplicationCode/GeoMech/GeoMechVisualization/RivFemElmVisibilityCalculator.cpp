@@ -216,10 +216,6 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility(cvf::UByteArray* c
                         {
                             if((*cellVisibility)[cellIndex])
                             {
-                                RigElementType eType = grid->elementType(cellIndex);
-                                int elmNodeCount = RigFemTypes::elmentNodeCount(eType);
-
-                                const int* elmNodeIndices = grid->connectivities(cellIndex);
                                 for(int fpIdx = 0; fpIdx < 24; ++fpIdx)
                                 {
                                     double scalarValue = resVals[cellIndex*24 + fpIdx];

@@ -95,20 +95,6 @@ bool RigSingleWellResultsData::hasWellResult(size_t resultTimeStepIndex) const
     return wellTimeStepIndex != cvf::UNDEFINED_SIZE_T;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigSingleWellResultsData::firstResultTimeStep() const
-{
-    size_t i = 0;
-    for(i = 0; i < m_resultTimeStepIndexToWellTimeStepIndex.size(); ++i)
-    {
-        if (m_resultTimeStepIndexToWellTimeStepIndex[i] != cvf::UNDEFINED_SIZE_T) return i;
-    }
-
-    return cvf::UNDEFINED_SIZE_T;
-}
-
 bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 {
     return 
@@ -121,7 +107,7 @@ bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSingleWellResultsData::computeStaticWellCellPath()
+void RigSingleWellResultsData::computeStaticWellCellPath() const
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
@@ -133,7 +119,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
         int branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
-        std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
        
         std::list< RigWellResultPoint >& branch =  staticWellBranches[branchErtId];
 
@@ -152,7 +138,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
             int branchId = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
-            std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
             std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
             std::list< RigWellResultPoint >::iterator sEndIt;
@@ -275,6 +261,52 @@ bool RigSingleWellResultsData::isMultiSegmentWell() const
     return m_isMultiSegmentWell;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigWellResultFrame::WellProductionType RigSingleWellResultsData::wellProductionType(size_t resultTimeStepIndex) const
+{
+    if (hasWellResult(resultTimeStepIndex))
+    {
+        const RigWellResultFrame& wResFrame = wellResultFrame(resultTimeStepIndex);
+        return wResFrame.m_productionType;
+    }
+    else
+    {
+        return RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellResultFrame& RigSingleWellResultsData::staticWellCells() const
+{
+    // Make sure we have computed the static representation of the well
+    if (m_staticWellCells.m_wellResultBranches.size() == 0)
+    {
+        computeStaticWellCellPath();
+    }
+
+    return m_staticWellCells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigSingleWellResultsData::isOpen(size_t resultTimeStepIndex) const
+{
+    if (hasWellResult(resultTimeStepIndex))
+    {
+        const RigWellResultFrame& wResFrame = wellResultFrame(resultTimeStepIndex);
+        return wResFrame.m_isOpen;
+    }
+    else
+    {
+        return false;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

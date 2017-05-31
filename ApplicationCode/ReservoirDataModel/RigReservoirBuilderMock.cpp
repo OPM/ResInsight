@@ -19,9 +19,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigReservoirBuilderMock.h"
-#include "RigCaseData.h"
-#include "RigActiveCellInfo.h"
 
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+#include "RigCell.h"
+#include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
 
 /* rand example: guess the number */
 #include <stdio.h>
@@ -165,7 +168,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
+void RigReservoirBuilderMock::populateReservoir(RigEclipseCaseData* eclipseCase)
 {
     std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
     appendNodes(m_minWorldCoordinate, m_maxWorldCoordinate, cellDimension(), mainGridNodes);
@@ -290,7 +293,7 @@ void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values)
+bool RigReservoirBuilderMock::inputProperty(RigEclipseCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values)
 {
     size_t k;
 
@@ -311,7 +314,7 @@ bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QString& result, std::vector<double>* values)
+bool RigReservoirBuilderMock::staticResult(RigEclipseCaseData* eclipseCase, const QString& result, std::vector<double>* values)
 {
     values->resize(eclipseCase->mainGrid()->globalCellArray().size());
 
@@ -327,7 +330,7 @@ bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RigReservoirBuilderMock::dynamicResult(RigEclipseCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
 {
     int resultIndex = 1;
 
@@ -362,7 +365,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase* grid)
+void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGridBase* grid)
 {
     CVF_ASSERT(eclipseCase);
     CVF_ASSERT(grid);
@@ -434,15 +437,14 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
 
                             RigWellResultPoint deadEndData1 = data;
                             deadEndData1.m_gridCellIndex = data.m_gridCellIndex + 2;
-                            deadEndData.m_isOpen = false;
+                            deadEndData1.m_isOpen = false;
 
                             wellSegment.m_branchResultPoints.push_back(deadEndData);
-                             wellSegment.m_branchResultPoints.push_back(deadEndData1);
+                            wellSegment.m_branchResultPoints.push_back(deadEndData1);
 
-                             deadEndData.m_isOpen = true;
-                             wellSegment.m_branchResultPoints.push_back(deadEndData);
+                            wellSegment.m_branchResultPoints.push_back(deadEndData);
 
-                             data.m_isOpen = true;
+                            data.m_isOpen = true;
                             wellSegment.m_branchResultPoints.push_back(data);
                         }
                     }
@@ -478,7 +480,7 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
+void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
 {
     if (!eclipseCase) return;
 

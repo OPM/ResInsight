@@ -70,7 +70,7 @@ bool double_vector_approx_equal( const double_vector_type * v1 , const double_ve
       double d1 = double_vector_iget( v1 , i );
       double d2 = double_vector_iget( v2 , i );
 
-      if (!util_double_approx_equal__(d1 , d2 , epsilon))
+      if (!util_double_approx_equal__(d1 , d2 , epsilon, 0.0))
         equal = false;
     }
   } else

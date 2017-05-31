@@ -30,7 +30,8 @@ extern "C" {
 
 typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
 
-
+  ecl_sum_tstep_type * ecl_sum_tstep_alloc_remap_copy( const ecl_sum_tstep_type * src , const ecl_smspec_type * new_smspec, float default_value , const int * params_map);
+  ecl_sum_tstep_type * ecl_sum_tstep_alloc_copy( const ecl_sum_tstep_type * src );
   void ecl_sum_tstep_free( ecl_sum_tstep_type * ministep );
   void ecl_sum_tstep_free__( void * __ministep);
   ecl_sum_tstep_type * ecl_sum_tstep_alloc_from_file(int report_step    ,

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmXmlStringValidation.h"
 
 // Taken from gtest.h
 //
@@ -15,6 +16,11 @@
 #define PDM_OBJECT_STRING_CONCATENATE(foo, bar) PDM_OBJECT_STRING_CONCATENATE_IMPL_(foo, bar)
 #define PDM_OBJECT_STRING_CONCATENATE_IMPL_(foo, bar) foo ## bar
 
+#define CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
+        static_assert(isFirstCharacterValidInXmlKeyword(keyword),   "First character in keyword is invalid"); \
+        static_assert(!isFirstThreeCharactersXml(keyword),          "Keyword starts with invalid sequence xml"); \
+        static_assert(isValidXmlKeyword(keyword),                   "Detected invalid character in keyword");
+
 
 /// CAF_PDM_HEADER_INIT assists the factory used when reading objects from file
 /// Place this in the header file inside the class definition of your PdmObject
@@ -22,7 +28,7 @@
 // To be renamed CAF_PDM_XML_HEADER_INIT
 #define CAF_PDM_XML_HEADER_INIT \
 public: \
-    virtual QString classKeyword()   { return  classKeywordStatic(); } \
+    virtual QString classKeyword() const   { return  classKeywordStatic(); } \
     static  QString classKeywordStatic(); \
     \
     static  bool Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class()
@@ -35,16 +41,25 @@ public: \
 #define CAF_PDM_XML_SOURCE_INIT(ClassName, keyword) \
     bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
     \
-    QString ClassName::classKeywordStatic() { return keyword;   } \
+    QString ClassName::classKeywordStatic() \
+    { \
+        CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
+        return keyword; \
+    } \
     static bool PDM_OBJECT_STRING_CONCATENATE(my##ClassName, __LINE__) = caf::PdmDefaultObjectFactory::instance()->registerCreator<ClassName>() 
 
 #define CAF_PDM_XML_ABSTRACT_SOURCE_INIT(ClassName, keyword) \
     bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
     \
-    QString ClassName::classKeywordStatic() { return keyword;   } \
+    QString ClassName::classKeywordStatic() \
+    { \
+        CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
+        return keyword; \
+    } \
 
 #define CAF_PDM_XML_InitField(field, keyword) \
 { \
+    CAF_PDM_VERIFY_XML_KEYWORD(keyword) \
     static bool chekingThePresenceOfHeaderAndSourceInitMacros =  \
             Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
     this->isInheritedFromPdmXmlSerializable(); \

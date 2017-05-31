@@ -1,2 +1,0 @@
-{"name" : "PIMULTAB" , "sections" : ["SCHEDULE"], "size" : {"keyword" : "PIMTDIMS" , "item" : "NTPIMT"}, "items" :
-   [{"name" : "TABLE" , "value_type" : "DOUBLE" , "size_type" : "ALL"}]}

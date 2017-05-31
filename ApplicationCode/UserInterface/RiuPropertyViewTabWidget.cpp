@@ -26,12 +26,13 @@
 #include <QStringList>
 #include <QTabWidget>
 #include <QWidget>
+#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs)
-    : QDialog(parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     setWindowTitle(windowTitle);
 
@@ -39,9 +40,10 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObje
 
     for (int i = 0; i < uiConfigNameForTabs.size(); i++)
     {
-        // Use a container widget to get some UI space around a PdmUiPropertyView
-        QWidget* containerWidget = new QWidget;
         QHBoxLayout* widgetLayout = new QHBoxLayout;
+        widgetLayout->setContentsMargins(0, 0, 0, 0);
+
+        QWidget* containerWidget = new QWidget;
         containerWidget->setLayout(widgetLayout);
 
         caf::PdmUiPropertyView* pdmUiPropertyView = new caf::PdmUiPropertyView();
@@ -60,7 +62,6 @@ RiuPropertyViewTabWidget::RiuPropertyViewTabWidget(QWidget* parent, caf::PdmObje
 
     dialogLayout->addWidget(tabWidget);
 
-
     // Buttons
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -78,4 +79,25 @@ RiuPropertyViewTabWidget::~RiuPropertyViewTabWidget()
     {
         w->showProperties(NULL);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize RiuPropertyViewTabWidget::sizeHint() const
+{
+    QSize maxSizeHint = QDialog::sizeHint();
+    //qDebug() << "dialog size hint : " << maxSizeHint;
+
+    for (auto w : m_pageWidgets)
+    {
+        //qDebug() << "tab size hint" << w->sizeHint();
+
+        QSize pageSize = w->sizeHint();
+        pageSize += QSize(0, 100);
+
+        maxSizeHint = maxSizeHint.expandedTo(pageSize);
+    }
+
+    return maxSizeHint;
 }

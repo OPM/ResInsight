@@ -31,11 +31,17 @@ extern "C" {
 
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_type.h>
 
   UTIL_IS_INSTANCE_HEADER(ecl_kw);
 
 
   typedef struct ecl_kw_struct      ecl_kw_type;
+
+  typedef enum {
+    ECL_KW_READ_OK = 0,
+    ECL_KW_READ_FAIL = 1
+  } ecl_read_status_enum;
 
 /*
   The size of an ecl_kw instance is denoted with an integer. The
@@ -49,20 +55,29 @@ extern "C" {
 
 #define ECL_KW_MAX_SIZE INT_MAX
 
+/*
+  Character data in ECLIPSE files comes as an array of fixed-length
+  string. Each of these strings is 8 characters long. The type name,
+  i.e. 'REAL', 'INTE', ... , come as 4 character strings.
+*/
+#define ECL_KW_HEADER_DATA_SIZE   ECL_STRING8_LENGTH + ECL_TYPE_LENGTH + 4
+#define ECL_KW_HEADER_FORTIO_SIZE ECL_KW_HEADER_DATA_SIZE + 8
+
+
+
   int            ecl_kw_first_different( const ecl_kw_type * kw1 , const ecl_kw_type * kw2 , int offset, double abs_epsilon , double rel_epsilon);
   size_t         ecl_kw_fortio_size( const ecl_kw_type * ecl_kw );
   void *         ecl_kw_get_ptr(const ecl_kw_type *ecl_kw);
   void           ecl_kw_set_data_ptr(ecl_kw_type * ecl_kw , void * data);
   void           ecl_kw_fwrite_data(const ecl_kw_type *_ecl_kw , fortio_type *fortio);
   bool           ecl_kw_fread_realloc_data(ecl_kw_type *ecl_kw, fortio_type *fortio);
-  ecl_type_enum  ecl_kw_get_type(const ecl_kw_type *);
+  ecl_data_type  ecl_kw_get_data_type(const ecl_kw_type *);
+  size_t         ecl_kw_get_sizeof_ctype(const ecl_kw_type *);
   const char   * ecl_kw_get_header8(const ecl_kw_type *);
   const char   * ecl_kw_get_header(const ecl_kw_type * ecl_kw );
-  ecl_kw_type  * ecl_kw_alloc_empty();
-  bool           ecl_kw_fread_header(ecl_kw_type *, fortio_type *);
+  ecl_kw_type  * ecl_kw_alloc_empty(void);
+  ecl_read_status_enum ecl_kw_fread_header(ecl_kw_type *, fortio_type *);
   void           ecl_kw_set_header_name(ecl_kw_type * , const char * );
-  void           ecl_kw_set_header(ecl_kw_type  * , const char * , int , const char *);
-  void           ecl_kw_set_header_alloc(ecl_kw_type  * , const char * , int , const char *);
   bool           ecl_kw_fseek_kw(const char * , bool , bool , fortio_type *);
   bool           ecl_kw_fseek_last_kw(const char * , bool  , fortio_type *);
   void           ecl_kw_inplace_update_file(const ecl_kw_type * , const char * , int ) ;
@@ -74,13 +89,14 @@ extern "C" {
   void           ecl_kw_fread(ecl_kw_type * , fortio_type * );
   ecl_kw_type *  ecl_kw_fread_alloc(fortio_type *);
   void           ecl_kw_free_data(ecl_kw_type *);
-  void           ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_type_enum ecl_type, int element_count, const int_vector_type* index_map, char* buffer);
+  void           ecl_kw_fread_indexed_data(fortio_type * fortio, offset_type data_offset, ecl_data_type, int element_count, const int_vector_type* index_map, char* buffer);
   void           ecl_kw_free(ecl_kw_type *);
   void           ecl_kw_free__(void *);
   ecl_kw_type *  ecl_kw_alloc_copy (const ecl_kw_type *);
   ecl_kw_type *  ecl_kw_alloc_sub_copy( const ecl_kw_type * src, const char * new_kw , int offset , int count);
   const void  *  ecl_kw_copyc__(const void *);
   ecl_kw_type *  ecl_kw_alloc_slice_copy( const ecl_kw_type * src, int index1, int index2, int stride);
+  void           ecl_kw_resize( ecl_kw_type * ecl_kw, int new_size);
   //void        * ecl_kw_get_data_ref(const ecl_kw_type *);
   void        *  ecl_kw_alloc_data_copy(const ecl_kw_type * );
   void           ecl_kw_memcpy(ecl_kw_type *, const ecl_kw_type *);
@@ -94,15 +110,17 @@ extern "C" {
   void           ecl_kw_iset(ecl_kw_type *ecl_kw , int i , const void *iptr);
   void           ecl_kw_iset_char_ptr( ecl_kw_type * ecl_kw , int index, const char * s);
   void           ecl_kw_iset_string8(ecl_kw_type * ecl_kw , int index , const char *s8);
+  void           ecl_kw_iset_string_ptr(ecl_kw_type*, int, const char*);
+  const char *   ecl_kw_iget_string_ptr(const ecl_kw_type *, int);
   const char  *  ecl_kw_iget_char_ptr( const ecl_kw_type * ecl_kw , int i);
   void        *  ecl_kw_iget_ptr(const ecl_kw_type *, int);
   int            ecl_kw_get_size(const ecl_kw_type *);
   bool           ecl_kw_ichar_eq(const ecl_kw_type *, int , const char *);
-  ecl_kw_type *  ecl_kw_alloc( const char * header , int size , ecl_type_enum ecl_type );
-  ecl_kw_type *  ecl_kw_alloc_new(const char * ,  int , ecl_type_enum , const void * );
-  ecl_kw_type *  ecl_kw_alloc_new_shared(const char * ,  int , ecl_type_enum , void * );
-  void           ecl_kw_fwrite_param(const char * , bool  , const char * ,  ecl_type_enum , int , void * );
-  void           ecl_kw_fwrite_param_fortio(fortio_type *, const char * ,  ecl_type_enum , int , void * );
+  ecl_kw_type *  ecl_kw_alloc( const char * header , int size , ecl_data_type );
+  ecl_kw_type *  ecl_kw_alloc_new(const char * ,  int , ecl_data_type , const void * );
+  ecl_kw_type *  ecl_kw_alloc_new_shared(const char * ,  int , ecl_data_type , void * );
+  void           ecl_kw_fwrite_param(const char * , bool  , const char * ,  ecl_data_type , int , void * );
+  void           ecl_kw_fwrite_param_fortio(fortio_type *, const char * ,  ecl_data_type , int , void * );
   void           ecl_kw_summarize(const ecl_kw_type * ecl_kw);
   void           ecl_kw_fread_double_param(const char * , bool , double *);
   float          ecl_kw_iget_as_float(const ecl_kw_type * ecl_kw , int i);
@@ -118,13 +136,12 @@ extern "C" {
   bool           ecl_kw_block_equal( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , int cmp_elements);
   bool           ecl_kw_data_equal( const ecl_kw_type * ecl_kw , const void * data);
   bool           ecl_kw_content_equal( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2);
-  bool           ecl_kw_fskip_data__( ecl_type_enum ecl_type , int size , fortio_type * fortio);
+  bool           ecl_kw_fskip_data__( ecl_data_type, int, fortio_type *);
   bool           ecl_kw_fskip_data(ecl_kw_type *ecl_kw, fortio_type *fortio);
   bool           ecl_kw_fread_data(ecl_kw_type *ecl_kw, fortio_type *fortio);
   void           ecl_kw_fskip_header( fortio_type * fortio);
 
 
-  bool ecl_kw_is_grdecl_file(FILE * );
   bool ecl_kw_is_kw_file(fortio_type * fortio);
 
   int        ecl_kw_element_sum_int( const ecl_kw_type * ecl_kw );

@@ -45,7 +45,7 @@ class RimIntersectionBox;
 class RivIntersectionBoxPartMgr : public cvf::Object
 {
 public:
-    RivIntersectionBoxPartMgr(const RimIntersectionBox* intersectionBox);
+    explicit RivIntersectionBoxPartMgr(const RimIntersectionBox* intersectionBox);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);

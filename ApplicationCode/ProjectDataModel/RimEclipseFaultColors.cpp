@@ -19,9 +19,6 @@
 
 #include "RimEclipseFaultColors.h"
 
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
-
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -51,7 +48,6 @@ RimEclipseFaultColors::RimEclipseFaultColors()
 
     m_customFaultResultColors.uiCapability()->setUiHidden(true);
 
-    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,18 +84,10 @@ void RimEclipseFaultColors::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 void RimEclipseFaultColors::initAfterRead()
 {
     m_customFaultResultColors->initAfterRead();
-    updateFieldVisibility();
 
     this->updateUiIconFromToggleField();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimEclipseFaultColors::updateFieldVisibility()
-{
-    m_customFaultResultColors->updateFieldVisibility();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -123,9 +111,7 @@ caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 void RimEclipseFaultColors::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    group1->add(&(m_customFaultResultColors->m_resultTypeUiField));
-    group1->add(&(m_customFaultResultColors->m_porosityModelUiField));
-    group1->add(&(m_customFaultResultColors->m_resultVariableUiField));
+    m_customFaultResultColors->uiOrdering(uiConfigName, *group1);
 }   
 
 //--------------------------------------------------------------------------------------------------

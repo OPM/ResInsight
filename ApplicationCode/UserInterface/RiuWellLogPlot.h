@@ -19,9 +19,13 @@
 
 #pragma once
 
-#include <QWidget>
-#include <QList>
 #include "cafPdmPointer.h"
+
+#include <QList>
+#include <QPointer>
+#include <QWidget>
+
+#include "RiuInterfaceToViewWindow.h"
 
 class RimWellLogPlot;
 class RiuWellLogTrack;
@@ -36,7 +40,7 @@ class QwtLegend;
 // RiuWellLogPlot
 //
 //==================================================================================================
-class RiuWellLogPlot : public QWidget
+class RiuWellLogPlot : public QWidget, public RiuInterfaceToViewWindow
 {
     Q_OBJECT
 
@@ -45,6 +49,7 @@ public:
     virtual ~RiuWellLogPlot();
 
     RimWellLogPlot*                 ownerPlotDefinition();
+    virtual RimViewWindow*          ownerViewWindow() const override;
 
     void                            addTrackPlot(RiuWellLogTrack* trackPlot);
     void                            insertTrackPlot(RiuWellLogTrack* trackPlot, size_t index);
@@ -52,13 +57,15 @@ public:
 
     void                            setDepthZoomAndReplot(double minDepth, double maxDepth);
 
-public slots:
+    public slots:
     void                            updateChildrenLayout();
 
 protected:
     virtual void                    resizeEvent(QResizeEvent *event);
     virtual void                    showEvent(QShowEvent *);
     virtual void                    changeEvent(QEvent *);
+    virtual QSize                   sizeHint() const override;
+    virtual void                    contextMenuEvent(QContextMenuEvent *) override;
 
 private:
     void                            updateScrollBar(double minDepth, double maxDepth);
@@ -72,8 +79,8 @@ private slots:
 private:
     QHBoxLayout*                    m_layout;
     QScrollBar*                     m_scrollBar;
-    QList<QwtLegend*>               m_legends;
-    QList<RiuWellLogTrack*>     m_trackPlots;
+    QList<QPointer<QwtLegend> >     m_legends;
+    QList<QPointer<RiuWellLogTrack> > m_trackPlots;
     caf::PdmPointer<RimWellLogPlot> m_plotDefinition;
     QTimer*                         m_scheduleUpdateChildrenLayoutTimer;
 };

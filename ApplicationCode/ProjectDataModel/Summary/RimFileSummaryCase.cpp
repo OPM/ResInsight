@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFileSummaryCase.h"
+#include "RimTools.h"
+
 #include "QFileInfo"
 
 
@@ -32,8 +34,7 @@ CAF_PDM_SOURCE_INIT(RimFileSummaryCase,"FileSummaryCase");
 //--------------------------------------------------------------------------------------------------
 RimFileSummaryCase::RimFileSummaryCase()
 {
-    CAF_PDM_InitFieldNoDefault(&m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "");
-    m_summaryHeaderFilename.uiCapability()->setUiReadOnly(true);
+ 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,9 +67,17 @@ QString RimFileSummaryCase::summaryHeaderFilename() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimFileSummaryCase::caseName() const
+QString RimFileSummaryCase::caseName()
 {
     QFileInfo caseFileName(this->summaryHeaderFilename());
 
     return caseFileName.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+{
+    m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }

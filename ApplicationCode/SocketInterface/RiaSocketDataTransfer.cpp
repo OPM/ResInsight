@@ -26,7 +26,6 @@
 bool RiaSocketDataTransfer::writeBlockDataToSocket(QTcpSocket* socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages)
 {
     quint64 bytesWritten = 0;
-    int blockCount = 0;
 
     quint64 maxBlockSize = maximumValueCountInBlock() * sizeof(double);
 
@@ -45,7 +44,6 @@ bool RiaSocketDataTransfer::writeBlockDataToSocket(QTcpSocket* socket, const cha
 
         bytesWritten += actuallyBytesWritten;
 
-        blockCount++;
     }
 
     return true;

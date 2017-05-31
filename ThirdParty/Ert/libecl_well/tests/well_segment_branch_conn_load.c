@@ -46,6 +46,7 @@ int main(int argc , char ** argv) {
   well_rseg_loader_type * rseg_loader = well_rseg_loader_alloc(rst_view);
   const ecl_kw_type * icon_kw = ecl_file_iget_named_kw( rst_file , ICON_KW , 0 );
   const ecl_kw_type * scon_kw = NULL;
+  const ecl_kw_type * xcon_kw = NULL;
 
   test_install_SIGNALS();
   test_assert_not_NULL( rst_file );
@@ -54,7 +55,7 @@ int main(int argc , char ** argv) {
     int well_nr;
     for (well_nr = 0; well_nr < rst_head->nwells; well_nr++) {
       well_conn_collection_type * connections = well_conn_collection_alloc();
-      well_conn_collection_load_from_kw( connections , iwel_kw , icon_kw , scon_kw , well_nr , rst_head);
+      well_conn_collection_load_from_kw( connections , iwel_kw , icon_kw , scon_kw, xcon_kw, well_nr , rst_head);
       {
         well_segment_collection_type * segments = well_segment_collection_alloc();
         bool load_segment_information = true;

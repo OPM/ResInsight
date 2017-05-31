@@ -33,7 +33,7 @@ extern "C" {
 
   typedef struct well_branch_collection_struct well_branch_collection_type;
 
-  well_branch_collection_type * well_branch_collection_alloc();
+  well_branch_collection_type * well_branch_collection_alloc(void);
   void                          well_branch_collection_free( well_branch_collection_type * branches );
   void                          well_branch_collection_free__( void * arg );
   bool                          well_branch_collection_has_branch( const well_branch_collection_type * branches , int branch_id);

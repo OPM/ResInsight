@@ -89,7 +89,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 
     if (!text.isEmpty()) text += "\n";
 
-    QString topoText = this->topologyText("\n");
+    QString topoText = this->geometrySelectionText("\n");
     text += topoText;
     appendDetails(text, formationDetails());
     text += "\n";
@@ -102,7 +102,7 @@ QString RiuFemResultTextBuilder::mainResultText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiuFemResultTextBuilder::topologyText(QString itemSeparator)
+QString RiuFemResultTextBuilder::geometrySelectionText(QString itemSeparator)
 {
     QString text;
 

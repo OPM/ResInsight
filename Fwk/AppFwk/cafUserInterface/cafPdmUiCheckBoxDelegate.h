@@ -52,7 +52,7 @@ class PdmUiCheckBoxDelegate : public QStyledItemDelegate
     Q_OBJECT
 
 public:
-    PdmUiCheckBoxDelegate( QObject* pParent = 0 );
+    explicit PdmUiCheckBoxDelegate( QObject* pParent = 0 );
     virtual ~PdmUiCheckBoxDelegate();
 
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;

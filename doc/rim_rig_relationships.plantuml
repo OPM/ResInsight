@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+RimCase <|-- RimEclipseCase
+RimCase <|-- RimGeoMechCase
+
+RimEclipseCase <|--- RimEclipseInputCase
+RimEclipseCase <|--- RimEclipseInputCaseOpm
+RimEclipseCase <|--- RimEclipseResultCase
+RimEclipseCase <|--- RimEclipseStatisticsCase
+
+class RimEclipseInputCase {
+  Based on ASCII input files
+}
+
+class RimEclipseInputCaseOpm {
+  Based on ASCII input files using OPM parser
+}
+
+class RimEclipseResultCase {
+  Based on binary files (EGRID, UNSMRY, ..)
+}
+
+class RimEclipseStatisticsCase {
+  Case derived from statistics computations of multiple cases
+}
+
+RimCase *-- "N" RimView
+
+
+class RimEclipseCase {
+RigEclipseCaseData* reservoirData()
+RimReservoirCellResultsStorage* results()
+-- private --
+matrixResults RimReservoirCellResultsStorage
+fractureResults RimReservoirCellResultsStorage
+}
+
+RimEclipseCase *-- RigEclipseCaseData
+RimEclipseCase *-- RimReservoirCellResultsStorage
+
+class RigEclipseCaseData {
+RigMainGrid* mainGrid()
+RigCaseCellResultsData* results()
+RigActiveCellInfo* activeCellInfo()
+RigFormationNames* activeFormationNames()
+RigSingleWellResultsData* findWellResult()
+RigCell& cellFromWellResultCell()
+}
+
+RigEclipseCaseData *-- RigCaseCellResultsData
+
+
+RimReservoirCellResultsStorage *-- RigCaseCellResultsData
+
+class RimReservoirCellResultsStorage {
+RigCaseCellResultsData*         cellResults()
+}
+
+
+RimSummaryCase <|-- RimFileSummaryCase
+RimSummaryCase <|-- RimGridSummaryCase
+
+class RimGridSummaryCase {
+RimEclipseCase* associatedEclipseCase(
+}
+
+
+
+RimGridSummaryCase *-- RimEclipseCase
+
+@enduml

@@ -24,6 +24,8 @@
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 
+#include "cafUtils.h"
+
 #include "cvfAssert.h"
 
 #include "laswell.hpp"
@@ -146,41 +148,34 @@ public:
 
     std::string generateFilename() const
     {
-        QString f;
+        QString fileBasenameCandidate;
         QString separator("-");
 
         if (!m_wellName.isEmpty())
         {
-            f += m_wellName;
+            fileBasenameCandidate += m_wellName;
         }
 
         if (!m_caseName.isEmpty())
         {
-            if (!f.isEmpty()) f += separator;
-            f += m_caseName;
+            if (!fileBasenameCandidate.isEmpty()) fileBasenameCandidate += separator;
+            fileBasenameCandidate += m_caseName;
         }
 
         // Add property name if only one curve is exported
         if (m_logCurveData.size() == 1)
         {
-            if (!f.isEmpty()) f += separator;
-            f += QString::fromStdString(m_logCurveData[0].channelName());
+            if (!fileBasenameCandidate.isEmpty()) fileBasenameCandidate += separator;
+            fileBasenameCandidate += QString::fromStdString(m_logCurveData[0].channelName());
         }
 
         if (!m_date.isEmpty())
         {
-            if (!f.isEmpty()) f += separator;
-            f += m_date;
+            if (!fileBasenameCandidate.isEmpty()) fileBasenameCandidate += separator;
+            fileBasenameCandidate += m_date;
         }
 
-        QString cleanFileName = f.trimmed();
-        cleanFileName.replace(".", "_");
-        cleanFileName.replace(",", "_");
-        cleanFileName.replace(":", "_");
-        cleanFileName.replace(";", "_");
-        cleanFileName.replace(" ", "_");
-        cleanFileName.replace("/", "_");
-        cleanFileName.replace(QRegExp("_+"), "_");
+        QString cleanFileName = caf::Utils::makeValidFileBasename( fileBasenameCandidate);
 
         cleanFileName += ".las";
 
@@ -209,6 +204,11 @@ public:
         {
             lasFile->AddLog("DEPTH", "FT", "Depth in feet", firstCurveData->measuredDepths());
         }
+        else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+        {
+            CVF_ASSERT(false);
+            lasFile->AddLog("DEPTH", "", "Depth in Connection number", firstCurveData->measuredDepths());
+        }
 
         if (firstCurveData->tvDepths().size())
         {
@@ -231,6 +231,12 @@ public:
                 {
                     lasFile->AddLog("TVDRKB", "FT", "True vertical depth (Rotary Kelly Bushing)", tvdrkbValues);
                 }
+                else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+                {
+                    CVF_ASSERT(false);
+                    lasFile->AddLog("TVDRKB", "", "", tvdrkbValues);
+                }
+
             }
         }
 
@@ -248,6 +254,10 @@ public:
         else if (firstCurveData->depthUnit() == RimDefines::UNIT_FEET)
         {
             lasFile->setDepthUnit("FT");
+        }
+        else if ( firstCurveData->depthUnit() == RimDefines::UNIT_NONE )
+        {
+            CVF_ASSERT(false);
         }
 
         double absentValue = SingleLasFileMetaData::createAbsentValue(m_minimumCurveValue);
@@ -287,7 +297,7 @@ private:
     QString m_date;
     
     double m_rkbDiff;
-    double m_exportTvdrkb;
+    bool   m_exportTvdrkb;
 
     RimDefines::DepthUnitType m_depthUnit;
     std::vector<double> m_depthValues;
@@ -381,7 +391,7 @@ bool RigLasFileExporter::writeToFolder(const QString& exportFolder)
 
         QDir dir(exportFolder);
         QString fileName = dir.absoluteFilePath(QString::fromStdString(lasFileDescr.generateFilename()));
-        if (QFile::exists(fileName))
+        if (caf::Utils::fileExists(fileName))
         {
             QString txt = QString("File %1 exists.\n\nDo you want to overwrite the file?").arg(fileName);
             int ret = QMessageBox::question(NULL, "LAS File Export",

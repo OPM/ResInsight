@@ -27,7 +27,7 @@ namespace cvf
     class Part;
 }
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RimGeoMechCase;
 
 //==================================================================================================
@@ -37,7 +37,7 @@ class RimGeoMechCase;
 class RivSingleCellPartGenerator 
 {
 public:
-    RivSingleCellPartGenerator(RigCaseData* rigCaseData, size_t gridIndex, size_t cellIndex);
+    RivSingleCellPartGenerator(RigEclipseCaseData* rigCaseData, size_t gridIndex, size_t cellIndex);
     RivSingleCellPartGenerator(RimGeoMechCase* rimGeoMechCase, size_t gridIndex, size_t cellIndex);
 
     cvf::ref<cvf::Part>         createPart(const cvf::Color3f color);
@@ -46,7 +46,7 @@ private:
     cvf::ref<cvf::DrawableGeo>  createMeshDrawable();
 
 private:
-    RigCaseData*    m_rigCaseData;
+    RigEclipseCaseData*    m_rigCaseData;
     RimGeoMechCase* m_geoMechCase;
     size_t          m_gridIndex;
     size_t          m_cellIndex;

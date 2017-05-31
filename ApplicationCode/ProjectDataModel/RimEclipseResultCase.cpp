@@ -28,16 +28,20 @@
 #include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
+#include "RimFlowDiagSolution.h"
+#include "RigFlowDiagSolverInterface.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
+#include "cafUtils.h"
 
 #include <QDir>
 #include <QFile>
@@ -52,8 +56,13 @@ RimEclipseResultCase::RimEclipseResultCase()
 {
     CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
-    CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
+    CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case File Name", "", "" ,"");
     caseFileName.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault (&m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "");
+    m_flowDiagSolutions.uiCapability()->setUiHidden(true);
+    m_flowDiagSolutions.uiCapability()->setUiTreeHidden(true);
+    m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete, unused field
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
@@ -64,6 +73,8 @@ RimEclipseResultCase::RimEclipseResultCase()
     //flipXAxis.uiCapability()->setUiHidden(true);
     flipYAxis.xmlCapability()->setIOWritable(true);
     //flipYAxis.uiCapability()->setUiHidden(true);
+
+
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -90,7 +101,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
     }
     else
     {
-        if (!QFile::exists(caseFileName()))
+        if (!caf::Utils::fileExists(caseFileName()))
         {
             return false;
         }
@@ -100,7 +111,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
         readerInterface->setReaderSetting(prefs->readerSettings());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
-        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
             return false;
@@ -116,7 +127,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
 
     progInfo.incrementProgress();
 
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
     progInfo.setProgressDescription("Computing Case Cache");
@@ -125,13 +136,34 @@ bool RimEclipseResultCase::openEclipseGridFile()
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
 
+    if (eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+    {
+        m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+        
+        if (m_flowDiagSolutions.size() == 0)
+        {
+            m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
+        }
+    }
+    
     return true;
  }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::reloadEclipseGridFile()
+{
+    m_gridAndWellDataIsReadFromFile = false;
+    m_activeCellInfoIsReadFromFile = false;
+    setReservoirData(nullptr);
+    openReserviorCase();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
+bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase)
 {
     // Early exit if data is already read
     if (m_activeCellInfoIsReadFromFile) return true;
@@ -143,24 +175,21 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCas
     }
     else
     {
-        if (!QFile::exists(caseFileName()))
+        if (!caf::Utils::fileExists(caseFileName()))
         {
             return false;
         }
 
-        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
 
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
 
-        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
-        mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
-        if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
+        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates();
+        if (timeStepDates.size() == 0)
         {
             return false;
         }
-
-        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         if (!readerEclipseOutput->openAndReadActiveCellData(caseFileName(), timeStepDates, eclipseCase.p()))
@@ -178,10 +207,10 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCas
     results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
     results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
 
-    reservoirData()->computeActiveCellBoundingBoxes();
+    eclipseCaseData()->computeActiveCellBoundingBoxes();
 
     m_activeCellInfoIsReadFromFile = true;
 
@@ -194,7 +223,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCas
 cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString modelName)
 {
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
-    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
 
      if (modelName == RimDefines::mockModelBasic())
     {
@@ -298,6 +327,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
 RimEclipseResultCase::~RimEclipseResultCase()
 {
     reservoirViews.deleteAllChildObjects();
+    m_flowDiagSolutions.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -327,6 +357,15 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
 
     // Update filename and folder paths when opening project from a different file location
     caseFileName = RimTools::relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+
+    std::vector<QString> relocatedFaultFiles;
+    for (auto faultFileName : filesContainingFaults())
+    {
+        QString relocatedFaultFile = RimTools::relocateFile(faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        relocatedFaultFiles.push_back(relocatedFaultFile);
+    }
+
+    filesContainingFaults = relocatedFaultFiles;
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)
@@ -335,6 +374,41 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
     
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFlowDiagSolution* RimEclipseResultCase::defaultFlowDiagSolution()
+{
+    if (m_flowDiagSolutions.size() > 0)
+    {
+        return m_flowDiagSolutions[0];
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimFlowDiagSolution*> RimEclipseResultCase::flowDiagSolutions()
+{
+    std::vector<RimFlowDiagSolution*> flowSols; 
+    for ( const caf::PdmPointer<RimFlowDiagSolution>& fsol: m_flowDiagSolutions ) 
+    { 
+        flowSols.push_back(fsol.p());
+    }
+
+    return flowSols;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
+{
+    return m_flowDagSolverInterface.p();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -382,5 +456,11 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     uiOrdering.add(&caseUserDescription);
     uiOrdering.add(&caseId);
     uiOrdering.add(&caseFileName);
+
+    auto group = uiOrdering.addNewGroup("Case Options");
+    group->add(&activeFormationNames);
+    group->add(&flipXAxis);
+    group->add(&flipYAxis);
+
 }
 

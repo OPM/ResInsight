@@ -39,7 +39,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimCase, "RimCase");
 //--------------------------------------------------------------------------------------------------
 RimCase::RimCase()
 {
-    CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case name", "", "" ,"");
+    CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case Name", "", "" ,"");
 
     CAF_PDM_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
     caseId.uiCapability()->setUiReadOnly(true);
@@ -69,7 +69,7 @@ cvf::Vec3d RimCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if(fieldNeedingOptions == &activeFormationNames)
     {
@@ -78,15 +78,12 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmField
         {
             for(RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList())
             {
-                optionList.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(),
-                                                            QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(fnames)),
-                                                            false,
-                                                            fnames->uiCapability()->uiIcon()));
+                options.push_back(caf::PdmOptionItemInfo(fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIcon()));
             }
         }
 
-        optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
 
-    return optionList;
+    return options;
 }

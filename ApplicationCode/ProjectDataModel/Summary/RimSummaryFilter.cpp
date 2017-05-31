@@ -78,8 +78,112 @@ RimSummaryFilter::~RimSummaryFilter()
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString cellIJKString(int cellI, int cellJ, int cellK)
+{
+    QString ijkString;
+    if (cellI >= 0 && cellJ >= 0 && cellK >= 0)
+    {
+        ijkString = QString::number(cellI) + ", " + QString::number(cellJ) + ", " + QString::number(cellK);
+    }
 
+    return ijkString;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryFilter::updateFromAddress(const RifEclipseSummaryAddress& address)
+{
+    RifEclipseSummaryAddress::SummaryVarCategory category = address.category();
+
+    m_filterQuantityName = QString::fromStdString(address.quantityName());
+
+    switch (category)
+    {
+    case RifEclipseSummaryAddress::SUMMARY_INVALID:
+        m_filterType = SUM_FILTER_VAR_STRING;
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_FIELD:
+        m_filterType = SUM_FILTER_FIELD;
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
+        m_filterType = SUM_FILTER_AQUIFER;
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_NETWORK:
+        m_filterType = SUM_FILTER_NETWORK;
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_MISC:
+        m_filterType = SUM_FILTER_MISC;
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_REGION:
+        m_filterType        = SUM_FILTER_REGION;
+        m_regionNumberFilter= QString("%1").arg(address.regionNumber());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
+        m_filterType          = SUM_FILTER_REGION_2_REGION;
+        m_regionNumberFilter  = QString("%1").arg(address.regionNumber());
+        m_regionNumber2Filter = QString("%1").arg(address.regionNumber2());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        m_filterType          = SUM_FILTER_WELL_GROUP;
+        m_wellGroupNameFilter = QString::fromStdString(address.wellGroupName());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_WELL:
+        m_filterType     = SUM_FILTER_WELL;
+        m_wellNameFilter = QString::fromStdString(address.wellName());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
+        m_filterType     = SUM_FILTER_WELL_COMPLETION;
+        m_wellNameFilter = QString::fromStdString(address.wellName());
+        m_cellIJKFilter  = cellIJKString(address.cellI(), address.cellJ(), address.cellK());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        m_filterType    = SUM_FILTER_WELL_LGR;
+        m_wellNameFilter= QString::fromStdString(address.wellName());
+        m_lgrNameFilter = QString::fromStdString(address.lgrName());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
+        m_filterType     = SUM_FILTER_WELL_COMPLETION_LGR;
+        m_wellNameFilter = QString::fromStdString(address.wellName());
+        m_lgrNameFilter  = QString::fromStdString(address.lgrName());
+        m_cellIJKFilter  = cellIJKString(address.cellI(), address.cellJ(), address.cellK());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
+        m_filterType              = SUM_FILTER_WELL_SEGMENT;
+        m_wellNameFilter          = QString::fromStdString(address.wellName());
+        m_wellSegmentNumberFilter = QString("%1").arg(address.wellSegmentNumber());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_BLOCK:
+        m_filterType    = SUM_FILTER_BLOCK;
+        m_cellIJKFilter = cellIJKString(address.cellI(), address.cellJ(), address.cellK());
+        break;
+    
+    case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
+        m_filterType    = SUM_FILTER_BLOCK_LGR;
+        m_lgrNameFilter = QString::fromStdString(address.lgrName());
+        m_cellIJKFilter = cellIJKString(address.cellI(), address.cellJ(), address.cellK());
+        break;
+
+    default:
+        break;
+    }
+}
 
 bool isNumberMatch(QString numericalFilterString, int number)
 {
@@ -119,11 +223,7 @@ bool isIJKMatch(QString filterString, int cellI, int cellJ, int cellK)
         else return false;
     }
 
-     QString ijkString;
-     if(cellI >= 0 && cellJ >= 0 && cellK >= 0)
-     {
-         ijkString = QString::number(cellI) + ", " + QString::number(cellJ) + ", " + QString::number(cellK);
-     }
+     QString ijkString = cellIJKString(cellI, cellJ, cellK);
 
     // Todo: Ranges, and lists
     QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
@@ -346,6 +446,8 @@ void RimSummaryFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 
         }
     }
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,6 +26,8 @@
 class RigFemFaceComparator
 {
 public:
+    RigFemFaceComparator() : m_minMainFaceNodeIdx(INT_MAX),  m_faceIdxToMinMainFaceNodeIdx(0) {}
+
     void setMainFace(const int* elmNodes, const int * localFaceIndices, int faceNodeCount)
     {
         m_canonizedMainFaceIdxes.resize(faceNodeCount);

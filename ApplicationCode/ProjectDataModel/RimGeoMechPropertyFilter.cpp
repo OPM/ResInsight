@@ -122,7 +122,6 @@ void RimGeoMechPropertyFilter::setToDefaultValues()
 
     m_selectedCategoryValues = m_categoryValues;
 
-    this->updateFieldVisibility();
     this->updateFilterName();
 }
 
@@ -134,17 +133,25 @@ void RimGeoMechPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUi
     uiOrdering.add(&name);
 
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    resultDefinition->defineUiOrdering(uiConfigName, *group1);
+    resultDefinition->uiOrdering(uiConfigName, *group1);
 
-    uiOrdering.add(&isActive);
-    uiOrdering.add(&filterMode);
+    caf::PdmUiGroup& group2 = *(uiOrdering.addNewGroup("Filter Settings"));
 
-    uiOrdering.add(&lowerBound);
-    uiOrdering.add(&upperBound);
+    group2.add(&filterMode);
 
-    uiOrdering.add(&m_selectedCategoryValues);
+    if ( resultDefinition->hasCategoryResult() )
+    {
+        group2.add(&m_selectedCategoryValues);
+    }
+    else
+    {
+        group2.add(&lowerBound);
+        group2.add(&upperBound);
+    }
 
     updateReadOnlyStateOfAllFields();
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,38 +191,23 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
+    bool isPropertyFilterControlled = false;
+
     RimView* rimView = NULL;
     firstAncestorOrThisOfType(rimView);
     CVF_ASSERT(rimView);
-
-    bool isPropertyFilterControlled = false;
-    RimViewController* vc = rimView->viewController();
-    if (vc && vc->isPropertyFilterOveridden())
+    if (rimView)
     {
-        isPropertyFilterControlled = true;
+        RimViewController* vc = rimView->viewController();
+        if (vc && vc->isPropertyFilterOveridden())
+        {
+            isPropertyFilterControlled = true;
+        }
     }
    
     return isPropertyFilterControlled;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::updateFieldVisibility()
-{
-    if (resultDefinition->hasCategoryResult())
-    {
-        m_selectedCategoryValues.uiCapability()->setUiHidden(false);
-        lowerBound.uiCapability()->setUiHidden(true);
-        upperBound.uiCapability()->setUiHidden(true);
-    }
-    else
-    {
-        m_selectedCategoryValues.uiCapability()->setUiHidden(true);
-        lowerBound.uiCapability()->setUiHidden(false);
-        upperBound.uiCapability()->setUiHidden(false);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -82,7 +82,7 @@ PdmUiListView::~PdmUiListView()
 //--------------------------------------------------------------------------------------------------
 void PdmUiListView::setPdmObject(caf::PdmObjectCollection* object)
 {
-    assert(m_listViewEditor);
+    CAF_ASSERT(m_listViewEditor);
 
     m_listViewEditor->setPdmObject(object);
 }

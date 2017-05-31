@@ -25,9 +25,9 @@
 
 list (APPEND MAIN_SOURCE_FILES
         opm/flowdiagnostics/CellSet.cpp
-        opm/flowdiagnostics/CellSetValues.cpp
         opm/flowdiagnostics/ConnectionValues.cpp
         opm/flowdiagnostics/ConnectivityGraph.cpp
+        opm/flowdiagnostics/DerivedQuantities.cpp
         opm/flowdiagnostics/Solution.cpp
         opm/flowdiagnostics/Toolbox.cpp
         opm/flowdiagnostics/TracerTofSolver.cpp
@@ -39,9 +39,9 @@ list (APPEND MAIN_SOURCE_FILES
 list (APPEND TEST_SOURCE_FILES
         tests/test_assembledconnections.cpp
         tests/test_cellset.cpp
-        tests/test_cellsetvalues.cpp
         tests/test_connectionvalues.cpp
         tests/test_connectivitygraph.cpp
+        tests/test_derivedquantities.cpp
         tests/test_flowdiagnosticstool.cpp
         tests/test_tarjan.cpp
         )
@@ -51,6 +51,7 @@ list (APPEND PUBLIC_HEADER_FILES
         opm/flowdiagnostics/CellSetValues.hpp
         opm/flowdiagnostics/ConnectionValues.hpp
         opm/flowdiagnostics/ConnectivityGraph.hpp
+        opm/flowdiagnostics/DerivedQuantities.hpp
         opm/flowdiagnostics/Solution.hpp
         opm/flowdiagnostics/Toolbox.hpp
         opm/flowdiagnostics/TracerTofSolver.hpp

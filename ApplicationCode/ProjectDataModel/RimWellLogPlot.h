@@ -24,10 +24,10 @@
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
 
-#include <QPointer>
 #include "RimDefines.h"
-
 #include "RimViewWindow.h"
+
+#include <QPointer>
 
 class RiuWellLogPlot;
 class RimWellLogTrack;
@@ -45,8 +45,12 @@ public:
     enum DepthTypeEnum
     {
         MEASURED_DEPTH,
-        TRUE_VERTICAL_DEPTH
+        TRUE_VERTICAL_DEPTH,
+        PSEUDO_LENGTH,
+        CONNECTION_NUMBER
     };
+
+
 
 
 public:
@@ -57,20 +61,28 @@ public:
     QString                                         description() const;
 
     DepthTypeEnum                                   depthType() const;
+    void                                            setDepthType(DepthTypeEnum depthType);
 
     RimDefines::DepthUnitType                       depthUnit() const;
     void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
 
+
     QString                                         depthPlotTitle() const;
+    bool                                            isTrackLegendsVisible() const;
+    void                                            setTrackLegendsVisible(bool doShow);
 
     void                                            addTrack(RimWellLogTrack* track);
     void                                            insertTrack(RimWellLogTrack* track, size_t index);
     size_t                                          trackCount() { return m_tracks.size();}
+    void                                            removeTrackByIndex(size_t index);
+
     void                                            removeTrack(RimWellLogTrack* track);
     size_t                                          trackIndex(RimWellLogTrack* track);
     void                                            moveTracks(RimWellLogTrack* insertAfterTrack, const std::vector<RimWellLogTrack*>& tracksToMove);
 
-    void                                            loadDataAndUpdate();
+    RimWellLogTrack*                                trackByIndex(size_t index);
+
+    virtual void                                    loadDataAndUpdate() override;
     void                                            updateTracks();
     void                                            updateTrackNames();
 
@@ -87,39 +99,46 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                viewWidget() override;
 
+    QString                                         asciiDataForPlotExport() const;
+
 protected:
 
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void                                    setupBeforeSave();
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    virtual caf::PdmFieldHandle*                    objectToggleField();
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
     void                                            applyZoomAllDepths();
     void                                            applyDepthZoomFromVisibleDepth();
     void                                            recreateTrackPlots();
     void                                            detachAllCurves();
-    void                                            handleViewerDeletion();
+
+    void                                            updateDisabledDepthTypes();
+
+public: // Needed by RiuWellAllocation Plot
+    // RimViewWindow overrides
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
 
 private:
-    caf::PdmField<bool>                             m_showWindow;
     caf::PdmField<QString>                          m_userName;
     
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;
     caf::PdmField< caf::AppEnum< RimDefines::DepthUnitType > >  m_depthUnit;
+    std::set<DepthTypeEnum>                         m_disabledDepthTypes;
 
     caf::PdmChildArrayField<RimWellLogTrack*>       m_tracks;
 
     caf::PdmField<double>                           m_minVisibleDepth;
     caf::PdmField<double>                           m_maxVisibleDepth;
     caf::PdmField<bool>                             m_isAutoScaleDepthEnabled;
+    caf::PdmField<bool>                             m_showTrackLegends;
 
     double                                          m_minAvailableDepth;
     double                                          m_maxAvailableDepth;

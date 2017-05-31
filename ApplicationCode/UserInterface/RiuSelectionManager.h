@@ -28,11 +28,17 @@
 #include <vector>
 #include <assert.h>
 #include <array>
+#include "RimEclipseWell.h"
+// #include "RivWellPathSourceInfo.h"
+// #include "RivWellPipeSourceInfo.h"
 
 class RimEclipseView;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
 class RimGeoMechView;
+class RimWellPath;
+class RivWellPathSourceInfo;
+class RivSimWellPipeSourceInfo;
 
 //==================================================================================================
 //
@@ -42,33 +48,47 @@ class RimGeoMechView;
 class RiuSelectionManager
 {
 public:
-    RiuSelectionManager();
-    ~RiuSelectionManager();
+    enum SelectionRole
+    {
+        RUI_APPLICATION_GLOBAL,     // Selection role intended to manage the cells selected by left mouse click in the 3D view
+        RUI_TEMPORARY               // Selection role intended to manage the items selected by a right mouse click in the 3D view
+    };
 
+public:
     static RiuSelectionManager* instance();
 
     // Returns selected items
     // Selection manager owns the selection items
-    void selectedItems(std::vector<RiuSelectionItem*>& items) const;
-    
+    void selectedItems(std::vector<RiuSelectionItem*>& items, int role = RUI_APPLICATION_GLOBAL) const;
+
+    // Returns selected items
+    // Selection manager owns the selection items
+    RiuSelectionItem* selectedItem(int role = RUI_APPLICATION_GLOBAL) const;
+    //    PdmUiItem*  selectedItem(int role = SelectionManager::APPLICATION_GLOBAL);
+
+
     // Append item to selected items
     // SelectionManager takes ownership of the item
-    void appendItemToSelection(RiuSelectionItem* item);
+    void appendItemToSelection(RiuSelectionItem* item, int role = RUI_APPLICATION_GLOBAL);
 
     // Set one selected item
     // SelectionManager takes ownership of the item
-    void setSelectedItem(RiuSelectionItem* item);
+    void setSelectedItem(RiuSelectionItem* item, int role = RUI_APPLICATION_GLOBAL);
 
     // Deletes all items in the SelectionManager
-    void deleteAllItems();
+    void deleteAllItems(int role = RUI_APPLICATION_GLOBAL);
 
-    bool isEmpty() const;
-
-private:
-    void deleteAllItemsFromSelection();
+    bool isEmpty(int role = RUI_APPLICATION_GLOBAL) const;
 
 private:
-    std::vector < RiuSelectionItem* > m_selection;
+    RiuSelectionManager();
+    ~RiuSelectionManager();
+    RiuSelectionManager(const RiuSelectionManager&) = delete;
+
+    void deleteAllItemsFromSelection(int role);
+
+private:
+    std::vector< std::vector<RiuSelectionItem*> > m_selection;
 
     RiuSelectionChangedHandler* m_notificationCenter;
 };
@@ -85,7 +105,9 @@ public:
     enum RiuSelectionType
     {
         ECLIPSE_SELECTION_OBJECT,
-        GEOMECH_SELECTION_OBJECT
+        GEOMECH_SELECTION_OBJECT,
+        WELLPATH_SELECTION_OBJECT,
+        SIMWELL_SELECTION_OBJECT    
     };
 
 public:
@@ -146,7 +168,7 @@ public:
                                      cvf::Color3f color,
                                      int elementFace,
                                      const cvf::Vec3d& localIntersectionPoint,
-                                     const std::array<cvf::Vec3f, 3>& m_intersectionTriangle );
+                                     const std::array<cvf::Vec3f, 3>& intersectionTriangle );
     virtual ~RiuGeoMechSelectionItem() {};
 
     virtual RiuSelectionType type() const
@@ -165,3 +187,54 @@ public:
     cvf::Vec3d m_localIntersectionPoint;
 };
 
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RiuWellPathSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
+                                      const cvf::Vec3d& currentPickPositionInDomainCoords,
+                                      double measuredDepth);
+
+    virtual ~RiuWellPathSelectionItem() {};
+
+    virtual RiuSelectionType type() const
+    {
+        return WELLPATH_SELECTION_OBJECT;
+    }
+
+public:
+    RimWellPath*                  m_wellpath;
+    cvf::Vec3d                    m_pipeCenterlineIntersectionInDomainCoords;
+    double                        m_measuredDepth;
+};
+
+
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RiuSimWellSelectionItem : public RiuSelectionItem
+{
+public:
+    explicit RiuSimWellSelectionItem(RimEclipseWell* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
+
+
+    virtual ~RiuSimWellSelectionItem() {};
+
+    virtual RiuSelectionType type() const
+    {
+        return SIMWELL_SELECTION_OBJECT;
+    }
+
+public:
+    RimEclipseWell* m_simWell;
+    cvf::Vec3d      m_domainCoord;
+    size_t          m_branchIndex;
+};

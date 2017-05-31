@@ -19,14 +19,16 @@
 
 #include "RimTernaryLegendConfig.h"
 
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmUiTextEditor.h"
-
 #include "RiaApplication.h"
+
 #include "RimEclipseView.h"
+#include "RimViewLinker.h"
 
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivTernaryScalarMapper.h"
+
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include "cvfqtUtils.h"
 
@@ -152,7 +154,19 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
     updateLabelText();
     updateLegend();
 
-    if (m_reservoirView) m_reservoirView->updateCurrentTimeStepAndRedraw();
+    RimView* view = nullptr;
+    this->firstAncestorOrThisOfType(view);
+
+    if (view)
+    {
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
+        if (viewLinker)
+        {
+            viewLinker->updateCellResult();
+        }
+        
+        view->updateCurrentTimeStepAndRedraw();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,6 +246,15 @@ void RimTernaryLegendConfig::recreateLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTernaryLegendConfig::setUiValuesFromLegendConfig(const RimTernaryLegendConfig* otherLegendConfig)
+{
+    QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
+    this->readObjectFromXmlString(serializedObjectString, caf::PdmDefaultObjectFactory::instance());
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Rounding the double value to given number of significant digits
 //--------------------------------------------------------------------------------------------------
 double RimTernaryLegendConfig::roundToNumSignificantDigits(double domainValue, double numSignificantDigits)
@@ -298,7 +321,7 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         group->add(&ternaryRangeSummary);
     }
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------

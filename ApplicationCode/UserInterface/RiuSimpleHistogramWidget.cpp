@@ -14,6 +14,11 @@ QWidget(parent, f)
     m_min = HUGE_VAL;
     m_max = -HUGE_VAL;
     m_maxHistogramCount = 0;
+
+    m_width = 0;
+    m_height = 0;
+    m_x = 0;
+    m_y = 0;
 }
 
 //--------------------------------------------------------------------------------------------------

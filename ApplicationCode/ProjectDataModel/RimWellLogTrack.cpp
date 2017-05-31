@@ -20,13 +20,15 @@
 #include "RimWellLogTrack.h"
 
 #include "RigStatisticsCalculator.h"
+#include "RigWellLogCurveData.h"
 
-#include "RimWellLogPlot.h"
+#include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogPlot.h"
 
-#include "RiuWellLogTrack.h"
-#include "RiuWellLogPlot.h"
 #include "RiuMainWindow.h"
+#include "RiuWellLogPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cvfAssert.h"
 #include "cvfMath.h"
@@ -72,7 +74,11 @@ RimWellLogTrack::~RimWellLogTrack()
 {
     curves.deleteAllChildObjects();
 
-    delete m_wellLogTrackPlotWidget;
+    if (m_wellLogTrackPlotWidget) 
+    {
+        m_wellLogTrackPlotWidget->deleteLater();
+        m_wellLogTrackPlotWidget = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,12 +252,21 @@ void RimWellLogTrack::loadDataAndUpdate()
     if (wellLogPlot && m_wellLogTrackPlotWidget)
     {
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
+        m_wellLogTrackPlotWidget->setXTitle(m_xAxisTitle);
     }
 
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setXAxisTitle(const QString& text)
+{
+    m_xAxisTitle = text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,6 +322,9 @@ void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateXZoom()
 {
+    std::vector<RimWellFlowRateCurve*> stackCurves = visibleStackedCurves();
+    for (RimWellFlowRateCurve* stCurve: stackCurves) stCurve->updateStackedPlotData();
+
     if (!m_isAutoScaleXEnabled())
     {
         m_wellLogTrackPlotWidget->setXRange(m_visibleXRangeMin, m_visibleXRangeMax);
@@ -377,9 +395,9 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
     gridGroup->add(&m_isAutoScaleXEnabled);
+    gridGroup->add(&m_isLogarithmicScaleEnabled);
     gridGroup->add(&m_visibleXRangeMin);
     gridGroup->add(&m_visibleXRangeMax);
-    gridGroup->add(&m_isLogarithmicScaleEnabled);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -455,3 +473,45 @@ void RimWellLogTrack::setLogarithmicScale(bool enable)
     updateAxisScaleEngine();
     computeAndSetXRangeMinForLogarithmicScale();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellFlowRateCurve*> RimWellLogTrack::visibleStackedCurves()
+{
+    std::vector<RimWellFlowRateCurve*> stackedCurves;
+    for (RimWellLogCurve* curve: curves)
+    {
+        if (curve && curve->isCurveVisible() )
+        {
+            RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>(curve);
+            if (wfrCurve) stackedCurves.push_back(wfrCurve);
+        }
+    }
+
+    return stackedCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogTrack::description()
+{
+    return m_userName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
+{
+    std::vector<RimWellLogCurve* > curvesVector;
+
+    for (RimWellLogCurve* curve : curves)
+    {
+        curvesVector.push_back(curve);
+    }
+
+    return curvesVector;
+}
+

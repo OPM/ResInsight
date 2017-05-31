@@ -62,7 +62,24 @@ private:
 class MinMaxAccumulator
 {
 public:
-    MinMaxAccumulator(double initMin, double initMax): max(initMax), min(initMin) {}
+    MinMaxAccumulator(double initMin = -HUGE_VAL, double initMax = HUGE_VAL): max(initMax), min(initMin) {}
+    
+    void addData(const std::vector<double>& values)
+    {
+        for ( double val : values )
+        {
+            addValue(val);
+        }
+    }
+
+    void addData(const std::vector<float>& values)
+    {
+        for ( float val : values )
+        {
+            addValue(val);
+        }
+    }
+
     void addValue(double value)
     {
         if (value == HUGE_VAL) // TODO
@@ -89,7 +106,24 @@ public:
 class PosNegAccumulator
 {
 public:
-    PosNegAccumulator(double initPos, double initNeg): pos(initPos), neg(initNeg) {}
+    PosNegAccumulator(double initPos = HUGE_VAL, double initNeg = -HUGE_VAL): pos(initPos), neg(initNeg) {}
+
+    void addData(const std::vector<double>& values) 
+    {
+        for (double val : values)
+        {
+            addValue(val);
+        }
+    }
+
+    void addData(const std::vector<float>& values)
+    {
+        for ( float val : values )
+        {
+            addValue(val);
+        }
+    }
+
     void addValue(double value)
     {
         if (value == HUGE_VAL)
@@ -116,7 +150,23 @@ public:
 class SumCountAccumulator
 {
 public:
-    SumCountAccumulator(double initSum, size_t initCount): valueSum(initSum), sampleCount(initCount) {}
+    SumCountAccumulator(double initSum = 0.0, size_t initCount = 0): valueSum(initSum), sampleCount(initCount) {}
+
+    void addData(const std::vector<double>& values)
+    {
+        for ( double val : values )
+        {
+            addValue(val);
+        }
+    }
+
+    void addData(const std::vector<float>& values)
+    {
+        for ( float val : values )
+        {
+            addValue(val);
+        }
+    }
 
     void addValue(double value)
     {
@@ -139,6 +189,22 @@ class UniqueValueAccumulator
 public:
     UniqueValueAccumulator()
     {}
+
+    void addData(const std::vector<double>& values)
+    {
+        for ( double val : values )
+        {
+            addValue(val);
+        }
+    }
+
+    void addData(const std::vector<float>& values)
+    {
+        for ( float val : values )
+        {
+            addValue(val);
+        }
+    }
 
     void addValue(double value)
     {

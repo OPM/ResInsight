@@ -12,7 +12,7 @@ class RiuQwtScalePicker : public QObject
 {
     Q_OBJECT
 public:
-    RiuQwtScalePicker(QwtPlot *plot);
+    explicit RiuQwtScalePicker(QwtPlot *plot);
     
     virtual bool eventFilter( QObject *, QEvent * );
 

@@ -69,6 +69,10 @@ public:
         m_proxyDoubleField = 0;
         if (!(m_proxyDoubleField == 3)) { std::cout << "Double is not 3 " << std::endl; }
     
+        CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", " ", "", "", "");
+        m_multiSelectList.xmlCapability()->setIOReadable(false);
+        m_multiSelectList.xmlCapability()->setIOWritable(false);
+        m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     }
 
 
@@ -76,6 +80,9 @@ public:
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
     caf::PdmProxyValueField<double> m_proxyDoubleField;
+
+    caf::PdmField<std::vector<QString> > m_multiSelectList;
+
 
     caf::PdmField<bool>     m_toggleField;
     virtual caf::PdmFieldHandle* objectToggleField() 

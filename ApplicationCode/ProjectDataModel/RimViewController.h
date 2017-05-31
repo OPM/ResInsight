@@ -47,27 +47,29 @@ public:
     RimViewController(void);
     virtual ~RimViewController(void);
 
-    bool                                    isActive();
+    bool                                    isActive() const;
 
-    RimView*                                managedView();
+    RimView*                                managedView() const;
     void                                    setManagedView(RimView* view);
 
-    RimView*                                masterView();
-    RimViewLinker*                          ownerViewLinker();
+    RimView*                                masterView() const;
+    RimViewLinker*                          ownerViewLinker() const;
 
     const RigCaseToCaseCellMapper*          cellMapper();
     
-    bool                                    isCameraLinked();
-    bool                                    isTimeStepLinked();
+    bool                                    isCameraLinked() const;
+    bool                                    showCursor() const;
+    bool                                    isTimeStepLinked() const;
 
-    bool                                    isResultColorControlled();
-    bool                                    isRangeFiltersControlled();
+    bool                                    isResultColorControlled() const;
+    bool                                    isLegendDefinitionsControlled() const;
+    bool                                    isRangeFiltersControlled() const;
     
-    bool                                    isVisibleCellsOveridden();
-    bool                                    isPropertyFilterOveridden();
+    bool                                    isVisibleCellsOveridden() const;
+    bool                                    isPropertyFilterOveridden() const;
 
-    void                                    scheduleCreateDisplayModelAndRedrawForDependentView();
-    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType);
+    void                                    scheduleCreateDisplayModelAndRedrawForDependentView() const;
+    void                                    scheduleGeometryRegenForDepViews(RivCellSetEnum geometryType) const;
     void                                    updateOverrides();
     void                                    updateOptionSensitivity();
     void                                    removeOverrides();
@@ -90,27 +92,32 @@ private:
     void                                    updateCameraLink();
     void                                    updateTimeStepLink();
     void                                    updateResultColorsControl();
+    void                                    updateLegendDefinitions();
 
-    bool                                    isMasterAndDepViewDifferentType();
-    bool                                    isRangeFilterControlPossible();
-    bool                                    isPropertyFilterControlPossible();
-    bool                                    isRangeFilterMappingApliccable();
+    bool                                    isMasterAndDepViewDifferentType() const;
+    bool                                    isRangeFilterControlPossible() const;
+    bool                                    isPropertyFilterControlPossible() const;
+    bool                                    isRangeFilterMappingApliccable() const;
 
-    RimEclipseView*                         managedEclipseView();
-    RimGeoMechView*                         managedGeoView();
+    RimEclipseView*                         managedEclipseView() const;
+    RimGeoMechView*                         managedGeoView() const;
+    
     static void                             removeOverrides(RimView* view);
-
     static bool                             askUserToRestoreOriginalRangeFilterCollection(const QString& viewName);
+
 private:
     caf::PdmField<QString>                  m_name;
     caf::PdmPtrField<RimView*>              m_managedView;
 
     caf::PdmField<bool>                     m_isActive;
     caf::PdmField<bool>                     m_syncCamera;
+    caf::PdmField<bool>                     m_showCursor;
     caf::PdmField<bool>                     m_syncTimeStep;
+
 
     // Overridden properties
     caf::PdmField<bool>                     m_syncCellResult;
+    caf::PdmField<bool>                     m_syncLegendDefinitions;
     
     caf::PdmField<bool>                     m_syncRangeFilters;
     caf::PdmField<bool>                     m_syncVisibleCells;

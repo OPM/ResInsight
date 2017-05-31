@@ -51,7 +51,7 @@ void RiaRegressionTest::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 {
     if (field == &applicationWorkingFolder || field == &regressionTestFolder)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_selectDirectory = true;

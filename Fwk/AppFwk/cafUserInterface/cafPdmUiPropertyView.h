@@ -36,10 +36,27 @@
 
 
 #pragma once
+
 #include <QString>
 #include <QWidget>
+#include <QPointer>
 
 class QVBoxLayout;
+
+
+#include <QScrollArea>
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class QVerticalScrollArea : public QScrollArea
+{
+    Q_OBJECT
+public:
+    explicit QVerticalScrollArea(QWidget* parent = 0);
+    virtual bool eventFilter(QObject* object, QEvent* event) override;
+};
+
 
 namespace caf
 {
@@ -63,13 +80,15 @@ public:
 
     virtual QSize               sizeHint() const override;
 
-    public slots:
+public slots:
     void                        showProperties(caf::PdmObjectHandle* object); // Signal/Slot system needs caf:: prefix in some cases
 
 private:
     PdmUiObjectEditorHandle*    m_currentObjectView; 
     QString                     m_uiConfigName;
-    QVBoxLayout*                m_layout;
+    
+    QPointer<QVBoxLayout>       m_placeHolderLayout;
+    QPointer<QWidget>           m_placeholder;
 };
 
 

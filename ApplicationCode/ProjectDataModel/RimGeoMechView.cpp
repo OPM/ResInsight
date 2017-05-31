@@ -58,6 +58,7 @@
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
+#include "cvfTransform.h"
 #include "cvfViewport.h"
 #include "cvfqtUtils.h"
 
@@ -84,9 +85,6 @@ RimGeoMechView::RimGeoMechView(void)
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiHidden(true);
 
-    //this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setReservoirView(this);
-
     m_scaleTransform = new cvf::Transform();
     m_vizLogic = new RivGeoMechVizLogic(this);
 }
@@ -100,28 +98,6 @@ RimGeoMechView::~RimGeoMechView(void)
 
     delete cellResult;
     delete m_propertyFilterCollection;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateViewerWidgetWindowTitle()
-{
-    if (m_viewer)
-    {
-        QString windowTitle;
-        if (m_geomechCase.notNull())
-        {
-            windowTitle = QString("%1 - %2").arg(m_geomechCase->caseUserDescription()).arg(name);
-        }
-        else
-        {
-            windowTitle = name;
-        }
-
-        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +135,7 @@ void RimGeoMechView::loadDataAndUpdate()
     progress.incrementProgress();
     progress.setProgressDescription("Create Display model");
    
-    updateViewerWidget();
+    updateMdiWindowVisibility();
 
     this->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
     
@@ -257,7 +233,6 @@ void RimGeoMechView::createDisplayModel()
 
    if (isTimeStepDependentDataVisible())
    {
-        m_viewer->animationControl()->setCurrentFrameOnly(m_currentTimeStep);
         m_viewer->setCurrentFrame(m_currentTimeStep);
    }
    else
@@ -502,33 +477,6 @@ cvf::Transform* RimGeoMechView::scaleTransform()
 void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimView::fieldChangedByUi(changedField, oldValue, newValue);
-
-    if (changedField == &showWindow)
-    {
-        if (showWindow)
-        {
-            bool generateDisplayModel = (viewer() == NULL);
-            updateViewerWidget();
-
-            if (generateDisplayModel)
-            {
-                scheduleCreateDisplayModelAndRedraw();
-            }
-        }
-        else
-        {
-            if (m_viewer)
-            {
-                this->setMdiWindowGeometry( RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
-
-                RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
-                delete m_viewer;
-                m_viewer = NULL;
-            }
-        }
-
-        this->updateUiIconFromToggleField();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -536,6 +484,7 @@ void RimGeoMechView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::initAfterRead()
 {
+    RimViewWindow::initAfterRead();
     this->cellResult()->setGeoMechCase(m_geomechCase);
 
     this->updateUiIconFromToggleField();
@@ -692,7 +641,7 @@ void RimGeoMechView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(m_rangeFilterCollection());
     uiTreeOrdering.add(m_propertyFilterCollection());
 
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------

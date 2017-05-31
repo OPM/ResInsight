@@ -24,13 +24,16 @@
 
 #include "RimIntersection.h"
 
+#include "RivHexGridIntersectionTools.h"
+
 #include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
 #include "cvfDrawableGeo.h"
+#include "cvfGeometryTools.h"
+#include "cvfPlane.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
-#include "cvfGeometryTools.h"
 
 
 //--------------------------------------------------------------------------------------------------

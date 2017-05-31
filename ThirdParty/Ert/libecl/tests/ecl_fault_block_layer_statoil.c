@@ -74,7 +74,7 @@ int main(int argc , char ** argv) {
   ecl_kw_type * fault_blk_kw;
   {
     FILE * stream = util_fopen( fault_blk_file , "r");
-    fault_blk_kw = ecl_kw_fscanf_alloc_grdecl( stream , "FAULTBLK" , ecl_grid_get_global_size( ecl_grid ) , ECL_INT_TYPE);
+    fault_blk_kw = ecl_kw_fscanf_alloc_grdecl( stream , "FAULTBLK" , ecl_grid_get_global_size( ecl_grid ) , ECL_INT);
     fclose( stream );
   }
 

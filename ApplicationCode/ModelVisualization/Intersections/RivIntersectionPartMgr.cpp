@@ -20,7 +20,6 @@
 #include "RivIntersectionPartMgr.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -37,22 +36,28 @@
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
+#include "RivHexGridIntersectionTools.h"
+#include "RivIntersectionGeometryGenerator.h"
 #include "RivIntersectionSourceInfo.h"
+#include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryTextureCoordsCreator.h"
 
+#include "RiuGeoMechXfTensorResultAccessor.h"
+
+#include "cafTensor3.h"
+
 #include "cvfDrawableGeo.h"
+#include "cvfGeometryTools.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "cvfRenderState_FF.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStatePoint.h"
-#include "cafTensor3.h"
-#include "cvfGeometryTools.h"
-#include "RiuGeoMechXfTensorResultAccessor.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +103,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
         CVF_ASSERT(cellResultColors);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-        RigCaseData* eclipseCase = eclipseView->eclipseCase()->reservoirData();
+        RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
         // CrossSections
         if (m_crossSectionFaces.notNull())
@@ -130,10 +135,10 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 }
                 else
                 {
-                    resultAccessor = RigResultAccessorFactory::createResultAccessor(cellResultColors->reservoirView()->eclipseCase()->reservoirData(),
-                                                                                    0,
-                                                                                    timeStepIndex,
-                                                                                    cellResultColors);
+                    resultAccessor = RigResultAccessorFactory::createFromResultDefinition(cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData(),
+                                                                                          0,
+                                                                                          timeStepIndex,
+                                                                                          cellResultColors);
                 }
 
                 RivIntersectionPartMgr::calculateEclipseTextureCoordinates(m_crossSectionFacesTextureCoords.p(),
@@ -378,10 +383,6 @@ void RivIntersectionPartMgr::calculateEclipseTextureCoordinates(cvf::Vec2fArray*
     }
 }
 
-const int priCrossSectionGeo = 1;
-const int priNncGeo = 2;
-const int priMesh = 3;
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -412,7 +413,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
-            part->setPriority(priCrossSectionGeo);
+            part->setPriority(RivPartPriority::PartType::Intersection);
 
             m_crossSectionFaces = part;
         }
@@ -434,7 +435,7 @@ void RivIntersectionPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
-            part->setPriority(priMesh);
+            part->setPriority(RivPartPriority::PartType::MeshLines);
 
             m_crossSectionGridLines = part;
         }
@@ -474,7 +475,7 @@ void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
                 part->setDrawable(polylineGeo.p());
 
                 part->updateBoundingBox();
-                part->setPriority(10000);
+                part->setPriority(RivPartPriority::PartType::Highlight);
 
                 // Always show this part, also when mesh is turned off
                 //part->setEnableMask(meshFaultBit);
@@ -506,7 +507,7 @@ void RivIntersectionPartMgr::createPolyLineParts(bool useBufferObjects)
             part->setDrawable(polylinePointsGeo.p());
 
             part->updateBoundingBox();
-            part->setPriority(10000);
+            part->setPriority(RivPartPriority::PartType::Highlight);
 
             // Always show this part, also when mesh is turned off
             //part->setEnableMask(meshFaultBit);
@@ -554,7 +555,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
                 part->setDrawable(polylineGeo.p());
 
                 part->updateBoundingBox();
-                part->setPriority(10000);
+                part->setPriority(RivPartPriority::PartType::Highlight);
 
                 // Always show this part, also when mesh is turned off
                 //part->setEnableMask(meshFaultBit);
@@ -586,7 +587,7 @@ void RivIntersectionPartMgr::createExtrusionDirParts(bool useBufferObjects)
             part->setDrawable(polylinePointsGeo.p());
 
             part->updateBoundingBox();
-            part->setPriority(10000);
+            part->setPriority(RivPartPriority::PartType::Highlight);
 
             // Always show this part, also when mesh is turned off
             //part->setEnableMask(meshFaultBit);
@@ -736,8 +737,7 @@ cvf::ref<RivIntersectionHexGridInterface> RivIntersectionPartMgr::createHexGridI
     m_rimCrossSection->firstAncestorOrThisOfType(eclipseView);
     if (eclipseView)
     {
-        RigMainGrid* grid = NULL;
-        grid = eclipseView->eclipseCase()->reservoirData()->mainGrid();
+        RigMainGrid* grid = eclipseView->mainGrid();
         return new RivEclipseIntersectionGrid(grid, eclipseView->currentActiveCellInfo(), m_rimCrossSection->showInactiveCells());
     }
 

@@ -50,8 +50,6 @@
 #include <QGridLayout>
 #include <QWidget>
 
-#include <assert.h>
-
 
 
 namespace caf
@@ -70,6 +68,7 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +84,7 @@ PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
 {
     // If there are field editor present, the usage of this editor has not cleared correctly
     // The intended usage is to call the method setPdmObject(NULL) before closing the dialog
-    assert(m_fieldViews.size() == 0);
+    CAF_ASSERT(m_fieldViews.size() == 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,8 +157,8 @@ void PdmUiDefaultObjectEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     // Remove all unmentioned group boxes
 
-    std::map<QString, QPointer<QGroupBox> >::iterator itOld;
-    std::map<QString, QPointer<QGroupBox> >::iterator itNew;
+    std::map<QString, QPointer<QMinimizePanel> >::iterator itOld;
+    std::map<QString, QPointer<QMinimizePanel> >::iterator itNew;
 
     for (itOld = m_groupBoxes.begin(); itOld != m_groupBoxes.end(); ++itOld )
     {
@@ -188,7 +187,7 @@ void PdmUiDefaultObjectEditor::cleanupBeforeSettingPdmObject()
 
     m_newGroupBoxes.clear();
 
-    std::map<QString, QPointer<QGroupBox> >::iterator groupIt;
+    std::map<QString, QPointer<QMinimizePanel> >::iterator groupIt;
     for (groupIt = m_groupBoxes.begin(); groupIt != m_groupBoxes.end(); ++groupIt)
     {
         if (!groupIt->second.isNull()) groupIt->second->deleteLater();
@@ -215,29 +214,30 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
 
             QString groupBoxKey = uiItems[i]->uiName();
-            QGroupBox* groupBox = NULL;
+            QMinimizePanel* groupBox = NULL;
             QGridLayout* groupBoxLayout = NULL;
 
             // Find or create groupBox
-            std::map<QString, QPointer<QGroupBox> >::iterator it;
+            std::map<QString, QPointer<QMinimizePanel> >::iterator it;
             it = m_groupBoxes.find(groupBoxKey);
 
             if (it == m_groupBoxes.end())
             {
-                groupBox = new QGroupBox( parent );
+                groupBox = new QMinimizePanel( parent );
                 groupBox->setTitle(uiItems[i]->uiName());
                 groupBoxLayout = new QGridLayout();
-                groupBox->setLayout(groupBoxLayout);
+                groupBox->contentFrame()->setLayout(groupBoxLayout);
+                connect(groupBox, SIGNAL(expandedChanged(bool)), this, SLOT(groupBoxExpandedStateToggled(bool)));
 
                 m_newGroupBoxes[groupBoxKey] = groupBox;
             }
             else
             {
                 groupBox = it->second;
-                assert(groupBox);
+                CAF_ASSERT(groupBox);
                 
-                groupBoxLayout = dynamic_cast<QGridLayout*>(groupBox->layout());
-                assert(groupBoxLayout);
+                groupBoxLayout = dynamic_cast<QGridLayout*>(groupBox->contentFrame()->layout());
+                CAF_ASSERT(groupBoxLayout);
                 
                 m_newGroupBoxes[groupBoxKey] = groupBox;
             }
@@ -245,7 +245,12 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             /// Insert the group box at the correct position of the parent layout
 
             parentLayout->addWidget(groupBox, currentRowIndex, 0, 1, 2);
-            recursiveSetupFieldsAndGroups(groupChildren, groupBox, groupBoxLayout, uiConfigName);
+
+            // Set Expanded state
+            bool isExpanded = isUiGroupExpanded(group);
+            groupBox->setExpanded(isExpanded);
+
+            recursiveSetupFieldsAndGroups(groupChildren, groupBox->contentFrame(), groupBoxLayout, uiConfigName);
             currentRowIndex++;
         }
         else
@@ -259,32 +264,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
             if (it == m_fieldViews.end())
             {
-                // If editor type is specified, find in factory
-                if ( !uiItems[i]->uiEditorTypeName(uiConfigName).isEmpty() )
-                {
-                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
-                }
-                else
-                { 
-                    // Find the default field editor
-
-                    QString editorTypeName = qStringTypeName(*(field->fieldHandle()));
-
-                    // Handle a single value field with valueOptions: Make a combobox
-
-                    if (field->toUiBasedQVariant().type() != QVariant::List)
-                    {
-                        bool useOptionsOnly = true; 
-                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-
-                        if (!options.empty())
-                        {
-                            editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-                        }
-                    }
-
-                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-                }
+                fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, uiConfigName);
 
                 if (fieldEditor)
                 {
@@ -302,7 +282,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                     // This assert will trigger for PdmChildArrayField and PdmChildField
                     // Consider to exclude assert or add editors for these types if the assert is reintroduced
-                    //assert(false);
+                    //CAF_ASSERT(false);
                 }
             }
             else
@@ -387,6 +367,28 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool PdmUiDefaultObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGroup)
+{
+    if (uiGroup->hasForcedExpandedState()) return uiGroup->forcedExpandedState();
+
+    auto kwMapPair = m_objectKeywordGroupUiNameExpandedState.find(pdmObject()->xmlCapability()->classKeyword());
+    if ( kwMapPair != m_objectKeywordGroupUiNameExpandedState.end() )
+    {
+        QString uiName = uiGroup->uiName();
+
+        auto uiNameExpStatePair = kwMapPair->second.find(uiName);
+        if ( uiNameExpStatePair != kwMapPair->second.end() )
+        {
+            return uiNameExpStatePair->second;
+        }
+    }
+
+    return uiGroup->isExpandedByDefault();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames)
 {
     for (size_t i = 0; i < uiItems.size(); ++i)
@@ -401,7 +403,7 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
             if (groupNames->find(groupBoxKey) != groupNames->end())
             {
                 // It is not supported to have two groups with identical names
-                assert(false);
+                CAF_ASSERT(false);
             }
             else
             {
@@ -418,7 +420,7 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
             if (fieldKeywordNames->find(fieldKeyword) != fieldKeywordNames->end())
             {
                 // It is not supported to have two fields with identical names
-                assert(false);
+                CAF_ASSERT(false);
             }
             else
             {
@@ -428,5 +430,65 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFieldHandle* field, const QString& uiConfigName)
+{
+    caf::PdmUiFieldEditorHandle* fieldEditor = NULL;
+
+    // If editor type is specified, find in factory
+    if (!field->uiEditorTypeName(uiConfigName).isEmpty())
+    {
+        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
+    }
+    else
+    {
+        // Find the default field editor
+        QString fieldTypeName = qStringTypeName(*(field->fieldHandle()));
+
+        if (fieldTypeName.indexOf("PdmPtrField") != -1)
+        {
+            fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+        }
+        else if (fieldTypeName.indexOf("PdmPtrArrayField") != -1)
+        {
+            fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
+        }
+        else if (field->toUiBasedQVariant().type() != QVariant::List)
+        {
+            // Handle a single value field with valueOptions: Make a combobox
+
+            bool useOptionsOnly = true;
+            QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
+            CAF_ASSERT(useOptionsOnly); // Not supported
+
+            if (!options.empty())
+            {
+                fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+            }
+        }
+
+        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(fieldTypeName);
+    }
+
+    return fieldEditor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiDefaultObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
+{
+    if (!this->pdmObject()->xmlCapability()) return;
+
+    QString objKeyword = this->pdmObject()->xmlCapability()->classKeyword();
+    QMinimizePanel* panel = dynamic_cast<QMinimizePanel*>(this->sender());
+    
+    if (!panel) return;
+
+    m_objectKeywordGroupUiNameExpandedState[objKeyword][panel->title()] = isExpanded;
+
+}
 
 } // end namespace caf

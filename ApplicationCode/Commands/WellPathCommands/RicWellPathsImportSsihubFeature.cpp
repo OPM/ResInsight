@@ -27,6 +27,8 @@
 #include "RiuMainWindow.h"
 #include "RiuWellImportWizard.h"
 
+#include "cafUtils.h"
+
 #include <QAction>
 #include <QDir>
 #include <QFile>
@@ -47,7 +49,7 @@ bool RicWellPathsImportSsihubFeature::isCommandEnabled()
         return false;
     }
 
-    if (!QFile::exists(app->project()->fileName()))
+    if (!caf::Utils::fileExists(app->project()->fileName()))
     {
         return false;
     }
@@ -66,7 +68,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    if (!QFile::exists(app->project()->fileName()))
+    if (!caf::Utils::fileExists(app->project()->fileName()))
     {
         return;
     }
@@ -80,7 +82,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 
 
     // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
-    QString copyOfOriginalObject = xmlObj(app->project()->wellPathImport())->writeObjectToXmlString();
+    QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
 
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), RiuMainWindow::instance());
 
@@ -111,7 +113,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
     }
     else
     {
-        xmlObj(app->project()->wellPathImport())->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
+        app->project()->wellPathImport()->readObjectFromXmlString(copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance());
     }
 }
 

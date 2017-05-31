@@ -1,14 +1,13 @@
 #pragma once
 
+#include "cafAssert.h"
+#include "cafInternalPdmValueFieldSpecializations.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmPointer.h"
-
 #include "cafPdmValueField.h"
-#include "cafInternalPdmValueFieldSpecializations.h"
 
 #include <QVariant>
 
-#include <assert.h>
 
 namespace caf
 {
@@ -32,8 +31,8 @@ public:
 
     // Basic access 
 
-    void                setValue(const DataType& fieldValue)            { assert(isInitializedByInitFieldMacro()); if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
-    DataType            value() const                                   { assert(m_valueGetter);  return m_valueGetter->getValue(); }
+    void                setValue(const DataType& fieldValue)            { CAF_ASSERT(isInitializedByInitFieldMacro()); if (m_valueSetter)      m_valueSetter->setValue(fieldValue); }
+    DataType            value() const                                   { CAF_ASSERT(m_valueGetter);  return m_valueGetter->getValue(); }
    
     // Implementation of PdmValueField interface
 

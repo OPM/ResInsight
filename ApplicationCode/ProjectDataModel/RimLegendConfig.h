@@ -26,6 +26,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
+#include <tuple>
+
 namespace cvf
 {
     class ScalarMapperContinuousLog;
@@ -56,8 +58,6 @@ class RimLegendConfig:  public caf::PdmObject
 public:
     RimLegendConfig();
     virtual ~RimLegendConfig();
-
-    void setReservoirView(RimView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
@@ -103,11 +103,15 @@ public:
     ColorRangesType                             colorRangeMode()    { return m_colorRangeMode();}
     void                                        setMappingMode(MappingType mappingType);
     MappingType                                 mappingMode()       { return m_mappingMode();}
+    void                                        disableAllTimeStepsRange(bool doDisable);
         
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
     void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
+    
     void                                        setIntegerCategories(const std::vector<int>& categories);
     void                                        setNamedCategoriesInverse(const std::vector<QString>& categoryNames);
+    void                                        setCategoryItems(const std::vector<std::tuple<QString, int, cvf::Color3ub>>& categories);
+    QString                                     categoryNameFromCategoryValue(double categoryResultValue) const;
 
     void                                        setTitle(const cvf::String& title);
 
@@ -123,13 +127,14 @@ protected:
 private:
     void                                        updateLegend();
     void                                        updateFieldVisibility();
-    cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
+    friend class RimViewLinker;
+    void                                        setUiValuesFromLegendConfig(const RimLegendConfig* otherLegendConfig);
+    
+    static cvf::Color3ubArray                   colorArrayFromColorType(ColorRangesType colorType);
 
 private:
-    caf::PdmPointer<RimView>                    m_reservoirView;
-
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperDiscreteLog>      m_logDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperContinuousLog>    m_logSmoothScalarMapper;
@@ -151,8 +156,11 @@ private:
     double                                      m_localAutoPosClosestToZero;
     double                                      m_localAutoNegClosestToZero;
 
+    bool                                        m_isAllTimeStepsRangeDisabled;
+    
     std::vector<int>                            m_categories;
     std::vector<cvf::String>                    m_categoryNames;
+    cvf::Color3ubArray                          m_categoryColors;
 
     // Fields
     caf::PdmField<int>                          m_numLevels;

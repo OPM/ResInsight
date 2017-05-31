@@ -86,7 +86,6 @@ cvf::Effect* EffectCache::findEffect(const EffectGenerator* generator)
         if (m_effectCache[i].first->isEqual(generator))
         {
             cvf::ref<cvf::Effect> effect = m_effectCache[i].second;
-            EffectGenerator* effGen = m_effectCache[i].first;
             return effect.p();
         }
     }

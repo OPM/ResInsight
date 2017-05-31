@@ -46,7 +46,7 @@ public:
                                     const cvf::Vec3d& intersectionPoint, 
                                     const std::array<cvf::Vec3f, 3>& m_intersectionTriangle);
 
-    QString             topologyText() const;
+    QString             geometrySelectionText() const;
     std::vector<double> timeHistoryValues() const;
     int                 closestNodeId() const { return m_closestNodeId; }
 
@@ -59,7 +59,6 @@ private:
 
     size_t                  m_gridIndex;
     int                     m_elementIndex;
-    size_t                  m_scalarResultIndex;
     int                     m_face;
     int                     m_closestNodeId;
 

@@ -36,6 +36,7 @@
 #include "RimLegendConfig.h"
 
 #include "RivFemPickSourceInfo.h"
+#include "RivPartPriority.h"
 #include "RivResultToTextureMapper.h"
 #include "RivScalarMapperUtils.h"
 #include "RivSourceInfo.h"
@@ -55,7 +56,9 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
+#include "cvfTransform.h"
 #include "cvfUniform.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -159,8 +162,7 @@ void RivFemPartPartMgr::generatePartGeometry(RivFemPartGeometryGenerator& geoBui
             caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
             eff = effGen.generateCachedEffect();
 
-            // Set priority to make sure fault lines are rendered first
-            part->setPriority(10);
+            part->setPriority(RivPartPriority::PartType::MeshLines);
 
             part->setEnableMask(meshSurfaceBit);
             part->setEffect(eff.p());
@@ -196,7 +198,7 @@ void RivFemPartPartMgr::updateCellColor(cvf::Color4f color)
     if (color.a() < 1.0f)
     {
         // Set priority to make sure this transparent geometry are rendered last
-        if (m_surfaceFaces.notNull()) m_surfaceFaces->setPriority(100);
+        if (m_surfaceFaces.notNull()) m_surfaceFaces->setPriority(RivPartPriority::PartType::Transparent);
     }
 
     m_opacityLevel = color.a();

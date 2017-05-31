@@ -31,6 +31,257 @@ extern "C" {
 #define LGRHEADI_LGR_NR_INDEX 0
 #define LGRJOIN_KW   "LGRJOIN"
 
+
+/*
+  The table in the INIT file are organized with one large data keyword
+  'TAB' and one keyword 'TABDIMS' which describe the layout of the
+  data in the TAB keyword.
+
+  For each of the tables there 'TABDIMS_xxx_OFFSET_ITEM' which points
+  to an element in the 'TABDIMS' vector which contains the starting
+  address of table 'xxx' in the 'TAB' keyword, then there are one or
+  several integer values describing how many values/tables there
+  are. In addition there is an assumed number of columns which is not
+  explicitly stored in the TABDIMS keyword.
+
+  The input format is quite flexible with respect to the size of the
+  individual tables and subtables, but the representation in the INIT
+  file is based on fixed length columns and equal sized tables, where
+  all inactive elements have the default value 2e20.
+
+  Assume the following PVTO input:
+
+
+    PVTO
+           1.55203         1.00000     1.15907572        0.64345
+                          25.00000     1.15319788        0.67619
+                          50.00000     1.14759314        0.70959 /
+
+           28.04570       25.00000     1.17415042        0.63294
+                          50.00000     1.16792401        0.66638
+                          75.00000     1.16222385        0.69918
+                         100.00000     1.15212320        0.76297 /
+
+           35.62113       50.00000     1.19208190        0.61538
+                          75.00000     1.18568689        0.64790
+                         100.00000     1.17982339        0.67985
+                         125.00000     1.17441865        0.71127
+                         150.00000     1.16941365        0.74217 /
+
+    /
+           20.66588        1.00000     1.15642614        0.57010
+                          25.00000     1.15051027        0.59831
+                          50.00000     1.14487540        0.62703 /
+
+           27.65815       25.00000     1.17402576        0.56928
+                          50.00000     1.16771923        0.59875
+                          75.00000     1.16195281        0.62760
+                         100.00000     1.15665041        0.65588
+    /
+
+This is the PVTO table, and it is described by the constants
+TABDIMS_IBPVTO_OFFSET_ITEM, TABDIMS_JBPVTO_OFFSET_ITEM,
+TABDIMS_NRPVTO_ITEM, TABDIMS_NPPVTO_ITEM and TABDIMS_NTPVTO_ITEM. Observe the following:
+
+ 1. There are 3 GOR values in the first table and 2 in the second,
+    this is the number of composition nodes -
+    TABDIMS_NRPVTO_ITEM. Since there are 3 in the first table and 2 in
+    the second the value of TABDIMS[ TABDIMS_NRPVTO_ITEM ] >= 3.
+
+ 2. The GOR node values (1.55203, 28.04570, 35.62113) and (20.66588,
+    27.65815) are stored separately at offset
+    TABDIMS[ TABDIMS_JBPVTO_OFFSET_ITEM ] in the TAB array.
+
+ 3. The length of the longest column is 5 elements so the value of
+    TABDIMS[ TABDIMS_NPPVTO_ITEM ] >= 5.
+
+ 4. The actual table data starts at offset TABDIMS[
+    TABDIMS_IBPVTO_ITEM] in the TAB table.
+
+When packing the actual data into the TAB array the indices are
+running as row,GOR,table,column - with row fastest. All in all the
+linear vector for this PVTO table will look like:
+
+  1.00000  \              \                     \                           \
+ 25.00000  |              |                     |                           |
+ 50.00000  | NPPVTO = 5   |                     |                           |
+   *       |              |                     |                           |
+   *       |              |                     |                           |
+-----------/              |                     |                           |
+ 25.00000                 |                     |                           |
+ 50.00000                 |                     |                           |
+ 75.00000                 | NRPVTO = 3          |                           |
+100.00000                 |                     |                           |
+   *                      |                     |                           |
+-----------               |                     |                           |
+ 50.00000                 |                     |                           |
+ 75.00000                 |                     |                           |
+100.00000                 |                     |                           |
+125.00000                 |                     |                           |
+150.00000                 |                     |                           |
+===========               /                     |  NTPVTO = 2               |
+  1.00000                                       |                           |
+ 25.00000                                       |                           |
+ 50.00000                                       |                           |
+   *                                            |                           |
+   *                                            |                           |  Three columns - 
+-----------                                     |                           |  (not in TABDIMS)
+ 25.00000                                       |                           |
+ 50.00000                                       |                           |
+ 75.00000                                       |                           |
+100.00000                                       |                           |
+   *                                            |                           |
+-----------                                     |                           |
+*                                               |                           |
+*                                               |                           |
+*                                               |                           |
+*                                               |                           |
+*                                               |                           |
+@@@@@@@@@@@                                     /                           |
+1.15907572                                                                  |
+1.15319788                                                                  |
+1.14759314                                                                  |
+ *                                                                          |
+ *                                                                          |
+-----------                                                                 |
+1.17415042                                                                  |
+1.16792401                                                                  |
+1.16222385                                                                  |
+1.15212320                                                                  |
+ *                                                                          |
+-----------                                                                 |
+1.19208190                                                                  |
+1.18568689                                                                  |
+1.17982339                                                                  |
+1.17441865                                                                  |
+1.16941365                                                                  |
+===========                                                                 |
+1.15642614                                                                  |
+1.15051027                                                                  |
+1.14487540                                                                  |
+ *                                                                          |
+ *                                                                          |
+-----------                                                                 |
+1.17402576                                                                  |
+1.16771923                                                                  |
+1.16195281                                                                  |
+1.15665041                                                                  |
+ *                                                                          |
+-----------                                                                 |
+*                                                                           |
+*                                                                           |
+*                                                                           |
+*                                                                           |
+*                                                                           |
+@@@@@@@@@@@                                                                 |
+0.64345                                                                     |
+0.67619                                                                     |
+0.70959                                                                     |
+ *                                                                          |
+ *                                                                          |
+-----------                                                                 |
+0.63294                                                                     |
+0.66638                                                                     |
+0.69918                                                                     |
+0.76297                                                                     |
+ *                                                                          |
+-----------                                                                 |
+0.61538                                                                     |
+0.64790                                                                     |
+0.67985                                                                     |
+0.71127                                                                     |
+0.74217                                                                     |
+===========                                                                 |
+0.57010                                                                     |
+0.59831                                                                     |
+0.62703                                                                     |
+ *                                                                          |
+ *                                                                          |
+-----------                                                                 |
+0.56928                                                                     |
+0.59875                                                                     |
+0.62760                                                                     |
+0.65588                                                                     |
+ *                                                                          |
+-----------                                                                 |
+*                                                                           |
+*                                                                           |
+*                                                                           |
+*                                                                           |
+*                                                                           |
+                                                                            /
+
+In this vector representation the different composition subtable
+columns are separated by '----', the different main tables are
+separated by '======' and the columns are separated by '@@@@'. Default
+values (2e20) are denoted with '*'.
+
+*/
+#define TABDIMS_SIZE                100
+
+#define TABDIMS_TAB_SIZE_ITEM       0
+
+#define TABDIMS_IBROCK_OFFSET_ITEM  1
+#define TABDIMS_NTROCK_ITEM         2
+
+#define TABDIMS_IBROCC_OFFSET_ITEM  3
+#define TABDIMS_NPROCC_ITEM         4
+
+#define TABDIMS_IBPVTO_OFFSET_ITEM  6
+#define TABDIMS_JBPVTO_OFFSET_ITEM  7
+#define TABDIMS_NRPVTO_ITEM         8
+#define TABDIMS_NPPVTO_ITEM         9
+#define TABDIMS_NTPVTO_ITEM        10
+
+#define TABDIMS_IBPVTW_OFFSET_ITEM 11
+#define TABDIMS_NTPVTW_ITEM        12
+
+#define TABDIMS_IBPVTG_OFFSET_ITEM 13
+#define TABDIMS_JBPVTG_OFFSET_ITEM 14
+#define TABDIMS_NRPVTG_ITEM        15
+#define TABDIMS_NPPVTG_ITEM        16
+#define TABDIMS_NTPVTG_ITEM        17
+
+#define TABDIMS_IBDENS_OFFSET_ITEM 18
+#define TABDIMS_NTDENS_ITEM        19
+
+#define TABDIMS_IBSWFN_OFFSET_ITEM 20
+#define TABDIMS_NSSWFN_ITEM        21
+#define TABDIMS_NTSWFN_ITEM        22
+
+#define TABDIMS_IBSGFN_OFFSET_ITEM 23
+#define TABDIMS_NSSGFN_ITEM        24
+#define TABDIMS_NTSGFN_ITEM        25
+
+#define TABDIMS_IBSOFN_OFFSET_ITEM 26
+#define TABDIMS_IBSWCO_OFFSET_ITEM 27
+#define TABDIMS_NSSOFN_ITEM        28
+#define TABDIMS_NTSOFN_ITEM        29
+
+#define TABDIMS_IBVETB_OFFSET_ITEM 40
+#define TABDIMS_NSVETB_ITEM        41
+#define TABDIMS_NTVETB_ITEM        42
+
+#define TABDIMS_IBTHPR_OFFSET_ITEM 43
+#define TABDIMS_IBSLIM_ITEM        44
+#define TABDIMS_NSENDP_ITEM        45
+#define TABDIMS_NTENDP_ITEM        46
+
+#define TABDIMS_IBRTEM_OFFSET_ITEM 47
+#define TABDIMS_IBCTOL_ITEM        48
+
+#define TABDIMS_IBLANG_OFFSET_ITEM 50     // LANGMUIR Table
+#define TABDIMS_NCLANG_ITEM        51     // LANGMUIR Table
+#define TABDIMS_NSLANG_ITEM        52     // LANGMUIR Table
+#define TABDIMS_NTLANG_ITEM        53     // LANGMUIR Table
+
+#define TABDIMS_IBLNG2_OFFSET_ITEM 54     // LANGSOLV Table
+#define TABDIMS_IBCADP_OFFSET_ITEM 55     // COALPP Table
+#define TABDIMS_IBCADS_OFFSET_ITEM 56     // COALADS Table
+#define TABDIMS_IBROCP_OFFSET_ITEM 57     // ROCKPAMA Table
+#define TABDIMS_NTRPMA_ITEM        58     // ROCKPAMA Table
+
+
 /*
    Observe that many of the elements in the INTEHEAD keyword is shared
    between the restart and init files. The ones listed below here are
@@ -56,6 +307,8 @@ extern "C" {
 #define INTEHEAD_ECLIPSE100_VALUE        100
 #define INTEHEAD_ECLIPSE300_VALUE        300
 #define INTEHEAD_ECLIPSE300THERMAL_VALUE 500
+#define INTEHEAD_INTERSECT_VALUE         700
+#define INTEHEAD_FRONTSIM_VALUE          800
 
 #define INTEHEAD_INIT_SIZE                95
 #define INTEHEAD_RESTART_SIZE             180
@@ -103,10 +356,12 @@ extern "C" {
 #define STARTSOL_KW  "STARTSOL"
 #define ENDSOL_KW    "ENDSOL"
 
+#define XWEL_KW      "XWEL"
 #define IWEL_KW      "IWEL"
 #define ZWEL_KW      "ZWEL"
 #define ICON_KW      "ICON"
 #define SCON_KW      "SCON"
+#define XCON_KW      "XCON"
 #define ISEG_KW      "ISEG"
 #define RSEG_KW      "RSEG"
 
@@ -128,6 +383,7 @@ extern "C" {
 
 #define INTEHEAD_NWELLS_INDEX  16     // Number of wells
 #define INTEHEAD_NIWELZ_INDEX  24     // Number of elements pr. well in the IWEL array.
+#define INTEHEAD_NXWELZ_INDEX  26     // Number of elements pr. well in the XWEL array.
 #define INTEHEAD_NZWELZ_INDEX  27     // Number of 8 character words pr. well
 
 #define INTEHEAD_NCWMAX_INDEX  17     // Maximum number of completions per well
@@ -137,7 +393,7 @@ extern "C" {
 #define INTEHEAD_NXWELZ_INDEX  26
 #define INTEHEAD_NICONZ_INDEX  32     // Number of elements pr completion in the ICON array.
 #define INTEHEAD_NSCONZ_INDEX  33     // Number of elements pr completion in the SCON array
-#define INTEHEAD_NXCONZ_INDEX  34
+#define INTEHEAD_NXCONZ_INDEX  34     // Number of elements pr completion in the XCON array
 #define INTEHEAD_NIGRPZ_INDEX  36     // Number of elements pr group in the IGRP array.
 
 
@@ -158,6 +414,7 @@ extern "C" {
 #define MINISTEP_KW  "MINISTEP"
 #define STARTDAT_KW  "STARTDAT"   /* Intgere keyword containing day,month,year. */
 #define WGNAMES_KW   "WGNAMES"    /* The names of wells/groups for the summary vectors. */
+#define NAMES_KW     "NAMES"      /* Alias for WGNAMES_KW. */
 #define KEYWORDS_KW  "KEYWORDS"   /* The variable type for the various summary vectors. */
 #define UNITS_KW     "UNITS"      /* The units, i.e SM^3/DAY the summary vectors. */
 #define DIMENS_KW    "DIMENS"     /* The dimensions of the grid - also used in the GRID files. */

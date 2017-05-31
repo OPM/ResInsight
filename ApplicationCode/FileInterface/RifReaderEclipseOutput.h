@@ -22,8 +22,7 @@
 
 #include "RifReaderInterface.h"
 
-#include "RigFault.h"
-#include "RigSingleWellResultsData.h"
+#include "cvfCollection.h"
 
 #include <QList>
 #include <QDateTime>
@@ -33,6 +32,9 @@ class RifEclipseRestartDataAccess;
 class RigGridBase;
 class RigMainGrid;
 class RigActiveCellInfo;
+class RigFault;
+
+struct RigWellResultPoint;
 
 typedef struct ecl_grid_struct ecl_grid_type;
 typedef struct ecl_file_struct ecl_file_type;
@@ -49,15 +51,15 @@ public:
     RifReaderEclipseOutput();
     virtual ~RifReaderEclipseOutput();
 
-    bool                    open(const QString& fileName, RigCaseData* eclipseCase);
+    bool                    open(const QString& fileName, RigEclipseCaseData* eclipseCase);
 
-    virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase);
+    virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
     void                    close();
 
     bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
     bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
-    static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigCaseData* eclipseCase);
+    static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
 
 private:
@@ -67,9 +69,8 @@ private:
 
     std::string             ertGridName( size_t gridNr );
 
-    static RigWellResultPoint createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
+    RigWellResultPoint      createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId, const char* wellName);
     
-    void                    importFaultsOpmParser(const QStringList& fileSet, cvf::Collection<RigFault>* faults) const;
     void                    importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults);
 
 
@@ -89,9 +90,10 @@ private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_filesWithSameBaseName;          // Set of files in filename's path with same base name as filename
 
-    RigCaseData*                            m_eclipseCase;
+    RigEclipseCaseData*                            m_eclipseCase;
 
     std::vector<QDateTime>                  m_timeSteps;
+    std::vector<double>                     m_daysSinceSimulationStart;
 
     ecl_file_type*                          m_ecl_init_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results

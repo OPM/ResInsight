@@ -54,7 +54,7 @@ DataType* PdmPtrArrayField<DataType*>::operator[](size_t index) const
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::push_back(DataType* pointer)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     m_pointers.push_back(pointer);
     if(pointer) pointer->addReferencingPtrField(this);
@@ -67,7 +67,7 @@ void PdmPtrArrayField<DataType*>::push_back(DataType* pointer)
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::set(size_t index, DataType* pointer)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     if(m_pointers[index]) m_pointers[index]->removeReferencingPtrField(this);
     m_pointers[index] = pointer;
@@ -81,7 +81,7 @@ void PdmPtrArrayField<DataType*>::set(size_t index, DataType* pointer)
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::insert(size_t index, DataType* pointer)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     m_pointers.insert(m_pointers.begin()+index, pointer);
 
@@ -96,7 +96,7 @@ void PdmPtrArrayField<DataType*>::insert(size_t index, DataType* pointer)
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::insert(size_t index, const std::vector<PdmPointer<DataType> >& objects)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     m_pointers.insert(m_pointers.begin()+index, objects.begin(), objects.end());
 
@@ -136,7 +136,7 @@ size_t PdmPtrArrayField<DataType*>::count(const DataType* pointer) const
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::clear()
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     this->removeThisAsReferencingPtrField();
     m_pointers.clear();
@@ -151,7 +151,7 @@ void PdmPtrArrayField<DataType*>::clear()
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::erase(size_t index)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     if(m_pointers[index].rawPtr())
     {
@@ -186,7 +186,7 @@ size_t PdmPtrArrayField<DataType*>::index(DataType* pointer)
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::removePtr(PdmObjectHandle* object)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
     std::vector< PdmPointer<DataType> > tempPointers;
 
@@ -229,9 +229,9 @@ void PdmPtrArrayField<DataType*>::ptrReferencedObjects(std::vector<PdmObjectHand
 template<typename DataType>
 void PdmPtrArrayField<DataType*>::insertAt(int indexAfter, PdmObjectHandle* obj)
 {
-    assert(isInitializedByInitFieldMacro());
+    CAF_ASSERT(isInitializedByInitFieldMacro());
 
-    // This method should assert if obj to insert is not castable to the container type, but since this
+    // This method should CAF_ASSERT( if obj to insert is not castable to the container type, but since this
     // is a virtual method, its implementation is always created and that makes a dyn_cast add the need for 
     // #include of the header file "everywhere"
     typename std::vector< PdmPointer<DataType> >::iterator it;

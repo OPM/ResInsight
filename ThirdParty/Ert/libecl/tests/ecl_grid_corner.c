@@ -19,7 +19,6 @@
 #include <stdbool.h>
 
 #include <ert/util/test_util.h>
-#include <ert/util/test_util_abort.h>
 
 #include <ert/ecl/ecl_grid.h>
 

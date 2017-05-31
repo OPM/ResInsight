@@ -20,13 +20,18 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmChildField.h"
 
 #include <vector>
 
+class RimMdiWindowController;
+
 struct RimMdiWindowGeometry 
 {
-    RimMdiWindowGeometry() : x(0), y(0), width(-1), height(-1)  {}
-    bool isValid() const { return (width >= 0 && height >= 0);}
+    RimMdiWindowGeometry() : mainWindowID(-1), x(0), y(0), width(-1), height(-1), isMaximized(false) {}
+    bool isValid() const { return (mainWindowID >= 0 && width >= 0 && height >= 0);}
+
+    int mainWindowID;
 
     int x; 
     int y; 
@@ -42,15 +47,50 @@ public:
     RimViewWindow(void);
     virtual ~RimViewWindow(void);
 
-    void                 setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
-    RimMdiWindowGeometry mdiWindowGeometry();
+    void                         handleMdiWindowClosed();
+                                 
+    void                         setAs3DViewMdiWindow()  { setAsMdiWindow(0); }
+    void                         setAsPlotMdiWindow()    { setAsMdiWindow(1); }
+    bool                         isMdiWindow() const;
+                                 
+    void                         setMdiWindowGeometry(const RimMdiWindowGeometry& windowGeometry);
+    RimMdiWindowGeometry         mdiWindowGeometry();
+                                 
+    virtual QWidget*             viewWidget() = 0;
+                                 
+    virtual QImage               snapshotWindowContent() = 0;
+    virtual void                 zoomAll() = 0;
 
-    virtual QImage      snapshotWindowContent() = 0;
-    virtual void        zoomAll() = 0;
+protected:
+    void                         removeMdiWindowFromMdiArea(); 
+    void                         updateMdiWindowVisibility(); 
 
-    virtual QWidget*    viewWidget() = 0;
+    ///////// Interface for the Window controller
+    friend class RimMdiWindowController;
 
-private:
-    caf::PdmField< std::vector<int> > m_windowGeometry;
+    virtual QWidget*             createViewWidget(QWidget* mainWindowParent) = 0; 
+    virtual void                 updateViewWidgetAfterCreation() {};
+    virtual void                 updateMdiWindowTitle(); // Has real default implementation
+    virtual void                 deleteViewWidget() = 0;
+    virtual void                 loadDataAndUpdate() = 0; 
+    //////////
+
+    // Derived classes are not supposed to override this function. The intention is to always use m_showWindow
+    // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
+    // can be controlled from the project tree using check box toggles
+    virtual caf::PdmFieldHandle* objectToggleField() override final;
+    virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                 initAfterRead() override;
+                                 
+    caf::PdmField<bool>          m_showWindow;
+
+private:                         
+    void                         setAsMdiWindow(int mainWindowID);
+
+    caf::PdmChildField<RimMdiWindowController*> m_windowController;
+
+
+    // Obsoleted field
+    caf::PdmField< std::vector<int> > obsoleteField_windowGeometry;
 };
 

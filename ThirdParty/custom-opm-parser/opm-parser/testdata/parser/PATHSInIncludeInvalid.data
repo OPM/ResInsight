@@ -1,7 +1,0 @@
-INCLUDE
- 'include/foo_invalid.inc'
-/
-
-INCLUDE
- '$FOOPATH/foo_target.inc'
-/

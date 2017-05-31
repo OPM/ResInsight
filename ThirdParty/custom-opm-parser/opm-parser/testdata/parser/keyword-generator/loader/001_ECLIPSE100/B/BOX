@@ -1,7 +1,0 @@
-{"name" : "BOX" , "sections" : ["GRID", "EDIT", "PROPS", "REGIONS", "SOLUTION", "SCHEDULE"], "size" : 1 , "items" : [
-        {"name" : "I1" , "value_type" : "INT"},
-        {"name" : "I2" , "value_type" : "INT"},
-        {"name" : "J1" , "value_type" : "INT"},
-        {"name" : "J2" , "value_type" : "INT"},
-        {"name" : "K1" , "value_type" : "INT"},
-        {"name" : "K2" , "value_type" : "INT"}]}

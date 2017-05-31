@@ -57,7 +57,7 @@ struct inv_map_struct {
 struct ecl_file_kw_struct {
   UTIL_TYPE_ID_DECLARATION;
   offset_type      file_offset;
-  ecl_type_enum    ecl_type;
+  ecl_data_type    data_type;
   int              kw_size;
   char           * header;
   ecl_kw_type    * kw;
@@ -135,13 +135,13 @@ UTIL_IS_INSTANCE_FUNCTION( ecl_file_kw , ECL_FILE_KW_TYPE_ID )
 
 
 
-static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_type_enum ecl_type , int size , offset_type offset) {
+static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_data_type data_type , int size , offset_type offset) {
   ecl_file_kw_type * file_kw = util_malloc( sizeof * file_kw );
   UTIL_TYPE_ID_INIT( file_kw , ECL_FILE_KW_TYPE_ID );
 
   file_kw->header = util_alloc_string_copy( header );
+  memcpy(&file_kw->data_type, &data_type, sizeof data_type);
   file_kw->kw_size = size;
-  file_kw->ecl_type = ecl_type;
   file_kw->file_offset = offset;
   file_kw->kw = NULL;
 
@@ -161,7 +161,7 @@ static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_type_en
 */
 
 ecl_file_kw_type * ecl_file_kw_alloc( const ecl_kw_type * ecl_kw , offset_type offset ) {
-  return ecl_file_kw_alloc__( ecl_kw_get_header( ecl_kw ) , ecl_kw_get_type( ecl_kw ) , ecl_kw_get_size( ecl_kw ) , offset );
+  return ecl_file_kw_alloc__( ecl_kw_get_header( ecl_kw ) , ecl_kw_get_data_type( ecl_kw ) , ecl_kw_get_size( ecl_kw ) , offset );
 }
 
 
@@ -169,7 +169,7 @@ ecl_file_kw_type * ecl_file_kw_alloc( const ecl_kw_type * ecl_kw , offset_type o
     Does NOT copy the kw pointer which must be reloaded.
 */
 ecl_file_kw_type * ecl_file_kw_alloc_copy( const ecl_file_kw_type * src ) {
-  return ecl_file_kw_alloc__( src->header , src->ecl_type , src->kw_size , src->file_offset );
+  return ecl_file_kw_alloc__( src->header , ecl_file_kw_get_data_type(src) , src->kw_size , src->file_offset );
 }
 
 
@@ -193,7 +193,10 @@ void ecl_file_kw_free__( void * arg ) {
 
 
 static void ecl_file_kw_assert_kw( const ecl_file_kw_type * file_kw ) {
-  if (file_kw->ecl_type != ecl_kw_get_type( file_kw->kw ))
+  if(!ecl_type_is_equal(
+              ecl_file_kw_get_data_type(file_kw),
+              ecl_kw_get_data_type(file_kw->kw)
+              ))
     util_abort("%s: type mismatch between header and file.\n",__func__);
 
   if (file_kw->kw_size != ecl_kw_get_size( file_kw->kw ))
@@ -265,18 +268,20 @@ bool ecl_file_kw_ptr_eq( const ecl_file_kw_type * file_kw , const ecl_kw_type * 
 
 
 void ecl_file_kw_replace_kw( ecl_file_kw_type * file_kw , fortio_type * target , ecl_kw_type * new_kw ) {
-  if ((file_kw->ecl_type == ecl_kw_get_type( new_kw )) &&
-      (file_kw->kw_size == ecl_kw_get_size( new_kw ))) {
+  if (!ecl_type_is_equal(
+              ecl_file_kw_get_data_type(file_kw),
+              ecl_kw_get_data_type(new_kw)
+              ))
+    util_abort("%s: sorry type mismatch between in-file keyword and new keyword \n",__func__);
+  if((file_kw->kw_size == ecl_kw_get_size( new_kw )))
+    util_abort("%s: sorry size mismatch between in-file keyword and new keyword \n",__func__);
 
-    if (file_kw->kw != NULL)
-      ecl_kw_free( file_kw->kw );
+  if (file_kw->kw != NULL)
+    ecl_kw_free( file_kw->kw );
 
-    file_kw->kw = new_kw;
-    fortio_fseek( target , file_kw->file_offset , SEEK_SET );
-    ecl_kw_fwrite( file_kw->kw , target );
-
-  } else
-    util_abort("%s: sorry size/type mismatch between in-file keyword and new keyword \n",__func__);
+  file_kw->kw = new_kw;
+  fortio_fseek( target , file_kw->file_offset , SEEK_SET );
+  ecl_kw_fwrite( file_kw->kw , target );
 }
 
 
@@ -289,8 +294,8 @@ int ecl_file_kw_get_size( const ecl_file_kw_type * file_kw ) {
   return file_kw->kw_size;
 }
 
-ecl_type_enum ecl_file_kw_get_type( const ecl_file_kw_type * file_kw) {
-  return file_kw->ecl_type;
+ecl_data_type ecl_file_kw_get_data_type(const ecl_file_kw_type * file_kw) {
+  return file_kw->data_type;
 }
 
 offset_type ecl_file_kw_get_offset(const ecl_file_kw_type * file_kw) {
@@ -298,7 +303,7 @@ offset_type ecl_file_kw_get_offset(const ecl_file_kw_type * file_kw) {
 }
 
 bool ecl_file_kw_fskip_data( const ecl_file_kw_type * file_kw , fortio_type * fortio) {
-  return ecl_kw_fskip_data__( file_kw->ecl_type , file_kw->kw_size , fortio );
+  return ecl_kw_fskip_data__( ecl_file_kw_get_data_type(file_kw) , file_kw->kw_size , fortio );
 }
 
 

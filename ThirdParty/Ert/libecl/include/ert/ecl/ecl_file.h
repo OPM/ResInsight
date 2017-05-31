@@ -32,6 +32,7 @@ extern "C" {
 #include <ert/ecl/ecl_file_view.h>
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_type.h>
 
 
 
@@ -76,11 +77,11 @@ extern "C" {
   ecl_file_kw_type * ecl_file_iget_file_kw( const ecl_file_type * file , int global_index);
   ecl_file_kw_type * ecl_file_iget_named_file_kw( const ecl_file_type * file , const char * kw, int ith);
   ecl_kw_type      * ecl_file_iget_kw( const ecl_file_type * file , int global_index);
-  ecl_type_enum      ecl_file_iget_type( const ecl_file_type * file , int global_index);
+  ecl_data_type      ecl_file_iget_data_type( const ecl_file_type * file , int global_index);
   int                ecl_file_iget_size( const ecl_file_type * file , int global_index);
   const char       * ecl_file_iget_header( const ecl_file_type * file , int global_index);
   ecl_kw_type      * ecl_file_iget_named_kw( const ecl_file_type * file , const char * kw, int ith);
-  ecl_type_enum      ecl_file_iget_named_type( const ecl_file_type * file , const char * kw , int ith);
+  ecl_data_type      ecl_file_iget_named_data_type( const ecl_file_type * file , const char * kw , int ith);
   int                ecl_file_iget_named_size( const ecl_file_type * file , const char * kw , int ith);
   void               ecl_file_indexed_read(const ecl_file_type * file , const char * kw, int index, const int_vector_type * index_map, char* buffer);
 

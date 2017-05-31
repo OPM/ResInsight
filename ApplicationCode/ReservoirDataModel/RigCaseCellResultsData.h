@@ -23,7 +23,8 @@
 #include "RifReaderInterface.h"
 
 #include "RimDefines.h"
-#include "RigStatisticsDataCache.h"
+
+#include "cvfCollection.h"
 
 #include <QDateTime>
 
@@ -33,6 +34,7 @@
 class RifReaderInterface;
 class RigMainGrid;
 class RigActiveCellInfo;
+class RigStatisticsDataCache;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -40,7 +42,7 @@ class RigActiveCellInfo;
 class RigCaseCellResultsData : public cvf::Object
 {
 public:
-    RigCaseCellResultsData(RigMainGrid* ownerGrid);
+    explicit RigCaseCellResultsData(RigMainGrid* ownerGrid);
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
     void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
@@ -69,10 +71,16 @@ public:
     size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
     QStringList                                        resultNames(RimDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
+    bool                                               hasFlowDiagUsableFluxes() const;
 
+    std::vector<QDateTime>                             timeStepDates() const;
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
-    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates);
+    std::vector<double>                                daysSinceSimulationStart() const;
+    std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
+    int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
+    std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
+    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers);
 
     // Find or create a slot for the results
 
@@ -112,6 +120,8 @@ public:
         QString                     m_resultName;
         size_t                      m_gridScalarResultIndex;
         std::vector<QDateTime>      m_timeStepDates;
+        std::vector<int>            m_timeStepReportNumbers;
+        std::vector<double>         m_daysSinceSimulationStart;
     };
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}

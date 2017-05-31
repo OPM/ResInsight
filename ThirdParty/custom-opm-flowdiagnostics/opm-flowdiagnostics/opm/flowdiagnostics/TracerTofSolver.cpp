@@ -1,6 +1,6 @@
 /*
   Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media project (OPM).
 
@@ -41,9 +41,7 @@ namespace FlowDiagnostics
         std::vector<double> expandSparse(const int n, const CellSetValues& v)
         {
             std::vector<double> r(n, 0.0);
-            const int num_items = v.cellValueCount();
-            for (int item = 0; item < num_items; ++item) {
-                auto data = v.cellValue(item);
+            for (const auto& data : v) {
                 r[data.first] = data.second;
             }
             return r;
@@ -78,9 +76,10 @@ namespace FlowDiagnostics
 
 
     TracerTofSolver::TracerTofSolver(const AssembledConnections& graph,
+                                     const AssembledConnections& reverse_graph,
                                      const std::vector<double>& pore_volumes,
                                      const CellSetValues& source_inflow)
-        : TracerTofSolver(graph, pore_volumes, source_inflow, InOutFluxComputer(graph))
+        : TracerTofSolver(graph, reverse_graph, pore_volumes, source_inflow, InOutFluxComputer(graph))
     {
     }
 
@@ -91,10 +90,12 @@ namespace FlowDiagnostics
     // The InOutFluxComputer is used so that influx_ and outflux_ can be
     // const members of the class.
     TracerTofSolver::TracerTofSolver(const AssembledConnections& graph,
+                                     const AssembledConnections& reverse_graph,
                                      const std::vector<double>& pore_volumes,
                                      const CellSetValues& source_inflow,
                                      InOutFluxComputer&& inout)
         : g_(graph)
+        , g_reverse_(reverse_graph)
         , pv_(pore_volumes)
         , influx_(std::move(inout.influx))
         , outflux_(std::move(inout.outflux))
@@ -106,13 +107,11 @@ namespace FlowDiagnostics
 
 
 
-    std::vector<double> TracerTofSolver::solveGlobal(const std::vector<CellSet>& all_startsets)
+    std::vector<double> TracerTofSolver::solveGlobal()
     {
         // Reset solver variables and set source terms.
         prepareForSolve();
-        for (const CellSet& startset : all_startsets) {
-            setupStartArray(startset);
-        }
+        setupStartArrayFromSource();
 
         // Compute topological ordering and solve.
         computeOrdering();
@@ -138,12 +137,14 @@ namespace FlowDiagnostics
 
         // Return computed time-of-flight.
         CellSetValues local_tof;
+        CellSetValues local_tracer;
         const int num_elements = component_starts_.back();
         for (int element = 0; element < num_elements; ++element) {
             const int cell = sequence_[element];
-            local_tof.addCellValue(cell, tof_[cell]);
+            local_tof[cell] = tof_[cell];
+            local_tracer[cell] = tracer_[cell];
         }
-        return LocalSolution{ local_tof, CellSetValues{} }; // TODO also return tracer
+        return LocalSolution{ std::move(local_tof), std::move(local_tracer) };
     }
 
 
@@ -156,10 +157,10 @@ namespace FlowDiagnostics
         const int num_cells = pv_.size();
         is_start_.clear();
         is_start_.resize(num_cells, 0);
-        upwind_contrib_.clear();
-        upwind_contrib_.resize(num_cells, 0.0);
         tof_.clear();
-        tof_.resize(num_cells, -1e100);
+        tof_.resize(num_cells, 0.0);
+        tracer_.clear();
+        tracer_.resize(num_cells, 0.0);
         num_multicell_ = 0;
         max_size_multicell_ = 0;
         max_iter_multicell_ = 0;
@@ -173,6 +174,20 @@ namespace FlowDiagnostics
     {
         for (const int cell : startset) {
             is_start_[cell] = 1;
+        }
+    }
+
+
+
+
+
+    void TracerTofSolver::setupStartArrayFromSource()
+    {
+        const int num_cells = pv_.size();
+        for (int cell = 0; cell < num_cells; ++cell) {
+            if (source_term_[cell] > 0.0) {
+                is_start_[cell] = 1;
+            }
         }
     }
 
@@ -236,7 +251,7 @@ namespace FlowDiagnostics
         }
 
         // Extract data from solution.
-        sequence_.resize(num_cells);
+        sequence_.resize(num_cells); // For local solutions this is the upper limit of the size. TODO: use exact size.
         const int num_comp = tarjan_get_numcomponents(result.get());
         component_starts_.resize(num_comp + 1);
         component_starts_[0] = 0;
@@ -263,6 +278,11 @@ namespace FlowDiagnostics
                 solveMultiCell(comp_size, &sequence_[component_starts_[comp]]);
             }
         }
+
+        // Threshold time-of-flight values.
+        for (double& t : tof_) {
+            t = std::min(t, max_tof_);
+        }
     }
 
 
@@ -272,27 +292,55 @@ namespace FlowDiagnostics
     void TracerTofSolver::solveSingleCell(const int cell)
     {
         // Compute influx (divisor of tof expression).
-        double source = 2.0 * source_term_[cell];  // Initial tof for well cell equal to half fill time.
+        double source = source_term_[cell];  // Initial tof for well cell equal to fill time.
         if (source == 0.0 && is_start_[cell]) {
             source = std::numeric_limits<double>::infinity(); // Gives 0 tof in start cell.
         }
         const double total_influx = influx_[cell] + source;
 
-        // Compute effective pv (dividend of tof expression).
-        const double eff_pv = pv_[cell] + upwind_contrib_[cell];
-
-        // Compute (capped) tof.
-        if (total_influx < eff_pv / max_tof_) {
+        // Cap time-of-flight if time to fill cell is greater than
+        // max_tof_. Note that cells may still have larger than
+        // max_tof_ after solveSingleCell() when including upwind
+        // contributions, and those in turn can affect cells
+        // downstream (so capping in this method will not produce the
+        // same result). All tofs will finally be capped in solve() as
+        // a post-process. The reason for the somewhat convoluted
+        // behaviour is to match existing MRST results.
+        if (total_influx < pv_[cell] / max_tof_) {
             tof_[cell] = max_tof_;
-        } else {
-            tof_[cell] = eff_pv / total_influx;
+            return;
         }
 
-        // Set contribution for my downwind cells (if any).
-        for (const auto& conn : g_.cellNeighbourhood(cell)) {
-            const int downwind_cell = conn.neighbour;
+        // Compute upwind contribution.
+        double upwind_tof_contrib = 0.0;
+        double upwind_tracer_contrib = 0.0;
+        for (const auto& conn : g_reverse_.cellNeighbourhood(cell)) {
+            const int upwind_cell = conn.neighbour;
             const double flux = conn.weight;
-            upwind_contrib_[downwind_cell] += tof_[cell] * flux;
+            upwind_tof_contrib += tof_[upwind_cell] * tracer_[upwind_cell] * flux;
+            upwind_tracer_contrib += tracer_[upwind_cell] * flux;
+        }
+        if (is_start_[cell]) {
+            // For cells tagged as start cells, the tracer value
+            // should get a contribution from the local source term
+            // (which is then considered to be containing the
+            // currently considered tracer).
+            //
+            // Start cells should therefore never have a zero source
+            // term. This may need to change in the future to support
+            // local tracing from arbitrary locations.
+            upwind_tracer_contrib += source;
+        }
+
+        // Compute time-of-flight and tracer.
+        tracer_[cell] = upwind_tracer_contrib / total_influx;
+
+        if (tracer_[cell] > 0.0) {
+            tof_[cell] = (pv_[cell]*tracer_[cell] + upwind_tof_contrib)
+                       / (total_influx * tracer_[cell]);
+        }
+        else {
+            tof_[cell] = max_tof_;
         }
     }
 
@@ -302,9 +350,9 @@ namespace FlowDiagnostics
 
     void TracerTofSolver::solveMultiCell(const int num_cells, const int* cells)
     {
+        // Record some statistics.
         ++num_multicell_;
         max_size_multicell_ = std::max(max_size_multicell_, num_cells);
-        // std::cout << "Multiblock solve with " << num_cells << " cells." << std::endl;
 
         // Using a Gauss-Seidel approach.
         double max_delta = 1e100;
@@ -318,7 +366,6 @@ namespace FlowDiagnostics
                 solveSingleCell(cell);
                 max_delta = std::max(max_delta, std::fabs(tof_[cell] - tof_before));
             }
-            // std::cout << "Max delta = " << max_delta << std::endl;
         }
         max_iter_multicell_ = std::max(max_iter_multicell_, num_iter);
     }

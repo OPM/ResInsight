@@ -20,27 +20,27 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "RifReaderInterface.h"
 
 #include "RimCase.h"
-#include "RimEclipseView.h"
-
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RifReaderInterface.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfColor3.h"
 
 class QString;
 
-class RigCaseData;
+class RigEclipseCaseData;
 class RigGridBase;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RimEclipseView;
 
 
 //==================================================================================================
@@ -68,12 +68,14 @@ public:
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
                                                       
-    RigCaseData*                                reservoirData();
-    const RigCaseData*                          reservoirData() const;
+    RigEclipseCaseData*                         eclipseCaseData();
+    const RigEclipseCaseData*                   eclipseCaseData() const;
+    cvf::Color3f                                defaultWellColor(const QString& wellName);
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
     RimEclipseView*                             createAndAddReservoirView();
+    RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
     void                                        removeResult(const QString& resultName);
 
@@ -86,10 +88,15 @@ public:
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings();
     virtual QString                             timeStepName(int frameIdx);
+    std::vector<QDateTime>                      timeStepDates();
+
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
     virtual cvf::BoundingBox                    allCellsBoundingBox() const;
     virtual cvf::Vec3d                          displayModelOffset() const;
+
+    void                                        reloadDataAndUpdate();
+    virtual void                                reloadEclipseGridFile() = 0;
 
     // Overridden methods from PdmObject
 public:
@@ -103,15 +110,17 @@ protected:
     // Internal methods
 protected:
     void                                        computeCachedData();
-    void                                        setReservoirData(RigCaseData* eclipseCase);
+    void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigCaseData>                       m_rigEclipseCase;
+    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
 
 private:
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
     QString                                     m_timeStepFormatString;
+
+    std::map<QString , cvf::Color3f>            m_wellToColorMap;
 
     // Obsolete fields
 protected:

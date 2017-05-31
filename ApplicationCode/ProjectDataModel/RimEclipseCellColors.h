@@ -44,6 +44,7 @@ public:
     void                                        setReservoirView(RimEclipseView* ownerReservoirView);
     RimEclipseView*                             reservoirView();
 
+    void                                        updateLegendData(size_t timestep);
     RimLegendConfig*                            legendConfig();
     caf::PdmChildField<RimTernaryLegendConfig*> ternaryLegendConfig;
 

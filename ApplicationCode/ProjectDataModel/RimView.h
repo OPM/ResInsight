@@ -82,7 +82,6 @@ public:
     caf::PdmField<QString>                  name;
     caf::PdmField<double>                   scaleZ;
 
-    caf::PdmField<bool>                     showWindow;
     caf::PdmField<cvf::Mat4d>               cameraPosition;
     caf::PdmField<cvf::Vec3d>               cameraPointOfInterest;
     caf::PdmField<bool>                     isPerspectiveView;
@@ -137,10 +136,10 @@ public:
     void                                    setScaleZAndUpdate(double scaleZ);
 
     // Animation
-    int                                     currentTimeStep()    { return m_currentTimeStep;}
+    int                                     currentTimeStep() const { return m_currentTimeStep;}
     void                                    setCurrentTimeStep(int frameIdx);
+
     void                                    updateCurrentTimeStepAndRedraw();
-    void                                    endAnimation();
 
     virtual void                            scheduleGeometryRegen(RivCellSetEnum geometryType) = 0;
     void                                    scheduleCreateDisplayModelAndRedraw();
@@ -166,12 +165,12 @@ public:
     cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
 
     virtual QWidget*                        viewWidget() override;
+    void                                    forceShowWindowOn();
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
     virtual RimCase*                        ownerCase() = 0;
 
-    virtual caf::PdmFieldHandle*            objectToggleField()     { return &showWindow; }
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:
 
@@ -201,9 +200,6 @@ protected:
     virtual void                            updateScaleTransform() = 0;
     virtual cvf::Transform*                 scaleTransform() = 0;
 
-    void                                    updateViewerWidget();
-    virtual void                            updateViewerWidgetWindowTitle() = 0;
-
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
 
@@ -219,8 +215,14 @@ protected:
     
     // Overridden PDM methods:
     virtual void                            setupBeforeSave();
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+    virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                            updateViewWidgetAfterCreation() override; 
+    virtual void                            updateMdiWindowTitle() override;
+    virtual void                            deleteViewWidget() override;
 
     cvf::ref<cvf::UByteArray>               m_currentReservoirCellVisibility;
     
@@ -230,6 +232,11 @@ protected:
 
 private:
     RimViewLinker*                          viewLinkerIfMasterView() const;
+
+    friend class RiuViewer;
+    void                                    setCurrentTimeStepAndUpdate(int frameIdx);
+    void                                    endAnimation();
+
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;

@@ -21,10 +21,9 @@
 
 #include "RiaApplication.h"
 
-#include "RigCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimCase.h"
-
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
@@ -34,16 +33,18 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
-#include "RimViewController.h"
+#include "RimLegendConfig.h"
 #include "RimProject.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimView.h"
+#include "RimViewController.h"
 #include "RimViewLinkerCollection.h"
+#include "RimViewManipulator.h"
 
 #include "RiuViewer.h"
 
 #include "cvfCamera.h"
 #include "cvfScene.h"
-#include "cafFrameAnimationControl.h"
 #include "cvfMatrix4.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -102,7 +103,6 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
     if (m_masterView && m_masterView->viewer() && sourceView != m_masterView)
     {
         m_masterView->viewer()->setCurrentFrame(timeStep);
-        m_masterView->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
     }
 
     for (size_t i = 0; i < m_viewControllers.size(); i++)
@@ -116,7 +116,6 @@ void RimViewLinker::updateTimeStep(RimView* sourceView, int timeStep)
             && viewLink->managedView()->viewer())
         {
             viewLink->managedView()->viewer()->setCurrentFrame(timeStep);
-            viewLink->managedView()->viewer()->animationControl()->setCurrentFrameOnly(timeStep);
         }
     }
 }
@@ -139,18 +138,27 @@ void RimViewLinker::updateCellResult()
             if (viewLink->managedView())
             {
                 RimView* rimView = viewLink->managedView();
-                RimEclipseView* eclipeView = dynamic_cast<RimEclipseView*>(rimView);
-                if (eclipeView)
+                RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(rimView);
+                if (eclipseView)
                 {
                     if (viewLink->isResultColorControlled())
                     {
-                        eclipeView->cellResult()->setPorosityModel(eclipseCellResultDefinition->porosityModel());
-                        eclipeView->cellResult()->setResultType(eclipseCellResultDefinition->resultType());
-                        eclipeView->cellResult()->setResultVariable(eclipseCellResultDefinition->resultVariable());
-                        eclipeView->scheduleCreateDisplayModelAndRedraw();
+                        eclipseView->cellResult()->simpleCopy(eclipseCellResultDefinition);
+                        eclipseView->cellResult()->loadResult();
+
+                        if (viewLink->isLegendDefinitionsControlled())
+                        {
+                            eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->legendConfig());
+                            eclipseView->cellResult()->legendConfig()->updateLegend();
+
+                            eclipseView->cellResult()->ternaryLegendConfig()->setUiValuesFromLegendConfig(masterEclipseView->cellResult()->ternaryLegendConfig());
+                            eclipseView->cellResult()->ternaryLegendConfig()->updateLegend();
+                        }
+
+                        eclipseView->scheduleCreateDisplayModelAndRedraw();
                     }
                     
-                    eclipeView->cellResult()->updateIconState();
+                    eclipseView->cellResult()->updateIconState();
                 }
             }
         }
@@ -174,6 +182,13 @@ void RimViewLinker::updateCellResult()
                     if (viewLink->isResultColorControlled())
                     {
                         geoView->cellResult()->setResultAddress(geoMechResultDefinition->resultAddress());
+
+                        if (viewLink->isLegendDefinitionsControlled())
+                        {
+                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(masterGeoView->cellResult()->legendConfig());
+                            geoView->cellResult()->legendConfig()->updateLegend();
+                        }
+
                         geoView->scheduleCreateDisplayModelAndRedraw();
                     }
 
@@ -232,7 +247,7 @@ void RimViewLinker::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync(RimView* source, std::vector<RimView*>& views)
+void RimViewLinker::allViewsForCameraSync(const RimView* source, std::vector<RimView*>& views) const
 {
     if (!isActive()) return;
 
@@ -276,8 +291,10 @@ QString RimViewLinker::displayNameForView(RimView* view)
     {
         RimCase* rimCase = NULL;
         view->firstAncestorOrThisOfType(rimCase);
-
-        displayName = rimCase->caseUserDescription() + ": " + view->name;
+        if (rimCase)
+        {
+            displayName = rimCase->caseUserDescription() + ": " + view->name;
+        }
     }
 
     return displayName;
@@ -307,7 +324,7 @@ void RimViewLinker::setMasterView(RimView* view)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimView* RimViewLinker::masterView()
+RimView* RimViewLinker::masterView() const
 {
     return m_masterView;
 }
@@ -315,7 +332,7 @@ RimView* RimViewLinker::masterView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViews(std::vector<RimView*>& views)
+void RimViewLinker::allViews(std::vector<RimView*>& views) const
 {
     views.push_back(m_masterView());
 
@@ -367,7 +384,7 @@ void RimViewLinker::updateScaleZ(RimView* sourceView, double scaleZ)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isActive()
+bool RimViewLinker::isActive() const
 {
     RimViewLinkerCollection* viewLinkerCollection = NULL;
     this->firstAncestorOrThisOfType(viewLinkerCollection);
@@ -470,6 +487,40 @@ void RimViewLinker::findNameAndIconFromView(QString* name, QIcon* icon, RimView*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateCursorPosition(const RimView* sourceView, const cvf::Vec3d& domainCoord)
+{
+    RimViewController* sourceViewLink = sourceView->viewController();
+    if (sourceViewLink && !sourceViewLink->showCursor())
+    {
+        return;
+    }
+
+    std::vector<RimView*> viewsToUpdate;
+    allViewsForCameraSync(sourceView, viewsToUpdate);
+
+    for (RimView* destinationView : viewsToUpdate)
+    {
+        if (destinationView == sourceView) continue;
+
+        if (destinationView != m_masterView)
+        {
+            RimViewController* viewLink = destinationView->viewController();
+            if (!viewLink) continue;
+
+            if (!viewLink->showCursor()) continue;
+        }
+
+        RiuViewer* destinationViewer = destinationView->viewer();
+        if (destinationViewer)
+        {
+            destinationViewer->setCursorPosition(domainCoord);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCamera(RimView* sourceView)
 {
     if (!sourceView->viewer()) return;
@@ -488,116 +539,7 @@ void RimViewLinker::updateCamera(RimView* sourceView)
     std::vector<RimView*> viewsToUpdate;
     allViewsForCameraSync(sourceView, viewsToUpdate);
 
-    cvf::Vec3d sourceCamUp;
-    cvf::Vec3d sourceCamEye;
-    cvf::Vec3d sourceCamViewRefPoint;
-    sourceView->viewer()->mainCamera()->toLookAt(&sourceCamEye, &sourceCamViewRefPoint, &sourceCamUp);
-
-    cvf::Vec3d sourceCamGlobalEye = sourceCamEye;
-    cvf::Vec3d sourceCamGlobalViewRefPoint = sourceCamViewRefPoint;
-
-    // Source bounding box in global coordinates including scaleZ
-    cvf::BoundingBox sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
-
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(sourceView);
-    if (eclipseView
-        && eclipseView->eclipseCase()
-        && eclipseView->eclipseCase()->reservoirData()
-        && eclipseView->eclipseCase()->reservoirData()->mainGrid())
-    {
-        cvf::Vec3d offset = eclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
-        offset.z() *= eclipseView->scaleZ();
-
-        sourceCamGlobalEye += offset;
-        sourceCamGlobalViewRefPoint += offset;
-
-        cvf::Mat4d trans;
-        trans.setTranslation(offset);
-        sourceSceneBB.transform(trans);
-    }
-
-    for (RimView* destinationView : viewsToUpdate)
-    {
-        if (!destinationView) continue;
-
-        destinationView->isPerspectiveView = sourceView->isPerspectiveView;
-
-        RiuViewer* destinationViewer = destinationView->viewer();
-        if (destinationViewer)
-        {
-            destinationViewer->enableParallelProjection(!sourceView->isPerspectiveView);
-
-            // Destination bounding box in global coordinates including scaleZ
-            cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
-
-            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(destinationView);
-            if (destEclipseView
-                && destEclipseView->eclipseCase()
-                && destEclipseView->eclipseCase()->reservoirData()
-                && destEclipseView->eclipseCase()->reservoirData()->mainGrid())
-            {
-                cvf::Vec3d destOffset = destEclipseView->eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
-                destOffset.z() *= destEclipseView->scaleZ();
-
-                cvf::Vec3d destinationCamEye = sourceCamGlobalEye - destOffset;
-                cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint - destOffset;
-
-                cvf::Mat4d trans;
-                trans.setTranslation(destOffset);
-                destSceneBB.transform(trans);
-
-                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
-                {
-                    destinationViewer->mainCamera()->setFromLookAt(destinationCamEye, destinationCamViewRefPoint, sourceCamUp);
-                }
-                else
-                {
-                    // Fallback using values from source camera
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
-                }
-            }
-            else
-            {
-                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
-                {
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamGlobalEye, sourceCamGlobalViewRefPoint, sourceCamUp);
-                }
-                else
-                {
-                    // Fallback using values from source camera
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
-                }
-            }
-
-            destinationViewer->updateParallelProjectionSettings(sourceView->viewer());
-
-            destinationViewer->update();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isBoundingBoxesOverlappingOrClose(const cvf::BoundingBox& sourceBB, const cvf::BoundingBox& destBB)
-{
-    if (!sourceBB.isValid() || !destBB.isValid()) return false;
-
-    if (sourceBB.intersects(destBB)) return true;
-
-    double largestExtent = sourceBB.extent().length();
-    if (destBB.extent().length() > largestExtent)
-    {
-        largestExtent = destBB.extent().length();
-    }
-
-    double centerDist = (sourceBB.center() - destBB.center()).length();
-    if (centerDist < largestExtent * 5)
-    {
-        return true;
-    }
-
-    return false;
+    RimViewManipulator::applySourceViewCameraOnDestinationViews(sourceView, viewsToUpdate);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,18 +553,16 @@ void RimViewLinker::addDependentView(RimView* view)
     this->m_viewControllers.push_back(viewContr);
 
     viewContr->setManagedView(view);
-
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering)
+void RimViewLinker::addViewControllers(caf::PdmUiTreeOrdering& uiTreeOrdering) const
 {
     for (size_t j = 0; j < m_viewControllers.size(); j++)
     {
-        uiTreeOrdering.add(m_viewControllers()[j]);
+        uiTreeOrdering.add(m_viewControllers[j]);
     }
 }
 

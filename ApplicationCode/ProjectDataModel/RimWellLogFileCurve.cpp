@@ -19,14 +19,16 @@
 
 #include "RimWellLogFileCurve.h"
 
-#include "RimProject.h"
+#include "RigWellLogCurveData.h"
+
 #include "RimOilField.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPath.h"
-#include "RimWellLogFileChannel.h"
+#include "RimProject.h"
 #include "RimWellLogFile.h"
-#include "RimWellLogTrack.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "RiuWellLogTrack.h"
 #include "RiuLineSegmentQwtPlotCurve.h"
@@ -54,8 +56,6 @@ RimWellLogFileCurve::RimWellLogFileCurve()
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannnelName, "CurveWellLogChannel", "Well Log Channel", "", "", "");
 
     m_wellPath = NULL;
-
-    updateOptionSensitivity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,11 +80,11 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
         firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
-        if (wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
+        if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
         {
             if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
             {
-                QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves in not yet supported, and no LAS curve will be displayed in this mode.\n\n");
+                QString tmp = QString("Display of True Vertical Depth (TVD) for LAS curves is not yet supported, and the LAS curve will be hidden in this mode.\n\n");
                 tmp += "Control display of this warning from \"Preferences->Show LAS curve without TVD warning\"";
             
                 QMessageBox::warning(NULL, "LAS curve without TVD", tmp);
@@ -169,18 +169,19 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    RimPlotCurve::updateOptionSensitivity();
+
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_wellPath);
     curveDataGroup->add(&m_wellLogChannnelName);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
-    appearanceGroup->add(&m_curveColor);
-    appearanceGroup->add(&m_curveThickness);
-    appearanceGroup->add(&m_pointSymbol);
-    appearanceGroup->add(&m_symbolSkipPixelDistance);
-    appearanceGroup->add(&m_lineStyle);
-    appearanceGroup->add(&m_curveName);
-    appearanceGroup->add(&m_isUsingAutoName);
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->add(&m_showLegend);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +189,7 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    uiTreeOrdering.setForgetRemainingFields(true);
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,10 +197,10 @@ void RimWellLogFileCurve::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrd
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
-    optionList = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
-    if (optionList.size() > 0) return optionList;
+    options = RimWellLogCurve::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    if (options.size() > 0) return options;
 
     if (fieldNeedingOptions == &m_wellPath)
     {
@@ -210,15 +211,16 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
+                // Only include well paths coming from a well log file
                 if (wellPaths[i]->m_wellLogFile())
                 {
-                    optionList.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(wellPaths[i]))));
+                    options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), wellPaths[i]));
                 }
             }
 
-            if (optionList.size() > 0)
+            if (options.size() > 0)
             {
-                optionList.push_front(caf::PdmOptionItemInfo("None", QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(NULL))));
+                options.push_front(caf::PdmOptionItemInfo("None", nullptr));
             }
         }
     }
@@ -235,18 +237,18 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
                 for (size_t i = 0; i < fileLogs->size(); i++)
                 {
                     QString wellLogChannelName = (*fileLogs)[i]->name();
-                    optionList.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
+                    options.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
                 }
             }
         }
 
-        if (optionList.size() == 0)
+        if (options.size() == 0)
         {
-            optionList.push_back(caf::PdmOptionItemInfo("None", "None"));
+            options.push_back(caf::PdmOptionItemInfo("None", "None"));
         }
     }
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------

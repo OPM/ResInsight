@@ -39,7 +39,7 @@ public:
     virtual ~RimSummaryCase();
     
     virtual QString     summaryHeaderFilename() const = 0; 
-    virtual QString     caseName() const = 0; 
+    virtual QString     caseName() = 0; 
     QString             shortName() const;
 
     void                updateAutoShortName();
@@ -48,11 +48,14 @@ public:
     void                loadCase();
     RigSummaryCaseData* caseData();
 
+    virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
+
 protected:
     void                updateTreeItemName();
 
     caf::PdmField<QString>  m_shortName;
     caf::PdmField<bool>     m_useAutoShortName;
+    caf::PdmField<QString>  m_summaryHeaderFilename;
 
     cvf::ref<RigSummaryCaseData> m_summaryCaseData;
 

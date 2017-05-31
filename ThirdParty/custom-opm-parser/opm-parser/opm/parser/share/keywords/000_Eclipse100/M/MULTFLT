@@ -1,3 +1,0 @@
-{"name" : "MULTFLT", "sections" : ["GRID", "EDIT", "SCHEDULE"], "items" : [
-        {"name" : "fault" , "value_type" : "STRING"},
-        {"name" : "factor" , "value_type" : "DOUBLE"}]}

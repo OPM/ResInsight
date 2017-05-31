@@ -29,11 +29,11 @@
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
-#include "RimWellLogFileChannel.h"
-#include "RimWellLogTrack.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
-
+#include "RimWellLogTrack.h"
 #include "RimWellLogTrack.h"
 #include "RiuMainWindow.h"
 
@@ -51,12 +51,12 @@ template <typename T>
 class RiuTypedPdmObjects
 {
 public:
-    RiuTypedPdmObjects(const caf::PdmObjectGroup& objectGroup)
+    explicit RiuTypedPdmObjects(const caf::PdmObjectGroup& objectGroup)
     {
         objectGroup.objectsByType(&m_typedObjects);
     }
 
-    RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
+    explicit RiuTypedPdmObjects(const std::vector<caf::PdmPointer<caf::PdmObjectHandle> >& objectHandles)
     {
         for (size_t i = 0; i < objectHandles.size(); i++)
         {
@@ -146,6 +146,14 @@ Qt::ItemFlags RiuDragDrop::flags(const QModelIndex &index) const
     {
         caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
         caf::PdmUiItem* uiItem = uiTreeView->uiItemFromModelIndex(index);
+
+        caf::PdmObject* pdmObj = dynamic_cast<caf::PdmObject*>(uiItem);
+        if (pdmObj)
+        {
+            RimWellAllocationPlot* wellAllocationPlot = nullptr;
+            pdmObj->firstAncestorOrThisOfType(wellAllocationPlot);
+            if (wellAllocationPlot) return itemflags;
+        }
 
         if (dynamic_cast<RimEclipseCase*>(uiItem) ||
             dynamic_cast<RimWellLogCurve*>(uiItem) ||

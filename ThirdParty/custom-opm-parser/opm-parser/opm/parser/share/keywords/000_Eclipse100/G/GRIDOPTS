@@ -1,4 +1,0 @@
-{"name" : "GRIDOPTS" , "sections" : ["RUNSPEC"], "size" : 1 , "items" : [
-        {"name" : "TRANMULT" , "value_type" : "STRING" , "default" : "NO"},
-        {"name" : "NRMULT"  , "value_type" : "INT" , "default" : 0},
-        {"name" : "NRPINC" , "value_type" : "INT" , "default" : 0}]}

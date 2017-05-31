@@ -23,7 +23,8 @@
 #include "RicNewViewFeature.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigSingleWellResultsData.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -74,7 +75,7 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectionSummary.xmlCapability()->setIOReadable(false);
     m_selectionSummary.uiCapability()->setUiReadOnly(true);
     m_selectionSummary.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_selectionSummary.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
     m_resultType.xmlCapability()->setIOWritable(false);
@@ -113,6 +114,11 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     CAF_PDM_InitField(&m_useZeroAsInactiveCellValue, "UseZeroAsInactiveCellValue", false, "Use Zero as Inactive Cell Value", "", "", "");
 
     m_populateSelectionAfterLoadingGrid = false;
+
+    // These does not work properly for statistics case, so hide for now
+    flipXAxis.uiCapability()->setUiHidden(true);
+    flipYAxis.uiCapability()->setUiHidden(true);
+    activeFormationNames.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -130,9 +136,9 @@ RimEclipseStatisticsCase::~RimEclipseStatisticsCase()
 void RimEclipseStatisticsCase::setMainGrid(RigMainGrid* mainGrid)
 {
     CVF_ASSERT(mainGrid);
-    CVF_ASSERT(this->reservoirData());
+    CVF_ASSERT(this->eclipseCaseData());
 
-    reservoirData()->setMainGrid(mainGrid);
+    eclipseCaseData()->setMainGrid(mainGrid);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -140,9 +146,9 @@ void RimEclipseStatisticsCase::setMainGrid(RigMainGrid* mainGrid)
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
-    if (this->reservoirData()) return true;
+    if (this->eclipseCaseData()) return true;
 
-    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
 
     CVF_ASSERT(parentStatisticsCaseCollection());
 
@@ -171,6 +177,15 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseStatisticsCase::reloadEclipseGridFile()
+{
+    setReservoirData(nullptr);
+    openReserviorCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimCaseCollection* RimEclipseStatisticsCase::parentStatisticsCaseCollection()
 {
     return dynamic_cast<RimCaseCollection*>(this->parentField()->ownerObject());
@@ -189,7 +204,7 @@ void RimEclipseStatisticsCase::populateResultSelectionAfterLoadingGrid()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::computeStatistics()
 {
-    if (this->reservoirData() == NULL)
+    if (this->eclipseCaseData() == NULL)
     {
         openEclipseGridFile();
     }
@@ -227,7 +242,7 @@ void RimEclipseStatisticsCase::computeStatistics()
         timeStepIndices.push_back(i);
     }
 
-    RigCaseData* resultCase = reservoirData();
+    RigEclipseCaseData* resultCase = eclipseCaseData();
 
     QList<RimEclipseStatisticsCaseEvaluator::ResSpec > resultSpecification;
 
@@ -338,12 +353,16 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     updatePercentileUiVisibility();
 
     uiOrdering.add(&caseUserDescription);
-    
     uiOrdering.add(&caseId);
-    uiOrdering.add(&m_calculateEditCommand);
-    uiOrdering.add(&m_selectionSummary);
 
-    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Properties to consider");
+    uiOrdering.add(&m_calculateEditCommand);
+
+    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Summary of Calculation Setup");
+    group->add(&m_useZeroAsInactiveCellValue);
+    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden(hasComputedStatistics());
+    group->add(&m_selectionSummary);
+
+    group = uiOrdering.addNewGroup("Properties to consider");
     group->setUiHidden(hasComputedStatistics());
     group->add(&m_resultType);
     group->add(&m_porosityModel);
@@ -356,8 +375,6 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_selectedFractureGeneratedProperties);
     group->add(&m_selectedFractureInputProperties);
     
-    uiOrdering.add(&m_useZeroAsInactiveCellValue);
-    m_useZeroAsInactiveCellValue.uiCapability()->setUiHidden(hasComputedStatistics());
 
     group = uiOrdering.addNewGroup("Percentile setup");
     group->setUiHidden(hasComputedStatistics());
@@ -367,6 +384,11 @@ void RimEclipseStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUi
     group->add(&m_midPercentile);
     group->add(&m_highPercentile);
 
+    group = uiOrdering.addNewGroup("Case Options");
+    group->add(&m_wellDataSourceCase);
+    group->add(&activeFormationNames);
+    group->add(&flipXAxis);
+    group->add(&flipYAxis);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
@@ -389,12 +411,12 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
     if (useOptionsOnly) *useOptionsOnly = true;
 
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
-    if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->reservoirData())) 
+    if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData())) 
     {
         return options;
     }
 
-    RigCaseData* caseData = idgcg->mainCase()->reservoirData();
+    RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
 
     if (&m_selectedDynamicProperties == fieldNeedingOptions)
     {
@@ -450,6 +472,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
         return toOptionList(sourceCaseNames);
     }
 
+    if (!options.size()) options = RimEclipseCase::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
     return options;
 }
@@ -459,6 +482,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions(co
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimEclipseCase::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (&m_resultType == changedField || &m_porosityModel == changedField)
     {
     }
@@ -485,9 +510,9 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
             sourceResultCase->openEclipseGridFile();
            
             // Propagate well info to statistics case
-            if (sourceResultCase->reservoirData())
+            if (sourceResultCase->eclipseCaseData())
             {
-                const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults = sourceResultCase->reservoirData()->wellResults();
+                const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults = sourceResultCase->eclipseCaseData()->wellResults();
                 setWellResultsAndUpdateViews(sourceCaseWellResults);
             }
         }
@@ -504,7 +529,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
 {
-    this->reservoirData()->setWellResults(sourceCaseWellResults);
+    this->eclipseCaseData()->setWellResults(sourceCaseWellResults);
     
     caf::ProgressInfo progInfo(reservoirViews().size() + 1, "Updating Well Data for Views");
 
@@ -588,13 +613,19 @@ void RimEclipseStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* 
     if (&m_selectionSummary == field)
     {
         caf::PdmUiTextEditorAttribute* textEditAttrib = dynamic_cast<caf::PdmUiTextEditorAttribute*> (attribute);
-        textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        if (textEditAttrib)
+        {
+            textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
+        }
     }
 
     if (&m_calculateEditCommand == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)": "Compute";
+        if (attrib)
+        {
+            attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)": "Compute";
+        }
     }
 }
 
@@ -636,9 +667,9 @@ void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseStatisticsCase::hasComputedStatistics() const
 {
-   if ( reservoirData() 
-       && (    reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->resultCount()
-            || reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()))
+   if ( eclipseCaseData() 
+       && (    eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->resultCount()
+            || eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount()))
    {
        return true;
    }
@@ -676,14 +707,14 @@ void RimEclipseStatisticsCase::updateConnectedEditorsAndReservoirViews()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseStatisticsCase::clearComputedStatistics()
 {
-    if (reservoirData() && reservoirData()->results(RifReaderInterface::MATRIX_RESULTS))
+    if (eclipseCaseData() && eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS))
     {
-        reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
+        eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
     }
 
-    if (reservoirData() && reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS))
+    if (eclipseCaseData() && eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS))
     {
-        reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
+        eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
     }
 
     updateConnectedEditorsAndReservoirViews();
@@ -700,7 +731,7 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 
     if (reservoirViews.size() == 0)
     {
-        RicNewViewFeature::addReservoirView();
+        RicNewViewFeature::addReservoirView(this, nullptr);
     }
 }
 
@@ -710,12 +741,12 @@ void RimEclipseStatisticsCase::computeStatisticsAndUpdateViews()
 void RimEclipseStatisticsCase::populateResultSelection()
 {
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
-    if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->reservoirData())) 
+    if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData())) 
     {
         return;
     }
 
-    RigCaseData* caseData = idgcg->mainCase()->reservoirData();
+    RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
 
     if (m_selectedDynamicProperties().size() == 0)
     {

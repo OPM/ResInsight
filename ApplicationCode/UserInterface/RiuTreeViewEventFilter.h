@@ -29,7 +29,7 @@ class RiuTreeViewEventFilter : public QObject
 {
     Q_OBJECT
 public:
-    RiuTreeViewEventFilter(QObject* parent);
+    explicit RiuTreeViewEventFilter(QObject* parent);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

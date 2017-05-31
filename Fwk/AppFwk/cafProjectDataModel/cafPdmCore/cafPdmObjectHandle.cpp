@@ -1,10 +1,9 @@
 
 #include "cafPdmObjectHandle.h"
 
+#include "cafAssert.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectCapability.h"
-
-#include <assert.h>
 
 
 namespace caf
@@ -42,7 +41,7 @@ void PdmObjectHandle::fields(std::vector<PdmFieldHandle*>& fields) const
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::setAsParentField(PdmFieldHandle* parentField)
 {
-    assert(m_parentField == NULL);
+    CAF_ASSERT(m_parentField == NULL);
 
     m_parentField = parentField;
 }
@@ -52,7 +51,7 @@ void PdmObjectHandle::setAsParentField(PdmFieldHandle* parentField)
 //--------------------------------------------------------------------------------------------------
 void PdmObjectHandle::removeAsParentField(PdmFieldHandle* parentField)
 {
-    assert(m_parentField == parentField);
+    CAF_ASSERT(m_parentField == parentField);
 
     m_parentField = NULL;
 }
@@ -110,8 +109,8 @@ void PdmObjectHandle::addField(PdmFieldHandle* field, const QString& keyword)
 {
     field->m_ownerObject = this;
 
-    assert(!keyword.isEmpty());
-    assert(this->findField(keyword) == NULL);
+    CAF_ASSERT(!keyword.isEmpty());
+    CAF_ASSERT(this->findField(keyword) == NULL);
 
     field->setKeyword(keyword);
     m_fields.push_back(field);
@@ -121,7 +120,7 @@ void PdmObjectHandle::addField(PdmFieldHandle* field, const QString& keyword)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword)
+PdmFieldHandle* PdmObjectHandle::findField(const QString& keyword) const
 {
     std::vector<PdmFieldHandle*> fields;
     this->fields(fields);

@@ -21,6 +21,8 @@
 
 #include "RicPasteFeatureImpl.h"
 
+#include "RiuMainWindow.h"
+
 #include "RimGeoMechView.h"
 #include "RimGeoMechCase.h"
 
@@ -77,6 +79,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
     std::vector<caf::PdmPointer<RimGeoMechView> > geomViews;
     objectGroup.objectsByType(&geomViews);
 
+    RimGeoMechView* lastViewCopy = nullptr;
+
     // Add cases to case group
     for (size_t i = 0; i < geomViews.size(); i++)
     {
@@ -89,15 +93,19 @@ void RicPasteGeoMechViewsFeature::onActionTriggered(bool isChecked)
 
         // Resolve references after reservoir view has been inserted into Rim structures
         // Intersections referencing a well path requires this
-        rimReservoirView->initAfterReadRecursively();
         rimReservoirView->resolveReferencesRecursively();
+        rimReservoirView->initAfterReadRecursively();
 
         caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
         rimReservoirView->loadDataAndUpdate();
 
         geomCase->updateConnectedEditors();
+
+        lastViewCopy = rimReservoirView;
     }
+
+    if (lastViewCopy) RiuMainWindow::instance()->selectAsCurrentItem(lastViewCopy);
 }
 
 //--------------------------------------------------------------------------------------------------

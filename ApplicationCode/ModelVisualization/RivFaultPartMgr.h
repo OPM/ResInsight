@@ -18,15 +18,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfArray.h"
 
-#include "RigGridBase.h"
-#include "RimFault.h"
-#include "RivFaultGeometryGenerator.h"
-#include "cvfColor4.h"
-#include "RivNNCGeometryGenerator.h"
-#include "cvfEffect.h"
 #include "cafEffectGenerator.h"
 
 namespace cvf
@@ -40,6 +36,12 @@ namespace cvf
 class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RimFaultCollection;
+class RigGridBase;
+class RimFaultCollection;
+class RimFault;
+class RivFaultGeometryGenerator;
+class RivNNCGeometryGenerator;
+
 
 //==================================================================================================
 ///
@@ -82,8 +84,6 @@ private:
 
     float                       m_opacityLevel;
     cvf::Color3f                m_defaultColor;
-
-    bool                        m_showLabel;
 
     cvf::ref<cvf::UByteArray>   m_cellVisibility;
 

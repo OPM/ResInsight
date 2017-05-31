@@ -21,9 +21,11 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaColorTables.h"
 
-#include "RigCaseData.h"
+#include "RigMainGrid.h"
 
+#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFault.h"
@@ -31,8 +33,6 @@
 #include "RimNoCommonAreaNncCollection.h"
 
 #include "RiuMainWindow.h"
-
-#include "RivColorTableArray.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
@@ -185,11 +185,11 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::syncronizeFaults()
 {
-    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid()) ) return;
+    if (!(m_reservoirView && m_reservoirView->mainGrid()) ) return;
 
-    cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
+    const caf::ColorTable& colorTable = RiaColorTables::faultsPaletteColors();
 
-    const cvf::Collection<RigFault> constRigFaults = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->faults();
+    const cvf::Collection<RigFault> constRigFaults = m_reservoirView->mainGrid()->faults();
 
     cvf::Collection<RigFault> rigFaults;
     {
@@ -246,7 +246,7 @@ void RimFaultCollection::syncronizeFaults()
         if (!rimFault)
         {
             rimFault = new RimFault();
-            rimFault->faultColor = partColors->get(fIdx % partColors->size());
+            rimFault->faultColor = colorTable.cycledColor3f(fIdx);
             QString faultName = rigFaults[fIdx]->name();
 
             if (faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
@@ -270,7 +270,7 @@ void RimFaultCollection::syncronizeFaults()
     // NNCs
     this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
 
-    RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+    RigMainGrid* mainGrid = m_reservoirView->mainGrid();
     std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
     for (size_t i = 0; i < nncConnections.size(); i++)
     {
@@ -397,7 +397,7 @@ void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::addMockData()
 {
-    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())) return;
+    if (!(m_reservoirView && m_reservoirView->mainGrid())) return;
 
 }
 

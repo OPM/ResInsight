@@ -19,6 +19,8 @@
 
 #include "RivWellPathSourceInfo.h"
 
+#include "RigWellPath.h"
+
 #include "RimCase.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"

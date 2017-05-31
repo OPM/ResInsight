@@ -1,3 +1,5 @@
+
+#include "cafAssert.h"
 #include "cafInternalPdmFieldIoHelper.h"
 #include "cafPdmObjectFactory.h"
 #include "cafPdmXmlObjectHandle.h"
@@ -30,7 +32,7 @@ template<typename FieldType >
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename FieldType >
- void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream)
+void caf::PdmFieldXmlCap<FieldType>::writeFieldData(QXmlStreamWriter& xmlStream) const
  { 
      this->assertValid(); 
      PdmFieldWriter<typename FieldType::FieldDataType>::writeFieldData(m_field->value(), xmlStream); 
@@ -79,7 +81,7 @@ template<typename FieldType >
  //--------------------------------------------------------------------------------------------------
 
  template<typename DataType >
- void caf::PdmFieldXmlCap< caf::PdmPtrField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+ void caf::PdmFieldXmlCap< caf::PdmPtrField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
  {
      this->assertValid(); 
 
@@ -142,7 +144,7 @@ template<typename FieldType >
  //--------------------------------------------------------------------------------------------------
 
  template<typename DataType >
- void caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+ void caf::PdmFieldXmlCap< caf::PdmPtrArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
  {
      this->assertValid();
 
@@ -201,7 +203,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
     // Create an object if needed 
     if (m_field->value() == NULL)
     {
-        assert(objectFactory);
+        CAF_ASSERT(objectFactory);
         obj = objectFactory->create(className);
 
         if (obj == NULL)
@@ -217,7 +219,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
             PdmXmlObjectHandle* xmlObject = xmlObj(obj);
             if (!xmlObject || xmlObject->classKeyword() != className)
             {
-                assert(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
+                CAF_ASSERT(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
 
                 xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
                 xmlStream.skipCurrentElement(); // Skip to the endelement of this field
@@ -264,7 +266,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::readFieldData(QXmlStr
 //--------------------------------------------------------------------------------------------------
 
 template<typename DataType >
-void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
 {
     if (m_field->m_fieldValue.rawPtr() == NULL) return;
 
@@ -287,7 +289,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildField<DataType*> >::writeFieldData(QXmlSt
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream)
+void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::writeFieldData(QXmlStreamWriter& xmlStream) const
 {
     typename std::vector< PdmPointer<DataType> >::iterator it;
     for (it = m_field->m_pointers.begin(); it != m_field->m_pointers.end(); ++it)
@@ -319,7 +321,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
     {
         QString className = xmlStream.name().toString();
 
-        assert(objectFactory);
+        CAF_ASSERT(objectFactory);
         PdmObjectHandle * obj = objectFactory->create(className);
 
         if (obj == NULL)
@@ -343,7 +345,7 @@ void caf::PdmFieldXmlCap< caf::PdmChildArrayField<DataType*> >::readFieldData(QX
         PdmXmlObjectHandle* xmlObject = xmlObj(obj);
         if (!xmlObject || xmlObject->classKeyword() != className)
         {
-            assert(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
+            CAF_ASSERT(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
 
             // Skip to EndElement of the object
             xmlStream.skipCurrentElement();

@@ -70,7 +70,7 @@ public:
     };
 
 public:
-    FixedAtlasFont(FontSize size);
+    explicit FixedAtlasFont(FontSize size);
     virtual ~FixedAtlasFont();
 
     virtual const cvf::String& name() const;

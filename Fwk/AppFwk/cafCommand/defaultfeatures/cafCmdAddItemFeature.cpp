@@ -48,6 +48,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
+#include "cafAssert.h"
+
 #include <QAction>
 
 
@@ -107,7 +109,7 @@ void CmdAddItemFeature::onActionTriggered(bool isChecked)
         }
         else
         {
-            assert(0);
+            CAF_ASSERT(0);
         }
     }
 }

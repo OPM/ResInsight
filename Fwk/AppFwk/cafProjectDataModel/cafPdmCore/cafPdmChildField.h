@@ -1,9 +1,9 @@
 #pragma once
 
-#include "cafPdmPointer.h"
-
 #include "cafPdmFieldHandle.h"
-#include <assert.h>
+
+#include "cafAssert.h"
+#include "cafPdmPointer.h"
 
 namespace caf
 {
@@ -22,7 +22,7 @@ class PdmChildField : public PdmFieldHandle
 public:
     PdmChildField()
     {
-        bool doNotUsePdmPtrFieldForAnythingButPointersToPdmObject = false; assert(doNotUsePdmPtrFieldForAnythingButPointersToPdmObject);
+        bool doNotUsePdmPtrFieldForAnythingButPointersToPdmObject = false; CAF_ASSERT(doNotUsePdmPtrFieldForAnythingButPointersToPdmObject);
     }
 };
 

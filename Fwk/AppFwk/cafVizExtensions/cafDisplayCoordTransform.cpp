@@ -30,9 +30,18 @@ void caf::DisplayCoordTransform::setTranslation(const cvf::Vec3d& translation)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d caf::DisplayCoordTransform::translateToDisplayCoord(const cvf::Vec3d& domainCoord) const
+{
+    return domainCoord - m_translation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d caf::DisplayCoordTransform::transformToDisplayCoord(const cvf::Vec3d& domainCoord) const
 {
-    cvf::Vec3d coord = domainCoord - m_translation;
+    cvf::Vec3d coord = translateToDisplayCoord(domainCoord);
+
     coord.x() *= m_scale.x();
     coord.y() *= m_scale.y();
     coord.z() *= m_scale.z();
@@ -56,16 +65,22 @@ cvf::Vec3d caf::DisplayCoordTransform::scaleToDisplaySize(const cvf::Vec3d& doma
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d caf::DisplayCoordTransform::translateToDomainCoord(const cvf::Vec3d& displayCoord) const
+{
+    return displayCoord + m_translation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d caf::DisplayCoordTransform::transformToDomainCoord(const cvf::Vec3d& displayCoord) const
 {
-    cvf::Vec3d coord = displayCoord;
-    coord.x() /= m_scale.x();
-    coord.y() /= m_scale.y();
-    coord.z() /= m_scale.z();
+    cvf::Vec3d unScaledDisplayCoord = displayCoord;
+    unScaledDisplayCoord.x() /= m_scale.x();
+    unScaledDisplayCoord.y() /= m_scale.y();
+    unScaledDisplayCoord.z() /= m_scale.z();
 
-    coord += m_translation;
-
-    return coord;
+    return translateToDomainCoord(unScaledDisplayCoord);
 }
 
 //--------------------------------------------------------------------------------------------------

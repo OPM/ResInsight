@@ -19,12 +19,11 @@
 
 #pragma once
 
-#include "RivIntersectionGeometryGenerator.h"
-
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfColor4.h"
 #include "cvfVector3.h"
+#include "cvfArray.h"
 
 
 namespace cvf
@@ -32,14 +31,21 @@ namespace cvf
     class ModelBasicList;
     class Transform;
     class Part;
+    class ScalarMapper;
 }
 
-class RigMainGrid;
-class RimEclipseCellColors;
-class RimCellEdgeColors;
-class RimIntersection;
-class RigGeoMechCaseData;
+class RigFemPart;
 class RigFemResultAddress;
+class RigGeoMechCaseData;
+class RigMainGrid;
+class RigResultAccessor;
+class RimCellEdgeColors;
+class RimEclipseCellColors;
+class RimIntersection;
+class RivIntersectionGeometryGenerator;
+class RivIntersectionHexGridInterface;
+class RivIntersectionVertexWeights;
+
 
 //==================================================================================================
 ///
@@ -49,7 +55,7 @@ class RigFemResultAddress;
 class RivIntersectionPartMgr : public cvf::Object
 {
 public:
-    RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
+    explicit RivIntersectionPartMgr(const RimIntersection* rimCrossSection);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex);

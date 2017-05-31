@@ -110,6 +110,13 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     {
         error("riSetGridProperty : ResInsight refused to accept the data. Maybe the dimensions or porosity model is wrong.\n");
     }
+
+#ifdef WIN32
+    // TODO: Due to synchronization issues seen on Windows 10, it is required to do a sleep here to be able to catch disconnect
+    // signals from the socket. No sleep causes the server to hang.
+    Sleep(100);
+#endif //WIN32
+
     return;
 }
 

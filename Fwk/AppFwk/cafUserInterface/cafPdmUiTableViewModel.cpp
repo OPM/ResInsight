@@ -42,6 +42,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableItemEditor.h"
 #include "cafSelectionManager.h"
@@ -118,6 +119,10 @@ QVariant PdmUiTableViewModel::headerData(int section, Qt::Orientation orientatio
                 return uiFieldHandle->uiName(m_currentConfigName);
             }
         }
+        else if (orientation == Qt::Vertical)
+        {
+            return section + 1;
+        }
     }
 
     return QVariant();
@@ -184,14 +189,60 @@ bool PdmUiTableViewModel::setData(const QModelIndex &index, const QVariant &valu
 //--------------------------------------------------------------------------------------------------
 QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
 {
+    if (role == Qt::TextColorRole)
+    {
+        PdmFieldHandle* fieldHandle = getField(index);
+        if (fieldHandle && fieldHandle->uiCapability())
+        {
+            if (fieldHandle->uiCapability()->isUiReadOnly(m_currentConfigName))
+            {
+                return Qt::lightGray;
+            }
+        }
+    }
+
     if (role == Qt::DisplayRole || role == Qt::EditRole)
     {
         PdmFieldHandle* fieldHandle = getField(index);
+
         PdmUiFieldHandle* uiFieldHandle = fieldHandle->uiCapability();
         if (uiFieldHandle)
         {
-            bool fromMenuOnly = false;
-            QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&fromMenuOnly);
+            QVariant fieldValue = uiFieldHandle->uiValue();
+            if (fieldValue.type() == QVariant::List)
+            {
+                QString displayText;
+                QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+                if (valuesSelectedInField.size() > 0)
+                {
+                    QList<PdmOptionItemInfo> options;
+                    bool useOptionsOnly = true;
+                    options = uiFieldHandle->valueOptions(&useOptionsOnly);
+                    CAF_ASSERT(useOptionsOnly); // Not supported
+
+                    for (QVariant v : valuesSelectedInField)
+                    {
+                        int index = v.toInt();
+                        if (index != -1)
+                        {
+                            if (!displayText.isEmpty()) displayText += ", ";
+
+                            if (index < options.size())
+                            {
+                                displayText += options.at(index).optionUiText;
+                            }
+                        }
+                    }
+                }
+
+                return displayText;
+            }
+
+            bool useOptionsOnly = true;
+            QList<PdmOptionItemInfo> valueOptions = uiFieldHandle->valueOptions(&useOptionsOnly);
+            CAF_ASSERT(useOptionsOnly); // Not supported
+
             if (!valueOptions.isEmpty())
             {
                 int listIndex = uiFieldHandle->uiValue().toInt();
@@ -235,7 +286,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
         }
         else
         {
-            assert(false);
+            CAF_ASSERT(false);
         }
     }
     else if (role == Qt::CheckStateRole)
@@ -277,20 +328,31 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
     m_pdmList = listField;
     m_currentConfigName = configName;
 
-    PdmUiOrdering config;
+    PdmUiOrdering configForFirstRow;
 
-    if (m_pdmList && m_pdmList->size() > 0)
+    if (m_pdmList)
     {
-        PdmObjectHandle* firstObject = m_pdmList->at(0);
+        PdmUiOrdering dummy;
 
-        PdmUiObjectHandle* uiObject = uiObj(firstObject);
-        if (uiObject)
+        for (size_t i = 0; i < listField->size(); i++)
         {
-            uiObject->uiOrdering(configName, config);
+            PdmObjectHandle* pdmObjHandle = m_pdmList->at(i);
+            PdmUiObjectHandle* uiObject = uiObj(pdmObjHandle);
+            if (uiObject)
+            {
+                if (i == 0)
+                {
+                    uiObject->uiOrdering(configName, configForFirstRow);
+                }
+                else
+                {
+                    uiObject->uiOrdering(configName, dummy);
+                }
+            }
         }
     }
 
-    const std::vector<PdmUiItem*>& uiItems = config.uiItems();
+    const std::vector<PdmUiItem*>& uiItems = configForFirstRow.uiItems();
 
     // Set all fieldViews to be unvisited
     std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
@@ -317,32 +379,7 @@ void PdmUiTableViewModel::setPdmData(PdmChildArrayFieldHandle* listField, const 
 
             if (it == m_fieldEditors.end())
             {
-                // If editor type is specified, find in factory
-                if ( !uiItems[i]->uiEditorTypeName(configName).isEmpty() )
-                {
-                    fieldEditor = Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(configName));
-                }
-                else
-                { 
-                    // Find the default field editor
-
-                    QString editorTypeName = qStringTypeName(*(field->fieldHandle()));
-
-                    // Handle a single value field with valueOptions: Make a combobox
-
-                    if (field->uiValue().type() != QVariant::List)
-                    {
-                        bool useOptionsOnly = true; 
-                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-
-                        if (!options.empty())
-                        {
-                            editorTypeName = PdmUiComboBoxEditor::uiEditorTypeName();
-                        }
-                    }
-
-                    fieldEditor = Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-                }
+                fieldEditor = PdmUiFieldEditorHelper::fieldEditorForField(field, configName);
 
                 if (fieldEditor)
                 {
@@ -414,7 +451,7 @@ PdmFieldHandle* PdmUiTableViewModel::getField(const QModelIndex &index) const
             }
             else
             {
-                assert(false);
+                CAF_ASSERT(false);
             }
         }
     }

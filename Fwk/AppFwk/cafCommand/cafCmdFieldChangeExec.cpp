@@ -87,7 +87,7 @@ void CmdFieldChangeExec::redo()
     PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
     if (!field)
     {
-        assert(false);
+        CAF_ASSERT(false);
         return;
     }
 
@@ -140,7 +140,7 @@ void CmdFieldChangeExec::undo()
     PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference(m_commandData->m_rootObject, m_commandData->m_pathToField);
     if (!field)
     {
-        assert(false);
+        CAF_ASSERT(false);
         return;
     }
 

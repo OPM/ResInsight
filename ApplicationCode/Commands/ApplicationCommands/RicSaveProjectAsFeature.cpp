@@ -40,9 +40,9 @@ bool RicSaveProjectAsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSaveProjectAsFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
+    this->disableModelChangeContribution();
 
-    RicSaveProjectFeature::storeTreeViewState();
+    RiaApplication* app = RiaApplication::instance();
 
     app->saveProjectPromptForFileName();
 }
@@ -54,4 +54,5 @@ void RicSaveProjectAsFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Save Project &As");
     actionToSetup->setIcon(QIcon(":/Save.png"));
+    actionToSetup->setShortcuts(QKeySequence::SaveAs);
 }

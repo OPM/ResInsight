@@ -30,13 +30,12 @@
 
 #include <QPointer>
 
-#include <memory>
-
 class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
 class RimSummaryYAxisProperties;
 class RimSummaryTimeAxisProperties;
+class RimGridTimeHistoryCurve;
 class PdmUiTreeOrdering;
 
 class QwtPlotCurve;
@@ -60,11 +59,14 @@ public:
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
 
-    RimSummaryCurve*                                findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
-    
-    void                                            loadDataAndUpdate();
+    void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
-    void                                            handleViewerDeletion();
+    caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
+    size_t                                          curveCount() const;
+    
+    virtual void                                    loadDataAndUpdate() override;
+
+    void                                            detachAllCurves();
     void                                            updateCaseNameHasChanged();
 
     void                                            updateAxes();
@@ -74,7 +76,7 @@ public:
                                                                   const QwtInterval& timeAxis);
 
     void                                            updateZoomInQwt();
-    void                                            updateZoomFromQwt();
+    void                                            updateZoomWindowFromQwt();
     void                                            disableAutoZoom();
     
     bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
@@ -86,48 +88,48 @@ public:
 
     virtual QWidget*                                viewWidget() override;
 
+    QString                                         asciiDataForPlotExport() const;
+
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    objectToggleField()    { return &m_showWindow; }
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                                    setupBeforeSave() override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
-    void                                            updateViewerWidget();
-    void                                            updateViewerWidgetWindowTitle();
-    void                                            detachAllCurves();
-    void                                            deletePlotWidget();
-    
-    void                                            updateAxis(RimDefines::PlotAxis plotAxis);
-    std::vector<RimSummaryCurve*>                   curvesForAxis(RimDefines::PlotAxis plotAxis) const;
+    std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
+    std::vector<RimGridTimeHistoryCurve*>           visibleTimeHistoryCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
     bool                                            hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
+
+    RimSummaryYAxisProperties*                      yAxisPropertiesForAxis(RimDefines::PlotAxis plotAxis) const;
+    void                                            updateAxis(RimDefines::PlotAxis plotAxis);
+    void                                            updateZoomForAxis(RimDefines::PlotAxis plotAxis);
 
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
 
+    // RimViewWindow overrides
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    void                                            updateMdiWindowTitle() override;
+    virtual void                                    deleteViewWidget() override; 
 
 private:
-    caf::PdmField<bool>                             m_showWindow;
+    caf::PdmField<bool>                                 m_showPlotTitle;
+    caf::PdmField<bool>                                 m_showLegend;
+    caf::PdmField<QString>                              m_userName;
     
-    caf::PdmField<bool>                             m_showPlotTitle;
-    caf::PdmField<QString>                          m_userName;
-    
-    caf::PdmChildArrayField<RimSummaryCurve*>       m_curves;
-    caf::PdmChildArrayField<RimSummaryCurveFilter*> m_curveFilters;
+    caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
+    caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves;
+    caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters;
 
-    caf::PdmField<bool>                             m_isAutoZoom;
-    caf::PdmChildField<RimSummaryYAxisProperties*>  m_leftYAxisProperties;
-    caf::PdmChildField<RimSummaryYAxisProperties*>  m_rightYAxisProperties;
-    caf::PdmChildField<RimSummaryTimeAxisProperties*>  m_timeAxisProperties;
+    caf::PdmField<bool>                                 m_isAutoZoom;
+    caf::PdmChildField<RimSummaryYAxisProperties*>      m_leftYAxisProperties;
+    caf::PdmChildField<RimSummaryYAxisProperties*>      m_rightYAxisProperties;
+    caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
 
-    QPointer<RiuSummaryQwtPlot>                     m_qwtPlot;
-
-    // Internal objects managed by unique_ptr
-    std::unique_ptr<RimSummaryYAxisProperties>      m_leftYAxisPropertiesObject;
-    std::unique_ptr<RimSummaryYAxisProperties>      m_rightYAxisPropertiesObject;
-    std::unique_ptr<RimSummaryTimeAxisProperties>   m_timeAxisPropertiesObject;
+    QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
 };

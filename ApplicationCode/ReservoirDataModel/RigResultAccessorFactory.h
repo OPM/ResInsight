@@ -33,40 +33,40 @@ class RigResultAccessorFactory
 {
 public:
     static cvf::ref<RigResultAccessor>
-        createResultAccessor(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        size_t timeStepIndex,
-        RimEclipseResultDefinition* resultDefinition);
-
-    static cvf::ref<RigResultAccessor> 
-        createResultAccessor(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        const QString& uiResultName);
+        createFromResultDefinition(RigEclipseCaseData* eclipseCase,
+                                   size_t gridIndex,
+                                   size_t timeStepIndex,
+                                   RimEclipseResultDefinition* resultDefinition);
 
     static cvf::ref<RigResultAccessor>
-        createResultAccessor(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        const QString& uiResultName,
-        RimDefines::ResultCatType resultType);
+        createFromUiResultName(RigEclipseCaseData* eclipseCase,
+                               size_t gridIndex,
+                               RifReaderInterface::PorosityModelResultType porosityModel,
+                               size_t timeStepIndex,
+                               const QString& uiResultName);
 
     static cvf::ref<RigResultAccessor>
-        createResultAccessor(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        size_t resultIndex);
+        createFromNameAndType(RigEclipseCaseData* eclipseCase,
+                              size_t gridIndex,
+                              RifReaderInterface::PorosityModelResultType porosityModel,
+                              size_t timeStepIndex,
+                              const QString& uiResultName,
+                              RimDefines::ResultCatType resultType);
+
+    static cvf::ref<RigResultAccessor>
+        createFromResultIdx(RigEclipseCaseData* eclipseCase,
+                            size_t gridIndex,
+                            RifReaderInterface::PorosityModelResultType porosityModel,
+                            size_t timeStepIndex,
+                            size_t resultIndex);
 
 private:
-    static cvf::ref<RigResultAccessor> 
-        createNativeResultAccessor(RigCaseData* eclipseCase,
-                                        size_t gridIndex,
-                                        RifReaderInterface::PorosityModelResultType porosityModel,
-                                        size_t timeStepIndex,
-                                        const QString& resultName);
+    static cvf::ref<RigResultAccessor>
+        createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
+                                     size_t gridIndex,
+                                     RifReaderInterface::PorosityModelResultType porosityModel,
+                                     size_t timeStepIndex,
+                                     const QString& resultName);
 
 };
 

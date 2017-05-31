@@ -186,14 +186,13 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData(d
     bool                isTvDepthsAvailable = false;
     std::vector<double> tvDepths;
 
-    size_t segmentStartIdx = 0;
-
     if (m_tvDepths.size() > 0) isTvDepthsAvailable = true;
 
     if(m_measuredDepths.size() > 0)
     {
         double currentMd = m_measuredDepths[0];
 
+        size_t segmentStartIdx = 0;
         while(segmentStartIdx < m_measuredDepths.size() - 1)
         {
             double segmentStartMd = m_measuredDepths[segmentStartIdx];

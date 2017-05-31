@@ -30,7 +30,7 @@ class RimIntersection;
 class RivIntersectionSourceInfo : public cvf::Object
 {
 public:
-    RivIntersectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator);
+    explicit RivIntersectionSourceInfo(RivIntersectionGeometryGenerator* geometryGenerator);
 
     const std::vector<size_t>& triangleToCellIndex() const;
     std::array<cvf::Vec3f, 3> triangle(int triangleIdx) const;

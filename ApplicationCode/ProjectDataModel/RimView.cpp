@@ -3,14 +3,13 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RigCaseData.h"
-
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimGridCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
@@ -74,9 +73,6 @@ RimView::RimView(void)
 
 
     CAF_PDM_InitField(&name, "UserDescription", QString(""), "Name", "", "", "");
-
-    CAF_PDM_InitField(&showWindow, "ShowWindow", true, "Show 3D viewer", "", "", "");
-    showWindow.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&cameraPosition, "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
     cameraPosition.uiCapability()->setUiHidden(true);
@@ -142,6 +138,8 @@ RimView::RimView(void)
 
     m_wellPathPipeVizModel = new cvf::ModelBasicList;
     m_wellPathPipeVizModel->setName("WellPathPipeModel");
+
+    this->setAs3DViewMdiWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,12 +169,9 @@ RimView::~RimView(void)
 
     delete this->m_overlayInfoConfig();
 
-    if (m_viewer)
-    {
-        RiuMainWindow::instance()->removeViewer(m_viewer->layoutWidget());
-    }
+    removeMdiWindowFromMdiArea();
 
-    delete m_viewer;
+    deleteViewWidget();
 
     delete m_rangeFilterCollection;
     delete m_overrideRangeFilterCollection;
@@ -195,63 +190,95 @@ RiuViewer* RimView::viewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimView::updateViewerWidget()
+QWidget* RimView::createViewWidget(QWidget* mainWindowParent)
 {
-    if (showWindow())
-    {
-        bool isViewerCreated = false;
-        if (!m_viewer)
-        {
-            QGLFormat glFormat;
-            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
+    QGLFormat glFormat;
+    glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
-            m_viewer = new RiuViewer(glFormat, NULL);
-            m_viewer->setOwnerReservoirView(this);
+    m_viewer = new RiuViewer(glFormat, NULL);
+    m_viewer->setOwnerReservoirView(this);
 
-            RiuMainWindow::instance()->addViewer(m_viewer->layoutWidget(), mdiWindowGeometry());
-            m_viewer->setDefaultPerspectiveNearPlaneDistance(10);
-           
-            this->resetLegendsInViewer();
-
-            m_viewer->updateNavigationPolicy();
-            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
-
-            isViewerCreated = true;
-        }
-
-        RiuMainWindow::instance()->setActiveViewer(m_viewer->layoutWidget());
-
-        if(isViewerCreated)
-        {
-            m_viewer->mainCamera()->setViewMatrix(cameraPosition);
-            m_viewer->setPointOfInterest(cameraPointOfInterest());
-            m_viewer->enableParallelProjection(!isPerspectiveView());
-        }
-        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
-
-        this->updateGridBoxData();
-        this->createHighlightAndGridBoxDisplayModel();
-
-        m_viewer->update();
-    }
-    else
-    {
-        if (m_viewer && m_viewer->layoutWidget())
-        {
-            if (m_viewer->layoutWidget()->parentWidget())
-            {
-                m_viewer->layoutWidget()->parentWidget()->hide();
-            }
-            else
-            {
-                m_viewer->layoutWidget()->hide(); 
-            }
-        }
-    }
-
-    updateViewerWidgetWindowTitle();
+    return m_viewer->layoutWidget();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateViewWidgetAfterCreation()
+{
+    m_viewer->setDefaultPerspectiveNearPlaneDistance(10);
+
+    this->resetLegendsInViewer();
+
+    m_viewer->updateNavigationPolicy();
+    m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
+
+    m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+    m_viewer->setPointOfInterest(cameraPointOfInterest());
+    m_viewer->enableParallelProjection(!isPerspectiveView());
+
+    m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
+    this->updateGridBoxData();
+    this->createHighlightAndGridBoxDisplayModel();
+
+    m_viewer->update();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::updateMdiWindowTitle()
+{
+    if (m_viewer)
+    {
+        QString windowTitle;
+        if (ownerCase())
+        {
+            windowTitle = QString("%1 - %2").arg(ownerCase()->caseUserDescription()).arg(name);
+        }
+        else
+        {
+            windowTitle = name;
+        }
+
+        m_viewer->layoutWidget()->setWindowTitle(windowTitle);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::deleteViewWidget()
+{
+    if (m_viewer) 
+    {
+        m_viewer->deleteLater();
+        m_viewer = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    viewGroup->add(&name);
+    viewGroup->add(&backgroundColor);
+    viewGroup->add(&showGridBox);
+    viewGroup->add(&isPerspectiveView);
+    viewGroup->add(&m_disableLighting);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
+    gridGroup->add(&scaleZ);
+    gridGroup->add(&meshMode);
+    gridGroup->add(&surfaceMode);
+
+
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -260,6 +287,9 @@ QImage RimView::snapshotWindowContent()
 {
     if (m_viewer)
     {
+        // Force update of scheduled display models before snapshotting
+        RiaApplication::instance()->slotUpdateScheduledDisplayModels();
+
         m_viewer->repaint();
 
         return m_viewer->snapshotImage();
@@ -287,6 +317,20 @@ void RimView::scheduleCreateDisplayModelAndRedraw()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimView::setCurrentTimeStepAndUpdate(int frameIndex)
+{
+    setCurrentTimeStep(frameIndex);
+
+    this->updateCurrentTimeStep();
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::setCurrentTimeStep(int frameIndex)
 {
     m_currentTimeStep = frameIndex;
@@ -297,15 +341,19 @@ void RimView::setCurrentTimeStep(int frameIndex)
     {  
         m_currentReservoirCellVisibility = NULL; 
     }
-    this->updateCurrentTimeStep();
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimView::updateCurrentTimeStepAndRedraw()
 {
     this->updateCurrentTimeStep();
-    
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+
     if (m_viewer) m_viewer->update();
 }
 
@@ -366,8 +414,6 @@ void RimView::setupBeforeSave()
         hasUserRequestedAnimation = m_viewer->isAnimationActive(); // JJS: This is not conceptually correct. The variable is updated as we go, and store the user intentions. But I guess that in practice...
         cameraPosition = m_viewer->mainCamera()->viewMatrix();
         cameraPointOfInterest = m_viewer->pointOfInterest();
-
-       setMdiWindowGeometry(RiuMainWindow::instance()->windowGeometryForViewer(m_viewer->layoutWidget()));
     }
 }
 
@@ -513,6 +559,8 @@ bool RimView::isLightingDisabled() const
 //--------------------------------------------------------------------------------------------------
 void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
+
     if (changedField == &meshMode)
     {
         createDisplayModel();
@@ -585,7 +633,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
     else if (changedField == &name)
     {
-        updateViewerWidgetWindowTitle();
+        updateMdiWindowTitle();
 
         if (viewController())
         {
@@ -616,9 +664,9 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
     else if (changedField == &backgroundColor)
     {
-        if (viewer() != NULL)
+        if (m_viewer != nullptr)
         {
-            updateViewerWidget();
+            m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
         }
     }
     else if (changedField == &maximumFrameRate)
@@ -952,6 +1000,15 @@ cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimView::viewWidget()
 {
-    return m_viewer;
+    if ( m_viewer ) return m_viewer->layoutWidget();
+    else return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::forceShowWindowOn()
+{
+    m_showWindow.setValueWithFieldChanged(true);
 }
 

@@ -47,7 +47,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CmdSelectionHelper::executeSelectionCommand(std::vector<PdmObjectHandle*> selection, SelectionManager::SelectionRole role)
+void CmdSelectionHelper::executeSelectionCommand(const std::vector<PdmObjectHandle*>& selection, SelectionManager::SelectionRole role)
 {
     CmdSelectionChangeExec* selectionChangeExec = createSelectionCommand(selection, role);
 

@@ -21,7 +21,6 @@
 
 #include "RiaApplication.h"
 
-#include "RimCase.h"
 #include "RimView.h"
 #include "RimWellPath.h"
 
@@ -57,8 +56,6 @@ bool RicWellPathViewerEventHandler::handleEvent(cvf::Object* eventObject)
         const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>(uiEvent->firstHitPart->sourceInfo());
         if (wellPathSourceInfo)
         {
-            cvf::Vec3d displayModelOffset = cvf::Vec3d::ZERO;
-
             RimView* rimView = RiaApplication::instance()->activeReservoirView();
             if (!rimView) return false;
 

@@ -47,7 +47,6 @@
 #include <QMainWindow>
 #include <QAction>
 
-#include <assert.h>
 #include "cafPdmUiOrdering.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
@@ -169,8 +168,8 @@ void PdmUiToolBarEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-    assert(m_fields.size() == m_fieldViews.size());
-    assert(static_cast<int>(m_fields.size()) == m_actions.size());
+    CAF_ASSERT(m_fields.size() == m_fieldViews.size());
+    CAF_ASSERT(static_cast<int>(m_fields.size()) == m_actions.size());
 
     for (size_t i = 0; i < m_fields.size(); i++)
     {
@@ -204,7 +203,7 @@ void PdmUiToolBarEditor::setFields(std::vector<caf::PdmFieldHandle*>& fields)
         caf::PdmUiFieldHandle* uiFieldHandle = fields[i]->uiCapability();
 
         // Supports only bool fields
-        assert(uiFieldHandle->uiValue().type() == QVariant::Bool);
+        CAF_ASSERT(uiFieldHandle->uiValue().type() == QVariant::Bool);
     }
 
     m_fields = fields;

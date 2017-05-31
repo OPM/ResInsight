@@ -19,12 +19,14 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RimFlowPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuProjectPropertyView.h"
+#include "RimFlowCharacteristicsPlot.h"
 
 CAF_PDM_SOURCE_INIT(RimMainPlotCollection, "MainPlotCollection");
 
@@ -44,11 +46,13 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "");
     m_summaryPlotCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "");
+    m_flowPlotCollection.uiCapability()->setUiHidden(true);
+
     m_wellLogPlotCollection = new RimWellLogPlotCollection();
     m_summaryPlotCollection = new RimSummaryPlotCollection();
+    m_flowPlotCollection    = new RimFlowPlotCollection();
 
-    //m_plotMainWindow = NULL;
-    //m_plotManagerMainWindow = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,11 +60,10 @@ RimMainPlotCollection::RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::~RimMainPlotCollection()
 {
-    if (m_wellLogPlotCollection()) delete m_wellLogPlotCollection();
-    if (m_summaryPlotCollection()) delete m_summaryPlotCollection();
+    if (m_wellLogPlotCollection())  delete m_wellLogPlotCollection();
+    if (m_summaryPlotCollection())  delete m_summaryPlotCollection();
+    if (m_flowPlotCollection())     delete m_flowPlotCollection();
 
-    //m_plotManagerMainWindow->close();
-    //m_plotManagerMainWindow->deleteLater();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -68,62 +71,9 @@ RimMainPlotCollection::~RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-#if 0
-    if (changedField == &showWindow)
-    {
-        if (showWindow)
-        {
-            showPlotWindow();
-        }
-        else
-        {
-            hidePlotWindow();
-        }
-    }
-    #endif
-}
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::showPlotWindow()
-{
-    if (!m_plotManagerMainWindow)
-    {
-        m_plotManagerMainWindow = new QMainWindow;
-        m_plotManagerMainWindow->setDockNestingEnabled(true);
 
-        m_plotMainWindow = new QMainWindow;
-        m_plotMainWindow->setDockNestingEnabled(true);
-
-        // NOTE! setCentralWidget takes ownership of widget
-        m_plotManagerMainWindow->setCentralWidget(m_plotMainWindow);
-
-        {
-            QDockWidget* dockWidget = new QDockWidget("Plots", m_plotManagerMainWindow);
-            dockWidget->setObjectName("dockWidget");
-
-            RiuMainWindow* mainWindow = RiuMainWindow::instance();
-
-            RiuProjectAndPropertyView* projPropView = new RiuProjectAndPropertyView(dockWidget);
-            dockWidget->setWidget(projPropView);
-
-            RimProject* proj = NULL;
-            this->firstAncestorOrThisOfType(proj);
-
-            projPropView->setPdmItem(this);
-
-            m_plotManagerMainWindow->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-        }
-    }
-
-    m_plotMainWindow->show();
-
-    m_plotManagerMainWindow->showNormal();
-    m_plotManagerMainWindow->raise();
 }
 
-#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -148,115 +98,31 @@ RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
     return m_summaryPlotCollection();
 }
 
-#if 0
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::createDockWindowsForAllPlots()
+RimFlowPlotCollection* RimMainPlotCollection::flowPlotCollection()
 {
-    for (size_t i = 0; i < m_graphPlots.size(); i++)
-    {
-        if (!dockWidgetFromPlot(m_graphPlots[i]))
-        {
-            createPlotDockWidget(m_graphPlots[i]);
-        }
-    }
+    return m_flowPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDockWidget* RimMainPlotCollection::dockWidgetFromPlot(RimSummaryPlot* graphPlot)
+void RimMainPlotCollection::deleteAllContainedObjects()
 {
-    foreach(QDockWidget* dockW, m_plotViewDockWidgets)
-    {
-        if (dockW && dockW->widget() == graphPlot->widget())
-        {
-            return dockW;
-        }
-    }
+    m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
+    m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
 
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::createPlotDockWidget(RimSummaryPlot* graphPlot)
-{
-    assert(m_plotMainWindow != NULL);
-
-    QDockWidget* dockWidget = new QDockWidget(QString("Plot Widget Tree (%1)").arg(m_plotViewDockWidgets.size() + 1), m_plotMainWindow);
-    dockWidget->setObjectName("dockWidget");
-    // dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-    QWidget* widget = graphPlot->createPlotWidget(m_plotMainWindow);
-
-    dockWidget->setWidget(widget);
-
-    m_plotMainWindow->addDockWidget(Qt::RightDockWidgetArea, dockWidget);
-
-    m_plotViewDockWidgets.push_back(dockWidget);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::eraseDockWidget(RimSummaryPlot* graphPlot)
-{
-    QDockWidget* dockW = dockWidgetFromPlot(graphPlot);
-    if (dockW)
-    {
-        m_plotMainWindow->removeDockWidget(dockW);
-        dockW->setWidget(NULL);
-        dockW->deleteLater();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::redrawAllPlots()
-{
-    for (size_t i = 0; i < m_graphPlots.size(); i++)
-    {
-        m_graphPlots[i]->redrawAllCurves();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QMainWindow* RimMainPlotCollection::windowWithGraphPlots()
-{
-    return m_plotMainWindow;
+    m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::initAfterRead()
+void RimMainPlotCollection::updateCurrentTimeStepInPlots()
 {
-    if (show())
-    {
-        showPlotWindow();
-    }
-    else
-    {
-        hidePlotWindow();
-    }
+    m_flowPlotCollection()->defaultFlowCharacteristicsPlot()->updateCurrentTimeStep();
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::hidePlotWindow()
-{
-    if (m_plotManagerMainWindow)
-    {
-        m_plotManagerMainWindow->hide();
-    }
-}
-#endif

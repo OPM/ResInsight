@@ -23,6 +23,7 @@
 
 #include "RimCalcScript.h"
 #include "RiaApplication.h"
+#include "RiuMainWindow.h"
 
 #include "cafSelectionManager.h"
 #include "cvfAssert.h"
@@ -48,6 +49,9 @@ void RicExecuteScriptFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
     CVF_ASSERT(selection.size() > 0);
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    mainWindow->showProcessMonitorDockPanel();
 
     RimCalcScript* calcScript = selection[0];
 

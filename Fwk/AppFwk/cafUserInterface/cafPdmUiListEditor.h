@@ -39,10 +39,9 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
-class QGridLayout;
 class QStringListModel;
 class QItemSelection;
-class QListView;
+class QListViewHeightHint;
 class QLabel;
 class QModelIndex;
 
@@ -56,7 +55,7 @@ class PdmUiListEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     PdmUiListEditorAttribute()
-        : m_baseColor(Qt::white)
+        : m_heightHint(2000)
     {
         QPalette myPalette;
 
@@ -64,7 +63,8 @@ public:
     }
 
 public:
-    QColor m_baseColor;
+    QColor  m_baseColor;
+    int     m_heightHint;
 };
 
 
@@ -95,15 +95,12 @@ private:
     void                pasteFromString(const QString& content);
 
 private:
-    QPointer<QListView>         m_listView;
+    QPointer<QListViewHeightHint> m_listView;
     QPointer<QLabel>            m_label;
     QPointer<QStringListModel>  m_model;
 
-    QList<PdmOptionItemInfo> m_options;
-    bool                     m_optionsOnly;
-
-
-
+    bool                    m_isEditOperationsAvailable;
+    int                     m_optionItemCount;
 };
 
 

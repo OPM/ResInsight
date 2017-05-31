@@ -1,4 +1,0 @@
-{"name" : "PLYADSS" , "sections" : ["PROPS"] , "num_tables" : {"keyword" : "TABDIMS" , "item" : "NTSFUN"},
-"items" : [{"name" : "POLYMER_C" , "value_type" : "DOUBLE" , "dimension" : "PolymerDensity"},
-           {"name" : "POLYMER_ADS_C" , "value_type" : "DOUBLE" , "dimension" : "1"},
-           {"name" : "DATA" , "value_type" : "DOUBLE" , "size_type" : "ALL"}]}

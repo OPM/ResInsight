@@ -21,6 +21,25 @@
 #include "RicDeleteItemExec.h"
 #include "RicDeleteItemExecData.h"
 
+#include "RimCellRangeFilter.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipseView.h"
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
+#include "RimGeoMechPropertyFilter.h"
+#include "RimGeoMechView.h"
+#include "RimGridTimeHistoryCurve.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimIntersection.h"
+#include "RimIntersectionBox.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimViewController.h"
+#include "RimWellAllocationPlot.h"
+#include "RimWellFlowRateCurve.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -32,22 +51,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RimGeoMechView.h"
-#include "RimEclipseView.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimEclipseInputProperty.h"
-#include "RimCellRangeFilter.h"
-#include "RimEclipsePropertyFilter.h"
-#include "RimGeoMechPropertyFilter.h"
-#include "RimViewController.h"
-#include "RimWellLogCurve.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
-#include "RimIntersection.h"
-#include "RimIntersectionBox.h"
-#include "RimFormationNames.h"
-#include "RimFormationNamesCollection.h"
-#include "RimSummaryPlot.h"
 
 namespace caf
 {
@@ -55,6 +58,22 @@ namespace caf
 
 bool isDeletable(PdmUiItem * uiItem)
 {
+    // Enable delete of well allocation plots
+    if (dynamic_cast<RimWellAllocationPlot*>(uiItem)) return true;
+
+    // Disable delete of all sub objects of a well allocation plot
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
+    if (destinationObject)
+    {
+        RimWellAllocationPlot* wellAllocationPlot = nullptr;
+        destinationObject->firstAncestorOrThisOfType(wellAllocationPlot);
+
+        if (wellAllocationPlot)
+        {
+            return false;
+        }
+    }
+
     if (dynamic_cast<RimGeoMechView*>(uiItem))               return true;
     if (dynamic_cast<RimEclipseView*>(uiItem))               return true;
     if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem))    return true;
@@ -67,6 +86,7 @@ bool isDeletable(PdmUiItem * uiItem)
     if (dynamic_cast<RimWellLogCurve*>(uiItem))              return true;
     if (dynamic_cast<RimSummaryPlot*>(uiItem))               return true;
     if (dynamic_cast<RimSummaryCurve*>(uiItem))              return true;
+    if (dynamic_cast<RimGridTimeHistoryCurve*>(uiItem)) return true;
     if (dynamic_cast<RimSummaryCurveFilter*>(uiItem))        return true;
     if (dynamic_cast<RimIntersection*>(uiItem))              return true;
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;

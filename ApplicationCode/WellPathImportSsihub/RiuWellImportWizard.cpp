@@ -19,6 +19,9 @@
 #include "RiuWellImportWizard.h"
 
 #include "RifJsonEncodeDecode.h"
+
+#include "RimOilFieldEntry.h"
+#include "RimOilRegionEntry.h"
 #include "RimWellPathImport.h"
 
 #include "cafPdmDocument.h"
@@ -29,6 +32,7 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTreeView.h"
 #include "cafPdmUiTreeViewEditor.h"
+#include "cafUtils.h"
 
 #include <QObject>
 #include <QtGui>
@@ -96,7 +100,7 @@ QString RiuWellImportWizard::jsonWellsFilePath()
 void RiuWellImportWizard::downloadFields()
 {
     QString wellFileName = jsonWellsFilePath();
-    if (QFile::exists(wellFileName))
+    if (caf::Utils::fileExists(wellFileName))
     {
         QFile::remove(wellFileName);
     }
@@ -352,7 +356,7 @@ void RiuWellImportWizard::updateFieldsModel()
 {
     QString fileName = jsonFieldsFilePath();
 
-    if (QFile::exists(fileName))
+    if (caf::Utils::fileExists(fileName))
     {
         ResInsightInternalJson::JsonReader jsonReader;
         QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(fileName);
@@ -537,7 +541,7 @@ QStringList RiuWellImportWizard::absoluteFilePathsToWellPaths() const
 
     for (size_t i = 0; i < downloadEntities.size(); i++)
     {
-        if (QFile::exists(downloadEntities[i].responseFilename))
+        if (caf::Utils::fileExists(downloadEntities[i].responseFilename))
         {
             filePaths.push_back(downloadEntities[i].responseFilename);
         }
@@ -579,7 +583,7 @@ void RiuWellImportWizard::parseWellsResponse(RimOilFieldEntry* oilFieldEntry)
     QStringList surveyNames;
     QStringList planNames;
 
-    if (QFile::exists(oilFieldEntry->wellsFilePath))
+    if (caf::Utils::fileExists(oilFieldEntry->wellsFilePath))
     {
         ResInsightInternalJson::JsonReader jsonReader;
         QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(oilFieldEntry->wellsFilePath);
@@ -884,10 +888,10 @@ void WellSelectionPage::buildWellTreeView()
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
 
                         // Create a copy of the PdmObject, as it is not supported to have multiple parents of any objects
-                        QString objStr = xmlObj(wellPathEntry)->writeObjectToXmlString();
+                        QString objStr = wellPathEntry->writeObjectToXmlString();
 
                         RimWellPathEntry* wellPathCopy = new RimWellPathEntry;
-                        xmlObj(wellPathCopy)->readObjectFromXmlString(objStr, caf::PdmDefaultObjectFactory::instance());
+                        wellPathCopy->readObjectFromXmlString(objStr, caf::PdmDefaultObjectFactory::instance());
 
                         fieldGroup->objects.push_back(wellPathCopy);
                     }
@@ -1053,7 +1057,7 @@ void WellSummaryPage::updateSummaryPage()
 
     for (size_t i = 0; i < downloadEntities.size(); i++)
     {
-        if (QFile::exists(downloadEntities[i].responseFilename))
+        if (caf::Utils::fileExists(downloadEntities[i].responseFilename))
         {
             wellPathCount++;
         }

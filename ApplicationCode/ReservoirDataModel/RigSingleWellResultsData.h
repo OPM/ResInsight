@@ -39,9 +39,13 @@ struct RigWellResultPoint
         m_isOpen(false),
         m_ertBranchId(-1),
         m_ertSegmentId(-1),
-        m_bottomPosition(cvf::Vec3d::UNDEFINED)
+        m_bottomPosition(cvf::Vec3d::UNDEFINED),
+        m_flowRate(0.0),
+        m_oilRate(0.0),
+        m_gasRate(0.0),
+        m_waterRate(0.0)
     { }
-
+    
     bool isPointValid() const
     {
         return m_bottomPosition != cvf::Vec3d::UNDEFINED;
@@ -57,6 +61,64 @@ struct RigWellResultPoint
         return isCell() || isPointValid();
     }
 
+    double flowRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_flowRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
+    double oilRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_oilRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
+    double gasRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_gasRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
+    double waterRate() const
+    { 
+        if ( isCell() && m_isOpen) 
+        {
+            return m_waterRate; 
+        }
+        else
+        { 
+            return 0.0;
+        }
+    }
+
+    bool isEqual(const RigWellResultPoint& other ) const 
+    {
+        return ( m_gridIndex == other.m_gridIndex 
+                && m_gridCellIndex == other.m_gridCellIndex
+                && m_isOpen == other.m_isOpen
+                && m_ertBranchId == other.m_ertBranchId
+                && m_ertSegmentId == other.m_ertSegmentId
+                && m_flowRate == other.m_flowRate);
+    }
+
     size_t                            m_gridIndex;
     size_t                            m_gridCellIndex;     //< Index to cell which is included in the well
 
@@ -66,6 +128,10 @@ struct RigWellResultPoint
     int                               m_ertSegmentId;
 
     cvf::Vec3d                        m_bottomPosition;    //< The estimated bottom position of the well segment, when we have no grid cell connections for the segment.
+    double                            m_flowRate; //< Total reservoir rate
+    double                            m_oilRate;  //< Surface oil rate
+    double                            m_gasRate;  //< Surface gas rate For Field-unit, converted to [stb/day] to allign with oil and water.
+    double                            m_waterRate; //< Surface water rate
 };
 
 //==================================================================================================
@@ -117,24 +183,29 @@ class RigSingleWellResultsData : public cvf::Object
 public:
     RigSingleWellResultsData() { m_isMultiSegmentWell = false; }
 
-    void                              setMultiSegmentWell(bool isMultiSegmentWell);
-    bool                              isMultiSegmentWell() const;
+    void                                   setMultiSegmentWell(bool isMultiSegmentWell);
+    bool                                   isMultiSegmentWell() const;
 
-    bool                              hasWellResult(size_t resultTimeStepIndex) const;
-    size_t                            firstResultTimeStep() const;
+    bool                                   hasWellResult(size_t resultTimeStepIndex) const;
+    const RigWellResultFrame&              wellResultFrame(size_t resultTimeStepIndex) const;
+    bool                                   isOpen(size_t resultTimeStepIndex) const;
+    RigWellResultFrame::WellProductionType wellProductionType(size_t resultTimeStepIndex) const;
 
-    const RigWellResultFrame&         wellResultFrame(size_t resultTimeStepIndex) const;
+    const RigWellResultFrame&              staticWellCells() const;
+    
+    void                                   computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
+                                      
+public:  // Todo: Clean up this regarding public members and constness etc.                     
+    QString                                m_wellName;
+                                           
+    std::vector<size_t>                    m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
+    std::vector< RigWellResultFrame >      m_wellCellsTimeSteps;
+    mutable RigWellResultFrame             m_staticWellCells;
 
-    void                              computeStaticWellCellPath();
-                                      
-    void                              computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
-                                      
-public:                               
-    QString                           m_wellName;
-    bool                              m_isMultiSegmentWell;
-                                      
-    std::vector<size_t>               m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
-    std::vector< RigWellResultFrame > m_wellCellsTimeSteps;
-    RigWellResultFrame                m_staticWellCells;
+private:
+    void                                   computeStaticWellCellPath() const;
+
+private:
+    bool                                   m_isMultiSegmentWell;
 };
 

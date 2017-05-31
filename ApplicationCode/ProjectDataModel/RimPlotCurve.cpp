@@ -79,16 +79,18 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitField(&m_curveColor, "Color", cvf::Color3f(cvf::Color3::BLACK), "Color", "", "", "");
 
-    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Thickness", "", "", "");
+    CAF_PDM_InitField(&m_curveThickness, "Thickness", 1, "Line Thickness", "", "", "");
     m_curveThickness.uiCapability()->setUiEditorTypeName(caf::PdmUiComboBoxEditor::uiEditorTypeName());
 
     caf::AppEnum< RimPlotCurve::LineStyleEnum > lineStyle = STYLE_SOLID;
-    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line style", "", "", "");
+    CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line Style", "", "", "");
 
     caf::AppEnum< RimPlotCurve::PointSymbolEnum > pointSymbol = SYMBOL_NONE;
-    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Point style", "", "", "");
+    CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Symbol", "", "", "");
 
     CAF_PDM_InitField(&m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "");
+
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
     m_qwtPlotCurve = new RiuLineSegmentQwtPlotCurve;
 
@@ -137,8 +139,11 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
             m_customCurveName = createCurveAutoName();
         }
 
-        updateOptionSensitivity();
         updateCurveName();
+    }
+    else if (changedField == &m_showLegend)
+    {
+        updateLegendVisibility();
     }
 
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
@@ -244,15 +249,6 @@ bool RimPlotCurve::isCurveVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::initAfterRead()
-{
-    updateOptionSensitivity();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveName()
 {
     if (m_isUsingAutoName)
@@ -265,6 +261,7 @@ void RimPlotCurve::updateCurveName()
     }
 
     m_qwtPlotCurve->setTitle(m_curveName);
+    updateLegendVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,6 +270,28 @@ void RimPlotCurve::updateCurveName()
 void RimPlotCurve::updateOptionSensitivity()
 {
     m_curveName.uiCapability()->setUiReadOnly(m_isUsingAutoName);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_curveColor);
+    uiOrdering.add(&m_pointSymbol);
+    uiOrdering.add(&m_symbolSkipPixelDistance);
+    uiOrdering.add(&m_curveThickness);
+    uiOrdering.add(&m_lineStyle);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::curveNameUiOrdering(caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_isUsingAutoName);
+    uiOrdering.add(&m_curveName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,3 +427,37 @@ void RimPlotCurve::setLineThickness(int thickness)
     m_curveThickness = thickness;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::showLegend(bool show)
+{
+    m_showLegend = show;
+    updateLegendVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendVisibility()
+{
+    if (m_showLegend()) {
+        if (m_curveName().isEmpty())
+        {
+            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+        }
+        else
+        {
+            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
+        }
+    }
+    else
+    {
+        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+    }
+
+    if (m_parentQwtPlot != nullptr)
+    {
+        m_parentQwtPlot->updateLegend();
+    }
+}

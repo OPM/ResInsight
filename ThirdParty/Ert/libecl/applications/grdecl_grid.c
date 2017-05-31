@@ -28,10 +28,10 @@
 
 int main(int argc , char ** argv) {
   FILE * stream = util_fopen( argv[1] , "r");
-  ecl_kw_type * gridhead_kw = ecl_kw_fscanf_alloc_grdecl_dynamic__( stream , SPECGRID_KW , false , ECL_INT_TYPE );
-  ecl_kw_type * zcorn_kw    = ecl_kw_fscanf_alloc_grdecl_dynamic( stream , ZCORN_KW  , ECL_FLOAT_TYPE );
-  ecl_kw_type * coord_kw    = ecl_kw_fscanf_alloc_grdecl_dynamic( stream , COORD_KW  , ECL_FLOAT_TYPE );
-  ecl_kw_type * actnum_kw   = ecl_kw_fscanf_alloc_grdecl_dynamic( stream , ACTNUM_KW , ECL_INT_TYPE );
+  ecl_kw_type * gridhead_kw = ecl_kw_fscanf_alloc_grdecl_dynamic__( stream , SPECGRID_KW , false , ECL_INT );
+  ecl_kw_type * zcorn_kw    = ecl_kw_fscanf_alloc_grdecl_dynamic( stream , ZCORN_KW  , ECL_FLOAT );
+  ecl_kw_type * coord_kw    = ecl_kw_fscanf_alloc_grdecl_dynamic( stream , COORD_KW  , ECL_FLOAT );
+  ecl_kw_type * actnum_kw   = ecl_kw_fscanf_alloc_grdecl_dynamic( stream , ACTNUM_KW , ECL_INT );
   
   {
     int nx = ecl_kw_iget_int( gridhead_kw , SPECGRID_NX_INDEX );

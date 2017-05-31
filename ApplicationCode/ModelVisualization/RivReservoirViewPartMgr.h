@@ -46,13 +46,13 @@ namespace cvf
 class RivReservoirViewPartMgr: public cvf::Object
 {
 public:
-    RivReservoirViewPartMgr(RimEclipseView * resv);
+    explicit RivReservoirViewPartMgr(RimEclipseView * resv);
 
     cvf::Transform*             scaleTransform() { return m_scaleTransform.p();}
 
     void                        clearGeometryCache();
     void                        scheduleGeometryRegen(RivCellSetEnum geometryType);
-    cvf::cref<cvf::UByteArray>  cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t frameIndex) const;
+    const cvf::UByteArray*      cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t frameIndex) const;
    
     void                        appendStaticGeometryPartsToModel (cvf::ModelBasicList* model, RivCellSetEnum geometryType, const std::vector<size_t>& gridIndices);
     void                        appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex, const std::vector<size_t>& gridIndices);

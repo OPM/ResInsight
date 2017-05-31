@@ -27,6 +27,7 @@ extern "C" {
 #include <ert/util/stringlist.h>
 #include <ert/util/time_t_vector.h>
 #include <ert/util/parser.h>
+#include <ert/ecl/ecl_type.h>
 
 
 typedef enum { ECL_OTHER_FILE           = 0   ,
@@ -56,52 +57,22 @@ typedef enum { ECL_OTHER_FILE           = 0   ,
                  ECL_FORMATTED_NON_UNIFIED = 8} ecl_storage_enum;
 
 /*
-  Character data in ECLIPSE files comes as an array of fixed-length
-  string. Each of these strings is 8 characters long. The type name,
-  i.e. 'REAL', 'INTE', ... , come as 4 character strings.
-*/
-
-#define ECL_STRING_LENGTH 8
-#define ECL_TYPE_LENGTH   4
-#define ECL_KW_HEADER_DATA_SIZE   ECL_STRING_LENGTH + ECL_TYPE_LENGTH + 4
-#define ECL_KW_HEADER_FORTIO_SIZE ECL_KW_HEADER_DATA_SIZE + 8
-
-/*****************************************************************/
-/*
-   Observe that these type identidiers are (ab)used in both the rms and
-   ert/enkf libraries in situations where ECLIPSE is not at all involved.
-*/
-
-typedef enum {
-  ECL_CHAR_TYPE   = 0,
-  ECL_FLOAT_TYPE  = 1,
-  ECL_DOUBLE_TYPE = 2,
-  ECL_INT_TYPE    = 3,
-  ECL_BOOL_TYPE   = 4,
-  ECL_MESS_TYPE   = 5
-} ecl_type_enum;
-
-#define ECL_TYPE_ENUM_DEFS {.value = 0 , .name = "ECL_CHAR_TYPE"}, \
-{.value = 1 , .name = "ECL_FLOAT_TYPE"} ,                          \
-{.value = 2 , .name = "ECL_DOUBLE_TYPE"},                          \
-{.value = 3 , .name = "ECL_INT_TYPE"},                             \
-{.value = 4 , .name = "ECL_BOOL_TYPE"},                            \
-{.value = 5 , .name = "ECL_MESS_TYPE"}
-
-#define ECL_TYPE_ENUM_SIZE 6
-
-
-
-/*
   The libecl library has been built and tested 99.5% with ECLIPSE100
   as context, but in thye gravity code there is some very limited
   functionality related to ECLIPSE100 versus ECLIPSE300 functionality.
+
+  Observe that numerical values found as part of the INTEHAD keyword
+  differ from these values, and are found in the ecl_kw_magic.h
+  header.
 */
 
 typedef enum {
-  ECLIPSE_UNDEFINED = 0,
-  ECLIPSE100        = 1,
-  ECLIPSE300        = 2
+  ECLIPSE_UNDEFINED  = 0,
+  ECLIPSE100         = 1,
+  ECLIPSE300         = 2,
+  ECLIPSE300_THERMAL = 3,
+  INTERSECT          = 4,
+  FRONTSIM           = 5
 } ecl_version_enum;
 
 /*
@@ -127,13 +98,11 @@ typedef enum {
 
 
 typedef enum {
-  ERT_ECL_METRIC_UNITS = 0,
-  ERT_ECL_FIELD_UNITS  = 1,
-  ERT_ECL_LAB_UNITS    = 2
+  ECL_METRIC_UNITS = 1,
+  ECL_FIELD_UNITS  = 2,
+  ECL_LAB_UNITS    = 3,
+  ECL_PVT_M_UNITS  = 4
 } ert_ecl_unit_enum;
-
-#define ECL_UNIT_ENUM_DEFS {.value = 0 , .name = "ECL_METRIC_UNITS"}, {.value = 1 , .name = "ECL_FIELD_UNITS"} , {.value = 2 , .name = "ECL_LAB_UNITS"}
-#define ECL_UNIT_ENUM_SIZE 3
 
 
 // For unformatted files:
@@ -143,10 +112,6 @@ typedef enum {
 #define ECL_COMMENT_CHAR         '-'   // Need to consecutive to make an ECLIPSE comment
 #define ECL_DATA_TERMINATION      "/"
 
-int              ecl_util_get_sizeof_ctype_fortio(ecl_type_enum ecl_type);
-int              ecl_util_get_sizeof_ctype(ecl_type_enum );
-ecl_type_enum    ecl_util_get_type_from_name( const char * type_name );
-const char     * ecl_util_get_type_name( ecl_type_enum ecl_type );
 
 /*****************************************************************/
 bool            ecl_util_unified_file(const char *filename);
@@ -157,7 +122,7 @@ ecl_file_enum   ecl_util_get_file_type(const char * , bool * , int * );
 ecl_file_enum   ecl_util_inspect_extension(const char * ext , bool *_fmt_file, int * _report_nr);
 char          * ecl_util_alloc_filename(const char * /* path */, const char * /* base */, ecl_file_enum , bool /* fmt_file */ , int /*report_nr*/);
 char          * ecl_util_alloc_exfilename(const char * /* path */, const char * /* base */, ecl_file_enum , bool /* fmt_file */ , int /*report_nr*/);
-void            ecl_util_memcpy_typed_data(void *, const void * , ecl_type_enum , ecl_type_enum , int );
+void            ecl_util_memcpy_typed_data(void *, const void * , ecl_data_type , ecl_data_type , int );
 void            ecl_util_escape_kw(char * kw);
 bool            ecl_util_alloc_summary_files(const char * , const char * , const char * , char ** , stringlist_type * );
 void            ecl_util_alloc_summary_data_files(const char * path , const char * base , bool fmt_file , stringlist_type * filelist);

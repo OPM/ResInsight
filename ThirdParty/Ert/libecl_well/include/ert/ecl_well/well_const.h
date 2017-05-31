@@ -73,6 +73,12 @@ extern "C" {
 #define ISEG_OUTLET_INDEX        1
 #define ISEG_BRANCH_INDEX        3
 
+#define XWEL_RES_WRAT_ITEM        1
+#define XWEL_RES_GRAT_ITEM        2
+#define XWEL_RES_ORAT_ITEM        3
+#define XWEL_RESV_ITEM        4
+
+
 #define ICON_IC_INDEX         0
 #define ICON_I_INDEX          1
 #define ICON_J_INDEX          2
@@ -98,6 +104,10 @@ extern "C" {
 #define ICON_DEFAULT_DIR_TARGET   ICON_DIRZ
 
 #define SCON_CF_INDEX              0
+
+#define XCON_ORAT_INDEX            0
+#define XCON_WRAT_INDEX            1
+#define XCON_GRAT_INDEX            2
 #define XCON_QR_INDEX             49
 
 #define RSEG_LENGTH_INDEX       0
@@ -121,11 +131,20 @@ extern "C" {
 #define IWEL_GAS_INJECTOR      4
 
   typedef enum {
-    ERT_UNDOCUMENTED_ZERO = 0,
-    ERT_PRODUCER          = 10,
-    ERT_WATER_INJECTOR    = 22,
-    ERT_GAS_INJECTOR      = 21,
-    ERT_OIL_INJECTOR      = 78
+    ERT_UNDOCUMENTED_ZERO   = 0,   // Deprecated - retained for Resinsight compatibility
+    ECL_WELL_ZERO           = 0,
+
+    ERT_PRODUCER            = 1,   // Deprecated
+    ECL_WELL_PRODUCER       = 1,
+
+    ERT_OIL_INJECTOR        = 2,   // Deprecated
+    ECL_WELL_OIL_INJECTOR   = 2,
+
+    ERT_WATER_INJECTOR      = 3,   // Deprecated
+    ECL_WELL_WATER_INJECTOR = 3,
+
+    ERT_GAS_INJECTOR        = 4,   // Deprecated
+    ECL_WELL_GAS_INJECTOR   = 4,
   } well_type_enum;
 
 #ifdef __cplusplus

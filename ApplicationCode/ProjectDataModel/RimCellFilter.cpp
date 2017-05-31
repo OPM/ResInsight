@@ -18,8 +18,6 @@
 
 #include "RimCellFilter.h"
 
-#include "cafAppEnum.h"
-
 #include <QPainter>
 
 namespace caf
@@ -47,9 +45,6 @@ RimCellFilter::RimCellFilter()
     CAF_PDM_InitField(&isActive,  "Active",           true,                   "Active",   "", "", "");
     isActive.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedCategoryValues, "SelectedValues", "Values", "", "", "");
-    m_selectedCategoryValues.uiCapability()->setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&filterMode, "FilterType", "Filter Type", "", "", "");
 }
 
@@ -66,14 +61,6 @@ RimCellFilter::~RimCellFilter()
 caf::PdmFieldHandle* RimCellFilter::userDescriptionField()
 {
     return &name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<int> RimCellFilter::selectedCategoryValues() const
-{
-    return m_selectedCategoryValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,67 +111,3 @@ caf::PdmFieldHandle* RimCellFilter::objectToggleField()
     return &isActive;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
-{
-    QList<caf::PdmOptionItemInfo> optionList;
-
-    if (&m_selectedCategoryValues == fieldNeedingOptions)
-    {
-        if (useOptionsOnly) *useOptionsOnly = true;
-
-        if (m_categoryValues.size() == m_categoryNames.size())
-        {
-            for (size_t i = 0; i < m_categoryValues.size(); i++)
-            {
-                int categoryValue = m_categoryValues[i];
-                QString categoryName = m_categoryNames[i];
-
-                optionList.push_back(caf::PdmOptionItemInfo(categoryName, categoryValue));
-            }
-        }
-        else
-        {
-            for (auto it : m_categoryValues)
-            {
-                QString str = QString::number(it);
-                optionList.push_back(caf::PdmOptionItemInfo(str, it));
-            }
-        }
-    }
-
-    return optionList;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellFilter::setCategoryValues(const std::vector<int>& categoryValues)
-{
-    m_categoryValues = categoryValues;
-    m_categoryNames.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellFilter::setCategoryNames(const std::vector<QString>& categoryNames)
-{
-    m_categoryNames = categoryNames;
-
-    for (size_t i = 0; i < m_categoryNames.size(); i++)
-    {
-        m_categoryValues.push_back(static_cast<int>(i));
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellFilter::clearCategories()
-{
-    m_categoryValues.clear();
-    m_categoryNames.clear();
-}

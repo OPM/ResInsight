@@ -21,6 +21,10 @@
 
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimWellPath.h"
+
+#include "RivSimWellPipeSourceInfo.h"
+#include "RivWellPathSourceInfo.h"
 
 #include "RiuSelectionChangedHandler.h"
 
@@ -30,6 +34,7 @@
 RiuSelectionManager::RiuSelectionManager()
     : m_notificationCenter(new RiuSelectionChangedHandler)
 {
+    m_selection.resize(2);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -37,6 +42,9 @@ RiuSelectionManager::RiuSelectionManager()
 //--------------------------------------------------------------------------------------------------
 RiuSelectionManager::~RiuSelectionManager()
 {
+    deleteAllItemsFromSelection(RUI_APPLICATION_GLOBAL);
+    deleteAllItemsFromSelection(RUI_TEMPORARY);
+
     delete m_notificationCenter;
 }
 
@@ -52,64 +60,93 @@ RiuSelectionManager* RiuSelectionManager::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items) const
+void RiuSelectionManager::selectedItems(std::vector<RiuSelectionItem*>& items, int role) const
 {
-    items = m_selection;
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    items = s;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item)
+RiuSelectionItem* RiuSelectionManager::selectedItem(int role /*= RUI_APPLICATION_GLOBAL*/) const
 {
-    m_selection.push_back(item);
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
 
-    m_notificationCenter->handleItemAppended(item);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::setSelectedItem(RiuSelectionItem* item)
-{
-    deleteAllItemsFromSelection();
-
-    m_selection.push_back(item);
-
-    m_notificationCenter->handleSetSelectedItem(item);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::deleteAllItems()
-{
-    if (m_selection.size() == 0) return;
-
-    deleteAllItemsFromSelection();
-
-    m_notificationCenter->handleSelectionDeleted();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiuSelectionManager::isEmpty() const
-{
-    return m_selection.size() == 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuSelectionManager::deleteAllItemsFromSelection()
-{
-    for (size_t i = 0; i < m_selection.size(); i++)
+    if (s.size() == 1)
     {
-        delete m_selection[i];
+        if (s[0])
+        {
+            return s[0];
+        }
     }
 
-    m_selection.clear();
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionManager::appendItemToSelection(RiuSelectionItem* item, int role)
+{
+    std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    s.push_back(item);
+
+    if (role == RUI_APPLICATION_GLOBAL) m_notificationCenter->handleItemAppended(item);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionManager::setSelectedItem(RiuSelectionItem* item, int role)
+{
+    deleteAllItemsFromSelection(role);
+
+    std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    s.push_back(item);
+
+    if (role == RUI_APPLICATION_GLOBAL) m_notificationCenter->handleSetSelectedItem(item);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionManager::deleteAllItems(int role)
+{
+    if (!isEmpty(role))
+    {
+        deleteAllItemsFromSelection(role);
+
+        if (role == RUI_APPLICATION_GLOBAL) m_notificationCenter->handleSelectionDeleted();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiuSelectionManager::isEmpty(int role) const
+{
+    const std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    return s.size() == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionManager::deleteAllItemsFromSelection(int role)
+{
+    std::vector<RiuSelectionItem*>& s = m_selection[role];
+
+    for (RiuSelectionItem* item : s)
+    {
+        delete item;
+    }
+
+    s.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,7 +199,31 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem(RimGeoMechView* view,
     m_elementFace(elementFace),
     m_localIntersectionPoint(localIntersectionPoint), 
     m_hasIntersectionTriangle(true),
-    m_intersectionTriangle(m_intersectionTriangle)
+    m_intersectionTriangle(intersectionTriangle)
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* wellPathSourceInfo,
+                                                   const cvf::Vec3d& pipeCenterLineIntersectionInDomainCoords,
+                                                   double measuredDepth)
+    : m_pipeCenterlineIntersectionInDomainCoords(pipeCenterLineIntersectionInDomainCoords),
+    m_measuredDepth(measuredDepth)
+{
+    m_wellpath = wellPathSourceInfo->wellPath();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimEclipseWell* simwell, 
+                                                  cvf::Vec3d m_domainCoord,
+                                                  size_t m_branchIndex)
+    : m_simWell(simwell),
+    m_domainCoord(m_domainCoord),
+    m_branchIndex(m_branchIndex)
+{
 }

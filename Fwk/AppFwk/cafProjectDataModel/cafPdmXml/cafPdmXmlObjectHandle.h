@@ -30,18 +30,18 @@ public:
     virtual ~PdmXmlObjectHandle() { }
 
     /// The classKeyword method is overridden in subclasses by the CAF_PDM_XML_HEADER_INIT macro
-    virtual QString         classKeyword() = 0;
+    virtual QString         classKeyword() const = 0;
 
     /// Convenience methods to serialize/de-serialize this particular object (with children)
     void                    readObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
-    QString                 writeObjectToXmlString();
+    QString                 writeObjectToXmlString() const;
     static PdmObjectHandle* readUnknownObjectFromXmlString(const QString& xmlString, PdmObjectFactory* objectFactory);
     PdmObjectHandle*        copyByXmlSerialization(PdmObjectFactory* objectFactory);
 
     // Main XML serialization methods that is used internally by the document serialization system
     // Not supposed to be used directly. 
     void                    readFields(QXmlStreamReader& inputStream, PdmObjectFactory* objectFactory);
-    void                    writeFields(QXmlStreamWriter& outputStream);
+    void                    writeFields(QXmlStreamWriter& outputStream) const;
 
     /// Check if a string is a valid Xml element name
     static bool             isValidXmlElementName(const QString& name);

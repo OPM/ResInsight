@@ -17,7 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimSummaryCurveAppearanceCalculator.h"
+
+#include "RiaColorTables.h"
+
 #include "RimSummaryCurve.h"
+#include "RimSummaryCase.h"
+
 #include "cvfVector3.h"
 
 #include <cmath>
@@ -40,11 +45,14 @@ void caf::AppEnum< RimSummaryCurveAppearanceCalculator::CurveAppearanceType >::s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions, const std::set<std::string> allSummaryCaseNames, const std::set<std::string> allSummaryWellNames)
 {
+    m_allSummaryCaseNames = allSummaryCaseNames;
+    m_allSummaryWellNames = allSummaryWellNames;
+
     for(const std::pair<RimSummaryCase*, RifEclipseSummaryAddress>& curveDef : curveDefinitions)
     {
-        if(curveDef.first)                           m_caseToAppearanceIdxMap[curveDef.first]                  = -1;
+        if(curveDef.first)                           m_caseToAppearanceIdxMap[curveDef.first]                 = -1;
         if(!curveDef.second.wellName().empty())      m_welToAppearanceIdxMap[curveDef.second.wellName()]      = -1;
         if(!curveDef.second.wellGroupName().empty()) m_grpToAppearanceIdxMap[curveDef.second.wellGroupName()] = -1;
         if(!(curveDef.second.regionNumber() == -1))  m_regToAppearanceIdxMap[curveDef.second.regionNumber()]  = -1;
@@ -91,6 +99,7 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
     unusedAppearTypes.insert(LINE_STYLE);
     unusedAppearTypes.insert(SYMBOL);
     unusedAppearTypes.insert(LINE_THICKNESS);
+    m_currentCurveGradient = 0.0f;
 
     m_dimensionCount = 0;
     if(m_variableCount > 1) { m_varAppearanceType    = *(unusedAppearTypes.begin()); unusedAppearTypes.erase(unusedAppearTypes.begin()); m_dimensionCount++; }
@@ -101,16 +110,8 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const s
 
     if (m_dimensionCount == 0) m_varAppearanceType = COLOR; // basically one curve
     
-    // Assign increasing indexes             
-    { int idx = 0; for(auto& pair : m_caseToAppearanceIdxMap) pair.second = idx++; }
-    { int idx = 0; for(auto& pair : m_varToAppearanceIdxMap) pair.second = idx++; }
-    { int idx = 0; for(auto& pair : m_welToAppearanceIdxMap) pair.second = idx++; }
-    { int idx = 0; for(auto& pair : m_grpToAppearanceIdxMap) pair.second = idx++; }
-    { int idx = 0; for(auto& pair : m_regToAppearanceIdxMap) pair.second = idx++; }
 
-    for (auto& charMapPair : m_secondCharToVarToAppearanceIdxMap)
-      { int idx = 0; for(auto& pair : charMapPair.second) pair.second = idx++; }
-
+    updateApperanceIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,6 +136,126 @@ void RimSummaryCurveAppearanceCalculator::assignDimensions(  CurveAppearanceType
     if(m_wellAppearanceType   != NONE) ++m_dimensionCount;
     if(m_groupAppearanceType  != NONE) ++m_dimensionCount;
     if(m_regionAppearanceType != NONE) ++m_dimensionCount;
+
+    updateApperanceIndices();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
+{
+    {
+        std::map<std::string, size_t> caseAppearanceIndices = mapNameToAppearanceIndex(m_caseAppearanceType, m_allSummaryCaseNames);
+        int idx = 0;
+        for (auto& pair : m_caseToAppearanceIdxMap)
+        {
+            pair.second = static_cast<int>(caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()]);
+        }
+    }
+    {
+        std::map<std::string, size_t> wellAppearanceIndices = mapNameToAppearanceIndex(m_wellAppearanceType, m_allSummaryWellNames);
+        int idx = 0;
+        for (auto& pair : m_welToAppearanceIdxMap)
+        {
+            pair.second = static_cast<int>(wellAppearanceIndices[pair.first]);
+        }
+    }
+    // Assign increasing indexes             
+    { int idx = 0; for(auto& pair : m_varToAppearanceIdxMap) pair.second = idx++; }
+    { int idx = 0; for(auto& pair : m_grpToAppearanceIdxMap) pair.second = idx++; }
+    { int idx = 0; for(auto& pair : m_regToAppearanceIdxMap) pair.second = idx++; }
+
+    for (auto& charMapPair : m_secondCharToVarToAppearanceIdxMap)
+    {
+        int idx = 0;
+        for (auto& pair : charMapPair.second) pair.second = idx++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppearanceIndex(CurveAppearanceType& appearance, const std::set<std::string>& names)
+{
+    std::map<std::string, size_t> nameToIndex;
+    size_t numOptions;
+    if (appearance == CurveAppearanceType::COLOR)
+    {
+        numOptions = RiaColorTables::summaryCurveDefaultPaletteColors().size();
+    }
+    else if (appearance == CurveAppearanceType::SYMBOL)
+    {
+        numOptions = caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size();
+    }
+    else if (appearance == CurveAppearanceType::LINE_STYLE)
+    {
+        numOptions = caf::AppEnum<RimPlotCurve::LineStyleEnum>::size();
+    }
+    else {
+        // If none of these styles are used, fall back to a simply incrementing index
+        size_t idx = 0;
+        for (const std::string& name : names)
+        {
+            nameToIndex[name] = idx;
+            ++idx;
+        }
+        return nameToIndex;
+    }
+
+    std::hash<std::string> stringHasher;
+    std::vector< std::set<std::string> > nameIndices;
+    for (const std::string& name : names)
+    {
+        size_t nameHash = stringHasher(name);
+        nameHash = nameHash % numOptions;
+
+        size_t index = nameHash;
+        while (true)
+        {
+            while (nameIndices.size() <= index)
+            {
+                // Ensure there exists a set at the insertion index
+                nameIndices.push_back(std::set<std::string>());
+            }
+
+            std::set<std::string>& matches = nameIndices[index];
+            if (matches.empty())
+            {
+                // If there are no matches here, the summary case has not been added.
+                matches.insert(name);
+                break;
+            }
+            else if (matches.find(name) != matches.end())
+            {
+                // Check to see if the summary case exists at this index.
+                break;
+            }
+            else
+            {
+                // Simply increment index to check if the next bucket is available.
+                index = (index + 1) % numOptions;
+                if (index == nameHash)
+                {
+                    // If we've reached `caseHash` again, no other slot was available, so add it here.
+                    matches.insert(name);
+                    break;
+                }
+            }
+        }
+    }
+
+    size_t index = 0;
+    for (std::set<std::string>& nameIndex : nameIndices)
+    {
+        for (const std::string& name : nameIndex)
+        {
+            nameToIndex[name] = index;
+        }
+        index++;
+    }
+
+    return nameToIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,31 +374,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledPaletteColor(int colorIn
 {
     if (colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 15;
-    static const cvf::ubyte colorData[][3] =
-    {
-      {  0,  112, 136 }, // Dark Green-Blue
-      { 202,   0,   0 }, // Red
-      { 78,  204,   0 }, // Clear Green
-      { 236, 118,   0 }, // Orange
-      {  0 ,   0,   0 }, // Black
-      { 56,   56, 255 }, // Vivid Blue
-      { 248,   0, 170 }, // Magenta
-      { 169,   2, 240 }, // Purple
-      { 0,   221, 221 }, // Turquoise
-      { 201, 168, 206 }, // Light Violet
-      { 0,   205,  68 }, // Bluish Green
-      { 236, 188,   0 }, // Mid Yellow
-      { 51,  204, 255 },  // Bluer Turquoise
-      { 164, 193,   0 }, // Mid Yellowish Green
-      { 0,   143, 239 }, // Dark Light Blue
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(colorIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,23 +384,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(int color
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 7;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 236, 118,   0 }, // Orange
-        {  0 ,   0,   0 }, // Black
-        { 248,   0, 170 }, // Magenta
-        { 236, 188,   0 }, // Mid Yellow
-        { 169,   2, 240 }, // Purple
-        { 0,   221, 221 }, // Turquoise
-        { 201, 168, 206 }, // Light Violet
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveNoneRedGreenBlueBrownPaletteColors().cycledColor3f(colorIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,19 +394,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledGreenColor(int colorInde
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 78,  204,   0 }, // Clear Green 
-        { 164, 193,   0 }, // Mid Yellowish Green
-        { 0,   205,  68 }  // Bluish Green
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f(colorIndex);
 }
 
 
@@ -336,19 +405,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBlueColor(int colorIndex
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 56,   56, 255 },  // Vivid Blue
-        { 0,   143, 239 }, // Dark Light Blue
-        { 153, 153, 255 }, // Off Light Blue
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f(colorIndex);
 }
 
 
@@ -359,19 +416,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledRedColor(int colorIndex)
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        { 202,   0,   0 }, // Off Red
-        { 255,  51,  51},  // Bright Red
-        { 255, 102, 102 }  // Light Red
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f(colorIndex);
 }
 
 
@@ -382,19 +427,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::cycledBrownColor(int colorInde
 {
     if(colorIndex < 0) return cvf::Color3f::BLACK;
 
-    static const int colorCount = 3;
-    static const cvf::ubyte colorData[][3] =
-    {
-        {186, 101, 44},
-        { 99, 53, 23 }, // Highway Brown
-        { 103, 56, 24}  // Dark Brown
-    };
-
-    int paletteIdx = colorIndex % colorCount;
-
-    cvf::Color3ub ubColor(colorData[paletteIdx][0], colorData[paletteIdx][1], colorData[paletteIdx][2]);
-    cvf::Color3f cvfColor(ubColor);
-    return cvfColor;
+    return RiaColorTables::summaryCurveBrownPaletteColors().cycledColor3f(colorIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,7 +459,7 @@ int RimSummaryCurveAppearanceCalculator::cycledLineThickness(int index)
     static const int thicknesses[] ={ 1, 3, 5 };
 
     if (index < 0) return 1;
-    return (thicknesses[(index) % 3]);
+    return (thicknesses[(index) % thicknessCount]);
 }
 
 //--------------------------------------------------------------------------------------------------

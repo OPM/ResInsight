@@ -23,7 +23,8 @@
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigGridBase.h"
 
 #include "RimCalcScript.h"
 #include "RimCase.h"
@@ -32,12 +33,14 @@
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimMultiSnapshotDefinition.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCaseCollection.h"
@@ -57,6 +60,8 @@
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiTreeOrdering.h"
+
+#include "cvfBoundingBox.h"
 
 #include <QDir>
 #include <QMenu>
@@ -97,6 +102,8 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&multiSnapshotDefinitions, "MultiSnapshotDefinitions", "MultiSnapshotDefinitions", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&mainWindowTreeViewState, "TreeViewState", "",  "", "", "");
     mainWindowTreeViewState.uiCapability()->setUiHidden(true);
@@ -155,14 +162,9 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    if (mainPlotCollection() && mainPlotCollection()->wellLogPlotCollection()) 
+    if (mainPlotCollection()) 
     {
-         mainPlotCollection()->wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
-    }
-
-    if (mainPlotCollection() && mainPlotCollection()->summaryPlotCollection())
-    {
-        mainPlotCollection()->summaryPlotCollection()->m_summaryPlots.deleteAllChildObjects();
+        mainPlotCollection()->deleteAllContainedObjects();
     }
 
     oilFields.deleteAllChildObjects();
@@ -174,6 +176,8 @@ void RimProject::close()
     wellPathImport->regions().deleteAllChildObjects();
 
     commandObjects.deleteAllChildObjects();
+
+    multiSnapshotDefinitions.deleteAllChildObjects();
 
     delete viewLinkerCollection->viewLinker();
     viewLinkerCollection->viewLinker = NULL;
@@ -413,19 +417,19 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
     }
 
     // Update path to well path file cache
-    for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
-    {
-        RimOilField* oilField = oilFields[oilFieldIdx];
-        if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
-        oilField->wellPathCollection->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
-    }
-
     for(RimOilField* oilField: oilFields)
     {
-        if(oilField == NULL) continue;
-        if(oilField->formationNamesCollection() != NULL)
+        if (oilField == NULL) continue;
+        if (oilField->wellPathCollection() != NULL)
+        {
+            oilField->wellPathCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+        if (oilField->formationNamesCollection() != NULL)
         {
             oilField->formationNamesCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+        if (oilField->summaryCaseCollection() != NULL) {
+            oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
     }
 
@@ -636,11 +640,11 @@ void RimProject::computeUtmAreaOfInterest()
     {
         RimEclipseCase* rimCase = dynamic_cast<RimEclipseCase*>(cases[i]);
 
-        if (rimCase && rimCase->reservoirData())
+        if (rimCase && rimCase->eclipseCaseData())
         {
-            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++ )
+            for (size_t gridIdx = 0; gridIdx < rimCase->eclipseCaseData()->gridCount(); gridIdx++ )
             {
-                RigGridBase* rigGrid = rimCase->reservoirData()->grid(gridIdx);
+                RigGridBase* rigGrid = rimCase->eclipseCaseData()->grid(gridIdx);
 
                 projectBB.add(rigGrid->boundingBox());
             }
@@ -802,15 +806,17 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             {
                 uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
             }
+            
             if (mainPlotCollection->summaryPlotCollection())
             {
                 uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
             }
+
+            if (mainPlotCollection->flowPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->flowPlotCollection());
+            }
         }
-
-        uiTreeOrdering.setForgetRemainingFields(true);
-
-        return;
     }
     else
     {
@@ -830,8 +836,8 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         }
 
         uiTreeOrdering.add(scriptCollection());
-
-        uiTreeOrdering.setForgetRemainingFields(true);
     }
+        
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 

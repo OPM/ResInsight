@@ -20,7 +20,7 @@
 #include "RivTextureCoordsCreator.h"
 
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "RigEclipseCaseData.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RigResultAccessorFactory.h"
 
@@ -32,21 +32,23 @@
 
 #include "RivResultToTextureMapper.h"
 
+#include "cvfStructGridGeometryGenerator.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResultColors, size_t timeStepIndex, size_t gridIndex, const cvf::StructGridQuadToCellFaceMapper* quadMapper)
 {
-    RigCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->reservoirData();
+    RigEclipseCaseData* eclipseCase = cellResultColors->reservoirView()->eclipseCase()->eclipseCaseData();
 
     m_quadMapper = quadMapper;
     CVF_ASSERT(quadMapper && eclipseCase );
 
-    m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
+    m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = 
-        new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellPipeVisibilities(timeStepIndex),
+        new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(timeStepIndex),
                                    eclipseCase->gridCellToResultWellIndex(gridIndex));
 
     const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
@@ -79,11 +81,10 @@ void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivTextureCoordsCreator::createTextureCoords(
-    cvf::Vec2fArray* quadTextureCoords,
-    const cvf::StructGridQuadToCellFaceMapper* quadMapper,
-    const RigResultAccessor* resultAccessor,
-    const RivResultToTextureMapper* texMapper)
+void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords,
+                                                  const cvf::StructGridQuadToCellFaceMapper* quadMapper,
+                                                  const RigResultAccessor* resultAccessor,
+                                                  const RivResultToTextureMapper* texMapper)
 {
     CVF_ASSERT(quadTextureCoords && quadMapper && resultAccessor && texMapper);
 

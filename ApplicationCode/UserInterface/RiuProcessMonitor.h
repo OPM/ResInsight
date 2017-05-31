@@ -46,7 +46,7 @@ private:
     caf::UiProcess* m_monitoredProcess;     // Pointer to the process we're monitoring. Needed to fetch text
 
 public:
-    RiuProcessMonitor(QDockWidget* pParent);
+    explicit RiuProcessMonitor(QDockWidget* pParent);
     ~RiuProcessMonitor();
 
     void                    startMonitorWorkProcess(caf::UiProcess* process);

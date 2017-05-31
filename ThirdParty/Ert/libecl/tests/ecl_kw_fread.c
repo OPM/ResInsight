@@ -44,7 +44,7 @@ void test_truncated(const char * filename , offset_type truncate_size) {
 void test_fread_alloc() {
   test_work_area_type * work_area = test_work_area_alloc("ecl_kw_fread" );
   {
-    ecl_kw_type * kw1 = ecl_kw_alloc( "INT" , 100 , ECL_INT_TYPE );
+    ecl_kw_type * kw1 = ecl_kw_alloc( "INT" , 100 , ECL_INT );
     int i;
     for (i=0; i < 100; i++)
       ecl_kw_iset_int( kw1 , i , i );

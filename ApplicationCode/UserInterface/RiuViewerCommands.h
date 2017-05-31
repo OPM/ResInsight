@@ -50,7 +50,7 @@ class RiuViewerCommands: public QObject
     Q_OBJECT
 
 public:
-    RiuViewerCommands(RiuViewer* ownerViewer);
+    explicit RiuViewerCommands(RiuViewer* ownerViewer);
     ~RiuViewerCommands();
 
     void setOwnerView(RimView * owner);

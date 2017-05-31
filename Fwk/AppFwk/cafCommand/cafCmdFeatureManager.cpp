@@ -46,8 +46,6 @@
 
 #include <QAction>
 
-#include <assert.h>
-
 namespace caf
 {
 
@@ -129,7 +127,7 @@ std::pair<CmdFeature*, size_t> CmdFeatureManager::createFeature(const std::strin
     }
     
     CmdFeature* feature = CommandFeatureFactory::instance()->create(commandId);
-    assert(feature); // The command ID is not known in the factory
+    CAF_ASSERT(feature); // The command ID is not known in the factory
 
     feature->setParent(this);
     size_t index = m_commandFeatures.size();

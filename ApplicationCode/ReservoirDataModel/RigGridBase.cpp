@@ -126,11 +126,8 @@ void RigGridBase::initSubCellsMainGridCellIndex()
         size_t cellIdx;
         for (cellIdx = 0; cellIdx < grid->cellCount(); ++cellIdx)
         {
-            RigLocalGrid* localGrid = NULL;
-            RigGridBase* parentGrid = NULL;
-
-            localGrid = static_cast<RigLocalGrid*>(grid);
-            parentGrid = localGrid->parentGrid();
+            RigLocalGrid* localGrid = static_cast<RigLocalGrid*>(grid);
+            RigGridBase* parentGrid = localGrid->parentGrid();
 
             RigCell& cell = localGrid->cell(cellIdx);
             size_t parentCellIndex = cell.parentCellIndex();

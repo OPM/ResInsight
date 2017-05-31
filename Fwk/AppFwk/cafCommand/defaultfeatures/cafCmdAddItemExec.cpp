@@ -88,7 +88,6 @@ void CmdAddItemExec::redo()
         if (!obj) return;
 
         listField->insertAt(m_commandData->m_indexAfter, obj);
-        caf::PdmUiObjectHandle* uiObject = uiObj(obj);
 
         if (m_commandData->m_indexAfter == -1)
         {

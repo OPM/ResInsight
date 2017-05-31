@@ -23,6 +23,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
@@ -47,6 +48,8 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -64,8 +67,10 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimTreeViewStateSerializer.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
@@ -79,6 +84,8 @@
 #include "RiuSummaryQwtPlot.h"
 #include "RiuViewer.h"
 #include "RiuWellLogPlot.h"
+#include "RiuWellAllocationPlot.h"
+#include "RiuFlowCharacteristicsPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
 #include "RicSnapshotViewToClipboardFeature.h"
@@ -92,10 +99,12 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmSettings.h"
+#include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
+
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -107,12 +116,14 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QUrl>
+#include <QTreeView>
 
 #include "gtest/gtest.h"
 
 #ifdef WIN32
 #include <fcntl.h>
 #endif
+
 
 namespace caf
 {
@@ -132,7 +143,7 @@ namespace RegTestNames
     const QString generatedFolderName   = "RegTestGeneratedImages";
     const QString diffFolderName        = "RegTestDiffImages";
     const QString baseFolderName        = "RegTestBaseImages";
-    const QString testProjectName       = "RegressionTest.rip";
+    const QString testProjectName       = "RegressionTest";
     const QString testFolderFilter      = "TestCase*";
     const QString imageCompareExeName   = "compare";
     const QString reportFileName        = "ResInsightRegressionTestReport.html";
@@ -332,10 +343,16 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
 
     closeProject();
 
+    RiaLogging::info(QString("Starting to open project file : '%1'").arg(projectFileName));
+
     // Open the project file and read the serialized data. 
     // Will initialize itself.
 
-    if (!QFile::exists(projectFileName)) return false;
+    if (!caf::Utils::fileExists(projectFileName))
+    {
+        RiaLogging::info(QString("File does not exist : '%1'").arg(projectFileName));
+        return false;
+    }
 
     m_project->fileName = projectFileName;
     m_project->readFile();
@@ -536,6 +553,8 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
 
+    RiaLogging::info(QString("Completed open of project file : '%1'").arg(projectFileName));
+
     return true;
 }
 
@@ -554,6 +573,7 @@ void RiaApplication::loadAndUpdatePlotData()
 {
     RimWellLogPlotCollection* wlpColl = nullptr;
     RimSummaryPlotCollection* spColl = nullptr;
+    RimFlowPlotCollection* flowColl = nullptr;
 
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
     {
@@ -563,9 +583,15 @@ void RiaApplication::loadAndUpdatePlotData()
     {
         spColl = m_project->mainPlotCollection()->summaryPlotCollection();
     }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->flowPlotCollection())
+    {
+        flowColl = m_project->mainPlotCollection()->flowPlotCollection();
+    }
+
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
-    plotCount += spColl ? spColl->m_summaryPlots().size() : 0;
+    plotCount += spColl ? spColl->summaryPlots().size() : 0;
+    plotCount += flowColl ? flowColl->plotCount() : 0;
 
     caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
     if (wlpColl)
@@ -579,10 +605,58 @@ void RiaApplication::loadAndUpdatePlotData()
 
     if (spColl)
     {
-        for (size_t wlpIdx = 0; wlpIdx < spColl->m_summaryPlots().size(); ++wlpIdx)
+        for (size_t wlpIdx = 0; wlpIdx < spColl->summaryPlots().size(); ++wlpIdx)
         {
-            spColl->m_summaryPlots[wlpIdx]->loadDataAndUpdate();
+            spColl->summaryPlots[wlpIdx]->loadDataAndUpdate();
             plotProgress.incrementProgress();
+        }
+    }
+    
+    if (flowColl)
+    {
+        plotProgress.setNextProgressIncrement(flowColl->plotCount());
+        flowColl->loadDataAndUpdate();
+        plotProgress.incrementProgress();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::storeTreeViewState()
+{
+    {
+        if (mainPlotWindow() && mainPlotWindow()->projectTreeView())
+        {
+            caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
+
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            project()->plotWindowTreeViewState = treeViewState;
+            project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+        }
+    }
+
+    {
+        caf::PdmUiTreeView* projectTreeView = RiuMainWindow::instance()->projectTreeView();
+        if (projectTreeView)
+        {
+            QString treeViewState;
+            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+
+            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+
+            QString encodedModelIndexString;
+            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+
+            project()->mainWindowTreeViewState = treeViewState;
+            project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
         }
     }
 }
@@ -640,7 +714,7 @@ bool RiaApplication::saveProject()
 {
     CVF_ASSERT(m_project.notNull());
 
-    if (!QFile::exists(m_project->fileName()))
+    if (!caf::Utils::fileExists(m_project->fileName()))
     {
         return saveProjectPromptForFileName();
     }
@@ -687,6 +761,55 @@ bool RiaApplication::saveProjectPromptForFileName()
     return bSaveOk;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::hasValidProjectFileExtension(const QString& fileName)
+{
+    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::askUserToSaveModifiedProject()
+{
+    if (caf::PdmUiModelChangeDetector::instance()->isModelChanged())
+    {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Question);
+
+        QString questionText;
+        questionText = QString("The current project is modified.\n\nDo you want to save the changes?");
+
+        msgBox.setText(questionText);
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Cancel)
+        {
+            return false;
+        }
+        else if (ret == QMessageBox::Yes)
+        {
+            if (!saveProject())
+            {
+                return false;
+            }
+        }
+        else
+        {
+            caf::PdmUiModelChangeDetector::instance()->reset();
+        }
+    }
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -694,6 +817,8 @@ bool RiaApplication::saveProjectPromptForFileName()
 bool RiaApplication::saveProjectAs(const QString& fileName)
 {
     m_project->fileName = fileName;
+
+    storeTreeViewState();
 
     if (!m_project->writeFile())
     {
@@ -707,9 +832,10 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
 
     m_recentFileActionProvider->addFileName(fileName);
 
+    caf::PdmUiModelChangeDetector::instance()->reset();
+
     return true;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -793,16 +919,19 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
         return projectRelativePath;
     }
 
+    QString absolutePath;
     if (m_project && !m_project->fileName().isEmpty())
     {
-        QString absoluteProjectPath = QFileInfo(m_project->fileName()).absolutePath();
-        QDir projectDir(absoluteProjectPath);
-        return projectDir.absoluteFilePath(projectRelativePath);
+        absolutePath = QFileInfo(m_project->fileName()).absolutePath();
     }
     else
     {
-        return projectRelativePath;
+        absolutePath = this->lastUsedDialogDirectory("BINARY_GRID");
     }
+
+    QDir projectDir(absolutePath);
+
+    return projectDir.absoluteFilePath(projectRelativePath);
 }
 
 
@@ -811,7 +940,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 {
-    if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -984,7 +1113,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 {
-   if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
@@ -1087,41 +1216,28 @@ RimView* RiaApplication::activeReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimViewWindow* RiaApplication::activePlotWindow() const
+{
+    RimViewWindow* viewWindow = nullptr;
+
+    if ( m_mainPlotWindow )
+    {
+        QList<QMdiSubWindow*> subwindows = m_mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
+        if ( subwindows.size() > 0 )
+        {
+            viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
+        }
+    }
+
+    return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::setActiveReservoirView(RimView* rv)
 {
     m_activeReservoirView = rv;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveWellLogPlot(RimWellLogPlot* wlp)
-{
-    m_activeWellLogPlot = wlp;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RiaApplication::activeWellLogPlot()
-{
-   return m_activeWellLogPlot;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaApplication::setActiveSummaryPlot(RimSummaryPlot* sp)
-{
-    m_activeSummaryPlot = sp;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RiaApplication::activeSummaryPlot()
-{
-    return m_activeSummaryPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1283,7 +1399,8 @@ bool RiaApplication::parseArguments()
             std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
             runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
 
-            closeProject();
+            closeAllWindows();
+            processEvents();
 
             return false;
         }
@@ -1362,14 +1479,14 @@ bool RiaApplication::parseArguments()
         foreach (QString caseName, caseNames)
         {
             QString caseFileNameWithExt = caseName + ".EGRID";
-            if (QFile::exists(caseFileNameWithExt))
+            if (!caf::Utils::fileExists(caseFileNameWithExt))
             {
                 openEclipseCaseFromFile(caseFileNameWithExt);
             }
             else
             {
                 caseFileNameWithExt = caseName + ".GRID";
-                if (QFile::exists(caseFileNameWithExt))
+                if (!caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
                 }
@@ -1436,7 +1553,8 @@ bool RiaApplication::parseArguments()
                 }
             }
             
-            closeProject();
+            closeAllWindows();
+            processEvents();
         }
 
         // Returning false will exit the application
@@ -1558,38 +1676,56 @@ RiuMainPlotWindow* RiaApplication::mainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuMainWindowBase* RiaApplication::mainWindowByID(int mainWindowID)
+{
+    if (mainWindowID == 0) return RiuMainWindow::instance();
+    else if (mainWindowID == 1) return m_mainPlotWindow;
+    else return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimViewWindow* RiaApplication::activeViewWindow()
 {
     RimViewWindow* viewWindow = NULL;
 
-    QWidget* topLevelWidget = RiaApplication::activeWindow();
+    QWidget* mainWindowWidget = RiaApplication::activeWindow();
 
-    if (dynamic_cast<RiuMainWindow*>(topLevelWidget))
+    if (dynamic_cast<RiuMainWindow*>(mainWindowWidget))
     {
         viewWindow = RiaApplication::instance()->activeReservoirView();
     }
-
-    if (dynamic_cast<RiuMainPlotWindow*>(topLevelWidget))
+    else if (dynamic_cast<RiuMainPlotWindow*>(mainWindowWidget))
     {
-        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(topLevelWidget);
+        RiuMainPlotWindow* mainPlotWindow = dynamic_cast<RiuMainPlotWindow*>(mainWindowWidget);
+
         QList<QMdiSubWindow*> subwindows = mainPlotWindow->subWindowList(QMdiArea::StackingOrder);
         if (subwindows.size() > 0)
         {
-            RiuSummaryQwtPlot* summaryQwtPlot = dynamic_cast<RiuSummaryQwtPlot*>(subwindows.back()->widget());
-            if (summaryQwtPlot)
-            {
-                viewWindow = summaryQwtPlot->ownerPlotDefinition();
-            }
-
-            RiuWellLogPlot* wellLogPlot = dynamic_cast<RiuWellLogPlot*>(subwindows.back()->widget());
-            if (wellLogPlot)
-            {
-                viewWindow = wellLogPlot->ownerPlotDefinition();
-            }
+            viewWindow = RiuInterfaceToViewWindow::viewWindowFromWidget(subwindows.back()->widget());
         }
     }
 
     return viewWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::isMain3dWindowVisible() const
+{
+    return RiuMainWindow::instance()->isVisible();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::isMainPlotWindowVisible() const
+{
+    if (!m_mainPlotWindow) return false;
+
+    return m_mainPlotWindow->isVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1889,6 +2025,7 @@ void RiaApplication::applyPreferences()
     if (RiuMainWindow::instance() && RiuMainWindow::instance()->projectTreeView())
     {
         RiuMainWindow::instance()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
+        if (mainPlotWindow()) mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(m_preferences->appendClassNameToUiText());
     }
 
     caf::FixedAtlasFont::FontSize fontSizeType = caf::FixedAtlasFont::POINT_SIZE_16;
@@ -1998,11 +2135,11 @@ void RiaApplication::setLastUsedDialogDirectory(const QString& dialogName, const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openFile(const QString& fileName)
 {
-    if (!QFile::exists(fileName)) return false;
+    if (!caf::Utils::fileExists(fileName)) return false;
 
     bool loadingSucceded = false;
 
-    if (fileName.contains(".rsp", Qt::CaseInsensitive) || fileName.contains(".rip", Qt::CaseInsensitive))
+    if (RiaApplication::hasValidProjectFileExtension(fileName))
     {
         loadingSucceded = loadProject(fileName);
     }
@@ -2035,6 +2172,11 @@ bool RiaApplication::openFile(const QString& fileName)
 
             m_project->updateConnectedEditors();
         }
+    }
+
+    if (loadingSucceded && !RiaApplication::hasValidProjectFileExtension(fileName))
+    {
+        caf::PdmUiModelChangeDetector::instance()->setModelChanged();
     }
 
     return loadingSucceded;
@@ -2086,7 +2228,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 viewer->repaint();
 
                 QString fileName = cas->caseUserDescription() + "-" + riv->name();
-                fileName.replace(" ", "_");
+                fileName = caf::Utils::makeValidFileBasename(fileName);
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 
@@ -2135,6 +2277,18 @@ void removeDirectoryWithContent(QDir dirToDelete )
         dirToDelete.remove(files[fIdx]);
     }
     dirToDelete.rmdir(".");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
+{
+    double timeRunning = time.elapsed() / 1000.0;
+
+    QString timeText = QString("(%1 s) ").arg(timeRunning, 0, 'f', 1);
+
+    RiaLogging::info(timeText + msg);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2193,6 +2347,11 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         }
     }
 
+    QTime timeStamp;
+    timeStamp.start();
+
+    logInfoTextWithTimeInSeconds(timeStamp, "Starting regression tests\n");
+
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
@@ -2214,45 +2373,101 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
         QDir testCaseFolder(folderList[dirIdx].filePath());
-        if (testCaseFolder.exists(regTestProjectName))
+
+        QString projectFileName;
+        
+        if (testCaseFolder.exists(regTestProjectName + ".rip"))
         {
-             loadProject(testCaseFolder.filePath(regTestProjectName));
+            projectFileName = regTestProjectName + ".rip";
+        }
 
-             // Wait until all command objects have completed
-             while (!m_commandQueueLock.tryLock())
-             {
-                 processEvents();
-             }
-             m_commandQueueLock.unlock();
+        if (testCaseFolder.exists(regTestProjectName + ".rsp"))
+        {
+            projectFileName = regTestProjectName + ".rsp";
+        }
 
-             regressionTestConfigureProject();
+        if (!projectFileName.isEmpty())
+        {
+            logInfoTextWithTimeInSeconds(timeStamp, "Initializing test :" + testCaseFolder.absolutePath());
 
-             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-             saveSnapshotForAllViews(fullPathGeneratedFolder);
+            loadProject(testCaseFolder.filePath(projectFileName));
 
-             QDir baseDir(testCaseFolder.filePath(baseFolderName));
-             QDir genDir(testCaseFolder.filePath(generatedFolderName));
-             QDir diffDir(testCaseFolder.filePath(diffFolderName));
-             if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
-             baseDir.setFilter(QDir::Files);
-             QStringList baseImageFileNames = baseDir.entryList();
+            // Wait until all command objects have completed
+            while (!m_commandQueueLock.tryLock())
+            {
+                processEvents();
+            }
+            m_commandQueueLock.unlock();
 
-             for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
-             {
-                 QString fileName = baseImageFileNames[fIdx];
-                 RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
-                 bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
-                 if (!ok)
-                 {
+            regressionTestConfigureProject();
+
+            resizeMaximizedPlotWindows();
+
+            QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
+            saveSnapshotForAllViews(fullPathGeneratedFolder);
+
+            RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
+
+            QDir baseDir(testCaseFolder.filePath(baseFolderName));
+            QDir genDir(testCaseFolder.filePath(generatedFolderName));
+            QDir diffDir(testCaseFolder.filePath(diffFolderName));
+            if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
+            baseDir.setFilter(QDir::Files);
+            QStringList baseImageFileNames = baseDir.entryList();
+
+            for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
+            {
+                QString fileName = baseImageFileNames[fIdx];
+                RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
+                bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
+                if (!ok)
+                {
                     qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
-                 }
-             }
+                }
+            }
 
-             closeProject();
+            closeProject();
+        
+            logInfoTextWithTimeInSeconds(timeStamp, "Completed test :" + testCaseFolder.absolutePath());
         }
     }
 
+    RiaLogging::info("\n");
+    logInfoTextWithTimeInSeconds(timeStamp, "Completed regression tests");
+
     m_runningRegressionTests = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::resizeMaximizedPlotWindows()
+{
+    std::vector<RimViewWindow*> viewWindows;
+    m_project->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+
+    for (auto viewWindow : viewWindows)
+    {
+        if (viewWindow->isMdiWindow())
+        {
+            RimMdiWindowGeometry wndGeo = viewWindow->mdiWindowGeometry();
+            if (wndGeo.isMaximized)
+            {
+                QWidget* viewWidget = viewWindow->viewWidget();
+
+                if (viewWidget)
+                {
+                    QMdiSubWindow* mdiWindow = m_mainPlotWindow->findMdiSubWindow(viewWidget);
+                    if (mdiWindow)
+                    {
+                        mdiWindow->showNormal();
+
+                        viewWidget->resize(RiaApplication::regressionDefaultImageSize());
+                    }
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2347,7 +2562,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
         if (identicalGrid)
         {
-            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->eclipseCaseData()))
             {
                 RimOilField* oilField = m_project->activeOilField();
                 if (oilField && oilField->analysisModels())
@@ -2649,7 +2864,6 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -2684,8 +2898,16 @@ void RiaApplication::regressionTestConfigureProject()
                 }
 
                 // This size is set to match the regression test reference images
-                riv->viewer()->setFixedSize(1000, 745);
+                riv->viewer()->setFixedSize(RiaApplication::regressionDefaultImageSize());
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize RiaApplication::regressionDefaultImageSize()
+{
+    return QSize(1000, 745);
 }

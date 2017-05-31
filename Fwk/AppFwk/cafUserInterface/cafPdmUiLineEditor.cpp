@@ -45,16 +45,16 @@
 #include "cafPdmUiOrdering.h"
 #include "cafSelectionManager.h"
 
+#include <QApplication>
 #include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMessageBox>
-#include <QString>
 #include <QMainWindow>
-#include <QApplication>
+#include <QMessageBox>
+#include <QPalette>
 #include <QStatusBar>
+#include <QString>
 
-#include <assert.h>
 
 
 
@@ -62,13 +62,12 @@ class PdmUniqueIdValidator : public QValidator
 {
 public:
     PdmUniqueIdValidator(const std::set<int>& usedIds, bool multipleSelectionOfSameFieldsSelected, const QString& errorMessage, QObject* parent)
-        : QValidator(parent)
+        : QValidator(parent),
+        m_usedIds(usedIds),
+        m_nextValidValue(0),
+        m_multipleSelectionOfSameFieldsSelected(multipleSelectionOfSameFieldsSelected),
+        m_errorMessage(errorMessage)
     {
-        m_usedIds = usedIds;
-        m_nextValidValue = 0;
-        m_multipleSelectionOfSameFieldsSelected = multipleSelectionOfSameFieldsSelected;
-        m_errorMessage = errorMessage;
-
         computeNextValidId();
     }
 
@@ -179,7 +178,21 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     if (!m_lineEdit.isNull())
     {
-        m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
+        bool isReadOnly = field()->isUiReadOnly(uiConfigName);
+        if (isReadOnly)
+        {
+            m_lineEdit->setReadOnly(true);
+
+            m_lineEdit->setStyleSheet("QLineEdit {"
+                "color: #808080;"
+                "background-color: #F0F0F0;}");
+        }
+        else
+        {
+            m_lineEdit->setReadOnly(false);
+            m_lineEdit->setStyleSheet("");
+        }
+
         m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
 
         {
@@ -215,8 +228,10 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
 
 
-        bool fromMenuOnly = false;
+        bool fromMenuOnly = true;
         QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
+        CAF_ASSERT(fromMenuOnly); // Not supported
+
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
             int enumValue = field()->uiValue().toInt();
@@ -253,7 +268,9 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
 QWidget* PdmUiLineEditor::createEditorWidget(QWidget * parent)
 {
     m_lineEdit = new QLineEdit(parent);
+
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+
     return m_lineEdit;
 }
 

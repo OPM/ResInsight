@@ -72,14 +72,13 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_selectedSummaryCases.uiCapability()->setAutoAddingOptionFromValue(false);
     m_selectedSummaryCases.xmlCapability()->setIOWritable(false);
     m_selectedSummaryCases.xmlCapability()->setIOReadable(false);
-    m_selectedSummaryCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    m_selectedSummaryCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_summaryFilter, "VarListFilter", "Filter", "", "", "");
     m_summaryFilter.uiCapability()->setUiTreeChildrenHidden(true);
     m_summaryFilter.uiCapability()->setUiHidden(true);
 
-    m_summaryFilterObject = std::unique_ptr<RimSummaryFilter>(new RimSummaryFilter);
-    m_summaryFilter = m_summaryFilterObject.get();
+    m_summaryFilter = new RimSummaryFilter;
 
     CAF_PDM_InitFieldNoDefault(&m_uiFilterResultMultiSelection, "FilterResultSelection", "Filter Result", "", "Ctrl-A : Select All", "");
     m_uiFilterResultMultiSelection.xmlCapability()->setIOWritable(false);
@@ -92,14 +91,14 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     m_curves.uiCapability()->setUiHidden(true);
     m_curves.uiCapability()->setUiTreeChildrenHidden(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "Apply", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
     m_applyButtonField.xmlCapability()->setIOWritable(false);
     m_applyButtonField.xmlCapability()->setIOReadable(false);
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
 
-    CAF_PDM_InitField(&m_autoApplyChangesToPlot, "AutoApplyFilterChanges", false, "Auto Apply Changes", "", "", "");
+    CAF_PDM_InitField(&m_autoApplyChangesToPlot, "AutoApplyFilterChanges", true, "Auto Apply Changes", "", "", "");
 
     CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
     m_showCurves.uiCapability()->setUiHidden(true);
@@ -113,13 +112,13 @@ RimSummaryCurveFilter::RimSummaryCurveFilter()
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType,   "RegionAppearanceType",   "Region", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_plotAxis, "PlotAxis", "Axis", "", "", "");
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
     m_curveNameConfig.uiCapability()->setUiHidden(true);
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 
-    m_curveNameConfigObject = std::unique_ptr<RimSummaryCurveAutoName>(new RimSummaryCurveAutoName);
-    m_curveNameConfig = m_curveNameConfigObject.get();
+    m_curveNameConfig = new RimSummaryCurveAutoName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,7 +154,7 @@ void RimSummaryCurveFilter::createCurves(RimSummaryCase* summaryCase, const QStr
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
-    QList<caf::PdmOptionItemInfo> optionList;
+    QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_selectedSummaryCases)
     {
@@ -164,11 +163,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 
         proj->allSummaryCases(cases);
 
-        for (size_t i = 0; i < cases.size(); i++)
+        for (RimSummaryCase* rimCase : cases)
         {
-            RimSummaryCase* rimCase = cases[i];
-
-            optionList.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(rimCase))));
+            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
     }
     else if(fieldNeedingOptions == &m_uiFilterResultMultiSelection)
@@ -179,13 +176,13 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
         {
             std::string name = address.uiText();
             QString s = QString::fromStdString(name);
-            optionList.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
+            options.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue(address)));
         }
     }
 
     if(useOptionsOnly) *useOptionsOnly = true;
 
-    return optionList;
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,27 +190,24 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurveFilter::calculateValueOptions(const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Summary Vectors");
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Cases");
     curveDataGroup->add(&m_selectedSummaryCases);
 
-    caf::PdmUiGroup* curveVarSelectionGroup = curveDataGroup->addNewGroup("Vector Selection");
-
-    m_summaryFilter->defineUiOrdering(uiConfigName, *curveVarSelectionGroup);
-
+    caf::PdmUiGroup* curveVarSelectionGroup = uiOrdering.addNewGroup("Vector Selection");
+    m_summaryFilter->uiOrdering(uiConfigName, *curveVarSelectionGroup);
     curveVarSelectionGroup->add(&m_uiFilterResultMultiSelection);
 
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance settings");
-    appearanceGroup->add(&m_useAutoAppearanceAssignment);
-    if(!m_useAutoAppearanceAssignment())
-    {
-        appearanceGroup->add(&m_caseAppearanceType);
-        appearanceGroup->add(&m_variableAppearanceType);
-        appearanceGroup->add(&m_wellAppearanceType);
-        appearanceGroup->add(&m_groupAppearanceType);
-        appearanceGroup->add(&m_regionAppearanceType);
-    }
+    uiOrdering.add(&m_plotAxis);
 
-    // Set sensitivity
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance Settings");
+    appearanceGroup->setCollapsedByDefault(true);
+    appearanceGroup->add(&m_useAutoAppearanceAssignment);
+    appearanceGroup->add(&m_caseAppearanceType);
+    appearanceGroup->add(&m_variableAppearanceType);
+    appearanceGroup->add(&m_wellAppearanceType);
+    appearanceGroup->add(&m_groupAppearanceType);
+    appearanceGroup->add(&m_regionAppearanceType);
+    // Appearance option sensitivity
     {
         m_caseAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
         m_variableAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
@@ -223,13 +217,15 @@ void RimSummaryCurveFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     }
 
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroup("Curve Name Configuration");
-    m_curveNameConfig->defineUiOrdering(uiConfigName, *autoNameGroup);
+    autoNameGroup->setCollapsedByDefault(true);
+    autoNameGroup->add(&m_showLegend);
+    m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
-    uiOrdering.add(&m_plotAxis);
     uiOrdering.add(&m_autoApplyChangesToPlot);
     uiOrdering.add(&m_applyButtonField);
+    m_applyButtonField.uiCapability()->setUiReadOnly(m_autoApplyChangesToPlot());
 
-    uiOrdering.setForgetRemainingFields(true);
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,6 +272,13 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         }
 
         plotNeedsRedraw = true;
+    }
+    else if (changedField == &m_showLegend)
+    {
+        for (auto curve : m_curves)
+        {
+            curve->showLegend(m_showLegend());
+        }
     }
     else
     {
@@ -420,7 +423,10 @@ void RimSummaryCurveFilter::defineEditorAttribute(const caf::PdmFieldHandle* fie
     if(&m_applyButtonField == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        attrib->m_buttonText = "Apply";
+        if (attrib)
+        {
+            attrib->m_buttonText = "Apply";
+        }
     }
 }
 
@@ -437,7 +443,10 @@ void RimSummaryCurveFilter::updatePlotAxisForCurves()
 
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType(plot);
-    plot->updateAxes();
+    if (plot)
+    {
+        plot->updateAxes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,12 +521,9 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
 {
-    int colorIndex = 2;
-    int lineStyleIdx = -1;
-
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
-    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefinitions);
+    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefinitions, getAllSummaryCaseNames(), getAllSummaryWellNames());
 
     if (!m_useAutoAppearanceAssignment())
     {
@@ -661,4 +667,58 @@ std::set<RifEclipseSummaryAddress> RimSummaryCurveFilter::findPossibleSummaryAdd
     }
 
     return addrUnion;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveFilter::getAllSummaryCaseNames()
+{
+    std::set<std::string> summaryCaseHashes;
+    RimProject* proj = RiaApplication::instance()->project();
+    std::vector<RimSummaryCase*> cases;
+
+    proj->allSummaryCases(cases);
+
+    for (RimSummaryCase* rimCase : cases)
+    {
+        summaryCaseHashes.insert(rimCase->summaryHeaderFilename().toUtf8().constData());
+    }
+
+    return summaryCaseHashes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::string> RimSummaryCurveFilter::getAllSummaryWellNames()
+{
+    std::set<std::string> summaryWellNames;
+    RimProject* proj = RiaApplication::instance()->project();
+    std::vector<RimSummaryCase*> cases;
+
+    proj->allSummaryCases(cases);
+    for (RimSummaryCase* rimCase : cases)
+    {
+        RifReaderEclipseSummary* reader = nullptr;
+        if (rimCase && rimCase->caseData())
+        {
+            reader = rimCase->caseData()->summaryReader();
+        }
+
+        if (reader)
+        {
+            const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
+
+            for (size_t i = 0; i < allAddresses.size(); i++)
+            {
+                if (allAddresses[i].category() == RifEclipseSummaryAddress::SUMMARY_WELL)
+                {
+                    summaryWellNames.insert(allAddresses[i].wellName());
+                }
+            }
+        }
+    }
+    return summaryWellNames;
 }

@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "RivHexGridIntersectionTools.h"
-
 #include "cafPdmPointer.h"
 
 #include "cvfArray.h"
@@ -35,6 +33,8 @@ class RigMainGrid;
 class RigActiveCellInfo;
 class RigResultAccessor;
 class RimIntersection;
+class RivIntersectionHexGridInterface;
+class RivIntersectionVertexWeights;
 
 namespace cvf
 {

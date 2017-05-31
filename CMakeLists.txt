@@ -49,49 +49,6 @@ endif()
 ################################################################################
 include (ResInsightVersion.cmake)
 
-################################################################################
-# Boost
-################################################################################
-
-# if we are building shared libraries ourselves, then don't include Boost in them
-if (BUILD_SHARED_LIBS)
-   set(Boost_USE_STATIC_LIBS    OFF)
-elseif (DEFINED BUILD_SHARED_LIBS)
-   set(Boost_USE_STATIC_LIBS    ON)
-endif ()
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    OFF)
-
-if (MSVC)
-  ADD_DEFINITIONS("-DBOOST_ALL_NO_LIB")
-endif()
-
-
-# Requires BOOST filesystem version 3, thus 1.44 is necessary.
-add_definitions(-DBOOST_FILESYSTEM_VERSION=3)
-
-if(MSVC)
-	set(BUILD_SHARED_LIBS OFF)
-    set(Boost_USE_STATIC_LIBS    ON)
-	set(RESINSIGHT_BOOST_ROOT "" CACHE PATH "Path to installed boost directories" )
-	set(RESINSIGHT_BOOST_LIBRARYDIR "" CACHE PATH "Path to boost binary libraries" )
-	set(BOOST_ROOT ${RESINSIGHT_BOOST_ROOT})
-	set(BOOST_LIBRARYDIR ${RESINSIGHT_BOOST_LIBRARYDIR})
-	
-	if (RESINSIGHT_BOOST_ROOT AND RESINSIGHT_BOOST_LIBRARYDIR)
-		find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
-	else()
-		message (FATAL_ERROR "You need to set RESINSIGHT_BOOST_ROOT and RESINSIGHT_BOOST_LIBRARYDIR")
-	endif()
-
-else()
-	find_package(Boost 1.44.0 COMPONENTS filesystem date_time system regex REQUIRED)
-endif()
-
-# Boost < 1.57 has c++11 name mangling issues in boost::filesystem
-if(Boost_VERSION VERSION_LESS 105700)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_NO_CXX11_SCOPED_ENUMS")
-endif()
 
 ################################################################################
 # cotire 
@@ -104,9 +61,6 @@ if(RESINSIGHT_ENABLE_COTIRE)
     set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
     include(cotire)
-  
-    set(CAF_USE_COTIRE TRUE CACHE INTERNAL "CAF: Use cotire")
-    
 endif()
 
 
@@ -191,7 +145,7 @@ else()
       set_property(TARGET  
           ${ERT_LIBRARIES}
           ecl_lfs
-	      PROPERTY FOLDER "ERT"
+	      PROPERTY FOLDER "Thirdparty/ERT"
       )
     endif()
     
@@ -201,20 +155,47 @@ else()
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 
+################################################################################ 
+# Subset of Boost, used by NRLib and flow diagnostics application 
+################################################################################ 
+ 
+if(MSVC)
+    # stop MSVC from trying to auto-link libs
+    add_definitions("-DBOOST_ALL_NO_LIB") 
+endif() 
+ 
+add_subdirectory(ThirdParty/boost-Subset) 
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    boost-Subset
+)
+
 ################################################################################
 # Opm
 ################################################################################
 
-add_subdirectory(ThirdParty/custom-opm-parser)
-add_subdirectory(ThirdParty/custom-opm-parser/custom-opm-parser-tests)
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
+add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 
+list(APPEND OPM_LIBRARIES
+    custom-opm-flowdiagnostics
+    custom-opm-flowdiag-app
+)
+
+set_property(TARGET  
+    ${OPM_LIBRARIES}
+	PROPERTY FOLDER "Thirdparty/OPM"
+)
 
 ################################################################################
 # NRLib
 ################################################################################
 
 add_subdirectory(ThirdParty/NRLib)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    NRLib
+)
 
 
 ################################################################################
@@ -240,6 +221,30 @@ find_package( OpenGL )
 ################################################################################
 
 add_subdirectory(ThirdParty/Qwt/src)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    Qwt
+)
+
+
+################################################################################
+# Nightcharts
+################################################################################
+
+add_subdirectory(ThirdParty/nightcharts)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    nightcharts
+)
+
+
+################################################################################
+# Thirdparty libraries are put in ThirdParty solution folder
+################################################################################
+set_property(TARGET  
+    ${THIRD_PARTY_LIBRARIES}
+	PROPERTY FOLDER "Thirdparty"
+)
 
 ################################################################################
 # Vizualization Framework
@@ -343,19 +348,12 @@ set_property(TARGET
 # Installation settings
 ################################################################################
 
-set (RESINSIGHT_FINAL_NAME "ResInsight-${STRPRODUCTVER}")
-
-# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
-string(REGEX MATCH "el[5,6]?" RESINSIGHT_PLATFORM ${CMAKE_SYSTEM})
-if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
-    set (RESINSIGHT_FINAL_NAME "${RESINSIGHT_FINAL_NAME}-${RESINSIGHT_PLATFORM}")
-endif()
+set (RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
 option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including the neccesary Qt libraries" ON)
 if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
-    #set (CMAKE_INSTALL_PREFIX /usr/${RESINSIGHT_FINAL_NAME})
     
     ################################################################################
     # ERT shared library files
@@ -366,22 +364,22 @@ if (RESINSIGHT_PRIVATE_INSTALL)
         set(ERT_SHARED_LIB_FILES
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.1
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2.1
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2.1
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2.1
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.1
+            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.2
         )
       
-      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+      install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
     endif()
     
 endif (RESINSIGHT_PRIVATE_INSTALL)
@@ -424,14 +422,50 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(CPACK_GENERATOR ZIP)
 endif()
 
-set(CPACK_PACKAGE_VERSION_MAJOR ${CMAKE_MAJOR_VERSION})
-set(CPACK_PACKAGE_VERSION_MINOR ${CMAKE_MINOR_VERSION})
-set(CPACK_PACKAGE_VERSION_PATCH ${CMAKE_PATCH_VERSION})
+if(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE) 
+    get_filename_component(RESINSIGHT_OCTAVE_DIRECTORY ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} DIRECTORY)
+    
+    execute_process (COMMAND octave-config -v
+        WORKING_DIRECTORY ${RESINSIGHT_OCTAVE_DIRECTORY}
+                    OUTPUT_VARIABLE OCTAVE_VERSION_STRING
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif ()
 
-set(CPACK_PACKAGE_NAME "ResInsight-bin")
-
-if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
-    set (CPACK_SYSTEM_NAME "${RESINSIGHT_PLATFORM}")
+# Handling of system name on Windows
+if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
+  if(CMAKE_CL_64)
+    set(CPACK_SYSTEM_NAME win64)
+  else()
+    set(CPACK_SYSTEM_NAME win32)
+  endif()
 endif()
+
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+string(REGEX MATCH "el[5,6]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
+
+
+set(RESINSIGHT_PACKAGE_NAME "ResInsight")
+
+set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${STRPRODUCTVER}")
+
+if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_odb")
+endif()
+
+if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
+endif()
+
+
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+if (NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}")
+else()
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
+endif()
+
+#message("RESINSIGHT_PACKAGE_NAME : " ${RESINSIGHT_PACKAGE_NAME})
+set(CPACK_PACKAGE_FILE_NAME ${RESINSIGHT_PACKAGE_NAME})
+
 
 include (CPack)

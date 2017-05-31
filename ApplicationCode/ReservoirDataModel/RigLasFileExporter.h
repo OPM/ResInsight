@@ -32,7 +32,7 @@ class SingleLasFileMetaData;
 class RigLasFileExporter
 {
 public:
-    RigLasFileExporter(const std::vector<RimWellLogCurve*>& curves);
+    explicit RigLasFileExporter(const std::vector<RimWellLogCurve*>& curves);
 
     void setResamplingInterval(double interval);
 

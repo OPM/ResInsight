@@ -19,13 +19,13 @@
 
 #include "RivReservoirFaultsPartMgr.h"
 
-#include "RigCaseData.h"
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
+#include "RimFault.h"
 #include "RimFaultCollection.h"
 
 #include "RivFaultPartMgr.h"
@@ -169,7 +169,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
                         scalarResultIndex = cellResultColors->scalarResultIndex();
                     }
 
-                    RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+                    RigMainGrid* mainGrid = m_reservoirView->mainGrid();
                     if (!(mainGrid && mainGrid->nncData()->hasScalarValues(scalarResultIndex)))
                     {
                         showNncs = false;

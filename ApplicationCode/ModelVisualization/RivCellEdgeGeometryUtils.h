@@ -32,7 +32,7 @@ class RimCellEdgeColors;
 class RimEclipseCellColors;
 class RigGridBase;
 class RigResultAccessor;
-class RigCaseData;
+class RigEclipseCaseData;
 
 
 class RivCellEdgeGeometryUtils
@@ -60,14 +60,14 @@ private:
     static cvf::ref<RigResultAccessor> createCellCenterResultAccessor(
         RimEclipseCellColors* cellResultColors,
         size_t timeStepIndex,
-        RigCaseData* eclipseCase,
+        RigEclipseCaseData* eclipseCase,
         const RigGridBase* grid);
 
     static cvf::ref<RigResultAccessor> createCellEdgeResultAccessor(
         RimEclipseCellColors* cellResultColors,
         RimCellEdgeColors* cellEdgeResultColors,
         size_t timeStepIndex,
-        RigCaseData* eclipseCase,
+        RigEclipseCaseData* eclipseCase,
         const RigGridBase* grid);
 
     static bool hideScalarValue(double scalarValue, double scalarValueToHide, double tolerance);

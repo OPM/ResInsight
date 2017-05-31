@@ -64,7 +64,7 @@ namespace caf
 class PdmUiTreeViewWidget : public QTreeView
 {
 public:
-    PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
+    explicit PdmUiTreeViewWidget(QWidget* parent = 0) : QTreeView(parent) {};
     virtual ~PdmUiTreeViewWidget() {};
 
     bool isTreeItemEditWidgetActive() const
@@ -105,7 +105,9 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
     m_useDefaultContextMenu = false;
     m_updateSelectionManager = false;
     m_appendClassNameToUiItemText = false;
-
+    m_layout = nullptr;
+    m_treeView = nullptr;
+    m_treeViewModel = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

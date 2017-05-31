@@ -33,13 +33,13 @@
 #include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
 
-#include "RivReservoirViewPartMgr.h"
 #include "RimView.h"
 
 class RigActiveCellInfo;
 class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
+class RigMainGrid;
 class Rim3dOverlayInfoConfig;
 class RimEclipseCase;
 class RimCellEdgeColors;
@@ -54,8 +54,9 @@ class RimReservoirCellResultsStorage;
 class RimEclipseCellColors;
 class RimEclipseWellCollection;
 class RiuViewer;
-class RivReservoirPipesPartMgr;
+class RivReservoirSimWellsPartMgr;
 class RivIntersectionPartMgr;
+class RivReservoirViewPartMgr;
 
 namespace cvf
 {
@@ -86,12 +87,12 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmChildField<RimEclipseCellColors*>                cellResult;
-    caf::PdmChildField<RimCellEdgeColors*>                   cellEdgeResult;
-    caf::PdmChildField<RimEclipseFaultColors*>               faultResultSettings;
-
-    caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
-    caf::PdmChildField<RimFaultCollection*>                  faultCollection;
+    caf::PdmChildField<RimEclipseCellColors*>       cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>          cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>      faultResultSettings;
+                                                    
+    caf::PdmChildField<RimEclipseWellCollection*>   wellCollection;
+    caf::PdmChildField<RimFaultCollection*>         faultCollection;
 
     // Fields
 
@@ -111,8 +112,10 @@ public:
     RimEclipseCellColors*                           currentFaultResultColors();
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
-    RimEclipseCase*                                 eclipseCase();
+    RimEclipseCase*                                 eclipseCase() const;
     virtual RimCase*                                ownerCase();
+
+    RigMainGrid*                                    mainGrid() const;
 
     // Display model generation
 
@@ -121,11 +124,11 @@ public:
 
     virtual void                                    scheduleGeometryRegen(RivCellSetEnum geometryType);
     void                                            scheduleReservoirGridGeometryRegen();
-    void                                            schedulePipeGeometryRegen();
+    void                                            scheduleSimWellGeometryRegen();
     void                                            updateDisplayModelForWellResults();
 
-    const std::vector<RivCellSetEnum>&              visibleGridParts() const { return m_visibleGridParts;}
-    cvf::cref<RivReservoirViewPartMgr>              reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
+    const std::vector<RivCellSetEnum>&              visibleGridParts() const;
+    const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;
 
     // Does this belong here, really ?
     void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
@@ -160,7 +163,6 @@ private:
     void                                            updateLegends();
     void                                            updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimEclipseCellColors* resultColors, RigCaseCellResultsData* cellResultsData);
     virtual void                                    resetLegendsInViewer();
-    virtual void                                    updateViewerWidgetWindowTitle();
 
     std::set<RivCellSetEnum>                        allVisibleFaultGeometryTypes() const;
     void                                            updateFaultColors();
@@ -174,11 +176,11 @@ private:
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;
 
-    caf::PdmPointer<RimEclipseCase>                 m_reservoir;
+    caf::PdmPointer<RimEclipseCase>                 m_eclipseCase;
 
     cvf::ref<RivReservoirViewPartMgr>               m_reservoirGridPartManager;
-    cvf::ref<RivReservoirPipesPartMgr>              m_pipesPartManager;
-
+    cvf::ref<RivReservoirSimWellsPartMgr>           m_simWellsPartManager;
+	
     std::vector<RivCellSetEnum>                     m_visibleGridParts;
 };
 
