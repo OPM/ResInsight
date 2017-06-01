@@ -115,7 +115,7 @@ double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
     }
 
     //For vertical well (x-component of direction = 0) returned angle will be 0. 
-    double AzimuthAngle = 0.0;
+    double AzimuthAngle = 90.0;
 
     if (closestIndex != cvf::UNDEFINED_DOUBLE)
     {
