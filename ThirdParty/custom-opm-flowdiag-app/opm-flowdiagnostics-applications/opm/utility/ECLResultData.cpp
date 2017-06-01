@@ -112,7 +112,9 @@ namespace {
                     result.reserve(x.size());
 
                     for (const auto& xi : x) {
-                        result.emplace_back(xi);
+                        // push_back(T(xi)) because vector<bool> does not
+                        // support emplace_back until C++14.
+                        result.push_back(Output(xi));
                     }
 
                     return result;
@@ -192,6 +194,17 @@ namespace {
             ///
             /// Actual element type of \code ECL_INT_TYPE \endcode.
             template <>
+            struct ElementType<ECL_BOOL_TYPE>
+            {
+                /// Element type of ERT Boolean (LOGICAL) data.  Stored
+                /// internally as 'int'.
+                using type = int;
+            };
+
+            /// Translate ERT type class to keyword element type.
+            ///
+            /// Actual element type of \code ECL_INT_TYPE \endcode.
+            template <>
             struct ElementType<ECL_INT_TYPE>
             {
                 /// Element type of ERT integer data.
@@ -225,6 +238,37 @@ namespace {
             /// \tparam Input Class of ERT keyword data.
             template <ecl_type_enum Input>
             struct ExtractKeywordElements;
+
+            /// Extract ERT keyword Boolean (LOGICAL) data.
+            template <>
+            struct ExtractKeywordElements<ECL_BOOL_TYPE>
+            {
+                using EType = ElementType<ECL_BOOL_TYPE>::type;
+
+                /// Function call operator.
+                ///
+                /// Retrieve actual data elements from ERT keyword of integer
+                /// (specifically, \c int) type.
+                ///
+                /// \param[in] kw ERT keyword instance.
+                ///
+                /// \param[in,out] x Linearised keyword data elements.  On
+                ///    input points to memory block of size \code
+                ///    ecl_kw_get_size(kw) * sizeof *x \endcode bytes.  On
+                ///    output, those bytes are filled with the actual data
+                ///    values of \p kw.
+                void operator()(const ecl_kw_type* kw, EType* x) const
+                {
+                    // 1) Extract raw 'int' values.
+                    ecl_kw_get_memcpy_int_data(kw, x);
+
+                    // 2) Convert to 'bool'-like values by comparing to
+                    //    magic constant ECL_BOOL_TRUE_INT (ecl_util.h).
+                    for (auto n = ecl_kw_get_size(kw), i = 0*n; i < n; ++i) {
+                        x[i] = static_cast<EType>(x[i] == ECL_BOOL_TRUE_INT);
+                    }
+                }
+            };
 
             /// Extract ERT keyword integer data.
             template <>
@@ -487,6 +531,10 @@ namespace {
             switch (getKeywordElementType(kw)) {
             case ECL_CHAR_TYPE:
                 return GetKeywordData<ECL_CHAR_TYPE>::
+                    as<T>(kw, makeStringVector);
+
+            case ECL_BOOL_TYPE:
+                return GetKeywordData<ECL_BOOL_TYPE>::
                     as<T>(kw, makeStringVector);
 
             case ECL_INT_TYPE:
@@ -1569,6 +1617,10 @@ namespace Opm {
     ECLRestartData::keywordData<std::string>(const std::string& vector,
                                              const std::string& gridID) const;
 
+    template std::vector<bool>
+    ECLRestartData::keywordData<bool>(const std::string& vector,
+                                      const std::string& gridID) const;
+
     template std::vector<int>
     ECLRestartData::keywordData<int>(const std::string& vector,
                                      const std::string& gridID) const;
@@ -1646,6 +1698,10 @@ namespace Opm {
     template std::vector<std::string>
     ECLInitFileData::keywordData<std::string>(const std::string& vector,
                                               const std::string& gridID) const;
+
+    template std::vector<bool>
+    ECLInitFileData::keywordData<bool>(const std::string& vector,
+                                       const std::string& gridID) const;
 
     template std::vector<int>
     ECLInitFileData::keywordData<int>(const std::string& vector,

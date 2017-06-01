@@ -20,6 +20,7 @@
 #ifndef OPM_ECLGRAPH_HEADER_INCLUDED
 #define OPM_ECLGRAPH_HEADER_INCLUDED
 
+#include <opm/utility/ECLPhaseIndex.hpp>
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
@@ -45,9 +46,6 @@ namespace Opm {
     class ECLGraph
     {
     public:
-        /// Enum for indicating requested phase from the flux() method.
-        enum class PhaseIndex { Aqua = 0, Liquid = 1, Vapour = 2 };
-
         /// Disabled default constructor.
         ECLGraph() = delete;
 
@@ -125,7 +123,7 @@ namespace Opm {
         ///
         /// Mostly useful to determine the set of \c PhaseIndex values for
         /// which flux() will return non-zero values if data available.
-        const std::vector<PhaseIndex>& activePhases() const;
+        const std::vector<ECLPhaseIndex>& activePhases() const;
 
         /// Retrieve the simulation scenario's set of active grids.
         ///
@@ -167,7 +165,7 @@ namespace Opm {
         ///    (rm^3/s).
         std::vector<double>
         flux(const ECLRestartData& rstrt,
-             const PhaseIndex      phase) const;
+             const ECLPhaseIndex   phase) const;
 
         /// Retrieve result set vector from current view (e.g., particular
         /// report step) linearised on active cells.

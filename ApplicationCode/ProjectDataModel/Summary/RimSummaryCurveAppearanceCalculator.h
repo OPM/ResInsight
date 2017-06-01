@@ -55,19 +55,18 @@ public:
 
     void                          setupCurveLook(RimSummaryCurve* curve);
 
-private:
- 
+    static cvf::Color3f             cycledPaletteColor(int colorIndex);
+    static cvf::Color3f             cycledNoneRGBBrColor(int colorIndex);
+    static cvf::Color3f             cycledGreenColor(int colorIndex);
+    static cvf::Color3f             cycledBlueColor(int colorIndex);
+    static cvf::Color3f             cycledRedColor(int colorIndex);
+    static cvf::Color3f             cycledBrownColor(int colorIndex);
 
+private:
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);
     void                           updateApperanceIndices();
     std::map<std::string, size_t>  mapNameToAppearanceIndex(CurveAppearanceType & appearance, const std::set<std::string>& names);
 
-    cvf::Color3f                   cycledPaletteColor(int colorIndex);
-    cvf::Color3f                   cycledNoneRGBBrColor(int colorIndex);
-    cvf::Color3f                   cycledGreenColor(int colorIndex);
-    cvf::Color3f                   cycledBlueColor(int colorIndex);
-    cvf::Color3f                   cycledRedColor(int colorIndex);
-    cvf::Color3f                   cycledBrownColor(int colorIndex);
 
     RimPlotCurve::LineStyleEnum    cycledLineStyle(int index);
     RimPlotCurve::PointSymbolEnum  cycledSymbol(int index);

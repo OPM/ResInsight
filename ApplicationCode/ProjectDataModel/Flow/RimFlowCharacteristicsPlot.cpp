@@ -141,14 +141,16 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         {
             std::vector<RimEclipseResultCase*> cases;
             proj->descendantsIncludingThisOfType(cases);
-
+            RimEclipseResultCase* defaultCase = nullptr;
             for ( RimEclipseResultCase* c : cases )
             {
                 if ( c->defaultFlowDiagSolution() )
                 {
                     options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                    if (!defaultCase) defaultCase = c; // Select first
                 }
             }
+            if (!m_case() && defaultCase) m_case = defaultCase;
         }
     }
     else if ( fieldNeedingOptions == &m_flowDiagSolution )

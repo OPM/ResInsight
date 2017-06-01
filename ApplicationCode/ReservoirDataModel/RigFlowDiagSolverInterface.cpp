@@ -251,9 +251,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
 
     {
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxField(*(m_opmFlowDiagStaticData->m_eclGraph),
-                                                                                                             *currentRestartData, 
-                                                                                                             false);
+        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
+                                                                                                                            *currentRestartData);
 
         m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
 
@@ -400,7 +399,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         {
             Graph flowCapStorCapCurve =  flowCapacityStorageCapacityCurve(*(injectorSolution.get()),
                                                                           *(producerSolution.get()),
-                                                                           m_opmFlowDiagStaticData->m_poreVolume);
+                                                                           m_opmFlowDiagStaticData->m_poreVolume,
+                                                                           0.1);
 
             result.setFlowCapStorageCapCurve(flowCapStorCapCurve);
             result.setSweepEfficiencyCurve(sweepEfficiency(flowCapStorCapCurve));

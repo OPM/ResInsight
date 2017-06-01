@@ -31,6 +31,7 @@
 
 #include <opm/utility/ECLFluxCalc.hpp>
 #include <opm/utility/ECLGraph.hpp>
+#include <opm/utility/ECLPhaseIndex.hpp>
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLWellSolution.hpp>
 
@@ -115,15 +116,19 @@ namespace example {
     }
 
     inline Opm::FlowDiagnostics::ConnectionValues
-    extractFluxField(const Opm::ECLGraph&       G,
-                     const Opm::ECLRestartData& rstrt,
-                     const bool                 compute_fluxes)
+    extractFluxField(const Opm::ECLGraph&        G,
+                     const Opm::ECLInitFileData& init,
+                     const Opm::ECLRestartData&  rstrt,
+                     const bool                  compute_fluxes,
+                     const bool                  useEPS)
     {
         if (compute_fluxes) {
-            Opm::ECLFluxCalc calc(G);
+            auto satfunc = ::Opm::ECLSaturationFunc(G, init, useEPS);
+
+            Opm::ECLFluxCalc calc(G, std::move(satfunc));
 
             auto getFlux = [&calc, &rstrt]
-                (const Opm::ECLGraph::PhaseIndex p)
+                (const Opm::ECLPhaseIndex         p)
             {
                 return calc.flux(rstrt, p);
             };
@@ -132,7 +137,7 @@ namespace example {
         }
 
         auto getFlux = [&G, &rstrt]
-            (const Opm::ECLGraph::PhaseIndex p)
+            (const Opm::ECLPhaseIndex         p)
         {
             return G.flux(rstrt, p);
         };
@@ -205,17 +210,6 @@ namespace example {
 
 
 
-    inline Opm::ECLGraph
-    initGraph(const FilePaths& file_paths)
-    {
-        const auto I = Opm::ECLInitFileData(file_paths.init);
-
-        return Opm::ECLGraph::load(file_paths.grid, I);
-    }
-
-
-
-
     inline Opm::FlowDiagnostics::Toolbox
     initToolbox(const Opm::ECLGraph& G)
     {
@@ -238,11 +232,13 @@ namespace example {
         Setup(int argc, char** argv)
             : param          (initParam(argc, argv))
             , file_paths     (param)
+            , init           (file_paths.init)
             , rstrt          (file_paths.restart)
-            , graph          (initGraph(file_paths))
+            , graph          (::Opm::ECLGraph::load(file_paths.grid, init))
             , well_fluxes    ()
             , toolbox        (initToolbox(graph))
             , compute_fluxes_(param.getDefault("compute_fluxes", false))
+            , useEPS_        (param.getDefault("use_ep_scaling", false))
         {
             const int step = param.getDefault("step", 0);
 
@@ -268,7 +264,9 @@ namespace example {
                 well_fluxes = wsol.solution(rstrt, graph.activeGrids());
             }
 
-            toolbox.assignConnectionFlux(extractFluxField(graph, rstrt, compute_fluxes_));
+            toolbox.assignConnectionFlux(extractFluxField(graph, init, rstrt,
+                                                          compute_fluxes_, useEPS_));
+
             toolbox.assignInflowFlux(extractWellFlows(graph, well_fluxes));
 
             return true;
@@ -276,11 +274,13 @@ namespace example {
 
         Opm::ParameterGroup param;
         FilePaths file_paths;
+        Opm::ECLInitFileData init;
         Opm::ECLRestartData rstrt;
         Opm::ECLGraph graph;
         std::vector<Opm::ECLWellSolution::WellData> well_fluxes;
         Opm::FlowDiagnostics::Toolbox toolbox;
         bool compute_fluxes_ = false;
+        bool useEPS_ = false;
     };
 
 

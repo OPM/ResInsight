@@ -1,7 +1,7 @@
 
-set(RESINSIGHT_MAJOR_VERSION 2016)
-set(RESINSIGHT_MINOR_VERSION 11)
-set(RESINSIGHT_INCREMENT_VERSION "flow.14")
+set(RESINSIGHT_MAJOR_VERSION 2017)
+set(RESINSIGHT_MINOR_VERSION 05)
+set(RESINSIGHT_INCREMENT_VERSION "1-dev")
 
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
@@ -11,10 +11,10 @@ set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f")
 set(ERT_GITHUB_SHA "06a39878636af0bc52582430ad0431450e51139c") 
 
 # https://github.com/OPM/opm-flowdiagnostics
-set(OPM_FLOWDIAGNOSTICS_SHA "2c5fb55db4c4ded49c14161dd16463e1207da049")
+set(OPM_FLOWDIAGNOSTICS_SHA "b6e59ddcd2feba450c8612a7402c9239e442c0d4")
 
 # https://github.com/OPM/opm-flowdiagnostics-applications
-set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "570601718e7197b751bc3cba60c1e5fb7d842842")
+set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "ccaaa4dd1b553e131a3051687fd615fe728b76ee")
 
 # https://github.com/OPM/opm-parser/blob/master/opm/parser/eclipse/Units/Units.hpp
 # This file was moved from opm-core to opm-parser october 2016

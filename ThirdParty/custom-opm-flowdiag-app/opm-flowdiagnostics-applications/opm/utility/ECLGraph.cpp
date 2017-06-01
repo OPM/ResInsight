@@ -1278,7 +1278,7 @@ public:
     ///
     /// Mostly useful to determine the set of \c PhaseIndex values for which
     /// flux() may return non-zero values.
-    const std::vector<PhaseIndex>& activePhases() const;
+    const std::vector<ECLPhaseIndex>& activePhases() const;
 
     /// Retrieve the simulation scenario's set of active grids.
     ///
@@ -1322,7 +1322,7 @@ public:
     /// all).
     std::vector<double>
     flux(const ECLRestartData& rstrt,
-         const PhaseIndex      phase) const;
+         const ECLPhaseIndex   phase) const;
 
     /// Retrieve result set vector from current view linearised on active
     /// cells.
@@ -1609,7 +1609,7 @@ private:
     /// Set of active phases in result set.  Derived from .INIT on the
     /// assumption that the set of active phases does not change throughout
     /// the simulation run.
-    std::vector<PhaseIndex> activePhases_;
+    std::vector<ECLPhaseIndex> activePhases_;
 
     /// Set of active grids in result set.
     std::vector<std::string> activeGrids_;
@@ -1639,7 +1639,7 @@ private:
     /// \return Basename for ECl vector corresponding to particular phase
     /// flux.
     std::string
-    flowVector(const PhaseIndex phase) const;
+    flowVector(const ECLPhaseIndex phase) const;
 
     /// Extract flux values corresponding to particular result set vector
     /// for all identified non-neighbouring connections.
@@ -1940,7 +1940,7 @@ Opm::ECLGraph::Impl::numConnections() const
     return nconn + this->nnc_.numConnections();
 }
 
-const std::vector<Opm::ECLGraph::PhaseIndex>&
+const std::vector<Opm::ECLPhaseIndex>&
 Opm::ECLGraph::Impl::activePhases() const
 {
     return this->activePhases_;
@@ -2028,7 +2028,7 @@ Opm::ECLGraph::Impl::transmissibility() const
 
 std::vector<double>
 Opm::ECLGraph::Impl::flux(const ECLRestartData& rstrt,
-                          const PhaseIndex      phase) const
+                          const ECLPhaseIndex   phase) const
 {
     auto fluxUnit = [&rstrt](const std::string& gridID)
     {
@@ -2226,12 +2226,12 @@ defineActivePhases(const ::Opm::ECLInitFileData& init)
     const auto phaseMask =
         static_cast<unsigned int>(ih[INTEHEAD_PHASE_INDEX]);
 
-    using Check = std::pair<PhaseIndex, unsigned int>;
+    using Check = std::pair<ECLPhaseIndex, unsigned int>;
 
     const auto allPhases = std::vector<Check> {
-        { PhaseIndex::Aqua  , (1u << 1) },
-        { PhaseIndex::Liquid, (1u << 0) },
-        { PhaseIndex::Vapour, (1u << 2) },
+        { ECLPhaseIndex::Aqua  , (1u << 1) },
+        { ECLPhaseIndex::Liquid, (1u << 0) },
+        { ECLPhaseIndex::Vapour, (1u << 2) },
     };
 
     this->activePhases_.clear();
@@ -2243,19 +2243,19 @@ defineActivePhases(const ::Opm::ECLInitFileData& init)
 }
 
 std::string
-Opm::ECLGraph::Impl::flowVector(const PhaseIndex phase) const
+Opm::ECLGraph::Impl::flowVector(const ECLPhaseIndex phase) const
 {
     const auto vector = std::string("FLR"); // Flow-rate, reservoir
 
-    if (phase == PhaseIndex::Aqua) {
+    if (phase == ECLPhaseIndex::Aqua) {
         return vector + "WAT";
     }
 
-    if (phase == PhaseIndex::Liquid) {
+    if (phase == ECLPhaseIndex::Liquid) {
         return vector + "OIL";
     }
 
-    if (phase == PhaseIndex::Vapour) {
+    if (phase == ECLPhaseIndex::Vapour) {
         return vector + "GAS";
     }
 
@@ -2322,7 +2322,7 @@ std::size_t Opm::ECLGraph::numConnections() const
     return this->pImpl_->numConnections();
 }
 
-const std::vector<Opm::ECLGraph::PhaseIndex>&
+const std::vector<Opm::ECLPhaseIndex        >&
 Opm::ECLGraph::activePhases() const
 {
     return this->pImpl_->activePhases();
@@ -2351,7 +2351,7 @@ std::vector<double> Opm::ECLGraph::transmissibility() const
 
 std::vector<double>
 Opm::ECLGraph::flux(const ECLRestartData& rstrt,
-                    const PhaseIndex      phase) const
+                    const ECLPhaseIndex   phase) const
 {
     return this->pImpl_->flux(rstrt, phase);
 }
