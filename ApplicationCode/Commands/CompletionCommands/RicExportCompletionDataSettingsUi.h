@@ -35,6 +35,7 @@ public:
 
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
+    caf::PdmField<bool>                     includeFractures;
 
     caf::PdmField<bool>                     includeWpimult;
     caf::PdmField<bool>                     removeLateralsInMainBoreCells;

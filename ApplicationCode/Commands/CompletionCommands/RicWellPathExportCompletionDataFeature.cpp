@@ -48,6 +48,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "RicExportFractureCompletionsImpl.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
@@ -167,6 +168,13 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             appendCompletionData(&completionData, fishbonesCompletionData);
             std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesWellPathCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
+        }
+
+        if (exportSettings.includeFractures())
+        {
+            std::vector<RigCompletionData> fractureCompletionData = 
+                RicExportFractureCompletionsImpl::generateFracturesCompdatValues(wellPath, exportSettings, &stream);
+            appendCompletionData(&completionData, fractureCompletionData);
         }
 
         // Merge map into a vector of values
