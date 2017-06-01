@@ -22,8 +22,10 @@
 #include "RiaPreferences.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifReaderEclipseSummary.h"
 
 #include "RigSingleWellResultsData.h"
+#include "RigSummaryCaseData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseWell.h"
@@ -33,7 +35,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
@@ -94,67 +96,92 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell(well);
         if (!gridSummaryCase) continue;
 
-        QString curveFilterText = "W*PR:";
         QString description = "Well Production Rates : ";
 
-        RigSingleWellResultsData* wRes = well->wellResults();
-        if (wRes)
+        if (isInjector(well))
         {
-            RimView* rimView = nullptr;
-            well->firstAncestorOrThisOfTypeAsserted(rimView);
-
-            int currentTimeStep = rimView->currentTimeStep();
-
-            if (wRes->hasWellResult(currentTimeStep))
-            {
-                const RigWellResultFrame& wrf = wRes->wellResultFrame(currentTimeStep);
-
-                if (   wrf.m_productionType == RigWellResultFrame::OIL_INJECTOR
-                    || wrf.m_productionType == RigWellResultFrame::GAS_INJECTOR
-                    || wrf.m_productionType == RigWellResultFrame::WATER_INJECTOR)
-                {
-                    curveFilterText = "W*IR:";
-                    description = "Well Injection Rates : ";
-                }
-            }
+            description = "Well Injection Rates : ";
         }
-
-        curveFilterText += well->name();
-        description += well->name();
 
         RimSummaryPlot* plot = new RimSummaryPlot();
         summaryPlotColl->summaryPlots().push_back(plot);
 
+        description += well->name();
         plot->setDescription(description);
 
+        if (isInjector(well))
         {
-            RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
-            plot->addCurveFilter(newCurveFilter);
+            // Left Axis
 
-            newCurveFilter->createCurves(gridSummaryCase, curveFilterText);
+            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
+            
+            {
+                // Note : The parameter "WOIR" is probably never-existing, but we check for existence before creating curve
+                // Oil
+                QString parameterName = "WOIR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledGreenColor(0));
+            }
+
+            {
+                // Water
+                QString parameterName = "WWIR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledBlueColor(0));
+            }
+
+            {
+                // Gas
+                QString parameterName = "WGIR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledRedColor(0));
+            }
+        }
+        else
+        {
+            // Left Axis
+
+            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
+            
+            {
+                // Oil
+                QString parameterName = "WOPR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledGreenColor(0));
+            }
+
+            {
+                // Water
+                QString parameterName = "WWPR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledBlueColor(0));
+            }
+
+            {
+                // Gas
+                QString parameterName = "WGPR";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledRedColor(0));
+            }
         }
 
 
+        // Right Axis
+
         {
-            RimSummaryCurve* newCurve = new RimSummaryCurve();
-            plot->addCurve(newCurve);
+            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_RIGHT;
 
-            newCurve->setSummaryCase(gridSummaryCase);
+            {
+                QString parameterName = "WTHP";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(0));
+            }
 
-            RifEclipseSummaryAddress addr(  RifEclipseSummaryAddress::SUMMARY_WELL,
-                                            "WBHP",
-                                            -1,
-                                            -1,
-                                            "",
-                                            well->name().toStdString(),
-                                            -1,
-                                            "",
-                                            -1,
-                                            -1,
-                                            -1);
-
-            newCurve->setSummaryAddress(addr);
-            newCurve->setYAxis(RimDefines::PlotAxis::PLOT_AXIS_RIGHT);
+            {
+                QString parameterName = "WBHP";
+                RicPlotProductionRateFeature::addSummaryCurve(plot, well, gridSummaryCase, parameterName,
+                    plotAxis, RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(1));
+            }
         }
 
         summaryPlotColl->updateConnectedEditors();
@@ -208,5 +235,73 @@ RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimEcli
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
+{
+    RigSingleWellResultsData* wRes = well->wellResults();
+    if (wRes)
+    {
+        RimView* rimView = nullptr;
+        well->firstAncestorOrThisOfTypeAsserted(rimView);
+
+        int currentTimeStep = rimView->currentTimeStep();
+
+        if (wRes->hasWellResult(currentTimeStep))
+        {
+            const RigWellResultFrame& wrf = wRes->wellResultFrame(currentTimeStep);
+
+            if (   wrf.m_productionType == RigWellResultFrame::OIL_INJECTOR
+                || wrf.m_productionType == RigWellResultFrame::GAS_INJECTOR
+                || wrf.m_productionType == RigWellResultFrame::WATER_INJECTOR)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimEclipseWell* well,
+                                                    RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
+                                                    RimDefines::PlotAxis plotAxis, const cvf::Color3f& color)
+{
+    CVF_ASSERT(plot);
+    CVF_ASSERT(gridSummaryCase);
+    CVF_ASSERT(well);
+
+    RifEclipseSummaryAddress addr(RifEclipseSummaryAddress::SUMMARY_WELL,
+        vectorName.toStdString(),
+        -1,
+        -1,
+        "",
+        well->name().toStdString(),
+        -1,
+        "",
+        -1,
+        -1,
+        -1);
+
+    if (!gridSummaryCase->caseData()->summaryReader()->hasAddress(addr))
+    {
+        return nullptr;
+    }
+
+    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    plot->addCurve(newCurve);
+
+    newCurve->setSummaryCase(gridSummaryCase);
+    newCurve->setSummaryAddress(addr);
+    newCurve->setColor(color);
+    newCurve->setYAxis(plotAxis);
+
+    return newCurve;
 }
 

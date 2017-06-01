@@ -7,8 +7,6 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.h
-${CEE_CURRENT_LIST_DIR}RimCaseAndFileExportSettings.h
-${CEE_CURRENT_LIST_DIR}RimExportCompletionDataSettings.h
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.h
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.h
 ${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.h
@@ -18,8 +16,6 @@ ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimDefines.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimOilField.h
-${CEE_CURRENT_LIST_DIR}RimPerforationCollection.h
-${CEE_CURRENT_LIST_DIR}RimPerforationInterval.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseCase.h
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
@@ -35,8 +31,6 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseWell.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
-${CEE_CURRENT_LIST_DIR}RimFishboneWellPath.h
-${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.h
@@ -96,7 +90,6 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
-${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
 ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFracture.h
@@ -114,8 +107,6 @@ ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimCaseAndFileExportSettings.cpp
-${CEE_CURRENT_LIST_DIR}RimExportCompletionDataSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.cpp
@@ -125,8 +116,6 @@ ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
-${CEE_CURRENT_LIST_DIR}RimPerforationCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimPerforationInterval.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp
@@ -142,8 +131,6 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimFishboneWellPath.cpp
-${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseCollection.cpp
@@ -203,7 +190,6 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
-${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.cpp
 ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFracture.cpp
@@ -216,8 +202,6 @@ ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.cpp
-
-
 )
 
 list(APPEND CODE_HEADER_FILES

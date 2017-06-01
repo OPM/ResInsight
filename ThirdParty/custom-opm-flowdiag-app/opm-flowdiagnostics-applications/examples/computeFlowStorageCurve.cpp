@@ -38,34 +38,27 @@ try {
     std::vector<Opm::FlowDiagnostics::CellSet> start;
     auto fwd = fdTool.computeInjectionDiagnostics(start);
     auto rev = fdTool.computeProductionDiagnostics(start);
-
-    // Give disconnected cells zero pore volume.
-    std::vector<int> nbcount(setup.graph.numCells(), 0);
-    for (int nb : setup.graph.neighbours()) {
-        if (nb >= 0) {
-            ++nbcount[nb];
-        }
-    }
     auto pv = setup.graph.poreVolume();
-    for (size_t i = 0; i < pv.size(); ++i) {
-        if (nbcount[i] == 0) {
-            pv[i] = 0.0;
-        }
-    }
 
-    // Cells that have more than 100 times the average pore volume are
-    // probably aquifers, we ignore them (again by setting pore volume
-    // to zero). If this is the correct thing to do or not could
-    // depend on what you want to use the diagnostic for.
-    const double average_pv = std::accumulate(pv.begin(), pv.end(), 0.0) / double(pv.size());
-    for (double& pvval : pv) {
-        if (pvval > 100.0 * average_pv) {
-            pvval = 0.0;
+    const bool ignore_disconnected = setup.param.getDefault("ignore_disconnected", true);
+    if (ignore_disconnected) {
+        // Give disconnected cells zero pore volume.
+        std::vector<int> nbcount(setup.graph.numCells(), 0);
+        for (int nb : setup.graph.neighbours()) {
+            if (nb >= 0) {
+                ++nbcount[nb];
+            }
+        }
+        for (size_t i = 0; i < pv.size(); ++i) {
+            if (nbcount[i] == 0) {
+                pv[i] = 0.0;
+            }
         }
     }
 
     // Compute graph.
-    auto fphi = Opm::FlowDiagnostics::flowCapacityStorageCapacityCurve(fwd, rev, pv);
+    const double max_pv_fraction = setup.param.getDefault("max_pv_fraction", 0.1);
+    auto fphi = Opm::FlowDiagnostics::flowCapacityStorageCapacityCurve(fwd, rev, pv, max_pv_fraction);
 
     // Write it to standard out.
     std::cout.precision(16);

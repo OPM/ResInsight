@@ -357,29 +357,46 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
     RigEclipseCaseData::UnitsType unitSet = m_case->eclipseCaseData()->unitsType();
-    QString unitText;
-    switch ( unitSet )
-    {
-        case RigEclipseCaseData::UNITS_METRIC:
-        unitText = "[m^3/day]";
-        break;
-        case RigEclipseCaseData::UNITS_FIELD:
-        unitText = "[Brl/day]";
-        break;
-        case RigEclipseCaseData::UNITS_LAB:
-        unitText = "[cm^3/hr]";
-        break;
-        default:
-        break;
 
-    }
 
     if (m_flowDiagSolution) 
     {
+        QString unitText;
+        switch ( unitSet )
+        {
+            case RigEclipseCaseData::UNITS_METRIC:
+            unitText = "[m<sup>3</sup>/day]";
+            break;
+            case RigEclipseCaseData::UNITS_FIELD:
+            unitText = "[Brl/day]";
+            break;
+            case RigEclipseCaseData::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>/hr]";
+            break;
+            default:
+            break;
+
+        }
         plotTrack->setXAxisTitle("Reservoir Flow Rate " + unitText);
     }
     else
     {
+        QString unitText;
+        switch ( unitSet )
+        {
+            case RigEclipseCaseData::UNITS_METRIC:
+            unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
+            break;
+            case RigEclipseCaseData::UNITS_FIELD:
+            unitText = "[Liquid BBL/day], [Gas BOE/day]";
+            break;
+            case RigEclipseCaseData::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>/hr]";
+            break;
+            default:
+            break;
+
+        }
         plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
     }
 }

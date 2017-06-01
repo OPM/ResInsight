@@ -175,7 +175,27 @@ RimFishbonesCollection* RimWellPath::fishbonesCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimFishbonesCollection * RimWellPath::fishbonesCollection() const
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fishbonesCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimPerforationCollection* RimWellPath::perforationIntervalCollection()
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->perforationCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimPerforationCollection* RimWellPath::perforationIntervalCollection() const
 {
     CVF_ASSERT(m_completions);
 

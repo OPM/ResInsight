@@ -554,6 +554,14 @@ namespace {
         return errorAcceptable(E.absolute, tol.absolute)
             && errorAcceptable(E.relative, tol.relative);
     }
+
+    ::Opm::ECLGraph
+    constructGraph(const example::FilePaths& pth)
+    {
+        const auto I = ::Opm::ECLInitFileData(pth.init);
+
+        return ::Opm::ECLGraph::load(pth.grid, I);
+    }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
@@ -564,7 +572,7 @@ try {
 
     const auto rstrt = ::Opm::ECLRestartData(pth.restart);
     const auto steps = availableReportSteps(pth);
-    const auto graph = example::initGraph(pth);
+    const auto graph = constructGraph(pth);
 
     auto all_ok = true;
     for (const auto& quant : testQuantities(prm)) {

@@ -78,7 +78,9 @@ public:
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
     RimFishbonesCollection*             fishbonesCollection();
+    const RimFishbonesCollection*       fishbonesCollection() const;
     RimPerforationCollection*           perforationIntervalCollection();
+    const RimPerforationCollection*     perforationIntervalCollection() const;
     RimWellPathFractureCollection*      fractureCollection();
 
     RigWellPath*                        wellPathGeometry();

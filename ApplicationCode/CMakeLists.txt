@@ -47,9 +47,9 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
-    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Fishbones
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -108,7 +108,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
-    ProjectDataModel/Fishbones/CMakeLists_files.cmake
+    ProjectDataModel/Completions/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -120,15 +120,15 @@ list( APPEND REFERENCED_CMAKE_FILES
 	
     Commands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
+    Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
-    Commands/FishbonesCommands/CMakeLists_files.cmake
     Commands/PerforationCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
-	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
+    Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake

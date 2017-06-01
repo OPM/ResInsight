@@ -16,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigActiveCellInfo-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoir-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurveImpl-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper-Test.cpp

@@ -5,13 +5,14 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RifEclipseDataTableFormatter.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.h
-${CEE_CURRENT_LIST_DIR}RifEclipseOutputTableFormatter.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.h
+${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.h
@@ -26,13 +27,14 @@ ${CEE_CURRENT_LIST_DIR}RifFractureExportTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RifEclipseDataTableFormatter.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseOutputFileTools.cpp
-${CEE_CURRENT_LIST_DIR}RifEclipseOutputTableFormatter.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartDataAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.cpp
+${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.cpp

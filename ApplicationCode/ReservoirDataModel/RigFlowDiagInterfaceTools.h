@@ -21,7 +21,7 @@ namespace RigFlowDiagInterfaceTools {
     template <class FluxCalc>
     inline Opm::FlowDiagnostics::ConnectionValues
         extractFluxField(const Opm::ECLGraph& G,
-            FluxCalc&&           getFlux)
+                         FluxCalc&& getFlux)
     {
         using ConnVals = Opm::FlowDiagnostics::ConnectionValues;
 
@@ -52,24 +52,11 @@ namespace RigFlowDiagInterfaceTools {
     }
 
     inline Opm::FlowDiagnostics::ConnectionValues
-        extractFluxField(const Opm::ECLGraph&       G,
-            const Opm::ECLRestartData& rstrt,
-            const bool                 compute_fluxes)
+        extractFluxFieldFromRestartFile(const Opm::ECLGraph& G,
+                                        const Opm::ECLRestartData& rstrt)
     {
-        if (compute_fluxes) {
-            Opm::ECLFluxCalc calc(G);
-
-            auto getFlux = [&calc, &rstrt]
-            (const Opm::ECLGraph::PhaseIndex p)
-            {
-                return calc.flux(rstrt, p);
-            };
-
-            return extractFluxField(G, getFlux);
-        }
-
         auto getFlux = [&G, &rstrt]
-        (const Opm::ECLGraph::PhaseIndex p)
+        (const Opm::ECLPhaseIndex p)
         {
             return G.flux(rstrt, p);
         };
