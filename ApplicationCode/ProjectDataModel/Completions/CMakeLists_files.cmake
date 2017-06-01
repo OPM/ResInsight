@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RimCompletionCellIntersectionCalc.h
 ${CEE_CURRENT_LIST_DIR}RimFishbonesCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFishbonesMultipleSubs.h
 ${CEE_CURRENT_LIST_DIR}RimFishbonesPipeProperties.h
@@ -16,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RimCompletionCellIntersectionCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RimFishbonesCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFishbonesMultipleSubs.cpp
 ${CEE_CURRENT_LIST_DIR}RimFishbonesPipeProperties.cpp

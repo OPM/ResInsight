@@ -179,7 +179,7 @@ double RimFishbonesMultipleSubs::tubingDiameter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::lateralCountPerSub() const
+size_t RimFishbonesMultipleSubs::lateralCountPerSub() const
 {
     return m_lateralCountPerSub;
 }
@@ -279,7 +279,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------

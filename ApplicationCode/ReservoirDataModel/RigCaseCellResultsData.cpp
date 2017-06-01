@@ -667,6 +667,15 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         }
     }
 
+    // Completion type
+    {
+        size_t completionTypeIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+        if (completionTypeIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName(), false);
+        }
+    }
+
     // TRANSXYZ
     {
         size_t tranX, tranY, tranZ;

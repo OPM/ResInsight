@@ -53,6 +53,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
     int integerValue = wellPathSelItem->m_measuredDepth;
     obj->setMeasuredDepthAndCount(integerValue, 24, 1);
 
+
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(wellPath->fishbonesCollection());
 
     wellPath->updateConnectedEditors();
@@ -60,7 +61,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 
     RimProject* proj;
     wellPath->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------

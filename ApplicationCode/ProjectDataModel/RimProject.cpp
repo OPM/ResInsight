@@ -627,6 +627,17 @@ RimOilField* RimProject::activeOilField()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Currently there will be only one oil field in Resinsight, so return hardcoded first oil field
+/// from the RimOilField collection.
+//--------------------------------------------------------------------------------------------------
+const RimOilField * RimProject::activeOilField() const
+{
+    CVF_ASSERT(oilFields.size() == 1);
+  
+    return oilFields[0];
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
@@ -750,6 +761,17 @@ bool RimProject::show3DWindow() const
 bool RimProject::showPlotWindow() const
 {
     return m_showPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::removeResult(RimDefines::ResultCatType type, const QString & resultName)
+{
+    for (RimEclipseCase* eclipseCase : activeOilField()->analysisModels->cases)
+    {
+        eclipseCase->removeResult(type, resultName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RimDefines.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDocument.h"
@@ -98,12 +100,15 @@ public:
 
     void            computeUtmAreaOfInterest();
 
-    RimOilField*    activeOilField();
+    RimOilField*       activeOilField();
+    const RimOilField* activeOilField() const;
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
 
     bool            show3DWindow() const;
     bool            showPlotWindow() const;
+
+    void            removeResult(RimDefines::ResultCatType type, const QString& resultName);
 
 protected:
     // Overridden methods

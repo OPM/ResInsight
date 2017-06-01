@@ -65,6 +65,15 @@ namespace caf
         setDefault(RimDefines::PLOT_AXIS_LEFT);
     }
 
+    template<>
+    void caf::AppEnum< RimDefines::CompletionType >::setUp()
+    {
+        addItem(RimDefines::WELL_PATH, "WELL_PATH", "Well Path");
+        addItem(RimDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
+        addItem(RimDefines::FISHBONE, "FISHBONE", "Fishbone");
+
+        setDefault(RimDefines::WELL_PATH);
+    }
 }
 
 

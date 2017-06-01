@@ -63,6 +63,8 @@ public:
     size_t                          findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
     size_t                          findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
 
+    void                            clearScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+
 protected:
     // Overridden methods from PdmObject
     virtual void                    setupBeforeSave();
@@ -76,6 +78,8 @@ private:
     void                            computeNncCombRiMULT();
     void                            computeRiTRANSbyAreaComponent(const QString& riTransByAreaCompResultName);
     void                            computeNncCombRiTRANSbyArea();
+
+    void                            computeCompletionTypeForTimeStep(size_t timeStep);
 
     double                          darchysValue();
 
