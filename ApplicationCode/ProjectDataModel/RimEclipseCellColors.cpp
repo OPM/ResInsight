@@ -384,12 +384,17 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
             }
             else if (this->resultType() == RimDefines::DYNAMIC_NATIVE && this->resultVariable() == RimDefines::completionTypeResultName())
             {
-                std::vector<QString> ctNames;
-                for (QString ctName : caf::AppEnum<RimDefines::CompletionType>::uiTexts())
-                {
-                    ctNames.push_back(ctName);
-                }
-                this->legendConfig()->setNamedCategoriesInverse(ctNames);
+                std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+
+                caf::AppEnum<RimDefines::CompletionType> wellPath(RimDefines::WELL_PATH);
+                caf::AppEnum<RimDefines::CompletionType> fishbone(RimDefines::FISHBONE);
+                caf::AppEnum<RimDefines::CompletionType> perforationInterval(RimDefines::PERFORATION_INTERVAL);
+
+                categories.push_back(std::make_tuple(wellPath.uiText(), wellPath.index(), cvf::Color3::RED));
+                categories.push_back(std::make_tuple(fishbone.uiText(), fishbone.index(), cvf::Color3::DARK_GREEN));
+                categories.push_back(std::make_tuple(perforationInterval.uiText(), perforationInterval.index(), cvf::Color3::GREEN));
+
+                legendConfig()->setCategoryItems(categories);
             }
             else
             {
