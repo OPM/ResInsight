@@ -959,6 +959,14 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isCompletionTypeSelected() const
+{
+    return (m_resultType() == RimDefines::DYNAMIC_NATIVE && m_resultVariable() == RimDefines::completionTypeResultName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
     if (this->m_resultType() == RimDefines::FORMATION_NAMES

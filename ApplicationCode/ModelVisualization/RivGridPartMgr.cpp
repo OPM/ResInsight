@@ -262,6 +262,18 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
 
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
+            if (cellResultColors->isCompletionTypeSelected())
+            {
+                cvf::Vec2fArray& surfaceCoords = *m_surfaceFacesTextureCoords.p();
+                for (cvf::Vec2f& vec : surfaceCoords)
+                {
+                    {
+                        vec[1] = 0.5;
+                    }
+                }
+                m_opacityLevel = 0.5;
+            }
+
             const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
             RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), 
                                                             m_surfaceFacesTextureCoords.p(), 
