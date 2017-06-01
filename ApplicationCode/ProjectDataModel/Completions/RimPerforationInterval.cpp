@@ -161,6 +161,8 @@ void RimPerforationInterval::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    m_date.uiCapability()->setUiReadOnly(m_startOfHistory());
+
     uiOrdering.add(&m_startMD);
     uiOrdering.add(&m_endMD);
     uiOrdering.add(&m_diameter);
