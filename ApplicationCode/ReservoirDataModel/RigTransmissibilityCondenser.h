@@ -26,6 +26,7 @@
 
 class RigMainGrid;
 class RimStimPlanFractureTemplate;
+class RigFractureGrid;
 
 class RigTransmissibilityCondenser
 {
@@ -74,8 +75,8 @@ public:
 
     double condensedTransmissibility( CellAddress externalCell1, CellAddress externalCell2);
 
-    std::string neighborTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid);
-    std::string condensedTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid);
+    std::string neighborTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
+    std::string condensedTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid);
 
 private:
     void calculateCondensedTransmissibilitiesIfNeeded();

@@ -20,6 +20,9 @@
 
 #include "RiaLogging.h"
 
+#include "RigCellGeometryTools.h"
+#include "RigFractureCell.h"
+#include "RigFractureGrid.h"
 #include "RigTesselatorTools.h"
 
 #include "RimDefines.h"
@@ -30,6 +33,7 @@
 #include "cafPdmObject.h"
 
 #include "cvfVector3.h"
+#include "cvfGeometryTools.h"
 
 
 
@@ -47,6 +51,8 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&width,       "Width",            1.0f,    "Width", "", "", "");
 
     CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability [mD]", "", "", "");
+
+    m_fractureGrid = new RigFractureGrid();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +90,12 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
             }
 
             proj->createDisplayModelAndRedrawAllViews();
+            setupFractureGridCells();
         }
+    }
+    if (changedField == &width || changedField == &permeability)
+    {
+        setupFractureGridCells();
     }
 }
 
@@ -171,6 +182,105 @@ void RimEllipseFractureTemplate::changeUnits()
     }
 
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::setupFractureGridCells()
+{
+
+    std::vector<RigFractureCell> fractureCells;
+    std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(0, 0);
+
+    bool wellCenterFractureCellFound = false;
+
+    int numberOfCellsX = 5;
+    int numberOfCellsY = 5;
+    
+    double cellSizeX = (halfLength * 2) / numberOfCellsX;
+    double cellSizeZ = height / numberOfCellsY;
+
+    double cellArea = cellSizeX * cellSizeZ;
+    double areaTresholdForIncludingCell = 0.5 * cellArea;
+
+
+    for (int i = 0; i < numberOfCellsX; i++)
+    {
+        for (int j = 0; j < numberOfCellsX; j++)
+        {
+            double X1 = - halfLength +  i    * cellSizeX;
+            double X2 = - halfLength + (i+1) * cellSizeX;
+            double Y1 = - height / 2 +  j    * cellSizeZ;
+            double Y2 = - height / 2 + (j+1) * cellSizeZ;
+
+            std::vector<cvf::Vec3d> cellPolygon;
+            cellPolygon.push_back(cvf::Vec3d(X1, Y1, 0.0));
+            cellPolygon.push_back(cvf::Vec3d(X2, Y1, 0.0));
+            cellPolygon.push_back(cvf::Vec3d(X2, Y2, 0.0));
+            cellPolygon.push_back(cvf::Vec3d(X1, Y2, 0.0));
+            
+            double cond = cvf::UNDEFINED_DOUBLE;
+            if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
+            {
+                //Conductivity should be md-m, width is in m
+                cond = permeability * width;
+            }
+            else if(fractureTemplateUnit == RimDefines::UNITS_FIELD)
+            {
+                //Conductivity should be md-ft, but width is in inches 
+                cond = permeability * RimDefines::inchToFeet(width);
+            }
+
+            std::vector<cvf::Vec3f> ellipseFracPolygon = fracturePolygon(fractureTemplateUnit());
+            std::vector<cvf::Vec3d> ellipseFracPolygonDouble;
+            for (auto v : ellipseFracPolygon) ellipseFracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
+            std::vector<std::vector<cvf::Vec3d> >clippedFracturePolygons = RigCellGeometryTools::intersectPolygons(cellPolygon, ellipseFracPolygonDouble);
+            if (clippedFracturePolygons.size() > 0)
+            {
+                for (auto clippedFracturePolygon : clippedFracturePolygons)
+                {
+                    double areaCutPolygon = cvf::GeometryTools::polygonAreaNormal3D(clippedFracturePolygon).length();
+                    if (areaCutPolygon < areaTresholdForIncludingCell) cond = 0.0; //Cell is excluded from calculation, cond is set to zero. Must be included for indexing to be correct
+                }
+            }
+            else cond = 0.0;
+
+            RigFractureCell fractureCell(cellPolygon, i, j);
+            fractureCell.setConductivityValue(cond);
+
+            if (cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0)
+            {
+                if (cellPolygon[1].y() > 0.0 && cellPolygon[2].y() < 0.0)
+                {
+                    wellCenterFractureCellIJ = std::make_pair(fractureCell.getI(), fractureCell.getJ());
+                    RiaLogging::debug(QString("Setting wellCenterStimPlanCell at cell %1, %2").
+                                      arg(QString::number(fractureCell.getI()), QString::number(fractureCell.getJ())));
+
+                    wellCenterFractureCellFound = true;
+                }
+            }
+
+            fractureCells.push_back(fractureCell);
+
+        }
+    }
+
+    
+    m_fractureGrid->setFractureCells(fractureCells);
+    m_fractureGrid->setWellCenterFractureCellIJ(wellCenterFractureCellIJ);
+    m_fractureGrid->setICellCount(numberOfCellsX);
+    m_fractureGrid->setJCellCount(numberOfCellsY);
+
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFractureGrid* RimEllipseFractureTemplate::fractureGrid() const
+{
+    return m_fractureGrid.p();
 }
 
 //--------------------------------------------------------------------------------------------------

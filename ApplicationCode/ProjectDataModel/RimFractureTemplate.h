@@ -32,6 +32,7 @@
 #include <vector>
 
 class RigEclipseCaseData;
+class RigFractureGrid;
 
 //==================================================================================================
 ///  
@@ -75,6 +76,9 @@ public:
     
     virtual void                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimDefines::UnitSystem fractureTemplateUnit) = 0;
     virtual std::vector<cvf::Vec3f> fracturePolygon(RimDefines::UnitSystem fractureTemplateUnit) = 0;
+
+    virtual const RigFractureGrid*  fractureGrid() const = 0;
+
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 

@@ -45,7 +45,6 @@ public:
 private:
     friend class RigWellPathStimplanIntersectorTester;
     static void calculate(const cvf::Mat4f& fractureXf,
-                          const std::vector<cvf::Vec3f>& fracturePolygon,
                           const std::vector<cvf::Vec3d>& wellPathPoints,
                           double wellRadius,
                           const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons,
@@ -65,7 +64,7 @@ public:
                               const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons,
                               std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap)
     {
-        RigWellPathStimplanIntersector::calculate(fractureXf, fracturePolygon, wellPathPoints, wellRadius, stpCellPolygons, stimPlanCellIdxToIntersectionInfoMap);
+        RigWellPathStimplanIntersector::calculate(fractureXf, wellPathPoints, wellRadius, stpCellPolygons, stimPlanCellIdxToIntersectionInfoMap);
     }
 
 };

@@ -181,7 +181,7 @@ void RigTransmissibilityCondenser::calculateCondensedTransmissibilitiesIfNeeded(
 
 void printCellAddress(std::stringstream& str, 
                       const RigMainGrid* mainGrid, 
-                      const RimStimPlanFractureTemplate* fractureGrid,
+                      const RigFractureGrid* fractureGrid,
                       RigTransmissibilityCondenser::CellAddress cellAddr)
 {
     using CellAddress =  RigTransmissibilityCondenser::CellAddress;
@@ -200,7 +200,7 @@ void printCellAddress(std::stringstream& str,
         case CellAddress::STIMPLAN: 
         {
             str << "STP ";
-            const RigFractureCell& stpCell = fractureGrid->fractureGrid()->cellFromIndex(cellAddr.m_globalCellIdx);
+            const RigFractureCell& stpCell = fractureGrid->cellFromIndex(cellAddr.m_globalCellIdx);
             str << std::setw(5) << stpCell.getI()+1 << std::setw(5) << stpCell.getJ()+1  << std::setw(5) << " ";
         }
         break;
@@ -220,7 +220,7 @@ void printCellAddress(std::stringstream& str,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RigTransmissibilityCondenser::neighborTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid)
+std::string RigTransmissibilityCondenser::neighborTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid)
 {
     std::stringstream debugText;
     for ( const auto& adrEqIdxPair : m_neighborTransmissibilities )
@@ -243,7 +243,7 @@ std::string RigTransmissibilityCondenser::neighborTransDebugOutput(const RigMain
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RigTransmissibilityCondenser::condensedTransDebugOutput(const RigMainGrid* mainGrid, const RimStimPlanFractureTemplate* fractureGrid)
+std::string RigTransmissibilityCondenser::condensedTransDebugOutput(const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid)
 {
     std::stringstream debugText;
     for ( const auto& adrEqIdxPair : m_condensedTransmissibilities )

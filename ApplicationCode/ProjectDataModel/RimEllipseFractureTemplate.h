@@ -27,10 +27,12 @@
 #include "cafPdmFieldCvfVec3d.h"
 
 #include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include <vector>
 
+class RigFractureGrid;
 
 //==================================================================================================
 ///  
@@ -56,7 +58,13 @@ public:
     std::vector<cvf::Vec3f>         fracturePolygon(RimDefines::UnitSystem  fractureTemplateUnit);
     void                            changeUnits();
     
+    const RigFractureGrid*          fractureGrid() const;
+
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+
+private:
+    void                             setupFractureGridCells();
+    cvf::ref<RigFractureGrid>        m_fractureGrid;
 
 };

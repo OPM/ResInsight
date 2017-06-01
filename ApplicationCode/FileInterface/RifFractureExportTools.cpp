@@ -224,10 +224,8 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
     {
         using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
 
-        RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
-        const RigFractureGrid* fractureGrid = fracTemplateStimPlan->fractureGrid();
-
-        if (!fracTemplateStimPlan) continue; // We do not handle Elliptical fractures yet
+        RimFractureTemplate* fracTemplate = fracture->attachedFractureDefinition();
+        const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
 
         RigTransmissibilityCondenser transCondenser;
 
@@ -330,24 +328,24 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
             if (intersection.endpointCount)
             {
                 radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(fractureWellCell.getConductivtyValue(),
-                                                                                                                       fractureWellCell.cellSizeX(),
-                                                                                                                       fractureWellCell.cellSizeZ(),
-                                                                                                                       fracture->wellRadius(),
-                                                                                                                       fracTemplateStimPlan->skinFactor(),
-                                                                                                                       cDarcyInCorrectUnit);
+                                                                                                                   fractureWellCell.cellSizeX(),
+                                                                                                                   fractureWellCell.cellSizeZ(),
+                                                                                                                   fracture->wellRadius(),
+                                                                                                                   fracTemplate->skinFactor(),
+                                                                                                                   cDarcyInCorrectUnit);
             }
 
             double linearTrans = 0.0;
             if (intersection.hlength > 0.0 || intersection.vlength > 0.0 )
             {
                 linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivtyValue(),
-                                                                                                                      fractureWellCell.cellSizeX(),
-                                                                                                                      fractureWellCell.cellSizeZ(),
-                                                                                                                      intersection.vlength,
-                                                                                                                      intersection.hlength ,
-                                                                                                                      fracture->perforationEfficiency, 
-                                                                                                                      fracTemplateStimPlan->skinFactor(), 
-                                                                                                                      cDarcyInCorrectUnit);
+                                                                                                                   fractureWellCell.cellSizeX(),
+                                                                                                                   fractureWellCell.cellSizeZ(),
+                                                                                                                   intersection.vlength,
+                                                                                                                   intersection.hlength ,
+                                                                                                                   fracture->perforationEfficiency, 
+                                                                                                                   fracTemplate->skinFactor(),
+                                                                                                                   cDarcyInCorrectUnit);
             }
             
             double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
@@ -371,9 +369,9 @@ void RifFractureExportTools::exportWellPathFracturesToEclipseDataInputFile(const
             }
         }
         out << "\n" << "\n" << "\n----------- All Transimissibilities " << fracture->name() << " -------------------- \n\n";
-        out << QString::fromStdString(transCondenser.neighborTransDebugOutput(mainGrid, fracTemplateStimPlan));
+        out << QString::fromStdString(transCondenser.neighborTransDebugOutput(mainGrid, fractureGrid));
         out << "\n" << "\n" << "\n----------- Condensed Results -------------------- \n\n";
-        out << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fracTemplateStimPlan));
+        out << QString::fromStdString(transCondenser.condensedTransDebugOutput(mainGrid, fractureGrid));
         out << "\n" ;
     } 
 
