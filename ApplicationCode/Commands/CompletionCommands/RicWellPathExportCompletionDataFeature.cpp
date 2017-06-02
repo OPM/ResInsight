@@ -397,7 +397,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
 {
-    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
     std::set<size_t> cells;
 
     std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(caseData->mainGrid(), coords);
