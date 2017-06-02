@@ -43,6 +43,12 @@ public:
         FRACTURE_MODEL
     };
 
+    enum CompletionType {
+        WELL_PATH,
+        PERFORATION_INTERVAL,
+        FISHBONE
+    };
+
     static bool isPerCellFaceResult(const QString& resultName);
 
     static QString undefinedResultName()                { return "None"; }
@@ -52,10 +58,10 @@ public:
     static QString ternarySaturationResultName()        { return "TERNARY"; }
     static QString combinedMultResultName()             { return "MULTXYZ"; }
 
-    static QString riTranXResultName()                 { return "riTRANX"; }
-    static QString riTranYResultName()                 { return "riTRANY"; }
-    static QString riTranZResultName()                 { return "riTRANZ"; }
-    static QString combinedRiTranResultName()          { return "riTRANXYZ"; }
+    static QString riTranXResultName()                  { return "riTRANX"; }
+    static QString riTranYResultName()                  { return "riTRANY"; }
+    static QString riTranZResultName()                  { return "riTRANZ"; }
+    static QString combinedRiTranResultName()           { return "riTRANXYZ"; }
 
     static QString riMultXResultName()                  { return "riMULTX"; }
     static QString riMultYResultName()                  { return "riMULTY"; }
@@ -67,12 +73,14 @@ public:
     static QString riAreaNormTranZResultName()         { return "riTRANZbyArea"; }
     static QString combinedRiAreaNormTranResultName()  { return "riTRANXYZbyArea"; }
 
+    static QString completionTypeResultName()          { return "Completion Type"; }
+
     // Mock model text identifiers
-    static QString mockModelBasic()                 { return "Result Mock Debug Model Simple"; }
-    static QString mockModelBasicWithResults()      { return "Result Mock Debug Model With Results"; }
-    static QString mockModelLargeWithResults()      { return "Result Mock Debug Model Large With Results"; }
-    static QString mockModelCustomized()            { return "Result Mock Debug Model Customized"; }
-    static QString mockModelBasicInputCase()        { return "Input Mock Debug Model Simple"; }
+    static QString mockModelBasic()                    { return "Result Mock Debug Model Simple"; }
+    static QString mockModelBasicWithResults()         { return "Result Mock Debug Model With Results"; }
+    static QString mockModelLargeWithResults()         { return "Result Mock Debug Model Large With Results"; }
+    static QString mockModelCustomized()               { return "Result Mock Debug Model Customized"; }
+    static QString mockModelBasicInputCase()           { return "Input Mock Debug Model Simple"; }
 
 
     //Units and conversions

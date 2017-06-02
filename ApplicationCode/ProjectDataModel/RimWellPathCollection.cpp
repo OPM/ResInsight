@@ -215,6 +215,10 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
     }
 
     readAndAddWellPaths(wellPathArray);
+
+    RimProject* proj;
+    firstAncestorOrThisOfTypeAsserted(proj);
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 

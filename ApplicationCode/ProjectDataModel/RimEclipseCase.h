@@ -23,6 +23,7 @@
 #include "RifReaderInterface.h"
 
 #include "RimCase.h"
+#include "RimDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -77,7 +78,7 @@ public:
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
-    void                                        removeResult(const QString& resultName);
+    void                                        removeResult(RimDefines::ResultCatType type, const QString& resultName);
 
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }

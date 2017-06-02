@@ -87,10 +87,11 @@ RigCompletionData RigCompletionData::combine(const RigCompletionData& first, con
 //==================================================================================================
 bool RigCompletionData::operator<(const RigCompletionData& other) const
 {
-    if (m_wellName < other.m_wellName)
-    {
-        return true;
+    if (m_wellName != other.m_wellName) 
+    { 
+        return (m_wellName < other.m_wellName);
     }
+
     return m_cellIndex < other.m_cellIndex;
 }
 

@@ -20,6 +20,7 @@
 #include "RimPerforationInterval.h"
 
 #include "RigWellPath.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RimProject.h"
 #include "RimWellPath.h"
@@ -37,12 +38,12 @@ RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitObject("Perforation", ":/Default.png", "", "");
 
-    CAF_PDM_InitField(&m_startMD, "StartMeasuredDepth", 0.0, "Start MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_endMD, "EndMeasuredDepth", 0.0, "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_diameter, "Diameter", 0.0, "Diameter [m]", "", "", "");
-    CAF_PDM_InitField(&m_skinFactor, "SkinFactor", 0.0, "Skin Factor", "", "", "");
-    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory", true, "Start of History", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_date, "StartDate", "Start Date", "", "", "");
+    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,   "Start MD [m]", "", "", "");
+    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,   "End MD [m]", "", "", "");
+    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216, "Diameter [m]", "", "", "");
+    CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,   "Skin Factor", "", "", "");
+    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,  "Start of History", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_date,  "StartDate",                 "Start Date", "", "", "");
     m_date.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
     m_name.uiCapability()->setUiReadOnly(true);
@@ -136,14 +137,15 @@ cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
 
     if (changedField == &m_startOfHistory)
     {
         m_date.uiCapability()->setUiReadOnly(m_startOfHistory());
     }
+
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,6 +161,8 @@ void RimPerforationInterval::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    m_date.uiCapability()->setUiReadOnly(m_startOfHistory());
+
     uiOrdering.add(&m_startMD);
     uiOrdering.add(&m_endMD);
     uiOrdering.add(&m_diameter);

@@ -75,7 +75,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralLengthFraction,         "LateralLengthFraction", 0.8,       "Length Fraction [0..1]", "", "", "");
     CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 0.7,      "Install Fraction [0..1]", "", "", "");
 
-    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(7),              "ICD Count", "", "", "");
+    CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICDs per Sub", "", "", "");
     CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_locationOfSubs,       "LocationOfSubs",                   "Measured Depths [m]", "", "", "");
@@ -179,7 +179,7 @@ double RimFishbonesMultipleSubs::tubingDiameter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::lateralCountPerSub() const
+size_t RimFishbonesMultipleSubs::lateralCountPerSub() const
 {
     return m_lateralCountPerSub;
 }
@@ -279,7 +279,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------

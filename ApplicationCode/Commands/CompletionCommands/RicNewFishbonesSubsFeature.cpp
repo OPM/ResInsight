@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimProject.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
@@ -52,6 +53,10 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     fishbonesCollection->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(obj);
+
+    RimProject* proj;
+    fishbonesCollection->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------

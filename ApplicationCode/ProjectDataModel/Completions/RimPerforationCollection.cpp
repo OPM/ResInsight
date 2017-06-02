@@ -75,12 +75,9 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(perforation);
 
-    RimView* rimView = NULL;
-    firstAncestorOrThisOfType(rimView);
-    if (rimView)
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 }
 
 //--------------------------------------------------------------------------------------------------

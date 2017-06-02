@@ -251,8 +251,15 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     partMgr()->scheduleGeometryRegen();
 
     RimProject* proj;
-    this->firstAncestorOrThisOfType(proj);
-    if (proj) proj->createDisplayModelAndRedrawAllViews();
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    if (changedField == &showWellPath)
+    {
+        proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    }
+    else
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -27,6 +27,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimTools.h"
+#include "RimProject.h"
+#include "RimCompletionCellIntersectionCalc.h"
 
 #include "cafProgressInfo.h"
 #include "cafUtils.h"
@@ -253,6 +255,14 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
     return scalarResultIndex;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirCellResultsStorage::clearScalarResult(RimDefines::ResultCatType type, const QString & resultName)
+{
+    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    m_cellResults->cellScalarResults(scalarResultIndex).clear();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -325,7 +335,6 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         }
     }
 
-
     if (isDataPresent(scalarResultIndex))
     {
         return scalarResultIndex;
@@ -350,6 +359,14 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
             }
 
             return scalarResultIndex;
+        }
+    }
+    else if (resultName == RimDefines::completionTypeResultName())
+    {
+        m_cellResults->cellScalarResults(scalarResultIndex).resize(m_cellResults->maxTimeStepCount());
+        for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); ++timeStepIdx)
+        {
+            computeCompletionTypeForTimeStep(timeStepIdx);
         }
     }
 
@@ -425,6 +442,12 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
 
             return soilScalarResultIndex;
         }
+    }
+    else if (type == RimDefines::DYNAMIC_NATIVE && resultName == RimDefines::completionTypeResultName())
+    {
+        size_t completionTypeScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+        computeCompletionTypeForTimeStep(timeStepIndex);
+        return completionTypeScalarResultIndex;
     }
 
     size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
@@ -1374,6 +1397,39 @@ void RimReservoirCellResultsStorage::computeNncCombRiTRANSbyArea()
 
         riAreaNormTransResults[nncConIdx] = (*transResults)[nncConIdx] / areaOfOverlap;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirCellResultsStorage::computeCompletionTypeForTimeStep(size_t timeStep)
+{
+    size_t completionTypeResultIndex = m_cellResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+
+    if (m_cellResults->cellScalarResults(completionTypeResultIndex).size() != timeStep)
+    {
+        m_cellResults->cellScalarResults(completionTypeResultIndex).resize(timeStep);
+    }
+
+    std::vector<double>& completionTypeResult = m_cellResults->cellScalarResults(completionTypeResultIndex, 0);
+
+    size_t resultValues = m_ownerMainGrid->globalCellArray().size();
+
+    if (completionTypeResult.size() == resultValues)
+    {
+        return;
+    }
+
+    completionTypeResult.resize(resultValues);
+    std::fill(completionTypeResult.begin(), completionTypeResult.end(), HUGE_VAL);
+
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    RimEclipseCase* eclipseCase;
+    firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    QDateTime timeStepDate = eclipseCase->timeStepDates()[timeStep];
+
+    RimCompletionCellIntersectionCalc::calculateIntersections(project, m_ownerMainGrid, completionTypeResult, timeStepDate);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -152,10 +152,11 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
 
+    std::map<IJKCellIndex, RigCompletionData> completionData;
+
     for (auto wellPath : wellPaths)
     {
         // Generate completion data
-        std::map<IJKCellIndex, RigCompletionData> completionData;
 
         if (exportSettings.includePerforations)
         {
@@ -177,21 +178,21 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             appendCompletionData(&completionData, fractureCompletionData);
         }
 
-        // Merge map into a vector of values
-        std::vector<RigCompletionData> completions;
-        for (auto& data : completionData)
-        {
-            completions.push_back(data.second);
-        }
-        // Sort by well name / cell index
-        std::sort(completions.begin(), completions.end());
+    }
 
-        // Print completion data
-        generateCompdatTable(formatter, completions);
-        if (exportSettings.includeWpimult)
-        {
-            generateWpimultTable(formatter, completions);
-        }
+    // Merge map into a vector of values
+    std::vector<RigCompletionData> completions;
+    for (auto& data : completionData)
+    {
+        completions.push_back(data.second);
+    }
+    // Sort by well name / cell index
+    std::sort(completions.begin(), completions.end());
+    // Print completion data
+    generateCompdatTable(formatter, completions);
+    if (exportSettings.includeWpimult)
+    {
+        generateWpimultTable(formatter, completions);
     }
 }
 

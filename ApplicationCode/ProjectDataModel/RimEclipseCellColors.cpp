@@ -377,14 +377,28 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            if (this->resultType() != RimDefines::FORMATION_NAMES)
-            {
-                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
-            }
-            else
+            if (this->resultType() == RimDefines::FORMATION_NAMES)
             {
                 const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
                 this->legendConfig()->setNamedCategoriesInverse(fnVector);
+            }
+            else if (this->resultType() == RimDefines::DYNAMIC_NATIVE && this->resultVariable() == RimDefines::completionTypeResultName())
+            {
+                std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
+
+                caf::AppEnum<RimDefines::CompletionType> wellPath(RimDefines::WELL_PATH);
+                caf::AppEnum<RimDefines::CompletionType> fishbone(RimDefines::FISHBONE);
+                caf::AppEnum<RimDefines::CompletionType> perforationInterval(RimDefines::PERFORATION_INTERVAL);
+
+                categories.push_back(std::make_tuple(wellPath.uiText(), wellPath.index(), cvf::Color3::RED));
+                categories.push_back(std::make_tuple(fishbone.uiText(), fishbone.index(), cvf::Color3::DARK_GREEN));
+                categories.push_back(std::make_tuple(perforationInterval.uiText(), perforationInterval.index(), cvf::Color3::GREEN));
+
+                legendConfig()->setCategoryItems(categories);
+            }
+            else
+            {
+                this->legendConfig()->setIntegerCategories(cellResultsData->uniqueCellScalarValues(this->scalarResultIndex()));
             }
         }
     }

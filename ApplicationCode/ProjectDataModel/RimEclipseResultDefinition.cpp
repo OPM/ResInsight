@@ -959,12 +959,23 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isCompletionTypeSelected() const
+{
+    return (m_resultType() == RimDefines::DYNAMIC_NATIVE && m_resultVariable() == RimDefines::completionTypeResultName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
     if (this->m_resultType() == RimDefines::FORMATION_NAMES
         && m_eclipseCase 
         && m_eclipseCase->eclipseCaseData() 
         && m_eclipseCase->eclipseCaseData()->activeFormationNames() ) return true;
+
+    if (this->m_resultType() == RimDefines::DYNAMIC_NATIVE
+        && this->resultVariable() == RimDefines::completionTypeResultName()) return true;
 
     if (this->m_resultType() == RimDefines::FLOW_DIAGNOSTICS
         && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME) return true;
