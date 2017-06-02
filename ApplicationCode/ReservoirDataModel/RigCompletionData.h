@@ -91,7 +91,7 @@ struct RigCompletionMetaData {
 class RigCompletionData : public cvf::Object
 {
 public:
-    RigCompletionData(const QString wellName, const IJKCellIndex cellIndex);
+    RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex);
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
