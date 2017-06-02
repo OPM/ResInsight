@@ -471,11 +471,11 @@ cvf::BoundingBox RimFishbonesMultipleSubs::boundingBoxInDomainCoords()
 {
     cvf::BoundingBox bb;
 
-    for (size_t i = 0; i < m_locationOfSubs().size(); i++)
+    for (auto& sub : installedLateralIndices())
     {
-        for (size_t lateralIndex = 0; lateralIndex < m_lateralCountPerSub; lateralIndex++)
+        for (size_t lateralIndex : sub.lateralIndices)
         {
-            std::vector<cvf::Vec3d> coords = coordsForLateral(i, lateralIndex);
+            std::vector<cvf::Vec3d> coords = coordsForLateral(sub.subIndex, lateralIndex);
 
             for (auto c : coords)
             {
