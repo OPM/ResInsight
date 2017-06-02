@@ -80,11 +80,11 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
 //--------------------------------------------------------------------------------------------------
 void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const RimFishbonesMultipleSubs* fishbonesSubs, const RigMainGrid* grid, std::vector<double>& values)
 {
-    for (size_t subIndex = 0; subIndex < fishbonesSubs->locationOfSubs().size(); ++subIndex)
+    for (auto& sub : fishbonesSubs->installedLateralIndices())
     {
-        for (size_t lateralIndex = 0; lateralIndex < fishbonesSubs->lateralCountPerSub(); ++lateralIndex)
+        for (size_t lateralIndex : sub.lateralIndices)
         {
-            std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, fishbonesSubs->coordsForLateral(subIndex, lateralIndex));
+            std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
             for (auto& intersection : intersections)
             {
                 values[intersection.m_hexIndex] = RimDefines::FISHBONE;

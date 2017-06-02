@@ -503,12 +503,12 @@ std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWel
     std::vector<WellSegmentLocation> wellSegmentLocations;
     for (RimFishbonesMultipleSubs* subs : fishbonesSubs)
     {
-        for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
+        for (auto& sub : subs->installedLateralIndices())
         {
-            double measuredDepth = subs->locationOfSubs()[subIndex];
+            double measuredDepth = subs->measuredDepth(sub.subIndex);
             cvf::Vec3d position = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(measuredDepth);
-            WellSegmentLocation location = WellSegmentLocation(subs, measuredDepth, -position.z(), subIndex);
-            for (size_t lateralIndex = 0; lateralIndex < subs->lateralLengths().size(); ++lateralIndex)
+            WellSegmentLocation location = WellSegmentLocation(subs, measuredDepth, -position.z(), sub.subIndex);
+            for (size_t lateralIndex : sub.lateralIndices)
             {
                 location.laterals.push_back(WellSegmentLateral(lateralIndex));
             }

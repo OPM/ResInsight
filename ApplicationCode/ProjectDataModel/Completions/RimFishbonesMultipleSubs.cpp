@@ -72,8 +72,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     CAF_PDM_InitField(&m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001,   "Open Hole Roghness Factor [m]", "", "", "");
     CAF_PDM_InitField(&m_lateralTubingRoghnessFactor,   "LateralTubingRoghnessFactor", 1e-5,      "Tubing Roghness Factor [m]", "", "", "");
 
-    CAF_PDM_InitField(&m_lateralLengthFraction,         "LateralLengthFraction", 0.8,       "Length Fraction [0..1]", "", "", "");
-    CAF_PDM_InitField(&m_lateralInstallFraction,        "LateralInstallFraction", 0.7,      "Install Fraction [0..1]", "", "", "");
+    CAF_PDM_InitField(&m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 0.7,     "Install Success Rate [0..1]", "", "", "");
 
     CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICDs per Sub", "", "", "");
     CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
@@ -102,6 +101,8 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     m_name.uiCapability()->setUiReadOnly(true);
 
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
+
+    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,14 +126,17 @@ void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, do
 
     computeRangesAndLocations();
     computeRotationAngles();
+    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimFishbonesMultipleSubs::locationOfSubs() const
+double RimFishbonesMultipleSubs::measuredDepth(size_t subIndex) const
 {
-    return m_locationOfSubs;
+    CVF_ASSERT(subIndex < m_locationOfSubs().size());
+
+    return m_locationOfSubs()[subIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,6 +281,14 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         computeRotationAngles();
     }
 
+    if (recomputeLocations ||
+        changedField == &m_locationOfSubs ||
+        changedField == &m_lateralInstallSuccessFraction ||
+        changedField == &m_lateralCountPerSub)
+    {
+        computeSubLateralIndices();
+    }
+
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
@@ -381,14 +393,8 @@ void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUi
             lateralConfigGroup->add(&m_fixedInstallationRotationAngle);
         }
 
+        lateralConfigGroup->add(&m_lateralInstallSuccessFraction);
 
-        {
-            caf::PdmUiGroup* successGroup = lateralConfigGroup->addNewGroup("Installation Success Fractions");
-            successGroup->setCollapsedByDefault(true);
-
-            successGroup->add(&m_lateralLengthFraction);
-            successGroup->add(&m_lateralInstallFraction);
-        }
     }
 
     {
@@ -451,6 +457,7 @@ void RimFishbonesMultipleSubs::initAfterRead()
     {
         computeRotationAngles();
     }
+    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,6 +508,36 @@ void RimFishbonesMultipleSubs::computeRotationAngles()
     }
 
     m_installationRotationAngles = vals;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::computeSubLateralIndices()
+{
+    m_subLateralIndices.clear();
+    for (size_t subIndex = 0; subIndex < m_locationOfSubs().size(); ++subIndex)
+    {
+        SubLateralIndex subLateralIndex{ subIndex };
+        for (size_t lateralIndex = 0; lateralIndex < m_lateralCountPerSub(); ++lateralIndex)
+        {
+            subLateralIndex.lateralIndices.push_back(lateralIndex);
+        }
+        m_subLateralIndices.push_back(subLateralIndex);
+    }
+    double numLaterals = static_cast<double>(m_locationOfSubs().size() * m_lateralCountPerSub);
+    int numToRemove = static_cast<int>(std::round((1 - m_lateralInstallSuccessFraction) * numLaterals));
+    srand(m_randomSeed());
+    while (numToRemove > 0)
+    {
+        int subIndexToRemove;
+        do {
+            subIndexToRemove = rand() % m_subLateralIndices.size();
+        } while (m_subLateralIndices[subIndexToRemove].lateralIndices.empty());
+        int lateralIndexToRemove = rand() % m_subLateralIndices[subIndexToRemove].lateralIndices.size();
+        m_subLateralIndices[subIndexToRemove].lateralIndices.erase(m_subLateralIndices[subIndexToRemove].lateralIndices.begin() + lateralIndexToRemove);
+        --numToRemove;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

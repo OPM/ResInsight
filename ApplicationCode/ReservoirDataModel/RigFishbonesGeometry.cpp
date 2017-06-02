@@ -39,8 +39,22 @@ RigFisbonesGeometry::RigFisbonesGeometry(RimFishbonesMultipleSubs* fishbonesSub)
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral(size_t subIndex, size_t lateralIndex) const
 {
-    CVF_ASSERT(subIndex < m_fishbonesSub->locationOfSubs().size());
     CVF_ASSERT(lateralIndex < m_fishbonesSub->lateralLengths().size());
+
+    bool found = false;
+    for (auto& sub : m_fishbonesSub->installedLateralIndices())
+    {
+        if (sub.subIndex == subIndex)
+        {
+            auto it = std::find(sub.lateralIndices.begin(), sub.lateralIndices.end(), lateralIndex);
+            if (it != sub.lateralIndices.end())
+            {
+                found = true;
+                break;
+            }
+        }
+    }
+    CVF_ASSERT(found);
 
     cvf::Vec3d position;
     cvf::Vec3d lateralInitialDirection;
@@ -48,7 +62,7 @@ std::vector<std::pair<cvf::Vec3d, double>> RigFisbonesGeometry::coordsForLateral
 
     computeLateralPositionAndOrientation(subIndex, lateralIndex, &position, &lateralInitialDirection, &buildAngleRotationMatrix);
 
-    return computeCoordsAlongLateral(m_fishbonesSub->locationOfSubs()[subIndex], m_fishbonesSub->lateralLengths()[lateralIndex], position, lateralInitialDirection, buildAngleRotationMatrix);
+    return computeCoordsAlongLateral(m_fishbonesSub->measuredDepth(subIndex), m_fishbonesSub->lateralLengths()[lateralIndex], position, lateralInitialDirection, buildAngleRotationMatrix);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +76,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation(size_t subIndex, 
     RigWellPath* rigWellPath = wellPath->wellPathGeometry();
     CVF_ASSERT(rigWellPath);
 
-    double measuredDepth = m_fishbonesSub->locationOfSubs()[subIndex];
+    double measuredDepth = m_fishbonesSub->measuredDepth(subIndex);
 
     cvf::Vec3d position = rigWellPath->interpolatedPointAlongWellPath(measuredDepth);
 

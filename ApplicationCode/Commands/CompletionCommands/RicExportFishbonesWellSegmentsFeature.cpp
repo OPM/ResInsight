@@ -230,12 +230,12 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
             {
                 depth = location.trueVerticalDepth - previousLocation.trueVerticalDepth;
-                length = location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex];
+                length = location.fishbonesSubs->measuredDepth(location.subIndex) - previousLocation.fishbonesSubs->measuredDepth(previousLocation.subIndex);
             }
             else
             {
                 depth += location.trueVerticalDepth - previousLocation.trueVerticalDepth;
-                length += location.fishbonesSubs->locationOfSubs()[location.subIndex] - previousLocation.fishbonesSubs->locationOfSubs()[previousLocation.subIndex];
+                length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousLocation.fishbonesSubs->measuredDepth(previousLocation.subIndex);
             }
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));

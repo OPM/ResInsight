@@ -89,11 +89,11 @@ void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoor
 
     RivPipeGeometryGenerator geoGenerator;
 
-    for (size_t subIndex = 0; subIndex < m_rimFishbonesSubs->locationOfSubs().size(); subIndex++)
+    for (auto& sub : m_rimFishbonesSubs->installedLateralIndices())
     {
-        for (size_t lateralIndex = 0; lateralIndex < m_rimFishbonesSubs->lateralLengths().size(); lateralIndex++)
+        for (size_t lateralIndex : sub.lateralIndices)
         {
-            std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral(subIndex, lateralIndex);
+            std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex);
 
             std::vector<cvf::Vec3d> displayCoords;
             for (auto domainCoord : lateralDomainCoords)
