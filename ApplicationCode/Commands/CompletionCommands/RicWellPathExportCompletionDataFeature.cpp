@@ -437,35 +437,6 @@ void RicWellPathExportCompletionDataFeature::markWellPathCells(const std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double> RicWellPathExportCompletionDataFeature::computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells)
-{
-    std::map<size_t, double> lateralsPerCell;
-    for (const WellSegmentLocation& location : segmentLocations)
-    {
-        for (const WellSegmentLateral& lateral : location.laterals)
-        {
-            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
-            {
-                if (removeMainBoreCells && intersection.mainBoreCell) continue;
-
-                auto match = lateralsPerCell.find(intersection.cellIndex);
-                if (match == lateralsPerCell.end())
-                {
-                    lateralsPerCell[intersection.cellIndex] = 1;
-                }
-                else
-                {
-                    lateralsPerCell[intersection.cellIndex] = match->second + 1;
-                }
-            }
-        }
-    }
-    return lateralsPerCell;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeature::wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second)
 {
     return first.measuredDepth < second.measuredDepth;
