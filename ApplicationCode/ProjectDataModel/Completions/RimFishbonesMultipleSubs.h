@@ -82,7 +82,6 @@ public:
     double              tubingDiameter() const;
     double              holeDiameter() const { return m_pipeProperties()->holeDiameter(); }
     double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
-    size_t              lateralCountPerSub() const;
     std::vector<double> lateralLengths() const;
 
     const std::vector<SubLateralIndex>& installedLateralIndices() const { return m_subLateralIndices; };

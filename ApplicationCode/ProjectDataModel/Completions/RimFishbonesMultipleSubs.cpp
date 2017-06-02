@@ -183,14 +183,6 @@ double RimFishbonesMultipleSubs::tubingDiameter() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimFishbonesMultipleSubs::lateralCountPerSub() const
-{
-    return m_lateralCountPerSub;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<double> RimFishbonesMultipleSubs::lateralLengths() const
 {
     QStringList items = m_lateralLength().split(' ');
