@@ -22,6 +22,10 @@ ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.h
 ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
+
+
+# Fracture files goes here
+
 ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.h
 )
@@ -44,6 +48,10 @@ ${CEE_CURRENT_LIST_DIR}RimSimWellFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimSimWellFractureCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.cpp
+
+
+# Fracture files goes here
+
 ${CEE_CURRENT_LIST_DIR}RimWellPathFracture.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathFractureCollection.cpp
 )
@@ -56,4 +64,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "ProjectDataModel\\Fishbones" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "ProjectDataModel\\Completions" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
