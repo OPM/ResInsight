@@ -329,35 +329,19 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
     {
         for (const WellSegmentLateral& lateral : location.laterals)
         {
-            double length = 0;
+            double aggregatedLength = 0;
             for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
-                length += intersection.length;
-
                 size_t i, j, k;
                 grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
                 
                 formatter.addZeroBasedCellIndex(i).addZeroBasedCellIndex(j).addZeroBasedCellIndex(k);
                 formatter.add(lateral.branchNumber);
-                formatter.add(length);
-                formatter.add("1*");
-                switch (intersection.direction)
-                {
-                case POS_I:
-                case NEG_I:
-                    formatter.add("I");
-                    break;
-                case POS_J:
-                case NEG_J:
-                    formatter.add("J");
-                    break;
-                case POS_K:
-                case NEG_K:
-                    formatter.add("K");
-                    break;
-                }
-                formatter.add(-1);
+                formatter.add(aggregatedLength);
+                formatter.add(aggregatedLength + intersection.length);
                 formatter.rowCompleted();
+
+                aggregatedLength += intersection.length;
             }
         }
     }
