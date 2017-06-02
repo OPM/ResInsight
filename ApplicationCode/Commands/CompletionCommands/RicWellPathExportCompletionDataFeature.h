@@ -65,7 +65,10 @@ struct WellSegmentLateralIntersection {
 /// 
 //==================================================================================================
 struct WellSegmentLateral {
-    WellSegmentLateral(size_t lateralIndex) : lateralIndex(lateralIndex) {}
+    WellSegmentLateral(size_t lateralIndex)
+        : lateralIndex(lateralIndex),
+          branchNumber(0)
+    {}
 
     size_t                                      lateralIndex;
     int                                         branchNumber;
