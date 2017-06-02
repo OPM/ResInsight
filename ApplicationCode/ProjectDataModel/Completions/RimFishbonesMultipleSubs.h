@@ -82,6 +82,9 @@ public:
     double              tubingDiameter() const;
     double              holeDiameter() const { return m_pipeProperties()->holeDiameter(); }
     double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
+    double              icdOrificeDiameter() const { return m_icdOrificeDiameter(); }
+    double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }
+    size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;
 
     const std::vector<SubLateralIndex>& installedLateralIndices() const { return m_subLateralIndices; };
@@ -126,6 +129,7 @@ private:
 
     caf::PdmField<size_t>               m_icdCount;
     caf::PdmField<double>               m_icdOrificeDiameter;
+    caf::PdmField<double>               m_icdFlowCoefficient;
 
     caf::PdmField<caf::AppEnum<LocationType> >    m_subsLocationMode;
     caf::PdmField<double>               m_rangeStart;

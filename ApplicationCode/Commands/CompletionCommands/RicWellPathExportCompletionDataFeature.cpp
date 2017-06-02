@@ -507,7 +507,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
         double length = 0;
         double depth = 0;
         cvf::Vec3d startPoint = coords[0];
-        int attachedSegmentNumber = location->segmentNumber;
+        int attachedSegmentNumber = location->icdSegmentNumber;
 
         for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); ++i)
         {
@@ -547,6 +547,8 @@ void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const
     for (WellSegmentLocation& location : *locations)
     {
         location.segmentNumber = ++segmentNumber;
+        location.icdBranchNumber = ++branchNumber;
+        location.icdSegmentNumber = ++segmentNumber;
     }
     // Then assign branch and segment numbers to each lateral parts
     for (WellSegmentLocation& location : *locations)

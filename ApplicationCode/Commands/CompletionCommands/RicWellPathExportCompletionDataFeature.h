@@ -93,6 +93,8 @@ struct WellSegmentLocation {
     double                                trueVerticalDepth;
     size_t                                subIndex;
     int                                   segmentNumber;
+    int                                   icdBranchNumber;
+    int                                   icdSegmentNumber;
     std::vector<WellSegmentLateral>       laterals;
 };
 

@@ -36,6 +36,8 @@
 #include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
 
+#include "cvfMath.h"
+
 #include <QAction>
 #include <QMessageBox>
 #include <QDir>
@@ -170,12 +172,16 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
     RifEclipseDataTableFormatter formatter(stream);
     generateWelsegsTable(formatter, wellPath, settings, locations);
     generateCompsegsTable(formatter, wellPath, settings, locations);
+    generateWsegvalvTable(formatter, wellPath, settings, locations);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
+void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
+                                                                 const RimWellPath* wellPath,
+                                                                 const RicExportWellSegmentsSettingsUi& settings,
+                                                                 const std::vector<WellSegmentLocation>& locations)
 {
     formatter.keyword("WELSEGS");
 
@@ -258,6 +264,16 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.comment("Rough: MSW - Open Hole Roughness Factor");
         for (const WellSegmentLocation& location : locations)
         {
+            formatter.comment("ICD");
+            formatter.add(location.icdSegmentNumber).add(location.icdSegmentNumber);
+            formatter.add(location.icdBranchNumber);
+            formatter.add(location.segmentNumber);
+            formatter.add(0.1); // ICDs have 0.1 length
+            formatter.add(0); // Depth change
+            formatter.add(-1.0); // Diam?
+            formatter.add(-1.0); // Rough?
+            formatter.rowCompleted();
+
             for (const WellSegmentLateral& lateral : location.laterals)
             {
                 formatter.comment(QString("%1 : Sub index %2 - Lateral %3").arg(location.fishbonesSubs->name()).arg(location.subIndex).arg(lateral.lateralIndex));
@@ -297,7 +313,10 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations)
+void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseDataTableFormatter& formatter,
+                                                                  const RimWellPath* wellPath,
+                                                                  const RicExportWellSegmentsSettingsUi& settings,
+                                                                  const std::vector<WellSegmentLocation>& locations)
 {
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
     formatter.keyword("COMPSEGS");
@@ -346,5 +365,37 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
         }
     }
 
+    formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportFishbonesWellSegmentsFeature::generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
+                                                                  const RimWellPath* wellPath,
+                                                                  const RicExportWellSegmentsSettingsUi& settings,
+                                                                  const std::vector<WellSegmentLocation>& locations)
+{
+    {
+        formatter.keyword("WSEGVALV");
+        std::vector<RifEclipseOutputTableColumn> header = {
+            RifEclipseOutputTableColumn("Well Name"),
+            RifEclipseOutputTableColumn("Seg No"),
+            RifEclipseOutputTableColumn("Cv"),
+            RifEclipseOutputTableColumn("Ac"),
+        };
+        formatter.header(header);
+    }
+    for (const WellSegmentLocation& location : locations)
+    {
+        formatter.add(wellPath->name());
+        formatter.add(location.icdSegmentNumber);
+        formatter.add(location.fishbonesSubs->icdFlowCoefficient());
+
+        double icdOrificeRadius = location.fishbonesSubs->icdOrificeDiameter() / 2;
+        double icdArea = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
+        formatter.add(icdArea * static_cast<double>(location.fishbonesSubs->icdCount()));
+        formatter.rowCompleted();
+    }
     formatter.tableCompleted();
 }
