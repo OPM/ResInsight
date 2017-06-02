@@ -522,7 +522,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
 
                 length = 0;
                 depth = 0;
-                startPoint = intersection->startPoint;
+                startPoint = intersection->endPoint;
                 attachedSegmentNumber = *segmentNum;
                 ++intersection;
             }
