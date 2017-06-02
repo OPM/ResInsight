@@ -29,6 +29,7 @@
 
 #include <QColor>
 
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
 
@@ -49,6 +50,8 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Well Paths", "", "", "");
     m_wellPathCollection = new RimFishboneWellPathCollection;
     m_wellPathCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +81,8 @@ void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 {
     subs->fishbonesColor = nextFishbonesColor();
     fishbonesSubs.push_back(subs);
+
+    recalculateStartMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,5 +116,26 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
     }
 
     return cvf::Color3f::fromByteColor(qFishbonesColor.red(), qFishbonesColor.green(), qFishbonesColor.blue());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::recalculateStartMD()
+{
+    double minStartMD = HUGE_VAL;
+
+    for (const RimFishbonesMultipleSubs* sub : fishbonesSubs())
+    {
+        for (auto& index : sub->installedLateralIndices())
+        {
+            minStartMD = std::min(minStartMD, sub->measuredDepth(index.subIndex) - 13.0);
+        }
+    }
+
+    if (minStartMD < m_startMD())
+    {
+        m_startMD = minStartMD;
+    }
 }
 

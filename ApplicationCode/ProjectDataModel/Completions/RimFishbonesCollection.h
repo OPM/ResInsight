@@ -46,11 +46,16 @@ public:
 
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
+    void         recalculateStartMD();
+
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     cvf::Color3f nextFishbonesColor() const;
 
+private:
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
+
+    caf::PdmField<double>                               m_startMD;
 };

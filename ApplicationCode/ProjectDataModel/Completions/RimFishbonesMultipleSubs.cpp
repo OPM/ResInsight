@@ -22,6 +22,7 @@
 #include "RigWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimFishbonesCollection.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -334,6 +335,10 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
         
         m_locationOfSubs = validMeasuredDepths;
     }
+
+    RimFishbonesCollection* collection;
+    this->firstAncestorOrThisOfTypeAsserted(collection);
+    collection->recalculateStartMD();
 }
 
 //--------------------------------------------------------------------------------------------------
