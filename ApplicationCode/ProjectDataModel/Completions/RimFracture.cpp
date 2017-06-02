@@ -378,6 +378,17 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             azimuth.uiCapability()->setUiReadOnly(false);
         }
 
+        if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH)
+        {
+            perforationEfficiency.uiCapability()->setUiHidden(false);
+            perforationLength.uiCapability()->setUiHidden(false);
+        }
+        else
+        {
+            perforationEfficiency.uiCapability()->setUiHidden(true);
+            perforationLength.uiCapability()->setUiHidden(true);
+        }
+
 
         RimFractureTemplate* fracTemplate= attachedFractureDefinition();
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))

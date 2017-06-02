@@ -180,6 +180,18 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     {
         azimuthAngle.uiCapability()->setUiHidden(false);
     }
+
+    if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
+    {
+        perforationEfficiency.uiCapability()->setUiHidden(false);
+        perforationLength.uiCapability()->setUiHidden(false);
+    }
+    else 
+    {
+        perforationEfficiency.uiCapability()->setUiHidden(true);
+        perforationLength.uiCapability()->setUiHidden(true);
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
