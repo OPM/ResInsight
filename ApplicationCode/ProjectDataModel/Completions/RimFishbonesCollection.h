@@ -47,6 +47,7 @@ public:
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
     void         recalculateStartMD();
+    double       startMD() const { return m_startMD(); }
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

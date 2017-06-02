@@ -30,6 +30,7 @@
 
 #include "RigMainGrid.h"
 #include "RigEclipseCaseData.h"
+#include "RigWellPath.h"
 
 #include "RiuMainWindow.h"
 
@@ -185,7 +186,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 {
     formatter.keyword("WELSEGS");
 
-    const WellSegmentLocation& firstLocation = locations[0];
+    double startMD = wellPath->fishbonesCollection()->startMD();
+    double startTVD = -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(startMD).z();
 
     {
         std::vector<RifEclipseOutputTableColumn> header = {
@@ -199,8 +201,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.header(header);
 
         formatter.add(wellPath->name());
-        formatter.add(firstLocation.trueVerticalDepth);
-        formatter.add(firstLocation.measuredDepth);
+        formatter.add(startTVD);
+        formatter.add(startMD);
         formatter.add("1*");
         formatter.add(settings.lengthAndDepth().text()); 
         formatter.add(settings.pressureDrop().text());
@@ -223,25 +225,24 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
     }
 
     {
-        WellSegmentLocation previousLocation = firstLocation;
         formatter.comment("Main stem");
 
         double depth = 0;
         double length = 0;
+        double previousMD = startMD;
+        double previousTVD = startTVD;
 
-        for (size_t i = 0; i < locations.size(); ++i)
+        for (const WellSegmentLocation& location : locations)
         {
-            const WellSegmentLocation& location = locations[i];
-
             if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
             {
-                depth = location.trueVerticalDepth - previousLocation.trueVerticalDepth;
-                length = location.fishbonesSubs->measuredDepth(location.subIndex) - previousLocation.fishbonesSubs->measuredDepth(previousLocation.subIndex);
+                depth = location.trueVerticalDepth - previousTVD;
+                length = location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
             }
             else
             {
-                depth += location.trueVerticalDepth - previousLocation.trueVerticalDepth;
-                length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousLocation.fishbonesSubs->measuredDepth(previousLocation.subIndex);
+                depth += location.trueVerticalDepth - previousTVD;
+                length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
             }
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
@@ -254,7 +255,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             formatter.add(-1.0); // FIXME : Rough of main stem?
             formatter.rowCompleted();
 
-            previousLocation = location;
+            previousMD = location.measuredDepth;
+            previousTVD = location.trueVerticalDepth;
         }
     }
 
