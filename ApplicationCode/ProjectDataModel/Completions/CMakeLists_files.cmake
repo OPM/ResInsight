@@ -14,6 +14,10 @@ ${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPerforationCollection.h
 ${CEE_CURRENT_LIST_DIR}RimPerforationInterval.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
+
+
+# Fracture files goes here
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -26,6 +30,10 @@ ${CEE_CURRENT_LIST_DIR}RimFishboneWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPerforationCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimPerforationInterval.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.cpp
+
+
+# Fracture files goes here
+
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -36,4 +44,4 @@ list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
 
-source_group( "ProjectDataModel\\Fishbones" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
+source_group( "ProjectDataModel\\Completions" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )
