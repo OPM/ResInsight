@@ -217,7 +217,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 
     RimProject* proj;
     firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 

@@ -103,7 +103,7 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
     firstAncestorOrThisOfTypeAsserted(project);
     if (project)
     {
-        project->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+        project->reloadCompletionTypeResultsInAllViews();
     }
 }
 

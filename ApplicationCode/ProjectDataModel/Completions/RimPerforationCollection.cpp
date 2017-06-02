@@ -77,7 +77,7 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

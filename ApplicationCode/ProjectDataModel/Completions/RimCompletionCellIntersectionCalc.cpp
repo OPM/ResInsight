@@ -87,7 +87,7 @@ void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const Ri
             std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
             for (auto& intersection : intersections)
             {
-                values[intersection.m_hexIndex] = RimDefines::FISHBONE;
+                values[intersection.m_hexIndex] = RimDefines::FISHBONES;
             }
         }
     }

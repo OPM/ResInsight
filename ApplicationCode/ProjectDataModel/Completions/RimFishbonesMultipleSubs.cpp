@@ -291,7 +291,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,7 +46,7 @@ public:
     enum CompletionType {
         WELL_PATH,
         PERFORATION_INTERVAL,
-        FISHBONE
+        FISHBONES
     };
 
     static bool isPerCellFaceResult(const QString& resultName);

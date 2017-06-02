@@ -56,7 +56,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     RimProject* proj;
     fishbonesCollection->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

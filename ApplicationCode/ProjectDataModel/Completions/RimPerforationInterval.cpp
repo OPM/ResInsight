@@ -145,7 +145,7 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

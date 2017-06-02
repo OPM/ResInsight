@@ -243,7 +243,7 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     this->firstAncestorOrThisOfTypeAsserted(proj);
     if (changedField == &showWellPath)
     {
-        proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+        proj->reloadCompletionTypeResultsInAllViews();
     }
     else
     {

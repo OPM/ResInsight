@@ -61,7 +61,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 
     RimProject* proj;
     wellPath->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
