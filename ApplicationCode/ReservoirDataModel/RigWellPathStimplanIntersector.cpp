@@ -27,8 +27,9 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
             for ( const auto& stpCell: stpCells ) stpCellPolygons.push_back(stpCell.getPolygon());
         }
     }
+    double perforationLength = rimFracture->perforationLength();
 
-    calculate(fractureXf, wellPathPoints, wellRadius, stpCellPolygons, m_stimPlanCellIdxToIntersectionInfoMap);
+    calculate(fractureXf, wellPathPoints, wellRadius, perforationLength, stpCellPolygons, m_stimPlanCellIdxToIntersectionInfoMap);
 
 }
 
@@ -39,27 +40,17 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
 void RigWellPathStimplanIntersector::calculate(const cvf::Mat4f &fractureXf, 
                                                const std::vector<cvf::Vec3d>& wellPathPointsOrg, 
                                                double wellRadius, 
+                                               double perforationLength,
                                                const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons, 
                                                std::map<size_t, WellCellIntersection>& m_stimPlanCellIdxToIntersectionInfoMap)
 {
     cvf::Mat4d toFractureXf = cvf::Mat4d(fractureXf.getInverted());
 
-    //Find bounding box
-    cvf::BoundingBox polygonBBox;
-    for (std::vector<cvf::Vec3d> fracCellPolygon : stpCellPolygons)
-    {
-        for (cvf::Vec3d nodeCoord : fracCellPolygon) polygonBBox.add(nodeCoord);
-    }
-    cvf::Vec3d bboxCorners[8];
-    polygonBBox.cornerVertices(bboxCorners);
-
-    //put BB corners into polygon, to use clipPolylineByPolygon function below
-    //Since we are in 2D, the 4 corners of the boundingbox are repeated so only 4 are included in the polygon
-    std::vector<cvf::Vec3d> boundingBoxPolygon;
-    for (int i = 0; i < 4; i++)
-    {
-        boundingBoxPolygon.push_back(bboxCorners[i]);
-    }
+    std::vector<cvf::Vec3d> perforationLengthBoundingBoxPolygon;
+    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d(-perforationLength / 2, -perforationLength / 2, 0));
+    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d( perforationLength / 2, -perforationLength / 2, 0));
+    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d( perforationLength / 2,  perforationLength / 2, 0));
+    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d(-perforationLength / 2,  perforationLength / 2, 0));
 
     // Convert well path to fracture template system
 
@@ -69,7 +60,7 @@ void RigWellPathStimplanIntersector::calculate(const cvf::Mat4f &fractureXf,
     // Clip well path to fracture domain 
 
     std::vector<std::vector<cvf::Vec3d> > wellPathPartsWithinFracture =
-        RigCellGeometryTools::clipPolylineByPolygon(fractureRelativeWellPathPoints, boundingBoxPolygon, RigCellGeometryTools::INTERPOLATE_LINE_Z);
+        RigCellGeometryTools::clipPolylineByPolygon(fractureRelativeWellPathPoints, perforationLengthBoundingBoxPolygon, RigCellGeometryTools::INTERPOLATE_LINE_Z);
 
     // Remove the part of the well path that is more than well radius away from the fracture plane
 

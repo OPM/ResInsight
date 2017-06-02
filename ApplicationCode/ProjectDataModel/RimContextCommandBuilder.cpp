@@ -497,11 +497,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSimWellFractureFeature";
             commandIds << "RicExportSelectedSimWellFractureWellCompletionFeature";
         }
-        else if (dynamic_cast<RimWellPath*>(uiItem))
-        {
-            commandIds << "RicExportSelectedWellPathFractureWellCompletionFeature";
-        }
-
     }
 
 

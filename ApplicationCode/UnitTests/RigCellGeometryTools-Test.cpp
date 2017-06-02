@@ -315,7 +315,8 @@ TEST(RigWellPathStimplanIntersector, intersection)
         cvf::Mat4f fractureXf = cvf::Mat4f::IDENTITY;
         fractureXf.setTranslation({ 50.0f, 0.0f, 0.0f });
 
-        std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        //std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        double perforationLength = 25.0;
         std::vector<cvf::Vec3d> wellPathPoints  ={ {50.0f-4.0f, 6.0f, 10.0f},  {50.0f+6.0f, 6.0f, 0.0f}, {50.0f+10.0f, 10.0f, -100.0f} };
         double wellRadius = 1.5;
         std::vector<std::vector<cvf::Vec3d> > stpCellPolygons =
@@ -329,9 +330,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
         std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
 
         RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
-                                                            fracturePolygon,
                                                             wellPathPoints,
                                                             wellRadius,
+                                                            perforationLength, 
                                                             stpCellPolygons,
                                                             stimPlanCellIdxToIntersectionInfoMap);
 
@@ -344,11 +345,11 @@ TEST(RigWellPathStimplanIntersector, intersection)
         EXPECT_EQ(1, it->second.endpointCount);
     }
 
-
     {
         cvf::Mat4f fractureXf = cvf::Mat4f::IDENTITY;
 
-        std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+//         std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
+        double perforationLength = 10;
         double wellRadius = 1.5;
         std::vector<std::vector<cvf::Vec3d> > stpCellPolygons =
         {
@@ -364,9 +365,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
             std::vector<cvf::Vec3d> wellPathPoints  ={ {1.0f, 0.5f, 10.0f}, {1.0f, 1.5f, -10.0f} };
 
             RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
-                                                                fracturePolygon,
                                                                 wellPathPoints,
                                                                 wellRadius,
+                                                                perforationLength,
                                                                 stpCellPolygons,
                                                                 stimPlanCellIdxToIntersectionInfoMap);
 
@@ -383,9 +384,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
             std::vector<cvf::Vec3d> wellPathPoints  ={ {1.0f, 0.5f, 10.0f}, {1.0f, 1.0f, 0.5f} };
 
             RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
-                                                                fracturePolygon,
                                                                 wellPathPoints,
                                                                 wellRadius,
+                                                                perforationLength,
                                                                 stpCellPolygons,
                                                                 stimPlanCellIdxToIntersectionInfoMap);
 
@@ -402,9 +403,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
             std::vector<cvf::Vec3d> wellPathPoints  ={ {1.0f, 0.5f, 10.0f}, {1.0f, 1.0f, 0.5f},  {1.0f, 1.5f, -0.5f},  {1.0f, 2.0f, -10.0f}};
 
             RigWellPathStimplanIntersectorTester::testCalculate(fractureXf,
-                                                                fracturePolygon,
                                                                 wellPathPoints,
                                                                 wellRadius,
+                                                                perforationLength,
                                                                 stpCellPolygons,
                                                                 stimPlanCellIdxToIntersectionInfoMap);
 

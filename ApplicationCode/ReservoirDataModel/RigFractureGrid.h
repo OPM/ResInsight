@@ -47,7 +47,7 @@ public:
     size_t                                  jCellCount() const { return m_jCellCount; }
     size_t                                  iCellCount() const { return m_iCellCount; }
 
-    std::pair<size_t, size_t>                           fractureCellAtWellCenter() const { return m_wellCenterFractureCellIJ; }
+    std::pair<size_t, size_t>               fractureCellAtWellCenter() const { return m_wellCenterFractureCellIJ; }
 
 
 private:

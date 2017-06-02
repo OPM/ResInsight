@@ -147,47 +147,76 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
 
         /////
         // Calculate transmissibility into the well
-
-        RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
-        const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& fractureWellCells =  wellFractureIntersector.intersections();
-
-        for (const auto& fracCellIdxIsectDataPair : fractureWellCells)
+        
+        ////
+        //If fracture has orientation Azimuth or Transverse, assume only radial inflow
+        if (fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::AZIMUTH
+            || fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
-            size_t fracWellCellIdx = fracCellIdxIsectDataPair.first;
-            RigWellPathStimplanIntersector::WellCellIntersection intersection = fracCellIdxIsectDataPair.second;
+            const RigFractureGrid* fracGrid = fracture->attachedFractureDefinition()->fractureGrid();
+            std::pair<size_t, size_t>  wellCellIJ = fracGrid->fractureCellAtWellCenter();
+            size_t wellCellIndex = fracGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
+            const RigFractureCell wellCell = fractureGrid->cellFromIndex(wellCellIndex);
 
-            const RigFractureCell fractureWellCell = fractureGrid->cellFromIndex(fracWellCellIdx);
+            double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
+                                                                                                     wellCell.cellSizeX(),
+                                                                                                     wellCell.cellSizeZ(),
+                                                                                                     fracture->wellRadius(),
+                                                                                                     fracTemplate->skinFactor(),
+                                                                                                     cDarcyInCorrectUnit);
 
-            double radialTrans = 0.0;
-            if (intersection.endpointCount)
-            {
-                radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(fractureWellCell.getConductivtyValue(),
-                                                                                                  fractureWellCell.cellSizeX(),
-                                                                                                  fractureWellCell.cellSizeZ(),
-                                                                                                  fracture->wellRadius(),
-                                                                                                  fracTemplate->skinFactor(),
-                                                                                                  cDarcyInCorrectUnit);
-            }
-
-            double linearTrans = 0.0;
-            if (intersection.hlength > 0.0 || intersection.vlength > 0.0 )
-            {
-                linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivtyValue(),
-                                                                                                  fractureWellCell.cellSizeX(),
-                                                                                                  fractureWellCell.cellSizeZ(),
-                                                                                                  intersection.vlength,
-                                                                                                  intersection.hlength ,
-                                                                                                  fracture->perforationEfficiency, 
-                                                                                                  fracTemplate->skinFactor(),
-                                                                                                  cDarcyInCorrectUnit);
-            }
-
-            double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
-
-            transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-            { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
-                                                       totalWellTrans);
+            transCondenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+            { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
+                                                       radialTrans);
         }
+
+
+        ////
+        //If fracture has orientation along well, assume only linear inflow
+        if (fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::ALONG_WELL_PATH)
+        {
+            RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
+            const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& fractureWellCells =  wellFractureIntersector.intersections();
+
+            for (const auto& fracCellIdxIsectDataPair : fractureWellCells)
+            {
+                size_t fracWellCellIdx = fracCellIdxIsectDataPair.first;
+                RigWellPathStimplanIntersector::WellCellIntersection intersection = fracCellIdxIsectDataPair.second;
+
+                const RigFractureCell fractureWellCell = fractureGrid->cellFromIndex(fracWellCellIdx);
+
+                double radialTrans = 0.0;
+                if (intersection.endpointCount)
+                {
+                    radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(fractureWellCell.getConductivtyValue(),
+                                                                                                      fractureWellCell.cellSizeX(),
+                                                                                                      fractureWellCell.cellSizeZ(),
+                                                                                                      fracture->wellRadius(),
+                                                                                                      fracTemplate->skinFactor(),
+                                                                                                      cDarcyInCorrectUnit);
+                }
+
+                double linearTrans = 0.0;
+                if (intersection.hlength > 0.0 || intersection.vlength > 0.0 )
+                {
+                    linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivtyValue(),
+                                                                                                      fractureWellCell.cellSizeX(),
+                                                                                                      fractureWellCell.cellSizeZ(),
+                                                                                                      intersection.vlength,
+                                                                                                      intersection.hlength ,
+                                                                                                      fracture->perforationEfficiency, 
+                                                                                                      fracTemplate->skinFactor(),
+                                                                                                      cDarcyInCorrectUnit);
+                }
+
+                double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
+
+                transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
+                { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
+                                                           totalWellTrans);
+            }
+        }
+
 
         /////
         // Insert total transmissibility from eclipse-cell to well for this fracture into the map 
