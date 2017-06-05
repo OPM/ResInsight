@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT(RimFractureTemplateCollection, "FractureDefinitionCollection
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::RimFractureTemplateCollection(void)
 {
-    CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplate16x16.png", "", "");
+    CAF_PDM_InitObject("Fracture Templates", ":/FractureTemplates16x16.png", "", "");
 
     CAF_PDM_InitField(&defaultUnitsForFracTemplates, "defaultUnitForFracTemplates", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Default unit system for fracture templates", "", "", "");
     CAF_PDM_InitFieldNoDefault(&fractureDefinitions, "FractureDefinitions", "", "", "", "");

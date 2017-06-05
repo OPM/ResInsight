@@ -89,6 +89,7 @@
       <file>FractureLayout16x16.png</file>
       <file>FractureSymbol16x16.png</file>
       <file>FractureTemplate16x16.png</file>
+      <file>FractureTemplates16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

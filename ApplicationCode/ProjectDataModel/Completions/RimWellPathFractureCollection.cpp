@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathFractureCollection, "WellPathFractureCollection")
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 {
-    CAF_PDM_InitObject("Fractures", ":/FractureSymbol16x16.png", "", "");
+    CAF_PDM_InitObject("Fractures", ":/FractureLayout16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
     fractures.uiCapability()->setUiHidden(true);
