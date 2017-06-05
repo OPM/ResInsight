@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
 //--------------------------------------------------------------------------------------------------
 RimWellPathCompletions::RimWellPathCompletions()
 {
-    CAF_PDM_InitObject("Completions", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Completions", ":/CompletionsSymbol16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_perforationCollection, "Perforations", "Perforations", "", "", "");
     m_perforationCollection = new RimPerforationCollection;

@@ -57,7 +57,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 {
-    CAF_PDM_InitObject("FishbonesMultipleSubs", ":/Default.png", "", "");
+    CAF_PDM_InitObject("FishbonesMultipleSubs", ":/FishBoneGroup16x16.png", "", "");
 
     CAF_PDM_InitField(&fishbonesColor,                  "FishbonesColor", cvf::Color3f(0.999f, 0.333f, 0.999f), "Fishbones Color", "", "", "");
 

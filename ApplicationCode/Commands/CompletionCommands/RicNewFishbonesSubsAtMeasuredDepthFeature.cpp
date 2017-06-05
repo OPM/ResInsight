@@ -82,7 +82,7 @@ RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSel
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
+    actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
     actionToSetup->setText("New Fishbones Subs Definition");
 }
 
