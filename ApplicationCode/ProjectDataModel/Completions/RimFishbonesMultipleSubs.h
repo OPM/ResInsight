@@ -39,6 +39,15 @@ class RigFisbonesGeometry;
 ///  
 ///  
 //==================================================================================================
+struct SubLateralIndex {
+    size_t              subIndex;
+    std::vector<size_t> lateralIndices;
+};
+
+//==================================================================================================
+///  
+///  
+//==================================================================================================
 class RimFishbonesMultipleSubs : public RimCheckableNamedObject, public Rim3dPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
@@ -64,17 +73,21 @@ public:
 
     void                setMeasuredDepthAndCount(double measuredDepth, double spacing, int subCount);
 
-    std::vector<double> locationOfSubs() const;
+    double              measuredDepth(size_t subIndex) const;
+    double              rotationAngle(size_t subIndex) const;
 
-    double              rotationAngle(size_t index) const;
     double              exitAngle() const;
     double              buildAngle() const;
 
     double              tubingDiameter() const;
     double              holeDiameter() const { return m_pipeProperties()->holeDiameter(); }
     double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
-    size_t              lateralCountPerSub() const;
+    double              icdOrificeDiameter() const { return m_icdOrificeDiameter(); }
+    double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }
+    size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;
+
+    const std::vector<SubLateralIndex>& installedLateralIndices() const { return m_subLateralIndices; };
 
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
     std::vector<std::pair<cvf::Vec3d, double>>  coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const;
@@ -95,10 +108,11 @@ protected:
 private:
     void                        computeRangesAndLocations();
     void                        computeRotationAngles();
+    void                        computeSubLateralIndices();
 
     static std::vector<double>  locationsFromStartSpacingAndCount(double start, double spacing, size_t count);
     static int                  randomValueFromRange(int min, int max);
-
+    
 private:
     caf::PdmField<size_t>               m_lateralCountPerSub;
     caf::PdmField<QString>              m_lateralLength;
@@ -111,11 +125,11 @@ private:
     caf::PdmField<double>               m_lateralOpenHoleRoghnessFactor;
     caf::PdmField<double>               m_lateralTubingRoghnessFactor;
 
-    caf::PdmField<double>               m_lateralLengthFraction;
-    caf::PdmField<double>               m_lateralInstallFraction;
+    caf::PdmField<double>               m_lateralInstallSuccessFraction;
 
     caf::PdmField<size_t>               m_icdCount;
     caf::PdmField<double>               m_icdOrificeDiameter;
+    caf::PdmField<double>               m_icdFlowCoefficient;
 
     caf::PdmField<caf::AppEnum<LocationType> >    m_subsLocationMode;
     caf::PdmField<double>               m_rangeStart;
@@ -132,5 +146,8 @@ private:
 
     caf::PdmChildField<RimFishbonesPipeProperties*> m_pipeProperties;
 
+    caf::PdmField<uint>                 m_randomSeed;
+
     std::unique_ptr<RigFisbonesGeometry>    m_rigFishbonesGeometry;
+    std::vector<SubLateralIndex>            m_subLateralIndices;
 };

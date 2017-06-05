@@ -80,6 +80,13 @@
       <file>RightAxis16x16.png</file>
       <file>BottomAxis16x16.png</file>
       <file>Axes16x16.png</file>
+      <file>FishBones16x16.png</file>
+      <file>FishBoneGroup16x16.png</file>
+      <file>FishBoneGroupFromFile16x16.png</file>
+      <file>FishBoneLateralFromFile16x16.png</file>
+      <file>PerforationInterval16x16.png</file>
+      <file>PerforationIntervals16x16.png</file>
+      <file>CompletionsSymbol16x16.png</file>
       <file>WellAllocPlots16x16.png</file>
       <file>WellAllocPlot16x16.png</file>
       <file>WellFlowPlot16x16.png</file>

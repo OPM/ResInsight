@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT(RimFishboneWellPathCollection, "WellPathCompletionCollection
 //--------------------------------------------------------------------------------------------------
 RimFishboneWellPathCollection::RimFishboneWellPathCollection()
 {
-    CAF_PDM_InitObject("WellPathCompletions", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("WellPathCompletions", ":/FishBoneGroupFromFile16x16.png", "", "");
 
     m_name.uiCapability()->setUiHidden(true);
     m_name = "Well Paths";
@@ -103,7 +103,7 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
     firstAncestorOrThisOfTypeAsserted(project);
     if (project)
     {
-        project->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+        project->reloadCompletionTypeResultsInAllViews();
     }
 }
 

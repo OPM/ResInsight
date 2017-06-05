@@ -61,7 +61,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 
     RimProject* proj;
     wellPath->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ RiuWellPathSelectionItem* RicNewFishbonesSubsAtMeasuredDepthFeature::wellPathSel
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
+    actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
     actionToSetup->setText("New Fishbones Subs Definition");
 }
 

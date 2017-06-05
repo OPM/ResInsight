@@ -26,7 +26,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex cellIndex)
+RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex)
     : m_wellName(wellName),
       m_cellIndex(cellIndex),
       m_saturation(HUGE_VAL),

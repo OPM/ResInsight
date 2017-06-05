@@ -767,11 +767,19 @@ bool RimProject::showPlotWindow() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::removeResult(RimDefines::ResultCatType type, const QString & resultName)
+void RimProject::reloadCompletionTypeResultsInAllViews()
+{
+    removeEclipseResultAndRedrawAllViews(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::removeEclipseResultAndRedrawAllViews(RimDefines::ResultCatType type, const QString & resultName)
 {
     for (RimEclipseCase* eclipseCase : activeOilField()->analysisModels->cases)
     {
-        eclipseCase->removeResult(type, resultName);
+        eclipseCase->removeEclipseResultAndScheduleRedrawAllViews(type, resultName);
     }
 }
 

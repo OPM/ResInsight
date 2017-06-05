@@ -249,7 +249,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::removeResult(RimDefines::ResultCatType type, const QString& resultName)
+void RimEclipseCase::removeEclipseResultAndScheduleRedrawAllViews(RimDefines::ResultCatType type, const QString& resultName)
 {
     m_matrixModelResults->clearScalarResult(type, resultName);
 

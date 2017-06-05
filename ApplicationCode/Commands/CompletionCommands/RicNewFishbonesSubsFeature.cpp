@@ -56,7 +56,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     RimProject* proj;
     fishbonesCollection->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +82,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
 //--------------------------------------------------------------------------------------------------
 void RicNewFishbonesSubsFeature::setupActionLook(QAction* actionToSetup)
 {
-    //actionToSetup->setIcon(QIcon(":/FractureSymbol16x16.png"));
+    actionToSetup->setIcon(QIcon(":/FishBoneGroup16x16.png"));
     actionToSetup->setText("New Fishbones Subs Definition");
 }
 

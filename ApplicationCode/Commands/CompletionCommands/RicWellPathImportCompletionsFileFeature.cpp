@@ -80,7 +80,7 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Import Completions from File");
-    actionToSetup->setIcon(QIcon(":/Well.png"));
+    actionToSetup->setIcon(QIcon(":/FishBoneGroupFromFile16x16.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

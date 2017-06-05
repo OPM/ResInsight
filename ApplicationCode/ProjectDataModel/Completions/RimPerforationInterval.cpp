@@ -36,7 +36,7 @@ CAF_PDM_SOURCE_INIT(RimPerforationInterval, "Perforation");
 //--------------------------------------------------------------------------------------------------
 RimPerforationInterval::RimPerforationInterval()
 {
-    CAF_PDM_InitObject("Perforation", ":/Default.png", "", "");
+    CAF_PDM_InitObject("Perforation", ":/PerforationInterval16x16.png", "", "");
 
     CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,   "Start MD [m]", "", "", "");
     CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,   "End MD [m]", "", "", "");
@@ -145,7 +145,7 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

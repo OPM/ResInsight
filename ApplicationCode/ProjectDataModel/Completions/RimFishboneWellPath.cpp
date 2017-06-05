@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimFishboneWellPath, "WellPathCompletion");
 //--------------------------------------------------------------------------------------------------
 RimFishboneWellPath::RimFishboneWellPath()
 {
-    CAF_PDM_InitObject("WellPathCompletion", ":/Well.png", "", "");
+    CAF_PDM_InitObject("WellPathCompletion", ":/FishBoneLateralFromFile16x16.png", "", "");
     CAF_PDM_InitFieldNoDefault(&m_coordinates, "Coordinates", "Coordinates", "", "", "");
     m_coordinates.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_measuredDepths, "MeasuredDepth", "MeasuredDepth", "", "", "");

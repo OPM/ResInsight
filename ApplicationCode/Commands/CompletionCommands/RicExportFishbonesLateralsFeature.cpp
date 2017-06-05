@@ -86,11 +86,11 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     {
         if (!fishbone->isChecked()) continue;
 
-        for (size_t subIndex = 0; subIndex < fishbone->locationOfSubs().size(); subIndex++)
+        for (auto& sub : fishbone->installedLateralIndices())
         {
-            for (size_t lateralIndex = 0; lateralIndex < fishbone->lateralLengths().size(); lateralIndex++)
+            for (size_t lateralIndex : sub.lateralIndices)
             {
-                std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral(subIndex, lateralIndex);
+                std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral(sub.subIndex, lateralIndex);
 
                 // Pad with "0" to get a total of two characters defining the sub index text
                 QString subIndexText = QString("%1").arg(fishboneSubIndex++, 2, 10, QChar('0'));
@@ -106,12 +106,13 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
                     int numberOfDecimals = 2;
 
                     // Export X and Y unchanged, invert sign of Z to get TVD, export MD unchanged
-                    stream        << formatNumber( coordMD.first.x(), numberOfDecimals);
-                    stream << " " << formatNumber( coordMD.first.y(), numberOfDecimals);
+                    stream << formatNumber(coordMD.first.x(), numberOfDecimals);
+                    stream << " " << formatNumber(coordMD.first.y(), numberOfDecimals);
                     stream << " " << formatNumber(-coordMD.first.z(), numberOfDecimals);
-                    stream << " " << formatNumber( coordMD.second, numberOfDecimals) << endl;
+                    stream << " " << formatNumber(coordMD.second, numberOfDecimals) << endl;
                 }
                 stream << -999 << endl << endl;
+
             }
         }
     }

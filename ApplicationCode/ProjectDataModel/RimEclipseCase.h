@@ -78,7 +78,7 @@ public:
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
 
-    void                                        removeResult(RimDefines::ResultCatType type, const QString& resultName);
+    void                                        removeEclipseResultAndScheduleRedrawAllViews(RimDefines::ResultCatType type, const QString& resultName);
 
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }

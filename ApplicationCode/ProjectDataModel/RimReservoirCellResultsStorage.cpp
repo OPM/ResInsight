@@ -1406,12 +1406,12 @@ void RimReservoirCellResultsStorage::computeCompletionTypeForTimeStep(size_t tim
 {
     size_t completionTypeResultIndex = m_cellResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
 
-    if (m_cellResults->cellScalarResults(completionTypeResultIndex).size() != timeStep)
+    if (m_cellResults->cellScalarResults(completionTypeResultIndex).size() < cellResults()->maxTimeStepCount())
     {
-        m_cellResults->cellScalarResults(completionTypeResultIndex).resize(timeStep);
+        m_cellResults->cellScalarResults(completionTypeResultIndex).resize(cellResults()->maxTimeStepCount());
     }
 
-    std::vector<double>& completionTypeResult = m_cellResults->cellScalarResults(completionTypeResultIndex, 0);
+    std::vector<double>& completionTypeResult = m_cellResults->cellScalarResults(completionTypeResultIndex, timeStep);
 
     size_t resultValues = m_ownerMainGrid->globalCellArray().size();
 

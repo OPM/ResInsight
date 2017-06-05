@@ -80,7 +80,7 @@ namespace caf
     {
         addItem(RimDefines::WELL_PATH, "WELL_PATH", "Well Path");
         addItem(RimDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
-        addItem(RimDefines::FISHBONE, "FISHBONE", "Fishbone");
+        addItem(RimDefines::FISHBONES, "FISHBONES", "Fishbones");
 
         setDefault(RimDefines::WELL_PATH);
     }

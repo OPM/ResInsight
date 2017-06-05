@@ -406,7 +406,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
 //--------------------------------------------------------------------------------------------------
 std::vector<size_t> RicWellPathExportCompletionDataFeature::findIntersectingCells(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords)
 {
-    const std::vector<cvf::Vec3d>& nodeCoords = caseData->mainGrid()->nodes();
     std::set<size_t> cells;
 
     std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(caseData->mainGrid(), coords);
@@ -442,35 +441,6 @@ void RicWellPathExportCompletionDataFeature::markWellPathCells(const std::vector
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::map<size_t, double> RicWellPathExportCompletionDataFeature::computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells)
-{
-    std::map<size_t, double> lateralsPerCell;
-    for (const WellSegmentLocation& location : segmentLocations)
-    {
-        for (const WellSegmentLateral& lateral : location.laterals)
-        {
-            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
-            {
-                if (removeMainBoreCells && intersection.mainBoreCell) continue;
-
-                auto match = lateralsPerCell.find(intersection.cellIndex);
-                if (match == lateralsPerCell.end())
-                {
-                    lateralsPerCell[intersection.cellIndex] = 1;
-                }
-                else
-                {
-                    lateralsPerCell[intersection.cellIndex] = match->second + 1;
-                }
-            }
-        }
-    }
-    return lateralsPerCell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -512,12 +482,12 @@ std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWel
     std::vector<WellSegmentLocation> wellSegmentLocations;
     for (RimFishbonesMultipleSubs* subs : fishbonesSubs)
     {
-        for (size_t subIndex = 0; subIndex < subs->locationOfSubs().size(); ++subIndex)
+        for (auto& sub : subs->installedLateralIndices())
         {
-            double measuredDepth = subs->locationOfSubs()[subIndex];
+            double measuredDepth = subs->measuredDepth(sub.subIndex);
             cvf::Vec3d position = wellPath->wellPathGeometry()->interpolatedPointAlongWellPath(measuredDepth);
-            WellSegmentLocation location = WellSegmentLocation(subs, measuredDepth, -position.z(), subIndex);
-            for (size_t lateralIndex = 0; lateralIndex < subs->lateralLengths().size(); ++lateralIndex)
+            WellSegmentLocation location = WellSegmentLocation(subs, measuredDepth, -position.z(), sub.subIndex);
+            for (size_t lateralIndex : sub.lateralIndices)
             {
                 location.laterals.push_back(WellSegmentLateral(lateralIndex));
             }
@@ -546,7 +516,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
         double length = 0;
         double depth = 0;
         cvf::Vec3d startPoint = coords[0];
-        int attachedSegmentNumber = location->segmentNumber;
+        int attachedSegmentNumber = location->icdSegmentNumber;
 
         for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); ++i)
         {
@@ -561,7 +531,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
 
                 length = 0;
                 depth = 0;
-                startPoint = intersection->startPoint;
+                startPoint = intersection->endPoint;
                 attachedSegmentNumber = *segmentNum;
                 ++intersection;
             }
@@ -586,6 +556,8 @@ void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const
     for (WellSegmentLocation& location : *locations)
     {
         location.segmentNumber = ++segmentNumber;
+        location.icdBranchNumber = ++branchNumber;
+        location.icdSegmentNumber = ++segmentNumber;
     }
     // Then assign branch and segment numbers to each lateral parts
     for (WellSegmentLocation& location : *locations)

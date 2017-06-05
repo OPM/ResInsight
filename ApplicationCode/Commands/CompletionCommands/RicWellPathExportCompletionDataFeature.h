@@ -65,7 +65,10 @@ struct WellSegmentLateralIntersection {
 /// 
 //==================================================================================================
 struct WellSegmentLateral {
-    WellSegmentLateral(size_t lateralIndex) : lateralIndex(lateralIndex) {}
+    WellSegmentLateral(size_t lateralIndex)
+        : lateralIndex(lateralIndex),
+          branchNumber(0)
+    {}
 
     size_t                                      lateralIndex;
     int                                         branchNumber;
@@ -90,6 +93,8 @@ struct WellSegmentLocation {
     double                                trueVerticalDepth;
     size_t                                subIndex;
     int                                   segmentNumber;
+    int                                   icdBranchNumber;
+    int                                   icdSegmentNumber;
     std::vector<WellSegmentLateral>       laterals;
 };
 
@@ -137,7 +142,6 @@ private:
     static std::vector<RigCompletionData>        generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
     static std::vector<RigCompletionData>        generatePerforationsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
 
-    static std::map<size_t, double>              computeLateralsPerCell(const std::vector<WellSegmentLocation>& segmentLocations, bool removeMainBoreCells);
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);
     static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
     static bool                                  wellSegmentLocationOrdering(const WellSegmentLocation& first, const WellSegmentLocation& second);

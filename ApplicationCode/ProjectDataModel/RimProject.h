@@ -110,7 +110,8 @@ public:
     bool            show3DWindow() const;
     bool            showPlotWindow() const;
 
-    void            removeResult(RimDefines::ResultCatType type, const QString& resultName);
+    void            reloadCompletionTypeResultsInAllViews();
+
 
 protected:
     // Overridden methods
@@ -122,6 +123,7 @@ protected:
 
 private:
     void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
+    void            removeEclipseResultAndRedrawAllViews(RimDefines::ResultCatType type, const QString& resultName);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;

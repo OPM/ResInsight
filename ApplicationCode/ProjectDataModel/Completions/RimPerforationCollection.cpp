@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT(RimPerforationCollection, "PerforationCollection");
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection::RimPerforationCollection()
 {
-    CAF_PDM_InitObject("Perforations", ":/Folder.png", "", "");
+    CAF_PDM_InitObject("Perforations", ":/PerforationIntervals16x16.png", "", "");
 
     m_name.uiCapability()->setUiHidden(true);
     m_name = "Perforations";
@@ -77,7 +77,7 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
 
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->removeResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+    proj->reloadCompletionTypeResultsInAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

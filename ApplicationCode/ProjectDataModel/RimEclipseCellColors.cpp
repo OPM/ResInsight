@@ -387,7 +387,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
                 std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
 
                 caf::AppEnum<RimDefines::CompletionType> wellPath(RimDefines::WELL_PATH);
-                caf::AppEnum<RimDefines::CompletionType> fishbone(RimDefines::FISHBONE);
+                caf::AppEnum<RimDefines::CompletionType> fishbone(RimDefines::FISHBONES);
                 caf::AppEnum<RimDefines::CompletionType> perforationInterval(RimDefines::PERFORATION_INTERVAL);
 
                 categories.push_back(std::make_tuple(wellPath.uiText(), wellPath.index(), cvf::Color3::RED));

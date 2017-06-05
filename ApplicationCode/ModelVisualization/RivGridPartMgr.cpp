@@ -267,9 +267,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
                 cvf::Vec2fArray& surfaceCoords = *m_surfaceFacesTextureCoords.p();
                 for (cvf::Vec2f& vec : surfaceCoords)
                 {
-                    {
-                        vec[1] = 0.5;
-                    }
+                    vec[1] = 0.5;
                 }
                 m_opacityLevel = 0.5;
             }
