@@ -172,8 +172,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
 
 
         ////
-        //If fracture has orientation along well, assume only linear inflow
-        if (fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::ALONG_WELL_PATH)
+        //If fracture has orientation along well, linear inflow along well and radial flow at endpoints
+        else if (fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::ALONG_WELL_PATH)
         {
             RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
             const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& fractureWellCells =  wellFractureIntersector.intersections();
