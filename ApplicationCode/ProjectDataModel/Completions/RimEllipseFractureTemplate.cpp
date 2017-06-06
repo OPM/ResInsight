@@ -53,6 +53,8 @@ RimEllipseFractureTemplate::RimEllipseFractureTemplate(void)
     CAF_PDM_InitField(&permeability,"Permeability",     22000.f, "Permeability [mD]", "", "", "");
 
     m_fractureGrid = new RigFractureGrid();
+    setupFractureGridCells();
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,8 +197,8 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 
     bool wellCenterFractureCellFound = false;
 
-    int numberOfCellsX = 5;
-    int numberOfCellsY = 5;
+    int numberOfCellsX = 25;
+    int numberOfCellsY = 25;
     
     double cellSizeX = (halfLength * 2) / numberOfCellsX;
     double cellSizeZ = height / numberOfCellsY;
@@ -251,10 +253,10 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 
             if (cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0)
             {
-                if (cellPolygon[1].y() > 0.0 && cellPolygon[2].y() < 0.0)
+                if (cellPolygon[1].y() < 0.0 && cellPolygon[2].y() > 0.0)
                 {
                     wellCenterFractureCellIJ = std::make_pair(fractureCell.getI(), fractureCell.getJ());
-                    RiaLogging::debug(QString("Setting wellCenterStimPlanCell at cell %1, %2").
+                    RiaLogging::debug(QString("Setting wellCenterFractureCell at cell %1, %2").
                                       arg(QString::number(fractureCell.getI()), QString::number(fractureCell.getJ())));
 
                     wellCenterFractureCellFound = true;
