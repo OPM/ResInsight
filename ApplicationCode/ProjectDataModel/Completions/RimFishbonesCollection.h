@@ -59,4 +59,6 @@ private:
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 
     caf::PdmField<double>                               m_startMD;
+    caf::PdmField<double>                               m_mainBoreDiameter;
+    caf::PdmField<double>                               m_linerDiameter;
 };

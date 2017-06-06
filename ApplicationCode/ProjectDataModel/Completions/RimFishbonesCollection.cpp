@@ -51,7 +51,9 @@ RimFishbonesCollection::RimFishbonesCollection()
     m_wellPathCollection = new RimFishboneWellPathCollection;
     m_wellPathCollection.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_startMD,           "StartMD",          HUGE_VAL,   "Start MD",             "", "", "");
+    CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.0,        "Main Bore Diameter",   "", "", "");
+    CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.0,        "Liner Diameter",       "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
