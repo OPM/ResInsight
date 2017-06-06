@@ -57,16 +57,6 @@ namespace caf
     }
 
     template<>
-    void caf::AppEnum< RimDefines::UnitSystem >::setUp()
-    {
-        addItem(RimDefines::UNITS_METRIC, "UNITS_METRIC", "Metric");
-        addItem(RimDefines::UNITS_FIELD, "UNITS_FIELD", "Field");
-
-        setDefault(RimDefines::UNITS_METRIC);
-    }
-
-
-    template<>
     void caf::AppEnum< RimDefines::PlotAxis >::setUp()
     {
         addItem(RimDefines::PLOT_AXIS_LEFT,  "PLOT_AXIS_LEFT",  "Left");
