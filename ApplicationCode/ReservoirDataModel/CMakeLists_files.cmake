@@ -55,6 +55,8 @@ ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
 ${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.h
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.h
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -103,6 +105,8 @@ ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
 ${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.cpp
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES
