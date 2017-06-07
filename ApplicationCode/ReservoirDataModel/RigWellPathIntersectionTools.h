@@ -33,30 +33,18 @@ class RigEclipseCaseData;
 //==================================================================================================
 /// 
 //==================================================================================================
-enum WellPathCellDirection {
-    POS_I,
-    NEG_I,
-    POS_J,
-    NEG_J,
-    POS_K,
-    NEG_K
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
 struct WellPathCellIntersectionInfo {
-    WellPathCellIntersectionInfo(size_t cellIndex, WellPathCellDirection direction, cvf::Vec3d startPoint, cvf::Vec3d endPoint)
+    WellPathCellIntersectionInfo(size_t cellIndex, cvf::Vec3d startPoint, cvf::Vec3d endPoint, cvf::Vec3d internalCellLengths)
         : cellIndex(cellIndex),
-          direction(direction),
           startPoint(startPoint),
-          endPoint(endPoint)
+          endPoint(endPoint),
+          internalCellLengths(internalCellLengths)
     {}
 
-    size_t                cellIndex;
-    WellPathCellDirection direction;
-    cvf::Vec3d            startPoint;
-    cvf::Vec3d            endPoint;
+    size_t                        cellIndex;
+    cvf::Vec3d                    startPoint;
+    cvf::Vec3d                    endPoint;
+    cvf::Vec3d                    internalCellLengths;
 };
 
 //==================================================================================================
@@ -69,11 +57,8 @@ public:
 
     static std::vector<HexIntersectionInfo>            getIntersectedCells(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords);
 
-    // Calculate direction
-    static void                                        calculateCellMainAxisVectors(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection);
-    static cvf::Vec3d                                  calculateCellMainAxisVector(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::StructGridInterface::FaceType startFace, cvf::StructGridInterface::FaceType endFace);
-    static WellPathCellDirection                       calculateDirectionInCell(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
-    static WellPathCellDirection                       calculateDirectionInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
+    static cvf::Vec3d                                  calculateLengthInCell(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
+    static cvf::Vec3d                                  calculateLengthInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint);
 
     static std::vector<size_t>                         findCloseCells(const RigMainGrid* grid, const cvf::BoundingBox& bb);
     static size_t                                      findCellFromCoords(const RigMainGrid* caseData, const cvf::Vec3d& coords, bool* foundCell);

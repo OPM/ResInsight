@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,9 +16,20 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "gtest/gtest.h"
+#pragma once
 
-#include "RigWellPathIntersectionTools.h"
+#include "cvfBase.h"
+#include "cvfVector3.h"
 
-#include "cvfStructGrid.h"
+#include <array>
+
+//==================================================================================================
+/// 
+//==================================================================================================
+
+class RigCellGeometryTools
+{
+public:
+    static void findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection);
+};
 

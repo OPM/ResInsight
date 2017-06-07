@@ -15,6 +15,7 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessorFactory.h
 ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCompletionData.h
@@ -70,6 +71,7 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessorFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.cpp
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCompletionData.cpp

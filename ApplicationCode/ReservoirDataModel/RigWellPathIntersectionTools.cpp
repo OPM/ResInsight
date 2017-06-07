@@ -24,6 +24,7 @@
 #include "RigMainGrid.h"
 #include "RigEclipseCaseData.h"
 #include "RigWellLogExtractionTools.h"
+#include "RigCellGeometryTools.h"
 
 #include "cvfGeometryTools.h"
 #include "cvfMatrix3.h"
@@ -46,7 +47,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     cvf::Vec3d            startPoint;
     cvf::Vec3d            endPoint;
     size_t                cellIndex;
-    WellPathCellDirection direction;
+    cvf::Vec3d            internalCellLengths;
 
     auto intersection = intersections.cbegin();
 
@@ -58,8 +59,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
         if (foundCell)
         {
             endPoint = intersection->m_intersectionPoint;
-            direction = calculateDirectionInCell(grid, cellIndex, startPoint, endPoint);
-            intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, direction, startPoint, endPoint));
+            internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
+            intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
         }
         else
         {
@@ -75,8 +76,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     while (intersection != intersections.cend())
     {
         endPoint = intersection->m_intersectionPoint;
-        direction = calculateDirectionInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, direction, startPoint, endPoint));
+        internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
+        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
 
         startPoint = endPoint;
         cellIndex = intersection->m_hexIndex;
@@ -86,8 +87,8 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     if (includeEndCell)
     {
         endPoint = coords[coords.size() - 1];
-        direction = calculateDirectionInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, direction, startPoint, endPoint));
+        internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
+        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
     }
 
     return intersectionInfo;
@@ -125,105 +126,33 @@ std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::getIntersectedCel
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Calculates main axis vectors for each axis in the cell.
-//--------------------------------------------------------------------------------------------------
-void RigWellPathIntersectionTools::calculateCellMainAxisVectors(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d* iAxisDirection, cvf::Vec3d* jAxisDirection, cvf::Vec3d* kAxisDirection)
-{
-    *iAxisDirection = calculateCellMainAxisVector(hexCorners, cvf::StructGridInterface::NEG_I, cvf::StructGridInterface::POS_I);
-    *jAxisDirection = calculateCellMainAxisVector(hexCorners, cvf::StructGridInterface::NEG_J, cvf::StructGridInterface::POS_J);
-    *kAxisDirection = calculateCellMainAxisVector(hexCorners, cvf::StructGridInterface::NEG_K, cvf::StructGridInterface::POS_K);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Calculate the main axis vector for one axis in the cell, fron `negativeFace` to `positiveFace`
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigWellPathIntersectionTools::calculateCellMainAxisVector(const std::array<cvf::Vec3d, 8>& hexCorners,
-                                                                        cvf::StructGridInterface::FaceType negativeFace,
-                                                                        cvf::StructGridInterface::FaceType positiveFace)
-{
-    cvf::ubyte negativeFaceVertexIndices[4];
-    cvf::StructGridInterface::cellFaceVertexIndices(negativeFace, negativeFaceVertexIndices);
-    cvf::Vec3d negativeFaceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[negativeFaceVertexIndices[0]],
-                                                                          hexCorners[negativeFaceVertexIndices[1]],
-                                                                          hexCorners[negativeFaceVertexIndices[2]],
-                                                                          hexCorners[negativeFaceVertexIndices[3]]);
-
-    cvf::ubyte positiveFaceVertexIndices[4];
-    cvf::StructGridInterface::cellFaceVertexIndices(positiveFace, positiveFaceVertexIndices);
-    cvf::Vec3d positiveFaceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[positiveFaceVertexIndices[0]],
-                                                                          hexCorners[positiveFaceVertexIndices[1]],
-                                                                          hexCorners[positiveFaceVertexIndices[2]],
-                                                                          hexCorners[positiveFaceVertexIndices[3]]);
-
-    return positiveFaceCenter - negativeFaceCenter;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-WellPathCellDirection RigWellPathIntersectionTools::calculateDirectionInCell(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
+cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell(const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
 {
     cvf::Vec3d vec = endPoint - startPoint;
+    cvf::Vec3d iAxisDirection;
+    cvf::Vec3d jAxisDirection;
+    cvf::Vec3d kAxisDirection;
 
-    cvf::Vec3d iAxisVector;
-    cvf::Vec3d jAxisVector;
-    cvf::Vec3d kAxisVector;
-    calculateCellMainAxisVectors(hexCorners, &iAxisVector, &jAxisVector, &kAxisVector);
-
-    cvf::Vec3d iAxisDirection = iAxisVector.getNormalized();
-    cvf::Vec3d jAxisDirection = jAxisVector.getNormalized();
-    cvf::Vec3d kAxisDirection = kAxisVector.getNormalized();
+    RigCellGeometryTools::findCellLocalXYZ(hexCorners, iAxisDirection, jAxisDirection, kAxisDirection);
 
     cvf::Mat3d localCellCoordinateSystem(iAxisDirection.x(), jAxisDirection.x(), kAxisDirection.x(),
                                          iAxisDirection.y(), jAxisDirection.y(), kAxisDirection.y(),
                                          iAxisDirection.z(), jAxisDirection.z(), kAxisDirection.z());
 
-    cvf::Vec3d localCellCoordinateVec = vec.getTransformedVector(localCellCoordinateSystem.getInverted());
-
-    double iLengthFraction = abs(localCellCoordinateVec.x() / iAxisVector.length());
-    double jLengthFraction = abs(localCellCoordinateVec.y() / jAxisVector.length());
-    double kLengthFraction = abs(localCellCoordinateVec.z() / kAxisVector.length());
-
-    if (iLengthFraction > jLengthFraction && iLengthFraction > kLengthFraction)
-    {
-        WellPathCellDirection direction = POS_I;
-        if (localCellCoordinateVec.x() < 0)
-        {
-            direction = NEG_I;
-        }
-        return direction;
-    }
-    else if (jLengthFraction > iLengthFraction && jLengthFraction > kLengthFraction)
-    {
-        WellPathCellDirection direction = POS_J;
-        if (localCellCoordinateVec.y() < 0)
-        {
-            direction = NEG_J;
-        }
-        return direction;
-    }
-    else
-    {
-        WellPathCellDirection direction = POS_K;
-        if (localCellCoordinateVec.z() < 0)
-        {
-            direction = NEG_K;
-        }
-        return direction;
-    }
-
+    return vec.getTransformedVector(localCellCoordinateSystem.getInverted());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-WellPathCellDirection RigWellPathIntersectionTools::calculateDirectionInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
+cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
 {
     std::array<cvf::Vec3d, 8> hexCorners = getCellHexCorners(grid, cellIndex);
 
-    return calculateDirectionInCell(hexCorners, startPoint, endPoint);
+    return calculateLengthInCell(hexCorners, startPoint, endPoint);
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

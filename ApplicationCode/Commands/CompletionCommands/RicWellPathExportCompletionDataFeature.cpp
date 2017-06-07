@@ -30,6 +30,8 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
+#include "RimReservoirCellResultsStorage.h"
+
 #include "RicExportCompletionDataSettingsUi.h"
 
 #include "RiuMainWindow.h"
@@ -39,6 +41,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
+#include "RigResultAccessorFactory.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -327,7 +330,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
                 RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
                 completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 double diameter = location.fishbonesSubs->holeDiameter() / 1000;
-                CellDirection direction = wellPathCellDirectionToCellDirection(intersection.direction);
+                CellDirection direction = calculateDirectionInCell(settings.caseToApply, intersection.cellIndex, intersection.lengthsInCell);
                 completion.setFromFishbone(diameter, direction);
                 completionData.push_back(completion);
             }
@@ -340,7 +343,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi & settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     std::vector<RigCompletionData> completionData;
 
@@ -354,7 +357,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
             completion.addMetadata(fishbonesPath->name(), "");
-            CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
+            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
             completion.setFromFishbone(diameter, direction);
             completionData.push_back(completion);
         }
@@ -383,7 +386,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
             double diameter = interval->diameter();
-            CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
+            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
             completion.setFromPerforation(diameter, direction);
             completionData.push_back(completion);
         }
@@ -517,7 +520,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
                 depth += intersection->endPoint.z() - startPoint.z();
 
                 WellSegmentLateralIntersection lateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->cellIndex, length, depth);
-                lateralIntersection.direction = intersection->direction;
+                lateralIntersection.lengthsInCell = intersection->internalCellLengths;
                 lateral.intersections.push_back(lateralIntersection);
 
                 length = 0;
@@ -579,20 +582,31 @@ void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CellDirection RicWellPathExportCompletionDataFeature::wellPathCellDirectionToCellDirection(WellPathCellDirection direction)
+CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell)
 {
-    switch (direction)
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
+
+    double xLengthFraction = abs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(cellIndex));
+    double yLengthFraction = abs(lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx(cellIndex));
+    double zLengthFraction = abs(lengthsInCell.z() / dzAccessObject->cellScalarGlobIdx(cellIndex));
+
+    if (xLengthFraction > yLengthFraction && xLengthFraction > zLengthFraction)
     {
-    case POS_I:
-    case NEG_I:
         return CellDirection::DIR_I;
-    case POS_J:
-    case NEG_J:
+    }
+    else if (yLengthFraction > xLengthFraction && yLengthFraction > zLengthFraction)
+    {
         return CellDirection::DIR_J;
-    case POS_K:
-    case NEG_K:
+    }
+    else
+    {
         return CellDirection::DIR_K;
-    default:
-        return CellDirection::DIR_UNDEF;
     }
 }
