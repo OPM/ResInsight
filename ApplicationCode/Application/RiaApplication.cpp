@@ -1479,14 +1479,14 @@ bool RiaApplication::parseArguments()
         foreach (QString caseName, caseNames)
         {
             QString caseFileNameWithExt = caseName + ".EGRID";
-            if (!caf::Utils::fileExists(caseFileNameWithExt))
+            if (caf::Utils::fileExists(caseFileNameWithExt))
             {
                 openEclipseCaseFromFile(caseFileNameWithExt);
             }
             else
             {
                 caseFileNameWithExt = caseName + ".GRID";
-                if (!caf::Utils::fileExists(caseFileNameWithExt))
+                if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
                 }
