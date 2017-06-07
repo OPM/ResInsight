@@ -365,7 +365,14 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    updateFieldVisibility();
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::updateFieldVisibility()
+{
     if (attachedFractureDefinition())
     {
         if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH
@@ -434,13 +441,6 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
             myAttr->m_maximum = 1.0;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFracture::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
-{
 }
 
 //--------------------------------------------------------------------------------------------------
