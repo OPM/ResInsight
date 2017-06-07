@@ -390,9 +390,9 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
                 caf::AppEnum<RimDefines::CompletionType> fishbone(RimDefines::FISHBONES);
                 caf::AppEnum<RimDefines::CompletionType> perforationInterval(RimDefines::PERFORATION_INTERVAL);
 
-                categories.push_back(std::make_tuple(wellPath.uiText(), wellPath.index(), cvf::Color3::RED));
-                categories.push_back(std::make_tuple(fishbone.uiText(), fishbone.index(), cvf::Color3::DARK_GREEN));
-                categories.push_back(std::make_tuple(perforationInterval.uiText(), perforationInterval.index(), cvf::Color3::GREEN));
+                categories.push_back(std::make_tuple(wellPath.uiText(),             static_cast<int>(wellPath.index()),             cvf::Color3::RED));
+                categories.push_back(std::make_tuple(fishbone.uiText(),             static_cast<int>(fishbone.index()),             cvf::Color3::DARK_GREEN));
+                categories.push_back(std::make_tuple(perforationInterval.uiText(),  static_cast<int>(perforationInterval.index()),  cvf::Color3::GREEN));
 
                 legendConfig()->setCategoryItems(categories);
             }
