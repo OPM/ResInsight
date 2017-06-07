@@ -124,7 +124,6 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
-    Commands/PerforationCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
