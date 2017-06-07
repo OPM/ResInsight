@@ -23,10 +23,11 @@
 namespace caf
 {
     template<>
-    void caf::AppEnum< RimUnitSystem::UnitSystem >::setUp()
+    void RimUnitSystem::UnitSystemType::setUp()
     {
-        addItem(RimUnitSystem::UNITS_METRIC, "UNITS_METRIC", "Metric");
-        addItem(RimUnitSystem::UNITS_FIELD, "UNITS_FIELD", "Field");
+        addItem(RimUnitSystem::UNITS_METRIC,  "UNITS_METRIC",  "Metric");
+        addItem(RimUnitSystem::UNITS_FIELD,   "UNITS_FIELD",   "Field");
+        addItem(RimUnitSystem::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown");
 
         setDefault(RimUnitSystem::UNITS_METRIC);
     }

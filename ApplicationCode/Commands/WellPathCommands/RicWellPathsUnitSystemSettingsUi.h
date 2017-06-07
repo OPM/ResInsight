@@ -18,28 +18,24 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
+#include "RimUnitSystem.h"
 
-class RimUnitSystem
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RicWellPathsUnitSystemSettingsUi : public caf::PdmObject
 {
-
+    CAF_PDM_HEADER_INIT;
 public:
-    enum UnitSystem
-    {
-        UNITS_METRIC,
-        UNITS_FIELD,
-        UNITS_UNKNOWN,
-        //UNITS_LAB
-    };
 
-    typedef caf::AppEnum< RimUnitSystem::UnitSystem > UnitSystemType;
+    RicWellPathsUnitSystemSettingsUi();
 
-    static double feetPerMeter()                    { return 3.2808399; }
-    static double meterPerFeet()                    { return 0.3048000; }
+    caf::PdmField<RimUnitSystem::UnitSystemType> unitSystem;
 
-    static double meterToFeet(double meter)         { return meter*feetPerMeter(); }
-    static double feetToMeter(double feet)          { return feet*meterPerFeet();}
-    static double meterToInch(double meter)         { return meter*feetPerMeter()*12; }
-    static double inchToMeter(double inch)          { return (inch / 12)*meterPerFeet(); }
+protected:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 };
-

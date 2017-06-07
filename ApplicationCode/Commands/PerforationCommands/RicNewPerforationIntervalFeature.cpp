@@ -19,6 +19,8 @@
 
 #include "RicNewPerforationIntervalFeature.h"
 
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
+
 #include "RiuMainWindow.h"
 
 #include "RimPerforationInterval.h"
@@ -48,6 +50,10 @@ void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 {
     RimPerforationCollection* perforationCollection = selectedPerforationCollection();
     if (perforationCollection == nullptr) return;
+
+    RimWellPath* wellPath;
+    perforationCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
 

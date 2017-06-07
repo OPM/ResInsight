@@ -18,6 +18,8 @@
 
 #include "RicNewPerforationIntervalAtMeasuredDepthFeature.h"
 
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
+
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
@@ -45,6 +47,8 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
     CVF_ASSERT(wellPath);
+
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
     
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
     int measuredDepth = wellPathSelItem->m_measuredDepth;

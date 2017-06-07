@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RimUnitSystem.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -89,6 +91,9 @@ public:
 
     double                              combinedScaleFactor() const;
 
+    void                                setUnitSystem(RimUnitSystem::UnitSystem unitSystem);
+    RimUnitSystem::UnitSystem           unitSystem() const;
+
 private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
@@ -111,6 +116,8 @@ private:
  
     caf::PdmField<QString>              m_surveyType;
     caf::PdmField<double>               m_datumElevation;
+
+    caf::PdmField<RimUnitSystem::UnitSystemType> m_unitSystem;
     
     caf::PdmChildField<RimWellPathCompletions*> m_completions;
 

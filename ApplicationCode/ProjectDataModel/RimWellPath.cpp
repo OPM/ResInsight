@@ -90,6 +90,9 @@ RimWellPath::RimWellPath()
     m_datumElevation.xmlCapability()->setIOWritable(false);
     m_datumElevation.xmlCapability()->setIOReadable(false);
 
+    CAF_PDM_InitFieldNoDefault(&m_unitSystem, "UnitSystem", "Unit System", "", "", "");
+    m_unitSystem.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitField(&filepath,                    "WellPathFilepath",     QString(""),    "Filepath", "", "", "");
     filepath.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in file", "", "", "");
@@ -318,6 +321,7 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     ssihubGroup->add(&updateUser);
     ssihubGroup->add(&m_surveyType);
     ssihubGroup->add(&m_datumElevation);
+    ssihubGroup->add(&m_unitSystem);
 
     if (m_wellPath.notNull() && m_wellPath->hasDatumElevation())
     {
@@ -442,6 +446,22 @@ double RimWellPath::combinedScaleFactor() const
     this->firstAncestorOrThisOfTypeAsserted(wellPathColl);
 
     return this->wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setUnitSystem(RimUnitSystem::UnitSystem unitSystem)
+{
+    m_unitSystem = unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimUnitSystem::UnitSystem RimWellPath::unitSystem() const
+{
+    return m_unitSystem();
 }
 
 //--------------------------------------------------------------------------------------------------

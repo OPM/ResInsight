@@ -18,6 +18,8 @@
 
 #include "RicEditPerforationCollectionFeature.h"
 
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
+
 #include "RiuEditPerforationCollectionWidget.h"
 
 #include "RimPerforationCollection.h"
@@ -46,8 +48,12 @@ void RicEditPerforationCollectionFeature::onActionTriggered(bool isChecked)
     this->disableModelChangeContribution();
 
     RimPerforationCollection* perforationCollection = selectedPerforationCollection();
-    
+
     if (perforationCollection == nullptr) return;
+
+    RimWellPath* wellPath;
+    perforationCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
     RiuEditPerforationCollectionWidget dlg(nullptr, perforationCollection);
     dlg.exec();

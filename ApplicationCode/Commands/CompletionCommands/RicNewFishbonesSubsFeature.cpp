@@ -18,6 +18,8 @@
 
 #include "RicNewFishbonesSubsFeature.h"
 
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
+
 #include "RiaApplication.h"
 
 #include "RimProject.h"
@@ -44,6 +46,10 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 {
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT(fishbonesCollection);
+
+    RimWellPath* wellPath;
+    fishbonesCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     obj->setName(QString("Fishbones Subs (%1)").arg(fishbonesCollection->fishbonesSubs.size()));
