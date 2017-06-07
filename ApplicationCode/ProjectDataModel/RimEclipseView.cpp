@@ -446,6 +446,10 @@ void RimEclipseView::createDisplayModel()
     RigMainGrid* mainGrid = this->mainGrid();
     if (mainGrid)
     {
+        // NB! StimPlan legend colors must be updated before well path geometry is added to the model
+        // as the fracture geometry depends on the StimPlan legend colors
+        stimPlanColors->updateLegendData();
+
         addWellPathsToModel(m_wellPathPipeVizModel.p(),
             mainGrid->displayModelOffset(),
             mainGrid->characteristicIJCellSize(),
