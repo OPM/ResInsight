@@ -447,8 +447,6 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
                 {
                     model->addPart(m_StimPlanMeshPart.p());
                 }
-
-
             }
             else
             {
@@ -461,7 +459,10 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
     {
         model->addPart(m_part.p());
     }
-    if (m_rimFracture->showPolygonFractureOutline() && m_polygonPart.notNull())
+
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition())
+        && m_rimFracture->showPolygonFractureOutline()
+        && m_polygonPart.notNull())
     {
         model->addPart(m_polygonPart.p());
     }
