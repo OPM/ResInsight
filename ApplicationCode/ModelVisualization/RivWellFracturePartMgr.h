@@ -76,9 +76,8 @@ private:
 
 private:
     caf::PdmPointer<RimFracture> m_rimFracture;
+
     cvf::ref<cvf::Part>          m_part;
     cvf::ref<cvf::Part>          m_polygonPart;
-
-   cvf::ref<cvf::Part>           m_StimPlanMeshPart;
-
+    cvf::ref<cvf::Part>          m_stimPlanMeshPart;
 };
