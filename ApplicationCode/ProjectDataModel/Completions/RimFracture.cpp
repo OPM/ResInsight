@@ -389,16 +389,19 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             perforationLength.uiCapability()->setUiHidden(true);
         }
 
-
-        RimFractureTemplate* fracTemplate= attachedFractureDefinition();
+        RimFractureTemplate* fracTemplate = attachedFractureDefinition();
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
             stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly(true);
+
+            showPolygonFractureOutline.uiCapability()->setUiHidden(false);
         }
         else
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
+
+            showPolygonFractureOutline.uiCapability()->setUiHidden(true);
         }
     }
     else
