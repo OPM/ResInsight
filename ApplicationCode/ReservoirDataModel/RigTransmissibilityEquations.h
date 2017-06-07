@@ -25,7 +25,7 @@ public:
 
     // Calculations are assuming an orthogonal coordinate system
 
-    //If using wellBoreTransmissibilityComponent to calculate Tx (transmissibility in x direction), 
+    // If using wellBoreTransmissibilityComponent to calculate Tx (transmissibility in x direction), 
     // perforationVectorComponent is the x component (in the cell local coordinate system) of the perforation vector
     // permeability and cell size for Z and Y are to be specified as "normal directions" 1 and 2
     // but normal directions 1 and 2 are interchangeable (so Z=1, Y=2 and Z=2, Y=1 gives same result)

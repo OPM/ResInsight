@@ -17,8 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigTransmissibilityEquations.h"
+
 #include "cvfBase.h"
 #include "cvfMath.h"
+
 #include <cmath>
 
 
