@@ -83,7 +83,7 @@ RimFracture::RimFracture(void)
     m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "");
     CAF_PDM_InitField(&perforationEfficiency, "perforationEfficiency", 1.0, "perforation Efficiency", "", "", "");
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
@@ -167,10 +167,12 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         if (fractureUnit == RimDefines::UNITS_METRIC)
         {
             wellDiameter = RimDefines::inchToMeter(wellDiameter);
+            perforationLength = RimDefines::feetToMeter(perforationLength);
         }
         else if (fractureUnit == RimDefines::UNITS_FIELD)
         {
             wellDiameter = RimDefines::meterToInch(wellDiameter);
+            perforationLength = RimDefines::meterToFeet(perforationLength);
         }
         this->updateConnectedEditors();
     }
@@ -396,23 +398,15 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-           
-    updateFieldVisibility();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFracture::updateFieldVisibility()
-{
-
     if (fractureUnit == RimDefines::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
+        perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
     else if (fractureUnit == RimDefines::UNITS_FIELD)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
+        perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
     }
 
     if (attachedFractureDefinition())

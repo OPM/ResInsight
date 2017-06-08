@@ -72,7 +72,7 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&skinFactor, "SkinFactor", 1.0f, "Skin Factor", "", "", "");
 
-    CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
+    CAF_PDM_InitField(&perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "");
     CAF_PDM_InitField(&perforationEfficiency, "perforationEfficiency", 1.0, "perforation Efficiency", "", "", "");
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
@@ -169,6 +169,17 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+
+    if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
+    {
+        wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
+        perforationLength.uiCapability()->setUiName("Perforation Length [m]");
+    }
+    else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
+    {
+        wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
+        perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
+    }
 
     if (orientation == RimFractureTemplate::ALONG_WELL_PATH
         || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)

@@ -102,7 +102,6 @@ protected:
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
-    void                            updateFieldVisibility();
     bool                            isRecomputeGeometryFlagSet();
     cvf::Vec3d                      fracturePositionForUi() const;
     

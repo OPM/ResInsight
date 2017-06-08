@@ -171,6 +171,7 @@ void RimEllipseFractureTemplate::changeUnits()
         height = RimDefines::meterToFeet(height);
         width = RimDefines::meterToInch(width);
         wellDiameter = RimDefines::meterToInch(wellDiameter);
+        perforationLength = RimDefines::meterToFeet(perforationLength);
         fractureTemplateUnit = RimDefines::UNITS_FIELD;
     }
     else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
@@ -179,6 +180,7 @@ void RimEllipseFractureTemplate::changeUnits()
         height = RimDefines::feetToMeter(height);
         width = RimDefines::inchToMeter(width);
         wellDiameter = RimDefines::inchToMeter(wellDiameter);
+        perforationLength = RimDefines::feetToMeter(perforationLength);
         fractureTemplateUnit = RimDefines::UNITS_METRIC;
     }
 
