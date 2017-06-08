@@ -63,9 +63,6 @@ public:
     static std::vector<size_t>                         findCloseCells(const RigMainGrid* grid, const cvf::BoundingBox& bb);
     static size_t                                      findCellFromCoords(const RigMainGrid* caseData, const cvf::Vec3d& coords, bool* foundCell);
 
-    static std::array<cvf::Vec3d, 8>                   getCellHexCorners(const RigMainGrid* grid, size_t cellIndex);
-    static void                                        setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners);
-
 private:
     static void                                        removeEnteringIntersections(std::vector<HexIntersectionInfo>* intersections);
 };

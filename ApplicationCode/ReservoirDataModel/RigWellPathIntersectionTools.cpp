@@ -109,16 +109,16 @@ std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::getIntersectedCel
 
         std::vector<size_t> closeCells = findCloseCells(grid, bb);
 
-        cvf::Vec3d hexCorners[8];
+        std::array<cvf::Vec3d, 8> hexCorners;
 
         for (size_t closeCell : closeCells)
         {
             const RigCell& cell = grid->globalCellArray()[closeCell];
             if (cell.isInvalid()) continue;
 
-            setHexCorners(cell, nodeCoords, hexCorners);
+            grid->cellCornerVertices(closeCell, hexCorners.data());
 
-            RigHexIntersector::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners, closeCell, &intersections);
+            RigHexIntersector::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners.data(), closeCell, &intersections);
         }
     }
 
@@ -149,7 +149,8 @@ cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell(const std::array<
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell(const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint)
 {
-    std::array<cvf::Vec3d, 8> hexCorners = getCellHexCorners(grid, cellIndex);
+    std::array<cvf::Vec3d, 8> hexCorners;
+    grid->cellCornerVertices(cellIndex, hexCorners.data());
 
     return calculateLengthInCell(hexCorners, startPoint, endPoint);
 }
@@ -174,16 +175,16 @@ size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid,
     cvf::BoundingBox bb;
     bb.add(coords);
     std::vector<size_t> closeCells = findCloseCells(grid, bb);
-    cvf::Vec3d hexCorners[8];
+    std::array<cvf::Vec3d, 8> hexCorners;
 
     for (size_t closeCell : closeCells)
     {
         const RigCell& cell = grid->globalCellArray()[closeCell];
         if (cell.isInvalid()) continue;
 
-        setHexCorners(cell, nodeCoords, hexCorners);
+        grid->cellCornerVertices(closeCell, hexCorners.data());
 
-        if (RigHexIntersector::isPointInCell(coords, hexCorners))
+        if (RigHexIntersector::isPointInCell(coords, hexCorners.data()))
         {
             *foundCell = true;
             return closeCell;
@@ -192,36 +193,6 @@ size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid,
 
     *foundCell = false;
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 8> RigWellPathIntersectionTools::getCellHexCorners(const RigMainGrid* grid, size_t cellIndex)
-{
-    const std::vector<cvf::Vec3d>& nodeCoords = grid->nodes();
-    std::array<cvf::Vec3d, 8> corners;
-    const RigCell& cell = grid->globalCellArray()[cellIndex];
-    setHexCorners(cell, nodeCoords, corners.data());
-
-    return corners;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigWellPathIntersectionTools::setHexCorners(const RigCell& cell, const std::vector<cvf::Vec3d>& nodeCoords, cvf::Vec3d* hexCorners)
-{
-    const caf::SizeTArray8& cornerIndices = cell.cornerIndices();
-
-    hexCorners[0] = nodeCoords[cornerIndices[0]];
-    hexCorners[1] = nodeCoords[cornerIndices[1]];
-    hexCorners[2] = nodeCoords[cornerIndices[2]];
-    hexCorners[3] = nodeCoords[cornerIndices[3]];
-    hexCorners[4] = nodeCoords[cornerIndices[4]];
-    hexCorners[5] = nodeCoords[cornerIndices[5]];
-    hexCorners[6] = nodeCoords[cornerIndices[6]];
-    hexCorners[7] = nodeCoords[cornerIndices[7]];
 }
 
 //--------------------------------------------------------------------------------------------------
