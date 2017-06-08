@@ -152,6 +152,28 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         return;
     }
 
+    {
+        bool unitSystemMismatch = false;
+        for (const RimWellPath* wellPath : wellPaths)
+        {
+            if (wellPath->unitSystem() == RimUnitSystem::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
+            {
+                unitSystemMismatch = true;
+                break;
+            }
+            else if (wellPath->unitSystem() == RimUnitSystem::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
+            {
+                unitSystemMismatch = true;
+                break;
+            }
+        }
+        if (unitSystemMismatch)
+        {
+            RiaLogging::error("Well path unit systems must match unit system of chosen eclipse case.");
+            return;
+        }
+    }
+
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
 
