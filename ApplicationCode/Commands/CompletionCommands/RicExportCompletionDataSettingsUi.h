@@ -33,6 +33,7 @@ public:
     RicExportCompletionDataSettingsUi();
 
 
+    caf::PdmField<bool>                     computeTransmissibility;
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
 

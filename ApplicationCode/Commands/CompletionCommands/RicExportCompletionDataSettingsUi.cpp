@@ -29,6 +29,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
 
+    CAF_PDM_InitField(&computeTransmissibility, "ComputeTransmissibility", true, "Compute Transmissibility", "", "", "");
+
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
 

@@ -102,6 +102,7 @@ public:
 
     void                                 setFromFracture(double transmissibility, double skinFactor);
     void                                 setFromFishbone(double diameter, CellDirection direction);
+    void                                 setFromFishbone(double transmissibility, double skinFactor);
     void                                 setFromPerforation(double diameter, CellDirection direction);
     void                                 addMetadata(const QString& name, const QString& comment);
     static bool                          isDefaultValue(double val);
