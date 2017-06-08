@@ -75,7 +75,7 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 0.0, "Perforation Length", "", "", "");
     CAF_PDM_InitField(&perforationEfficiency, "perforationEfficiency", 1.0, "perforation Efficiency", "", "", "");
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&wellRadius, "wellRadius", 0.0, "Well Radius at Fracture", "", "", "");
+    CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
 
     CAF_PDM_InitField(&fractureConductivity, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(INFINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
@@ -87,7 +87,6 @@ RimFractureTemplate::RimFractureTemplate(void)
 RimFractureTemplate::~RimFractureTemplate()
 {
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -136,7 +135,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
         }
     }
 
-    if (changedField == &perforationLength || changedField == &perforationEfficiency || changedField == &wellRadius)
+    if (changedField == &perforationLength || changedField == &perforationEfficiency || changedField == &wellDiameter)
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
@@ -156,9 +155,9 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 {
                     fracture->perforationEfficiency = perforationEfficiency;
                 }
-                if (changedField == &wellRadius && (abs(oldValue.toDouble() - fracture->wellRadius()) < 1e-5))
+                if (changedField == &wellDiameter && (abs(oldValue.toDouble() - fracture->wellDiameter()) < 1e-5))
                 {
-                    fracture->wellRadius = wellRadius;
+                    fracture->wellDiameter = wellDiameter;
                 }
             }
         }
@@ -207,5 +206,21 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
             myAttr->m_minimum = 0;
             myAttr->m_maximum = 1.0;
         }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplate::setDefaultWellDiameterFromUnit()
+{
+    if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
+    {
+        wellDiameter = 8.5;
+    }
+    else if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
+    {
+        wellDiameter = 0.216;
     }
 }

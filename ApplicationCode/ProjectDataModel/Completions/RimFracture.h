@@ -57,7 +57,7 @@ public:
     caf::PdmField<double>           azimuth;
     caf::PdmField<double>           perforationLength;
     caf::PdmField<double>           perforationEfficiency;
-    caf::PdmField<double>           wellRadius;
+    caf::PdmField<double>           wellDiameter;
 
     caf::PdmField<double>           dip;
     caf::PdmField<double>           tilt;
@@ -67,7 +67,7 @@ public:
 
     caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >  fractureUnit;
 
-
+    double                          wellRadius() const;
     cvf::Vec3d                      anchorPosition() const ;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
 

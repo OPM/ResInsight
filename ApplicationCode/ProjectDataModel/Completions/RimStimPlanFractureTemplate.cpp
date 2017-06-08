@@ -1097,7 +1097,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
     propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellRadius);
+    propertyGroup->add(&wellDiameter);
 
     caf::PdmUiGroup* polygonGroup = uiOrdering.addNewGroup("Fracture Polygon Basis");
     polygonGroup->add(&parameterForPolygon);

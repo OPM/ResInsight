@@ -170,16 +170,15 @@ void RimEllipseFractureTemplate::changeUnits()
         halfLength = RimDefines::meterToFeet(halfLength);
         height = RimDefines::meterToFeet(height);
         width = RimDefines::meterToInch(width);
-        //perforationLength = RimDefines::meterToFeet(perforationLength);
+        wellDiameter = RimDefines::meterToInch(wellDiameter);
         fractureTemplateUnit = RimDefines::UNITS_FIELD;
-        //TODO: Darcy unit?
     }
     else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
         halfLength = RimDefines::feetToMeter(halfLength);
         height = RimDefines::feetToMeter(height);
         width = RimDefines::inchToMeter(width);
-        //perforationLength = RimDefines::feetToMeter(perforationLength);
+        wellDiameter = RimDefines::inchToMeter(wellDiameter);
         fractureTemplateUnit = RimDefines::UNITS_METRIC;
     }
 
@@ -277,6 +276,7 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -297,14 +297,14 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         height.uiCapability()->setUiName("Height [m]");
         width.uiCapability()->setUiName("Width [m]");
-        //perforationLength.uiCapability()->setUiName("Perforation Length [m]");
+        wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
     }
     else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
     {
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         height.uiCapability()->setUiName("Height [Ft]");
         width.uiCapability()->setUiName("Width [inches]");
-        //perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
+        wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
     }
 
     
@@ -326,7 +326,7 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
     propertyGroup->add(&perforationEfficiency);
-    propertyGroup->add(&wellRadius);
+    propertyGroup->add(&wellDiameter);
 
     uiOrdering.add(&fractureTemplateUnit);
     uiOrdering.skipRemainingFields(true);

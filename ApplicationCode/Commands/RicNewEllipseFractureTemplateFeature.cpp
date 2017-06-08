@@ -55,6 +55,7 @@ void RicNewEllipseFractureTemplateFeature::onActionTriggered(bool isChecked)
         fracDefColl->fractureDefinitions.push_back(fractureDef);
         fractureDef->name = "Ellipse Fracture Template";
         fractureDef->fractureTemplateUnit = fracDefColl->defaultUnitsForFracTemplates();
+        fractureDef->setDefaultWellDiameterFromUnit();
 
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);

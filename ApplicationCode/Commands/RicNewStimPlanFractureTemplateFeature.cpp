@@ -64,7 +64,8 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered(bool isChecked)
         fractureDef->setFileName(fileName);
         fractureDef->loadDataAndUpdate();
         fractureDef->setDefaultsBasedOnXMLfile();
-        
+        fractureDef->setDefaultWellDiameterFromUnit();
+
         fracDefColl->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(fractureDef);
     }

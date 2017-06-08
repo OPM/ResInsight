@@ -52,7 +52,7 @@ public:
 
     caf::PdmField<double>           perforationLength;
     caf::PdmField<double>           perforationEfficiency;
-    caf::PdmField<double>           wellRadius;
+    caf::PdmField<double>           wellDiameter;
 
     enum FracOrientationEnum
     {
@@ -70,6 +70,8 @@ public:
     caf::PdmField< caf::AppEnum< FracConductivityEnum > >  fractureConductivity;
 
     caf::PdmField< caf::AppEnum< RimDefines::UnitSystem > >  fractureTemplateUnit;
+
+    void                            setDefaultWellDiameterFromUnit();
 
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
