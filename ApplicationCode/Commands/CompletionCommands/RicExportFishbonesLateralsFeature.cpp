@@ -79,8 +79,6 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
     // x y TVD MD 
     // separate laterals using -999 on a single line
 
-    size_t fishboneSubIndex = 0;
-
     QTextStream stream(&exportFile);
     for (RimFishbonesMultipleSubs* fishbone : fishbonesCollection->fishbonesSubs())
     {
@@ -93,7 +91,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
                 std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral(sub.subIndex, lateralIndex);
 
                 // Pad with "0" to get a total of two characters defining the sub index text
-                QString subIndexText = QString("%1").arg(fishboneSubIndex++, 2, 10, QChar('0'));
+                QString subIndexText = QString("%1").arg(sub.subIndex, 2, 10, QChar('0'));
 
                 QString lateralNameCandidate = QString("%1_%2_%3_%4").arg(wellPath->name()).arg("fishbone").arg(subIndexText).arg(lateralIndex);
 
