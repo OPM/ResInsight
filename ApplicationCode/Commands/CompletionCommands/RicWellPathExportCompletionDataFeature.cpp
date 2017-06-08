@@ -189,6 +189,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         generateWpimultTable(formatter, completions);
     }
+
+    RiaLogging::info(QString("Successfully exported completion data to %1").arg(exportSettings.fileName()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,7 +339,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
                                                                         wellPath,
                                                                         intersection.lengthsInCell,
                                                                         location.fishbonesSubs->skinFactor(),
-                                                                        location.fishbonesSubs->holeDiameter(),
+                                                                        diameter / 2,
                                                                         intersection.cellIndex);
                     completion.setFromFishbone(transmissibility, location.fishbonesSubs->skinFactor());
                 }
@@ -360,12 +362,16 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 {
     std::vector<RigCompletionData> completionData;
 
+    std::vector<size_t> wellPathCells = findIntersectingCells(settings.caseToApply()->eclipseCaseData(), wellPath->wellPathGeometry()->m_wellPathPoints);
+
     double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter() / 1000;
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates());
         for (auto& cell : intersectedCells)
         {
+            if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.cellIndex) != wellPathCells.end()) continue;
+
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
@@ -373,11 +379,11 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
             if (settings.computeTransmissibility())
             {
                 double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
-                double transmissibility = calculateTransmissibility(settings.caseToApply,
+                double transmissibility = calculateTransmissibility(settings.caseToApply(),
                                                                     wellPath,
                                                                     cell.internalCellLengths,
                                                                     skinFactor,
-                                                                    wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(),
+                                                                    diameter / 2,
                                                                     cell.cellIndex);
                 completion.setFromFishbone(transmissibility, skinFactor);
             }
