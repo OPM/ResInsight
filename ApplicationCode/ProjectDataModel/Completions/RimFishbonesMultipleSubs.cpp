@@ -100,7 +100,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     m_pipeProperties = new RimFishbonesPipeProperties;
 
-    name()->uiCapability()->setUiReadOnly(true);
+    nameField()->uiCapability()->setUiReadOnly(true);
 
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
 

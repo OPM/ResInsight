@@ -40,7 +40,7 @@ RimFishboneWellPathCollection::RimFishboneWellPathCollection()
 {
     CAF_PDM_InitObject("WellPathCompletions", ":/FishBoneGroupFromFile16x16.png", "", "");
 
-    name()->uiCapability()->setUiHidden(true);
+    nameField()->uiCapability()->setUiHidden(true);
     this->setName("Well Paths");
 
     CAF_PDM_InitFieldNoDefault(&m_wellPaths, "WellPaths", "Well Paths", "", "", "");

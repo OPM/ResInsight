@@ -57,13 +57,13 @@ void RimNamedObject::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimNamedObject::userDescriptionField()
 {
-    return name();
+    return nameField();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimNamedObject::name()
+caf::PdmFieldHandle* RimNamedObject::nameField()
 {
     return &m_name;
 }
