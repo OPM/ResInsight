@@ -19,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.h
 # Fracture files goes here
 ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimFracture.h
+${CEE_CURRENT_LIST_DIR}RimFractureContainment.h
 ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.h
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.h
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.h
@@ -45,6 +46,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellPathCompletions.cpp
 # Fracture files goes here
 ${CEE_CURRENT_LIST_DIR}RimEllipseFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimFracture.cpp
+${CEE_CURRENT_LIST_DIR}RimFractureContainment.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureExportSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplate.cpp
 ${CEE_CURRENT_LIST_DIR}RimFractureTemplateCollection.cpp

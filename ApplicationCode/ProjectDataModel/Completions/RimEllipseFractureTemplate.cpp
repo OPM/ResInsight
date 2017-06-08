@@ -27,6 +27,7 @@
 
 #include "RimDefines.h"
 #include "RimFracture.h"
+#include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
 
@@ -317,6 +318,9 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     geometryGroup->add(&height);
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
+
+    caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
+    m_fractureContainmentField()->defineUiOrdering(uiConfigName, *trGr);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureConductivity);
