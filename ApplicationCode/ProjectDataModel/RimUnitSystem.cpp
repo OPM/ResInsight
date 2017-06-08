@@ -17,8 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimUnitSystem.h"
+
 #include "cafAppEnum.h"
 
+#include "cvfAssert.h"
 
 namespace caf
 {
@@ -30,5 +32,28 @@ namespace caf
         addItem(RimUnitSystem::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown");
 
         setDefault(RimUnitSystem::UNITS_METRIC);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimUnitSystem::darcysConstant(UnitSystem unitSystem)
+{
+    // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
+    //     CDARCY Darcys constant
+    //         = 0.00852702 (E300); 0.008527 (ECLIPSE 100) (METRIC)
+    //         = 0.00112712 (E300); 0.001127 (ECLIPSE 100) (FIELD)
+    //         = 3.6 (LAB)
+    //         = 0.00864 (PVT - M)
+    switch (unitSystem)
+    {
+    case UNITS_FIELD:
+        return 0.001127;
+    case UNITS_METRIC:
+        return 0.008527;
+    default:
+        CVF_ASSERT(false);
+        return 0.0;
     }
 }

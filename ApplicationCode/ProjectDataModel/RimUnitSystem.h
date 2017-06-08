@@ -41,5 +41,7 @@ public:
     static double feetToMeter(double feet)          { return feet*meterPerFeet();}
     static double meterToInch(double meter)         { return meter*feetPerMeter()*12; }
     static double inchToMeter(double inch)          { return (inch / 12)*meterPerFeet(); }
+
+    static double darcysConstant(UnitSystem unitSystem);
 };
 
