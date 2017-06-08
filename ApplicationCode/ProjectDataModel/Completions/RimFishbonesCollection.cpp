@@ -29,6 +29,7 @@
 
 #include <QColor>
 
+#include <algorithm>
 
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
 
@@ -39,8 +40,8 @@ RimFishbonesCollection::RimFishbonesCollection()
 {
     CAF_PDM_InitObject("Fishbones", ":/FishBones16x16.png", "", "");
 
-    m_name.uiCapability()->setUiHidden(true);
-    m_name = "Fishbones";
+    nameField()->uiCapability()->setUiHidden(true);
+    this->setName("Fishbones");
 
     CAF_PDM_InitFieldNoDefault(&fishbonesSubs, "FishbonesSubs", "fishbonesSubs", "", "", "");
 
@@ -49,6 +50,10 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Well Paths", "", "", "");
     m_wellPathCollection = new RimFishboneWellPathCollection;
     m_wellPathCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_startMD,           "StartMD",          HUGE_VAL,   "Start MD",             "", "", "");
+    CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.0,        "Main Bore Diameter",   "", "", "");
+    CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.0,        "Liner Diameter",       "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +83,8 @@ void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 {
     subs->fishbonesColor = nextFishbonesColor();
     fishbonesSubs.push_back(subs);
+
+    recalculateStartMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,5 +118,26 @@ cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
     }
 
     return cvf::Color3f::fromByteColor(qFishbonesColor.red(), qFishbonesColor.green(), qFishbonesColor.blue());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::recalculateStartMD()
+{
+    double minStartMD = HUGE_VAL;
+
+    for (const RimFishbonesMultipleSubs* sub : fishbonesSubs())
+    {
+        for (auto& index : sub->installedLateralIndices())
+        {
+            minStartMD = std::min(minStartMD, sub->measuredDepth(index.subIndex) - 13.0);
+        }
+    }
+
+    if (minStartMD < m_startMD())
+    {
+        m_startMD = minStartMD;
+    }
 }
 

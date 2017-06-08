@@ -48,7 +48,6 @@ struct WellSegmentLateralIntersection {
           cellIndex(cellIndex),
           length(length),
           depth(depth),
-          direction(POS_I),
           mainBoreCell(false)
     {}
 
@@ -58,7 +57,7 @@ struct WellSegmentLateralIntersection {
     bool                     mainBoreCell;
     double                   length;
     double                   depth;
-    WellPathCellDirection    direction;
+    cvf::Vec3d               lengthsInCell;
 };
 
 //==================================================================================================
@@ -151,5 +150,7 @@ private:
 
     static void                                  appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data);
 
-    static CellDirection                         wellPathCellDirectionToCellDirection(WellPathCellDirection direction);
+    static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell);
+
+    static double                                calculateTransmissibility(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, const cvf::Vec3d& internalCellLengths, double skinFactor, double wellRadius, size_t cellIndex);
 };

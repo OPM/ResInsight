@@ -25,10 +25,15 @@
 #include "RiaColorTables.h"
 
 #include "RigWellPath.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimProject.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
+#include "RimOilField.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -169,7 +174,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 {
     std::vector<RimWellPath*> wellPathArray;
 
-    foreach (QString filePath, filePaths)
+    for (QString filePath : filePaths)
     {
         // Check if this file is already open
         bool alreadyOpen = false;
@@ -258,6 +263,7 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         else
         {
             wellPath->wellPathColor = cvf::Color3f(interpolatedWellColors[wpIdx]);
+            wellPath->setUnitSystem(findUnitSystemForWellPath(wellPath));
             wellPaths.push_back(wellPath);
         }
 
@@ -391,6 +397,9 @@ void RimWellPathCollection::removeWellPath(RimWellPath* wellPath)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool lessWellPath(const caf::PdmPointer<RimWellPath>& w1,  const caf::PdmPointer<RimWellPath>& w2)
 {
     if (w1.notNull() && w2.notNull())
@@ -407,4 +416,38 @@ bool lessWellPath(const caf::PdmPointer<RimWellPath>& w1,  const caf::PdmPointer
 void RimWellPathCollection::sortWellsByName()
 {
     std::sort(wellPaths.begin(), wellPaths.end(), lessWellPath);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimUnitSystem::UnitSystemType RimWellPathCollection::findUnitSystemForWellPath(const RimWellPath* wellPath)
+{
+    RimProject* project;
+    firstAncestorOrThisOfTypeAsserted(project);
+    if (project->activeOilField()->analysisModels->cases.empty())
+    {
+        return RimUnitSystem::UNITS_UNKNOWN;
+    }
+
+    const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
+    cvf::BoundingBox caseBoundingBox = eclipseCaseData->mainGrid()->boundingBox();
+    cvf::BoundingBox wellPathBoundingBox;
+    for (auto& wellPathPoint : wellPath->wellPathGeometry()->m_wellPathPoints)
+    {
+        wellPathBoundingBox.add(wellPathPoint);
+    }
+
+    if (caseBoundingBox.intersects(wellPathBoundingBox))
+    {
+        if (eclipseCaseData->unitsType() == RigEclipseCaseData::UNITS_FIELD)
+        {
+            return RimUnitSystem::UNITS_FIELD;
+        }
+        else if (eclipseCaseData->unitsType() == RigEclipseCaseData::UNITS_METRIC)
+        {
+            return RimUnitSystem::UNITS_METRIC;
+        }
+    }
+    return RimUnitSystem::UNITS_UNKNOWN;
 }

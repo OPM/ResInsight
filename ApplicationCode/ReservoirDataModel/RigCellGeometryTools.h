@@ -24,6 +24,7 @@
 #include "cvfBoundingBox.h"
 #include "cvfPlane.h"
 
+#include <array>
 #include <list>
 #include <vector>
 
@@ -39,8 +40,8 @@ public:
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons);
 
-    static void findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection);
-    
+    static void findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection);
+
     static double polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygon2d);
    
     static std::vector<std::vector<cvf::Vec3d> >  intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2);

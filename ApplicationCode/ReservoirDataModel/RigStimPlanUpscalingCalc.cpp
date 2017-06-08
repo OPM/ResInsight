@@ -24,19 +24,19 @@ RigStimPlanUpscalingCalc::RigStimPlanUpscalingCalc(RimEclipseCase* caseToApply, 
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
     {
         RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
-        m_unitForCalculation = RimDefines::UNITS_METRIC;
+        m_unitForCalculation = RimUnitSystem::UNITS_METRIC;
     }
     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
     {
         RiaLogging::debug(QString("Calculating transmissibilities in field units"));
-        m_unitForCalculation = RimDefines::UNITS_FIELD;
+        m_unitForCalculation = RimUnitSystem::UNITS_FIELD;
     }
     else
     {
         //TODO: How to handle lab units for eclipse case?
         RiaLogging::error(QString("Unit system for case not supported for fracture export."));
         RiaLogging::error(QString("Export will be in metric units, but results might be wrong."));
-        m_unitForCalculation = RimDefines::UNITS_METRIC;
+        m_unitForCalculation = RimUnitSystem::UNITS_METRIC;
     }
 
 }
@@ -44,7 +44,7 @@ RigStimPlanUpscalingCalc::RigStimPlanUpscalingCalc(RimEclipseCase* caseToApply, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimDefines::UnitSystem unitSystem, size_t eclipseCellIndex)
+std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimUnitSystem::UnitSystem unitSystem, size_t eclipseCellIndex)
 {
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
     if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))

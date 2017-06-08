@@ -54,8 +54,8 @@ public:
     
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
-    void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices, RimDefines::UnitSystem fractureTemplateUnit);
-    std::vector<cvf::Vec3f>         fracturePolygon(RimDefines::UnitSystem  fractureTemplateUnit);
+    void                            fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* polygonIndices, RimUnitSystem::UnitSystem fractureTemplateUnit);
+    std::vector<cvf::Vec3f>         fracturePolygon(RimUnitSystem::UnitSystem  fractureTemplateUnit);
     void                            changeUnits();
     
     const RigFractureGrid*          fractureGrid() const;

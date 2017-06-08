@@ -22,6 +22,7 @@
 #include "RigWellPath.h"
 #include "RimProject.h"
 #include "RimWellPath.h"
+#include "RimFishbonesCollection.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -99,7 +100,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     m_pipeProperties = new RimFishbonesPipeProperties;
 
-    m_name.uiCapability()->setUiReadOnly(true);
+    nameField()->uiCapability()->setUiReadOnly(true);
 
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
 
@@ -334,6 +335,10 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
         
         m_locationOfSubs = validMeasuredDepths;
     }
+
+    RimFishbonesCollection* collection;
+    this->firstAncestorOrThisOfTypeAsserted(collection);
+    collection->recalculateStartMD();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -463,7 +468,7 @@ void RimFishbonesMultipleSubs::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTr
     CVF_ASSERT(container);
 
     size_t index = container->index(this);
-    m_name = QString("Fishbone %1").arg(index);
+    this->setName(QString("Fishbone %1").arg(index));
 }
 
 //--------------------------------------------------------------------------------------------------

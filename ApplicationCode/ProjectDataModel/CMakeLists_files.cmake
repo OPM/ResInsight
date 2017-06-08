@@ -14,6 +14,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimDefines.h
+${CEE_CURRENT_LIST_DIR}RimUnitSystem.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimOilField.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
@@ -104,6 +105,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimDefines.cpp
+${CEE_CURRENT_LIST_DIR}RimUnitSystem.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp

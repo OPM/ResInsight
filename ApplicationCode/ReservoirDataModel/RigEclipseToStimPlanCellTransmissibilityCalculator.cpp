@@ -132,11 +132,11 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
 
         const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
-        cvf::Vec3d hexCorners[8];
-        mainGrid->cellCornerVertices(fracCell, hexCorners);
+        std::array<cvf::Vec3d, 8> hexCorners;
+        mainGrid->cellCornerVertices(fracCell, hexCorners.data());
 
         std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = RigFractureTransCalc::planeCellIntersectionPolygons(hexCorners, m_fractureTransform, planeCellPolygons);
+        bool isPlanIntersected = RigFractureTransCalc::planeCellIntersectionPolygons(hexCorners.data(), m_fractureTransform, planeCellPolygons);
         if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
 
         cvf::Vec3d localX;

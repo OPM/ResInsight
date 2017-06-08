@@ -19,6 +19,7 @@
 #include "RicNewFishbonesSubsAtMeasuredDepthFeature.h"
 
 #include "RicNewFishbonesSubsFeature.h"
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
@@ -45,6 +46,8 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered(bool isChecked
 
     RimWellPath* wellPath = wellPathSelItem->m_wellpath;
     CVF_ASSERT(wellPath);
+
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
     
     RimFishbonesMultipleSubs* obj = new RimFishbonesMultipleSubs;
     wellPath->fishbonesCollection()->appendFishbonesSubs(obj);

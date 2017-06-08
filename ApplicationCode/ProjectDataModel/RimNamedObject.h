@@ -39,8 +39,11 @@ public:
 
 protected:
     virtual caf::PdmFieldHandle* userDescriptionField() override;
+    
+    // To be used from derived objects when manipulating visibility and ui ordering
+    caf::PdmFieldHandle* nameField();
 
-protected:
+private:
     caf::PdmField<QString> m_name;
 };
 

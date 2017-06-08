@@ -1,7 +1,7 @@
 
 set(RESINSIGHT_MAJOR_VERSION 2017)
 set(RESINSIGHT_MINOR_VERSION 05)
-set(RESINSIGHT_INCREMENT_VERSION "pre-proto.12")
+set(RESINSIGHT_INCREMENT_VERSION "pre-proto.15")
 
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib

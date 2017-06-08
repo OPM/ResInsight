@@ -28,21 +28,6 @@
 
 #include <vector>
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigCellGeometryTools::RigCellGeometryTools()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigCellGeometryTools::~RigCellGeometryTools()
-{
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -155,10 +140,10 @@ void RigCellGeometryTools::createPolygonFromLineSegments(std::list<std::pair<cvf
 
 }
 
-//--------------------------------------------------------------------------------------------------
-///  
-//--------------------------------------------------------------------------------------------------
-void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection)
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCellGeometryTools::findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d& localXdirection, cvf::Vec3d& localYdirection, cvf::Vec3d& localZdirection)
 {
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::FaceEnum face;
@@ -179,7 +164,7 @@ void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d 
     face = cvf::StructGridInterface::POS_J;
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
     cvf::Vec3d faceCenterPosJ = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
-    
+
     cvf::Vec3d faceCenterCenterVectorI = faceCenterPosI - faceCenterNegI;
     cvf::Vec3d faceCenterCenterVectorJ = faceCenterPosJ - faceCenterNegJ;
 
@@ -195,7 +180,7 @@ void RigCellGeometryTools::findCellLocalXYZ(cvf::Vec3d * hexCorners, cvf::Vec3d 
     crossPoductIZ.cross(faceCenterCenterVectorI, localZdirection);
     localYdirection = faceCenterCenterVectorJ - crossPoductIZ;
     localYdirection.normalize();
-    
+
     //TODO: Check if we end up with 0-vectors, and handle this case...
 }
 

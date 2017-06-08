@@ -25,7 +25,7 @@
 #include "RigFractureGrid.h"
 #include "RigTesselatorTools.h"
 
-#include "RimDefines.h"
+#include "RimUnitSystem.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
@@ -104,7 +104,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimDefines::UnitSystem fractureUnit)
+void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem fractureUnit)
 {
     RigEllipsisTesselator tesselator(20);
 
@@ -117,17 +117,17 @@ void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeC
         b = height / 2.0f;
 
     }
-    else if (fractureTemplateUnit() == RimDefines::UNITS_METRIC && fractureUnit == RimDefines::UNITS_FIELD)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && fractureUnit == RimUnitSystem::UNITS_FIELD)
     {
         RiaLogging::info(QString("Converting fracture template geometry from metric to field"));
-        a = RimDefines::meterToFeet(halfLength);
-        b = RimDefines::meterToFeet(height / 2.0f);
+        a = RimUnitSystem::meterToFeet(halfLength);
+        b = RimUnitSystem::meterToFeet(height / 2.0f);
     }
-    else if (fractureTemplateUnit() == RimDefines::UNITS_FIELD && fractureUnit == RimDefines::UNITS_METRIC)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && fractureUnit == RimUnitSystem::UNITS_METRIC)
     {
         RiaLogging::info(QString("Converting fracture template geometry from field to metric"));
-        a = RimDefines::feetToMeter(halfLength);
-        b = RimDefines::feetToMeter(height / 2.0f);
+        a = RimUnitSystem::feetToMeter(halfLength);
+        b = RimUnitSystem::feetToMeter(height / 2.0f);
     }
     else
     {
@@ -143,7 +143,7 @@ void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon(RimDefines::UnitSystem fractureUnit)
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon(RimUnitSystem::UnitSystem fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 
@@ -165,23 +165,23 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon(RimDefines::
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::changeUnits()
 {
-    if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
+    if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
     {
-        halfLength = RimDefines::meterToFeet(halfLength);
-        height = RimDefines::meterToFeet(height);
-        width = RimDefines::meterToInch(width);
-        wellDiameter = RimDefines::meterToInch(wellDiameter);
-        perforationLength = RimDefines::meterToFeet(perforationLength);
-        fractureTemplateUnit = RimDefines::UNITS_FIELD;
+        halfLength = RimUnitSystem::meterToFeet(halfLength);
+        height = RimUnitSystem::meterToFeet(height);
+        width = RimUnitSystem::meterToInch(width);
+        wellDiameter = RimUnitSystem::meterToInch(wellDiameter);
+        perforationLength = RimUnitSystem::meterToFeet(perforationLength);
+        fractureTemplateUnit = RimUnitSystem::UNITS_FIELD;
     }
-    else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
+    else if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
     {
-        halfLength = RimDefines::feetToMeter(halfLength);
-        height = RimDefines::feetToMeter(height);
-        width = RimDefines::inchToMeter(width);
-        wellDiameter = RimDefines::inchToMeter(wellDiameter);
-        perforationLength = RimDefines::feetToMeter(perforationLength);
-        fractureTemplateUnit = RimDefines::UNITS_METRIC;
+        halfLength = RimUnitSystem::feetToMeter(halfLength);
+        height = RimUnitSystem::feetToMeter(height);
+        width = RimUnitSystem::inchToMeter(width);
+        wellDiameter = RimUnitSystem::inchToMeter(wellDiameter);
+        perforationLength = RimUnitSystem::feetToMeter(perforationLength);
+        fractureTemplateUnit = RimUnitSystem::UNITS_METRIC;
     }
 
     this->updateConnectedEditors();
@@ -224,15 +224,15 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
             cellPolygon.push_back(cvf::Vec3d(X1, Y2, 0.0));
             
             double cond = cvf::UNDEFINED_DOUBLE;
-            if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
+            if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
             {
                 //Conductivity should be md-m, width is in m
                 cond = permeability * width;
             }
-            else if(fractureTemplateUnit == RimDefines::UNITS_FIELD)
+            else if(fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
             {
                 //Conductivity should be md-ft, but width is in inches 
-                cond = permeability * RimDefines::inchToFeet(width);
+                cond = permeability * RimUnitSystem::inchToFeet(width);
             }
 
             std::vector<cvf::Vec3f> ellipseFracPolygon = fracturePolygon(fractureTemplateUnit());
@@ -294,14 +294,14 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
     
-    if (fractureTemplateUnit == RimDefines::UNITS_METRIC)
+    if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
     {
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         height.uiCapability()->setUiName("Height [m]");
         width.uiCapability()->setUiName("Width [m]");
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
     }
-    else if (fractureTemplateUnit == RimDefines::UNITS_FIELD)
+    else if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
     {
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         height.uiCapability()->setUiName("Height [Ft]");

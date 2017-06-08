@@ -36,7 +36,7 @@ RimFishboneWellPath::RimFishboneWellPath()
     m_coordinates.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_measuredDepths, "MeasuredDepth", "MeasuredDepth", "", "", "");
     m_measuredDepths.uiCapability()->setUiHidden(true);
-    m_name.uiCapability()->setUiHidden(true);
+    userDescriptionField()->uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_displayCoordinates, "DisplayCoordinates", "Coordinates", "", "", "");
     m_displayCoordinates.registerGetMethod(this, &RimFishboneWellPath::displayCoordinates);

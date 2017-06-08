@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,24 +17,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditPerforationCollectionFeature.h"
+#include "RicNewPerforationIntervalFeature.h"
 
-#include "RiuEditPerforationCollectionWidget.h"
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
+#include "RiuMainWindow.h"
+
+#include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
+#include "RimWellPathCollection.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicEditPerforationCollectionFeature, "RicEditPerforationCollectionFeature");
+CAF_CMD_SOURCE_INIT(RicNewPerforationIntervalFeature, "RicNewPerforationIntervalFeature");
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditPerforationCollectionFeature::isCommandEnabled()
+bool RicNewPerforationIntervalFeature::isCommandEnabled()
 {
     return selectedPerforationCollection() != nullptr;
 }
@@ -41,32 +46,41 @@ bool RicEditPerforationCollectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditPerforationCollectionFeature::onActionTriggered(bool isChecked)
+void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 {
-    this->disableModelChangeContribution();
-
     RimPerforationCollection* perforationCollection = selectedPerforationCollection();
-    
     if (perforationCollection == nullptr) return;
 
-    RiuEditPerforationCollectionWidget dlg(nullptr, perforationCollection);
-    dlg.exec();
+    RimWellPath* wellPath;
+    perforationCollection->firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
-    perforationCollection->updateConnectedEditors();
+    RimPerforationInterval* perforationInterval = new RimPerforationInterval;
+
+    perforationCollection->appendPerforation(perforationInterval);
+
+    RimWellPathCollection* wellPathCollection = nullptr;
+    perforationCollection->firstAncestorOrThisOfType(wellPathCollection);
+    if (!wellPathCollection) return;
+
+    wellPathCollection->uiCapability()->updateConnectedEditors();
+    wellPathCollection->scheduleGeometryRegenAndRedrawViews();
+
+    RiuMainWindow::instance()->selectAsCurrentItem(perforationInterval);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditPerforationCollectionFeature::setupActionLook(QAction* actionToSetup)
+void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Edit Perforations");
+    actionToSetup->setText("New Perforation Interval");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimPerforationCollection* RicEditPerforationCollectionFeature::selectedPerforationCollection()
+RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationCollection()
 {
     RimPerforationCollection* objToFind = nullptr;
     

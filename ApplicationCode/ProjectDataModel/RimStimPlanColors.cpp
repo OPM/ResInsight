@@ -53,8 +53,8 @@ RimStimPlanColors::RimStimPlanColors()
     CAF_PDM_InitFieldNoDefault(&m_legendConfigurations, "LegendConfigurations", "", "", "", "");
     m_legendConfigurations.uiCapability()->setUiTreeHidden(true);
 
-    m_name = "Fracture Colors";
-    m_name.uiCapability()->setUiReadOnly(true);
+    setName("Fracture Colors");
+    nameField()->uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,6 +21,8 @@
 
 #include "RigCurveDataTools.h"
 
+#include "RimUnitSystem.h"
+
 #include "cvfMath.h"
 #include "cvfAssert.h"
 
@@ -366,7 +368,7 @@ std::vector<double> RigWellLogCurveData::convertFromMeterToFeet(const std::vecto
 
     for (size_t i = 0; i < valuesInMeter.size(); i++)
     {
-        valuesInFeet[i] = valuesInMeter[i] * RimDefines::feetPerMeter();
+        valuesInFeet[i] = valuesInMeter[i] * RimUnitSystem::feetPerMeter();
     }
 
     return valuesInFeet;
@@ -381,7 +383,7 @@ std::vector<double> RigWellLogCurveData::convertFromFeetToMeter(const std::vecto
 
     for (size_t i = 0; i < valuesInFeet.size(); i++)
     {
-        valuesInMeter[i] = valuesInFeet[i] / RimDefines::feetPerMeter();
+        valuesInMeter[i] = valuesInFeet[i] / RimUnitSystem::feetPerMeter();
     }
 
     return valuesInMeter;

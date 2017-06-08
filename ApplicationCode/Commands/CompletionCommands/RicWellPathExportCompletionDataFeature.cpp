@@ -30,6 +30,8 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
+#include "RimReservoirCellResultsStorage.h"
+
 #include "RicExportCompletionDataSettingsUi.h"
 
 #include "RiuMainWindow.h"
@@ -39,6 +41,8 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
+#include "RigResultAccessorFactory.h"
+#include "RigTransmissibilityEquations.h"
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -149,6 +153,28 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         return;
     }
 
+    {
+        bool unitSystemMismatch = false;
+        for (const RimWellPath* wellPath : wellPaths)
+        {
+            if (wellPath->unitSystem() == RimUnitSystem::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
+            {
+                unitSystemMismatch = true;
+                break;
+            }
+            else if (wellPath->unitSystem() == RimUnitSystem::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
+            {
+                unitSystemMismatch = true;
+                break;
+            }
+        }
+        if (unitSystemMismatch)
+        {
+            RiaLogging::error("Well path unit systems must match unit system of chosen eclipse case.");
+            return;
+        }
+    }
+
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
 
@@ -194,6 +220,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         generateWpimultTable(formatter, completions);
     }
+
+    RiaLogging::info(QString("Successfully exported completion data to %1").arg(exportSettings.fileName()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,8 +364,20 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
                 RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
                 completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 double diameter = location.fishbonesSubs->holeDiameter() / 1000;
-                CellDirection direction = wellPathCellDirectionToCellDirection(intersection.direction);
-                completion.setFromFishbone(diameter, direction);
+                if (settings.computeTransmissibility())
+                {
+                    double transmissibility = calculateTransmissibility(settings.caseToApply,
+                                                                        wellPath,
+                                                                        intersection.lengthsInCell,
+                                                                        location.fishbonesSubs->skinFactor(),
+                                                                        diameter / 2,
+                                                                        intersection.cellIndex);
+                    completion.setFromFishbone(transmissibility, location.fishbonesSubs->skinFactor());
+                }
+                else {
+                    CellDirection direction = calculateDirectionInCell(settings.caseToApply, intersection.cellIndex, intersection.lengthsInCell);
+                    completion.setFromFishbone(diameter, direction);
+                }
                 completionData.push_back(completion);
             }
         }
@@ -349,9 +389,11 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi & settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     std::vector<RigCompletionData> completionData;
+
+    std::vector<size_t> wellPathCells = findIntersectingCells(settings.caseToApply()->eclipseCaseData(), wellPath->wellPathGeometry()->m_wellPathPoints);
 
     double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter() / 1000;
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
@@ -359,12 +401,27 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates());
         for (auto& cell : intersectedCells)
         {
+            if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.cellIndex) != wellPathCells.end()) continue;
+
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
             completion.addMetadata(fishbonesPath->name(), "");
-            CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
-            completion.setFromFishbone(diameter, direction);
+            if (settings.computeTransmissibility())
+            {
+                double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
+                double transmissibility = calculateTransmissibility(settings.caseToApply(),
+                                                                    wellPath,
+                                                                    cell.internalCellLengths,
+                                                                    skinFactor,
+                                                                    diameter / 2,
+                                                                    cell.cellIndex);
+                completion.setFromFishbone(transmissibility, skinFactor);
+            }
+            else {
+                CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
+                completion.setFromFishbone(diameter, direction);
+            }
             completionData.push_back(completion);
         }
     }
@@ -392,7 +449,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
             double diameter = interval->diameter();
-            CellDirection direction = wellPathCellDirectionToCellDirection(cell.direction);
+            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
             completion.setFromPerforation(diameter, direction);
             completionData.push_back(completion);
         }
@@ -526,7 +583,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
                 depth += intersection->endPoint.z() - startPoint.z();
 
                 WellSegmentLateralIntersection lateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->cellIndex, length, depth);
-                lateralIntersection.direction = intersection->direction;
+                lateralIntersection.lengthsInCell = intersection->internalCellLengths;
                 lateral.intersections.push_back(lateralIntersection);
 
                 length = 0;
@@ -588,20 +645,68 @@ void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CellDirection RicWellPathExportCompletionDataFeature::wellPathCellDirectionToCellDirection(WellPathCellDirection direction)
+CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell)
 {
-    switch (direction)
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
+
+    double xLengthFraction = abs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(cellIndex));
+    double yLengthFraction = abs(lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx(cellIndex));
+    double zLengthFraction = abs(lengthsInCell.z() / dzAccessObject->cellScalarGlobIdx(cellIndex));
+
+    if (xLengthFraction > yLengthFraction && xLengthFraction > zLengthFraction)
     {
-    case POS_I:
-    case NEG_I:
         return CellDirection::DIR_I;
-    case POS_J:
-    case NEG_J:
-        return CellDirection::DIR_J;
-    case POS_K:
-    case NEG_K:
-        return CellDirection::DIR_K;
-    default:
-        return CellDirection::DIR_UNDEF;
     }
+    else if (yLengthFraction > xLengthFraction && yLengthFraction > zLengthFraction)
+    {
+        return CellDirection::DIR_J;
+    }
+    else
+    {
+        return CellDirection::DIR_K;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, const cvf::Vec3d& internalCellLengths, double skinFactor, double wellRadius, size_t cellIndex)
+{
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    cvf::ref<RigResultAccessor> permxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    cvf::ref<RigResultAccessor> permyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+    cvf::ref<RigResultAccessor> permzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMZ");
+
+    double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
+    double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
+    double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
+    double permx = permxAccessObject->cellScalarGlobIdx(cellIndex);
+    double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
+    double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
+
+    double darcy = RimUnitSystem::darcysConstant(wellPath->unitSystem());
+
+    double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x(), permy, permz, dy, dz, wellRadius, skinFactor, darcy);
+    double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.y(), permx, permz, dx, dz, wellRadius, skinFactor, darcy);
+    double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.z(), permy, permx, dy, dx, wellRadius, skinFactor, darcy);
+
+    return RigTransmissibilityEquations::totalConnectionFactor(transx, transy, transz);
 }

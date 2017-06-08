@@ -60,19 +60,19 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
     {
         RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
-        m_unitForCalculation = RimDefines::UNITS_METRIC;
+        m_unitForCalculation = RimUnitSystem::UNITS_METRIC;
     }
     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
     {
         RiaLogging::debug(QString("Calculating transmissibilities in field units"));
-        m_unitForCalculation = RimDefines::UNITS_FIELD;
+        m_unitForCalculation = RimUnitSystem::UNITS_FIELD;
     }
     else
     {
         //TODO: How to handle lab units for eclipse case?
         RiaLogging::error(QString("Unit system for case not supported for fracture export."));
         RiaLogging::error(QString("Export will be in metric units, but results might be wrong."));
-        m_unitForCalculation = RimDefines::UNITS_METRIC;
+        m_unitForCalculation = RimUnitSystem::UNITS_METRIC;
     }
 
 
@@ -134,11 +134,11 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
         double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
 
         const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
-        cvf::Vec3d hexCorners[8];
-        mainGrid->cellCornerVertices(fracCell, hexCorners);
+        std::array<cvf::Vec3d, 8> hexCorners;
+        mainGrid->cellCornerVertices(fracCell, hexCorners.data());
 
         std::vector<std::vector<cvf::Vec3d> > planeCellPolygons;
-        bool isPlanIntersected = planeCellIntersectionPolygons(hexCorners, m_fracture->transformMatrix(), planeCellPolygons);
+        bool isPlanIntersected = planeCellIntersectionPolygons(hexCorners.data(), m_fracture->transformMatrix(), planeCellPolygons);
         if (!isPlanIntersected || planeCellPolygons.size() == 0) continue;
 
         cvf::Vec3d localX;
@@ -284,18 +284,18 @@ bool RigFractureTransCalc::planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::convertConductivtyValue(double Kw, RimDefines::UnitSystem fromUnit, RimDefines::UnitSystem toUnit)
+double RigFractureTransCalc::convertConductivtyValue(double Kw, RimUnitSystem::UnitSystem fromUnit, RimUnitSystem::UnitSystem toUnit)
 {
 
     if (fromUnit == toUnit) return Kw;
 
-    else if (fromUnit == RimDefines::UNITS_METRIC && toUnit == RimDefines::UNITS_FIELD)
+    else if (fromUnit == RimUnitSystem::UNITS_METRIC && toUnit == RimUnitSystem::UNITS_FIELD)
     {
-        return RimDefines::meterToFeet(Kw);
+        return RimUnitSystem::meterToFeet(Kw);
     }
-    else if (fromUnit == RimDefines::UNITS_METRIC && toUnit == RimDefines::UNITS_FIELD)
+    else if (fromUnit == RimUnitSystem::UNITS_METRIC && toUnit == RimUnitSystem::UNITS_FIELD)
     {
-        return RimDefines::feetToMeter(Kw);
+        return RimUnitSystem::feetToMeter(Kw);
     }
 
     return cvf::UNDEFINED_DOUBLE;

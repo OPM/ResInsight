@@ -90,7 +90,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&tilt, "Tilt", 0.0, "Tilt", "", "", "");
     CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
-    CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RimDefines::UnitSystem>(RimDefines::UNITS_METRIC), "Fracture Unit System", "", "", "");
+    CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RimUnitSystem::UnitSystem>(RimUnitSystem::UNITS_METRIC), "Fracture Unit System", "", "", "");
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
@@ -164,15 +164,15 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     if (changedField == &fractureUnit)
     {
-        if (fractureUnit == RimDefines::UNITS_METRIC)
+        if (fractureUnit == RimUnitSystem::UNITS_METRIC)
         {
-            wellDiameter = RimDefines::inchToMeter(wellDiameter);
-            perforationLength = RimDefines::feetToMeter(perforationLength);
+            wellDiameter = RimUnitSystem::inchToMeter(wellDiameter);
+            perforationLength = RimUnitSystem::feetToMeter(perforationLength);
         }
-        else if (fractureUnit == RimDefines::UNITS_FIELD)
+        else if (fractureUnit == RimUnitSystem::UNITS_FIELD)
         {
-            wellDiameter = RimDefines::meterToInch(wellDiameter);
-            perforationLength = RimDefines::meterToFeet(perforationLength);
+            wellDiameter = RimUnitSystem::meterToInch(wellDiameter);
+            perforationLength = RimUnitSystem::meterToFeet(perforationLength);
         }
         this->updateConnectedEditors();
     }
@@ -264,13 +264,13 @@ void RimFracture::computeGeometry()
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellRadius() const
 {
-    if (fractureUnit == RimDefines::UNITS_METRIC)
+    if (fractureUnit == RimUnitSystem::UNITS_METRIC)
     {
         return wellDiameter / 2;
     }
-    else if (fractureUnit == RimDefines::UNITS_FIELD)
+    else if (fractureUnit == RimUnitSystem::UNITS_FIELD)
     {
-        return RimDefines::inchToFeet(wellDiameter / 2);
+        return RimUnitSystem::inchToFeet(wellDiameter / 2);
     }
     return cvf::UNDEFINED_DOUBLE;
 }
@@ -398,12 +398,12 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (fractureUnit == RimDefines::UNITS_METRIC)
+    if (fractureUnit == RimUnitSystem::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
         perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
-    else if (fractureUnit == RimDefines::UNITS_FIELD)
+    else if (fractureUnit == RimUnitSystem::UNITS_FIELD)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
         perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");

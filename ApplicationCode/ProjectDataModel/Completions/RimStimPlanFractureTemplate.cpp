@@ -245,12 +245,12 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
                 {
                     if (unit == "md-ft")
                     {
-                        fractureTemplateUnit = RimDefines::UNITS_FIELD;
+                        fractureTemplateUnit = RimUnitSystem::UNITS_FIELD;
                         RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(name));
                     }
                     if (unit == "md-m")
                     {
-                        fractureTemplateUnit = RimDefines::UNITS_METRIC;
+                        fractureTemplateUnit = RimUnitSystem::UNITS_METRIC;
                         RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(name));
                     }
                 }
@@ -617,7 +617,7 @@ QString RimStimPlanFractureTemplate::getAttributeValueString(QXmlStreamReader &x
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimDefines::UnitSystem fractureUnit)
+void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem fractureUnit)
 {
     
     if (m_stimPlanFractureDefinitionData.isNull())
@@ -636,17 +636,17 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
         RiaLogging::debug(QString("No conversion necessary for %1").arg(name));
     }
 
-    else if (fractureTemplateUnit() == RimDefines::UNITS_METRIC && fractureUnit == RimDefines::UNITS_FIELD)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && fractureUnit == RimUnitSystem::UNITS_FIELD)
     {
         RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(name));
-        for (double& value : adjustedDepths) value = RimDefines::meterToFeet(value);
-        for (double& value : xCoords)        value = RimDefines::meterToFeet(value);
+        for (double& value : adjustedDepths) value = RimUnitSystem::meterToFeet(value);
+        for (double& value : xCoords)        value = RimUnitSystem::meterToFeet(value);
     }
-    else if (fractureTemplateUnit() == RimDefines::UNITS_FIELD && fractureUnit == RimDefines::UNITS_METRIC)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && fractureUnit == RimUnitSystem::UNITS_METRIC)
     {
         RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(name));
-        for (double& value : adjustedDepths) value = RimDefines::feetToMeter(value);
-        for (double& value : xCoords)        value = RimDefines::feetToMeter(value);
+        for (double& value : adjustedDepths) value = RimUnitSystem::feetToMeter(value);
+        for (double& value : xCoords)        value = RimUnitSystem::feetToMeter(value);
     }
     else
     {
@@ -827,8 +827,8 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, activeTimeStepIndex);
 
     QString condUnit;
-    if (fractureTemplateUnit == RimDefines::UNITS_METRIC) condUnit = "md-m";
-    if (fractureTemplateUnit == RimDefines::UNITS_FIELD)  condUnit = "md-ft";
+    if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC) condUnit = "md-m";
+    if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)  condUnit = "md-ft";
     std::vector<std::vector<double>> conductivityValuesAtTimeStep = getMirroredDataAtTimeIndex("CONDUCTIVITY", condUnit, activeTimeStepIndex);
 
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
@@ -952,7 +952,7 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(RimDefines::UnitSystem fractureUnit)
+std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(RimUnitSystem::UnitSystem fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 
@@ -1012,25 +1012,25 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(RimDefines:
         RiaLogging::debug(QString("No conversion necessary for %1").arg(name));
     }
 
-    else if (fractureTemplateUnit() == RimDefines::UNITS_METRIC && fractureUnit == RimDefines::UNITS_FIELD)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && fractureUnit == RimUnitSystem::UNITS_FIELD)
     {
         RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(name));
         for (cvf::Vec3f& node : polygon)
         {
-            float x = RimDefines::meterToFeet(node.x());
-            float y = RimDefines::meterToFeet(node.y());
-            float z = RimDefines::meterToFeet(node.z());
+            float x = RimUnitSystem::meterToFeet(node.x());
+            float y = RimUnitSystem::meterToFeet(node.y());
+            float z = RimUnitSystem::meterToFeet(node.z());
             node = cvf::Vec3f(x, y, z);
         }
     }
-    else if (fractureTemplateUnit() == RimDefines::UNITS_FIELD && fractureUnit == RimDefines::UNITS_METRIC)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && fractureUnit == RimUnitSystem::UNITS_METRIC)
     {
         RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(name));
         for (cvf::Vec3f& node : polygon)
         {
-            float x = RimDefines::feetToMeter(node.x());
-            float y = RimDefines::feetToMeter(node.y());
-            float z = RimDefines::feetToMeter(node.z());
+            float x = RimUnitSystem::feetToMeter(node.x());
+            float y = RimUnitSystem::feetToMeter(node.y());
+            float z = RimUnitSystem::feetToMeter(node.z());
             node = cvf::Vec3f(x, y, z);
         }
     }

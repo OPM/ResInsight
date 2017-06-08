@@ -140,7 +140,7 @@ TEST(RigCellGeometryTools, planeHexCellIntersectionTest)
 //--------------------------------------------------------------------------------------------------
 TEST(RigCellGeometryTools, findCellAverageZTest)
 {
-    cvf::Vec3d hexCorners[8];
+    std::array<cvf::Vec3d, 8> hexCorners;
  
     hexCorners[0] = cvf::Vec3d(0, 0, 0);
     hexCorners[1] = cvf::Vec3d(1, 0, 0);

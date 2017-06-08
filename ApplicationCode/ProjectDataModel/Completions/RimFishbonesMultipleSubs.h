@@ -81,6 +81,7 @@ public:
 
     double              tubingDiameter() const;
     double              holeDiameter() const { return m_pipeProperties()->holeDiameter(); }
+    double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
     double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
     double              icdOrificeDiameter() const { return m_icdOrificeDiameter(); }
     double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }

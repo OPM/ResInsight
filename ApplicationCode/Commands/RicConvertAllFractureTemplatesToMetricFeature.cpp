@@ -64,7 +64,7 @@ void RicConvertAllFractureTemplatesToMetricFeature::onActionTriggered(bool isChe
 
     for (auto ellipseFracTemplate : ellipseFracTemplates)
     {
-        if (ellipseFracTemplate->fractureTemplateUnit == RimDefines::UNITS_FIELD)
+        if (ellipseFracTemplate->fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
         {
             ellipseFracTemplate->changeUnits();
         }

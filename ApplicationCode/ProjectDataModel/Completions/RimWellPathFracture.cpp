@@ -159,7 +159,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 {
     RimFracture::defineUiOrdering(uiConfigName, uiOrdering);
 
-    uiOrdering.add(&m_name);
+    uiOrdering.add(nameField());
     uiOrdering.add(&showPolygonFractureOutline);
 
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");

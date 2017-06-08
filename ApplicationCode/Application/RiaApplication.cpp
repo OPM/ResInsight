@@ -987,15 +987,15 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         {
             if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
             {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_METRIC;
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimUnitSystem::UNITS_METRIC;
             }
             else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
             {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_FIELD;
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimUnitSystem::UNITS_FIELD;
             }
             else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_LAB)
             {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimDefines::UNITS_METRIC;
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimUnitSystem::UNITS_METRIC;
             }
         }
     }
@@ -1504,14 +1504,14 @@ bool RiaApplication::parseArguments()
         foreach (QString caseName, caseNames)
         {
             QString caseFileNameWithExt = caseName + ".EGRID";
-            if (!caf::Utils::fileExists(caseFileNameWithExt))
+            if (caf::Utils::fileExists(caseFileNameWithExt))
             {
                 openEclipseCaseFromFile(caseFileNameWithExt);
             }
             else
             {
                 caseFileNameWithExt = caseName + ".GRID";
-                if (!caf::Utils::fileExists(caseFileNameWithExt))
+                if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
                 }

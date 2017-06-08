@@ -128,6 +128,15 @@ void RigCompletionData::setFromFishbone(double diameter, CellDirection direction
 //==================================================================================================
 /// 
 //==================================================================================================
+void RigCompletionData::setFromFishbone(double transmissibility, double skinFactor)
+{
+    m_transmissibility = transmissibility;
+    m_skinFactor = skinFactor;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
 void RigCompletionData::setFromPerforation(double diameter, CellDirection direction)
 {
     m_diameter = diameter;

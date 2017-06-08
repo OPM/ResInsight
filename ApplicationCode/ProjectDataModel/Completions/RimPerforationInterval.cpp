@@ -46,7 +46,7 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitFieldNoDefault(&m_date,  "StartDate",                 "Start Date", "", "", "");
     m_date.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
-    m_name.uiCapability()->setUiReadOnly(true);
+    nameField()->uiCapability()->setUiReadOnly(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +153,7 @@ void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    m_name = QString("%1 - %2").arg(m_startMD).arg(m_endMD);
+    this->setName(QString("%1 - %2").arg(m_startMD).arg(m_endMD));
 }
 
 //--------------------------------------------------------------------------------------------------

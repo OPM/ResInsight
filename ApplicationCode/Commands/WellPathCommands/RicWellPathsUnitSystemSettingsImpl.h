@@ -18,31 +18,15 @@
 
 #pragma once
 
-#include "RicCaseAndFileExportSettingsUi.h"
-
-#include "cafPdmField.h"
+#include "RimUnitSystem.h"
+#include "RimWellPath.h"
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RicExportCompletionDataSettingsUi : public RicCaseAndFileExportSettingsUi
+class RicWellPathsUnitSystemSettingsImpl
 {
-    CAF_PDM_HEADER_INIT;
 public:
-    RicExportCompletionDataSettingsUi();
-
-
-    caf::PdmField<bool>                     computeTransmissibility;
-    caf::PdmField<bool>                     includePerforations;
-    caf::PdmField<bool>                     includeFishbones;
-    caf::PdmField<bool>                     includeFractures;
-
-    caf::PdmField<bool>                     includeWpimult;
-    caf::PdmField<bool>                     removeLateralsInMainBoreCells;
-
-    caf::PdmField<int>                      timeStep;
-
-protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    static bool ensureHasUnitSystem(RimWellPath* wellPath);
 };

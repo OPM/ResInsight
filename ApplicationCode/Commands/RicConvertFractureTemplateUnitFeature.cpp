@@ -81,11 +81,11 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
     objHandle->firstAncestorOrThisOfType(ellipseFractureTemplate);
 
     QString text = "Convert Values to ";
-    if (ellipseFractureTemplate->fractureTemplateUnit == RimDefines::UNITS_METRIC)
+    if (ellipseFractureTemplate->fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
     {
         text += "Field";
     }
-    else if (ellipseFractureTemplate->fractureTemplateUnit == RimDefines::UNITS_FIELD)
+    else if (ellipseFractureTemplate->fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
     {
         text += "Metric";
     }
