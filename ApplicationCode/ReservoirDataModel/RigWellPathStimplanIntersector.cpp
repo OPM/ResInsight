@@ -9,6 +9,8 @@
 #include "RimStimPlanFractureTemplate.h"
 #include "RigFractureGrid.h"
 
+#include "cvfMath.h"
+
 #include <cmath>
 
 
@@ -47,10 +49,14 @@ void RigWellPathStimplanIntersector::calculate(const cvf::Mat4f &fractureXf,
     cvf::Mat4d toFractureXf = cvf::Mat4d(fractureXf.getInverted());
 
     std::vector<cvf::Vec3d> perforationLengthBoundingBoxPolygon;
-    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d(-perforationLength / 2, -perforationLength / 2, 0));
-    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d( perforationLength / 2, -perforationLength / 2, 0));
-    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d( perforationLength / 2,  perforationLength / 2, 0));
-    perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d(-perforationLength / 2,  perforationLength / 2, 0));
+    double cicleRadius = perforationLength / 2;
+    int pointsInCirclePolygon = 20;
+    for (int i = 0; i < pointsInCirclePolygon; i++)
+    {
+        double x = cicleRadius * cvf::Math::cos(i * (2 * cvf::PI_D / pointsInCirclePolygon));
+        double y = cicleRadius * cvf::Math::sin(i * (2 * cvf::PI_D / pointsInCirclePolygon));
+        perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d(x, y, 0));
+    }
 
     // Convert well path to fracture template system
 
