@@ -101,7 +101,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
 {
-    if (!m_rimWellPath) return;
+    if (!m_rimWellPath || !m_rimWellPath->fractureCollection()->isChecked()) return;
 
     for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
     {

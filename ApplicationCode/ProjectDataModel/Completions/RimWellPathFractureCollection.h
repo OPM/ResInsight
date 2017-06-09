@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimCheckableNamedObject.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
@@ -28,7 +30,7 @@ class RimWellPathFracture;
 ///  
 ///  
 //==================================================================================================
-class RimWellPathFractureCollection : public caf::PdmObject
+class RimWellPathFractureCollection : public RimCheckableNamedObject
 {
      CAF_PDM_HEADER_INIT;
 
@@ -36,7 +38,11 @@ public:
     RimWellPathFractureCollection(void);
     virtual ~RimWellPathFractureCollection(void);
     
+    void                                            deleteFractures();
+
+public:
     caf::PdmChildArrayField<RimWellPathFracture*>   fractures;
 
-    void                                            deleteFractures();
+private:
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 };

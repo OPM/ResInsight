@@ -18,7 +18,9 @@
 
 #include "RimWellPathFractureCollection.h"
 
+#include "RimProject.h"
 #include "RimWellPathFracture.h"
+
 #include "cafPdmObject.h"
 
 
@@ -35,6 +37,9 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 
     CAF_PDM_InitFieldNoDefault(&fractures, "Fractures", "", "", "", "");
     fractures.uiCapability()->setUiHidden(true);
+
+    setName("Fractures");
+    nameField()->uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,7 +48,6 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 RimWellPathFractureCollection::~RimWellPathFractureCollection()
 {
     fractures.deleteAllChildObjects();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,4 +56,14 @@ RimWellPathFractureCollection::~RimWellPathFractureCollection()
 void RimWellPathFractureCollection::deleteFractures()
 {
     fractures.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimProject* proj;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    proj->createDisplayModelAndRedrawAllViews();
 }
