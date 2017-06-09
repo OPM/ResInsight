@@ -22,6 +22,8 @@
 #include "RiaLogging.h"
 
 #include "RigStimPlanFractureDefinition.h"
+#include "RigFractureTransCalc.h"
+#include "RigFractureGrid.h"
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"
@@ -29,6 +31,7 @@
 #include "RigFractureCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
+#include "RimFractureContainment.h"
 
 #include "RivWellFracturePartMgr.h"
 
@@ -44,8 +47,6 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
-#include "RigFractureTransCalc.h"
-#include "RigFractureGrid.h"
 
 
 
@@ -1091,6 +1092,9 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
     geometryGroup->add(&orientation);
     geometryGroup->add(&azimuthAngle);
+
+    caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
+    m_fractureContainmentField()->defineUiOrdering(uiConfigName, *trGr);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&fractureConductivity);

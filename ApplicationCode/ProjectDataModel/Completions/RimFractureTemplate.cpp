@@ -27,6 +27,7 @@
 #include "cafPdmUiDoubleSliderEditor.h"
 
 #include "cvfVector3.h"
+#include "RimFractureContainment.h"
 
 
 
@@ -77,8 +78,12 @@ RimFractureTemplate::RimFractureTemplate(void)
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
 
-    CAF_PDM_InitField(&fractureConductivity, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(INFINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
+    CAF_PDM_InitField(&fractureConductivity, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_fractureContainmentField, "fractureContainmentField", "Fracture Containment", "", "", "");
+    m_fractureContainmentField = new RimFractureContainment();
+    m_fractureContainmentField.uiCapability()->setUiTreeHidden(true);
+    m_fractureContainmentField.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +206,7 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         perforationEfficiency.uiCapability()->setUiHidden(true);
         perforationLength.uiCapability()->setUiHidden(true);
     }
-
+ 
 }
 
 //--------------------------------------------------------------------------------------------------

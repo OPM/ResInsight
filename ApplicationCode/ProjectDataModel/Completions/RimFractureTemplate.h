@@ -24,6 +24,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObject.h"
+#include "cafPdmChildField.h"
 #include "cafPdmFieldCvfVec3d.h"
 
 #include "cvfBase.h"
@@ -33,6 +34,7 @@
 
 class RigEclipseCaseData;
 class RigFractureGrid;
+class RimFractureContainment;
 
 //==================================================================================================
 ///  
@@ -72,9 +74,6 @@ public:
     caf::PdmField< RimUnitSystem::UnitSystemType >  fractureTemplateUnit;
 
     void                            setDefaultWellDiameterFromUnit();
-
-    virtual caf::PdmFieldHandle*    userDescriptionField() override;
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
     virtual void                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem fractureTemplateUnit) = 0;
     virtual std::vector<cvf::Vec3f> fracturePolygon(RimUnitSystem::UnitSystem fractureTemplateUnit) = 0;
@@ -82,6 +81,10 @@ public:
     virtual const RigFractureGrid*  fractureGrid() const = 0;
 
 protected:
+    caf::PdmChildField<RimFractureContainment*> m_fractureContainmentField;
+
+    virtual caf::PdmFieldHandle*    userDescriptionField() override;
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
