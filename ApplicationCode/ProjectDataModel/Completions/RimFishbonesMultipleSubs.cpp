@@ -77,7 +77,7 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
 
     CAF_PDM_InitField(&m_icdCount,                      "IcdCount", size_t(2),              "ICDs per Sub", "", "", "");
     CAF_PDM_InitField(&m_icdOrificeDiameter,            "IcdOrificeDiameter", 7.0,          "ICD Orifice Diameter [mm]", "", "", "");
-    CAF_PDM_InitField(&m_icdFlowCoefficient,            "IcdFlowCoeficcient", -1.0,         "ICD Flow Coefficient", "", "", "");
+    CAF_PDM_InitField(&m_icdFlowCoefficient,            "IcdFlowCoeficcient", 1.0,          "ICD Flow Coefficient", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_locationOfSubs,       "LocationOfSubs",                   "Measured Depths [m]", "", "", "");
     m_locationOfSubs.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
