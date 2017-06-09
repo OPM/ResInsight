@@ -47,7 +47,6 @@ RimWellPathFractureCollection::RimWellPathFractureCollection(void)
 //--------------------------------------------------------------------------------------------------
 RimWellPathFractureCollection::~RimWellPathFractureCollection()
 {
-    fractures.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
