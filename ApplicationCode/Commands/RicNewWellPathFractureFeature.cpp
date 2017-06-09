@@ -18,10 +18,7 @@
 
 #include "RicNewWellPathFractureFeature.h"
 
-
 #include "RiaApplication.h"
-
-#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RigWellPath.h"
 
@@ -34,9 +31,10 @@
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
-
 #include "RiuMainWindow.h"
- 
+
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
+
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -49,29 +47,27 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeatur
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
+void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double measuredDepth)
 {
-    RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
-    if (!fractureColl) return;
-
-    RimWellPath* wellPath = nullptr;
-    fractureColl->firstAncestorOrThisOfTypeAsserted(wellPath);
+    CVF_ASSERT(wellPath);
 
     if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
+    RimWellPathFractureCollection* fractureCollection = wellPath->fractureCollection();
+    CVF_ASSERT(fractureCollection);
+
     RimWellPathFracture* fracture = new RimWellPathFracture();
-    fractureColl->fractures.push_back(fracture);
-        
-    float md_default = 0.0f;
-    fracture->setMeasuredDepth(md_default);
+    fractureCollection->fractures.push_back(fracture);
+
+    fracture->setMeasuredDepth(measuredDepth);
     fracture->fractureUnit = wellPath->unitSystem();
-    
+
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
-    cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(md_default);
+    cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
     fracture->setAnchorPosition(positionAtWellpath);
 
     RimOilField* oilfield = nullptr;
-    fractureColl->firstAncestorOrThisOfType(oilfield);
+    fractureCollection->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
 
     std::vector<RimFracture* > oldFractures;
@@ -90,11 +86,26 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
     RimWellPathCollection* wellPathColl = nullptr;
-    fractureColl->firstAncestorOrThisOfType(wellPathColl);
+    fractureCollection->firstAncestorOrThisOfType(wellPathColl);
     if (wellPathColl)
     {
         wellPathColl->scheduleGeometryRegenAndRedrawViews();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
+{
+    RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
+    if (!fractureColl) return;
+
+    RimWellPath* wellPath = nullptr;
+    fractureColl->firstAncestorOrThisOfTypeAsserted(wellPath);
+
+    double defaultMeasuredDepth = 0.0f;
+    RicNewWellPathFractureFeature::addFracture(wellPath, defaultMeasuredDepth);
 }
 
 //--------------------------------------------------------------------------------------------------

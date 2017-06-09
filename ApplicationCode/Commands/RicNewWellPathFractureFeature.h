@@ -23,6 +23,7 @@
 #include <vector>
 
 class RimWellPathFractureCollection;
+class RimWellPath;
 
 //==================================================================================================
 /// 
@@ -30,6 +31,9 @@ class RimWellPathFractureCollection;
 class RicNewWellPathFractureFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void addFracture(RimWellPath* wellPath, double measuredDepth);
 
 protected:
     virtual void onActionTriggered(bool isChecked) override;
