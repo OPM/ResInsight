@@ -62,26 +62,28 @@ public:
         ALONG_WELL_PATH,
         TRANSVERSE_WELL_PATH
     };
-    caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientation;
+    caf::PdmField< caf::AppEnum< FracOrientationEnum > > orientationType;
 
     enum FracConductivityEnum
     {
         INFINITE_CONDUCTIVITY,
         FINITE_CONDUCTIVITY,
     };
-    caf::PdmField< caf::AppEnum< FracConductivityEnum > >  fractureConductivity;
+    caf::PdmField< caf::AppEnum< FracConductivityEnum > >  conductivityType;
 
     caf::PdmField< RimUnitSystem::UnitSystemType >  fractureTemplateUnit;
 
     void                            setDefaultWellDiameterFromUnit();
     
-    virtual void                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem fractureTemplateUnit) = 0;
-    virtual std::vector<cvf::Vec3f> fracturePolygon(RimUnitSystem::UnitSystem fractureTemplateUnit) = 0;
+    virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
+                                                             std::vector<cvf::uint>*  triangleIndices, 
+                                                             RimUnitSystem::UnitSystem neededUnit) = 0;
+    virtual std::vector<cvf::Vec3f> fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit) = 0;
 
     virtual const RigFractureGrid*  fractureGrid() const = 0;
 
 protected:
-    caf::PdmChildField<RimFractureContainment*> m_fractureContainmentField;
+    caf::PdmChildField<RimFractureContainment*> m_fractureContainment;
 
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

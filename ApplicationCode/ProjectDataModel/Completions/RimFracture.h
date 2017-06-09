@@ -77,7 +77,7 @@ public:
     const RigFracture*              attachedRigFracture() const;
 
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
-    RimFractureTemplate*            attachedFractureDefinition() const;
+    RimFractureTemplate*            fractureTemplate() const;
 
     RivWellFracturePartMgr*         fracturePartManager();
 
@@ -93,7 +93,7 @@ public:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
 
-    virtual void                    updateAzimuthFromFractureDefinition() = 0;
+    virtual void                    updateAzimuthFromFractureTemplate() = 0;
     virtual double                  wellAzimuthAtFracturePosition() = 0;
 
 protected:
@@ -105,7 +105,7 @@ private:
     bool                            isRecomputeGeometryFlagSet();
     cvf::Vec3d                      fracturePositionForUi() const;
     
-    QString                         createOneBasedIJK() const;
+    QString                         createOneBasedIJKText() const;
     
     virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
 
@@ -119,9 +119,9 @@ private:
     cvf::ref<RigFracture>                           m_rigFracture;
     bool                                            m_recomputeGeometry;
 
-    caf::PdmField<int>                              m_i;    // Zero based indexing
-    caf::PdmField<int>                              m_j;    // Zero based indexing
-    caf::PdmField<int>                              m_k;    // Zero based indexing
+    caf::PdmField<int>                              m_anchorPosEclipseCellI;    // Zero based indexing
+    caf::PdmField<int>                              m_anchorPosEclipseCellJ;    // Zero based indexing
+    caf::PdmField<int>                              m_anchorPosEclipseCellK;    // Zero based indexing
 
-    cvf::ref<RivWellFracturePartMgr>                m_rivFracture;
+    cvf::ref<RivWellFracturePartMgr>                m_fracturePartMgr;
 };

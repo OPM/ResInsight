@@ -57,11 +57,11 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
     for (RimFracture* fracture : fracturesAlongWellPath)
     {
 
-        bool fractureFiniteCond = (fracture->attachedFractureDefinition()->fractureConductivity() == RimFractureTemplate::FINITE_CONDUCTIVITY);
+        bool fractureFiniteCond = (fracture->fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
 
         using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
 
-        RimFractureTemplate* fracTemplate = fracture->attachedFractureDefinition();
+        RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
         const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
 
         RigTransmissibilityCondenser transCondenser;
@@ -77,7 +77,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
 
             RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(caseToApply,
                                                                                       fracture->transformMatrix(),
-                                                                                      fracture->attachedFractureDefinition()->skinFactor,
+                                                                                      fracture->fractureTemplate()->skinFactor,
                                                                                       cDarcyInCorrectUnit,
                                                                                       fractureCell);
 
@@ -168,10 +168,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
         {
             ////
             //If fracture has orientation Azimuth or Transverse, assume only radial inflow
-            if (fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::AZIMUTH
-                || fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+            if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH
+                || fracture->fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
             {
-                const RigFractureGrid* fracGrid = fracture->attachedFractureDefinition()->fractureGrid();
+                const RigFractureGrid* fracGrid = fracture->fractureTemplate()->fractureGrid();
                 std::pair<size_t, size_t>  wellCellIJ = fracGrid->fractureCellAtWellCenter();
                 size_t wellCellIndex = fracGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
                 const RigFractureCell wellCell = fractureGrid->cellFromIndex(wellCellIndex);
@@ -191,7 +191,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
 
             ////
             //If fracture has orientation along well, linear inflow along well and radial flow at endpoints
-            else if (fracture->attachedFractureDefinition()->orientation() == RimFractureTemplate::ALONG_WELL_PATH)
+            else if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
                 RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
                 const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& fractureWellCells =  wellFractureIntersector.intersections();
@@ -251,7 +251,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
                 mainGrid->ijkFromCellIndex(externalCell.m_globalCellIdx, &i, &j, &k);
 
                 RigCompletionData compDat(wellPath->name(), {i,j,k} );
-                compDat.setFromFracture(trans, fracture->attachedFractureDefinition()->skinFactor());
+                compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
                 compDat.addMetadata(fracture->name(), QString::number(trans));
                 fractureCompletions.push_back(compDat);
             }

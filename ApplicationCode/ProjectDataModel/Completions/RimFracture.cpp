@@ -94,23 +94,23 @@ RimFracture::RimFracture(void)
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
-    CAF_PDM_InitField(&m_i, "I", 1, "Fracture location cell I", "", "", "");
-    m_i.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_anchorPosEclipseCellI, "I", 1, "Fracture location cell I", "", "", "");
+    m_anchorPosEclipseCellI.uiCapability()->setUiHidden(true);
     
-    CAF_PDM_InitField(&m_j, "J", 1, "Fracture location cell J", "", "", "");
-    m_j.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_anchorPosEclipseCellJ, "J", 1, "Fracture location cell J", "", "", "");
+    m_anchorPosEclipseCellJ.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_k, "K", 1, "Fracture location cell K", "", "", "");
-    m_k.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField(&m_anchorPosEclipseCellK, "K", 1, "Fracture location cell K", "", "", "");
+    m_anchorPosEclipseCellK.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_displayIJK, "Cell_IJK", "Cell IJK", "", "", "");
-    m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJK);
+    m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJKText);
     m_displayIJK.uiCapability()->setUiReadOnly(true);
 
     m_rigFracture = new RigFracture;
     m_recomputeGeometry = true;
 
-    m_rivFracture = new RivWellFracturePartMgr(this);
+    m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,11 +182,11 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
     {
         //perforationLength = m_fractureTemplate->perforationLength();
         //TODO: Find out if performationLength should be in RimFractureTemplate or in RimEllipseFracTemplate
-        if (attachedFractureDefinition()) azimuth = m_fractureTemplate->azimuthAngle();
+        if (fractureTemplate()) azimuth = m_fractureTemplate->azimuthAngle();
         else azimuth = 0.0;
-        updateAzimuthFromFractureDefinition();
+        updateAzimuthFromFractureTemplate();
 
-        RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+        RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fractureTemplate());
         if (stimPlanFracTemplate)
         {
             stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex;
@@ -256,10 +256,10 @@ void RimFracture::computeGeometry()
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    RimFractureTemplate* fractureDef = attachedFractureDefinition();
+    RimFractureTemplate* fractureDef = fractureTemplate();
     if (fractureDef )
     {
-        fractureDef->fractureGeometry(&nodeCoords, &triangleIndices, fractureUnit());
+        fractureDef->fractureTriangleGeometry(&nodeCoords, &triangleIndices, fractureUnit());
     }
 
     cvf::Mat4f m = transformMatrix();
@@ -331,7 +331,7 @@ void RimFracture::setRecomputeGeometryFlag()
 {
     m_recomputeGeometry = true;
 
-    m_rivFracture->clearGeometryCache();
+    m_fracturePartMgr->clearGeometryCache();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,9 +357,9 @@ cvf::Vec3d RimFracture::fracturePositionForUi() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimFracture::createOneBasedIJK() const
+QString RimFracture::createOneBasedIJKText() const
 {
-    return QString("Cell : [%1, %2, %3]").arg(m_i + 1).arg(m_j + 1).arg(m_k + 1);
+    return QString("Cell : [%1, %2, %3]").arg(m_anchorPosEclipseCellI + 1).arg(m_anchorPosEclipseCellJ + 1).arg(m_anchorPosEclipseCellK + 1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -387,9 +387,9 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
     }
     else if (fieldNeedingOptions == &stimPlanTimeIndexToPlot)
     {
-        if (attachedFractureDefinition())
+        if (fractureTemplate())
         {
-            RimFractureTemplate* fracTemplate = attachedFractureDefinition();
+            RimFractureTemplate* fracTemplate = fractureTemplate();
             if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
             {
                 RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
@@ -424,19 +424,19 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
     }
 
-    if (attachedFractureDefinition())
+    if (fractureTemplate())
     {
-        if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH
-            || attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH
+            || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             azimuth.uiCapability()->setUiReadOnly(true);
         }
-        else if (attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+        else if (fractureTemplate()->orientationType == RimFractureTemplate::AZIMUTH)
         {
             azimuth.uiCapability()->setUiReadOnly(false);
         }
 
-        if (attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH)
+        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH)
         {
             perforationEfficiency.uiCapability()->setUiHidden(false);
             perforationLength.uiCapability()->setUiHidden(false);
@@ -447,7 +447,7 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             perforationLength.uiCapability()->setUiHidden(true);
         }
 
-        RimFractureTemplate* fracTemplate = attachedFractureDefinition();
+        RimFractureTemplate* fracTemplate = fractureTemplate();
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
@@ -516,10 +516,10 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
         const RigMainGrid* mainGrid = activeRiv->mainGrid();
         if (!mainGrid) return;
 
-        cvf::BoundingBox polygonBBox;
-        polygonBBox.add(m_anchorPosition);
+        cvf::BoundingBox pointBBox;
+        pointBBox.add(m_anchorPosition);
 
-        mainGrid->findIntersectingCells(polygonBBox, &cellindecies);
+        mainGrid->findIntersectingCells(pointBBox, &cellindecies);
 
         if (cellindecies.size() > 0)
         {
@@ -531,9 +531,9 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 
             if (mainGrid->ijkFromCellIndex(gridCellIndex, &i, &j, &k))
             {
-                m_i = static_cast<int>(i);
-                m_j = static_cast<int>(j);
-                m_k = static_cast<int>(k);
+                m_anchorPosEclipseCellI = static_cast<int>(i);
+                m_anchorPosEclipseCellJ = static_cast<int>(j);
+                m_anchorPosEclipseCellK = static_cast<int>(k);
             }
         }
     }
@@ -556,19 +556,19 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
     m_fractureTemplate = fractureTemplate;
 
-    RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(attachedFractureDefinition());
+    RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fractureTemplate);
     if (stimPlanFracTemplate)
     {
         stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex;
     }
 
-    this->updateAzimuthFromFractureDefinition();
+    this->updateAzimuthFromFractureTemplate();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFractureTemplate* RimFracture::attachedFractureDefinition() const
+RimFractureTemplate* RimFracture::fractureTemplate() const
 {
     return m_fractureTemplate();
 }
@@ -578,9 +578,9 @@ RimFractureTemplate* RimFracture::attachedFractureDefinition() const
 //--------------------------------------------------------------------------------------------------
 RivWellFracturePartMgr* RimFracture::fracturePartManager()
 {
-    CVF_ASSERT(m_rivFracture.notNull());
+    CVF_ASSERT(m_fracturePartMgr.notNull());
 
-    return m_rivFracture.p();
+    return m_fracturePartMgr.p();
 }
 
 

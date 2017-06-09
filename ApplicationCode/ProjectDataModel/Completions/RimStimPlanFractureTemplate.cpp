@@ -106,7 +106,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
             proj->descendantsIncludingThisOfType(fractures);
             for (RimFracture* fracture : fractures)
             {
-                if (fracture->attachedFractureDefinition() == this)
+                if (fracture->fractureTemplate() == this)
                 {
                         fracture->stimPlanTimeIndexToPlot = activeTimeStepIndex;
                         fracture->setRecomputeGeometryFlag();
@@ -129,7 +129,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
             for (RimFracture* fracture : fractures)
             {
-                if (fracture->attachedFractureDefinition() == this)
+                if (fracture->fractureTemplate() == this)
                 {
                     fracture->setRecomputeGeometryFlag();
                 }
@@ -618,7 +618,9 @@ QString RimStimPlanFractureTemplate::getAttributeValueString(QXmlStreamReader &x
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem fractureUnit)
+void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
+                                                           std::vector<cvf::uint>* triangleIndices, 
+                                                           RimUnitSystem::UnitSystem neededUnit)
 {
     
     if (m_stimPlanFractureDefinitionData.isNull())
@@ -632,18 +634,18 @@ void RimStimPlanFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* node
 
     std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
 
-    if (fractureUnit == fractureTemplateUnit())
+    if (neededUnit == fractureTemplateUnit())
     {
         RiaLogging::debug(QString("No conversion necessary for %1").arg(name));
     }
 
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && fractureUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && neededUnit == RimUnitSystem::UNITS_FIELD)
     {
         RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(name));
         for (double& value : adjustedDepths) value = RimUnitSystem::meterToFeet(value);
         for (double& value : xCoords)        value = RimUnitSystem::meterToFeet(value);
     }
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && fractureUnit == RimUnitSystem::UNITS_METRIC)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && neededUnit == RimUnitSystem::UNITS_METRIC)
     {
         RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(name));
         for (double& value : adjustedDepths) value = RimUnitSystem::feetToMeter(value);
@@ -953,7 +955,7 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fracturePolygon(RimUnitSystem::UnitSystem fractureUnit)
+std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RimUnitSystem::UnitSystem fractureUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 
@@ -1090,14 +1092,14 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     fileGroup->add(&wellPathDepthAtFracture);
 
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
-    geometryGroup->add(&orientation);
+    geometryGroup->add(&orientationType);
     geometryGroup->add(&azimuthAngle);
 
     caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
-    m_fractureContainmentField()->defineUiOrdering(uiConfigName, *trGr);
+    m_fractureContainment()->defineUiOrdering(uiConfigName, *trGr);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
-    propertyGroup->add(&fractureConductivity);
+    propertyGroup->add(&conductivityType);
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
     propertyGroup->add(&perforationEfficiency);

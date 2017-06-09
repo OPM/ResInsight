@@ -85,7 +85,7 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTransmissibilityFromPolygonWithInfiniteConductivityInFracture()
 {
-    if (m_fracture->attachedFractureDefinition()->fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
+    if (m_fracture->fractureTemplate()->conductivityType == RimFractureTemplate::FINITE_CONDUCTIVITY)
     {
         RiaLogging::warning(QString("Transimssibility for finite conductity in fracture not yet implemented."));
         RiaLogging::warning(QString("Performing calculation for infinite conductivity instead."));
@@ -166,7 +166,7 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
         RigFracturedEclipseCellExportData fracData;
         fracData.reservoirCellIndex = fracCell;
 
-        std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(m_unitForCalculation);
+        std::vector<cvf::Vec3f> fracPolygon = m_fracture->fractureTemplate()->fractureBorderPolygon(m_unitForCalculation);
 
         std::vector<cvf::Vec3d> fracPolygonDouble;
         for (auto v : fracPolygon) fracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
@@ -219,7 +219,7 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
         for (double lengtXarea : lengthXareaOfFractureParts) totalAreaXLength += lengtXarea;
         
         double fractureAreaWeightedlength = totalAreaXLength / fractureArea;
-        double skinfactor = m_fracture->attachedFractureDefinition()->skinFactor;
+        double skinfactor = m_fracture->fractureTemplate()->skinFactor;
 
         double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans(permY, NTG, Ay, dx, skinfactor, fractureAreaWeightedlength, cDarchy);
         double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans(permX, NTG, Ax, dy, skinfactor, fractureAreaWeightedlength, cDarchy);

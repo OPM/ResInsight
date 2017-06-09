@@ -41,7 +41,7 @@ public:
     void                            setMeasuredDepth(double mdValue);
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void                    updateAzimuthFromFractureDefinition() override;
+    virtual void                    updateAzimuthFromFractureTemplate() override;
 
     double                          wellAzimuthAtFracturePosition() override;
 

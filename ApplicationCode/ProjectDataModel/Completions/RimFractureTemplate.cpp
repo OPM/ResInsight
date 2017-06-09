@@ -69,7 +69,7 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<RimUnitSystem::UnitSystem>(RimUnitSystem::UNITS_METRIC), "Units System", "", "", "");
     fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&orientation, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
+    CAF_PDM_InitField(&orientationType, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
     CAF_PDM_InitField(&azimuthAngle, "AzimuthAngle",    0.0f, "Azimuth Angle", "", "", ""); //Is this correct description?
     CAF_PDM_InitField(&skinFactor, "SkinFactor", 1.0f, "Skin Factor", "", "", "");
 
@@ -78,12 +78,12 @@ RimFractureTemplate::RimFractureTemplate(void)
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
     CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
 
-    CAF_PDM_InitField(&fractureConductivity, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
+    CAF_PDM_InitField(&conductivityType, "FractureCondictivity", caf::AppEnum<FracConductivityEnum>(FINITE_CONDUCTIVITY), "Conductivity in Fracture", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_fractureContainmentField, "fractureContainmentField", "Fracture Containment", "", "", "");
-    m_fractureContainmentField = new RimFractureContainment();
-    m_fractureContainmentField.uiCapability()->setUiTreeHidden(true);
-    m_fractureContainmentField.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_fractureContainment, "fractureContainmentField", "Fracture Containment", "", "", "");
+    m_fractureContainment = new RimFractureContainment();
+    m_fractureContainment.uiCapability()->setUiTreeHidden(true);
+    m_fractureContainment.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +106,7 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &azimuthAngle || changedField == &orientation)
+    if (changedField == &azimuthAngle || changedField == &orientationType)
     {
         //Changes to one of these parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -119,17 +119,17 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
             for (RimFracture* fracture : fractures)
             {
-                if (fracture->attachedFractureDefinition() == this)
+                if (fracture->fractureTemplate() == this)
                 {
                     if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
                     {
-                        fracture->updateAzimuthFromFractureDefinition();
+                        fracture->updateAzimuthFromFractureTemplate();
                         fracture->setRecomputeGeometryFlag();
                     }
 
-                    if (changedField == &orientation)
+                    if (changedField == &orientationType)
                     {
-                        fracture->updateAzimuthFromFractureDefinition();
+                        fracture->updateAzimuthFromFractureTemplate();
 
                         fracture->setRecomputeGeometryFlag();
                     }
@@ -150,7 +150,7 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
         for (RimFracture* fracture : fractures)
         {
-            if (fracture->attachedFractureDefinition() == this)
+            if (fracture->fractureTemplate() == this)
             {
                 if (changedField == &perforationLength && (abs(oldValue.toDouble() - fracture->perforationLength()) < 1e-5))
                 {
@@ -186,17 +186,17 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
     }
 
-    if (orientation == RimFractureTemplate::ALONG_WELL_PATH
-        || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (orientationType == RimFractureTemplate::ALONG_WELL_PATH
+        || orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         azimuthAngle.uiCapability()->setUiHidden(true);
     }
-    else if (orientation == RimFractureTemplate::AZIMUTH)
+    else if (orientationType == RimFractureTemplate::AZIMUTH)
     {
         azimuthAngle.uiCapability()->setUiHidden(false);
     }
 
-    if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
+    if (orientationType == RimFractureTemplate::ALONG_WELL_PATH)
     {
         perforationEfficiency.uiCapability()->setUiHidden(false);
         perforationLength.uiCapability()->setUiHidden(false);

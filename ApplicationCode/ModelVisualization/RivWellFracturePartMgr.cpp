@@ -145,7 +145,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             }
         }
 
-        RimFractureTemplate* fracTemplate = m_rimFracture->attachedFractureDefinition();
+        RimFractureTemplate* fracTemplate = m_rimFracture->fractureTemplate();
         RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
         if (!stimPlanFracTemplate)
         {
@@ -270,9 +270,9 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 {
     m_stimPlanMeshPart = nullptr;
 
-    if (!m_rimFracture->attachedFractureDefinition()) return;
+    if (!m_rimFracture->fractureTemplate()) return;
 
-    RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition());
+    RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
     if (!stimPlanFracTemplate) return;
 
     cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = createStimPlanMeshDrawable(stimPlanFracTemplate, displayCoordTransform);
@@ -344,7 +344,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
 //--------------------------------------------------------------------------------------------------
 void RivWellFracturePartMgr::getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax)
 {
-    std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit());
+    std::vector<cvf::Vec3f> polygon = m_rimFracture->fractureTemplate()->fractureBorderPolygon(m_rimFracture->fractureUnit());
 
     if (polygon.size() > 1)
     {
@@ -372,7 +372,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::Di
     std::vector<cvf::Vec3f> vertices;
 
     {
-        std::vector<cvf::Vec3f> polygon = m_rimFracture->attachedFractureDefinition()->fracturePolygon(m_rimFracture->fractureUnit());
+        std::vector<cvf::Vec3f> polygon = m_rimFracture->fractureTemplate()->fractureBorderPolygon(m_rimFracture->fractureUnit());
 
         cvf::Mat4f m = m_rimFracture->transformMatrix();
         std::vector<cvf::Vec3f> polygonDisplayCoords = transfromToFractureDisplayCoords(polygon, m, displayCoordTransform);
@@ -450,13 +450,13 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
 
     if (m_part.isNull())
     {
-        if (m_rimFracture->attachedFractureDefinition())
+        if (m_rimFracture->fractureTemplate())
         {
-            if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition()))
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate()))
             {
                 updatePartGeometryTexture(displayCoordTransform);
 
-                RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition());
+                RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate());
                 if (stimPlanFracTemplate->showStimPlanMesh() && m_stimPlanMeshPart.notNull())
                 {
                     model->addPart(m_stimPlanMeshPart.p());
@@ -474,7 +474,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* mod
         model->addPart(m_part.p());
     }
 
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->attachedFractureDefinition())
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_rimFracture->fractureTemplate())
         && m_rimFracture->showPolygonFractureOutline()
         && m_polygonPart.notNull())
     {

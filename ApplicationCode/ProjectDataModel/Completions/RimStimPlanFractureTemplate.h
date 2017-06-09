@@ -66,8 +66,10 @@ public:
     const QString&                          fileName();
     QString                                 fileNameWithOutPath();
 
-    void                                    fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem  fractureUnit) override;
-    std::vector<cvf::Vec3f>                 fracturePolygon(RimUnitSystem::UnitSystem fractureUnit);
+    void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
+                                                                     std::vector<cvf::uint>* triangleIndices, 
+                                                                     RimUnitSystem::UnitSystem  neededUnit) override;
+    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit);
     void sortPolygon(std::vector<cvf::Vec3f> &polygon);
 
     std::vector<double>                     getStimPlanTimeValues();

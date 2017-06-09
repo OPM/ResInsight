@@ -73,10 +73,10 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::updateAzimuthFromFractureDefinition()
+void RimSimWellFracture::updateAzimuthFromFractureTemplate()
 {
     RimFractureTemplate::FracOrientationEnum orientation;
-    if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();
+    if (fractureTemplate()) orientation = fractureTemplate()->orientationType();
     else orientation = RimFractureTemplate::AZIMUTH;
 
     if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation== RimFractureTemplate::TRANSVERSE_WELL_PATH)
@@ -95,7 +95,7 @@ void RimSimWellFracture::updateAzimuthFromFractureDefinition()
     }
     else //Azimuth value read from template 
     {
-        if (attachedFractureDefinition()) azimuth = attachedFractureDefinition()->azimuthAngle;
+        if (fractureTemplate()) azimuth = fractureTemplate()->azimuthAngle;
         else azimuth = 0.0;
     }
 }
@@ -133,12 +133,12 @@ void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         updateFracturePositionFromLocation();
 
         RimFractureTemplate::FracOrientationEnum orientation;
-        if (attachedFractureDefinition()) orientation = attachedFractureDefinition()->orientation();
+        if (fractureTemplate()) orientation = fractureTemplate()->orientationType();
         else orientation = RimFractureTemplate::AZIMUTH;
 
         if (orientation != RimFractureTemplate::AZIMUTH)
         {
-            updateAzimuthFromFractureDefinition();
+            updateAzimuthFromFractureTemplate();
         }
 
         RimProject* proj;

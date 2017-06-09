@@ -22,7 +22,7 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
     std::vector<cvf::Vec3f> fracturePolygonf ; 
     std::vector<std::vector<cvf::Vec3d> > stpCellPolygons;
     {
-        RimFractureTemplate* fractureTemplate = rimFracture->attachedFractureDefinition();
+        RimFractureTemplate* fractureTemplate = rimFracture->fractureTemplate();
 
         {
             const std::vector<RigFractureCell>& stpCells = fractureTemplate->fractureGrid()->fractureCells();

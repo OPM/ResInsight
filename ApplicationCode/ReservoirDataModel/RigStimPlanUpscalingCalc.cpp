@@ -47,9 +47,9 @@ RigStimPlanUpscalingCalc::RigStimPlanUpscalingCalc(RimEclipseCase* caseToApply, 
 std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimUnitSystem::UnitSystem unitSystem, size_t eclipseCellIndex)
 {
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->fractureTemplate()))
     {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->fractureTemplate());
     }
     else return std::make_pair(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
 
@@ -84,7 +84,7 @@ std::pair<double, double> RigStimPlanUpscalingCalc::flowAcrossLayersUpscaling(QS
     directionAcrossLayers = cvf::Vec3d(0.0, -1.0, 0.0);
     directionAlongLayers = cvf::Vec3d(1.0, 0.0, 0.0);
 
-    std::vector<cvf::Vec3f> fracPolygon = m_fracture->attachedFractureDefinition()->fracturePolygon(unitSystem);
+    std::vector<cvf::Vec3f> fracPolygon = m_fracture->fractureTemplate()->fractureBorderPolygon(unitSystem);
     std::vector<std::vector<cvf::Vec3d> > polygonsDescribingFractureInCell;
 
     std::vector<double> upscaledConductivitiesHA;
@@ -273,9 +273,9 @@ std::vector<RigFracturedEclipseCellExportData>  RigStimPlanUpscalingCalc::comput
     std::vector<RigFracturedEclipseCellExportData> fracDataVec;
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition()))
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->fractureTemplate()))
     {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->attachedFractureDefinition());
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(m_fracture->fractureTemplate());
     }
     else 
     {

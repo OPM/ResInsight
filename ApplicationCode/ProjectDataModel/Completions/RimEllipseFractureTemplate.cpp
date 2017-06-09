@@ -86,7 +86,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             for (RimFracture* fracture : fractures)
             {
-                if (fracture->attachedFractureDefinition() == this)
+                if (fracture->fractureTemplate() == this)
                 {
                     fracture->setRecomputeGeometryFlag();
                 }
@@ -105,26 +105,28 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeCoords, std::vector<cvf::uint>* triangleIndices, RimUnitSystem::UnitSystem fractureUnit)
+void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
+                                                          std::vector<cvf::uint>* triangleIndices, 
+                                                          RimUnitSystem::UnitSystem neededUnit)
 {
     RigEllipsisTesselator tesselator(20);
 
     float a = cvf::UNDEFINED_FLOAT;
     float b = cvf::UNDEFINED_FLOAT;
 
-    if (fractureUnit == fractureTemplateUnit())
+    if (neededUnit == fractureTemplateUnit())
     {
         a = halfLength;
         b = height / 2.0f;
 
     }
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && fractureUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && neededUnit == RimUnitSystem::UNITS_FIELD)
     {
         RiaLogging::info(QString("Converting fracture template geometry from metric to field"));
         a = RimUnitSystem::meterToFeet(halfLength);
         b = RimUnitSystem::meterToFeet(height / 2.0f);
     }
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && fractureUnit == RimUnitSystem::UNITS_METRIC)
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && neededUnit == RimUnitSystem::UNITS_METRIC)
     {
         RiaLogging::info(QString("Converting fracture template geometry from field to metric"));
         a = RimUnitSystem::feetToMeter(halfLength);
@@ -144,14 +146,14 @@ void RimEllipseFractureTemplate::fractureGeometry(std::vector<cvf::Vec3f>* nodeC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fracturePolygon(RimUnitSystem::UnitSystem fractureUnit)
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 
     std::vector<cvf::Vec3f> nodeCoords;
     std::vector<cvf::uint>  triangleIndices;
 
-    fractureGeometry(&nodeCoords, &triangleIndices, fractureUnit);
+    fractureTriangleGeometry(&nodeCoords, &triangleIndices, neededUnit);
 
     for (size_t i = 1; i < nodeCoords.size(); i++)
     {
@@ -236,7 +238,7 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
                 cond = permeability * RimUnitSystem::inchToFeet(width);
             }
 
-            std::vector<cvf::Vec3f> ellipseFracPolygon = fracturePolygon(fractureTemplateUnit());
+            std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon(fractureTemplateUnit());
             std::vector<cvf::Vec3d> ellipseFracPolygonDouble;
             for (auto v : ellipseFracPolygon) ellipseFracPolygonDouble.push_back(static_cast<cvf::Vec3d>(v));
             std::vector<std::vector<cvf::Vec3d> >clippedFracturePolygons = RigCellGeometryTools::intersectPolygons(cellPolygon, ellipseFracPolygonDouble);
@@ -316,15 +318,15 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
     caf::PdmUiGroup* geometryGroup = uiOrdering.addNewGroup("Geometry");
     geometryGroup->add(&halfLength);
     geometryGroup->add(&height);
-    geometryGroup->add(&orientation);
+    geometryGroup->add(&orientationType);
     geometryGroup->add(&azimuthAngle);
 
     caf::PdmUiGroup* trGr = uiOrdering.addNewGroup("Fracture Truncation");
-    m_fractureContainmentField()->defineUiOrdering(uiConfigName, *trGr);
+    m_fractureContainment()->defineUiOrdering(uiConfigName, *trGr);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
-    propertyGroup->add(&fractureConductivity);
-    if (fractureConductivity == RimFractureTemplate::FINITE_CONDUCTIVITY)
+    propertyGroup->add(&conductivityType);
+    if (conductivityType == RimFractureTemplate::FINITE_CONDUCTIVITY)
     {
         propertyGroup->add(&permeability);
         propertyGroup->add(&width);

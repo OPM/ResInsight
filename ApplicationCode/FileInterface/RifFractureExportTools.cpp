@@ -147,7 +147,7 @@ bool RifFractureExportTools::exportFracturesToEclipseDataInputFile(const QString
         std::vector<RigFracturedEclipseCellExportData> fracDataVector = exportDataPrFracture[fracture];
 
         double skinFactor = cvf::UNDEFINED_DOUBLE;
-        if (fracture->attachedFractureDefinition()) skinFactor = fracture->attachedFractureDefinition()->skinFactor();
+        if (fracture->fractureTemplate()) skinFactor = fracture->fractureTemplate()->skinFactor();
         QString fractureName = fracture->name();
 
         for (RigFracturedEclipseCellExportData fracData : fracDataVector)
@@ -277,9 +277,9 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
     for (RimFracture* fracture : fractures)
     {
         RimStimPlanFractureTemplate* fracTemplateStimPlan;
-        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+        if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()))
         {
-            fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+            fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
         }
         else continue;
 
@@ -296,7 +296,7 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
 
             RigEclipseToStimPlanCellTransmissibilityCalculator eclToStimPlanTransCalc(caseToApply,
                 fracture->transformMatrix(),
-                fracture->attachedFractureDefinition()->skinFactor,
+                fracture->fractureTemplate()->skinFactor,
                 cDarcyInCorrectUnit,
                 stimPlanCell);
 
@@ -369,9 +369,9 @@ void RifFractureExportTools::printStimPlanFractureTrans(const std::vector<RimFra
     RimFracture* fracture = fractures[0];
 
     RimStimPlanFractureTemplate* fracTemplateStimPlan;
-    if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()))
     {
-        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+        fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
     }
     else return;
 
@@ -578,15 +578,15 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
         out << fracture->name().left(15) + " ";
 
 
-        if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::ALONG_WELL_PATH)
+        if (fracture->fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH)
         {
             out << "Linear inflow";
             out << qSetFieldWidth(5);
 
             RimStimPlanFractureTemplate* fracTemplateStimPlan;
-            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()))
             {
-                fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+                fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
             }
             else continue;
 
@@ -618,7 +618,7 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
                                                                                                                                     perforationLengthVert,
                                                                                                                                     perforationLengthHor,
                                                                                                                                     fracture->perforationEfficiency,
-                                                                                                                                    fracture->attachedFractureDefinition()->skinFactor(),
+                                                                                                                                    fracture->fractureTemplate()->skinFactor(),
                                                                                                                                     caseToApply->eclipseCaseData()->darchysValue());
 
             out << qSetFieldWidth(10);
@@ -627,15 +627,15 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
         }
 
 
-        if (fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH
-            || fracture->attachedFractureDefinition()->orientation == RimFractureTemplate::AZIMUTH)
+        if (fracture->fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH
+            || fracture->fractureTemplate()->orientationType == RimFractureTemplate::AZIMUTH)
         {
             out << "Radial inflow";
 
             RimStimPlanFractureTemplate* fracTemplateStimPlan;
-            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition()))
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate()))
             {
-                fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->attachedFractureDefinition());
+                fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracture->fractureTemplate());
             }
             else continue;
 
@@ -650,7 +650,7 @@ void RifFractureExportTools::printTransmissibilityFractureToWell(const std::vect
                                                                                                                                     stimPlanCell.cellSizeX(),
                                                                                                                                     stimPlanCell.cellSizeZ(),
                                                                                                                                     fracture->wellRadius(),
-                                                                                                                                    fracture->attachedFractureDefinition()->skinFactor(),
+                                                                                                                                    fracture->fractureTemplate()->skinFactor(),
                                                                                                                                     caseToApply->eclipseCaseData()->darchysValue());
 
             out << qSetFieldWidth(10);
