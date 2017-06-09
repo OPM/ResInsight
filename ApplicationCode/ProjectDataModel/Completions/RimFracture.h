@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
 #include "RimUnitSystem.h"
 
@@ -46,7 +47,7 @@ class RigMainGrid;
 ///  
 ///  
 //==================================================================================================
-class RimFracture : public RimCheckableNamedObject
+class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterface
 {
      CAF_PDM_HEADER_INIT;
 
@@ -95,7 +96,6 @@ public:
     virtual void                    updateAzimuthFromFractureDefinition() = 0;
     virtual double                  wellAzimuthAtFracturePosition() = 0;
 
-
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -106,7 +106,8 @@ private:
     cvf::Vec3d                      fracturePositionForUi() const;
     
     QString                         createOneBasedIJK() const;
-
+    
+    virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
