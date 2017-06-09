@@ -18,7 +18,10 @@
 
 #include "RicNewWellPathFractureFeature.h"
 
+
 #include "RiaApplication.h"
+
+#include "WellPathCommands/RicWellPathsUnitSystemSettingsImpl.h"
 
 #include "RigWellPath.h"
 
@@ -48,28 +51,27 @@ CAF_CMD_SOURCE_INIT(RicNewWellPathFractureFeature, "RicNewWellPathFractureFeatur
 //--------------------------------------------------------------------------------------------------
 void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return;
+    RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
+    if (!fractureColl) return;
 
     RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPath);
-    CVF_ASSERT(wellPath);
+    fractureColl->firstAncestorOrThisOfTypeAsserted(wellPath);
+
+    if (!RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(wellPath)) return;
 
     RimWellPathFracture* fracture = new RimWellPathFracture();
-    wellPath->fractureCollection()->fractures.push_back(fracture);
+    fractureColl->fractures.push_back(fracture);
         
     float md_default = 0.0f;
     fracture->setMeasuredDepth(md_default);
+    fracture->fractureUnit = wellPath->unitSystem();
     
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
     cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(md_default);
     fracture->setAnchorPosition(positionAtWellpath);
 
     RimOilField* oilfield = nullptr;
-    objHandle->firstAncestorOrThisOfType(oilfield);
+    fractureColl->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
 
     std::vector<RimFracture* > oldFractures;
@@ -88,7 +90,7 @@ void RicNewWellPathFractureFeature::onActionTriggered(bool isChecked)
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
     RimWellPathCollection* wellPathColl = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPathColl);
+    fractureColl->firstAncestorOrThisOfType(wellPathColl);
     if (wellPathColl)
     {
         wellPathColl->scheduleGeometryRegenAndRedrawViews();
@@ -109,19 +111,28 @@ void RicNewWellPathFractureFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellPathFractureFeature::isCommandEnabled()
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-    if (!pdmUiItem) return false;
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (!objHandle) return false;
-
-    RimWellPathCollection* wellPathColl = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPathColl);
-
-    if (wellPathColl)
+    if (selectedWellPathFractureCollection())
     {
         return true;
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFractureCollection()
+{
+    RimWellPathFractureCollection* objToFind = nullptr;
+
+    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
+    if (objHandle)
+    {
+        objHandle->firstAncestorOrThisOfType(objToFind);
+    }
+
+    return objToFind;
 }

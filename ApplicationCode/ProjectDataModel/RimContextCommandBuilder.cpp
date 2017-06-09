@@ -222,7 +222,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
-            commandIds << "RicNewWellPathFractureFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
@@ -378,10 +377,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicShowFlowCharacteristicsPlotFeature";
         }
-        else if (dynamic_cast<RimWellPathFracture*>(uiItem))
-        {
-            commandIds << "RicNewWellPathFractureFeature";
-        }
         else if (dynamic_cast<RimSimWellFracture*>(uiItem))
         {
             commandIds << "RicNewSimWellFractureFeature";
@@ -442,6 +437,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicWellPathExportCompletionDataFeature";
         commandIds << "RicWellPathImportCompletionsFileFeature";
         commandIds << "RicFlyToObjectFeature";
+
+        // Fracture commands
+        commandIds << "RicNewWellPathFractureFeature";
 
         // Work in progress -- End
 

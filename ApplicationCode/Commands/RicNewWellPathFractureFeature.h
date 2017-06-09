@@ -22,6 +22,7 @@
 
 #include <vector>
 
+class RimWellPathFractureCollection;
 
 //==================================================================================================
 /// 
@@ -29,11 +30,12 @@
 class RicNewWellPathFractureFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-protected:
 
+protected:
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
     virtual bool isCommandEnabled() override;
 
-
+private:
+    static RimWellPathFractureCollection* selectedWellPathFractureCollection();
 };
