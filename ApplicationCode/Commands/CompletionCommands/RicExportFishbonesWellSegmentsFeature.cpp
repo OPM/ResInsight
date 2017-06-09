@@ -244,6 +244,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                 depth += location.trueVerticalDepth - previousTVD;
                 length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
             }
+            
+            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(), wellPath->fishbonesCollection()->mainBoreDiameter());
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
             formatter.add(location.segmentNumber).add(location.segmentNumber);
@@ -251,8 +253,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             formatter.add(location.segmentNumber - 1); // All main stem segments are connected to the segment below them
             formatter.add(length);
             formatter.add(depth);
-            formatter.add(-1.0); // FIXME : Diam of main stem?
-            formatter.add(-1.0); // FIXME : Rough of main stem?
+            formatter.add(diameter);
+            formatter.add(wellPath->fishbonesCollection()->roughnessFactor());
             formatter.rowCompleted();
 
             previousMD = location.measuredDepth;
@@ -266,14 +268,15 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.comment("Rough: MSW - Open Hole Roughness Factor");
         for (const WellSegmentLocation& location : locations)
         {
+            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(), wellPath->fishbonesCollection()->mainBoreDiameter());
             formatter.comment("ICD");
             formatter.add(location.icdSegmentNumber).add(location.icdSegmentNumber);
             formatter.add(location.icdBranchNumber);
             formatter.add(location.segmentNumber);
             formatter.add(0.1); // ICDs have 0.1 length
             formatter.add(0); // Depth change
-            formatter.add(-1.0); // Diam?
-            formatter.add(-1.0); // Rough?
+            formatter.add(diameter);
+            formatter.add(wellPath->fishbonesCollection()->roughnessFactor());
             formatter.rowCompleted();
 
             for (const WellSegmentLateral& lateral : location.laterals)
@@ -416,7 +419,7 @@ double RicExportFishbonesWellSegmentsFeature::computeEffectiveDiameter(double in
 
     double effectiveArea = outerArea - innerArea;
 
-    double effectiveRadius = cvf::Math::sqrt(effectiveArea / cvf::PI_D * 2);
+    double effectiveRadius = cvf::Math::sqrt(effectiveArea / cvf::PI_D);
 
     return effectiveRadius * 2;
 }
