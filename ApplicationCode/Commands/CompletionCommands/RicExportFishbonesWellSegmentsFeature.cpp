@@ -295,13 +295,14 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                         depth += intersection.depth;
                         length += intersection.length;
                     }
+                    double diameter = computeEffectiveDiameter(location.fishbonesSubs->tubingDiameter(), location.fishbonesSubs->holeDiameter());
                     formatter.add(intersection.segmentNumber);
                     formatter.add(intersection.segmentNumber);
                     formatter.add(lateral.branchNumber);
                     formatter.add(intersection.attachedSegmentNumber);
                     formatter.add(length);
                     formatter.add(depth);
-                    formatter.add(location.fishbonesSubs->tubingDiameter());
+                    formatter.add(diameter);
                     formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
                     formatter.rowCompleted();
                 }
@@ -400,4 +401,22 @@ void RicExportFishbonesWellSegmentsFeature::generateWsegvalvTable(RifEclipseData
         formatter.rowCompleted();
     }
     formatter.tableCompleted();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RicExportFishbonesWellSegmentsFeature::computeEffectiveDiameter(double innerDiameter, double outerDiameter)
+{
+    double innerRadius = innerDiameter / 2;
+    double innerArea = cvf::PI_D * innerRadius * innerRadius;
+
+    double outerRadius = outerDiameter / 2;
+    double outerArea = cvf::PI_D * outerRadius * outerRadius;
+
+    double effectiveArea = outerArea - innerArea;
+
+    double effectiveRadius = cvf::Math::sqrt(effectiveArea / cvf::PI_D * 2);
+
+    return effectiveRadius * 2;
 }
