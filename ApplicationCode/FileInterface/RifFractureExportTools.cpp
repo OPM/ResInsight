@@ -303,7 +303,7 @@ void RifFractureExportTools::printStimPlanCellsMatrixTransContributions(const st
             std::vector<size_t> stimPlanContributingEclipseCells = eclToStimPlanTransCalc.globalIndeciesToContributingEclipseCells();
             std::vector<double> stimPlanContributingEclipseCellTransmissibilities = eclToStimPlanTransCalc.contributingEclipseCellTransmissibilities();
 
-            for (int i = 0; i < stimPlanContributingEclipseCells.size(); i++)
+            for (size_t i = 0; i < stimPlanContributingEclipseCells.size(); i++)
             {
                 out << qSetFieldWidth(4);
                 out << "-- ";

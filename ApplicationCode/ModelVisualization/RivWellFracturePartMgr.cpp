@@ -429,7 +429,7 @@ std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<
 {
     std::vector<double> mirroredValuesAtGivenDepth;
     mirroredValuesAtGivenDepth.push_back(depthData[0]);
-    for (int i = 1; i < (depthData.size()); i++) //starting at 1 since we don't want center value twice
+    for (size_t i = 1; i < (depthData.size()); i++) //starting at 1 since we don't want center value twice
     {
         double valueAtGivenX = depthData[i];
         mirroredValuesAtGivenDepth.insert(mirroredValuesAtGivenDepth.begin(), valueAtGivenX);

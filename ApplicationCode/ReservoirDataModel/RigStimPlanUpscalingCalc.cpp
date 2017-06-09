@@ -160,7 +160,7 @@ double RigStimPlanUpscalingCalc::computeHAupscale(RimStimPlanFractureTemplate* f
     double sumCondHLiDivDi = 0.0;
     double sumLi = 0.0;
     double sumDiLi = 0.0;
-    for (int i = 0; i < CondHarmCol.size(); i++)
+    for (size_t i = 0; i < CondHarmCol.size(); i++)
     {
         sumLi += lavgCol[i];
         sumDiLi += DcolSum[i] * lavgCol[i];
