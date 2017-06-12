@@ -52,6 +52,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
@@ -190,9 +191,9 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
         if (exportSettings.includeFishbones)
         {
-            std::vector<RigCompletionData> fishbonesCompletionData = generateFishboneLateralsCompdatValues(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneLateralsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesCompletionData);
-            std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesWellPathCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
         }
     }
@@ -320,104 +321,6 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
     }
 
     formatter.tableCompleted();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishboneLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
-{
-    // Generate data
-    const RigEclipseCaseData* caseData =  settings.caseToApply()->eclipseCaseData();
-    std::vector<WellSegmentLocation> locations = findWellSegmentLocations(settings.caseToApply, wellPath);
-
-    // Filter out cells where main bore is present
-    if (settings.removeLateralsInMainBoreCells())
-    {
-        std::vector<size_t> wellPathCells = findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
-        markWellPathCells(wellPathCells, &locations);
-    }
-
-    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
-
-    std::vector<RigCompletionData> completionData;
-
-    for (const WellSegmentLocation& location : locations)
-    {
-        for (const WellSegmentLateral& lateral : location.laterals)
-        {
-            for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
-            {
-                if (intersection.mainBoreCell && settings.removeLateralsInMainBoreCells()) continue;
-
-                size_t i, j, k;
-                grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
-                RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
-                completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
-                double diameter = location.fishbonesSubs->holeDiameter() / 1000;
-                if (settings.computeTransmissibility())
-                {
-                    double transmissibility = calculateTransmissibility(settings.caseToApply,
-                                                                        wellPath,
-                                                                        intersection.lengthsInCell,
-                                                                        location.fishbonesSubs->skinFactor(),
-                                                                        diameter / 2,
-                                                                        intersection.cellIndex);
-                    completion.setFromFishbone(transmissibility, location.fishbonesSubs->skinFactor());
-                }
-                else {
-                    CellDirection direction = calculateDirectionInCell(settings.caseToApply, intersection.cellIndex, intersection.lengthsInCell);
-                    completion.setFromFishbone(diameter, direction);
-                }
-                completionData.push_back(completion);
-            }
-        }
-    }
-
-    return completionData;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesImportedLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
-{
-    std::vector<RigCompletionData> completionData;
-
-    std::vector<size_t> wellPathCells = findIntersectingCells(settings.caseToApply()->eclipseCaseData(), wellPath->wellPathGeometry()->m_wellPathPoints);
-
-    double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter() / 1000;
-    for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
-    {
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates());
-        for (auto& cell : intersectedCells)
-        {
-            if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.cellIndex) != wellPathCells.end()) continue;
-
-            size_t i, j, k;
-            settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
-            RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
-            completion.addMetadata(fishbonesPath->name(), "");
-            if (settings.computeTransmissibility())
-            {
-                double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
-                double transmissibility = calculateTransmissibility(settings.caseToApply(),
-                                                                    wellPath,
-                                                                    cell.internalCellLengths,
-                                                                    skinFactor,
-                                                                    diameter / 2,
-                                                                    cell.cellIndex);
-                completion.setFromFishbone(transmissibility, skinFactor);
-            }
-            else {
-                CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
-                completion.setFromFishbone(diameter, direction);
-            }
-            completionData.push_back(completion);
-        }
-    }
-
-    return completionData;
 }
 
 //--------------------------------------------------------------------------------------------------
