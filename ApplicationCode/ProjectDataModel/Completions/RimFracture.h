@@ -35,7 +35,6 @@
 #include "cafPdmPtrField.h"
 
 
-class RigFracture;
 class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RivWellFracturePartMgr;
@@ -74,19 +73,14 @@ public:
 
     cvf::Mat4f                      transformMatrix() const; 
 
-    const RigFracture*              attachedRigFracture() const;
-
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
     RimFractureTemplate*            fractureTemplate() const;
 
     RivWellFracturePartMgr*         fracturePartManager();
 
-    bool                            hasValidGeometry() const;
-    void                            computeGeometry();
-    void                            setRecomputeGeometryFlag();
+    void                            clearDisplayGeometryCache();
     
-    const std::vector<cvf::uint>&   triangleIndices() const;
-    const std::vector<cvf::Vec3f>&  nodeCoords() const;
+    void                            triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords );
 
     std::vector<size_t>             getPotentiallyFracturedCells(const RigMainGrid* mainGrid);
 
@@ -102,7 +96,6 @@ protected:
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
-    bool                            isRecomputeGeometryFlagSet();
     cvf::Vec3d                      fracturePositionForUi() const;
     
     QString                         createOneBasedIJKText() const;
@@ -116,8 +109,6 @@ protected:
 
 private:
     caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
-    cvf::ref<RigFracture>                           m_rigFracture;
-    bool                                            m_recomputeGeometry;
 
     caf::PdmField<int>                              m_anchorPosEclipseCellI;    // Zero based indexing
     caf::PdmField<int>                              m_anchorPosEclipseCellJ;    // Zero based indexing

@@ -25,11 +25,9 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RigResultAccessorFactory.h"
 #include "RimFracture.h"
-#include "RigFracture.h"
 #include "cvfGeometryTools.h"
 #include "RigCellGeometryTools.h"
 #include "RigActiveCellInfo.h"
-#include "RigFracture.h"
 #include "RimStimPlanFractureTemplate.h"
 
 #include <QString>

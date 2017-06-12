@@ -28,7 +28,6 @@
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
-#include "RigFracture.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
@@ -107,9 +106,6 @@ RimFracture::RimFracture(void)
     m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJKText);
     m_displayIJK.uiCapability()->setUiReadOnly(true);
 
-    m_rigFracture = new RigFracture;
-    m_recomputeGeometry = true;
-
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
 
@@ -118,22 +114,6 @@ RimFracture::RimFracture(void)
 //--------------------------------------------------------------------------------------------------
 RimFracture::~RimFracture()
 {
-}
- 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<cvf::uint>& RimFracture::triangleIndices() const
-{
-    return m_rigFracture->triangleIndices();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3f>& RimFracture::nodeCoords() const
-{
-    return m_rigFracture->nodeCoords();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,14 +124,9 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid*
     std::vector<size_t> cellindecies;
     if (!mainGrid) return cellindecies;
 
-    if (!hasValidGeometry()) computeGeometry();
+    cvf::BoundingBox fractureBBox = this->boundingBoxInDomainCoords();
 
-    const std::vector<cvf::Vec3f>& nodeCoordVec = nodeCoords();
-
-    cvf::BoundingBox polygonBBox;
-    for (cvf::Vec3f nodeCoord : nodeCoordVec) polygonBBox.add(nodeCoord);
-
-    mainGrid->findIntersectingCells(polygonBBox, &cellindecies);
+    mainGrid->findIntersectingCells(fractureBBox, &cellindecies);
 
     return cellindecies;
 }
@@ -203,7 +178,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &tilt)
     {
 
-        setRecomputeGeometryFlag();
+        clearDisplayGeometryCache();
 
         RimView* rimView = nullptr;
         this->firstAncestorOrThisOfType(rimView);
@@ -238,41 +213,17 @@ cvf::Vec3d RimFracture::fracturePosition() const
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
 {
-    cvf::BoundingBox bb;
+    std::vector<cvf::Vec3f> nodeCoordVec;
+    std::vector<cvf::uint> triangleIndices;
 
-    for (auto coord : nodeCoords())
-    {
-        bb.add(coord);
-    }
+    this->triangleGeometry(&triangleIndices, &nodeCoordVec);
 
-    return bb;
+    cvf::BoundingBox fractureBBox;
+    for (cvf::Vec3f nodeCoord : nodeCoordVec) fractureBBox.add(nodeCoord);
+  
+    return fractureBBox;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFracture::computeGeometry()
-{
-    std::vector<cvf::Vec3f> nodeCoords;
-    std::vector<cvf::uint>  triangleIndices;
-
-    RimFractureTemplate* fractureDef = fractureTemplate();
-    if (fractureDef )
-    {
-        fractureDef->fractureTriangleGeometry(&nodeCoords, &triangleIndices, fractureUnit());
-    }
-
-    cvf::Mat4f m = transformMatrix();
-
-    for (cvf::Vec3f& v : nodeCoords)
-    {
-        v.transformPoint(m);
-    }
-
-    m_rigFracture->setGeometry(triangleIndices, nodeCoords); 
-
-    m_recomputeGeometry = false;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -327,20 +278,30 @@ cvf::Mat4f RimFracture::transformMatrix() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFracture::setRecomputeGeometryFlag()
+void RimFracture::clearDisplayGeometryCache()
 {
-    m_recomputeGeometry = true;
-
     m_fracturePartMgr->clearGeometryCache();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::isRecomputeGeometryFlagSet()
+void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords)
 {
-    return m_recomputeGeometry;
+        RimFractureTemplate* fractureDef = fractureTemplate();
+        if (fractureDef )
+        {
+            fractureDef->fractureTriangleGeometry(nodeCoords, triangleIndices, fractureUnit());
+        }
+
+        cvf::Mat4f m = transformMatrix();
+
+        for (cvf::Vec3f& v : *nodeCoords)
+        {
+            v.transformPoint(m);
+        }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -500,7 +461,7 @@ void RimFracture::defineEditorAttribute(const caf::PdmFieldHandle* field, QStrin
 void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 {
     m_anchorPosition = pos;
-    setRecomputeGeometryFlag();
+    clearDisplayGeometryCache();
 
     // Update ijk
     {
@@ -542,16 +503,6 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFracture* RimFracture::attachedRigFracture() const
-{
-    CVF_ASSERT(m_rigFracture.notNull());
-
-    return m_rigFracture.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
 {
     m_fractureTemplate = fractureTemplate;
@@ -581,16 +532,5 @@ RivWellFracturePartMgr* RimFracture::fracturePartManager()
     CVF_ASSERT(m_fracturePartMgr.notNull());
 
     return m_fracturePartMgr.p();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimFracture::hasValidGeometry() const
-{
-    if (m_recomputeGeometry) return false;
-
-    return (nodeCoords().size() > 0 && triangleIndices().size() > 0);
 }
 

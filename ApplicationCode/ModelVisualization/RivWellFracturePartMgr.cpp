@@ -73,15 +73,10 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
 
     if (m_rimFracture)
     {
-        if (!m_rimFracture->hasValidGeometry())
-        {
-            m_rimFracture->computeGeometry();
-        }
+        std::vector<cvf::Vec3f> nodeCoords;
+        std::vector<cvf::uint> triangleIndices;
+        m_rimFracture->triangleGeometry(&triangleIndices, &nodeCoords);
 
-        if (!m_rimFracture->hasValidGeometry()) return;
-
-        const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
-        const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
         std::vector<cvf::Vec3f> displayCoords;
 
         for (size_t i = 0; i < nodeCoords.size(); i++)
@@ -128,13 +123,6 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 
     if (m_rimFracture)
     {
-        if (!m_rimFracture->hasValidGeometry())
-        {
-            m_rimFracture->computeGeometry();
-        }
-
-        if (!m_rimFracture->hasValidGeometry()) return;
-
         RimLegendConfig* legendConfig = nullptr;
         RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
         if (activeView && activeView->stimPlanColors())
@@ -152,8 +140,11 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             return;
         }
 
-        const std::vector<cvf::Vec3f>& nodeCoords = m_rimFracture->nodeCoords();
+        std::vector<cvf::Vec3f> nodeCoords;
+        std::vector<cvf::uint> triangleIndices;
         
+        m_rimFracture->triangleGeometry(&triangleIndices, &nodeCoords);
+
         std::vector<cvf::Vec3f> displayCoords;
 
         for (size_t i = 0; i < nodeCoords.size(); i++)
@@ -163,7 +154,6 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             displayCoords.push_back(static_cast<cvf::Vec3f>(displayCoordsDouble));
         }
 
-        const std::vector<cvf::uint>& triangleIndices = m_rimFracture->triangleIndices();
         if (triangleIndices.size() == 0 || displayCoords.size() == 0)
         {
             return;

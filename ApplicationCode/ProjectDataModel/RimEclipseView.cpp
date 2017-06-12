@@ -244,7 +244,7 @@ void RimEclipseView::updateScaleTransform()
     this->descendantsIncludingThisOfType(fractures);
     for (RimFracture* fracture : fractures)
     {
-        fracture->setRecomputeGeometryFlag();
+        fracture->clearDisplayGeometryCache();
     }
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();

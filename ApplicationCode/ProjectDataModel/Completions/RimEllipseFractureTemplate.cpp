@@ -88,7 +88,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
             {
                 if (fracture->fractureTemplate() == this)
                 {
-                    fracture->setRecomputeGeometryFlag();
+                    fracture->clearDisplayGeometryCache();
                 }
             }
 

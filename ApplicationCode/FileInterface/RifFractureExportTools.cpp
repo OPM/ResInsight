@@ -22,7 +22,6 @@
 #include "RiaLogging.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigFracture.h"
 #include "RigFractureTransCalc.h"
 #include "RigFractureCell.h"
 #include "RigMainGrid.h"
