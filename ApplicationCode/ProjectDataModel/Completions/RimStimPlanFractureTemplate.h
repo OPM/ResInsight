@@ -98,7 +98,6 @@ private:
     static void                             getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
 
     static std::vector<std::vector<double>> getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
-    std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition() const;
 
     bool                                    setPropertyForPolygonDefault();
     void                                    setDepthOfWellPathAtFracture();

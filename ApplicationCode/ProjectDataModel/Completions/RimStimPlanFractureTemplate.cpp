@@ -611,7 +611,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
     std::vector<double> xCoords = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
     cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
 
-    std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> adjustedDepths = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
 
     if (neededUnit == fractureTemplateUnit())
     {
@@ -679,22 +679,6 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellPathPosition() const
-{
-    std::vector<double> depthRelativeToWellPath;
-
-    for (const double& depth : m_stimPlanFractureDefinitionData->depths)
-    {
-        double adjustedDepth = depth - m_wellPathDepthAtFracture();
-        adjustedDepth = -adjustedDepth;
-        depthRelativeToWellPath.push_back(adjustedDepth);
-    }
-    return depthRelativeToWellPath;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeValues() 
 {
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
@@ -741,7 +725,7 @@ void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector
     parameterValues.clear();
 
     //TODO: Code partly copied from RivWellFracturePartMgr - can this be combined in some function?
-    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> depthCoordsAtNodes = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
     std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     //Cells are around nodes instead of between nodes
@@ -791,7 +775,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)  condUnit = "md-ft";
     std::vector<std::vector<double>> conductivityValuesAtTimeStep = m_stimPlanFractureDefinitionData->getMirroredDataAtTimeIndex("CONDUCTIVITY", condUnit, m_activeTimeStepIndex);
 
-    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> depthCoordsAtNodes = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
     std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
@@ -852,7 +836,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     m_fractureGrid->setFractureCells(stimPlanCells);
     m_fractureGrid->setWellCenterFractureCellIJ(wellCenterStimPlanCellIJ);
     m_fractureGrid->setICellCount(m_stimPlanFractureDefinitionData->getNegAndPosXcoords().size() - 2);
-    m_fractureGrid->setJCellCount(adjustedDepthCoordsAroundWellPathPosition().size() - 2);
+    m_fractureGrid->setJCellCount(m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture()).size() - 2);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -870,7 +854,7 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanRowPolygon(size_
 {
     std::vector<cvf::Vec3d> rowPolygon;
 
-    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> depthCoordsAtNodes = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
     std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
@@ -893,7 +877,7 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
 {
     std::vector<cvf::Vec3d> colPolygon;
 
-    std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> depthCoordsAtNodes = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
     std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
@@ -921,7 +905,7 @@ std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RimUn
   
     std::vector<std::vector<double>> dataAtTimeStep = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(parameterName, parameterUnit, m_activeTimeStepIndex);
 
-    std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
+    std::vector<double> adjustedDepths = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
 
     for (int k = 0; k < dataAtTimeStep.size(); k++)
     {

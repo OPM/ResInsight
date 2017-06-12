@@ -87,6 +87,19 @@ public:
         return true;
     }
 
+    std::vector<double>  adjustedDepthCoordsAroundWellPathPosition(double wellPathDepthAtFracture) const
+    {
+        std::vector<double> depthRelativeToWellPath;
+
+        for (const double& depth : this->depths)
+        {
+            double adjustedDepth = depth - wellPathDepthAtFracture;
+            adjustedDepth = -adjustedDepth;
+            depthRelativeToWellPath.push_back(adjustedDepth);
+        }
+        return depthRelativeToWellPath;
+    }
+
    
     std::vector<std::vector<double>> getMirroredDataAtTimeIndex(const QString& resultName, 
                                                                 const QString& unitName, 
