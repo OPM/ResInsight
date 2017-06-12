@@ -26,34 +26,6 @@
 
 #include <vector>
 
-class RigFracturedEclipseCellExportData
-{
-public:
-    RigFracturedEclipseCellExportData();
-
-    // Compdat export data
-    size_t reservoirCellIndex; 
-    double transmissibility; // Total cell to well transmissibility finally used in COMPDAT keyword
-    bool cellIsActive;
-
-    // General intermediate results
-    double NTG;
-    cvf::Vec3d permeabilities;
-    double skinFactor;
-    
-    // Elipse fracture related values
-    cvf::Vec3d transmissibilities; //matrixToFractureTransmissibilitiesXYZ
-    double totalArea; // Elipse cell overlap area
-    double fractureLenght;
-    cvf::Vec3d projectedAreas;
-
-    cvf::Vec3d cellSizes;
-    
-    //TODO: Used for upscaling - should be moved?
-    double upscaledStimPlanValueHA;
-    double upscaledStimPlanValueAH;
-};
-
 //==================================================================================================
 /// 
 //==================================================================================================

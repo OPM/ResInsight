@@ -46,9 +46,6 @@ class RimWellPath;
 class RifFractureExportTools 
 {
 public:
-    RifFractureExportTools();
-    virtual ~RifFractureExportTools();
-
     static bool exportFracturesToEclipseDataInputFile(const QString& fileName, 
                                                       const std::vector<RimFracture*>& fractures, 
                                                       RimEclipseCase* caseToApply);

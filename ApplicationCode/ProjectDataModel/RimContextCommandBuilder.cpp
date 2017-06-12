@@ -215,7 +215,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicWellPathsImportSsihubFeature";
             commandIds << "RicWellLogsImportFileFeature";
             commandIds << "Separator";
-            commandIds << "RicExportWellPathFractureWellCompletionFeature";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
