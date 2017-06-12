@@ -52,12 +52,9 @@ public:
     RimStimPlanFractureTemplate(void);
     virtual ~RimStimPlanFractureTemplate(void);
     
-    caf::PdmField<double>                   wellPathDepthAtFracture;
+    int                                     activeTimeStepIndex() { return m_activeTimeStepIndex; }
+    bool                                    showStimPlanMesh()    { return m_showStimPlanMesh;}
 
-    caf::PdmField<QString>                  parameterForPolygon;
-    caf::PdmField<int>                      activeTimeStepIndex;
-    caf::PdmField<bool>                     showStimPlanMesh;
-    
     void                                    loadDataAndUpdate(); 
 
     void                                    setFileName(const QString& fileName);
@@ -107,8 +104,14 @@ private:
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
 
-    caf::PdmField<QString>                      m_stimPlanFileName;
-    cvf::ref<RigStimPlanFractureDefinition>     m_stimPlanFractureDefinitionData;
-    cvf::ref<RigFractureGrid>                   m_fractureGrid;
+    caf::PdmField<int>                      m_activeTimeStepIndex;
+    caf::PdmField<bool>                     m_showStimPlanMesh;
+
+    caf::PdmField<double>                   m_wellPathDepthAtFracture;
+    caf::PdmField<QString>                  m_parameterForPolygon;
+
+    caf::PdmField<QString>                  m_stimPlanFileName;
+    cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
+    cvf::ref<RigFractureGrid>               m_fractureGrid;
 
 };
