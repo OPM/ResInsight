@@ -190,9 +190,9 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
         if (exportSettings.includeFishbones)
         {
-            std::vector<RigCompletionData> fishbonesCompletionData = generateFishbonesCompdatValues(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesCompletionData = generateFishboneLateralsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesCompletionData);
-            std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesWellPathCompdatValues(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
         }
     }
@@ -325,7 +325,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishboneLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     // Generate data
     const RigEclipseCaseData* caseData =  settings.caseToApply()->eclipseCaseData();
@@ -380,7 +380,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesImportedLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     std::vector<RigCompletionData> completionData;
 
