@@ -52,9 +52,9 @@ RimFishbonesCollection::RimFishbonesCollection()
     m_wellPathCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitField(&m_startMD,           "StartMD",          HUGE_VAL,   "Start MD",             "", "", "");
-    CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.0,        "Main Bore Diameter",   "", "", "");
-    CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.0,        "Liner Diameter",       "", "", "");
-    CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  0.0,        "Roughness Factor",     "", "", "");
+    CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.216,      "Main Bore Diameter",   "", "", "");
+    CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.152,      "Liner Inner Diameter", "", "", "");
+    CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  1e-05,      "Roughness Factor",     "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
