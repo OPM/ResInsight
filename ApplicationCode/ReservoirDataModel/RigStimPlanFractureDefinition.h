@@ -100,6 +100,19 @@ public:
         return depthRelativeToWellPath;
     }
 
+    std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const
+    {
+        std::vector<std::pair<QString, QString> >  propertyNamesUnits;
+        {
+            std::vector<RigStimPlanResultFrames > allStimPlanData = this->stimPlanData;
+            for (RigStimPlanResultFrames stimPlanDataEntry : allStimPlanData)
+            {
+                propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
+            }
+        }
+        return propertyNamesUnits;
+    }
+
    
     std::vector<std::vector<double>> getMirroredDataAtTimeIndex(const QString& resultName, 
                                                                 const QString& unitName, 

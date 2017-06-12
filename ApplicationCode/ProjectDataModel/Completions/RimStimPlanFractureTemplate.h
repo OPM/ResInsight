@@ -76,10 +76,8 @@ public:
     void                                    setupStimPlanCells();
     const RigFractureGrid*                  fractureGrid() const;
 
-    //Functions used by upscaling only
+    //Function used by upscaling only
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
-    std::vector<cvf::Vec3d>                 getStimPlanRowPolygon(size_t i);
-    std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
