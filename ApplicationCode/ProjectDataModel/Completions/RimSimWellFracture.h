@@ -47,6 +47,7 @@ public:
     double                                          wellAzimuthAtFracturePosition() override;
     double                                          wellDipAtFracturePosition();
 
+    int                                             branchIndex() const { return m_branchIndex(); }
 
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

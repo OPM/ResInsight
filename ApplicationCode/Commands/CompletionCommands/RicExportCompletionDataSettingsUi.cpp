@@ -43,6 +43,22 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::showForSimWells()
+{
+    m_displayForSimWell = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::showForWellPath()
+{
+    m_displayForSimWell = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -65,4 +81,26 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
         options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&fileName);
+    uiOrdering.add(&caseToApply);
+    uiOrdering.add(&timeStep);
+    uiOrdering.add(&computeTransmissibility);
+    uiOrdering.add(&includeWpimult);
+
+    if (!m_displayForSimWell)
+    {
+        uiOrdering.add(&includePerforations);
+        uiOrdering.add(&includeFishbones);
+        uiOrdering.add(&includeFractures);
+        uiOrdering.add(&removeLateralsInMainBoreCells);
+    }
+
+    uiOrdering.skipRemainingFields();
 }

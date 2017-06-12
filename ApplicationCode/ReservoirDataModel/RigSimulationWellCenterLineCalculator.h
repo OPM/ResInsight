@@ -32,7 +32,7 @@ public:
                                                   std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                   std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
 
-    static void calculateWellPipeDynamicCenterline(RimEclipseWell* rimWell, 
+    static void calculateWellPipeDynamicCenterline(const RimEclipseWell* rimWell, 
                                                    size_t timeStepIndex,
                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;

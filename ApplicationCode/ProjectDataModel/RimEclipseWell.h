@@ -70,7 +70,7 @@ public:
 
     void                                calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
                                                                     std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds);
+                                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const;
 
     void                                wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top,  cvf::Vec3d* bottom);
     double                              pipeRadius();

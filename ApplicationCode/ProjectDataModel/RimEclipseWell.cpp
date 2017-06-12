@@ -166,7 +166,7 @@ void RimEclipseWell::calculateWellPipeStaticCenterLine(std::vector< std::vector 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
                                                  std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                 std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
+                                                 std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const
 {
     RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(this, timeStepIdx, pipeBranchesCLCoords, pipeBranchesCellIds);
 }

@@ -31,6 +31,8 @@
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
 
@@ -61,7 +63,32 @@ CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCo
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 {
-    return !selectedWellPaths().empty();
+    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
+    std::vector<RimEclipseWell*> simWells = selectedSimWells();
+
+    if (wellPaths.empty() && simWells.empty())
+    {
+        return false;
+    }
+
+    if (!wellPaths.empty() && !simWells.empty())
+    {
+        return false;
+    }
+
+    std::set<RimEclipseCase*> eclipseCases;
+    for (auto simWell : simWells)
+    {
+        RimEclipseCase* eclipseCase;
+        simWell->firstAncestorOrThisOfType(eclipseCase);
+        eclipseCases.insert(eclipseCase);
+    }
+    if (eclipseCases.size() > 1)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +97,9 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
+    std::vector<RimEclipseWell*> simWells = selectedSimWells();
 
-    CVF_ASSERT(wellPaths.size() > 0);
+    CVF_ASSERT(wellPaths.size() > 0 || simWells.size() > 0);
 
     RiaApplication* app = RiaApplication::instance();
 
@@ -79,6 +107,16 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
     RicExportCompletionDataSettingsUi exportSettings;
+
+    if (wellPaths.empty())
+    {
+        exportSettings.showForSimWells();
+    }
+    else
+    {
+        exportSettings.showForWellPath();
+    }
+
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -98,7 +136,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
 
-        exportCompletions(wellPaths, exportSettings);
+        exportCompletions(wellPaths, simWells, exportSettings);
     }
 }
 
@@ -137,7 +175,32 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings)
+std::vector<RimEclipseWell*> RicWellPathExportCompletionDataFeature::selectedSimWells()
+{
+    std::vector<RimEclipseWell*> simWells;
+    caf::SelectionManager::instance()->objectsByType(&simWells);
+
+    std::vector<RimEclipseWellCollection*> simWellCollections;
+    caf::SelectionManager::instance()->objectsByType(&simWellCollections);
+
+    for (auto simWellCollection : simWellCollections)
+    {
+        for (auto simWell : simWellCollection->wells())
+        {
+            simWells.push_back(simWell);
+        }
+    }
+
+    std::set<RimEclipseWell*> uniqueSimWells(simWells.begin(), simWells.end());
+    simWells.assign(uniqueSimWells.begin(), uniqueSimWells.end());
+
+    return simWells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimEclipseWell*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings)
 {
     QFile exportFile(exportSettings.fileName());
 
@@ -163,6 +226,16 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 break;
             }
             else if (wellPath->unitSystem() == RimUnitSystem::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
+            {
+                unitSystemMismatch = true;
+                break;
+            }
+        }
+        for (const RimEclipseWell* simWell : simWells)
+        {
+            RimEclipseCase* eclipseCase;
+            simWell->firstAncestorOrThisOfType(eclipseCase);
+            if (exportSettings.caseToApply->eclipseCaseData()->unitsType() != eclipseCase->eclipseCaseData()->unitsType())
             {
                 unitSystemMismatch = true;
                 break;
@@ -199,11 +272,16 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 
         if (exportSettings.includeFractures())
         {
-            std::vector<RigCompletionData> fractureCompletionData = 
-                RicExportFractureCompletionsImpl::generateFracturesCompdatValues(wellPath, exportSettings, &stream);
+            std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, &stream);
             appendCompletionData(&completionData, fractureCompletionData);
         }
 
+    }
+
+    for (auto simWell : simWells)
+    {
+        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(), simWell, exportSettings.timeStep(), &stream);
+        appendCompletionData(&completionData, fractureCompletionData);
     }
 
     // Merge map into a vector of values

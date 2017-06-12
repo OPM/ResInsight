@@ -43,6 +43,13 @@ public:
 
     caf::PdmField<int>                      timeStep;
 
+    void                                    showForSimWells();
+    void                                    showForWellPath();
+
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
+    bool                                    m_displayForSimWell;
 };

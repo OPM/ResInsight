@@ -18,33 +18,96 @@
 
 #include "RicExportFractureCompletionsImpl.h"
 
-#include <vector>
-#include "RimEclipseCase.h"
 #include "RicExportCompletionDataSettingsUi.h"
+
+#include "RimEclipseCase.h"
 #include "RimFracture.h"
 #include "RimWellPath.h"
+#include "RimFractureTemplate.h"
+#include "RimEclipseWell.h"
+#include "RimSimWellFractureCollection.h"
+#include "RimSimWellFracture.h"
+
 #include "RigEclipseCaseData.h"
 #include "RigTransmissibilityCondenser.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
-#include "RimFractureTemplate.h"
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 #include "RigFractureTransmissibilityEquations.h"
 #include "RigWellPathStimplanIntersector.h"
 #include "RigMainGrid.h"
+#include "RigSingleWellResultsData.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellPath.h"
+
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFracturesCompdatValues(const RimWellPath* wellPath, 
-                                                                                                const RicExportCompletionDataSettingsUi& settings, 
-                                                                                                QTextStream* outputStreamForIntermediateResultsText)
+std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(const RimWellPath* wellPath, 
+                                                                                                  const RicExportCompletionDataSettingsUi& settings, 
+                                                                                                  QTextStream* outputStreamForIntermediateResultsText)
 {
     const RimEclipseCase* caseToApply = settings.caseToApply();
 
     std::vector<RimFracture*> fracturesAlongWellPath;
     wellPath->descendantsIncludingThisOfType(fracturesAlongWellPath);
 
+    return generateCompdatValues(caseToApply,
+                                 wellPath->name(),
+                                 wellPath->wellPathGeometry(),
+                                 fracturesAlongWellPath,
+                                 outputStreamForIntermediateResultsText);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(const RimEclipseCase* eclipseCase,
+                                                                                                 const RimEclipseWell* well,
+                                                                                                 size_t timeStep,
+                                                                                                 QTextStream* outputStreamForIntermediateResultsText)
+{
+    std::vector<RigCompletionData> completionData;
+
+    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+    well->calculateWellPipeDynamicCenterLine(timeStep, pipeBranchesCLCoords, pipeBranchesCellIds);
+
+    for (size_t branchIndex = 0; branchIndex < pipeBranchesCLCoords.size(); ++branchIndex)
+    {
+        RigSimulationWellCoordsAndMD coordsAndMD(pipeBranchesCLCoords[branchIndex]);
+        RigWellPath wellPathGeometry;
+        wellPathGeometry.m_wellPathPoints = coordsAndMD.wellPathPoints();
+        wellPathGeometry.m_measuredDepths = coordsAndMD.measuredDepths();
+
+        std::vector<RimFracture*> fractures;
+        for (RimSimWellFracture* fracture : well->simwellFractureCollection->simwellFractures())
+        {
+            if (static_cast<size_t>(fracture->branchIndex()) == branchIndex)
+            {
+                fractures.push_back(fracture);
+            }
+        }
+
+        std::vector<RigCompletionData> branchCompletions = generateCompdatValues(eclipseCase, well->name(), &wellPathGeometry, fractures, outputStreamForIntermediateResultsText);
+
+        completionData.insert(completionData.end(), branchCompletions.begin(), branchCompletions.end());
+    }
+
+    return completionData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValues(const RimEclipseCase* caseToApply,
+                                                                                       const QString& wellPathName,
+                                                                                       const RigWellPath* wellPathGeometry,
+                                                                                       const std::vector<RimFracture*> fractures,
+                                                                                       QTextStream* outputStreamForIntermediateResultsText)
+{
     double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
     const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
@@ -54,7 +117,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
     std::map <size_t, std::map<RimFracture*, double> > eclCellIdxToTransPrFractureMap; 
     std::vector<RigCompletionData> fractureCompletions; 
 
-    for (RimFracture* fracture : fracturesAlongWellPath)
+    for (RimFracture* fracture : fractures)
     {
 
         bool fractureFiniteCond = (fracture->fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
@@ -193,7 +256,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
             //If fracture has orientation along well, linear inflow along well and radial flow at endpoints
             else if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
-                RigWellPathStimplanIntersector wellFractureIntersector(wellPath->wellPathGeometry(), fracture);
+                RigWellPathStimplanIntersector wellFractureIntersector(wellPathGeometry, fracture);
                 const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& fractureWellCells =  wellFractureIntersector.intersections();
 
                 for (const auto& fracCellIdxIsectDataPair : fractureWellCells)
@@ -250,7 +313,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
                 size_t i, j, k;
                 mainGrid->ijkFromCellIndex(externalCell.m_globalCellIdx, &i, &j, &k);
 
-                RigCompletionData compDat(wellPath->name(), {i,j,k} );
+                RigCompletionData compDat(wellPathName, {i,j,k} );
                 compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
                 compDat.addMetadata(fracture->name(), QString::number(trans));
                 fractureCompletions.push_back(compDat);
@@ -268,7 +331,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateFractur
     } 
 
     return fractureCompletions;
-
 }
 
 
