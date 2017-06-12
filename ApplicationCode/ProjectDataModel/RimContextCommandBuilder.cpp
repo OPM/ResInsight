@@ -345,10 +345,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSimWellIntersectionFeature";
             commandIds << "RicShowWellAllocationPlotFeature";
         }
-        else if (dynamic_cast<RimEclipseWellCollection*>(uiItem))
-        {
-            commandIds << "RicExportSimWellFractureWellCompletionFeature";
-        }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
         {
             commandIds << "RicImportFormationNamesFeature";
@@ -492,7 +488,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEclipseWellShowWellCellFenceFeature";
             commandIds << "Separator";
             commandIds << "RicNewSimWellFractureFeature";
-            commandIds << "RicExportSelectedSimWellFractureWellCompletionFeature";
         }
     }
 

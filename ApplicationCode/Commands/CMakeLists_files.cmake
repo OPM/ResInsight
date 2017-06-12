@@ -48,9 +48,6 @@ ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.h
-${CEE_CURRENT_LIST_DIR}RicExportSimWellFractureWellCompletionFeature.h
-${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.h
-${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.h
@@ -110,9 +107,6 @@ ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicExportSimWellFractureWellCompletionFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicExportSelectedSimWellFractureWellCompletionFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicExportWellPathFractureWellCompletionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
