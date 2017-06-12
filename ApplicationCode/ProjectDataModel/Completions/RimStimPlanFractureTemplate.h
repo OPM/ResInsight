@@ -58,8 +58,6 @@ public:
     caf::PdmField<int>                      activeTimeStepIndex;
     caf::PdmField<bool>                     showStimPlanMesh;
     
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     void                                    loadDataAndUpdate(); 
 
     void                                    setFileName(const QString& fileName);
@@ -87,23 +85,24 @@ public:
     std::vector<cvf::Vec3d>                 getStimPlanColPolygon(size_t j);
 
 protected:
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
 
 private:
     void                                    updateUiTreeName();
 
-    void                                    readStimPlanXMLFile(QString * errorMessage);
-    size_t                                  readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream);
+    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName, QString * errorMessage);
+    static size_t                           readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData);
+
     static double                           getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
     static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
-    void                                    getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
-    std::vector<std::vector<double>>        getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
-    std::vector<std::vector<double>>        getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
-    std::vector<double>                     getNegAndPosXcoords() const;
+    static void                             getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
+
+    static std::vector<std::vector<double>> getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
     std::vector<double>                     adjustedDepthCoordsAroundWellPathPosition() const;
 
-    bool                                    numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
     bool                                    setPropertyForPolygonDefault();
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);

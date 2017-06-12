@@ -23,6 +23,7 @@
 #include <QString>
 
 #include <vector>
+#include "RimUnitSystem.h"
 
 class RigStimPlanResultFrames
 {
@@ -31,8 +32,9 @@ public:
 
     QString resultName;
     QString unit;
-    std::vector<std::vector<std::vector<double>>> parameterValues;
-    //Vector for each time step, for each depth and for each x-value
+
+    // Vector for each time step, for each depth and for each x-value
+    std::vector< std::vector< std::vector<double> > > parameterValues;
 
 };
 
@@ -50,7 +52,47 @@ public:
     std::vector<double>     timeSteps;
     std::vector<double>     depths;
 
-    
+    RimUnitSystem::UnitSystem unitSet;
+
+    std::vector<double> getNegAndPosXcoords() const
+    {
+        std::vector<double> allXcoords;
+        for (const double& xCoord : gridXs)
+        {
+            if (xCoord > 1e-5)
+            {
+                double negXcoord = -xCoord;
+                allXcoords.insert(allXcoords.begin(), negXcoord);
+            }
+        }
+        for (const double& xCoord : gridXs)
+        {
+            allXcoords.push_back(xCoord);
+        }
+
+        return allXcoords;
+    }
+
+    bool numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep)
+    {
+        size_t depths = this->depths.size();
+        size_t gridXvalues = this->gridXs.size();
+
+        if (propertyValuesAtTimestep.size() != depths)  return false;
+        for (std::vector<double> valuesAtDepthVector : propertyValuesAtTimestep)
+        {
+            if (valuesAtDepthVector.size() != gridXvalues) return false;
+        }
+
+        return true;
+    }
+
+   
+    std::vector<std::vector<double>> getMirroredDataAtTimeIndex(const QString& resultName, 
+                                                                const QString& unitName, 
+                                                                size_t timeStepIndex) const;
+
+
     std::vector<RigStimPlanResultFrames>        stimPlanData;
 
     bool                                timeStepExisist(double timeStepValue);

@@ -179,24 +179,24 @@ QString RimStimPlanFractureTemplate::fileNameWithOutPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
+cvf::ref<RigStimPlanFractureDefinition> RimStimPlanFractureTemplate::readStimPlanXMLFile(const QString& stimPlanFileName, QString * errorMessage)
 {
-    RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(fileName()));
+    RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(stimPlanFileName));
 
-    m_stimPlanFractureDefinitionData = new RigStimPlanFractureDefinition;
+    cvf::ref<RigStimPlanFractureDefinition> stimPlanFileData = new RigStimPlanFractureDefinition;
     size_t startingNegXsValues = 0;
     {
-        QFile dataFile(m_stimPlanFileName());
+        QFile dataFile(stimPlanFileName);
         if (!dataFile.open(QFile::ReadOnly))
         {
-            if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_stimPlanFileName()) + "\n";
-            return;
+            if (errorMessage) (*errorMessage) += "Could not open the File: " + (stimPlanFileName) + "\n";
+            return nullptr;
         }
 
         QXmlStreamReader xmlStream;
         xmlStream.setDevice(&dataFile);
         xmlStream.readNext();
-        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream);
+        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p());
 
         if (xmlStream.hasError())
         {
@@ -207,20 +207,20 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     }
 
 
-    size_t numberOfDepthValues = m_stimPlanFractureDefinitionData->depths.size();
-    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(m_stimPlanFractureDefinitionData->gridXs.size()),
+    size_t numberOfDepthValues = stimPlanFileData->depths.size();
+    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(stimPlanFileData->gridXs.size()),
         QString::number(numberOfDepthValues)));
 
-    size_t numberOfTimeSteps = m_stimPlanFractureDefinitionData->timeSteps.size();
+    size_t numberOfTimeSteps = stimPlanFileData->timeSteps.size();
     RiaLogging::debug(QString("Number of time-steps: %1").arg(numberOfTimeSteps));
 
     //Start reading from top:
-    QFile dataFile(m_stimPlanFileName());
+    QFile dataFile(stimPlanFileName);
 
     if (!dataFile.open(QFile::ReadOnly))
     {
-        if (errorMessage) (*errorMessage) += "Could not open the File: " + (m_stimPlanFileName()) + "\n";
-        return;
+        if (errorMessage) (*errorMessage) += "Could not open the File: " + (stimPlanFileName) + "\n";
+        return nullptr;
     }
     
     QXmlStreamReader xmlStream2;
@@ -246,13 +246,13 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
                 {
                     if (unit == "md-ft")
                     {
-                        fractureTemplateUnit = RimUnitSystem::UNITS_FIELD;
-                        RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(name));
+                        stimPlanFileData->unitSet = RimUnitSystem::UNITS_FIELD;
+                        RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(stimPlanFileName));
                     }
                     if (unit == "md-m")
                     {
-                        fractureTemplateUnit = RimUnitSystem::UNITS_METRIC;
-                        RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(name));
+                        stimPlanFileData->unitSet = RimUnitSystem::UNITS_METRIC;
+                        RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(stimPlanFileName));
                     }
                 }
 
@@ -264,14 +264,14 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
                 
                 std::vector<std::vector<double>> propertyValuesAtTimestep = getAllDepthDataAtTimeStep(xmlStream2, startingNegXsValues);
                 
-                bool valuesOK = numberOfParameterValuesOK(propertyValuesAtTimestep);
+                bool valuesOK = stimPlanFileData->numberOfParameterValuesOK(propertyValuesAtTimestep);
                 if (!valuesOK)
                 {
                     RiaLogging::error(QString("Inconsistency detected in reading XML file: '%1'").arg(dataFile.fileName()));
-                    return;
+                    return nullptr;
                 }
 
-                m_stimPlanFractureDefinitionData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue);
+                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue);
                
             }
         }
@@ -291,12 +291,11 @@ void RimStimPlanFractureTemplate::readStimPlanXMLFile(QString * errorMessage)
     }
     else
     {
-        RiaLogging::info(QString("Successfully read XML file: '%1'").arg(fileName()));
+        RiaLogging::info(QString("Successfully read XML file: '%1'").arg(stimPlanFileName));
     }
 
-        RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-    if (!activeView) return;
-    activeView->stimPlanColors->loadDataAndUpdate();
+
+    return stimPlanFileData;
 }
 
 
@@ -346,10 +345,23 @@ bool RimStimPlanFractureTemplate::setPropertyForPolygonDefault()
 void RimStimPlanFractureTemplate::loadDataAndUpdate()
 {
     QString errorMessage;
-    readStimPlanXMLFile(&errorMessage);
+    m_stimPlanFractureDefinitionData = readStimPlanXMLFile( m_stimPlanFileName(), &errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
+    if (m_stimPlanFractureDefinitionData.notNull())
+    {
+        fractureTemplateUnit = m_stimPlanFractureDefinitionData->unitSet;
+    }
+    else
+    {
+        fractureTemplateUnit = RimUnitSystem::UNITS_UNKNOWN; 
+    }
+
     setupStimPlanCells();
+
+    // Todo: Must update all views using this fracture template
+    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
+    if (activeView) activeView->stimPlanColors->loadDataAndUpdate();
 
     updateConnectedEditors();
 }
@@ -362,23 +374,6 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex
     return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
-{
-    std::vector<std::vector<double>> notMirrordedData = m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
-    std::vector<std::vector<double>> mirroredData;
-
-    for (std::vector<double> depthData : notMirrordedData)
-    {
-        std::vector<double> mirrordDepthData = RivWellFracturePartMgr::mirrorDataAtSingleDepth(depthData);
-        mirroredData.push_back(mirrordDepthData);
-    }
-
-
-    return mirroredData;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -415,7 +410,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream)
+size_t RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData)
 {
 
     size_t startNegValuesXs = 0;
@@ -435,24 +430,24 @@ size_t RimStimPlanFractureTemplate::readStimplanGridAndTimesteps(QXmlStreamReade
             {
                 std::vector<double> gridValues;
                 getGriddingValues(xmlStream, gridValues, startNegValuesXs);
-                m_stimPlanFractureDefinitionData->gridXs = gridValues;
+                stimPlanFileData->gridXs = gridValues;
             }
 
             else if (xmlStream.name() == "ys")
             {
                 std::vector<double> gridValues;
                 getGriddingValues(xmlStream, gridValues, startNegValuesYs);
-                m_stimPlanFractureDefinitionData->gridYs = gridValues;
+                stimPlanFileData->gridYs = gridValues;
 
-                m_stimPlanFractureDefinitionData->reorderYgridToDepths();
+                stimPlanFileData->reorderYgridToDepths();
             }
 
             else if (xmlStream.name() == "time")
             {
                 double timeStepValue = getAttributeValueDouble(xmlStream, "value");
-                if (!m_stimPlanFractureDefinitionData->timeStepExisist(timeStepValue))
+                if (!stimPlanFileData->timeStepExisist(timeStepValue))
                 {
-                    m_stimPlanFractureDefinitionData->timeSteps.push_back(timeStepValue);
+                    stimPlanFileData->timeSteps.push_back(timeStepValue);
                 }
             }
         }
@@ -506,22 +501,6 @@ std::vector<std::vector<double>>  RimStimPlanFractureTemplate::getAllDepthDataAt
     return propertyValuesAtTimestep;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimStimPlanFractureTemplate::numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep)
-{
-    size_t depths = m_stimPlanFractureDefinitionData->depths.size();
-    size_t gridXvalues = m_stimPlanFractureDefinitionData->gridXs.size();
-
-    if (propertyValuesAtTimestep.size() != depths)  return false;
-    for (std::vector<double> valuesAtDepthVector : propertyValuesAtTimestep)
-    {
-        if (valuesAtDepthVector.size() != gridXvalues) return false;
-    }
-
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -629,7 +608,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
     }
 
 
-    std::vector<double> xCoords = getNegAndPosXcoords();
+    std::vector<double> xCoords = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
     cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
 
     std::vector<double> adjustedDepths = adjustedDepthCoordsAroundWellPathPosition();
@@ -700,28 +679,6 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::getNegAndPosXcoords() const
-{
-    std::vector<double> allXcoords;
-    for (const double& xCoord : m_stimPlanFractureDefinitionData->gridXs)
-    {
-        if (xCoord > 1e-5)
-        {
-            double negXcoord = -xCoord;
-            allXcoords.insert(allXcoords.begin(), negXcoord);
-        }
-    }
-    for (const double& xCoord : m_stimPlanFractureDefinitionData->gridXs)
-    {
-        allXcoords.push_back(xCoord);
-    }
-
-    return allXcoords;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<double>  RimStimPlanFractureTemplate::adjustedDepthCoordsAroundWellPathPosition() const
 {
     std::vector<double> depthRelativeToWellPath;
@@ -778,14 +735,14 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
 void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValues, const QString& resultName, const QString& unitName, size_t timeStepIndex)
 {
 
-    std::vector<std::vector<double>> propertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    std::vector< std::vector<double> > propertyValuesAtTimeStep = m_stimPlanFractureDefinitionData->getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
 
     cellsAsPolygons.clear();
     parameterValues.clear();
 
     //TODO: Code partly copied from RivWellFracturePartMgr - can this be combined in some function?
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
-    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+    std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     //Cells are around nodes instead of between nodes
     std::vector<double> xCoords;
@@ -827,15 +784,15 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 
     bool wellCenterStimPlanCellFound = false;
 
-    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, activeTimeStepIndex);
+    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = m_stimPlanFractureDefinitionData->getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, activeTimeStepIndex);
 
     QString condUnit;
     if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC) condUnit = "md-m";
     if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)  condUnit = "md-ft";
-    std::vector<std::vector<double>> conductivityValuesAtTimeStep = getMirroredDataAtTimeIndex("CONDUCTIVITY", condUnit, activeTimeStepIndex);
+    std::vector<std::vector<double>> conductivityValuesAtTimeStep = m_stimPlanFractureDefinitionData->getMirroredDataAtTimeIndex("CONDUCTIVITY", condUnit, activeTimeStepIndex);
 
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
-    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+    std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
     for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
@@ -894,7 +851,7 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
 
     m_fractureGrid->setFractureCells(stimPlanCells);
     m_fractureGrid->setWellCenterFractureCellIJ(wellCenterStimPlanCellIJ);
-    m_fractureGrid->setICellCount(getNegAndPosXcoords().size() - 2);
+    m_fractureGrid->setICellCount(m_stimPlanFractureDefinitionData->getNegAndPosXcoords().size() - 2);
     m_fractureGrid->setJCellCount(adjustedDepthCoordsAroundWellPathPosition().size() - 2);
 }
 
@@ -914,7 +871,7 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanRowPolygon(size_
     std::vector<cvf::Vec3d> rowPolygon;
 
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
-    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+    std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
     for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
@@ -937,7 +894,7 @@ std::vector<cvf::Vec3d> RimStimPlanFractureTemplate::getStimPlanColPolygon(size_
     std::vector<cvf::Vec3d> colPolygon;
 
     std::vector<double> depthCoordsAtNodes = adjustedDepthCoordsAroundWellPathPosition();
-    std::vector<double> xCoordsAtNodes = getNegAndPosXcoords();
+    std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
     for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);

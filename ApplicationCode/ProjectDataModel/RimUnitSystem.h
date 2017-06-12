@@ -28,8 +28,8 @@ public:
     {
         UNITS_METRIC,
         UNITS_FIELD,
+        //UNITS_LAB, // Not yet
         UNITS_UNKNOWN,
-        //UNITS_LAB
     };
 
     typedef caf::AppEnum< RimUnitSystem::UnitSystem > UnitSystemType;

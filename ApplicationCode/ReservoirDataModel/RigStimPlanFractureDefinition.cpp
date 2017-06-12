@@ -21,6 +21,7 @@
 #include <QDebug>
 
 #include "cvfMath.h"
+#include "RivWellFracturePartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -34,7 +35,7 @@ RigStimPlanResultFrames::RigStimPlanResultFrames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
+RigStimPlanFractureDefinition::RigStimPlanFractureDefinition() : unitSet(RimUnitSystem::UNITS_UNKNOWN)
 {
 
 }
@@ -45,6 +46,23 @@ RigStimPlanFractureDefinition::RigStimPlanFractureDefinition()
 RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
+{
+    std::vector<std::vector<double>> notMirrordedData = this->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+    std::vector<std::vector<double>> mirroredData;
+
+    for ( std::vector<double> depthData : notMirrordedData )
+    {
+        std::vector<double> mirrordDepthData = RivWellFracturePartMgr::mirrorDataAtSingleDepth(depthData);
+        mirroredData.push_back(mirrordDepthData);
+    }
+
+    return mirroredData;
 }
 
 //--------------------------------------------------------------------------------------------------
