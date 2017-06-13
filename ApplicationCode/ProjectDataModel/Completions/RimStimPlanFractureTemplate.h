@@ -56,24 +56,27 @@ public:
     bool                                    showStimPlanMesh()    { return m_showStimPlanMesh;}
 
     void                                    loadDataAndUpdate(); 
+    void                                    setDefaultsBasedOnXMLfile();
 
     void                                    setFileName(const QString& fileName);
     const QString&                          fileName();
     QString                                 fileNameWithOutPath();
 
-    void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
+    // Fracture geometry
+     
+    const RigFractureGrid*                  fractureGrid() const;
+    void                                    updateFractureGrid();
+    void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
                                                                      std::vector<cvf::uint>* triangleIndices, 
                                                                      RimUnitSystem::UnitSystem  neededUnit) override;
     std::vector<cvf::Vec3f>                 fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit);
 
-    std::vector<double>                     getStimPlanTimeSteps();
-    std::vector<std::pair<QString, QString> > getStimPlanResultNamesWithUnit() const;
+    // Result Access
+
+    std::vector<double>                     timeSteps();
+    std::vector<std::pair<QString, QString> > resultNamesWithUnit() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
-    void                                    setDefaultsBasedOnXMLfile();
-    std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
-    
-    void                                    setupStimPlanCells();
-    const RigFractureGrid*                  fractureGrid() const;
+    std::vector<std::vector<double>>        resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
 
     // OBSOLETE : Function used by upscaling only
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);

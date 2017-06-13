@@ -177,7 +177,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
             textureCoords->resize(nodeCoords.size());
 
             int timeStepIndex = m_rimFracture->stimPlanTimeIndexToPlot;
-            std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->getDataAtTimeIndex(activeView->stimPlanColors->resultName(), activeView->stimPlanColors->unit(), timeStepIndex);
+            std::vector<std::vector<double> > dataToPlot = stimPlanFracTemplate->resultValues(activeView->stimPlanColors->resultName(), activeView->stimPlanColors->unit(), timeStepIndex);
 
             int i = 0;
             for (std::vector<double> depthData : dataToPlot)
@@ -289,7 +289,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(Ri
 {
     //TODO: This is needed to avoid errors when loading project with stimPlan fractures with multipled timesteps. 
     //Should probably be moved, since it now is called twice in some cases... 
-    stimPlanFracTemplate->setupStimPlanCells();
+    stimPlanFracTemplate->updateFractureGrid();
 
     std::vector<RigFractureCell> stimPlanCells = stimPlanFracTemplate->fractureGrid()->fractureCells();
     std::vector<cvf::Vec3f> stimPlanMeshVertices;

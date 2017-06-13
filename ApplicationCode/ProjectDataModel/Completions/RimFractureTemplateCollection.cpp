@@ -59,7 +59,7 @@ std::vector<std::pair<QString, QString> > RimFractureTemplateCollection::stimPla
         auto stimPlanFracture = dynamic_cast<const RimStimPlanFractureTemplate*>(f);
         if (stimPlanFracture)
         {
-            std::vector<std::pair<QString, QString> > namesAndUnits = stimPlanFracture->getStimPlanResultNamesWithUnit();
+            std::vector<std::pair<QString, QString> > namesAndUnits = stimPlanFracture->resultNamesWithUnit();
 
             for (auto nameAndUnit : namesAndUnits)
             {

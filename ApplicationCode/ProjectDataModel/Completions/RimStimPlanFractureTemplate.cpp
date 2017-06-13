@@ -96,7 +96,7 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
 
     if (&m_activeTimeStepIndex == changedField)
     {
-        setupStimPlanCells();
+        updateFractureGrid();
 
         //Changes to this parameters should change all fractures with this fracture template attached. 
         RimProject* proj;
@@ -198,7 +198,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
 {
     //first option: Width
-    for (std::pair<QString, QString> property : getStimPlanResultNamesWithUnit())
+    for (std::pair<QString, QString> property : resultNamesWithUnit())
     {
         if (property.first == "WIDTH")
         {
@@ -207,7 +207,7 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
         }
     }
     //if width not found, use conductivity
-    for (std::pair<QString, QString> property : getStimPlanResultNamesWithUnit())
+    for (std::pair<QString, QString> property : resultNamesWithUnit())
     {
         if (property.first == "CONDUCTIVITY")
         {
@@ -236,7 +236,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
         fractureTemplateUnit = RimUnitSystem::UNITS_UNKNOWN; 
     }
 
-    setupStimPlanCells();
+    updateFractureGrid();
 
     // Todo: Must update all views using this fracture template
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
@@ -248,22 +248,13 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
-{
-    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if (fieldNeedingOptions == &m_borderPolygonResultName)
     {
-        for (std::pair<QString, QString> nameUnit : getStimPlanResultNamesWithUnit())
+        for (std::pair<QString, QString> nameUnit : resultNamesWithUnit())
         {
             //options.push_back(caf::PdmOptionItemInfo(nameUnit.first + " [" + nameUnit.second + "]", nameUnit.first + " " + nameUnit.second));
             options.push_back(caf::PdmOptionItemInfo(nameUnit.first, nameUnit.first));
@@ -272,7 +263,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanFractureTemplate::calculateValueOptions
 
     else if (fieldNeedingOptions == &m_activeTimeStepIndex)
     {
-        std::vector<double> timeValues = getStimPlanTimeSteps();
+        std::vector<double> timeValues = timeSteps();
         int index = 0;
         for (double value : timeValues)
         {
@@ -309,7 +300,7 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
     bool found = false;
     bool foundMultiple = false;
 
-    for (std::pair<QString, QString> nameUnit : getStimPlanResultNamesWithUnit())
+    for (std::pair<QString, QString> nameUnit : resultNamesWithUnit())
     {
         if (nameUnit.first == parameterName)
         {
@@ -328,89 +319,7 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
-                                                           std::vector<cvf::uint>* triangleIndices, 
-                                                           RimUnitSystem::UnitSystem neededUnit)
-{
-    
-    if (m_stimPlanFractureDefinitionData.isNull())
-    {
-        loadDataAndUpdate();
-    }
-
-
-    std::vector<double> xCoords = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
-    cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
-
-    std::vector<double> adjustedDepths = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
-
-    if (neededUnit == fractureTemplateUnit())
-    {
-        RiaLogging::debug(QString("No conversion necessary for %1").arg(name));
-    }
-
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && neededUnit == RimUnitSystem::UNITS_FIELD)
-    {
-        RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(name));
-        for (double& value : adjustedDepths) value = RimUnitSystem::meterToFeet(value);
-        for (double& value : xCoords)        value = RimUnitSystem::meterToFeet(value);
-    }
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && neededUnit == RimUnitSystem::UNITS_METRIC)
-    {
-        RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(name));
-        for (double& value : adjustedDepths) value = RimUnitSystem::feetToMeter(value);
-        for (double& value : xCoords)        value = RimUnitSystem::feetToMeter(value);
-    }
-    else
-    {
-        //Should never get here...
-        RiaLogging::error(QString("Error: Could not convert units for fracture template %1").arg(name));
-        return;
-    }
-
-    for (cvf::uint k = 0; k < adjustedDepths.size(); k++)
-    {
-        for (cvf::uint i = 0; i < lenXcoords; i++)
-        {
-            cvf::Vec3f node = cvf::Vec3f(xCoords[i], adjustedDepths[k], 0);
-            nodeCoords->push_back(node);
-
-            if (i < lenXcoords - 1 && k < adjustedDepths.size() - 1)
-            {
-                if (xCoords[i] < 1e-5)
-                {
-                    //Upper triangle
-                    triangleIndices->push_back(i + k*lenXcoords);
-                    triangleIndices->push_back((i + 1) + k*lenXcoords);
-                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
-                    //Lower triangle
-                    triangleIndices->push_back(i + k*lenXcoords);
-                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
-                    triangleIndices->push_back((i)+(k + 1)*lenXcoords);
-
-                }
-                else
-                {
-                    //Upper triangle
-                    triangleIndices->push_back(i + k*lenXcoords);
-                    triangleIndices->push_back((i + 1) + k*lenXcoords);
-                    triangleIndices->push_back((i)+(k + 1)*lenXcoords);
-                    //Lower triangle
-                    triangleIndices->push_back((i + 1) + k*lenXcoords);
-                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
-                    triangleIndices->push_back((i) + (k + 1)*lenXcoords);
-                }
-
-            }
-        }
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeSteps() 
+std::vector<double> RimStimPlanFractureTemplate::timeSteps() 
 {
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
     return m_stimPlanFractureDefinitionData->timeSteps;
@@ -419,7 +328,7 @@ std::vector<double> RimStimPlanFractureTemplate::getStimPlanTimeSteps()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::getStimPlanResultNamesWithUnit() const
+std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::resultNamesWithUnit() const
 {
     std::vector<std::pair<QString, QString> >  propertyNamesUnits;
     if (m_stimPlanFractureDefinitionData.notNull())
@@ -443,7 +352,23 @@ void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::setupStimPlanCells()
+std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
+{
+    return m_stimPlanFractureDefinitionData->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
+{
+    return m_fractureGrid.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::updateFractureGrid()
 {
     RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
     if (!activeView) return;
@@ -526,12 +451,87 @@ void RimStimPlanFractureTemplate::setupStimPlanCells()
     m_fractureGrid->setJCellCount(m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture()).size() - 2);
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
+void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
+                                                           std::vector<cvf::uint>* triangleIndices, 
+                                                           RimUnitSystem::UnitSystem neededUnit)
 {
-    return m_fractureGrid.p();
+
+    if (m_stimPlanFractureDefinitionData.isNull())
+    {
+        loadDataAndUpdate();
+    }
+
+
+    std::vector<double> xCoords = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
+    cvf::uint lenXcoords = static_cast<cvf::uint>(xCoords.size());
+
+    std::vector<double> adjustedDepths = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
+
+    if (neededUnit == fractureTemplateUnit())
+    {
+        RiaLogging::debug(QString("No conversion necessary for %1").arg(name));
+    }
+
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && neededUnit == RimUnitSystem::UNITS_FIELD)
+    {
+        RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(name));
+        for (double& value : adjustedDepths) value = RimUnitSystem::meterToFeet(value);
+        for (double& value : xCoords)        value = RimUnitSystem::meterToFeet(value);
+    }
+    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && neededUnit == RimUnitSystem::UNITS_METRIC)
+    {
+        RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(name));
+        for (double& value : adjustedDepths) value = RimUnitSystem::feetToMeter(value);
+        for (double& value : xCoords)        value = RimUnitSystem::feetToMeter(value);
+    }
+    else
+    {
+        //Should never get here...
+        RiaLogging::error(QString("Error: Could not convert units for fracture template %1").arg(name));
+        return;
+    }
+
+    for (cvf::uint k = 0; k < adjustedDepths.size(); k++)
+    {
+        for (cvf::uint i = 0; i < lenXcoords; i++)
+        {
+            cvf::Vec3f node = cvf::Vec3f(xCoords[i], adjustedDepths[k], 0);
+            nodeCoords->push_back(node);
+
+            if (i < lenXcoords - 1 && k < adjustedDepths.size() - 1)
+            {
+                if (xCoords[i] < 1e-5)
+                {
+                    //Upper triangle
+                    triangleIndices->push_back(i + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                    //Lower triangle
+                    triangleIndices->push_back(i + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                    triangleIndices->push_back((i)+(k + 1)*lenXcoords);
+
+                }
+                else
+                {
+                    //Upper triangle
+                    triangleIndices->push_back(i + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + k*lenXcoords);
+                    triangleIndices->push_back((i)+(k + 1)*lenXcoords);
+                    //Lower triangle
+                    triangleIndices->push_back((i + 1) + k*lenXcoords);
+                    triangleIndices->push_back((i + 1) + (k + 1)*lenXcoords);
+                    triangleIndices->push_back((i) + (k + 1)*lenXcoords);
+                }
+
+            }
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

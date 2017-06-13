@@ -354,7 +354,7 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
             if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
             {
                 RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-                std::vector<double> timeValues = fracTemplateStimPlan->getStimPlanTimeSteps();
+                std::vector<double> timeValues = fracTemplateStimPlan->timeSteps();
                 int index = 0;
                 for (double value : timeValues)
                 {

@@ -179,7 +179,7 @@ void RimStimPlanColors::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             proj->descendantsIncludingThisOfType(stimPlanFracTemplates);
             for (RimStimPlanFractureTemplate* stimPlanFracTemplate : stimPlanFracTemplates)
             {
-                stimPlanFracTemplate->setupStimPlanCells();
+                stimPlanFracTemplate->updateFractureGrid();
             }
             proj->createDisplayModelAndRedrawAllViews();
         }
