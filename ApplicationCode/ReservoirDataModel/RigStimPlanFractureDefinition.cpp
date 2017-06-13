@@ -54,6 +54,77 @@ RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RigStimPlanFractureDefinition::getNegAndPosXcoords() const
+{
+    std::vector<double> allXcoords;
+    for ( const double& xCoord : gridXs )
+    {
+        if ( xCoord > 1e-5 )
+        {
+            double negXcoord = -xCoord;
+            allXcoords.insert(allXcoords.begin(), negXcoord);
+        }
+    }
+    for ( const double& xCoord : gridXs )
+    {
+        allXcoords.push_back(xCoord);
+    }
+
+    return allXcoords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigStimPlanFractureDefinition::numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep)
+{
+    size_t depths = this->depths.size();
+    size_t gridXvalues = this->gridXs.size();
+
+    if ( propertyValuesAtTimestep.size() != depths )  return false;
+    for ( std::vector<double> valuesAtDepthVector : propertyValuesAtTimestep )
+    {
+        if ( valuesAtDepthVector.size() != gridXvalues ) return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigStimPlanFractureDefinition::adjustedDepthCoordsAroundWellPathPosition(double wellPathDepthAtFracture) const
+{
+    std::vector<double> depthRelativeToWellPath;
+
+    for ( const double& depth : this->depths )
+    {
+        double adjustedDepth = depth - wellPathDepthAtFracture;
+        adjustedDepth = -adjustedDepth;
+        depthRelativeToWellPath.push_back(adjustedDepth);
+    }
+    return depthRelativeToWellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<QString, QString> > RigStimPlanFractureDefinition::getStimPlanPropertyNamesUnits() const
+{
+    std::vector<std::pair<QString, QString> >  propertyNamesUnits;
+    {
+        std::vector<RigStimPlanResultFrames > allStimPlanData = this->m_stimPlanResults;
+        for ( RigStimPlanResultFrames stimPlanDataEntry : allStimPlanData )
+        {
+            propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
+        }
+    }
+    return propertyNamesUnits;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
     std::vector<std::vector<double>> notMirrordedData = this->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
@@ -406,9 +477,9 @@ size_t RigStimPlanFractureDefinition::totalNumberTimeSteps()
 size_t RigStimPlanFractureDefinition::resultIndex(const QString& resultName, const QString& unit) const
 {
     
-    for (size_t i = 0; i < stimPlanData.size(); i++)
+    for (size_t i = 0; i < m_stimPlanResults.size(); i++)
     {
-        if (stimPlanData[i].resultName == resultName && stimPlanData[i].unit == unit)
+        if (m_stimPlanResults[i].resultName == resultName && m_stimPlanResults[i].unit == unit)
         {
             return i;
         }
@@ -426,7 +497,7 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QStri
 
     if (resIndex != cvf::UNDEFINED_SIZE_T)
     {
-        stimPlanData[resIndex].parameterValues[getTimeStepIndex(timeStepValue)] = data;
+        m_stimPlanResults[resIndex].parameterValues[getTimeStepIndex(timeStepValue)] = data;
     }
     else
     {
@@ -439,7 +510,7 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QStri
         resultData.parameterValues = values;
         resultData.parameterValues[getTimeStepIndex(timeStepValue)] = data;
 
-        stimPlanData.push_back(resultData);
+        m_stimPlanResults.push_back(resultData);
     }
 }
 
@@ -452,9 +523,9 @@ std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeInd
 
     if (resIndex != cvf::UNDEFINED_SIZE_T)
     {
-        if (timeStepIndex < stimPlanData[resIndex].parameterValues.size())
+        if (timeStepIndex < m_stimPlanResults[resIndex].parameterValues.size())
         {
-            return stimPlanData[resIndex].parameterValues[timeStepIndex];
+            return m_stimPlanResults[resIndex].parameterValues[timeStepIndex];
         }
     }
 
@@ -473,7 +544,7 @@ void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, con
     size_t resIndex = resultIndex(resultName, unit);
     if (resIndex == cvf::UNDEFINED_SIZE_T) return;
 
-    for (auto timeValues : stimPlanData[resIndex].parameterValues)
+    for (auto timeValues : m_stimPlanResults[resIndex].parameterValues)
     {
         for (auto values : timeValues)
         {
