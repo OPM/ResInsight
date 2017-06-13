@@ -22,7 +22,7 @@
 #include "cvfObject.h"
 #include "cvfMath.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include <QDateTime>
 #include <vector>
 #include "cvfVector3.h"

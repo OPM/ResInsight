@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -51,8 +51,8 @@ public:
     std::vector<double> depthValues() const;
     std::vector<double> values(const QString& name) const;
 
-    QString wellLogChannelUnitString(const QString& wellLogChannelName, RimDefines::DepthUnitType displayDepthUnit) const;
-    RimDefines::DepthUnitType depthUnit() const;
+    QString wellLogChannelUnitString(const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit) const;
+    RiaDefines::DepthUnitType depthUnit() const;
 
     static bool exportToLasFile(const RimWellLogCurve* curve, const QString& fileName);
 

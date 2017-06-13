@@ -24,7 +24,7 @@
 
 #include "RigSummaryCaseData.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -586,7 +586,7 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::PlotAxis RimSummaryCurveFilter::associatedPlotAxis() const
+RiaDefines::PlotAxis RimSummaryCurveFilter::associatedPlotAxis() const
 {
     return m_plotAxis();
 }
@@ -594,7 +594,7 @@ RimDefines::PlotAxis RimSummaryCurveFilter::associatedPlotAxis() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::setPlotAxis(RimDefines::PlotAxis plotAxis)
+void RimSummaryCurveFilter::setPlotAxis(RiaDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
     updateConnectedEditors();

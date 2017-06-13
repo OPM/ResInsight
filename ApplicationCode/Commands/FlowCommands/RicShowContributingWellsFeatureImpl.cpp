@@ -176,7 +176,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     }
     
     viewToModify->setCurrentTimeStep(timeStep);
-    viewToModify->cellResult()->setResultType(RimDefines::FLOW_DIAGNOSTICS);
+    viewToModify->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
     viewToModify->cellResult()->setResultVariable("MaxFractionTracer");
     viewToModify->cellResult()->setFlowSolution(flowDiagSolution);
 

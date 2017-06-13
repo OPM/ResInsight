@@ -407,11 +407,11 @@ public:
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RimDefines::GENERATED, propertyName);
+            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
@@ -795,11 +795,11 @@ public:
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RimDefines::GENERATED, propertyName);
+            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
@@ -1104,20 +1104,20 @@ public:
 
         RigCaseCellResultsData* results = rimCase->eclipseCaseData()->results(porosityModelEnum);
        
-        std::vector<RimDefines::ResultCatType> resTypes;
+        std::vector<RiaDefines::ResultCatType> resTypes;
         std::vector<QString> resTypeNames;
-        resTypes.push_back(RimDefines::DYNAMIC_NATIVE);
+        resTypes.push_back(RiaDefines::DYNAMIC_NATIVE);
         resTypeNames.push_back("DynamicNative");
-        resTypes.push_back(RimDefines::STATIC_NATIVE );
+        resTypes.push_back(RiaDefines::STATIC_NATIVE );
         resTypeNames.push_back("StaticNative");
-        resTypes.push_back(RimDefines::GENERATED     );
+        resTypes.push_back(RiaDefines::GENERATED     );
         resTypeNames.push_back("Generated");
-        resTypes.push_back(RimDefines::INPUT_PROPERTY);
+        resTypes.push_back(RiaDefines::INPUT_PROPERTY);
         resTypeNames.push_back("Input");
 
         for (size_t rtIdx = 0; rtIdx < resTypes.size(); ++rtIdx)
         {
-            RimDefines::ResultCatType resType = resTypes[rtIdx];
+            RiaDefines::ResultCatType resType = resTypes[rtIdx];
 
             QStringList names = results->resultNames(resType);
             for (int pnIdx = 0; pnIdx < names.size(); ++pnIdx){

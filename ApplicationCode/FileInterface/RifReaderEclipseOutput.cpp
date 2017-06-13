@@ -672,7 +672,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
             }
         }
@@ -685,7 +685,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
             }
         }
@@ -758,7 +758,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
             }
         }
@@ -773,7 +773,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i], false);
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
             }
         }

@@ -19,7 +19,7 @@
 
 #include "RimPlotCurve.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmProxyValueField.h"
@@ -51,8 +51,8 @@ public:
     virtual ~RimGridTimeHistoryCurve();
 
     void                    setFromSelectionItem(const RiuSelectionItem* selectionItem);
-    RimDefines::PlotAxis    yAxis() const;
-    void                    setYAxis(RimDefines::PlotAxis plotAxis);
+    RiaDefines::PlotAxis    yAxis() const;
+    void                    setYAxis(RiaDefines::PlotAxis plotAxis);
 
     std::vector<double>     yValues() const;
     std::vector<time_t>     timeStepValues() const;
@@ -88,6 +88,6 @@ private:
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geoMechResultDefinition;
 
     caf::PdmChildField<RimGeometrySelectionItem*>     m_geometrySelectionItem;
-    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+    caf::PdmField< caf::AppEnum< RiaDefines::PlotAxis > > m_plotAxis;
 };
 

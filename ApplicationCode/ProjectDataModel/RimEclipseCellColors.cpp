@@ -90,7 +90,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
             changeLegendConfig(this->resultVariable());
         }
 
-        if (newValue != RimDefines::undefinedResultName())
+        if (newValue != RiaDefines::undefinedResultName())
         {
             if (m_reservoirView) m_reservoirView->hasUserRequestedAnimation = true;
         }
@@ -116,7 +116,7 @@ void RimEclipseCellColors::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::changeLegendConfig(QString resultVarNameOfNewLegend)
 {
-    if (resultVarNameOfNewLegend != RimDefines::ternarySaturationResultName())
+    if (resultVarNameOfNewLegend != RiaDefines::ternarySaturationResultName())
     {
         QString legendResultVariable;
 
@@ -185,7 +185,7 @@ void RimEclipseCellColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
-    if (this->resultVariable() == RimDefines::ternarySaturationResultName())
+    if (this->resultVariable() == RiaDefines::ternarySaturationResultName())
     {
         uiTreeOrdering.add(ternaryLegendConfig());
     }
@@ -273,7 +273,7 @@ public :
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 {
-    if (this->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
         double globalMin, globalMax;
         double globalPosClosestToZero, globalNegClosestToZero;
@@ -377,18 +377,18 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 
         if (this->hasCategoryResult())
         {
-            if (this->resultType() == RimDefines::FORMATION_NAMES)
+            if (this->resultType() == RiaDefines::FORMATION_NAMES)
             {
                 const std::vector<QString>& fnVector = eclipseCase->activeFormationNames()->formationNames();
                 this->legendConfig()->setNamedCategoriesInverse(fnVector);
             }
-            else if (this->resultType() == RimDefines::DYNAMIC_NATIVE && this->resultVariable() == RimDefines::completionTypeResultName())
+            else if (this->resultType() == RiaDefines::DYNAMIC_NATIVE && this->resultVariable() == RiaDefines::completionTypeResultName())
             {
                 std::vector< std::tuple<QString, int, cvf::Color3ub> > categories;
 
-                caf::AppEnum<RimDefines::CompletionType> wellPath(RimDefines::WELL_PATH);
-                caf::AppEnum<RimDefines::CompletionType> fishbone(RimDefines::FISHBONES);
-                caf::AppEnum<RimDefines::CompletionType> perforationInterval(RimDefines::PERFORATION_INTERVAL);
+                caf::AppEnum<RiaDefines::CompletionType> wellPath(RiaDefines::WELL_PATH);
+                caf::AppEnum<RiaDefines::CompletionType> fishbone(RiaDefines::FISHBONES);
+                caf::AppEnum<RiaDefines::CompletionType> perforationInterval(RiaDefines::PERFORATION_INTERVAL);
 
                 categories.push_back(std::make_tuple(wellPath.uiText(),             static_cast<int>(wellPath.index()),             cvf::Color3::RED));
                 categories.push_back(std::make_tuple(fishbone.uiText(),             static_cast<int>(fishbone.index()),             cvf::Color3::DARK_GREEN));

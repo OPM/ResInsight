@@ -948,7 +948,7 @@ void RimEclipseView::updateLegends()
 
             if (this->cellEdgeResult()->hasCategoryResult())
             {
-                if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
+                if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RiaDefines::FORMATION_NAMES)
                 {
                     cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
                 }
@@ -988,7 +988,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
     {
         RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
         {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
                 double globalMin = 0.0;
@@ -1004,7 +1004,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         }
 
         {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
                 double globalMin = 0.0;
@@ -1020,7 +1020,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         }
 
         {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
                 double globalMin = 0.0;
@@ -1589,7 +1589,7 @@ void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isUsingFormationNames() const
 {
-    if ((cellResult()->resultType() == RimDefines::FORMATION_NAMES)) return true;
+    if ((cellResult()->resultType() == RiaDefines::FORMATION_NAMES)) return true;
     
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }

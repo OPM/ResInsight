@@ -537,7 +537,7 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
     m_activeFormationNamesData  = activeFormationNames;
 
     size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
-    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RimDefines::FORMATION_NAMES, 
+    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RiaDefines::FORMATION_NAMES, 
                                                                   "Active Formation Names", 
                                                                   false, 
                                                                   totalGlobCellCount);

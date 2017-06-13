@@ -129,7 +129,7 @@ void RivIntersectionPartMgr::updateCellResultColor(size_t timeStepIndex)
                 const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
                 cvf::ref<RigResultAccessor> resultAccessor;
 
-                if (RimDefines::isPerCellFaceResult(cellResultColors->resultVariable()))
+                if (RiaDefines::isPerCellFaceResult(cellResultColors->resultVariable()))
                 {
                     resultAccessor = new RigHugeValResultAccessor;
                 }

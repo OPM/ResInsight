@@ -225,7 +225,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
     cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
 
-     if (modelName == RimDefines::mockModelBasic())
+     if (modelName == RiaDefines::mockModelBasic())
     {
         // Create the mock file interface and and RigSerervoir and set them up.
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
@@ -235,7 +235,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
 
         mockFileInterface->open("", reservoir.p());
     }
-    else if (modelName == RimDefines::mockModelBasicWithResults())
+    else if (modelName == RiaDefines::mockModelBasicWithResults())
     {
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(-20, -20, -20));
         mockFileInterface->setGridPointDimensions(cvf::Vec3st(5, 10, 20));
@@ -248,7 +248,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         cvf::Vec3d& tmp = reservoir->mainGrid()->nodes()[1];
         tmp += cvf::Vec3d(1, 0, 0);
     }
-    else if (modelName == RimDefines::mockModelLargeWithResults())
+    else if (modelName == RiaDefines::mockModelLargeWithResults())
     {
         double startX = 0;
         double startY = 0;
@@ -276,7 +276,7 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString model
         mockFileInterface->open("", reservoir.p());
 
     }
-    else if (modelName == RimDefines::mockModelCustomized())
+    else if (modelName == RiaDefines::mockModelCustomized())
     {
         QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
 

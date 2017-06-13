@@ -70,7 +70,7 @@ RimWellLogPlot::RimWellLogPlot()
     caf::AppEnum< RimWellLogPlot::DepthTypeEnum > depthType = MEASURED_DEPTH;
     CAF_PDM_InitField(&m_depthType, "DepthType", depthType, "Depth type",   "", "", "");
 
-    caf::AppEnum< RimDefines::DepthUnitType > depthUnit = RimDefines::UNIT_METER;
+    caf::AppEnum< RiaDefines::DepthUnitType > depthUnit = RiaDefines::UNIT_METER;
     CAF_PDM_InitField(&m_depthUnit, "DepthUnit", depthUnit, "Depth unit", "", "", "");
 
     CAF_PDM_InitField(&m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "");
@@ -160,9 +160,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions(const caf::P
     }
     else if ( fieldNeedingOptions == &m_depthUnit)
     {
-        using UnitAppEnum = caf::AppEnum< RimDefines::DepthUnitType >;
-        options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RimDefines::UNIT_METER), RimDefines::UNIT_METER));
-        options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RimDefines::UNIT_FEET), RimDefines::UNIT_FEET));
+        using UnitAppEnum = caf::AppEnum< RiaDefines::DepthUnitType >;
+        options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RiaDefines::UNIT_METER), RiaDefines::UNIT_METER));
+        options.push_back(caf::PdmOptionItemInfo(UnitAppEnum::uiText(RiaDefines::UNIT_FEET), RiaDefines::UNIT_FEET));
     }
 
     (*useOptionsOnly) = true;
@@ -426,7 +426,7 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 
             if (curveNames.size() == 1)
             {
-                curveDepths = curveData->measuredDepthPlotValues(RimDefines::UNIT_NONE);
+                curveDepths = curveData->measuredDepthPlotValues(RiaDefines::UNIT_NONE);
             }
 
             std::vector<double> xPlotValues = curveData->xPlotValues();
@@ -671,7 +671,7 @@ void RimWellLogPlot::setDepthType(DepthTypeEnum depthType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::DepthUnitType RimWellLogPlot::depthUnit() const
+RiaDefines::DepthUnitType RimWellLogPlot::depthUnit() const
 {
     return m_depthUnit.value();
 }
@@ -704,15 +704,15 @@ QString RimWellLogPlot::depthPlotTitle() const
 
     if (m_depthType() == CONNECTION_NUMBER) return depthTitle;
 
-    if (m_depthUnit == RimDefines::UNIT_METER)
+    if (m_depthUnit == RiaDefines::UNIT_METER)
     {
         depthTitle += " [m]";
     }
-    else if (m_depthUnit == RimDefines::UNIT_FEET)
+    else if (m_depthUnit == RiaDefines::UNIT_FEET)
     {
         depthTitle += " [ft]";
     }
-    else if (m_depthUnit == RimDefines::UNIT_NONE)
+    else if (m_depthUnit == RiaDefines::UNIT_NONE)
     {
         depthTitle += "";
     }
@@ -747,7 +747,7 @@ size_t RimWellLogPlot::trackIndex(RimWellLogTrack* track)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::setDepthUnit(RimDefines::DepthUnitType depthUnit)
+void RimWellLogPlot::setDepthUnit(RiaDefines::DepthUnitType depthUnit)
 {
     m_depthUnit = depthUnit;
 

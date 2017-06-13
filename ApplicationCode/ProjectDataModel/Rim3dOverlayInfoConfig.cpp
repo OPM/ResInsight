@@ -201,7 +201,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
 
-    if ( !eclipseView || eclipseView->cellResult()->resultType() != RimDefines::FLOW_DIAGNOSTICS ) // 
+    if ( !eclipseView || eclipseView->cellResult()->resultType() != RiaDefines::FLOW_DIAGNOSTICS ) // 
     {
         statGroup->add(&m_statisticsTimeRange);
     }
@@ -298,7 +298,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 }
             }
             }
-            else if (eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+            else if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
             {
                 if ( m_statisticsTimeRange == CURRENT_TIMESTEP ||  m_statisticsTimeRange == ALL_TIMESTEPS) // All timesteps is ignored
                 {
@@ -379,7 +379,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
             QString timeRangeText =  m_statisticsTimeRange().uiText();
-            if ( eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS )
+            if ( eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS )
             {
                 timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
             }
@@ -624,7 +624,7 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
         }
         else if (eclipseView)
         {
-            if ( eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS )
+            if ( eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS )
             {
                 RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
                 RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();

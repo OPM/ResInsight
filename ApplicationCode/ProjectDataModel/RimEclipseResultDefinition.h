@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -62,10 +62,10 @@ public:
 
     void                            setEclipseCase(RimEclipseCase* eclipseCase);
 
-    RimDefines::ResultCatType       resultType() const { return m_resultType(); }
-    void                            setResultType(RimDefines::ResultCatType val);
-    RimDefines::PorosityModelType   porosityModel() const { return m_porosityModel(); }
-    void                            setPorosityModel(RimDefines::PorosityModelType val);
+    RiaDefines::ResultCatType       resultType() const { return m_resultType(); }
+    void                            setResultType(RiaDefines::ResultCatType val);
+    RiaDefines::PorosityModelType   porosityModel() const { return m_porosityModel(); }
+    void                            setPorosityModel(RiaDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
     
@@ -105,8 +105,8 @@ protected:
     virtual void                          defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 protected:
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
-    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
+    caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
+    caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
 
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
@@ -118,8 +118,8 @@ protected:
 
     // User interface only fields, to support "filtering"-like behaviour etc.
 
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
-    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
+    caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultTypeUiField;
+    caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;

@@ -18,7 +18,7 @@
 
 #include "RimCompletionCellIntersectionCalc.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimWellPathCollection.h"
@@ -58,7 +58,7 @@ void RimCompletionCellIntersectionCalc::calculateWellPathIntersections(const Rim
     
     for (auto& intersection : intersections)
     {
-        values[intersection.m_hexIndex] = RimDefines::WELL_PATH;
+        values[intersection.m_hexIndex] = RiaDefines::WELL_PATH;
     }
 
     for (const RimFishbonesMultipleSubs* fishbones : wellPath->fishbonesCollection()->fishbonesSubs)
@@ -87,7 +87,7 @@ void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const Ri
             std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, fishbonesSubs->coordsForLateral(sub.subIndex, lateralIndex));
             for (auto& intersection : intersections)
             {
-                values[intersection.m_hexIndex] = RimDefines::FISHBONES;
+                values[intersection.m_hexIndex] = RiaDefines::FISHBONES;
             }
         }
     }
@@ -101,6 +101,6 @@ void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const 
     std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, wellPath->wellPathGeometry()->clippedPointSubset(perforationInterval->startMD(), perforationInterval->endMD()));
     for (auto& intersection : intersections)
     {
-        values[intersection.m_hexIndex] = RimDefines::PERFORATION_INTERVAL;
+        values[intersection.m_hexIndex] = RiaDefines::PERFORATION_INTERVAL;
     }
 }

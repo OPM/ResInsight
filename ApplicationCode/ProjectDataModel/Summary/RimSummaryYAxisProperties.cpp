@@ -19,7 +19,7 @@
 #include "RimSummaryYAxisProperties.h"
 
 #include "RimSummaryPlot.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 
 namespace caf
@@ -68,8 +68,8 @@ RimSummaryYAxisProperties::RimSummaryYAxisProperties()
     CAF_PDM_InitFieldNoDefault(&titlePositionEnum, "TitlePosition", "Title Position", "", "", "");
     CAF_PDM_InitField(&fontSize, "FontSize", 11, "Font Size", "", "", "");
 
-    CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RimDefines::maximumDefaultValuePlot(), "Max", "", "", "");
-    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RimDefines::minimumDefaultValuePlot(), "Min", "", "", "");
+    CAF_PDM_InitField(&visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max", "", "", "");
+    CAF_PDM_InitField(&visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&numberFormat, "NumberFormat", "Number Format", "", "", "");
 
@@ -154,11 +154,11 @@ QwtPlot::Axis RimSummaryYAxisProperties::qwtPlotAxisType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::PlotAxis RimSummaryYAxisProperties::plotAxisType() const
+RiaDefines::PlotAxis RimSummaryYAxisProperties::plotAxisType() const
 {
-    if (m_axis == QwtPlot::yRight) return RimDefines::PLOT_AXIS_RIGHT;
+    if (m_axis == QwtPlot::yRight) return RiaDefines::PLOT_AXIS_RIGHT;
 
-    return RimDefines::PLOT_AXIS_LEFT;
+    return RiaDefines::PLOT_AXIS_LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------

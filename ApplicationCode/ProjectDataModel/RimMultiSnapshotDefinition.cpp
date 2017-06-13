@@ -114,8 +114,8 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &eclipseResultType)
     {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RimDefines::ResultCatType>(RimDefines::DYNAMIC_NATIVE).uiText(), RimDefines::DYNAMIC_NATIVE));
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RimDefines::ResultCatType>(RimDefines::STATIC_NATIVE).uiText(), RimDefines::STATIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE).uiText(), RiaDefines::DYNAMIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::STATIC_NATIVE).uiText(), RiaDefines::STATIC_NATIVE));
     }
     else if (fieldNeedingOptions == &selectedEclipseResults)
     {

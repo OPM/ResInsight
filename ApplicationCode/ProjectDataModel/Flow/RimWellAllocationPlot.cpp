@@ -89,7 +89,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
-    m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
+    m_accumulatedWellFlowPlot->setDepthUnit(RiaDefines::UNIT_NONE);
     m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
     m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
     m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));

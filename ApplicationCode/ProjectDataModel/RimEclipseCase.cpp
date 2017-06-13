@@ -249,7 +249,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::removeEclipseResultAndScheduleRedrawAllViews(RimDefines::ResultCatType type, const QString& resultName)
+void RimEclipseCase::removeEclipseResultAndScheduleRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName)
 {
     m_matrixModelResults->clearScalarResult(type, resultName);
 
@@ -321,18 +321,18 @@ void RimEclipseCase::updateFormationNamesData()
             {
                 if (!activeFormationNames())
                 {
-                    if (eclView->cellResult()->resultType() == RimDefines::FORMATION_NAMES) 
+                    if (eclView->cellResult()->resultType() == RiaDefines::FORMATION_NAMES) 
                     {
-                        eclView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+                        eclView->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
                         eclView->cellResult()->updateConnectedEditors();
                     }
 
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                     for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                     {
-                        if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES ) 
+                        if ( propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES ) 
                         {
-                            propFilter->resultDefinition()->setResultVariable(RimDefines::undefinedResultName());
+                            propFilter->resultDefinition()->setResultVariable(RiaDefines::undefinedResultName());
                         }
                     }
                 }
@@ -340,7 +340,7 @@ void RimEclipseCase::updateFormationNamesData()
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                 for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                 {
-                    if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES )
+                    if ( propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
@@ -503,7 +503,7 @@ bool RimEclipseCase::openReserviorCase()
             results->cellResults()->createPlaceholderResultEntries();
             // After the placeholder result for combined transmissibility is created, 
             // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
-            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
+            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);

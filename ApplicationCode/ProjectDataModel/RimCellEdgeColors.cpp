@@ -120,7 +120,7 @@ void RimCellEdgeColors::loadResult()
         int i;
         for (i = 0; i < vars.size(); ++i)
         {
-             size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, vars[i]);
+             size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, vars[i]);
              int cubeFaceIdx;
              for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
              {
@@ -186,7 +186,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
         if (m_reservoirView && m_reservoirView->currentGridCellResults())
         {
             QStringList varList;
-            varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
+            varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RiaDefines::STATIC_NATIVE);
 
             //TODO: Must also handle input properties
             //varList += m_reservoirView->gridCellResults()->resultNames(RimDefines::INPUT_PROPERTY);
@@ -198,7 +198,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
             int i;
             for (i = 0; i < varList.size(); ++i)
             {
-                if (RimDefines::isPerCellFaceResult(varList[i])) continue;
+                if (RiaDefines::isPerCellFaceResult(varList[i])) continue;
 
                 size_t cubeFaceIdx;
                 for (cubeFaceIdx = 0; cubeFaceIdx < EdgeFaceEnum::size(); ++cubeFaceIdx)
@@ -242,7 +242,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
 
             }
 
-            options.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), ""));
+            options.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), ""));
             
             if (useOptionsOnly) *useOptionsOnly = true;
 
@@ -295,13 +295,13 @@ QStringList RimCellEdgeColors::findResultVariableNames()
     if (m_reservoirView && m_reservoirView->currentGridCellResults() && !m_resultVariable().isEmpty())
     {
         QStringList varList;
-        varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
+        varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RiaDefines::STATIC_NATIVE);
         //TODO: Must handle Input properties
 
         int i;
         for (i = 0; i < varList.size(); ++i)
         {
-            if (RimDefines::isPerCellFaceResult(varList[i])) continue;
+            if (RiaDefines::isPerCellFaceResult(varList[i])) continue;
 
             if (varList[i].startsWith(m_resultVariable))
             {               
@@ -365,7 +365,7 @@ void RimCellEdgeColors::cellEdgeMetaData(std::vector<RimCellEdgeMetaData>* metaD
     bool isStatic = true;
     if (isUsingSingleVariable())
     {
-        isStatic = m_singleVarEdgeResultColors->resultType() == RimDefines::STATIC_NATIVE;
+        isStatic = m_singleVarEdgeResultColors->resultType() == RiaDefines::STATIC_NATIVE;
     }
 
     for (size_t i = 0; i < 6; i++)
@@ -398,7 +398,7 @@ bool RimCellEdgeColors::hasResult() const
 {
     if (!enableCellEdgeColors()) return false;
 
-    if (isUsingSingleVariable() && m_singleVarEdgeResultColors->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (isUsingSingleVariable() && m_singleVarEdgeResultColors->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
         return true;
     }
@@ -437,7 +437,7 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
     globalMin = HUGE_VAL;
     globalMax = -HUGE_VAL;
 
-    if (isUsingSingleVariable() && singleVarEdgeResultColors()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (isUsingSingleVariable() && singleVarEdgeResultColors()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
         int currentTimeStep = m_reservoirView->currentTimeStep();
 

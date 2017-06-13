@@ -330,7 +330,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         std::vector<double> measuredDepthValues;
         std::vector<double> tvDepthValues;
 
-        RimDefines::DepthUnitType depthUnit = RimDefines::UNIT_METER;
+        RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
 
         if (eclExtractor.notNull())
         {
@@ -354,7 +354,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
             {
                 // See https://github.com/OPM/ResInsight/issues/538
                 
-                depthUnit = RimDefines::UNIT_FEET;
+                depthUnit = RiaDefines::UNIT_FEET;
             }
         }
         else if (geomExtractor.notNull()) // geomExtractor
@@ -381,7 +381,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
             }
         }
 
-        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
 
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType(wellLogPlot);

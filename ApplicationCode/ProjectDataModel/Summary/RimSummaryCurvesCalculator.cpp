@@ -20,7 +20,7 @@
 
 #include "RigStatisticsCalculator.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryYAxisProperties.h"
@@ -276,8 +276,8 @@ void RimSummaryPlotYAxisRangeCalculator::computeYRange(double* min, double* max)
 
     if (minValue == HUGE_VAL)
     {
-        minValue = RimDefines::minimumDefaultValuePlot();
-        maxValue = RimDefines::maximumDefaultValuePlot();
+        minValue = RiaDefines::minimumDefaultValuePlot();
+        maxValue = RiaDefines::maximumDefaultValuePlot();
     }
 
     // For logarithmic auto scaling, compute positive curve value closest to zero and use

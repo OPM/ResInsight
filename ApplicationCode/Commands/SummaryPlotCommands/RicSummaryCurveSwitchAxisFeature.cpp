@@ -62,15 +62,15 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
     
     for (RimSummaryCurveFilter* summaryCurveFilter: selectedCurveFilters)
     {
-        RimDefines::PlotAxis plotAxis = summaryCurveFilter->associatedPlotAxis();
+        RiaDefines::PlotAxis plotAxis = summaryCurveFilter->associatedPlotAxis();
 
-        if ( plotAxis == RimDefines::PLOT_AXIS_LEFT )
+        if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
         {
-            summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_RIGHT);
+            summaryCurveFilter->setPlotAxis(RiaDefines::PLOT_AXIS_RIGHT);
         }
         else
         {
-            summaryCurveFilter->setPlotAxis(RimDefines::PLOT_AXIS_LEFT);
+            summaryCurveFilter->setPlotAxis(RiaDefines::PLOT_AXIS_LEFT);
         }
 
         summaryCurveFilter->updateConnectedEditors();
@@ -78,15 +78,15 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 
     for (RimSummaryCurve* summaryCurve : selectedSoloCurves)
     {
-        RimDefines::PlotAxis plotAxis = summaryCurve->yAxis();
+        RiaDefines::PlotAxis plotAxis = summaryCurve->yAxis();
 
-        if ( plotAxis == RimDefines::PLOT_AXIS_LEFT )
+        if ( plotAxis == RiaDefines::PLOT_AXIS_LEFT )
         {
-            summaryCurve->setYAxis(RimDefines::PLOT_AXIS_RIGHT);
+            summaryCurve->setYAxis(RiaDefines::PLOT_AXIS_RIGHT);
         }
         else
         {
-            summaryCurve->setYAxis(RimDefines::PLOT_AXIS_LEFT);
+            summaryCurve->setYAxis(RiaDefines::PLOT_AXIS_LEFT);
         }
 
         summaryCurve->updateQwtPlotAxis();
@@ -99,15 +99,15 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered(bool isChecked)
 
     for (RimGridTimeHistoryCurve* timeHistoryCurve : gridTimeHistoryCurves)
     {
-        RimDefines::PlotAxis plotAxis = timeHistoryCurve->yAxis();
+        RiaDefines::PlotAxis plotAxis = timeHistoryCurve->yAxis();
 
-        if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+        if (plotAxis == RiaDefines::PLOT_AXIS_LEFT)
         {
-            timeHistoryCurve->setYAxis(RimDefines::PLOT_AXIS_RIGHT);
+            timeHistoryCurve->setYAxis(RiaDefines::PLOT_AXIS_RIGHT);
         }
         else
         {
-            timeHistoryCurve->setYAxis(RimDefines::PLOT_AXIS_LEFT);
+            timeHistoryCurve->setYAxis(RiaDefines::PLOT_AXIS_LEFT);
         }
 
         timeHistoryCurve->updateConnectedEditors();

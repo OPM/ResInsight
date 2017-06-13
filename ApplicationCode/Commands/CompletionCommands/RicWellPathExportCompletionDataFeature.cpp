@@ -640,11 +640,11 @@ CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(R
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
     cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
     cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
     cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
 
     double xLengthFraction = abs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(cellIndex));
@@ -672,18 +672,18 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
     cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
     cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
     cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
     cvf::ref<RigResultAccessor> permxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMX");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
     cvf::ref<RigResultAccessor> permyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMY");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
     cvf::ref<RigResultAccessor> permzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMZ");
 
     double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);

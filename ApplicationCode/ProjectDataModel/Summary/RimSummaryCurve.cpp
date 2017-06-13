@@ -24,7 +24,7 @@
 
 #include "RigSummaryCaseData.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -267,7 +267,7 @@ const std::vector<time_t>& RimSummaryCurve::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setYAxis(RimDefines::PlotAxis plotAxis)
+void RimSummaryCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
 }
@@ -275,7 +275,7 @@ void RimSummaryCurve::setYAxis(RimDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::PlotAxis RimSummaryCurve::yAxis() const
+RiaDefines::PlotAxis RimSummaryCurve::yAxis() const
 {
     return m_plotAxis();
 }
@@ -331,7 +331,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
                 }
             }
 
-            options.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), addressCount));
+            options.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), addressCount));
 
             if(useOptionsOnly) *useOptionsOnly = true;
         }
@@ -470,7 +470,7 @@ void RimSummaryCurve::updateQwtPlotAxis()
 {
     if (m_qwtPlotCurve)
     {
-        if (this->yAxis() == RimDefines::PLOT_AXIS_LEFT)
+        if (this->yAxis() == RiaDefines::PLOT_AXIS_LEFT)
         {
             m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
         }

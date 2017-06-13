@@ -113,7 +113,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         {
             // Left Axis
 
-            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_LEFT;
             
             {
                 // Note : The parameter "WOIR" is probably never-existing, but we check for existence before creating curve
@@ -141,7 +141,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         {
             // Left Axis
 
-            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_LEFT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_LEFT;
             
             {
                 // Oil
@@ -169,7 +169,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         // Right Axis
 
         {
-            RimDefines::PlotAxis plotAxis = RimDefines::PLOT_AXIS_RIGHT;
+            RiaDefines::PlotAxis plotAxis = RiaDefines::PLOT_AXIS_RIGHT;
 
             {
                 QString parameterName = "WTHP";
@@ -271,7 +271,7 @@ bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimEclipseWell* well,
                                                     RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
-                                                    RimDefines::PlotAxis plotAxis, const cvf::Color3f& color)
+                                                    RiaDefines::PlotAxis plotAxis, const cvf::Color3f& color)
 {
     CVF_ASSERT(plot);
     CVF_ASSERT(gridSummaryCase);

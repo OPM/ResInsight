@@ -25,7 +25,7 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimFault.h"
 
@@ -87,8 +87,8 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
         if (eclCase) caseName = eclCase->caseUserDescription();
 
         QString faultName = rimFault->name();
-        if ( faultName == RimDefines::undefinedGridFaultName() ) faultName = "UNDEF";
-        if ( faultName == RimDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
+        if ( faultName == RiaDefines::undefinedGridFaultName() ) faultName = "UNDEF";
+        if ( faultName == RiaDefines::undefinedGridFaultWithInactiveName() ) faultName = "UNDEF_IA";
 
         QString baseFilename = "Fault_" + faultName + "_" + caseName;
         baseFilename = caf::Utils::makeValidFileBasename(baseFilename);

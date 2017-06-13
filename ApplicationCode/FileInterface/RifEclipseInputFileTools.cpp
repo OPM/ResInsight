@@ -720,7 +720,7 @@ size_t RifEclipseInputFileTools::findOrCreateResult(const QString& newResultName
     size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false);
+        resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RiaDefines::INPUT_PROPERTY, newResultName, false);
     }
 
     return resultIndex;
