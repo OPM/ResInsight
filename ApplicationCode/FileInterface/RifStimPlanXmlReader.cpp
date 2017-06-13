@@ -222,7 +222,7 @@ std::vector<std::vector<double>>  RifStimPlanXmlReader::getAllDepthDataAtTimeSte
                 QString depthDataStr = xmlStream.text().toString();
                 for (int i = 0; i < depthDataStr.split(' ').size(); i++)
                 {
-                    if (i < startingNegValuesXs) continue;
+                    if (i < static_cast<int>(startingNegValuesXs)) continue;
                     else 
                     {
                         QString value = depthDataStr.split(' ')[i];
