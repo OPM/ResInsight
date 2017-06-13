@@ -7,6 +7,7 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RiaColorTables.h
+${CEE_CURRENT_LIST_DIR}RiaEclipseUnitTools.h
 ${CEE_CURRENT_LIST_DIR}RiaImageCompareReporter.h
 ${CEE_CURRENT_LIST_DIR}RiaImageFileCompare.h
 ${CEE_CURRENT_LIST_DIR}RiaLogging.h
@@ -16,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RiaRegressionTest.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RiaColorTables.cpp
+${CEE_CURRENT_LIST_DIR}RiaEclipseUnitTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaImageCompareReporter.cpp
 ${CEE_CURRENT_LIST_DIR}RiaImageFileCompare.cpp
 ${CEE_CURRENT_LIST_DIR}RiaLogging.cpp
