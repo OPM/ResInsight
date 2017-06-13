@@ -191,10 +191,14 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
         if (exportSettings.includeFishbones)
         {
-            std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneLateralsCompdatValues(wellPath, exportSettings);
+//             std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneLateralsCompdatValues(wellPath, exportSettings);
+//             appendCompletionData(&completionData, fishbonesCompletionData);
+//             std::vector<RigCompletionData> fishbonesWellPathCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
+//             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
+
+            std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneLateralsCompdatValuesUsingAdjustedCellVolume(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesCompletionData);
-            std::vector<RigCompletionData> fishbonesWellPathCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
-            appendCompletionData(&completionData, fishbonesWellPathCompletionData);
+
         }
     }
 
@@ -571,7 +575,14 @@ CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, const cvf::Vec3d& internalCellLengths, double skinFactor, double wellRadius, size_t cellIndex)
+double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEclipseCase* eclipseCase, 
+                                                                         const RimWellPath* wellPath, 
+                                                                         const cvf::Vec3d& internalCellLengths, 
+                                                                         double skinFactor, 
+                                                                         double wellRadius, 
+                                                                         size_t cellIndex,
+                                                                         size_t volumeScaleConstant,
+                                                                         QString directionForVolumeScaling)
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -597,6 +608,13 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
 
     double darcy = RiaEclipseUnitTools::darcysConstant(wellPath->unitSystem());
+
+    if (volumeScaleConstant != 1)
+    {
+        if (directionForVolumeScaling == "DX") dx = dx / volumeScaleConstant;
+        if (directionForVolumeScaling == "DY") dy = dy / volumeScaleConstant;
+        if (directionForVolumeScaling == "DZ") dz = dz / volumeScaleConstant;
+    }
 
     double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x(), permy, permz, dy, dz, wellRadius, skinFactor, darcy);
     double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.y(), permx, permz, dx, dz, wellRadius, skinFactor, darcy);
