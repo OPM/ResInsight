@@ -88,15 +88,6 @@ protected:
 private:
     void                                    updateUiTreeName();
 
-    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName, QString * errorMessage);
-    static size_t                           readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData);
-
-    static double                           getAttributeValueDouble(QXmlStreamReader &xmlStream, QString parameterName);
-    static QString                          getAttributeValueString(QXmlStreamReader &xmlStream, QString parameterName);
-    static void                             getGriddingValues(QXmlStreamReader &xmlStream, std::vector<double>& gridValues, size_t& startNegValues);
-
-    static std::vector<std::vector<double>> getAllDepthDataAtTimeStep(QXmlStreamReader &xmlStream, size_t startingNegValuesXs);
-
     bool                                    setPropertyForPolygonDefault();
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);

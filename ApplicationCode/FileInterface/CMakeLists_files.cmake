@@ -23,6 +23,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 ${CEE_CURRENT_LIST_DIR}RifFractureExportTools.h
+${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -44,6 +45,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifFractureExportTools.cpp
+${CEE_CURRENT_LIST_DIR}RifStimPlanXmlReader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
