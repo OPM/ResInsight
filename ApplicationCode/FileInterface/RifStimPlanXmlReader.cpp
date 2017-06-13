@@ -20,8 +20,11 @@
 
 #include "RigStimPlanFractureDefinition.h"
 #include "RiaLogging.h"
+
 #include <QFile>
 #include <QXmlStreamReader>
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 /// 
