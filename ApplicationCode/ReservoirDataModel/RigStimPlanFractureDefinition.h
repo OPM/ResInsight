@@ -24,6 +24,9 @@
 
 #include <vector>
 #include "RimUnitSystem.h"
+#include "cvfVector3.h"
+
+class RigFractureGrid;
 
 class RigStimPlanResultFrames
 {
@@ -118,6 +121,25 @@ public:
                                                                 const QString& unitName, 
                                                                 size_t timeStepIndex) const;
 
+
+    cvf::ref<RigFractureGrid> createFractureGrid(const QString& resultNameFromColors,
+                                                 const QString& resultUnitFromColors,
+                                                 int m_activeTimeStepIndex,
+                                                 RimUnitSystem::UnitSystemType fractureTemplateUnit,
+                                                 double m_wellPathDepthAtFracture);
+
+    void createFractureTriangleGeometry(double m_wellPathDepthAtFracture, 
+                                        RimUnitSystem::UnitSystem neededUnit, 
+                                        const QString& fractureUserName, 
+                                        std::vector<cvf::Vec3f>* vertices, 
+                                        std::vector<cvf::uint>* triangleIndices);
+
+    std::vector<cvf::Vec3f> createFractureBorderPolygon(const QString& resultName, 
+                                                        const QString& resultUnit, 
+                                                        int m_activeTimeStepIndex, 
+                                                        double m_wellPathDepthAtFracture, 
+                                                        RimUnitSystem::UnitSystem neededUnit, 
+                                                        const QString& fractureUserName);
 
     std::vector<RigStimPlanResultFrames>        stimPlanData;
 
