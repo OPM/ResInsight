@@ -7,6 +7,7 @@
 #include "RigFractureCell.h"
 #include "RiaLogging.h"
 #include "RigFractureGrid.h"
+#include "RimStimPlanFractureTemplate.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -353,3 +354,45 @@ std::vector<RigFractureCell*> RigStimPlanUpscalingCalc::getColOfStimPlanCells(st
     return stimPlanCellCol;
 }
 
+#include "RigStimPlanFractureDefinition.h"
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, 
+                                                                     std::vector<double> &parameterValues, 
+                                                                     const QString& resultName, 
+                                                                     const QString& unitName, 
+                                                                     size_t timeStepIndex)
+{
+    std::vector< std::vector<double> > propertyValuesAtTimeStep = m_stimPlanFractureDefinitionData->getMirroredDataAtTimeIndex(resultName, unitName, timeStepIndex);
+
+    cellsAsPolygons.clear();
+    parameterValues.clear();
+
+    //TODO: Code partly copied from RivWellFracturePartMgr - can this be combined in some function?
+    std::vector<double> depthCoordsAtNodes = m_stimPlanFractureDefinitionData->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture());
+    std::vector<double> xCoordsAtNodes = m_stimPlanFractureDefinitionData->getNegAndPosXcoords();
+
+    //Cells are around nodes instead of between nodes
+    std::vector<double> xCoords;
+    for (int i = 0; i < xCoordsAtNodes.size() - 1; i++) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
+    std::vector<double> depthCoords;
+    for (int i = 0; i < depthCoordsAtNodes.size() - 1; i++) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
+
+    for (int i = 0; i < xCoords.size() - 1; i++)
+    {
+        for (int j = 0; j < depthCoords.size() - 1; j++)
+        {
+            std::vector<cvf::Vec3d> cellAsPolygon;
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0));
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0));
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellAsPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellsAsPolygons.push_back(cellAsPolygon);
+            //TODO: Values for both neg and pos x values...
+            parameterValues.push_back(propertyValuesAtTimeStep[j+1][i+1]); //TODO test that this value exsist...
+
+        }
+    }
+}

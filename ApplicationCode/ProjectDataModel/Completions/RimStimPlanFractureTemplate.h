@@ -65,10 +65,9 @@ public:
                                                                      std::vector<cvf::uint>* triangleIndices, 
                                                                      RimUnitSystem::UnitSystem  neededUnit) override;
     std::vector<cvf::Vec3f>                 fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit);
-    void sortPolygon(std::vector<cvf::Vec3f> &polygon);
 
-    std::vector<double>                     getStimPlanTimeValues();
-    std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
+    std::vector<double>                     getStimPlanTimeSteps();
+    std::vector<std::pair<QString, QString> > getStimPlanResultNamesWithUnit() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
     void                                    setDefaultsBasedOnXMLfile();
     std::vector<std::vector<double>>        getDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
@@ -76,7 +75,7 @@ public:
     void                                    setupStimPlanCells();
     const RigFractureGrid*                  fractureGrid() const;
 
-    //Function used by upscaling only
+    // OBSOLETE : Function used by upscaling only
     void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
 
 protected:
@@ -88,15 +87,17 @@ protected:
 private:
     void                                    updateUiTreeName();
 
-    bool                                    setPropertyForPolygonDefault();
+    bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
+
+    void                                    sortPolygon(std::vector<cvf::Vec3f> &polygon);
 
     caf::PdmField<int>                      m_activeTimeStepIndex;
     caf::PdmField<bool>                     m_showStimPlanMesh;
 
     caf::PdmField<double>                   m_wellPathDepthAtFracture;
-    caf::PdmField<QString>                  m_parameterForPolygon;
+    caf::PdmField<QString>                  m_borderPolygonResultName;
 
     caf::PdmField<QString>                  m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
