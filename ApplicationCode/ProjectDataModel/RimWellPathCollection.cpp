@@ -420,13 +420,13 @@ void RimWellPathCollection::sortWellsByName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimUnitSystem::UnitSystemType RimWellPathCollection::findUnitSystemForWellPath(const RimWellPath* wellPath)
+RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWellPath(const RimWellPath* wellPath)
 {
     RimProject* project;
     firstAncestorOrThisOfTypeAsserted(project);
     if (project->activeOilField()->analysisModels->cases.empty())
     {
-        return RimUnitSystem::UNITS_UNKNOWN;
+        return RiaEclipseUnitTools::UNITS_UNKNOWN;
     }
 
     const RigEclipseCaseData* eclipseCaseData = project->activeOilField()->analysisModels->cases()[0]->eclipseCaseData();
@@ -441,12 +441,12 @@ RimUnitSystem::UnitSystemType RimWellPathCollection::findUnitSystemForWellPath(c
     {
         if (eclipseCaseData->unitsType() == RigEclipseCaseData::UNITS_FIELD)
         {
-            return RimUnitSystem::UNITS_FIELD;
+            return RiaEclipseUnitTools::UNITS_FIELD;
         }
         else if (eclipseCaseData->unitsType() == RigEclipseCaseData::UNITS_METRIC)
         {
-            return RimUnitSystem::UNITS_METRIC;
+            return RiaEclipseUnitTools::UNITS_METRIC;
         }
     }
-    return RimUnitSystem::UNITS_UNKNOWN;
+    return RiaEclipseUnitTools::UNITS_UNKNOWN;
 }

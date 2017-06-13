@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem(RimWellPath * wellPath)
 {
-    if (wellPath->unitSystem() != RimUnitSystem::UNITS_UNKNOWN)
+    if (wellPath->unitSystem() != RiaEclipseUnitTools::UNITS_UNKNOWN)
     {
         return true;
     }

@@ -21,7 +21,7 @@
 
 #include "RigCurveDataTools.h"
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cvfMath.h"
 #include "cvfAssert.h"
@@ -368,7 +368,7 @@ std::vector<double> RigWellLogCurveData::convertFromMeterToFeet(const std::vecto
 
     for (size_t i = 0; i < valuesInMeter.size(); i++)
     {
-        valuesInFeet[i] = valuesInMeter[i] * RimUnitSystem::feetPerMeter();
+        valuesInFeet[i] = valuesInMeter[i] * RiaEclipseUnitTools::feetPerMeter();
     }
 
     return valuesInFeet;
@@ -383,7 +383,7 @@ std::vector<double> RigWellLogCurveData::convertFromFeetToMeter(const std::vecto
 
     for (size_t i = 0; i < valuesInFeet.size(); i++)
     {
-        valuesInMeter[i] = valuesInFeet[i] / RimUnitSystem::feetPerMeter();
+        valuesInMeter[i] = valuesInFeet[i] / RiaEclipseUnitTools::feetPerMeter();
     }
 
     return valuesInMeter;

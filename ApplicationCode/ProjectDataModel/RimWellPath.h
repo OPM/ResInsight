@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -91,8 +91,8 @@ public:
 
     double                              combinedScaleFactor() const;
 
-    void                                setUnitSystem(RimUnitSystem::UnitSystem unitSystem);
-    RimUnitSystem::UnitSystem           unitSystem() const;
+    void                                setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
+    RiaEclipseUnitTools::UnitSystem     unitSystem() const;
 
 private:
 
@@ -117,7 +117,7 @@ private:
     caf::PdmField<QString>              m_surveyType;
     caf::PdmField<double>               m_datumElevation;
 
-    caf::PdmField<RimUnitSystem::UnitSystemType> m_unitSystem;
+    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
     
     caf::PdmChildField<RimWellPathCompletions*> m_completions;
 

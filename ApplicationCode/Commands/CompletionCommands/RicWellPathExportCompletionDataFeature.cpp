@@ -156,12 +156,12 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         bool unitSystemMismatch = false;
         for (const RimWellPath* wellPath : wellPaths)
         {
-            if (wellPath->unitSystem() == RimUnitSystem::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
             {
                 unitSystemMismatch = true;
                 break;
             }
-            else if (wellPath->unitSystem() == RimUnitSystem::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
             {
                 unitSystemMismatch = true;
                 break;
@@ -693,7 +693,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
     double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
 
-    double darcy = RimUnitSystem::darcysConstant(wellPath->unitSystem());
+    double darcy = RiaEclipseUnitTools::darcysConstant(wellPath->unitSystem());
 
     double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x(), permy, permz, dy, dz, wellRadius, skinFactor, darcy);
     double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.y(), permx, permz, dx, dz, wellRadius, skinFactor, darcy);

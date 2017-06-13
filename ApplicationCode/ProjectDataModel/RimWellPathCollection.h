@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -102,7 +102,7 @@ private:
     void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
     void                                sortWellsByName();
 
-    RimUnitSystem::UnitSystemType       findUnitSystemForWellPath(const RimWellPath* wellPath);
+    RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);
 
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
