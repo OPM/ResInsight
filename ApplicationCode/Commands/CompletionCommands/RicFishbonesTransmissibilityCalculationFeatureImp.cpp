@@ -297,6 +297,17 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 //--------------------------------------------------------------------------------------------------
 void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>> wellBorePartsInCells, const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
-    //TODO: Add relevant parts of main bore to wellBorePartsInCells
+    double holeDiameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter();
+
+//    TODO: 
+//    Use entire well path from StartMD on fishboneCollection
+//    findCellsIntersectedByPath to find WellPathCellIntersectionInfo
+//    std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& pathCoords)
+//    set-up and add WellBorePartForTransCalc
+
+
+
+
+
 
 }
