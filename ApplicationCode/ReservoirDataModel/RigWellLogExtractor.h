@@ -25,6 +25,8 @@
 #include "cvfVector3.h"
 
 #include <vector>
+#include <map>
+
 #include "cvfStructGrid.h"
 
 #include "RigWellLogExtractionTools.h"
