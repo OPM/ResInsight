@@ -21,6 +21,7 @@
 
 #include "RivCellSetEnum.h"
 
+#include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <cstddef>
