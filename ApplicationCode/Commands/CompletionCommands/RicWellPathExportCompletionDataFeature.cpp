@@ -31,6 +31,7 @@
 #include "RimPerforationInterval.h"
 #include "RimPerforationCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimWellPathCompletions.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
 
@@ -344,7 +345,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
         {
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
-            RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
             double diameter = interval->diameter();
             CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);

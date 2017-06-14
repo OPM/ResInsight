@@ -82,6 +82,7 @@ public:
     const RimFishbonesCollection*       fishbonesCollection() const;
     RimPerforationCollection*           perforationIntervalCollection();
     const RimPerforationCollection*     perforationIntervalCollection() const;
+    const RimWellPathCompletions*       completions() const;
 
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;

@@ -207,6 +207,14 @@ const RimPerforationCollection* RimWellPath::perforationIntervalCollection() con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimWellPathCompletions* RimWellPath::completions() const
+{
+    return m_completions();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigWellPath* RimWellPath::wellPathGeometry()
 {
     return m_wellPath.p();

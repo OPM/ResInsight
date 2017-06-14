@@ -28,6 +28,7 @@
 #include "RigMainGrid.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFishboneWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -59,7 +60,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 
                 size_t i, j, k;
                 grid->ijkFromCellIndex(intersection.cellIndex, &i, &j, &k);
-                RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+                RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
                 completion.addMetadata(location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 double diameter = location.fishbonesSubs->holeDiameter() / 1000;
                 if (settings.computeTransmissibility())
@@ -178,7 +179,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
         {
-            RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
             completion.addMetadata(wellBorePart.metaData, "");
             if (settings.computeTransmissibility())
             {
@@ -224,7 +225,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
-            RigCompletionData completion(wellPath->name(), IJKCellIndex(i, j, k));
+            RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
             completion.addMetadata(fishbonesPath->name(), "");
             if (settings.computeTransmissibility())
             {
