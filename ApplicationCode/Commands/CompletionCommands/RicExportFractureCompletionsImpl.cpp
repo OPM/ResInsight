@@ -231,7 +231,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         {
             ////
             //If fracture has orientation Azimuth or Transverse, assume only radial inflow
-            if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH
+
+            if (   fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH
                 || fracture->fractureTemplate()->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH)
             {
                 const RigFractureGrid* fracGrid = fracture->fractureTemplate()->fractureGrid();
@@ -251,9 +252,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                            radialTrans);
             }
 
-
             ////
             //If fracture has orientation along well, linear inflow along well and radial flow at endpoints
+
             else if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
                 RigWellPathStimplanIntersector wellFractureIntersector(wellPathGeometry, fracture);
@@ -292,9 +293,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
                     double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
 
-                    transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1},
-                    { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
-                                                               totalWellTrans);
+                    transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+                                                                { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
+                                                                 totalWellTrans);
                 }
             }
         }

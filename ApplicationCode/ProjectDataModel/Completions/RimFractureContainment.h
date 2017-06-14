@@ -16,6 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
@@ -27,10 +28,6 @@ class RimFractureContainment : public caf::PdmObject
 public:
     RimFractureContainment();
 
-    caf::PdmField<bool> m_isUsingFractureContainment;
-    caf::PdmField<int>  m_topKLayer;
-    caf::PdmField<int>  m_bottomKLayer;
-
     enum FaultTruncType
     {
         DISABLED,
@@ -38,18 +35,19 @@ public:
         CONTINUE_IN_CONTAINMENT_ZONE
     };
 
-    friend caf::AppEnum< FaultTruncType >;
-    caf::PdmField< caf::AppEnum< FaultTruncType > >  m_faultTruncation;
-
-
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
 protected:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
-
-
 private:
+    friend caf::AppEnum< FaultTruncType >;
+    caf::PdmField< caf::AppEnum< FaultTruncType > >  m_faultTruncation;
+
+    caf::PdmField<bool> m_isUsingFractureContainment;
+    caf::PdmField<int>  m_topKLayer;
+    caf::PdmField<int>  m_bottomKLayer;
 
 };
 
