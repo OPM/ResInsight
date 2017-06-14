@@ -21,6 +21,7 @@
 #include "cafAppEnum.h"
 
 #include "cvfAssert.h"
+#include <cmath>
 
 namespace caf
 {
@@ -57,3 +58,27 @@ double RiaEclipseUnitTools::darcysConstant(UnitSystem unitSystem)
         return 0.0;
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RiaEclipseUnitTools::convertConductivtyValue(double Kw, UnitSystem fromUnit, UnitSystem toUnit)
+{
+
+    if (fromUnit == toUnit) return Kw;
+
+    else if (fromUnit == UNITS_METRIC && toUnit == UNITS_FIELD)
+    {
+        return meterToFeet(Kw);
+    }
+    else if (fromUnit == UNITS_METRIC && toUnit == UNITS_FIELD)
+    {
+        return feetToMeter(Kw);
+    }
+    
+    CVF_ASSERT(false);
+
+    return HUGE_VAL;
+}
+

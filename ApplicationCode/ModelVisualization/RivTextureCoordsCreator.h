@@ -26,6 +26,7 @@
 class RimEclipseCellColors;
 class RigResultAccessor;
 class RivResultToTextureMapper;
+class RigPipeInCellEvaluator;
 
 namespace cvf
 {
@@ -44,6 +45,9 @@ public:
     bool isValid();
 
     void createTextureCoords(cvf::Vec2fArray* quadTextureCoords);
+    void setResultToTextureMapper(RivResultToTextureMapper* textureMapper);
+
+    static RigPipeInCellEvaluator* createPipeInCellEvaluator(RimEclipseCellColors* cellColors, size_t timeStep, size_t gridIndex);
 
 private:
 
@@ -52,7 +56,7 @@ private:
                                     const RigResultAccessor* resultAccessor,
                                     const RivResultToTextureMapper* texMapper);
     cvf::cref<cvf::StructGridQuadToCellFaceMapper>    m_quadMapper; 
-    cvf::ref<RigResultAccessor>                        m_resultAccessor; 
+    cvf::ref<RigResultAccessor>                       m_resultAccessor; 
     cvf::ref<RivResultToTextureMapper>                m_texMapper;
 };
 

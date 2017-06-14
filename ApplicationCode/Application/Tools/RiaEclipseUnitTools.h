@@ -44,5 +44,8 @@ public:
     static double inchToFeet (double inch)          { return (inch / 12.0); } 
 
     static double darcysConstant(UnitSystem unitSystem);
+    
+    static double convertConductivtyValue(double Kw, UnitSystem fromUnit, UnitSystem toUnit);
+
 };
 

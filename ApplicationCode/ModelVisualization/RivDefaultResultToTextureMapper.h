@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RigPipeInCellEvaluator.h"
+#include "RivResultToTextureMapper.h"
 
 #include "cvfVector2.h"
 #include "cvfScalarMapper.h"
@@ -29,19 +30,30 @@
 
 #include <cmath>
 
-class RivResultToTextureMapper : public cvf::Object
+class RivDefaultResultToTextureMapper : public RivResultToTextureMapper
 {
 public:
-    explicit RivResultToTextureMapper(const cvf::ScalarMapper* scalarMapper, 
-        const RigPipeInCellEvaluator* pipeInCellEvaluator) 
-        : m_scalarMapper(scalarMapper), m_pipeInCellEvaluator(pipeInCellEvaluator)
-    {}
+    using RivResultToTextureMapper::RivResultToTextureMapper;
 
-    virtual cvf::Vec2f getTexCoord(double resultValue, size_t cellIndex) const = 0;
+    cvf::Vec2f getTexCoord(double resultValue, size_t cellIndex) const
+    {
+        cvf::Vec2f texCoord(0,0);
+
+       if (resultValue == HUGE_VAL || resultValue != resultValue) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+            return texCoord;
+        }
+
+        texCoord = m_scalarMapper->mapToTextureCoord(resultValue);
   
-protected:
-    cvf::cref<cvf::ScalarMapper>      m_scalarMapper;
-    cvf::cref<RigPipeInCellEvaluator> m_pipeInCellEvaluator;
+        if (!m_pipeInCellEvaluator->isWellPipeInCell(cellIndex))
+        {
+            texCoord[1] = 0; // Set the Y texture coordinate to the opaque line in the texture
+        }
+
+        return texCoord;
+    }
 };
 
 

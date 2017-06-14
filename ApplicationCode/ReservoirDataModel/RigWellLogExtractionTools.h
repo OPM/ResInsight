@@ -18,105 +18,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cvfBoundingBox.h"
-#include "cvfGeometryTools.h"
-#include "cvfStructGrid.h"
-#include "cvfRay.h"
+#include <cmath>
 
 //==================================================================================================
-///  Internal class for intersection point info 
+///  
+/// 
 //==================================================================================================
 
-struct HexIntersectionInfo
+struct RigWellLogExtractionTools
 {
-
-public:
-    HexIntersectionInfo( cvf::Vec3d                          intersectionPoint,
-                         bool                                isIntersectionEntering,
-                         cvf::StructGridInterface::FaceType  face,
-                         size_t                              hexIndex) 
-                         : m_intersectionPoint(intersectionPoint),
-                           m_isIntersectionEntering(isIntersectionEntering),
-                           m_face(face),
-                           m_hexIndex(hexIndex) {}
-
-
-    cvf::Vec3d                          m_intersectionPoint;
-    bool                                m_isIntersectionEntering;
-    cvf::StructGridInterface::FaceType  m_face;
-    size_t                              m_hexIndex;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Specialized Line - Hex intersection
-//--------------------------------------------------------------------------------------------------
-struct RigHexIntersector
-{
-    static int lineHexCellIntersection(const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8], const size_t hexIndex,
-                                       std::vector<HexIntersectionInfo>* intersections)
+    static bool isEqualDepth(double d1, double d2)
     {
-        CVF_ASSERT(intersections != NULL);
-
-        int intersectionCount = 0;
-
-        for (int face = 0; face < 6 ; ++face)
-        {
-            cvf::ubyte faceVertexIndices[4];
-            cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
-
-            cvf::Vec3d intersection;
-            bool isEntering = false;
-            cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
-
-            for (int i = 0; i < 4; ++i)
-            {
-                int next = i < 3 ? i+1 : 0;
-
-                int intsStatus = cvf::GeometryTools::intersectLineSegmentTriangle(p1, p2,
-                                                                                  hexCorners[faceVertexIndices[i]], 
-                                                                                  hexCorners[faceVertexIndices[next]], 
-                                                                                  faceCenter,
-                                                                                  &intersection,
-                                                                                  &isEntering);
-                if (intsStatus == 1)
-                {
-                    intersectionCount++;
-                    intersections->push_back(HexIntersectionInfo(intersection, 
-                                                                 isEntering, 
-                                                                 static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
-                }
-            }
-        }
-
-        return intersectionCount;
-    }
-
-    static bool isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8])
-    {
-        cvf::Ray ray;
-        ray.setOrigin(point);
-        size_t intersections = 0;
-
-        for (int face = 0; face < 6; ++face)
-        {
-            cvf::ubyte faceVertexIndices[4];
-            cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
-            cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
-
-            for (int i = 0; i < 4; ++i)
-            {
-                int next = i < 3 ? i + 1 : 0;
-                if (ray.triangleIntersect(hexCorners[faceVertexIndices[i]], hexCorners[faceVertexIndices[next]], faceCenter))
-                {
-                    ++intersections;
-                }
-            }
-        }
-        return intersections % 2 == 1;
-    }
-
-    static bool isEqualDepth(double d1, double d2) 
-    { 
         double depthDiff = d1 - d2;
 
         const double tolerance = 0.1;// Meters To handle inaccuracies across faults
@@ -142,7 +54,7 @@ struct RigMDCellIdxEnterLeaveKey
 
     bool operator < (const RigMDCellIdxEnterLeaveKey& other) const 
     {
-        if (RigHexIntersector::isEqualDepth(measuredDepth, other.measuredDepth))
+        if (RigWellLogExtractionTools::isEqualDepth(measuredDepth, other.measuredDepth))
         {
             if (hexIndex == other.hexIndex)
             {
@@ -182,7 +94,7 @@ struct RigMDEnterLeaveCellIdxKey
 
     bool operator < (const RigMDEnterLeaveCellIdxKey& other) const
     {
-        if (RigHexIntersector::isEqualDepth(measuredDepth, other.measuredDepth))
+        if (RigWellLogExtractionTools::isEqualDepth(measuredDepth, other.measuredDepth))
         {
             if (isEnteringCell == other.isEnteringCell)
             {
@@ -207,7 +119,7 @@ struct RigMDEnterLeaveCellIdxKey
     {
         return ( key1.hexIndex == key2.hexIndex 
                 && key1.isEnteringCell && key2.isLeavingCell()
-                && !RigHexIntersector::isEqualDepth(key1.measuredDepth, key2.measuredDepth));
+                && !RigWellLogExtractionTools::isEqualDepth(key1.measuredDepth, key2.measuredDepth));
     }
 };
 

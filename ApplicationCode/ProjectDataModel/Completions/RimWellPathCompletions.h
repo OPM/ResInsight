@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafPdmObject.h"
+#include "cafPdmField.h"
 #include "cafPdmChildField.h"
 
 class RimFishbonesCollection;
@@ -40,8 +41,13 @@ public:
     RimPerforationCollection*      perforationCollection() const;
     RimWellPathFractureCollection* fractureCollection() const;
 
+    void                        setWellNameForExport(const QString& name);
+    QString                     wellNameForExport() const;
+
 private:
     caf::PdmChildField<RimFishbonesCollection*>         m_fishbonesCollection;
     caf::PdmChildField<RimPerforationCollection*>       m_perforationCollection;
     caf::PdmChildField<RimWellPathFractureCollection*>  m_fractureCollection;
+    
+    caf::PdmField<QString>                              m_wellNameForExport;
 };

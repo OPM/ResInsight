@@ -148,7 +148,7 @@ bool RimWellLogFile::readFile(QString* errorMessage)
     {
         if (wellPath->filepath().isEmpty())
         {
-            wellPath->name = m_wellName;
+            wellPath->setName(m_wellName);
         }
     }
 

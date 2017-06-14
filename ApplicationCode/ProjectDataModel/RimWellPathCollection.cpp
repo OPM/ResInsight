@@ -159,7 +159,7 @@ void RimWellPathCollection::readWellPathFiles()
             }
         }
 
-        progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));
+        progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name()));
         progress.incrementProgress();
     }
 
@@ -248,10 +248,10 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         RimWellPath* wellPath = wellPathArray[wpIdx];
         wellPath->readWellPathFile(NULL, m_wellPathImporter);
 
-        progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name));
+        progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name()));
 
         // If a well path with this name exists already, make it read the well path file
-        RimWellPath* existingWellPath = wellPathByName(wellPath->name);
+        RimWellPath* existingWellPath = wellPathByName(wellPath->name());
         if (existingWellPath)
         {
             existingWellPath->filepath = wellPath->filepath;
