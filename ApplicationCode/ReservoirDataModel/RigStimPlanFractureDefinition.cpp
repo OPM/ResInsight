@@ -38,7 +38,7 @@ RigStimPlanResultFrames::RigStimPlanResultFrames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStimPlanFractureDefinition::RigStimPlanFractureDefinition() : unitSet(RiaEclipseUnitTools::UNITS_UNKNOWN)
+RigStimPlanFractureDefinition::RigStimPlanFractureDefinition() : m_unitSet(RiaEclipseUnitTools::UNITS_UNKNOWN)
 {
 
 }
@@ -57,7 +57,7 @@ RigStimPlanFractureDefinition::~RigStimPlanFractureDefinition()
 std::vector<double> RigStimPlanFractureDefinition::getNegAndPosXcoords() const
 {
     std::vector<double> allXcoords;
-    for ( const double& xCoord : gridXs )
+    for ( const double& xCoord : m_gridXs )
     {
         if ( xCoord > 1e-5 )
         {
@@ -65,7 +65,7 @@ std::vector<double> RigStimPlanFractureDefinition::getNegAndPosXcoords() const
             allXcoords.insert(allXcoords.begin(), negXcoord);
         }
     }
-    for ( const double& xCoord : gridXs )
+    for ( const double& xCoord : m_gridXs )
     {
         allXcoords.push_back(xCoord);
     }
@@ -79,7 +79,7 @@ std::vector<double> RigStimPlanFractureDefinition::getNegAndPosXcoords() const
 bool RigStimPlanFractureDefinition::numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep)
 {
     size_t depths = this->depths.size();
-    size_t gridXvalues = this->gridXs.size();
+    size_t gridXvalues = this->m_gridXs.size();
 
     if ( propertyValuesAtTimestep.size() != depths )  return false;
     for ( std::vector<double> valuesAtDepthVector : propertyValuesAtTimestep )
@@ -113,8 +113,7 @@ std::vector<std::pair<QString, QString> > RigStimPlanFractureDefinition::getStim
 {
     std::vector<std::pair<QString, QString> >  propertyNamesUnits;
     {
-        std::vector<RigStimPlanResultFrames > allStimPlanData = this->m_stimPlanResults;
-        for ( RigStimPlanResultFrames stimPlanDataEntry : allStimPlanData )
+        for ( const RigStimPlanResultFrames& stimPlanDataEntry : this->m_stimPlanResults )
         {
             propertyNamesUnits.push_back(std::make_pair(stimPlanDataEntry.resultName, stimPlanDataEntry.unit));
         }
@@ -237,18 +236,18 @@ void RigStimPlanFractureDefinition::createFractureTriangleGeometry(double m_well
 
     std::vector<double> adjustedDepths = this->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture);
 
-    if ( neededUnit == unitSet )
+    if ( neededUnit == m_unitSet )
     {
         RiaLogging::debug(QString("No conversion necessary for %1").arg(fractureUserName));
     }
 
-    else if ( unitSet == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
     {
         RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(fractureUserName));
         for ( double& value : adjustedDepths ) value = RiaEclipseUnitTools::meterToFeet(value);
         for ( double& value : xCoords )        value = RiaEclipseUnitTools::meterToFeet(value);
     }
-    else if ( unitSet == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
     {
         RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(fractureUserName));
         for ( double& value : adjustedDepths ) value = RiaEclipseUnitTools::feetToMeter(value);
@@ -348,17 +347,17 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
             {
                 if ( (i > 0) && ((dataAtTimeStep[k])[(i - 1)] > 1e-7) ) //side neighbour cell different from 0
                 {
-                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->gridXs[i]),
+                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_gridXs[i]),
                                                  static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
                 else if ( (k < dataAtTimeStep.size() - 1) && ((dataAtTimeStep[k + 1])[(i)] > 1e-7) )//cell below different from 0
                 {
-                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->gridXs[i]),
+                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_gridXs[i]),
                                                  static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
                 else if ( (k > 0) && ((dataAtTimeStep[k - 1])[(i)] > 1e-7) )//cell above different from 0
                 {
-                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->gridXs[i]),
+                    polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_gridXs[i]),
                                                  static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
             }
@@ -384,12 +383,12 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
     if ( polygon.size()>0 ) polygon.push_back(polygon[0]);
 
 
-    if ( neededUnit == unitSet )
+    if ( neededUnit == m_unitSet )
     {
         RiaLogging::debug(QString("No conversion necessary for %1").arg(fractureUserName));
     }
 
-    else if ( unitSet == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
+    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD )
     {
         RiaLogging::info(QString("Converting StimPlan geometry from metric to field for fracture template %1").arg(fractureUserName));
         for ( cvf::Vec3f& node : polygon )
@@ -400,7 +399,7 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
             node = cvf::Vec3f(x, y, z);
         }
     }
-    else if ( unitSet == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
+    else if ( m_unitSet == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC )
     {
         RiaLogging::info(QString("Converting StimPlan geometry from field to metric for fracture template %1").arg(fractureUserName));
         for ( cvf::Vec3f& node : polygon )
@@ -426,7 +425,7 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
 //--------------------------------------------------------------------------------------------------
 bool RigStimPlanFractureDefinition::timeStepExisist(double timeStepValueToCheck)
 {
-    for (double timeStep : timeSteps)
+    for (double timeStep : m_timeSteps)
     {
         if (abs(timeStepValueToCheck - timeStep) < 1e-5) return true;
     }
@@ -439,7 +438,7 @@ bool RigStimPlanFractureDefinition::timeStepExisist(double timeStepValueToCheck)
 void RigStimPlanFractureDefinition::reorderYgridToDepths()
 {
     std::vector<double> depthsInIncreasingOrder;
-    for (double gridYvalue : gridYs)
+    for (double gridYvalue : m_gridYs)
     {
         depthsInIncreasingOrder.insert(depthsInIncreasingOrder.begin(), gridYvalue);
     }
@@ -452,9 +451,9 @@ void RigStimPlanFractureDefinition::reorderYgridToDepths()
 size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
 {
     size_t index = 0;
-    while (index < timeSteps.size())
+    while (index < m_timeSteps.size())
     {
-        if (abs(timeSteps[index] - timeStepValue) < 1e-4)
+        if (abs(m_timeSteps[index] - timeStepValue) < 1e-4)
         {
             return index;
         }
@@ -468,7 +467,7 @@ size_t RigStimPlanFractureDefinition::getTimeStepIndex(double timeStepValue)
 //--------------------------------------------------------------------------------------------------
 size_t RigStimPlanFractureDefinition::totalNumberTimeSteps()
 {
-    return timeSteps.size();
+    return m_timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -506,7 +505,7 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QStri
         resultData.resultName = resultName;
         resultData.unit = unit;
 
-        std::vector<std::vector<std::vector<double>>>  values(timeSteps.size());
+        std::vector<std::vector<std::vector<double>>>  values(m_timeSteps.size());
         resultData.parameterValues = values;
         resultData.parameterValues[getTimeStepIndex(timeStepValue)] = data;
 
@@ -517,7 +516,7 @@ void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const
+const std::vector<std::vector<double>>& RigStimPlanFractureDefinition::getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const
 {
     size_t resIndex = resultIndex(resultName, unit);
 
@@ -530,7 +529,7 @@ std::vector<std::vector<double>> RigStimPlanFractureDefinition::getDataAtTimeInd
     }
 
     qDebug() << "ERROR: Requested parameter does not exists in stimPlan data";
-    std::vector<std::vector<double>> emptyVector;
+    static std::vector<std::vector<double>> emptyVector;
     return emptyVector;
 }
 
@@ -544,11 +543,11 @@ void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, con
     size_t resIndex = resultIndex(resultName, unit);
     if (resIndex == cvf::UNDEFINED_SIZE_T) return;
 
-    for (auto timeValues : m_stimPlanResults[resIndex].parameterValues)
+    for (const auto& timeValues : m_stimPlanResults[resIndex].parameterValues)
     {
-        for (auto values : timeValues)
+        for (const auto& values : timeValues)
         {
-            for (auto resultValue : values)
+            for (double resultValue : values)
             {
                 if (resultValue < *minValue)
                 {

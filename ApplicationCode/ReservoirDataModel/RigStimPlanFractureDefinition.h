@@ -47,16 +47,22 @@ public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();
 
-    RiaEclipseUnitTools::UnitSystem                 unitSet;
-    std::vector<double>                       gridXs;
+    RiaEclipseUnitTools::UnitSystem                 unitSet() { return m_unitSet; }
+    void                                      setUnitSet(RiaEclipseUnitTools::UnitSystem unitset) { m_unitSet = unitset;}
+
+    size_t                                    gridXCount() { return m_gridXs.size();}
+    void                                      setGridXs(const std::vector<double>& gridXs) {  m_gridXs = gridXs; }
+
 
     //TODO: Consider removing gridYs or depths, 
     //In example file these are the same, but can there be examples where not all gridY values are included in depths?
+    
+    void                                      setGridYs(const std::vector<double>& gridYs) {  m_gridYs = gridYs; }
 
-    std::vector<double>                       gridYs;
-    std::vector<double>                       depths;
+    double                                    minDepth()   { return depths[0]; }
+    double                                    maxDepth()   { return depths.back(); }
+    size_t                                    depthCount() { return depths.size(); }
 
-    std::vector<double>                       timeSteps;
 
     // Grid Geometry
 
@@ -86,21 +92,30 @@ public:
                                                                           RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                           const QString& fractureUserName);
     // Result Access                                          
-                                              
+    
+    const std::vector<double>&                timeSteps() const { return m_timeSteps; }
+    void                                      addTimeStep(double time) { if (!timeStepExisist(time)) m_timeSteps.push_back(time); }
+
     std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
     bool                                      numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
-    bool                                      timeStepExisist(double timeStepValue);
     size_t                                    totalNumberTimeSteps();
     void                                      setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue);
-    std::vector<std::vector<double>>          getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
+    const std::vector<std::vector<double>>&   getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
     void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const;
     
     // Setup                          
     void                                      reorderYgridToDepths();
 private:                                      
+    bool                                      timeStepExisist(double timeStepValue);
     size_t                                    getTimeStepIndex(double timeStepValue);
     size_t                                    resultIndex(const QString& resultName, const QString& unit) const;
                                               
+    RiaEclipseUnitTools::UnitSystem                 m_unitSet;
+    std::vector<double>                       m_gridXs;
+    std::vector<double>                       m_gridYs;
+    std::vector<double>                       depths;
+
+    std::vector<double>                       m_timeSteps;
     std::vector<RigStimPlanResultFrames>      m_stimPlanResults;
 };
 

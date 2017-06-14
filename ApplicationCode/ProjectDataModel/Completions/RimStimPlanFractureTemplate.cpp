@@ -188,7 +188,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
     m_activeTimeStepIndex = static_cast<int>(m_stimPlanFractureDefinitionData->totalNumberTimeSteps() - 1);
     bool polygonPropertySet = setBorderPolygonResultNameToDefault();
 
-    if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(m_borderPolygonResultName).arg(m_stimPlanFractureDefinitionData->timeSteps[m_activeTimeStepIndex]));
+    if (polygonPropertySet) RiaLogging::info(QString("Calculating polygon outline based on %1 at timestep %2").arg(m_borderPolygonResultName).arg(m_stimPlanFractureDefinitionData->timeSteps()[m_activeTimeStepIndex]));
     else                    RiaLogging::info(QString("Property for polygon calculation not set."));
 }
 
@@ -229,7 +229,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if (m_stimPlanFractureDefinitionData.notNull())
     {
-        fractureTemplateUnit = m_stimPlanFractureDefinitionData->unitSet;
+        fractureTemplateUnit = m_stimPlanFractureDefinitionData->unitSet();
     }
     else
     {
@@ -284,8 +284,8 @@ void RimStimPlanFractureTemplate::setDepthOfWellPathAtFracture()
 {
     if (!m_stimPlanFractureDefinitionData.isNull())
     {
-        double firstDepth = m_stimPlanFractureDefinitionData->depths[0];
-        double lastDepth  = m_stimPlanFractureDefinitionData->depths[m_stimPlanFractureDefinitionData->depths.size()-1];
+        double firstDepth = m_stimPlanFractureDefinitionData->minDepth();
+        double lastDepth  = m_stimPlanFractureDefinitionData->maxDepth();
         double averageDepth = (firstDepth + lastDepth) / 2;
         m_wellPathDepthAtFracture = averageDepth;
     }
@@ -319,10 +319,10 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::timeSteps() 
+const std::vector<double>& RimStimPlanFractureTemplate::timeSteps() 
 {
     if (m_stimPlanFractureDefinitionData.isNull()) loadDataAndUpdate();
-    return m_stimPlanFractureDefinitionData->timeSteps;
+    return m_stimPlanFractureDefinitionData->timeSteps();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -475,15 +475,14 @@ void RimStimPlanFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandl
 
     if (field == &m_wellPathDepthAtFracture)
     {
-        if (!m_stimPlanFractureDefinitionData.isNull() && (m_stimPlanFractureDefinitionData->depths.size()>0))
+        if ( !m_stimPlanFractureDefinitionData.isNull() && (m_stimPlanFractureDefinitionData->depthCount() > 0) )
         {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
-        if (myAttr)
-        {
-            myAttr->m_minimum = m_stimPlanFractureDefinitionData->depths[0];
-            myAttr->m_maximum = m_stimPlanFractureDefinitionData->depths[m_stimPlanFractureDefinitionData->depths.size() - 1];
-        }
-
+            caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+            if ( myAttr )
+            {
+                myAttr->m_minimum = m_stimPlanFractureDefinitionData->minDepth();
+                myAttr->m_maximum = m_stimPlanFractureDefinitionData->maxDepth();
+            }
         }
     }
 }

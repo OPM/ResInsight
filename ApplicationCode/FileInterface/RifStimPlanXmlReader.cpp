@@ -57,11 +57,11 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
     }
 
 
-    size_t numberOfDepthValues = stimPlanFileData->depths.size();
-    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(stimPlanFileData->gridXs.size()),
+    size_t numberOfDepthValues = stimPlanFileData->depthCount();
+    RiaLogging::debug(QString("Grid size X: %1, Y: %2").arg(QString::number(stimPlanFileData->gridXCount()),
         QString::number(numberOfDepthValues)));
 
-    size_t numberOfTimeSteps = stimPlanFileData->timeSteps.size();
+    size_t numberOfTimeSteps = stimPlanFileData->timeSteps().size();
     RiaLogging::debug(QString("Number of time-steps: %1").arg(numberOfTimeSteps));
 
     //Start reading from top:
@@ -96,12 +96,12 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                 {
                     if (unit == "md-ft")
                     {
-                        stimPlanFileData->unitSet = RiaEclipseUnitTools::UNITS_FIELD;
+                        stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_FIELD);
                         RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(stimPlanFileName));
                     }
                     if (unit == "md-m")
                     {
-                        stimPlanFileData->unitSet = RiaEclipseUnitTools::UNITS_METRIC;
+                        stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_METRIC);
                         RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(stimPlanFileName));
                     }
                 }
@@ -171,14 +171,14 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
             {
                 std::vector<double> gridValues;
                 getGriddingValues(xmlStream, gridValues, startNegValuesXs);
-                stimPlanFileData->gridXs = gridValues;
+                stimPlanFileData->setGridXs(gridValues);
             }
 
             else if (xmlStream.name() == "ys")
             {
                 std::vector<double> gridValues;
                 getGriddingValues(xmlStream, gridValues, startNegValuesYs);
-                stimPlanFileData->gridYs = gridValues;
+                stimPlanFileData->setGridYs(gridValues);
 
                 stimPlanFileData->reorderYgridToDepths();
             }
@@ -186,10 +186,7 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
             else if (xmlStream.name() == "time")
             {
                 double timeStepValue = getAttributeValueDouble(xmlStream, "value");
-                if (!stimPlanFileData->timeStepExisist(timeStepValue))
-                {
-                    stimPlanFileData->timeSteps.push_back(timeStepValue);
-                }
+                stimPlanFileData->addTimeStep(timeStepValue);
             }
         }
     }
