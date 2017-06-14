@@ -43,5 +43,8 @@ public:
     static double inchToMeter(double inch)          { return (inch / 12)*meterPerFeet(); }
 
     static double darcysConstant(UnitSystem unitSystem);
+    
+    static double convertConductivtyValue(double Kw, UnitSystem fromUnit, UnitSystem toUnit);
+
 };
 
