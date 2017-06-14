@@ -61,7 +61,7 @@ public:
     static std::vector<RigCompletionData>        generateFishbonesImportedLateralsCompdatValues(const RimWellPath* wellPath, 
                                                                                                 const RicExportCompletionDataSettingsUi& settings);
     
-    static std::vector<RigCompletionData>        generateFishboneLateralsCompdatValuesUsingAdjustedCellVolume(const RimWellPath* wellPath, 
+    static std::vector<RigCompletionData>        generateFishboneCompdatValuesUsingAdjustedCellVolume(const RimWellPath* wellPath, 
                                                                                                               const RicExportCompletionDataSettingsUi& settings);
 
 
@@ -73,7 +73,7 @@ private:
     static void                                  findFishboneImportedLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc> >& wellBorePartsInCells, 
                                                                                            const RimWellPath* wellPath, 
                                                                                            const RicExportCompletionDataSettingsUi& settings);
-    static void                                  findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>> wellBorePartsInCells, 
+    static void                                  findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells, 
                                                                        const RimWellPath* wellPath, 
                                                                        const RicExportCompletionDataSettingsUi& settings);
 };

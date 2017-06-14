@@ -197,7 +197,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 //             std::vector<RigCompletionData> fishbonesWellPathCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
 //             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
 
-            std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneLateralsCompdatValuesUsingAdjustedCellVolume(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesCompletionData);
 
         }
