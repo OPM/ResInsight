@@ -21,6 +21,7 @@
 #include "cafAppEnum.h"
 
 #include "cvfAssert.h"
+#include <cmath>
 
 namespace caf
 {
