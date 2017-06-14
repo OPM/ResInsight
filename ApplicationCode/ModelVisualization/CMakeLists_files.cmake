@@ -23,6 +23,8 @@ ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivSimWellPipesPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivResultToTextureMapper.h
+${CEE_CURRENT_LIST_DIR}RivCompletionTypeResultToTextureMapper.h
+${CEE_CURRENT_LIST_DIR}RivDefaultResultToTextureMapper.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryResultToTextureMapper.h
 ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.h
