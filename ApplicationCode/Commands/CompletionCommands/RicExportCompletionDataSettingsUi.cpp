@@ -18,6 +18,19 @@
 
 #include "RicExportCompletionDataSettingsUi.h"
 
+namespace caf
+{
+    template<>
+    void RicExportCompletionDataSettingsUi::ExportSplitType::setUp()
+    {
+        addItem(RicExportCompletionDataSettingsUi::UNIFIED_FILE,                      "UNIFIED_FILE",                      "Unified File");
+        addItem(RicExportCompletionDataSettingsUi::SPLIT_ON_WELL,                     "SPLIT_ON_WELL",                     "Split on Well");
+        addItem(RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE, "SPLIT_ON_WELL_AND_COMPLETION_TYPE", "Split on Well and Completion Type");
+        setDefault(RicExportCompletionDataSettingsUi::UNIFIED_FILE);
+    }
+}
+
+
 CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataSettingsUi");
 
 //--------------------------------------------------------------------------------------------------
@@ -26,6 +39,8 @@ CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataS
 RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
 
@@ -36,7 +51,6 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitField(&includeWpimult, "IncludeWPIMULT", true, "Include WPIMLUT", "", "", "");
     CAF_PDM_InitField(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", false, "Remove Laterals in Main Bore Cells", "", "", "");
-
 }
 
 //--------------------------------------------------------------------------------------------------
