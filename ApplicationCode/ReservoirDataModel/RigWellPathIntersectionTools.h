@@ -44,7 +44,7 @@ struct WellPathCellIntersectionInfo {
     size_t                        cellIndex;
     cvf::Vec3d                    startPoint;
     cvf::Vec3d                    endPoint;
-    cvf::Vec3d                    internalCellLengths;
+    cvf::Vec3d                    internalCellLengths; // intersectionLengthsInCellCS
 };
 
 //==================================================================================================
@@ -53,7 +53,7 @@ struct WellPathCellIntersectionInfo {
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords, bool includeStartCell = true, bool includeEndCell = true);
+    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& pathCoords);
 
     static std::vector<HexIntersectionInfo>            getIntersectedCells(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords);
 

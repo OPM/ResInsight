@@ -32,14 +32,14 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& coords, bool includeStartCell, bool includeEndCell)
+std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& pathCoords)
 {
     std::vector<WellPathCellIntersectionInfo> intersectionInfo;
     const RigMainGrid* grid = caseData->mainGrid();
 
-    if (coords.size() < 2) return intersectionInfo;
+    if (pathCoords.size() < 2) return intersectionInfo;
 
-    std::vector<HexIntersectionInfo> intersections = getIntersectedCells(grid, coords);
+    std::vector<HexIntersectionInfo> intersections = getIntersectedCells(grid, pathCoords);
     removeEnteringIntersections(&intersections);
 
     if (intersections.empty()) return intersectionInfo;
@@ -51,23 +51,22 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
 
     auto intersection = intersections.cbegin();
 
-    if (includeStartCell)
+    //start cell
+    bool foundCell;
+    startPoint = pathCoords[0];
+    cellIndex = findCellFromCoords(grid, startPoint, &foundCell);
+    if (foundCell)
     {
-        bool foundCell;
-        startPoint = coords[0];
-        cellIndex = findCellFromCoords(grid, startPoint, &foundCell);
-        if (foundCell)
-        {
-            endPoint = intersection->m_intersectionPoint;
-            internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-            intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
-        }
-        else
-        {
-            RiaLogging::debug("Path starts outside valid cell");
-        }
+        endPoint = intersection->m_intersectionPoint;
+        internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
+        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
+    }
+    else
+    {
+        RiaLogging::debug("Path starts outside valid cell");
     }
 
+    //center cells
     startPoint = intersection->m_intersectionPoint;
     cellIndex = intersection->m_hexIndex;
 
@@ -84,12 +83,10 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
         ++intersection;
     }
 
-    if (includeEndCell)
-    {
-        endPoint = coords[coords.size() - 1];
-        internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
-    }
+    //end cell
+    endPoint = pathCoords[pathCoords.size() - 1];
+    internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
+    intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
 
     return intersectionInfo;
 }
