@@ -57,13 +57,11 @@ ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
 ${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.h
-${CEE_CURRENT_LIST_DIR}RigFractureTransCalc.h
 ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.h
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.h
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.h
-${CEE_CURRENT_LIST_DIR}RigStimPlanUpscalingCalc.h
 ${CEE_CURRENT_LIST_DIR}RigFractureGrid.h
 ${CEE_CURRENT_LIST_DIR}RigFractureCell.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.h
@@ -119,13 +117,11 @@ ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
 ${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.cpp
-${CEE_CURRENT_LIST_DIR}RigFractureTransCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathStimplanIntersector.cpp
 ${CEE_CURRENT_LIST_DIR}RigTesselatorTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigStimPlanFractureDefinition.cpp
-${CEE_CURRENT_LIST_DIR}RigStimPlanUpscalingCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigFractureGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigFractureCell.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.cpp

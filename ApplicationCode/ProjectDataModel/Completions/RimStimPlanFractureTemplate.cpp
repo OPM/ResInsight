@@ -22,7 +22,6 @@
 #include "RiaLogging.h"
 
 #include "RigStimPlanFractureDefinition.h"
-#include "RigFractureTransCalc.h"
 #include "RigFractureGrid.h"
 
 #include "RimEclipseView.h"
