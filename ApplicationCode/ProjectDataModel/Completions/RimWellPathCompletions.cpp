@@ -40,6 +40,8 @@ RimWellPathCompletions::RimWellPathCompletions()
     CAF_PDM_InitFieldNoDefault(&m_fishbonesCollection, "Fishbones", "Fishbones", "", "", "");
     m_fishbonesCollection = new RimFishbonesCollection;
     m_fishbonesCollection.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name for Completion Export", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,5 +62,21 @@ RimPerforationCollection* RimWellPathCompletions::perforationCollection() const
     CVF_ASSERT(m_perforationCollection);
 
     return m_perforationCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::setWellNameForExport(const QString& name)
+{
+    m_wellNameForExport = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPathCompletions::wellNameForExport() const
+{
+    return m_wellNameForExport();
 }
 

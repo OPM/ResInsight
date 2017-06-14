@@ -64,7 +64,8 @@ public:
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
     
-    caf::PdmField<QString>              name;
+    QString                             name() const;
+    void                                setName(const QString& name);
   
     caf::PdmField<QString>              filepath;
     caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
@@ -123,4 +124,5 @@ private:
 
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
+    caf::PdmField<QString>              m_name;
 };

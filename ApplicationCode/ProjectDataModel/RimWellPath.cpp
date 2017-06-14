@@ -55,11 +55,11 @@ RimWellPath::RimWellPath()
 {
     CAF_PDM_InitObject("WellPath", ":/Well.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&name,               "WellPathName",                         "Name", "", "", "");
-    name.uiCapability()->setUiReadOnly(true);
-    name.xmlCapability()->setIOWritable(false);
-    name.xmlCapability()->setIOReadable(false);
-    name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_name,               "WellPathName",                         "Name", "", "", "");
+    m_name.uiCapability()->setUiReadOnly(true);
+    m_name.xmlCapability()->setIOWritable(false);
+    m_name.xmlCapability()->setIOReadable(false);
+    m_name.uiCapability()->setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&id,                 "WellPathId",                           "Id", "", "", "");
     id.uiCapability()->setUiReadOnly(true);
     id.xmlCapability()->setIOWritable(false);
@@ -149,7 +149,7 @@ RimWellPath::~RimWellPath()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellPath::userDescriptionField()
 {
-    return &name;
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,6 +257,23 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RimWellPath::name() const
+{
+    return m_name();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setName(const QString& name)
+{
+    m_name = name;
+    m_completions->setWellNameForExport(name);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellPath::objectToggleField()
 {
     return &showWellPath;
@@ -273,7 +290,7 @@ bool RimWellPath::readWellPathFile(QString* errorMessage, RifWellPathImporter* w
         RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData(filepath(), wellPathIndexInFile());
         // General well info
 
-        name = wellData.m_name;
+        setName(wellData.m_name);
         id = wellMetaData.m_id;
         sourceSystem = wellMetaData.m_sourceSystem;
         utmZone = wellMetaData.m_utmZone;
@@ -477,5 +494,5 @@ void RimWellPath::setLogFileInfo(RimWellLogFile* logFileInfo)
     m_wellLogFile = logFileInfo;
     m_wellLogFile->uiCapability()->setUiHidden(true);
 
-    this->name = m_wellLogFile->wellName();
+    setName(m_wellLogFile->wellName());
 }
