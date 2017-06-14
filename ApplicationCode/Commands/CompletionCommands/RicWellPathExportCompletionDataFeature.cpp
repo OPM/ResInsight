@@ -409,11 +409,11 @@ bool RicWellPathExportCompletionDataFeature::wellSegmentLocationOrdering(const W
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicWellPathExportCompletionDataFeature::isPointBetween(const cvf::Vec3d& pointA, const cvf::Vec3d& pointB, const cvf::Vec3d& needle)
+bool RicWellPathExportCompletionDataFeature::isPointBetween(const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint, const cvf::Vec3d& pointToCheck)
 {
     cvf::Plane plane;
-    plane.setFromPointAndNormal(needle, pointB - pointA);
-    return plane.side(pointA) != plane.side(pointB);
+    plane.setFromPointAndNormal(pointToCheck, endPoint - startPoint);
+    return plane.side(startPoint) != plane.side(endPoint);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -464,18 +464,18 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
     for (WellSegmentLateral& lateral : location->laterals)
     {
         lateral.branchNumber = ++(*branchNum);
-        std::vector<cvf::Vec3d> coords = location->fishbonesSubs->coordsForLateral(location->subIndex, lateral.lateralIndex);
-        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), coords);
+        std::vector<cvf::Vec3d> lateralCoords = location->fishbonesSubs->coordsForLateral(location->subIndex, lateral.lateralIndex);
+        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), lateralCoords);
 
         auto intersection = intersections.cbegin();
         double length = 0;
         double depth = 0;
-        cvf::Vec3d startPoint = coords[0];
+        cvf::Vec3d startPoint = lateralCoords[0];
         int attachedSegmentNumber = location->icdSegmentNumber;
 
-        for (size_t i = 1; i < coords.size() && intersection != intersections.cend(); ++i)
+        for (size_t i = 1; i < lateralCoords.size() && intersection != intersections.cend(); ++i)
         {
-            if (isPointBetween(startPoint, coords[i], intersection->endPoint))
+            if (isPointBetween(startPoint, lateralCoords[i], intersection->endPoint))
             {
                 length += (intersection->endPoint - startPoint).length();
                 depth += intersection->endPoint.z() - startPoint.z();
@@ -492,9 +492,9 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
             }
             else
             {
-                length += (coords[i] - startPoint).length();
-                depth += coords[i].z() - startPoint.z();
-                startPoint = coords[i];
+                length += (lateralCoords[i] - startPoint).length();
+                depth += lateralCoords[i].z() - startPoint.z();
+                startPoint = lateralCoords[i];
             }
         }
     }
