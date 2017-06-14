@@ -49,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogExtractionTools.h
+${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
@@ -100,6 +101,7 @@ ${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.cpp
+${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp

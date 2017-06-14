@@ -20,7 +20,7 @@
 
 #include "RigCell.h"
 
-#include "RigWellLogExtractionTools.h"
+#include "RigHexIntersectionTools.h"
 
 #include "cvfVector3.h"
 

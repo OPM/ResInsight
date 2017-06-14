@@ -28,6 +28,7 @@
 #include "cvfStructGrid.h"
 
 #include "RigWellLogExtractionTools.h"
+#include "RigHexIntersectionTools.h"
 
 class RigWellPath;
 

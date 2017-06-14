@@ -85,7 +85,7 @@ void RigWellLogExtractor::populateReturnArrays(std::map<RigMDCellIdxEnterLeaveKe
             ++it2;
             if (it2 != uniqueIntersections.end())
             {
-                if (RigHexIntersector::isEqualDepth(it1->first.measuredDepth, it2->first.measuredDepth))
+                if (RigWellLogExtractionTools::isEqualDepth(it1->first.measuredDepth, it2->first.measuredDepth))
                 {
                     if (it1->first.hexIndex == it2->first.hexIndex)
                     {

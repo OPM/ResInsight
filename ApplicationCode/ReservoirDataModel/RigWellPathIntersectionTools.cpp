@@ -115,7 +115,7 @@ std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::getIntersectedCel
 
             grid->cellCornerVertices(closeCell, hexCorners.data());
 
-            RigHexIntersector::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners.data(), closeCell, &intersections);
+            RigHexIntersectionTools::lineHexCellIntersection(coords[i], coords[i + 1], hexCorners.data(), closeCell, &intersections);
         }
     }
 
@@ -181,7 +181,7 @@ size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid,
 
         grid->cellCornerVertices(closeCell, hexCorners.data());
 
-        if (RigHexIntersector::isPointInCell(coords, hexCorners.data()))
+        if (RigHexIntersectionTools::isPointInCell(coords, hexCorners.data()))
         {
             *foundCell = true;
             return closeCell;
