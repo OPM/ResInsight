@@ -25,7 +25,7 @@
 
 #include "RigMainGrid.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimFault.h"
@@ -203,12 +203,12 @@ void RimFaultCollection::syncronizeFaults()
         for (size_t i = 0; i < sortedFaults.size(); i++)
         {
             QString faultName = sortedFaults[i]->name();
-            if (faultName.compare(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
+            if (faultName.compare(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
             {
                 undefinedFaults = sortedFaults[i];
             }
 
-            if(faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
+            if(faultName.startsWith(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
                && faultName.contains("Inactive"))
             {
                 undefinedFaultsWInactive = sortedFaults[i];
@@ -249,7 +249,7 @@ void RimFaultCollection::syncronizeFaults()
             rimFault->faultColor = colorTable.cycledColor3f(fIdx);
             QString faultName = rigFaults[fIdx]->name();
 
-            if (faultName.startsWith(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
+            if (faultName.startsWith(RiaDefines::undefinedGridFaultName(), Qt::CaseInsensitive) 
                 && faultName.contains("Inactive"))
             {
                 rimFault->showFault = false; // Turn fault against inactive cells off by default

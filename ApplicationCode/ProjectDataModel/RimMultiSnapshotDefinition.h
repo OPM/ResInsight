@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -44,7 +44,7 @@ public:
 
     caf::PdmPtrField<RimView*>  view;
 
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >  eclipseResultType;
+    caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >  eclipseResultType;
     caf::PdmField< std::vector<QString> >                       selectedEclipseResults;
 
     caf::PdmField<int>       timeStepStart;

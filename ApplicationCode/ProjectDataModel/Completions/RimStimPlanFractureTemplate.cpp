@@ -233,7 +233,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
     }
     else
     {
-        fractureTemplateUnit = RimUnitSystem::UNITS_UNKNOWN; 
+        fractureTemplateUnit = RiaEclipseUnitTools::UNITS_UNKNOWN; 
     }
 
     updateFractureGrid();
@@ -390,7 +390,7 @@ void RimStimPlanFractureTemplate::updateFractureGrid()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
                                                            std::vector<cvf::uint>* triangleIndices, 
-                                                           RimUnitSystem::UnitSystem neededUnit)
+                                                           RiaEclipseUnitTools::UnitSystem neededUnit)
 {
 
     if (m_stimPlanFractureDefinitionData.isNull())
@@ -409,7 +409,7 @@ void RimStimPlanFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit)
+std::vector<cvf::Vec3f> RimStimPlanFractureTemplate::fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
 
     QString parameterName = m_borderPolygonResultName;

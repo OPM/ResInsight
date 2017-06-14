@@ -70,7 +70,7 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     m_geometrySelectionItem.uiCapability()->setUiTreeHidden(true);
     m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_plotAxis, "PlotAxis", caf::AppEnum< RimDefines::PlotAxis >(RimDefines::PLOT_AXIS_LEFT), "Axis", "", "", "");
+    CAF_PDM_InitField(&m_plotAxis, "PlotAxis", caf::AppEnum< RiaDefines::PlotAxis >(RiaDefines::PLOT_AXIS_LEFT), "Axis", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ void RimGridTimeHistoryCurve::setFromSelectionItem(const RiuSelectionItem* selec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::PlotAxis RimGridTimeHistoryCurve::yAxis() const
+RiaDefines::PlotAxis RimGridTimeHistoryCurve::yAxis() const
 {
     return m_plotAxis();
 }
@@ -145,7 +145,7 @@ RimDefines::PlotAxis RimGridTimeHistoryCurve::yAxis() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::setYAxis(RimDefines::PlotAxis plotAxis)
+void RimGridTimeHistoryCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
 
@@ -607,7 +607,7 @@ void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
     if (m_qwtPlotCurve)
     {
-        if (this->yAxis() == RimDefines::PLOT_AXIS_LEFT)
+        if (this->yAxis() == RiaDefines::PLOT_AXIS_LEFT)
         {
             m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
         }

@@ -22,7 +22,7 @@
 
 #include <QString>
 
-class RimDefines
+class RiaDefines
 {
 
 public:

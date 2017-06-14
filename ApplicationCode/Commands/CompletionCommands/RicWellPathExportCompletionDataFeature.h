@@ -139,8 +139,9 @@ private:
     static void                                  generateCompdatTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
     static void                                  generateWpimultTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
 
-    static std::vector<RigCompletionData>        generateFishbonesCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
-    static std::vector<RigCompletionData>        generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
+    static std::vector<RigCompletionData>        generateFishboneLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
+    static std::vector<RigCompletionData>        generateFishbonesImportedLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
+
     static std::vector<RigCompletionData>        generatePerforationsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings);
 
     static std::vector<size_t>                   findIntersectingCells(const RigEclipseCaseData* grid, const std::vector<cvf::Vec3d>& coords);

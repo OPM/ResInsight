@@ -19,6 +19,7 @@
 #include "RimFracture.h"
 
 #include "RiaApplication.h"
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RifReaderInterface.h"
@@ -33,7 +34,6 @@
 #include "RigResultAccessorFactory.h"
 #include "RigTesselatorTools.h"
 
-#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -89,7 +89,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&tilt, "Tilt", 0.0, "Tilt", "", "", "");
     CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
-    CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RimUnitSystem::UnitSystem>(RimUnitSystem::UNITS_METRIC), "Fracture Unit System", "", "", "");
+    CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
@@ -139,15 +139,15 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     if (changedField == &fractureUnit)
     {
-        if (fractureUnit == RimUnitSystem::UNITS_METRIC)
+        if (fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
         {
-            wellDiameter = RimUnitSystem::inchToMeter(wellDiameter);
-            perforationLength = RimUnitSystem::feetToMeter(perforationLength);
+            wellDiameter = RiaEclipseUnitTools::inchToMeter(wellDiameter);
+            perforationLength = RiaEclipseUnitTools::feetToMeter(perforationLength);
         }
-        else if (fractureUnit == RimUnitSystem::UNITS_FIELD)
+        else if (fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
         {
-            wellDiameter = RimUnitSystem::meterToInch(wellDiameter);
-            perforationLength = RimUnitSystem::meterToFeet(perforationLength);
+            wellDiameter = RiaEclipseUnitTools::meterToInch(wellDiameter);
+            perforationLength = RiaEclipseUnitTools::meterToFeet(perforationLength);
         }
         this->updateConnectedEditors();
     }
@@ -230,13 +230,13 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 double RimFracture::wellRadius() const
 {
-    if (fractureUnit == RimUnitSystem::UNITS_METRIC)
+    if (fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         return wellDiameter / 2;
     }
-    else if (fractureUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        return RimUnitSystem::inchToFeet(wellDiameter / 2);
+        return RiaEclipseUnitTools::inchToFeet(wellDiameter / 2);
     }
     return cvf::UNDEFINED_DOUBLE;
 }
@@ -374,12 +374,12 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (fractureUnit == RimUnitSystem::UNITS_METRIC)
+    if (fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
         perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
-    else if (fractureUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
         perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");

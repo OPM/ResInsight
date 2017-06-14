@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -123,7 +123,7 @@ protected:
 
 private:
     void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
-    void            removeEclipseResultAndRedrawAllViews(RimDefines::ResultCatType type, const QString& resultName);
+    void            removeEclipseResultAndRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;

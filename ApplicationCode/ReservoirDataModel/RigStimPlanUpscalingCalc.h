@@ -13,7 +13,7 @@ public:
     std::vector<RigFracturedEclipseCellExportData> computeUpscaledPropertyFromStimPlan(QString resultName, QString resultUnit, size_t timeStepIndex);
 
 private:
-    std::pair<double, double>   flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RimUnitSystem::UnitSystem unitSystem, size_t eclipseCellIndex);
+    std::pair<double, double>   flowAcrossLayersUpscaling(QString resultName, QString resultUnit, size_t timeStepIndex, RiaEclipseUnitTools::UnitSystem unitSystem, size_t eclipseCellIndex);
     double                      computeHAupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigFractureCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
     double                      computeAHupscale(RimStimPlanFractureTemplate* fracTemplateStimPlan, std::vector<RigFractureCell> stimPlanCells, std::vector<cvf::Vec3d> planeCellPolygon, cvf::Vec3d directionAlongLayers, cvf::Vec3d directionAcrossLayers);
     static double               arithmeticAverage(std::vector<double> values);
@@ -22,9 +22,8 @@ private:
     static std::vector<RigFractureCell*>    getColOfStimPlanCells(std::vector<RigFractureCell>& allStimPlanCells, size_t j);
 
 private:
-    RimEclipseCase*         m_case;
-    RimFracture*            m_fracture;
-    RimUnitSystem::UnitSystem  m_unitForCalculation;
-
+    RimEclipseCase*                     m_case;
+    RimFracture*                        m_fracture;
+    RiaEclipseUnitTools::UnitSystem     m_unitForCalculation;
 };
 

@@ -30,7 +30,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 class QwtPlot;
@@ -70,8 +70,8 @@ public:
 
     void                                    updateCaseNameHasChanged();
 
-    RimDefines::PlotAxis                    associatedPlotAxis() const;
-    void                                    setPlotAxis(RimDefines::PlotAxis plotAxis);
+    RiaDefines::PlotAxis                    associatedPlotAxis() const;
+    void                                    setPlotAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                    updateCompleteVariableStringFilterChanged();
     
@@ -109,7 +109,7 @@ private:
     caf::PdmPtrArrayField<RimSummaryCase*>    m_selectedSummaryCases;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
 
-    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+    caf::PdmField< caf::AppEnum< RiaDefines::PlotAxis > > m_plotAxis;
     caf::PdmField<bool>                       m_showLegend;
 
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
@@ -59,7 +59,7 @@ public:
 
     void                        setNameAndAxis(const QString& name, QwtPlot::Axis axis);
     QwtPlot::Axis               qwtPlotAxisType() const;
-    RimDefines::PlotAxis        plotAxisType() const;
+    RiaDefines::PlotAxis        plotAxisType() const;
 
     caf::PdmField<bool>         isAutoTitle;
     caf::PdmField<QString>      customTitle;

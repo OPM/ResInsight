@@ -26,7 +26,7 @@
 #include "cafPdmChildField.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimPlotCurve.h"
 
 #include "cafAppEnum.h"
@@ -87,8 +87,8 @@ public:
     std::vector<double>                     yValues() const;
     const std::vector<time_t>&              timeSteps() const;
 
-    void                                    setYAxis(RimDefines::PlotAxis plotAxis);
-    RimDefines::PlotAxis                    yAxis() const;
+    void                                    setYAxis(RiaDefines::PlotAxis plotAxis);
+    RiaDefines::PlotAxis                    yAxis() const;
     void                                    updateQwtPlotAxis();
 
     void                                    applyCurveAutoNameSettings(const RimSummaryCurveAutoName& autoNameSettings);
@@ -118,7 +118,7 @@ private:
 
     caf::PdmChildField<RimSummaryCurveAutoName*>   m_curveNameConfig;
 
-    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+    caf::PdmField< caf::AppEnum< RiaDefines::PlotAxis > > m_plotAxis;
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;

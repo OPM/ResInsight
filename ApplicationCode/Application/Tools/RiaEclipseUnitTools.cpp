@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafAppEnum.h"
 
@@ -25,20 +25,20 @@
 namespace caf
 {
     template<>
-    void RimUnitSystem::UnitSystemType::setUp()
+    void RiaEclipseUnitTools::UnitSystemType::setUp()
     {
-        addItem(RimUnitSystem::UNITS_METRIC,  "UNITS_METRIC",  "Metric");
-        addItem(RimUnitSystem::UNITS_FIELD,   "UNITS_FIELD",   "Field");
-        addItem(RimUnitSystem::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown");
+        addItem(RiaEclipseUnitTools::UNITS_METRIC,  "UNITS_METRIC",  "Metric");
+        addItem(RiaEclipseUnitTools::UNITS_FIELD,   "UNITS_FIELD",   "Field");
+        addItem(RiaEclipseUnitTools::UNITS_UNKNOWN, "UNITS_UNKNOWN", "Unknown");
 
-        setDefault(RimUnitSystem::UNITS_METRIC);
+        setDefault(RiaEclipseUnitTools::UNITS_METRIC);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimUnitSystem::darcysConstant(UnitSystem unitSystem)
+double RiaEclipseUnitTools::darcysConstant(UnitSystem unitSystem)
 {
     // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
     //     CDARCY Darcys constant

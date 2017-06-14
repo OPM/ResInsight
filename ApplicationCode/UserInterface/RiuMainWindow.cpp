@@ -1306,9 +1306,9 @@ void RiuMainWindow::hideAllDockWindows()
 
     if (1)
     {
-        gridFileNames += RimDefines::mockModelBasicWithResults();
-        gridFileNames += RimDefines::mockModelBasicWithResults();
-        gridFileNames += RimDefines::mockModelBasicWithResults();
+        gridFileNames += RiaEclipseUnitTools::mockModelBasicWithResults();
+        gridFileNames += RiaEclipseUnitTools::mockModelBasicWithResults();
+        gridFileNames += RiaEclipseUnitTools::mockModelBasicWithResults();
     }
     else
     {

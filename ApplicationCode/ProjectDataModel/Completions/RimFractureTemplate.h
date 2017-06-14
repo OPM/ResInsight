@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -71,14 +71,14 @@ public:
     };
     caf::PdmField< caf::AppEnum< FracConductivityEnum > >  conductivityType;
 
-    caf::PdmField< RimUnitSystem::UnitSystemType >  fractureTemplateUnit;
+    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  fractureTemplateUnit;
 
     void                            setDefaultWellDiameterFromUnit();
     
     virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
                                                              std::vector<cvf::uint>*  triangleIndices, 
-                                                             RimUnitSystem::UnitSystem neededUnit) = 0;
-    virtual std::vector<cvf::Vec3f> fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit) = 0;
+                                                             RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
+    virtual std::vector<cvf::Vec3f> fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit) = 0;
 
     virtual const RigFractureGrid*  fractureGrid() const = 0;
 

@@ -219,7 +219,7 @@ bool RicNewGridTimeHistoryCurveFeature::isCommandEnabled()
         const RiuEclipseSelectionItem* eclSelectionItem = dynamic_cast<const RiuEclipseSelectionItem*>(items[0]);
         if (eclSelectionItem)
         {
-            if (eclSelectionItem->m_view->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+            if (eclSelectionItem->m_view->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
             {
                 return false;
             }

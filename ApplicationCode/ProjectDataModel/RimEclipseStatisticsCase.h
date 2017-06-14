@@ -21,7 +21,7 @@
 #pragma once
 
 #include "RimEclipseCase.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -101,8 +101,8 @@ private:
     virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
     // Fields
 
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
-    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
+    caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
+    caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
 
     caf::PdmField<QString>                                          m_selectionSummary;
 

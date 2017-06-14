@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -38,8 +38,8 @@ public:
     RimFractureTemplateCollection(void);
     virtual ~RimFractureTemplateCollection(void);
     
-    caf::PdmChildArrayField<RimFractureTemplate*>               fractureDefinitions;
-    caf::PdmField< RimUnitSystem::UnitSystemType >     defaultUnitsForFracTemplates;
+    caf::PdmChildArrayField<RimFractureTemplate*>           fractureDefinitions;
+    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >    defaultUnitsForFracTemplates;
 
     std::vector<std::pair<QString, QString> >   stimPlanResultNamesAndUnits() const;
     std::vector<QString>                        stimPlanResultNames() const;

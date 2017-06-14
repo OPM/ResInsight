@@ -22,7 +22,7 @@
 #include "RifReaderInterface.h"
 #include "RigResultAccessor.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
@@ -51,7 +51,7 @@ public:
                               RifReaderInterface::PorosityModelResultType porosityModel,
                               size_t timeStepIndex,
                               const QString& uiResultName,
-                              RimDefines::ResultCatType resultType);
+                              RiaDefines::ResultCatType resultType);
 
     static cvf::ref<RigResultAccessor>
         createFromResultIdx(const RigEclipseCaseData* eclipseCase,

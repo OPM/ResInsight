@@ -23,7 +23,7 @@
 #include <QString>
 
 #include <vector>
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 #include "cvfVector3.h"
 
 class RigFractureGrid;
@@ -47,7 +47,7 @@ public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();
 
-    RimUnitSystem::UnitSystem                 unitSet;
+    RiaEclipseUnitTools::UnitSystem                 unitSet;
     std::vector<double>                       gridXs;
 
     //TODO: Consider removing gridYs or depths, 
@@ -70,11 +70,11 @@ public:
     cvf::ref<RigFractureGrid>                 createFractureGrid(const QString& resultNameFromColors,
                                                                  const QString& resultUnitFromColors,
                                                                  int m_activeTimeStepIndex,
-                                                                 RimUnitSystem::UnitSystemType fractureTemplateUnit,
+                                                                 RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit,
                                                                  double m_wellPathDepthAtFracture);
                                               
     void                                      createFractureTriangleGeometry(double m_wellPathDepthAtFracture,
-                                                                             RimUnitSystem::UnitSystem neededUnit,
+                                                                             RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                              const QString& fractureUserName,
                                                                              std::vector<cvf::Vec3f>* vertices,
                                                                              std::vector<cvf::uint>* triangleIndices);
@@ -83,7 +83,7 @@ public:
                                                                           const QString& resultUnit,
                                                                           int m_activeTimeStepIndex,
                                                                           double m_wellPathDepthAtFracture,
-                                                                          RimUnitSystem::UnitSystem neededUnit,
+                                                                          RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                           const QString& fractureUserName);
     // Result Access                                          
                                               

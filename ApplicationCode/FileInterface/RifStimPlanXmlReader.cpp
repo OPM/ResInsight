@@ -96,12 +96,12 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                 {
                     if (unit == "md-ft")
                     {
-                        stimPlanFileData->unitSet = RimUnitSystem::UNITS_FIELD;
+                        stimPlanFileData->unitSet = RiaEclipseUnitTools::UNITS_FIELD;
                         RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(stimPlanFileName));
                     }
                     if (unit == "md-m")
                     {
-                        stimPlanFileData->unitSet = RimUnitSystem::UNITS_METRIC;
+                        stimPlanFileData->unitSet = RiaEclipseUnitTools::UNITS_METRIC;
                         RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(stimPlanFileName));
                     }
                 }

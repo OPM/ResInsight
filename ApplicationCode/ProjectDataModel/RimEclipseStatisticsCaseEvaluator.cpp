@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
+void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, RiaDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
@@ -84,7 +84,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
     for (int i = 0; i < resultSpecification.size(); i++)
     {
         RifReaderInterface::PorosityModelResultType poroModel = resultSpecification[i].m_poroModel;
-        RimDefines::ResultCatType resultType = resultSpecification[i].m_resType;
+        RiaDefines::ResultCatType resultType = resultSpecification[i].m_resType;
         QString resultName = resultSpecification[i].m_resVarName;
 
         size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
@@ -135,7 +135,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
             for (int resSpecIdx = 0; resSpecIdx < resultSpecification.size(); resSpecIdx++)
             {
                 RifReaderInterface::PorosityModelResultType poroModel = resultSpecification[resSpecIdx].m_poroModel;
-                RimDefines::ResultCatType resultType = resultSpecification[resSpecIdx].m_resType;
+                RiaDefines::ResultCatType resultType = resultSpecification[resSpecIdx].m_resType;
                 QString resultName = resultSpecification[resSpecIdx].m_resVarName;
 
                 size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
@@ -147,7 +147,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                 size_t dataAccessTimeStepIndex = timeStepIdx;
 
                 // Always evaluate statistics once, and always use time step index zero
-                if (resultType == RimDefines::STATIC_NATIVE)
+                if (resultType == RiaDefines::STATIC_NATIVE)
                 {
                     if (timeIndicesIdx > 0) continue;
 

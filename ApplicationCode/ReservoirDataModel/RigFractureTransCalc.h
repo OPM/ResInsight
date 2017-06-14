@@ -19,7 +19,7 @@
 #pragma once
 
 
-#include "RimUnitSystem.h"
+#include "RiaEclipseUnitTools.h"
 
 #include "cafAppEnum.h"
 
@@ -86,11 +86,11 @@ public:
                                                              std::vector<std::vector<cvf::Vec3d> > & polygons);
 
 private: 
-    static double convertConductivtyValue(double Kw, RimUnitSystem::UnitSystem fromUnit, RimUnitSystem::UnitSystem toUnit);
+    static double convertConductivtyValue(double Kw, RiaEclipseUnitTools::UnitSystem fromUnit, RiaEclipseUnitTools::UnitSystem toUnit);
 
 private:
     RimEclipseCase*         m_case;
     RimFracture*            m_fracture;
-    RimUnitSystem::UnitSystem  m_unitForCalculation;
+    RiaEclipseUnitTools::UnitSystem  m_unitForCalculation;
 
 };

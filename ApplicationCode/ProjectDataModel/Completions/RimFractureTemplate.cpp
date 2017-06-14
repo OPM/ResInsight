@@ -66,7 +66,7 @@ RimFractureTemplate::RimFractureTemplate(void)
     CAF_PDM_InitObject("Fracture Template", ":/FractureTemplate16x16.png", "", "");
 
     CAF_PDM_InitField(&name,        "UserDescription",  QString("Fracture Template"), "Name", "", "", "");
-    CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<RimUnitSystem::UnitSystem>(RimUnitSystem::UNITS_METRIC), "Units System", "", "", "");
+    CAF_PDM_InitField(&fractureTemplateUnit, "fractureTemplateUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Units System", "", "", "");
     fractureTemplateUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&orientationType, "Orientation",      caf::AppEnum<FracOrientationEnum>(TRANSVERSE_WELL_PATH), "Fracture Orientation", "", "", "");
@@ -175,12 +175,12 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
 
-    if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
         perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
-    else if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
         perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
@@ -231,11 +231,11 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 {
-    if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         wellDiameter = 8.5;
     }
-    else if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         wellDiameter = 0.216;
     }

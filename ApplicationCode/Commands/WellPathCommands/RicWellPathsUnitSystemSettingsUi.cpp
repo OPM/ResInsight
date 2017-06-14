@@ -38,8 +38,8 @@ QList<caf::PdmOptionItemInfo> RicWellPathsUnitSystemSettingsUi::calculateValueOp
     QList<caf::PdmOptionItemInfo> options;
     if (fieldNeedingOptions == &unitSystem)
     {
-        options.push_back(caf::PdmOptionItemInfo(RimUnitSystem::UnitSystemType::uiText(RimUnitSystem::UNITS_METRIC), RimUnitSystem::UNITS_METRIC));
-        options.push_back(caf::PdmOptionItemInfo(RimUnitSystem::UnitSystemType::uiText(RimUnitSystem::UNITS_FIELD), RimUnitSystem::UNITS_FIELD));
+        options.push_back(caf::PdmOptionItemInfo(RiaEclipseUnitTools::UnitSystemType::uiText(RiaEclipseUnitTools::UNITS_METRIC), RiaEclipseUnitTools::UNITS_METRIC));
+        options.push_back(caf::PdmOptionItemInfo(RiaEclipseUnitTools::UnitSystemType::uiText(RiaEclipseUnitTools::UNITS_FIELD), RiaEclipseUnitTools::UNITS_FIELD));
     }
     return options;
 }

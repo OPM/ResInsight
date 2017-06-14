@@ -220,12 +220,12 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         bool unitSystemMismatch = false;
         for (const RimWellPath* wellPath : wellPaths)
         {
-            if (wellPath->unitSystem() == RimUnitSystem::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
             {
                 unitSystemMismatch = true;
                 break;
             }
-            else if (wellPath->unitSystem() == RimUnitSystem::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
             {
                 unitSystemMismatch = true;
                 break;
@@ -264,9 +264,9 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
         if (exportSettings.includeFishbones)
         {
-            std::vector<RigCompletionData> fishbonesCompletionData = generateFishbonesCompdatValues(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesCompletionData = generateFishboneLateralsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesCompletionData);
-            std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesWellPathCompdatValues(wellPath, exportSettings);
+            std::vector<RigCompletionData> fishbonesWellPathCompletionData = generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
         }
 
@@ -412,7 +412,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishboneLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     // Generate data
     const RigEclipseCaseData* caseData =  settings.caseToApply()->eclipseCaseData();
@@ -467,7 +467,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesWellPathCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateFishbonesImportedLateralsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     std::vector<RigCompletionData> completionData;
 
@@ -727,11 +727,11 @@ CellDirection RicWellPathExportCompletionDataFeature::calculateDirectionInCell(R
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
     cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
     cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
     cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
 
     double xLengthFraction = abs(lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx(cellIndex));
@@ -759,18 +759,18 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
     cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
     cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
     cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
     cvf::ref<RigResultAccessor> permxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMX");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
     cvf::ref<RigResultAccessor> permyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMY");
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
     cvf::ref<RigResultAccessor> permzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMZ");
 
     double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
@@ -780,7 +780,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
     double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
 
-    double darcy = RimUnitSystem::darcysConstant(wellPath->unitSystem());
+    double darcy = RiaEclipseUnitTools::darcysConstant(wellPath->unitSystem());
 
     double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x(), permy, permz, dy, dz, wellRadius, skinFactor, darcy);
     double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.y(), permx, permz, dx, dz, wellRadius, skinFactor, darcy);

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"

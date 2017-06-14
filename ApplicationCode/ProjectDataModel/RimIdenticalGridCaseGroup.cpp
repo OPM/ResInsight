@@ -253,7 +253,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
-                RimDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
+                RiaDefines::ResultCatType resultType = resultInfos[resIdx].m_resultType;
                 QString resultName = resultInfos[resIdx].m_resultName;
                 bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
                 bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
@@ -436,8 +436,8 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
         {
             RimEclipseView* rimReservoirView = rimStaticsCase->reservoirViews[j];
-            rimReservoirView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
-            rimReservoirView->cellEdgeResult()->setResultVariable(RimDefines::undefinedResultName());
+            rimReservoirView->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
+            rimReservoirView->cellEdgeResult()->setResultVariable(RiaDefines::undefinedResultName());
             rimReservoirView->loadDataAndUpdate();
         }
     }

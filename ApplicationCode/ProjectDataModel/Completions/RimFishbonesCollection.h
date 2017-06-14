@@ -48,6 +48,9 @@ public:
 
     void         recalculateStartMD();
     double       startMD() const { return m_startMD(); }
+    double       mainBoreDiameter() const { return m_mainBoreDiameter(); }
+    double       linerDiameter() const { return m_linerDiameter(); }
+    double       roughnessFactor() const { return m_roughnessFactor(); }
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -61,4 +64,5 @@ private:
     caf::PdmField<double>                               m_startMD;
     caf::PdmField<double>                               m_mainBoreDiameter;
     caf::PdmField<double>                               m_linerDiameter;
+    caf::PdmField<double>                               m_roughnessFactor;
 };

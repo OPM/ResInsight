@@ -18,9 +18,10 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "Rim3dPropertiesInterface.h"
 #include "RimCheckableNamedObject.h"
-#include "RimUnitSystem.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -65,7 +66,7 @@ public:
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
     caf::PdmField<bool>             showPolygonFractureOutline;
 
-    caf::PdmField< RimUnitSystem::UnitSystemType >  fractureUnit;
+    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  fractureUnit;
 
     double                          wellRadius() const;
     cvf::Vec3d                      anchorPosition() const ;

@@ -203,7 +203,7 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
+size_t RigCaseCellResultsData::findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const
 {
     std::vector<ResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
@@ -222,26 +222,26 @@ size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) const
 {
-    size_t scalarResultIndex = this->findScalarResultIndex(RimDefines::STATIC_NATIVE, resultName);
+    size_t scalarResultIndex = this->findScalarResultIndex(RiaDefines::STATIC_NATIVE, resultName);
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, resultName);
+        scalarResultIndex = this->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, resultName);
     }
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->findScalarResultIndex(RimDefines::GENERATED, resultName);
+        scalarResultIndex = this->findScalarResultIndex(RiaDefines::GENERATED, resultName);
     }
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
+        scalarResultIndex = this->findScalarResultIndex(RiaDefines::INPUT_PROPERTY, resultName);
     }
 
     if(scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->findScalarResultIndex(RimDefines::FORMATION_NAMES, resultName);
+        scalarResultIndex = this->findScalarResultIndex(RiaDefines::FORMATION_NAMES, resultName);
     }
 
     return scalarResultIndex;
@@ -251,7 +251,7 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
+size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
 {
     size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
 
@@ -274,51 +274,51 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
 
     cvf::ref<RigStatisticsCalculator> statisticsCalculator;
 
-    if (resultName == RimDefines::combinedTransmissibilityResultName())
+    if (resultName == RiaDefines::combinedTransmissibilityResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ"));
 
         statisticsCalculator = calc;
     }
-    else if (resultName == RimDefines::combinedMultResultName())
+    else if (resultName == RiaDefines::combinedMultResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
 
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX-"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY-"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ"));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTX"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTX-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTY"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTY-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTZ"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, "MULTZ-"));
 
         statisticsCalculator = calc;
     }
-    else if (resultName == RimDefines::combinedRiTranResultName())
+    else if (resultName == RiaDefines::combinedRiTranResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName()));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName()));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName()));
         statisticsCalculator = calc;
     }
-    else if (resultName == RimDefines::combinedRiMultResultName())
+    else if (resultName == RiaDefines::combinedRiMultResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName()));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName()));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riMultZResultName()));
         statisticsCalculator = calc;
     }
-    else if (resultName == RimDefines::combinedRiAreaNormTranResultName())
+    else if (resultName == RiaDefines::combinedRiAreaNormTranResultName())
     {
         cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranXResultName()));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranYResultName()));
-        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName()));
         statisticsCalculator = calc;
     }
     else
@@ -336,7 +336,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RigCaseCellResultsData::resultNames(RimDefines::ResultCatType resType) const
+QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resType) const
 {
     QStringList varList;
     std::vector<ResultInfo>::const_iterator it;
@@ -378,7 +378,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) 
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
 {
-    QStringList dynResVarNames = resultNames(RimDefines::DYNAMIC_NATIVE);
+    QStringList dynResVarNames = resultNames(RiaDefines::DYNAMIC_NATIVE);
 
     bool hasFlowFluxes = true;
     hasFlowFluxes = dynResVarNames.contains("FLRWATI+");
@@ -541,7 +541,7 @@ void RigCaseCellResultsData::removeResult(const QString& resultName)
 
     m_cellScalarResults[resultIdx].clear();
 
-    m_resultInfos[resultIdx].m_resultType = RimDefines::REMOVED;
+    m_resultInfos[resultIdx].m_resultType = RiaDefines::REMOVED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,7 +575,7 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 /// Make sure we have a result with given type and name, and make sure one "timestep" result vector 
 // for the static result values are allocated
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
+size_t RigCaseCellResultsData::addStaticScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
 {
     size_t resultIdx = addEmptyScalarResult(type, resultName, needsToBeStored);
     
@@ -588,9 +588,9 @@ size_t RigCaseCellResultsData::addStaticScalarResult(RimDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel)
+RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromProjectModelPorosityModel(RiaDefines::PorosityModelType porosityModel)
 {
-    if (porosityModel == RimDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
+    if (porosityModel == RiaDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
     
     return RifReaderInterface::FRACTURE_RESULTS;
 }
@@ -598,7 +598,7 @@ RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigCaseCellResultsData::updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName)
+bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName)
 {
     bool anyNameUpdated = false;
 
@@ -653,15 +653,15 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
     // SOIL
     {
-        size_t soilIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
+        size_t soilIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL");
         if (soilIndex == cvf::UNDEFINED_SIZE_T)
         {
-            size_t swatIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SWAT");
-            size_t sgasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SGAS");
+            size_t swatIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t sgasIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SGAS");
 
             if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
             {
-                soilIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
+                soilIndex = addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
                 this->setMustBeCalculated(soilIndex);
             }
         }
@@ -669,10 +669,10 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // Completion type
     {
-        size_t completionTypeIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName());
+        size_t completionTypeIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
         if (completionTypeIndex == cvf::UNDEFINED_SIZE_T)
         {
-            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, RimDefines::completionTypeResultName(), false);
+            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName(), false);
         }
     }
 
@@ -681,24 +681,24 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         size_t tranX, tranY, tranZ;
         if (findTransmissibilityResults(tranX, tranY, tranZ))
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName(), false, 0);
         }
     }
     // MULTXYZ
     {
-        addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedMultResultName(), false, 0);
+        addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedMultResultName(), false, 0);
     }
 
     // riTRANSXYZ and X,Y,Z
     {
-        if (   findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T
-            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMY") != cvf::UNDEFINED_SIZE_T
-            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMZ") != cvf::UNDEFINED_SIZE_T)
+        if (   findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PERMY") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RiaDefines::STATIC_NATIVE, "PERMZ") != cvf::UNDEFINED_SIZE_T)
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName(), false, 0);
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName(), false, 0);
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName(), false, 0);
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTranResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName(), false, 0);
         }
     }
 
@@ -706,38 +706,38 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     {
         size_t tranX, tranY, tranZ;
         if (findTransmissibilityResults(tranX, tranY, tranZ)
-            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranXResultName()) != cvf::UNDEFINED_SIZE_T
-            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranYResultName()) != cvf::UNDEFINED_SIZE_T
-            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTranZResultName()) != cvf::UNDEFINED_SIZE_T)
+            && findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranXResultName()) != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranYResultName()) != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riTranZResultName()) != cvf::UNDEFINED_SIZE_T)
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName(), false, 0);
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName(), false, 0);
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName(), false, 0);
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiMultResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riMultXResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riMultYResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riMultZResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiMultResultName(), false, 0);
         }
     }
 
     // riTRANSXYZbyArea and X, Y, Z
     {
-        if (findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX") != cvf::UNDEFINED_SIZE_T)
+        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX") != cvf::UNDEFINED_SIZE_T)
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranXResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName(), false, 0);
         }
 
-        if (findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY") != cvf::UNDEFINED_SIZE_T)
+        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY") != cvf::UNDEFINED_SIZE_T)
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranYResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName(), false, 0);
         }
 
-        if (findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ") != cvf::UNDEFINED_SIZE_T)
+        if (findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ") != cvf::UNDEFINED_SIZE_T)
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName(), false, 0);
         }
 
         size_t tranX, tranY, tranZ;
         if (findTransmissibilityResults(tranX, tranY, tranZ))
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiAreaNormTranResultName(), false, 0);
+            addStaticScalarResult(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName(), false, 0);
         }
     }
 }
@@ -747,9 +747,9 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const
 {
-    tranX = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX");
-    tranY = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY");
-    tranZ = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ");
+    tranX = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANX");
+    tranY = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANY");
+    tranZ = findScalarResultIndex(RiaDefines::STATIC_NATIVE, "TRANZ");
 
     if (tranX == cvf::UNDEFINED_SIZE_T ||
         tranY == cvf::UNDEFINED_SIZE_T ||

@@ -20,8 +20,8 @@
 
 
 #include "RiaApplication.h"
+#include "RiaEclipseUnitTools.h"
 
-#include "RimDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
@@ -81,11 +81,11 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
     objHandle->firstAncestorOrThisOfType(ellipseFractureTemplate);
 
     QString text = "Convert Values to ";
-    if (ellipseFractureTemplate->fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
+    if (ellipseFractureTemplate->fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         text += "Field";
     }
-    else if (ellipseFractureTemplate->fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
+    else if (ellipseFractureTemplate->fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         text += "Metric";
     }

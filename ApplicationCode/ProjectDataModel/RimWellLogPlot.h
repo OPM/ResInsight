@@ -24,7 +24,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafAppEnum.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
@@ -63,8 +63,8 @@ public:
     DepthTypeEnum                                   depthType() const;
     void                                            setDepthType(DepthTypeEnum depthType);
 
-    RimDefines::DepthUnitType                       depthUnit() const;
-    void                                            setDepthUnit(RimDefines::DepthUnitType depthUnit);
+    RiaDefines::DepthUnitType                       depthUnit() const;
+    void                                            setDepthUnit(RiaDefines::DepthUnitType depthUnit);
 
 
     QString                                         depthPlotTitle() const;
@@ -130,7 +130,7 @@ private:
     caf::PdmField<QString>                          m_userName;
     
     caf::PdmField< caf::AppEnum< DepthTypeEnum > >              m_depthType;
-    caf::PdmField< caf::AppEnum< RimDefines::DepthUnitType > >  m_depthUnit;
+    caf::PdmField< caf::AppEnum< RiaDefines::DepthUnitType > >  m_depthUnit;
     std::set<DepthTypeEnum>                         m_disabledDepthTypes;
 
     caf::PdmChildArrayField<RimWellLogTrack*>       m_tracks;

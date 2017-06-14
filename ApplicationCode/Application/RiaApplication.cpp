@@ -37,7 +37,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -971,7 +971,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
 
     // Select SOIL as default result variable
-    riv->cellResult()->setResultType(RimDefines::DYNAMIC_NATIVE);
+    riv->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
 
     if (m_preferences->loadAndShowSoil)
     {
@@ -987,15 +987,15 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         {
             if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
             {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimUnitSystem::UNITS_METRIC;
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RiaEclipseUnitTools::UNITS_METRIC;
             }
             else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
             {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimUnitSystem::UNITS_FIELD;
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RiaEclipseUnitTools::UNITS_FIELD;
             }
             else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_LAB)
             {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RimUnitSystem::UNITS_METRIC;
+                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RiaEclipseUnitTools::UNITS_METRIC;
             }
         }
     }
@@ -1081,7 +1081,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
     }
     
     analysisModels->updateConnectedEditors();
@@ -1110,14 +1110,14 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 
     RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
 
-    riv->cellResult()->setResultType(RimDefines::INPUT_PROPERTY);
+    riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
     riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
     }
 
     analysisModels->updateConnectedEditors();
@@ -1166,7 +1166,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 
     //if (!riv->cellResult()->hasResult())
     //{
-    //    riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+    //    riv->cellResult()->setResultVariable(RiaEclipseUnitTools::undefinedResultName());
     //}
     progress.incrementProgress();
     progress.setProgressDescription("Loading results information");
@@ -1185,7 +1185,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMockModel()
 {
-    openEclipseCase(RimDefines::mockModelBasic(), RimDefines::mockModelBasic());
+    openEclipseCase(RiaDefines::mockModelBasic(), RiaDefines::mockModelBasic());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1193,7 +1193,7 @@ void RiaApplication::createMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createResultsMockModel()
 {
-    openEclipseCase(RimDefines::mockModelBasicWithResults(), RimDefines::mockModelBasicWithResults());
+    openEclipseCase(RiaDefines::mockModelBasicWithResults(), RiaDefines::mockModelBasicWithResults());
 }
 
 
@@ -1202,7 +1202,7 @@ void RiaApplication::createResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createLargeResultsMockModel()
 {
-    openEclipseCase(RimDefines::mockModelLargeWithResults(), RimDefines::mockModelLargeWithResults());
+    openEclipseCase(RiaDefines::mockModelLargeWithResults(), RiaDefines::mockModelLargeWithResults());
 }
 
 
@@ -1211,7 +1211,7 @@ void RiaApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMockModelCustomized()
 {
-    openEclipseCase(RimDefines::mockModelCustomized(), RimDefines::mockModelCustomized());
+    openEclipseCase(RiaDefines::mockModelCustomized(), RiaDefines::mockModelCustomized());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ void RiaApplication::createMockModelCustomized()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCaseFromFileNames(QStringList(RimDefines::mockModelBasicInputCase()));
+    openInputEclipseCaseFromFileNames(QStringList(RiaDefines::mockModelBasicInputCase()));
 }
 
 //--------------------------------------------------------------------------------------------------

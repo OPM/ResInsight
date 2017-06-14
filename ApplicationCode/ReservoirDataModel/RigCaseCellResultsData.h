@@ -22,7 +22,7 @@
 
 #include "RifReaderInterface.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfCollection.h"
 
@@ -69,7 +69,7 @@ public:
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(size_t scalarResultIndex) const; 
     size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
-    QStringList                                        resultNames(RimDefines::ResultCatType type) const;
+    QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
@@ -84,10 +84,10 @@ public:
 
     // Find or create a slot for the results
 
-    size_t                                             findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
+    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
+    size_t                                             addEmptyScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               createPlaceholderResultEntries();
@@ -102,19 +102,19 @@ public:
     std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
     std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
 
-    static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
+    static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RiaDefines::PorosityModelType porosityModel);
 
-    bool                                               updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:
     class ResultInfo
     {
     public:
-        ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
+        ResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
             : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex), m_mustBeCalculated(mustBeCalculated) { }
 
     public:
-        RimDefines::ResultCatType   m_resultType;
+        RiaDefines::ResultCatType   m_resultType;
         bool                        m_needsToBeStored;
         bool                        m_mustBeCalculated;
         QString                     m_resultName;
@@ -131,7 +131,7 @@ public:
 
     
 public:
-    size_t                                                  addStaticScalarResult(RimDefines::ResultCatType type, 
+    size_t                                                  addStaticScalarResult(RiaDefines::ResultCatType type, 
                                                                                   const QString& resultName, 
                                                                                   bool needsToBeStored,
                                                                                   size_t resultValueCount);

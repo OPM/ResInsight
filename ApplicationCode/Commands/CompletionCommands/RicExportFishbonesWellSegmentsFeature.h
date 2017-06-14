@@ -50,4 +50,6 @@ private:
     static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
     static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
     static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+
+    static double                                computeEffectiveDiameter(double innerDiameter, double outerDiameter);
 };

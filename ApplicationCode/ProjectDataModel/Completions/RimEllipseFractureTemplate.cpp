@@ -18,6 +18,7 @@
 
 #include "RimEllipseFractureTemplate.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RigCellGeometryTools.h"
@@ -25,7 +26,6 @@
 #include "RigFractureGrid.h"
 #include "RigTesselatorTools.h"
 
-#include "RimUnitSystem.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
@@ -107,7 +107,7 @@ void RimEllipseFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
                                                           std::vector<cvf::uint>* triangleIndices, 
-                                                          RimUnitSystem::UnitSystem neededUnit)
+                                                          RiaEclipseUnitTools::UnitSystem neededUnit)
 {
     RigEllipsisTesselator tesselator(20);
 
@@ -120,17 +120,17 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f
         b = height / 2.0f;
 
     }
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_METRIC && neededUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_METRIC && neededUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         RiaLogging::info(QString("Converting fracture template geometry from metric to field"));
-        a = RimUnitSystem::meterToFeet(halfLength);
-        b = RimUnitSystem::meterToFeet(height / 2.0f);
+        a = RiaEclipseUnitTools::meterToFeet(halfLength);
+        b = RiaEclipseUnitTools::meterToFeet(height / 2.0f);
     }
-    else if (fractureTemplateUnit() == RimUnitSystem::UNITS_FIELD && neededUnit == RimUnitSystem::UNITS_METRIC)
+    else if (fractureTemplateUnit() == RiaEclipseUnitTools::UNITS_FIELD && neededUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         RiaLogging::info(QString("Converting fracture template geometry from field to metric"));
-        a = RimUnitSystem::feetToMeter(halfLength);
-        b = RimUnitSystem::feetToMeter(height / 2.0f);
+        a = RiaEclipseUnitTools::feetToMeter(halfLength);
+        b = RiaEclipseUnitTools::feetToMeter(height / 2.0f);
     }
     else
     {
@@ -146,7 +146,7 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit)
+std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit)
 {
     std::vector<cvf::Vec3f> polygon;
 
@@ -168,23 +168,23 @@ std::vector<cvf::Vec3f> RimEllipseFractureTemplate::fractureBorderPolygon(RimUni
 //--------------------------------------------------------------------------------------------------
 void RimEllipseFractureTemplate::changeUnits()
 {
-    if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        halfLength = RimUnitSystem::meterToFeet(halfLength);
-        height = RimUnitSystem::meterToFeet(height);
-        width = RimUnitSystem::meterToInch(width);
-        wellDiameter = RimUnitSystem::meterToInch(wellDiameter);
-        perforationLength = RimUnitSystem::meterToFeet(perforationLength);
-        fractureTemplateUnit = RimUnitSystem::UNITS_FIELD;
+        halfLength = RiaEclipseUnitTools::meterToFeet(halfLength);
+        height = RiaEclipseUnitTools::meterToFeet(height);
+        width = RiaEclipseUnitTools::meterToInch(width);
+        wellDiameter = RiaEclipseUnitTools::meterToInch(wellDiameter);
+        perforationLength = RiaEclipseUnitTools::meterToFeet(perforationLength);
+        fractureTemplateUnit = RiaEclipseUnitTools::UNITS_FIELD;
     }
-    else if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        halfLength = RimUnitSystem::feetToMeter(halfLength);
-        height = RimUnitSystem::feetToMeter(height);
-        width = RimUnitSystem::inchToMeter(width);
-        wellDiameter = RimUnitSystem::inchToMeter(wellDiameter);
-        perforationLength = RimUnitSystem::feetToMeter(perforationLength);
-        fractureTemplateUnit = RimUnitSystem::UNITS_METRIC;
+        halfLength = RiaEclipseUnitTools::feetToMeter(halfLength);
+        height = RiaEclipseUnitTools::feetToMeter(height);
+        width = RiaEclipseUnitTools::inchToMeter(width);
+        wellDiameter = RiaEclipseUnitTools::inchToMeter(wellDiameter);
+        perforationLength = RiaEclipseUnitTools::feetToMeter(perforationLength);
+        fractureTemplateUnit = RiaEclipseUnitTools::UNITS_METRIC;
     }
 
     this->updateConnectedEditors();
@@ -227,15 +227,15 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
             cellPolygon.push_back(cvf::Vec3d(X1, Y2, 0.0));
             
             double cond = cvf::UNDEFINED_DOUBLE;
-            if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
+            if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
             {
                 //Conductivity should be md-m, width is in m
                 cond = permeability * width;
             }
-            else if(fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
+            else if(fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
             {
                 //Conductivity should be md-ft, but width is in inches 
-                cond = permeability * RimUnitSystem::inchToFeet(width);
+                cond = permeability * RiaEclipseUnitTools::inchToFeet(width);
             }
 
             std::vector<cvf::Vec3f> ellipseFracPolygon = fractureBorderPolygon(fractureTemplateUnit());
@@ -297,14 +297,14 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     RimFractureTemplate::defineUiOrdering(uiConfigName, uiOrdering);
     
-    if (fractureTemplateUnit == RimUnitSystem::UNITS_METRIC)
+    if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [m]");
         height.uiCapability()->setUiName("Height [m]");
         width.uiCapability()->setUiName("Width [m]");
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
     }
-    else if (fractureTemplateUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
         halfLength.uiCapability()->setUiName("Halflenght X<sub>f</sub> [Ft]");
         height.uiCapability()->setUiName("Height [Ft]");

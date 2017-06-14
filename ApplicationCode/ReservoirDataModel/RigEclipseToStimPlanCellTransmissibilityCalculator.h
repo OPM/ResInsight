@@ -46,7 +46,7 @@ private:
     void                        calculateStimPlanCellsMatrixTransmissibility();
     std::vector<size_t>         getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon);
 
-
+private:
     const RimEclipseCase*               m_case;
     double                              m_cDarcy;
     double                              m_fractureSkinFactor;
@@ -55,6 +55,5 @@ private:
 
     std::vector<size_t>                 m_globalIndeciesToContributingEclipseCells;
     std::vector<double>                 m_contributingEclipseCellTransmissibilities;
-
 };
 

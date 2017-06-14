@@ -20,7 +20,7 @@
 
 #include "cafAppEnum.h"
 
-class RimUnitSystem
+class RiaEclipseUnitTools
 {
 
 public:
@@ -32,7 +32,7 @@ public:
         UNITS_UNKNOWN,
     };
 
-    typedef caf::AppEnum< RimUnitSystem::UnitSystem > UnitSystemType;
+    typedef caf::AppEnum< RiaEclipseUnitTools::UnitSystem > UnitSystemType;
 
     static double feetPerMeter()                    { return 3.2808399; }
     static double meterPerFeet()                    { return 0.3048000; }

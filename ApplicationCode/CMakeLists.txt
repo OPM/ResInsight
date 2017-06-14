@@ -37,6 +37,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
+    ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
@@ -69,20 +70,6 @@ include_directories(
 # Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
 
-set( APPLICATION_FILES 
-    RiaMain.cpp
-        
-    Application/RiaApplication.cpp
-    Application/RiaPreferences.cpp
-    Application/RiaImageFileCompare.cpp
-    Application/RiaImageCompareReporter.cpp
-    Application/RiaProjectModifier.cpp
-    Application/RiaRegressionTest.cpp
-    Application/RiaColorTables.cpp
-    Application/RiaLogging.h
-    Application/RiaLogging.cpp
-)
-
 set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketServer.cpp
     SocketInterface/RiaProjectInfoCommands.cpp
@@ -95,12 +82,14 @@ set( SOCKET_INTERFACE_FILES
 )
 
 list( APPEND CPP_SOURCES
-     ${APPLICATION_FILES}
      ${SOCKET_INTERFACE_FILES}
      ${UNIT_TEST_FILES}
 )
 
 list( APPEND REFERENCED_CMAKE_FILES
+    Application/CMakeLists_files.cmake
+    Application/Tools/CMakeLists_files.cmake
+
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
@@ -185,7 +174,6 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 
 set ( QT_MOC_HEADERS
     ${QT_MOC_HEADERS}
-    Application/RiaApplication.h
     
     ProjectDataModel/RimMimeData.h
     ProjectDataModel/RimIntersectionBox.h
@@ -221,7 +209,6 @@ endif()
 ################################################################################
 # Create source groups - see also included CMakeLists_files.cmake
 ################################################################################
-source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )

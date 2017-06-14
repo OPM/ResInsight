@@ -38,7 +38,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimIntersection.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -241,7 +241,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     QAction* propertyAction = new QAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this);
                     connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
 
-                    bool isPerCellFaceResult = RimDefines::isPerCellFaceResult(cellColors->resultVariable());
+                    bool isPerCellFaceResult = RiaDefines::isPerCellFaceResult(cellColors->resultVariable());
                     if (isPerCellFaceResult)
                     {
                         propertyAction->setEnabled(false);

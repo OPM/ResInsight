@@ -68,8 +68,8 @@ public:
     void                                    updateFractureGrid();
     void                                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords,
                                                                      std::vector<cvf::uint>* triangleIndices, 
-                                                                     RimUnitSystem::UnitSystem  neededUnit) override;
-    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RimUnitSystem::UnitSystem neededUnit);
+                                                                     RiaEclipseUnitTools::UnitSystem  neededUnit) override;
+    std::vector<cvf::Vec3f>                 fractureBorderPolygon(RiaEclipseUnitTools::UnitSystem neededUnit);
 
     // Result Access
 

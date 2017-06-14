@@ -36,7 +36,7 @@
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "cvfMath.h"
-#include "RimDefines.h"
+#include "RiaEclipseUnitTools.h"
 #include "RigFractureCell.h"
 #include <cmath> //Used for log 
 #include "RiaApplication.h"
@@ -58,19 +58,19 @@ RigFractureTransCalc::RigFractureTransCalc(RimEclipseCase* caseToApply, RimFract
     if (caseUnit == RigEclipseCaseData::UNITS_METRIC)
     {
         RiaLogging::debug(QString("Calculating transmissibilities in metric units"));
-        m_unitForCalculation = RimUnitSystem::UNITS_METRIC;
+        m_unitForCalculation = RiaEclipseUnitTools::UNITS_METRIC;
     }
     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)
     {
         RiaLogging::debug(QString("Calculating transmissibilities in field units"));
-        m_unitForCalculation = RimUnitSystem::UNITS_FIELD;
+        m_unitForCalculation = RiaEclipseUnitTools::UNITS_FIELD;
     }
     else
     {
         //TODO: How to handle lab units for eclipse case?
         RiaLogging::error(QString("Unit system for case not supported for fracture export."));
         RiaLogging::error(QString("Export will be in metric units, but results might be wrong."));
-        m_unitForCalculation = RimUnitSystem::UNITS_METRIC;
+        m_unitForCalculation = RiaEclipseUnitTools::UNITS_METRIC;
     }
 
 
@@ -96,20 +96,20 @@ std::vector<RigFracturedEclipseCellExportData>  RigFractureTransCalc::computeTra
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
 
     size_t scalarSetIndex;
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
     cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
     cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
     cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
     cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
     cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
     cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
     cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
 
     RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
@@ -282,18 +282,18 @@ bool RigFractureTransCalc::planeCellIntersectionPolygons(cvf::Vec3d hexCorners[8
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigFractureTransCalc::convertConductivtyValue(double Kw, RimUnitSystem::UnitSystem fromUnit, RimUnitSystem::UnitSystem toUnit)
+double RigFractureTransCalc::convertConductivtyValue(double Kw, RiaEclipseUnitTools::UnitSystem fromUnit, RiaEclipseUnitTools::UnitSystem toUnit)
 {
 
     if (fromUnit == toUnit) return Kw;
 
-    else if (fromUnit == RimUnitSystem::UNITS_METRIC && toUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fromUnit == RiaEclipseUnitTools::UNITS_METRIC && toUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        return RimUnitSystem::meterToFeet(Kw);
+        return RiaEclipseUnitTools::meterToFeet(Kw);
     }
-    else if (fromUnit == RimUnitSystem::UNITS_METRIC && toUnit == RimUnitSystem::UNITS_FIELD)
+    else if (fromUnit == RiaEclipseUnitTools::UNITS_METRIC && toUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        return RimUnitSystem::feetToMeter(Kw);
+        return RiaEclipseUnitTools::feetToMeter(Kw);
     }
 
     return cvf::UNDEFINED_DOUBLE;
