@@ -92,12 +92,12 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
         }
     }
 
-    exportSettings.fileName = QDir(defaultDir).filePath("Completions");
+    exportSettings.folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
+        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
 
         exportCompletions(wellPaths, exportSettings);
     }
@@ -140,17 +140,10 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings)
 {
-    QFile exportFile(exportSettings.fileName());
 
     if (exportSettings.caseToApply() == nullptr)
     {
         RiaLogging::error("Export Completions Data: Cannot export completions data without specified eclipse case");
-        return;
-    }
-
-    if (!exportFile.open(QIODevice::WriteOnly))
-    {
-        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(exportSettings.fileName()));
         return;
     }
 
@@ -176,8 +169,6 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
     }
 
-    QTextStream stream(&exportFile);
-    RifEclipseDataTableFormatter formatter(stream);
 
     std::map<IJKCellIndex, std::vector<RigCompletionData> > completionData;
 
@@ -209,16 +200,94 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         completions.push_back(RigCompletionData::combine(data.second));
     }
+
+    const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
+
+    if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
+    {
+        const QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
+        printCompletionsToFile(exportSettings.folder, fileName, completions, exportSettings.includeWpimult);
+    }
+    else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL)
+    {
+        for (auto wellPath : wellPaths)
+        {
+            std::vector<RigCompletionData> wellCompletions;
+            for (auto completion : completions)
+            {
+                if (completion.wellName() == wellPath->completions()->wellNameForExport())
+                {
+                    wellCompletions.push_back(completion);
+                }
+            }
+
+            QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
+            printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.includeWpimult);
+        }
+    }
+    else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
+    {
+        for (auto wellPath : wellPaths)
+        {
+            {
+                std::vector<RigCompletionData> fishbonesCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FISHBONES);
+                QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.includeWpimult);
+            }
+            {
+                std::vector<RigCompletionData> perforationCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::PERFORATION);
+                QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.includeWpimult);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, bool includeWpimult)
+{
+    QString filePath = QDir(exportFolder).filePath(fileName);
+    QFile exportFile(filePath);
+    if (!exportFile.open(QIODevice::WriteOnly))
+    {
+        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(filePath));
+        return;
+    }
+
+    QTextStream stream(&exportFile);
+    RifEclipseDataTableFormatter formatter(stream);
+
     // Sort by well name / cell index
     std::sort(completions.begin(), completions.end());
+
     // Print completion data
     generateCompdatTable(formatter, completions);
-    if (exportSettings.includeWpimult)
+    if (includeWpimult)
     {
         generateWpimultTable(formatter, completions);
     }
 
-    RiaLogging::info(QString("Successfully exported completion data to %1").arg(exportSettings.fileName()));
+    RiaLogging::info(QString("Successfully exported completion data to %1").arg(filePath));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::getCompletionsForWellAndCompletionType(const std::vector<RigCompletionData>& completions,
+                                                                                                              const QString& wellName,
+                                                                                                              RigCompletionData::CompletionType completionType)
+{
+    std::vector<RigCompletionData> filteredCompletions;
+    for (auto completion : completions)
+    {
+        if (completion.wellName() == wellName && completion.completionType() == completionType)
+        {
+            filteredCompletions.push_back(completion);
+        }
+    }
+    return filteredCompletions;
 }
 
 //--------------------------------------------------------------------------------------------------

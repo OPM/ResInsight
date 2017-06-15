@@ -128,7 +128,6 @@ void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, do
 
     computeRangesAndLocations();
     computeRotationAngles();
-    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,8 +274,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         computeRotationAngles();
     }
 
-    if (recomputeLocations ||
-        changedField == &m_locationOfSubs ||
+    if (changedField == &m_locationOfSubs ||
         changedField == &m_lateralInstallSuccessFraction ||
         changedField == &m_lateralCountPerSub)
     {
@@ -338,6 +336,7 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 
     RimFishbonesCollection* collection;
     this->firstAncestorOrThisOfTypeAsserted(collection);
+    computeSubLateralIndices();
     collection->recalculateStartMD();
 }
 

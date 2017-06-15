@@ -74,12 +74,12 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
         }
     }
 
-    exportSettings.fileName = QDir(defaultDir).filePath("WellSegments");
+    exportSettings.folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.fileName).absolutePath());
+        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
 
         std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
         for (RimFishbonesMultipleSubs* subs : fishbonesCollection->fishbonesSubs)
@@ -153,7 +153,8 @@ bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings)
 {
-    QFile exportFile(settings.fileName());
+    QString filePath = QDir(settings.folder()).filePath("Welsegs");
+    QFile exportFile(filePath);
 
     if (settings.caseToApply() == nullptr)
     {
@@ -163,7 +164,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
 
     if (!exportFile.open(QIODevice::WriteOnly))
     {
-        RiaLogging::error(QString("Export Well Segments: Could not open the file: %1").arg(settings.fileName()));
+        RiaLogging::error(QString("Export Well Segments: Could not open the file: %1").arg(filePath));
         return;
     }
 
