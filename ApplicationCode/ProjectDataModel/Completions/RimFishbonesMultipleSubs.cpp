@@ -103,8 +103,6 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     nameField()->uiCapability()->setUiReadOnly(true);
 
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
-
-    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,6 +228,15 @@ std::vector<cvf::Vec3d> RimFishbonesMultipleSubs::coordsForLateral(size_t subInd
 std::vector<std::pair<cvf::Vec3d, double>> RimFishbonesMultipleSubs::coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const
 {
     return m_rigFishbonesGeometry->coordsForLateral(subIndex, lateralIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::recomputeLateralLocations()
+{
+    computeRangesAndLocations();
+    computeRotationAngles();
 }
 
 //--------------------------------------------------------------------------------------------------

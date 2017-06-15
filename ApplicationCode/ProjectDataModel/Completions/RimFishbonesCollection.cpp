@@ -85,7 +85,7 @@ void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
     subs->fishbonesColor = nextFishbonesColor();
     fishbonesSubs.push_back(subs);
 
-    recalculateStartMD();
+    subs->recomputeLateralLocations();
 }
 
 //--------------------------------------------------------------------------------------------------

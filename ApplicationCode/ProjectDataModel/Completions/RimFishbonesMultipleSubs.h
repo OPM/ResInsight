@@ -88,10 +88,10 @@ public:
     size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;
 
-    const std::vector<SubLateralIndex>& installedLateralIndices() const { return m_subLateralIndices; };
-
+    const std::vector<SubLateralIndex>&         installedLateralIndices() const { return m_subLateralIndices; };
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
     std::vector<std::pair<cvf::Vec3d, double>>  coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const;
+    void                                        recomputeLateralLocations();
     
     // Override from Rim3dPropertiesInterface
     virtual cvf::BoundingBox boundingBoxInDomainCoords() override;
