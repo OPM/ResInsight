@@ -147,9 +147,25 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         return;
     }
 
+    std::vector<RimWellPath*> usedWellPaths;
+    if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::ALL_WELLS)
+    {
+        usedWellPaths = wellPaths;
+    }
+    else if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_WELLS)
+    {
+        for (auto wellPath : wellPaths)
+        {
+            if (wellPath->showWellPath)
+            {
+                usedWellPaths.push_back(wellPath);
+            }
+        }
+    }
+
     {
         bool unitSystemMismatch = false;
-        for (const RimWellPath* wellPath : wellPaths)
+        for (const RimWellPath* wellPath : usedWellPaths)
         {
             if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
             {
@@ -172,7 +188,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 
     std::map<IJKCellIndex, std::vector<RigCompletionData> > completionData;
 
-    for (auto wellPath : wellPaths)
+    for (auto wellPath : usedWellPaths)
     {
         // Generate completion data
 
@@ -210,7 +226,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL)
     {
-        for (auto wellPath : wellPaths)
+        for (auto wellPath : usedWellPaths)
         {
             std::vector<RigCompletionData> wellCompletions;
             for (auto completion : completions)
@@ -227,7 +243,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
     {
-        for (auto wellPath : wellPaths)
+        for (auto wellPath : usedWellPaths)
         {
             {
                 std::vector<RigCompletionData> fishbonesCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FISHBONES);

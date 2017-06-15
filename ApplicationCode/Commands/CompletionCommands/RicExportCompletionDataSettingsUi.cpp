@@ -28,6 +28,14 @@ namespace caf
         addItem(RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE, "SPLIT_ON_WELL_AND_COMPLETION_TYPE", "Split on Well and Completion Type");
         setDefault(RicExportCompletionDataSettingsUi::UNIFIED_FILE);
     }
+
+    template<>
+    void RicExportCompletionDataSettingsUi::WellSelectionType::setUp()
+    {
+        addItem(RicExportCompletionDataSettingsUi::ALL_WELLS,     "ALL_WELLS",     "All Wells");
+        addItem(RicExportCompletionDataSettingsUi::CHECKED_WELLS, "CHECKED_WELLS", "Checked Wells");
+        setDefault(RicExportCompletionDataSettingsUi::ALL_WELLS);
+    }
 }
 
 
@@ -41,6 +49,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellSelection, "WellSelection", "Well Selection", "", "", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
 

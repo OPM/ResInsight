@@ -36,14 +36,20 @@ public:
         SPLIT_ON_WELL,
         SPLIT_ON_WELL_AND_COMPLETION_TYPE,
     };
-
     typedef caf::AppEnum<ExportSplit> ExportSplitType;
+
+    enum WellSelection {
+        ALL_WELLS,
+        CHECKED_WELLS,
+    };
+    typedef caf::AppEnum<WellSelection> WellSelectionType;
 
 
     RicExportCompletionDataSettingsUi();
 
 
     caf::PdmField<ExportSplitType>          fileSplit;
+    caf::PdmField<WellSelectionType>        wellSelection;
 
     caf::PdmField<bool>                     computeTransmissibility;
     caf::PdmField<bool>                     includePerforations;
