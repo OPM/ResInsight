@@ -426,6 +426,33 @@ void RimView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RivWellPathCollectionPartMgr* RimView::wellPathsPartManager()
+{
+    ensureWellPathManagerIsCreated();
+
+    CVF_ASSERT(m_wellPathsPartManager.notNull());
+
+    return m_wellPathsPartManager.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::ensureWellPathManagerIsCreated()
+{
+    if (m_wellPathsPartManager.isNull())
+    {
+        RimProject* proj = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(proj);
+        CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
+
+        m_wellPathsPartManager = new RivWellPathCollectionPartMgr(proj->activeOilField()->wellPathCollection());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::setupBeforeSave()
 {
     if (m_viewer)
@@ -601,6 +628,8 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
         if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
+        
+        wellPathsPartManager()->scheduleGeometryRegen(); 
 
         crossSectionCollection->updateIntersectionBoxGeometry();
 
@@ -708,19 +737,14 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
                                   const cvf::BoundingBox& wellPathClipBoundingBox, 
                                   cvf::Transform* scaleTransform)
 {
-    RimOilField* oilFields =                                    RiaApplication::instance()->project()   ? RiaApplication::instance()->project()->activeOilField() : NULL;
-    RimWellPathCollection* wellPathCollection =                 oilFields                               ? oilFields->wellPathCollection() : NULL;
-    RivWellPathCollectionPartMgr* wellPathCollectionPartMgr =   wellPathCollection                      ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
-    if (wellPathCollectionPartMgr)
-    {
-        wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList, 
-                                                                    displayModelOffset,
-                                                                    scaleTransform, 
-                                                                    characteristicCellSize, 
-                                                                    wellPathClipBoundingBox,
-                                                                    this->displayCoordTransform().p());
-    }
+    wellPathsPartManager()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
+        displayModelOffset,
+        scaleTransform,
+        characteristicCellSize,
+        wellPathClipBoundingBox,
+        transForm.p());
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
 }
