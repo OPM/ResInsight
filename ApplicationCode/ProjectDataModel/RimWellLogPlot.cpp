@@ -426,7 +426,14 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 
             if (curveNames.size() == 1)
             {
-                curveDepths = curveData->measuredDepthPlotValues(RimDefines::UNIT_NONE);
+                if (depthType() == TRUE_VERTICAL_DEPTH)
+                {
+                    curveDepths = curveData->trueDepthPlotValues(depthUnit());
+                }
+                else
+                {
+                    curveDepths = curveData->measuredDepthPlotValues(depthUnit());
+                }
             }
 
             std::vector<double> xPlotValues = curveData->xPlotValues();
