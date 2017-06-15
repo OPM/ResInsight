@@ -74,6 +74,8 @@ public:
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  fractureTemplateUnit;
 
     void                            setDefaultWellDiameterFromUnit();
+    double                          wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
+    double                          perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit);
     
     virtual void                    fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
                                                              std::vector<cvf::uint>*  triangleIndices, 

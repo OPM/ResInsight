@@ -38,6 +38,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
+#include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -155,17 +156,7 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 
     if (changedField == &m_fractureTemplate)
     {
-        //perforationLength = m_fractureTemplate->perforationLength();
-        //TODO: Find out if performationLength should be in RimFractureTemplate or in RimEllipseFracTemplate
-        if (fractureTemplate()) azimuth = m_fractureTemplate->azimuthAngle();
-        else azimuth = 0.0;
-        updateAzimuthFromFractureTemplate();
-
-        RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>(fractureTemplate());
-        if (stimPlanFracTemplate)
-        {
-            stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
-        }
+        setFractureTemplate(m_fractureTemplate);
     }
 
     if (changedField == &azimuth || 
@@ -514,6 +505,8 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     }
 
     this->updateAzimuthFromFractureTemplate();
+    this->wellDiameter = fractureTemplate->wellDiameterInFractureUnit(fractureUnit);
+    this->perforationLength = fractureTemplate->perforationLengthInFractureUnit(fractureUnit);
 }
 
 //--------------------------------------------------------------------------------------------------

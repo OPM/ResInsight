@@ -229,6 +229,52 @@ void RimFractureTemplate::defineEditorAttribute(const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::wellDiameterInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+{
+    if (fractureUnit == fractureTemplateUnit())
+    {
+        return wellDiameter;
+    }
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
+             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToInch(wellDiameter);
+    }
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
+             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::inchToMeter(wellDiameter);
+    }
+
+    return cvf::UNDEFINED_DOUBLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFractureTemplate::perforationLengthInFractureUnit(RiaEclipseUnitTools::UnitSystemType fractureUnit)
+{
+    if (fractureUnit == fractureTemplateUnit())
+    {
+        return perforationLength;
+    }
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC
+             && fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(perforationLength);
+    }
+    else if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD
+             && fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(perforationLength);
+    }
+
+    return cvf::UNDEFINED_DOUBLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFractureTemplate::setDefaultWellDiameterFromUnit()
 {
     if (fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD)
