@@ -179,7 +179,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     QTextStream stream(&exportFile);
     RifEclipseDataTableFormatter formatter(stream);
 
-    std::map<IJKCellIndex, RigCompletionData> completionData;
+    std::map<IJKCellIndex, std::vector<RigCompletionData> > completionData;
 
     for (auto wellPath : wellPaths)
     {
@@ -207,7 +207,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     std::vector<RigCompletionData> completions;
     for (auto& data : completionData)
     {
-        completions.push_back(data.second);
+        completions.push_back(RigCompletionData::combine(data.second));
     }
     // Sort by well name / cell index
     std::sort(completions.begin(), completions.end());
@@ -525,18 +525,18 @@ void RicWellPathExportCompletionDataFeature::assignBranchAndSegmentNumbers(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data)
+void RicWellPathExportCompletionDataFeature::appendCompletionData(std::map<IJKCellIndex, std::vector<RigCompletionData> >* completionData, const std::vector<RigCompletionData>& data)
 {
     for (auto& completion : data)
     {
         auto it = completionData->find(completion.cellIndex());
         if (it != completionData->end())
         {
-            it->second = RigCompletionData::combine(it->second, completion);
+            it->second.push_back(completion);
         }
         else
         {
-            completionData->insert(std::pair<IJKCellIndex, RigCompletionData>(completion.cellIndex(), completion));
+            completionData->insert(std::pair<IJKCellIndex, std::vector<RigCompletionData> >(completion.cellIndex(), std::vector<RigCompletionData> {completion}));
         }
     }
 }

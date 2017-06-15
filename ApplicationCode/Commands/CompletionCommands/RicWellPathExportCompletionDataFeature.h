@@ -150,7 +150,7 @@ private:
     static void                                  calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum);
     static void                                  assignBranchAndSegmentNumbers(const RimEclipseCase* caseToApply, std::vector<WellSegmentLocation>* locations);
 
-    static void                                  appendCompletionData(std::map<IJKCellIndex, RigCompletionData>* completionData, const std::vector<RigCompletionData>& data);
+    static void                                  appendCompletionData(std::map<IJKCellIndex, std::vector<RigCompletionData> >* completionData, const std::vector<RigCompletionData>& data);
 
 };
 

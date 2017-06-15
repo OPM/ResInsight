@@ -21,7 +21,7 @@
 #include "RiaLogging.h"
 
 #include <QString>
-#include <cmath> // Needed for HUGE_VAL on linux
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //==================================================================================================
 /// 
@@ -59,25 +59,35 @@ RigCompletionData::RigCompletionData(const RigCompletionData& other)
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData RigCompletionData::combine(const RigCompletionData& first, const RigCompletionData& second)
+RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData>& completions)
 {
-    RigCompletionData result(first);
-    CVF_ASSERT(result.m_wellName == second.m_wellName);
-    CVF_ASSERT(result.m_cellIndex == second.m_cellIndex);
+    CVF_ASSERT(!completions.empty());
 
-    if (onlyOneIsDefaulted(result.m_transmissibility, second.m_transmissibility))
+    auto it = completions.cbegin();
+    RigCompletionData result(*it);
+    ++it;
+
+    for (; it != completions.cend(); ++it)
     {
-        RiaLogging::error("Transmissibility defaulted in one but not both, will produce erroneous result");
-    }
-    else
-    {
-        result.m_transmissibility += second.m_transmissibility;
-    }
+        if (it->completionType() != result.completionType())
+        {
+            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.i).arg(result.m_cellIndex.j).arg(result.m_cellIndex.k));
+            continue;
+        }
+        if (onlyOneIsDefaulted(result.m_transmissibility, it->m_transmissibility))
+        {
+            RiaLogging::error("Transmissibility defaulted in one but not both, will produce erroneous result");
+        }
+        else
+        {
+            result.m_transmissibility += it->m_transmissibility;
+        }
 
-    result.m_metadata.reserve(result.m_metadata.size() + second.m_metadata.size());
-    result.m_metadata.insert(result.m_metadata.end(), second.m_metadata.begin(), second.m_metadata.end());
+        result.m_metadata.reserve(result.m_metadata.size() + it->m_metadata.size());
+        result.m_metadata.insert(result.m_metadata.end(), it->m_metadata.begin(), it->m_metadata.end());
 
-    result.m_count += second.m_count;
+        result.m_count += it->m_count;
+    }
 
     return result;
 }
@@ -112,6 +122,7 @@ RigCompletionData& RigCompletionData::operator=(const RigCompletionData& other)
 //==================================================================================================
 void RigCompletionData::setFromFracture(double transmissibility, double skinFactor)
 {
+    m_completionType = FRACTURE;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
 }
@@ -121,6 +132,7 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 //==================================================================================================
 void RigCompletionData::setFromFishbone(double diameter, CellDirection direction)
 {
+    m_completionType = FISHBONES;
     m_diameter = diameter;
     m_direction = direction;
 }
@@ -130,6 +142,7 @@ void RigCompletionData::setFromFishbone(double diameter, CellDirection direction
 //==================================================================================================
 void RigCompletionData::setFromFishbone(double transmissibility, double skinFactor)
 {
+    m_completionType = FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
 }
@@ -139,6 +152,7 @@ void RigCompletionData::setFromFishbone(double transmissibility, double skinFact
 //==================================================================================================
 void RigCompletionData::setFromPerforation(double diameter, CellDirection direction)
 {
+    m_completionType = PERFORATION;
     m_diameter = diameter;
     m_direction = direction;
 }
@@ -204,4 +218,5 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_dFactor = from.m_dFactor;
     target.m_direction = from.m_direction;
     target.m_count = from.m_count;
+    target.m_completionType = from.m_completionType;
 }

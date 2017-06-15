@@ -91,11 +91,17 @@ struct RigCompletionMetaData {
 class RigCompletionData : public cvf::Object
 {
 public:
+    enum CompletionType {
+        FISHBONES,
+        FRACTURE,
+        PERFORATION,
+    };
+
     RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex);
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
-    static RigCompletionData   combine(const RigCompletionData& first, const RigCompletionData& second);
+    static RigCompletionData   combine(const std::vector<RigCompletionData>& completions);
 
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
@@ -119,6 +125,7 @@ public:
     double                                    dFactor() const { return m_dFactor; }
     CellDirection                             direction() const { return m_direction; }
     size_t                                    count() const { return m_count; }
+    CompletionType                            completionType() const { return m_completionType; }
 
 private:
     std::vector<RigCompletionMetaData>   m_metadata;
@@ -135,6 +142,8 @@ private:
 
     // Number of parts that have contributed to this completion
     size_t                               m_count;
+
+    CompletionType                       m_completionType;
 
 private:
     static bool                          onlyOneIsDefaulted(double first, double second);
