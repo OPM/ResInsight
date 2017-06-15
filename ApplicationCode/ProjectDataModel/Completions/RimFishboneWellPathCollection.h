@@ -40,19 +40,19 @@ class RimFishboneWellPathCollection : public RimCheckableNamedObject
 public:
     RimFishboneWellPathCollection();
 
-    void importCompletionsFromFile(const QStringList& filePaths);
+    void                                    importCompletionsFromFile(const QStringList& filePaths);
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     std::vector<const RimFishboneWellPath*> wellPaths() const;
     double                                  holeDiameter() const { return m_pipeProperties->holeDiameter(); }
     double                                  skinFactor() const { return m_pipeProperties->skinFactor(); }
 
 protected:
-    virtual void        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void appendCompletion(RimFishboneWellPath* completion);
+    void                                    appendCompletion(RimFishboneWellPath* completion);
 
 private:
     caf::PdmChildArrayField<RimFishboneWellPath*> m_wellPaths;

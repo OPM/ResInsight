@@ -143,6 +143,14 @@ void RimFishbonesCollection::recalculateStartMD()
         }
     }
 
+    for (const RimFishboneWellPath* wellPath : m_wellPathCollection->wellPaths())
+    {
+        if (wellPath->measuredDepths().size() > 0)
+        {
+            minStartMD = std::min(minStartMD, wellPath->measuredDepths()[0] - 13.0);
+        }
+    }
+
     if (!manuallyModifiedStartMD || minStartMD < m_startMD())
     {
         m_startMD = minStartMD;

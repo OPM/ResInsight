@@ -62,5 +62,5 @@ private:
 
     caf::PdmField< std::vector< cvf::Vec3d> >  m_coordinates;
     caf::PdmField< std::vector< double > >     m_measuredDepths;
-    caf::PdmProxyValueField< QString > m_displayCoordinates;
+    caf::PdmProxyValueField< QString >         m_displayCoordinates;
 };
