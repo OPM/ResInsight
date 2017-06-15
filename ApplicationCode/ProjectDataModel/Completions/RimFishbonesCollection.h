@@ -65,4 +65,6 @@ private:
     caf::PdmField<double>                               m_mainBoreDiameter;
     caf::PdmField<double>                               m_linerDiameter;
     caf::PdmField<double>                               m_roughnessFactor;
+
+    bool                                                manuallyModifiedStartMD;
 };

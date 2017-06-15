@@ -55,6 +55,8 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.216,      "Main Bore Diameter",   "", "", "");
     CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.152,      "Liner Inner Diameter", "", "", "");
     CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  1e-05,      "Roughness Factor",     "", "", "");
+
+    manuallyModifiedStartMD = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +74,11 @@ RimFishboneWellPathCollection* RimFishbonesCollection::wellPathCollection() cons
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &m_startMD)
+    {
+        manuallyModifiedStartMD = true;
+    }
+
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     proj->createDisplayModelAndRedrawAllViews();
@@ -136,7 +143,7 @@ void RimFishbonesCollection::recalculateStartMD()
         }
     }
 
-    if (minStartMD < m_startMD())
+    if (!manuallyModifiedStartMD || minStartMD < m_startMD())
     {
         m_startMD = minStartMD;
     }
