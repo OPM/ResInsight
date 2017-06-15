@@ -663,6 +663,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT(reservoirView);
             reservoirView->loadDataAndUpdate();
+            reservoirView->updateGridBoxData();
         }
 
         RimProject* project = RiaApplication::instance()->project();
