@@ -394,6 +394,19 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(size_t frameIndex,
+    cvf::ModelBasicList* model,
+    cvf::Vec3d displayModelOffset,
+    double characteristicCellSize,
+    cvf::BoundingBox wellPathClipBoundingBox,
+    caf::DisplayCoordTransform* displayCoordTransform)
+{
+    // TODO add perforation intervals
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::setScaleTransform( cvf::Transform * scaleTransform )
 {
     if (m_scaleTransform.isNull() || m_scaleTransform.p() != scaleTransform) 

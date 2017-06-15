@@ -58,6 +58,10 @@ public:
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
                                                                              caf::DisplayCoordTransform* displayCoordTransform);
 
+    void                                    appendDynamicGeometryPartsToModel(size_t frameIndex, cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+                                                                             caf::DisplayCoordTransform* displayCoordTransform);
+
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:

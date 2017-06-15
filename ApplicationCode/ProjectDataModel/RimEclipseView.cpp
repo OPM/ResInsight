@@ -69,6 +69,7 @@
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -617,23 +618,52 @@ void RimEclipseView::updateCurrentTimeStep()
         crossSectionCollection->applySingleColorEffect();
     }
 
-    // Simulation Wells
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
-            simWellModelBasicList->setName("SimWellPipeMod");
+            // Simulation Wells
+            {
+                cvf::String name = "SimWellPipeMod";
+                this->removeModelByName(frameScene, name);
 
-            m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
+                cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+                simWellModelBasicList->setName(name);
 
-            simWellModelBasicList->updateBoundingBoxesRecursive();
+                m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
 
-            this->removeModelByName(frameScene, simWellModelBasicList->name());
-            frameScene->addModel(simWellModelBasicList.p());
+                simWellModelBasicList->updateBoundingBoxesRecursive();
 
-            m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
+                frameScene->addModel(simWellModelBasicList.p());
+
+                m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
+            }
+
+            // Well Paths
+            {
+                cvf::String name = "WellPathMod";
+                this->removeModelByName(frameScene, name);
+                
+                cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+                wellPathModelBasicList->setName(name);
+
+                RigMainGrid* mainGrid = this->mainGrid();
+                if (mainGrid)
+                {
+                    wellPathsPartManager()->appendDynamicGeometryPartsToModel(m_currentTimeStep, 
+                        wellPathModelBasicList.p(),
+                        mainGrid->displayModelOffset(),
+                        m_reservoirGridPartManager->scaleTransform(),
+                        mainGrid->characteristicIJCellSize(),
+                        currentActiveCellInfo()->geometryBoundingBox(),
+                        this->displayCoordTransform().p());
+
+                    wellPathModelBasicList->updateBoundingBoxesRecursive();
+
+                    frameScene->addModel(wellPathModelBasicList.p());
+                }
+            }
         }
     }
 

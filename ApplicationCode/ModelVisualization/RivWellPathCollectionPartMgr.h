@@ -32,6 +32,7 @@
 class RimWellPathCollection;
 class RimProject;
 class RivWellPathPartMgr;
+class RimView;
 
 namespace cvf
 {
@@ -55,11 +56,20 @@ public:
     void setScaleTransform(cvf::Transform * scaleTransform);
 
     void appendStaticGeometryPartsToModel(
-        cvf::ModelBasicList* model, 
-        cvf::Vec3d displayModelOffset, 
-        cvf::Transform* scaleTransform, 
-        double characteristicCellSize, 
-        cvf::BoundingBox wellPathClipBoundingBox,
+        cvf::ModelBasicList*    model, 
+        cvf::Vec3d              displayModelOffset, 
+        cvf::Transform*         scaleTransform, 
+        double                  characteristicCellSize, 
+        cvf::BoundingBox        wellPathClipBoundingBox,
+        caf::DisplayCoordTransform* displayCoordTransform);
+
+    void appendDynamicGeometryPartsToModel(
+        size_t                  timeStep,
+        cvf::ModelBasicList*    model,
+        cvf::Vec3d              displayModelOffset,
+        cvf::Transform*         scaleTransform,
+        double                  characteristicCellSize,
+        cvf::BoundingBox        wellPathClipBoundingBox,
         caf::DisplayCoordTransform* displayCoordTransform);
 
 private:
