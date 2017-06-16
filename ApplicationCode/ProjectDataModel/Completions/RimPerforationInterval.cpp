@@ -41,7 +41,7 @@ RimPerforationInterval::RimPerforationInterval()
     CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216,                           "Diameter [m]", "", "", "");
     CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,                             "Skin Factor", "", "", "");
     CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,                            "Start of History", "", "", "");
-    CAF_PDM_InitField(&m_date,           "StartDate",          QDateTime::currentDateTimeUtc(), "Start Date", "", "", "");
+    CAF_PDM_InitField(&m_date,           "StartDate",          QDateTime::currentDateTime(),    "Start Date", "", "", "");
 
     nameField()->uiCapability()->setUiReadOnly(true);
 }
