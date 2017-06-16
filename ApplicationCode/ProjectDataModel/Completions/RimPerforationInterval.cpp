@@ -25,6 +25,8 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
+#include "cafPdmUiDateEditor.h"
+
 CAF_PDM_SOURCE_INIT(RimPerforationInterval, "Perforation");
 
 //--------------------------------------------------------------------------------------------------
@@ -166,5 +168,20 @@ void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.add(&m_date);
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_date)
+    {
+        caf::PdmUiDateEditorAttribute* myAttr = static_cast<caf::PdmUiDateEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->dateFormat = "dd MMM yyyy";
+        }
+    }
 }
 
