@@ -20,6 +20,9 @@
 #include "cvfBase.h"
 #include "cvfVector3.h"
 #include "cvfStructGrid.h"
+#include "cvfPlane.h"
+
+#include <array>
 
 //==================================================================================================
 ///  Internal class for intersection point info 
@@ -58,7 +61,13 @@ struct RigHexIntersectionTools
 
     static bool isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8]);
 
+    static bool planeHexCellIntersection(cvf::Vec3d* hexCorners,
+                                         cvf::Plane fracturePlane,
+                                         std::list<std::pair<cvf::Vec3d, cvf::Vec3d > >& intersectionLineSegments);
 
+    static bool planeHexIntersectionPolygons(std::array<cvf::Vec3d, 8> hexCorners,
+                                             cvf::Mat4f transformMatrixForPlane,
+                                             std::vector<std::vector<cvf::Vec3d> > & polygons);
 };
 
 

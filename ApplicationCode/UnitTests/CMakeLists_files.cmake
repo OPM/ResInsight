@@ -25,6 +25,7 @@ ${CEE_CURRENT_LIST_DIR}WellPathAsciiFileReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}opm-flowdiagnostics-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools-Test.cpp
 
 )
 
