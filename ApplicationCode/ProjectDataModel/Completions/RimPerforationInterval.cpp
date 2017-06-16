@@ -25,10 +25,6 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
-#include "cafPdmUiListEditor.h"
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiLineEditor.h"
-
 CAF_PDM_SOURCE_INIT(RimPerforationInterval, "Perforation");
 
 //--------------------------------------------------------------------------------------------------
@@ -38,13 +34,12 @@ RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitObject("Perforation", ":/PerforationInterval16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,   "Start MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,   "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216, "Diameter [m]", "", "", "");
-    CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,   "Skin Factor", "", "", "");
-    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,  "Start of History", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_date,  "StartDate",                 "Start Date", "", "", "");
-    m_date.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,                             "Start MD [m]", "", "", "");
+    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,                             "End MD [m]", "", "", "");
+    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216,                           "Diameter [m]", "", "", "");
+    CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,                             "Skin Factor", "", "", "");
+    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,                            "Start of History", "", "", "");
+    CAF_PDM_InitField(&m_date,           "StartDate",          QDateTime::currentDateTimeUtc(), "Start Date", "", "", "");
 
     nameField()->uiCapability()->setUiReadOnly(true);
 }
