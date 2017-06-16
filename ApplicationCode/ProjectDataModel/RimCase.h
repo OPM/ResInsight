@@ -51,8 +51,8 @@ public:
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
-    virtual QStringList                         timeStepStrings() = 0;
-    virtual QString                             timeStepName(int frameIdx) = 0;
+    virtual QStringList                         timeStepStrings() const = 0;
+    virtual QString                             timeStepName(int frameIdx) const = 0;
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const = 0;
     virtual cvf::BoundingBox                    allCellsBoundingBox() const = 0;

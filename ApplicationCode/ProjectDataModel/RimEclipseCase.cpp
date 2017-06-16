@@ -525,7 +525,18 @@ RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::Poro
     return m_fractureModelResults();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults();
+    }
 
+    return m_fractureModelResults();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -582,7 +593,7 @@ std::vector<RimView*> RimEclipseCase::views()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RimEclipseCase::timeStepStrings()
+QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
@@ -598,7 +609,7 @@ QStringList RimEclipseCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseCase::timeStepName(int frameIdx)
+QString RimEclipseCase::timeStepName(int frameIdx) const
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
     CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
@@ -671,7 +682,7 @@ void RimEclipseCase::reloadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimEclipseCase::timeStepDates()
+std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
     return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();
 }

@@ -58,8 +58,8 @@ public:
     virtual void                            updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
     virtual std::vector<RimView*>           views();
 
-    virtual QStringList                     timeStepStrings();
-    virtual QString                         timeStepName(int frameIdx);
+    virtual QStringList                     timeStepStrings() const override;
+    virtual QString                         timeStepName(int frameIdx) const override;
 
     virtual cvf::BoundingBox                activeCellsBoundingBox() const;
     virtual cvf::BoundingBox                allCellsBoundingBox() const;

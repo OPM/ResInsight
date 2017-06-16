@@ -74,6 +74,7 @@ public:
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
     RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RimReservoirCellResultsStorage*       results(RifReaderInterface::PorosityModelResultType porosityModel) const;
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
@@ -87,9 +88,9 @@ public:
     RimCaseCollection*                          parentCaseCollection();
                                                      
     virtual std::vector<RimView*>               views();
-    virtual QStringList                         timeStepStrings();
-    virtual QString                             timeStepName(int frameIdx);
-    std::vector<QDateTime>                      timeStepDates();
+    virtual QStringList                         timeStepStrings() const override;
+    virtual QString                             timeStepName(int frameIdx) const override;
+    std::vector<QDateTime>                      timeStepDates() const;
 
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const;

@@ -191,11 +191,11 @@ void RimGeoMechCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RimGeoMechCase::timeStepStrings()
+QStringList RimGeoMechCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    RigGeoMechCaseData* rigCaseData = geoMechData();
+    const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
         std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
@@ -211,9 +211,9 @@ QStringList RimGeoMechCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechCase::timeStepName(int frameIdx)
+QString RimGeoMechCase::timeStepName(int frameIdx) const
 {
-    RigGeoMechCaseData* rigCaseData = geoMechData();
+    const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
