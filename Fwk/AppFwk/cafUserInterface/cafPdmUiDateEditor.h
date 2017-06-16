@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -39,11 +39,11 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QDateEdit>
 #include <QLabel>
 #include <QPointer>
 #include <QString>
 #include <QWidget>
-#include <QDateEdit>
 
 namespace caf 
 {

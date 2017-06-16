@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -46,6 +46,8 @@
 #include "cafSelectionManager.h"
 
 #include <QApplication>
+#include <QDate>
+#include <QGridLayout>
 #include <QIntValidator>
 #include <QLabel>
 #include <QLineEdit>
@@ -54,8 +56,6 @@
 #include <QPalette>
 #include <QStatusBar>
 #include <QString>
-#include <QDate>
-#include <QGridLayout>
 
 
 namespace caf
