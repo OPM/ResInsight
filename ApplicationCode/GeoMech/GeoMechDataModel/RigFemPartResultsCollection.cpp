@@ -1840,7 +1840,7 @@ std::vector< RigFemResultAddress> RigFemPartResultsCollection::getResAddrToCompo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RigFemPartResultsCollection::stepNames()
+std::vector<std::string> RigFemPartResultsCollection::stepNames() const
 {
     CVF_ASSERT(m_readerInterface.notNull());
     return m_readerInterface->stepNames();

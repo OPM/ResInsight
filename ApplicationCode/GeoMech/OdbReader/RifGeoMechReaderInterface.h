@@ -44,8 +44,8 @@ public:
     virtual bool                                             openFile(const std::string& fileName, std::string* errorMessage) = 0;
 
     virtual bool                                             readFemParts(RigFemPartCollection* geoMechCase) = 0;
-    virtual std::vector<std::string>                         stepNames() = 0;
-    virtual std::vector<double>                              frameTimes(int stepIndex) = 0;
+    virtual std::vector<std::string>                         stepNames() const = 0;
+    virtual std::vector<double>                              frameTimes(int stepIndex) const = 0;
   
     virtual std::vector<std::string>                         elementSetNames(int partIndex) = 0;
     virtual std::vector<size_t>                              elementSet(int partIndex, int setIndex) = 0;

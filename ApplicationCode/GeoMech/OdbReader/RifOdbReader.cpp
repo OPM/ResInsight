@@ -422,7 +422,7 @@ bool RifOdbReader::readFemParts(RigFemPartCollection* femParts)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifOdbReader::stepNames()
+std::vector<std::string> RifOdbReader::stepNames() const
 {
     CVF_ASSERT(m_odb != NULL);
 
@@ -442,7 +442,7 @@ std::vector<std::string> RifOdbReader::stepNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifOdbReader::frameTimes(int stepIndex)
+std::vector<double> RifOdbReader::frameTimes(int stepIndex) const
 {
     CVF_ASSERT(m_odb != NULL);
 
