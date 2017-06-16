@@ -177,7 +177,6 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
-    fractureCenterGroup->add(&m_displayIJK);
 }
 
 //--------------------------------------------------------------------------------------------------

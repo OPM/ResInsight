@@ -70,7 +70,8 @@ int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigHexIntersectionTools::isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8])
+bool RigHexIntersectionTools::isPointInCell(const cvf::Vec3d point, 
+                                            const cvf::Vec3d hexCorners[8])
 {
     cvf::Ray ray;
     ray.setOrigin(point);

@@ -54,6 +54,8 @@ protected:
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
+    RigMainGrid*                                    ownerCaseMainGrid() const;
+
 private:
     void                                            updateBranchGeometry();
     void                                            setBranchGeometry();
@@ -62,4 +64,8 @@ private:
     caf::PdmField<float>                            m_location;
     caf::PdmField<int>                              m_branchIndex;
     std::vector<RigSimulationWellCoordsAndMD>       m_branchCenterLines;
+
+    caf::PdmProxyValueField<QString>                m_displayIJK;
+    QString                                         createOneBasedIJKText() const;
+
 };

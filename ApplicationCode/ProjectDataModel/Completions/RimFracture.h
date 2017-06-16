@@ -72,6 +72,8 @@ public:
     cvf::Vec3d                      anchorPosition() const ;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
 
+    size_t                          findAnchorEclipseCell(const RigMainGrid* mainGrid) const;
+
     cvf::Mat4f                      transformMatrix() const; 
 
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
@@ -99,21 +101,15 @@ protected:
 private:
     cvf::Vec3d                      fracturePositionForUi() const;
     
-    QString                         createOneBasedIJKText() const;
     
     virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
 
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
-    caf::PdmProxyValueField<QString>                m_displayIJK;
 
 private:
     caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
-
-    caf::PdmField<int>                              m_anchorPosEclipseCellI;    // Zero based indexing
-    caf::PdmField<int>                              m_anchorPosEclipseCellJ;    // Zero based indexing
-    caf::PdmField<int>                              m_anchorPosEclipseCellK;    // Zero based indexing
 
     cvf::ref<RivWellFracturePartMgr>                m_fracturePartMgr;
 };

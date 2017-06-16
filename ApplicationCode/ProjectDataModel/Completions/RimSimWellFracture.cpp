@@ -45,6 +45,10 @@ RimSimWellFracture::RimSimWellFracture(void)
     CAF_PDM_InitField(&m_location, "MeasuredDepth", 0.0f, "Pseudo Length Location", "", "", "");
     m_location.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
+    CAF_PDM_InitFieldNoDefault(&m_displayIJK, "Cell_IJK", "Cell IJK", "", "", "");
+    m_displayIJK.registerGetMethod(this, &RimSimWellFracture::createOneBasedIJKText);
+    m_displayIJK.uiCapability()->setUiReadOnly(true);
+
     CAF_PDM_InitField(&m_branchIndex, "Branch", 0, "Branch", "", "", "");
 }
 
@@ -266,6 +270,20 @@ QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
+{
+    RimEclipseView* ownerEclView;
+    this->firstAncestorOrThisOfType(ownerEclView);
+
+    if (ownerEclView) 
+        return ownerEclView->mainGrid();
+    else 
+        return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSimWellFracture::updateBranchGeometry()
 {
     if (m_branchCenterLines.size() == 0)
@@ -296,4 +314,20 @@ void RimSimWellFracture::setBranchGeometry()
 
         m_branchCenterLines.push_back(wellPathWithMD);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSimWellFracture::createOneBasedIJKText() const
+{
+    RigMainGrid* mainGrid = ownerCaseMainGrid();
+    size_t i,j,k;
+    size_t anchorCellIdx = findAnchorEclipseCell(mainGrid);
+    if (anchorCellIdx == cvf::UNDEFINED_SIZE_T) return "";
+
+    bool ok = mainGrid->ijkFromCellIndex(anchorCellIdx, &i, &j, &k);
+    if (!ok) return "";
+
+    return QString("[%1, %2, %3]").arg(i + 1).arg(j + 1).arg(k + 1);
 }

@@ -63,6 +63,7 @@
 
 #include <QDebug>
 #include <QString>
+#include "RigHexIntersectionTools.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
@@ -81,11 +82,14 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitFieldNoDefault(&m_uiAnchorPosition, "ui_positionAtWellpath", "Fracture Position", "", "", "");
     m_uiAnchorPosition.registerGetMethod(this, &RimFracture::fracturePositionForUi);
     m_uiAnchorPosition.uiCapability()->setUiReadOnly(true);
+    
     CAF_PDM_InitField(&azimuth, "Azimuth", 0.0, "Azimuth", "", "", "");
     azimuth.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    
     CAF_PDM_InitField(&perforationLength, "PerforationLength", 1.0, "Perforation Length", "", "", "");
     CAF_PDM_InitField(&perforationEfficiency, "perforationEfficiency", 1.0, "perforation Efficiency", "", "", "");
     perforationEfficiency.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+    
     CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
     CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&tilt, "Tilt", 0.0, "Tilt", "", "", "");
@@ -93,19 +97,6 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
-
-    CAF_PDM_InitField(&m_anchorPosEclipseCellI, "I", 1, "Fracture location cell I", "", "", "");
-    m_anchorPosEclipseCellI.uiCapability()->setUiHidden(true);
-    
-    CAF_PDM_InitField(&m_anchorPosEclipseCellJ, "J", 1, "Fracture location cell J", "", "", "");
-    m_anchorPosEclipseCellJ.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitField(&m_anchorPosEclipseCellK, "K", 1, "Fracture location cell K", "", "", "");
-    m_anchorPosEclipseCellK.uiCapability()->setUiHidden(true);
-
-    CAF_PDM_InitFieldNoDefault(&m_displayIJK, "Cell_IJK", "Cell IJK", "", "", "");
-    m_displayIJK.registerGetMethod(this, &RimFracture::createOneBasedIJKText);
-    m_displayIJK.uiCapability()->setUiReadOnly(true);
 
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
@@ -307,14 +298,6 @@ cvf::Vec3d RimFracture::fracturePositionForUi() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimFracture::createOneBasedIJKText() const
-{
-    return QString("Cell : [%1, %2, %3]").arg(m_anchorPosEclipseCellI + 1).arg(m_anchorPosEclipseCellJ + 1).arg(m_anchorPosEclipseCellK + 1);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -452,41 +435,42 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
     m_anchorPosition = pos;
     clearDisplayGeometryCache();
 
-    // Update ijk
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimFracture::findAnchorEclipseCell(const RigMainGrid* mainGrid ) const
+{
+    cvf::BoundingBox pointBBox;
+    pointBBox.add(m_anchorPosition);
+
+    std::vector<size_t> cellIndices;
+    mainGrid->findIntersectingCells(pointBBox, &cellIndices);
+    
+    size_t cellContainingAchorPoint = cvf::UNDEFINED_SIZE_T;
+
+    for ( size_t cellIndex : cellIndices )
     {
-        std::vector<size_t> cellindecies;
+        auto cornerIndices =  mainGrid->globalCellArray()[cellIndex].cornerIndices();
+        cvf::Vec3d vertices[8];
+        vertices[0] = (mainGrid->nodes()[cornerIndices[0]]);
+        vertices[1] = (mainGrid->nodes()[cornerIndices[1]]);
+        vertices[2] = (mainGrid->nodes()[cornerIndices[2]]);
+        vertices[3] = (mainGrid->nodes()[cornerIndices[3]]);
+        vertices[4] = (mainGrid->nodes()[cornerIndices[4]]);
+        vertices[5] = (mainGrid->nodes()[cornerIndices[5]]);
+        vertices[6] = (mainGrid->nodes()[cornerIndices[6]]);
+        vertices[7] = (mainGrid->nodes()[cornerIndices[7]]);
 
-        RiaApplication* app = RiaApplication::instance();
-        RimView* activeView = RiaApplication::instance()->activeReservoirView();
-        if (!activeView) return;
-
-        RimEclipseView* activeRiv = dynamic_cast<RimEclipseView*>(activeView);
-        if (!activeRiv) return;
-
-        const RigMainGrid* mainGrid = activeRiv->mainGrid();
-        if (!mainGrid) return;
-
-        cvf::BoundingBox pointBBox;
-        pointBBox.add(m_anchorPosition);
-
-        mainGrid->findIntersectingCells(pointBBox, &cellindecies);
-
-        if (cellindecies.size() > 0)
+        if ( RigHexIntersectionTools::isPointInCell(m_anchorPosition, vertices) )
         {
-            size_t i = cvf::UNDEFINED_SIZE_T;
-            size_t j = cvf::UNDEFINED_SIZE_T;
-            size_t k = cvf::UNDEFINED_SIZE_T;
-
-            size_t gridCellIndex = cellindecies[0];
-
-            if (mainGrid->ijkFromCellIndex(gridCellIndex, &i, &j, &k))
-            {
-                m_anchorPosEclipseCellI = static_cast<int>(i);
-                m_anchorPosEclipseCellJ = static_cast<int>(j);
-                m_anchorPosEclipseCellK = static_cast<int>(k);
-            }
+            cellContainingAchorPoint = cellIndex;
+            break;
         }
-    }
+    }    
+    
+    return cellContainingAchorPoint;
 }
 
 //--------------------------------------------------------------------------------------------------
