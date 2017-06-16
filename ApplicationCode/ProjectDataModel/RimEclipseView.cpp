@@ -651,13 +651,7 @@ void RimEclipseView::updateCurrentTimeStep()
                 RigMainGrid* mainGrid = this->mainGrid();
                 if (mainGrid)
                 {
-                    wellPathsPartManager()->appendDynamicGeometryPartsToModel(m_currentTimeStep, 
-                        wellPathModelBasicList.p(),
-                        mainGrid->displayModelOffset(),
-                        m_reservoirGridPartManager->scaleTransform(),
-                        mainGrid->characteristicIJCellSize(),
-                        currentActiveCellInfo()->geometryBoundingBox(),
-                        this->displayCoordTransform().p());
+                    wellPathsPartManager()->appendDynamicGeometryPartsToModel(this, wellPathModelBasicList.p());
 
                     wellPathModelBasicList->updateBoundingBoxesRecursive();
 

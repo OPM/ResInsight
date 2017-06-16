@@ -43,6 +43,9 @@ class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
 class RimWellPathCollection;
+class RimView;
+
+class QDateTime;
 
 class RivWellPathPartMgr : public cvf::Object
 {
@@ -58,16 +61,15 @@ public:
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
                                                                              caf::DisplayCoordTransform* displayCoordTransform);
 
-    void                                    appendDynamicGeometryPartsToModel(size_t frameIndex, cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
-                                                                             caf::DisplayCoordTransform* displayCoordTransform);
+    void                                    appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model);
 
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
     void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void                                    appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
-    void                                    appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+
     void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
     void                                    clearAllBranchData();
     inline RimWellPathCollection*           wellPathCollection();

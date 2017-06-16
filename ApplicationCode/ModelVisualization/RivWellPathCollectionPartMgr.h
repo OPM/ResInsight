@@ -63,14 +63,7 @@ public:
         cvf::BoundingBox        wellPathClipBoundingBox,
         caf::DisplayCoordTransform* displayCoordTransform);
 
-    void appendDynamicGeometryPartsToModel(
-        size_t                  timeStep,
-        cvf::ModelBasicList*    model,
-        cvf::Vec3d              displayModelOffset,
-        cvf::Transform*         scaleTransform,
-        double                  characteristicCellSize,
-        cvf::BoundingBox        wellPathClipBoundingBox,
-        caf::DisplayCoordTransform* displayCoordTransform);
+    void appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model);
 
 private:
     caf::PdmPointer<RimWellPathCollection>      m_wellPathCollection;

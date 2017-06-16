@@ -88,24 +88,16 @@ void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathCollectionPartMgr::appendDynamicGeometryPartsToModel(size_t timeStep,
-    cvf::ModelBasicList* model,
-    cvf::Vec3d displayModelOffset,
-    cvf::Transform* scaleTransform,
-    double characteristicCellSize,
-    cvf::BoundingBox wellPathClipBoundingBox,
-    caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathCollectionPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model)
 {
-    setScaleTransform(scaleTransform);
-
     if (!m_wellPathCollection->isActive()) return;
     if (m_wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
 
     for (size_t wIdx = 0; wIdx < m_wellPathCollection->wellPaths.size(); wIdx++)
     {
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
-        partMgr->setScaleTransform(scaleTransform);
-        partMgr->appendDynamicGeometryPartsToModel(timeStep, model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
+        partMgr->appendDynamicGeometryPartsToModel(view, model);
     }
+
 }
 

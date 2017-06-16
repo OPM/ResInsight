@@ -23,26 +23,29 @@
 
 #include "RiaApplication.h"
 
+#include "RigMainGrid.h"
 #include "RigWellPath.h"
 
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimFishboneWellPath.h"
+#include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishbonesCollection.h"
-#include "RimFishboneWellPathCollection.h"
-#include "RimPerforationInterval.h"
-#include "RimPerforationCollection.h"
 
 #include "RivFishbonesSubsPartMgr.h"
+#include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
-#include "RivObjectSourceInfo.h"
 
-#include "cafEffectGenerator.h"
 #include "cafDisplayCoordTransform.h"
-
+#include "cafEffectGenerator.h"
 #include "cvfDrawableGeo.h"
 #include "cvfDrawableText.h"
 #include "cvfFont.h"
@@ -58,7 +61,7 @@
 //--------------------------------------------------------------------------------------------------
 RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
 {
-    m_rimWellPath      = wellPath;
+    m_rimWellPath = wellPath;
 
     m_needsTransformUpdate = true;
 
@@ -146,13 +149,12 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, ca
             model->addPart(part.p());
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
     if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
@@ -175,6 +177,8 @@ void RivWellPathPartMgr::appendPerforationsToModel(cvf::ModelBasicList* model, c
     {
         if (!perforation->isChecked()) continue;
         if (perforation->startMD() > perforation->endMD()) continue;
+
+        if (currentViewDate.isValid() && !perforation->isActiveOnDate(currentViewDate)) continue;
 
         std::vector<cvf::Vec3d> displayCoords;
         displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->startMD())));
@@ -388,20 +392,51 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     appendFishbonesPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendCompletionsToModel(model, displayCoordTransform, characteristicCellSize);
-    appendPerforationsToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(size_t frameIndex,
-    cvf::ModelBasicList* model,
-    cvf::Vec3d displayModelOffset,
-    double characteristicCellSize,
-    cvf::BoundingBox wellPathClipBoundingBox,
-    caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model)
 {
-    // TODO add perforation intervals
+    RimWellPathCollection* wellPathCollection = this->wellPathCollection();
+    if (!wellPathCollection) return;
+
+    if (m_rimWellPath.isNull()) return;
+
+    if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
+        return;
+
+    if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false)
+        return;
+
+    cvf::ref<caf::DisplayCoordTransform> displayCoordTransform = view->displayCoordTransform();
+    double characteristicCellSize = 10.0;
+    QDateTime currentDateTime;
+
+    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+    if (eclipseView)
+    {
+        RigMainGrid* mainGrid = eclipseView->mainGrid();
+        if (mainGrid)
+        {
+            characteristicCellSize = mainGrid->characteristicIJCellSize();
+        }
+
+        RimEclipseCase* eclipseCase = nullptr;
+        view->firstAncestorOrThisOfType(eclipseCase);
+        if (eclipseCase)
+        {
+            std::vector<QDateTime> timeStepDates = eclipseCase->timeStepDates();
+
+            if (view->currentTimeStep() < timeStepDates.size())
+            {
+                currentDateTime = timeStepDates[view->currentTimeStep()];
+            }
+        }
+    }
+
+    appendPerforationsToModel(currentDateTime, model, displayCoordTransform.p(), characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
