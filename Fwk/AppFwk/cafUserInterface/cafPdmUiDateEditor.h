@@ -48,6 +48,20 @@
 namespace caf 
 {
 
+//==================================================================================================
+/// 
+//==================================================================================================
+class PdmUiDateEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    QString dateFormat;
+
+public:
+    PdmUiDateEditorAttribute()
+    {
+    }
+};
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -69,8 +83,10 @@ protected slots:
     void                slotEditingFinished();
 
 private:
-    QPointer<QDateEdit> m_dateEdit;
-    QPointer<QLabel>    m_label;
+    QPointer<QDateEdit>      m_dateEdit;
+    QPointer<QLabel>         m_label;
+
+    PdmUiDateEditorAttribute m_attributes;
 };
 
 

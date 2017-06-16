@@ -85,6 +85,17 @@ void PdmUiDateEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     m_dateEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
+    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+    if (uiObject)
+    {
+        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+    }
+
+    if (!m_attributes.dateFormat.isEmpty())
+    {
+        m_dateEdit->setDisplayFormat(m_attributes.dateFormat);
+    }
+
     m_dateEdit->setDate(field()->uiValue().toDate());
 }
 
