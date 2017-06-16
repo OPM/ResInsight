@@ -366,7 +366,11 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 { 
     uiTreeOrdering.skipRemainingChildren(true);
     uiTreeOrdering.add(&m_wellLogFile);
-    uiTreeOrdering.add(&m_completions);
+
+    if (m_completions->hasCompletions())
+    {
+        uiTreeOrdering.add(&m_completions);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

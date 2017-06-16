@@ -25,6 +25,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
+#include "RimWellPathCollection.h"
 
 #include "RiuMainWindow.h"
 
@@ -53,8 +54,8 @@ bool RicWellPathImportCompletionsFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
 {
-    RimFishboneWellPathCollection* wellPathCollection = RicWellPathImportCompletionsFileFeature::selectedWellPathCollection();
-    CVF_ASSERT(wellPathCollection);
+    RimFishboneWellPathCollection* fishbonesWellPathCollection = RicWellPathImportCompletionsFileFeature::selectedWellPathCollection();
+    CVF_ASSERT(fishbonesWellPathCollection);
 
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
@@ -66,7 +67,14 @@ void RicWellPathImportCompletionsFileFeature::onActionTriggered(bool isChecked)
     // Remember the path to next time
     app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
 
-    wellPathCollection->importCompletionsFromFile(wellPathFilePaths);
+    fishbonesWellPathCollection->importCompletionsFromFile(wellPathFilePaths);
+
+    RimWellPathCollection* wellPathCollection;
+    fishbonesWellPathCollection->firstAncestorOrThisOfType(wellPathCollection);
+    if (wellPathCollection)
+    {
+        wellPathCollection->updateConnectedEditors();
+    }
 
     if (app->project())
     {
@@ -88,15 +96,26 @@ void RicWellPathImportCompletionsFileFeature::setupActionLook(QAction* actionToS
 //--------------------------------------------------------------------------------------------------
 RimFishboneWellPathCollection* RicWellPathImportCompletionsFileFeature::selectedWellPathCollection()
 {
-    std::vector<caf::PdmObject*> objects;
-    caf::SelectionManager::instance()->objectsByType(&objects);
-
-    if (objects.size() > 0)
+    RimFishbonesCollection* objToFind = nullptr;
+    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
+    if (objHandle)
     {
-        RimFishboneWellPathCollection* fbWellColl = nullptr;
-        objects[0]->firstAncestorOrThisOfType(fbWellColl);
+        objHandle->firstAncestorOrThisOfType(objToFind);
+    }
 
-        return fbWellColl;
+    if (objToFind == nullptr)
+    {
+        std::vector<RimWellPath*> wellPaths;
+        caf::SelectionManager::instance()->objectsByType(&wellPaths);
+        if (!wellPaths.empty())
+        {
+            return wellPaths[0]->fishbonesCollection()->wellPathCollection();
+        }
+    }
+    else
+    {
+        return objToFind->wellPathCollection();
     }
 
     return nullptr;

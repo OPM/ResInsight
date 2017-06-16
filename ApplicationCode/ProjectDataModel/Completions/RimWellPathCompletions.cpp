@@ -19,9 +19,12 @@
 #include "RimWellPathCompletions.h"
 
 #include "RimFishbonesCollection.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimPerforationCollection.h"
 
 #include "cvfAssert.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
@@ -80,3 +83,31 @@ QString RimWellPathCompletions::wellNameForExport() const
     return m_wellNameForExport();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathCompletions::hasCompletions() const
+{
+    return !fishbonesCollection()->fishbonesSubs().empty() ||
+           !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
+           !perforationCollection()->perforations().empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{ 
+    uiTreeOrdering.skipRemainingChildren(true);
+
+    if (!perforationCollection()->perforations().empty())
+    {
+        uiTreeOrdering.add(&m_perforationCollection);
+    }
+
+    if (!fishbonesCollection()->fishbonesSubs().empty() ||
+        !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
+    {
+        uiTreeOrdering.add(&m_fishbonesCollection);
+    }
+}

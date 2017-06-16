@@ -41,6 +41,10 @@ public:
 
     void                        setWellNameForExport(const QString& name);
     QString                     wellNameForExport() const;
+    bool                        hasCompletions() const;
+
+protected:
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
 private:
     caf::PdmChildField<RimFishbonesCollection*>     m_fishbonesCollection;
