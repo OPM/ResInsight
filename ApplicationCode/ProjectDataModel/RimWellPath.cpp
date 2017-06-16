@@ -226,6 +226,16 @@ RimWellPathFractureCollection* RimWellPath::fractureCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RimWellPathFractureCollection * RimWellPath::fractureCollection() const
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fractureCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigWellPath* RimWellPath::wellPathGeometry()
 {
     return m_wellPath.p();

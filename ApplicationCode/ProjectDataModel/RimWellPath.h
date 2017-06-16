@@ -80,12 +80,13 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
-    RimFishbonesCollection*             fishbonesCollection();
-    const RimFishbonesCollection*       fishbonesCollection() const;
-    RimPerforationCollection*           perforationIntervalCollection();
-    const RimPerforationCollection*     perforationIntervalCollection() const;
-    const RimWellPathCompletions*       completions() const;
-    RimWellPathFractureCollection*      fractureCollection();
+    RimFishbonesCollection*              fishbonesCollection();
+    const RimFishbonesCollection*        fishbonesCollection() const;
+    RimPerforationCollection*            perforationIntervalCollection();
+    const RimPerforationCollection*      perforationIntervalCollection() const;
+    const RimWellPathCompletions*        completions() const;
+    RimWellPathFractureCollection*       fractureCollection();
+    const RimWellPathFractureCollection* fractureCollection() const;
 
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;

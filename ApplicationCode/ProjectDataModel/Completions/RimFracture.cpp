@@ -180,11 +180,9 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         else
         {
             // Can be triggered from well path, find active view
-            RimView* activeView = RiaApplication::instance()->activeReservoirView();
-            if (activeView)
-            {
-                activeView->createDisplayModelAndRedraw();
-            }
+            RimProject* proj;
+            this->firstAncestorOrThisOfTypeAsserted(proj);
+            proj->reloadCompletionTypeResultsInAllViews();
         }
 
     }

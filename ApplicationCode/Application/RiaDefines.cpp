@@ -71,6 +71,7 @@ namespace caf
         addItem(RiaDefines::WELL_PATH, "WELL_PATH", "Well Path");
         addItem(RiaDefines::PERFORATION_INTERVAL, "PERFORATION_INTERVAL", "Perforation Interval");
         addItem(RiaDefines::FISHBONES, "FISHBONES", "Fishbones");
+        addItem(RiaDefines::FRACTURE, "FRACTURE", "Fracture");
 
         setDefault(RiaDefines::WELL_PATH);
     }

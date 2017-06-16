@@ -80,7 +80,7 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
         RimProject* proj = nullptr;
         this->firstAncestorOrThisOfType(proj);
-        if (proj) proj->createDisplayModelAndRedrawAllViews();
+        if (proj) proj->reloadCompletionTypeResultsInAllViews();
     }
 }
 
