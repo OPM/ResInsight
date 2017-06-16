@@ -90,7 +90,7 @@ public:
     virtual std::vector<RimView*>               views();
     virtual QStringList                         timeStepStrings() const override;
     virtual QString                             timeStepName(int frameIdx) const override;
-    std::vector<QDateTime>                      timeStepDates() const;
+    virtual std::vector<QDateTime>              timeStepDates() const override;
 
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const;

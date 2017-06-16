@@ -51,6 +51,7 @@ public:
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
+    virtual std::vector<QDateTime>              timeStepDates() const = 0;
     virtual QStringList                         timeStepStrings() const = 0;
     virtual QString                             timeStepName(int frameIdx) const = 0;
 

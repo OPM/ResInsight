@@ -385,8 +385,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
         {
             std::vector<double> values = timeHistResultAccessor->timeHistoryValues();
 
-            QStringList stepNames = geoMechTopItem->geoMechCase()->timeStepStrings();
-            std::vector<QDateTime> dates = RimGeoMechCase::dateTimeVectorFromTimeStepStrings(stepNames);
+            std::vector<QDateTime> dates = geoMechTopItem->geoMechCase()->timeStepDates();
             if (dates.size() == values.size())
             {
                 for (QDateTime dt : dates)
@@ -430,8 +429,7 @@ std::vector<double> RimGridTimeHistoryCurve::daysSinceSimulationStart() const
         {
             std::vector<double> values = timeHistResultAccessor->timeHistoryValues();
 
-            QStringList stepNames = geoMechTopItem->geoMechCase()->timeStepStrings();
-            std::vector<QDateTime> dates = RimGeoMechCase::dateTimeVectorFromTimeStepStrings(stepNames);
+            std::vector<QDateTime> dates = geoMechTopItem->geoMechCase()->timeStepDates();
             if (dates.size() == values.size())
             {
                 if (!dates.empty()) {

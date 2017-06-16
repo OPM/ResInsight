@@ -195,8 +195,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor->timeHistoryValues();
 
-        QStringList stepNames = geoMechView->geoMechCase()->timeStepStrings();
-        std::vector<QDateTime> dates = RimGeoMechCase::dateTimeVectorFromTimeStepStrings(stepNames);
+        std::vector<QDateTime> dates = geoMechView->geoMechCase()->timeStepDates();
         if (dates.size() == timeHistoryValues.size())
         {
             RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, dates, timeHistoryValues);
