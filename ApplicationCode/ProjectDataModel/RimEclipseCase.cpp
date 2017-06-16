@@ -425,6 +425,51 @@ void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCase::createTimeStepFormatString()
+{
+    std::vector<QDateTime> timeStepDates = this->timeStepDates();
+
+    bool hasHoursAndMinutesInTimesteps = false;
+    bool hasSecondsInTimesteps = false;
+    bool hasMillisecondsInTimesteps = false;
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        if (timeStepDates[i].time().msec() != 0.0)
+        {
+            hasMillisecondsInTimesteps = true;
+            hasSecondsInTimesteps = true;
+            hasHoursAndMinutesInTimesteps = true;
+            break;
+        }
+        else if (timeStepDates[i].time().second() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+            hasSecondsInTimesteps = true;
+        }
+        else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+        }
+    }
+
+    m_timeStepFormatString = "dd.MMM yyyy";
+    if (hasHoursAndMinutesInTimesteps)
+    {
+        m_timeStepFormatString += " - hh:mm";
+        if (hasSecondsInTimesteps)
+        {
+            m_timeStepFormatString += ":ss";
+            if (hasMillisecondsInTimesteps)
+            {
+                m_timeStepFormatString += ".zzz";
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
 {
     if (m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS))
@@ -516,6 +561,8 @@ bool RimEclipseCase::openReserviorCase()
         if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
     }
 
+    createTimeStepFormatString();
+
     return true;
 }
 
@@ -555,45 +602,6 @@ QString RimEclipseCase::timeStepName(int frameIdx)
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
     CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
-
-    if (m_timeStepFormatString.isEmpty())
-    {
-        bool hasHoursAndMinutesInTimesteps = false;
-        bool hasSecondsInTimesteps = false;
-        bool hasMillisecondsInTimesteps = false;
-        for (size_t i = 0; i < timeStepDates.size(); i++)
-        {
-            if (timeStepDates[i].time().msec() != 0.0)
-            {
-                hasMillisecondsInTimesteps = true;
-                hasSecondsInTimesteps = true;
-                hasHoursAndMinutesInTimesteps = true;
-                break;
-            }
-            else if (timeStepDates[i].time().second() != 0.0) {
-                hasHoursAndMinutesInTimesteps = true;
-                hasSecondsInTimesteps = true;
-            }
-            else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-            {
-                hasHoursAndMinutesInTimesteps = true;
-            }
-        }
-
-        m_timeStepFormatString = "dd.MMM yyyy";
-        if (hasHoursAndMinutesInTimesteps)
-        {
-            m_timeStepFormatString += " - hh:mm";
-            if (hasSecondsInTimesteps)
-            {
-                m_timeStepFormatString += ":ss";
-                if (hasMillisecondsInTimesteps)
-                {
-                    m_timeStepFormatString += ".zzz";
-                }
-            }
-        }
-    }
 
     QDateTime date = timeStepDates.at(frameIdx);
 

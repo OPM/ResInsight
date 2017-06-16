@@ -99,9 +99,6 @@ public:
     void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
-    // Overridden methods from PdmObject
-public:
-
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
@@ -114,14 +111,15 @@ protected:
     void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
+    void                                        createTimeStepFormatString();
 
 private:
+    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
+    QString                                     m_timeStepFormatString;
+    std::map<QString , cvf::Color3f>            m_wellToColorMap;
+
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
-    QString                                     m_timeStepFormatString;
-
-    std::map<QString , cvf::Color3f>            m_wellToColorMap;
 
     // Obsolete fields
 protected:
