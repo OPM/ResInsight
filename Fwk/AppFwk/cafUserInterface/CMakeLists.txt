@@ -23,6 +23,7 @@ set( QOBJECT_HEADERS
     cafPdmUiCheckBoxTristateEditor.h
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.h
+    cafPdmUiDateEditor.h
     cafPdmUiDefaultObjectEditor.h
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiFilePathEditor.h
@@ -64,6 +65,8 @@ set( PROJECT_FILES
     cafPdmUiColorEditor.h
     cafPdmUiComboBoxEditor.cpp
     cafPdmUiComboBoxEditor.h
+    cafPdmUiDateEditor.cpp
+    cafPdmUiDateEditor.h
     cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiDoubleSliderEditor.h
     cafPdmUiDragDropInterface.h
