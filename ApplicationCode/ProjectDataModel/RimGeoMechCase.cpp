@@ -292,6 +292,21 @@ cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::characteristicCellSize() const
+{
+    if (geoMechData() && geoMechData()->femParts())
+    {
+        double cellSize = geoMechData()->femParts()->characteristicElementSize();
+
+        return cellSize;
+    }
+    
+    return 10.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimGeoMechCase::dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings)
 {
     std::vector<QDateTime> dates;

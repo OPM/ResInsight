@@ -399,6 +399,8 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model)
 {
+    CVF_ASSERT(view && model);
+
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
 
@@ -410,31 +412,24 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::M
     if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false)
         return;
 
-    cvf::ref<caf::DisplayCoordTransform> displayCoordTransform = view->displayCoordTransform();
-    double characteristicCellSize = 10.0;
     QDateTime currentDateTime;
+    double characteristicCellSize = 10.0;
 
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
-    if (eclipseView)
+    RimCase* rimCase = nullptr;
+    view->firstAncestorOrThisOfType(rimCase);
+    if (rimCase)
     {
-        RigMainGrid* mainGrid = eclipseView->mainGrid();
-        if (mainGrid)
-        {
-            characteristicCellSize = mainGrid->characteristicIJCellSize();
-        }
+        std::vector<QDateTime> timeStepDates = rimCase->timeStepDates();
 
-        RimEclipseCase* eclipseCase = nullptr;
-        view->firstAncestorOrThisOfType(eclipseCase);
-        if (eclipseCase)
+        if (view->currentTimeStep() < timeStepDates.size())
         {
-            std::vector<QDateTime> timeStepDates = eclipseCase->timeStepDates();
-
-            if (view->currentTimeStep() < timeStepDates.size())
-            {
-                currentDateTime = timeStepDates[view->currentTimeStep()];
-            }
+            currentDateTime = timeStepDates[view->currentTimeStep()];
         }
+    
+        characteristicCellSize = rimCase->characteristicCellSize();
     }
+
+    cvf::ref<caf::DisplayCoordTransform> displayCoordTransform = view->displayCoordTransform();
 
     appendPerforationsToModel(currentDateTime, model, displayCoordTransform.p(), characteristicCellSize);
 }

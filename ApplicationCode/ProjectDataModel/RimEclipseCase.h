@@ -100,6 +100,9 @@ public:
     void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
+
+    virtual double                              characteristicCellSize() const override;
+
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );

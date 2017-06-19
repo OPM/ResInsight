@@ -65,8 +65,11 @@ public:
     virtual cvf::BoundingBox                activeCellsBoundingBox() const;
     virtual cvf::BoundingBox                allCellsBoundingBox() const;
 
+    virtual double                          characteristicCellSize() const override;
+
     // Fields:                                        
     caf::PdmChildArrayField<RimGeoMechView*>  geoMechViews;
+
 
 private:
     static std::vector<QDateTime>           dateTimeVectorFromTimeStepStrings(const QStringList& timeStepStrings);

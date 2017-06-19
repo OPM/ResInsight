@@ -682,6 +682,20 @@ void RimEclipseCase::reloadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimEclipseCase::characteristicCellSize() const
+{
+    const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if (rigEclipseCase)
+    {
+        return rigEclipseCase->mainGrid()->characteristicIJCellSize();
+    }
+
+    return 10.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
     return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();

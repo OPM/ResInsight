@@ -62,6 +62,8 @@ public:
 
     virtual void                                updateFormationNamesData() = 0;
 
+    virtual double                              characteristicCellSize() const = 0;
+
 protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 private:
