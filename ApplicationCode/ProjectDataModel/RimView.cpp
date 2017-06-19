@@ -749,6 +749,31 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox)
+{
+    if (!this->ownerCase()) return;
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    QDateTime currentTimeStamp;
+    std::vector<QDateTime> timeStamps = ownerCase()->timeStepDates();
+    if (currentTimeStep() < timeStamps.size())
+    {
+        currentTimeStamp = timeStamps[currentTimeStep()];
+    }
+
+    wellPathsPartManager()->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
+        currentTimeStamp,
+        this->ownerCase()->characteristicCellSize(),
+        wellPathClipBoundingBox,
+        transForm.p());
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimCellRangeFilterCollection* RimView::rangeFilterCollection()
 {
     if (this->viewController() && this->viewController()->isRangeFiltersControlled() && m_overrideRangeFilterCollection)

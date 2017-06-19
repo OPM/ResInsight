@@ -34,7 +34,6 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
-#include "RimView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -97,7 +96,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
     if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked()) return;
 
@@ -122,7 +121,7 @@ void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
     if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->wellPathCollection()->isChecked()) return;
 
@@ -154,7 +153,7 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, ca
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
     if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
@@ -209,8 +208,9 @@ void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewD
 //--------------------------------------------------------------------------------------------------
 /// The pipe geometry needs to be rebuilt on scale change to keep the pipes round
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::buildWellPathParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize, 
-                                            cvf::BoundingBox wellPathClipBoundingBox)
+void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
+                                            double characteristicCellSize, 
+                                            const cvf::BoundingBox& wellPathClipBoundingBox)
 {
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
@@ -349,8 +349,10 @@ void RivWellPathPartMgr::buildWellPathParts(caf::DisplayCoordTransform* displayC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model,                                                           double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
-                                                          caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model,
+                                                          double characteristicCellSize,
+                                                          const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                          const caf::DisplayCoordTransform* displayCoordTransform)
 {
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
@@ -391,9 +393,13 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model)
+void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                           const QDateTime& timeStamp,
+                                           double characteristicCellSize, 
+                                           const cvf::BoundingBox& wellPathClipBoundingBox,
+                                           const caf::DisplayCoordTransform* displayCoordTransform)
 {
-    CVF_ASSERT(view && model);
+    CVF_ASSERT(model);
 
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
@@ -406,26 +412,7 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::M
     if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false)
         return;
 
-    QDateTime currentDateTime;
-    double characteristicCellSize = 10.0;
-
-    RimCase* rimCase = nullptr;
-    view->firstAncestorOrThisOfType(rimCase);
-    if (rimCase)
-    {
-        std::vector<QDateTime> timeStepDates = rimCase->timeStepDates();
-
-        if (view->currentTimeStep() < timeStepDates.size())
-        {
-            currentDateTime = timeStepDates[view->currentTimeStep()];
-        }
-    
-        characteristicCellSize = rimCase->characteristicCellSize();
-    }
-
-    cvf::ref<caf::DisplayCoordTransform> displayCoordTransform = view->displayCoordTransform();
-
-    appendPerforationsToModel(currentDateTime, model, displayCoordTransform.p(), characteristicCellSize);
+    appendPerforationsToModel(timeStamp, model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------

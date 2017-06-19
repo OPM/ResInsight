@@ -34,6 +34,8 @@ class RimProject;
 class RivWellPathPartMgr;
 class RimView;
 
+class QDateTime;
+
 namespace cvf
 {
     class ModelBasicList;
@@ -53,14 +55,17 @@ public:
 
     void scheduleGeometryRegen();
 
-    void appendStaticGeometryPartsToModel(
-        cvf::ModelBasicList*    model, 
-        double                  characteristicCellSize, 
-        cvf::BoundingBox        wellPathClipBoundingBox,
-        caf::DisplayCoordTransform* displayCoordTransform);
+    void appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                          double                            characteristicCellSize, 
+                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                          const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model);
+    void appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                           const QDateTime&                  timeStamp,
+                                           double                            characteristicCellSize, 
+                                           const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                           const caf::DisplayCoordTransform* displayCoordTransform);
 
 private:
-    caf::PdmPointer<RimWellPathCollection>      m_wellPathCollection;
+    caf::PdmPointer<RimWellPathCollection> m_wellPathCollection;
 };

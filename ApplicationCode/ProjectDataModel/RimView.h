@@ -180,6 +180,9 @@ protected:
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
                                                                 const cvf::BoundingBox& wellPathClipBoundingBox);
 
+    void                                    addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
+                                                                       const cvf::BoundingBox& wellPathClipBoundingBox);
+
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 
     virtual void                            createDisplayModel() = 0;

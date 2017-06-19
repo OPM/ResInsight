@@ -59,8 +59,8 @@ void RivWellPathCollectionPartMgr::scheduleGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                                     double characteristicCellSize,
-                                                                    cvf::BoundingBox wellPathClipBoundingBox,
-                                                                    caf::DisplayCoordTransform* displayCoordTransform)
+                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                    const caf::DisplayCoordTransform* displayCoordTransform)
 {
     if (!m_wellPathCollection->isActive()) return;
     if (m_wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
@@ -75,7 +75,12 @@ void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathCollectionPartMgr::appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model)
+void RivWellPathCollectionPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
+                                                                    const QDateTime& timeStamp,
+                                                                    double characteristicCellSize,
+                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                    const caf::DisplayCoordTransform* displayCoordTransform)
+
 {
     if (!m_wellPathCollection->isActive()) return;
     if (m_wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
@@ -83,7 +88,7 @@ void RivWellPathCollectionPartMgr::appendDynamicGeometryPartsToModel(RimView* vi
     for (size_t wIdx = 0; wIdx < m_wellPathCollection->wellPaths.size(); wIdx++)
     {
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
-        partMgr->appendDynamicGeometryPartsToModel(view, model);
+        partMgr->appendDynamicGeometryPartsToModel(model, timeStamp, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
     }
 }
 

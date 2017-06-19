@@ -639,15 +639,9 @@ void RimEclipseView::updateCurrentTimeStep()
                 cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                 wellPathModelBasicList->setName(name);
 
-                RigMainGrid* mainGrid = this->mainGrid();
-                if (mainGrid)
-                {
-                    wellPathsPartManager()->appendDynamicGeometryPartsToModel(this, wellPathModelBasicList.p());
+                addDynamicWellPathsToModel(wellPathModelBasicList.p(), currentActiveCellInfo()->geometryBoundingBox());
 
-                    wellPathModelBasicList->updateBoundingBoxesRecursive();
-
-                    frameScene->addModel(wellPathModelBasicList.p());
-                }
+                frameScene->addModel(wellPathModelBasicList.p());
             }
         }
     }

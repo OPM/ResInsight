@@ -43,7 +43,6 @@ class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
 class RimWellPathCollection;
-class RimView;
 
 class QDateTime;
 
@@ -56,19 +55,24 @@ public:
     void                                    scheduleGeometryRegen();
 
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                             double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
-                                                                             caf::DisplayCoordTransform* displayCoordTransform);
+                                                                             double characteristicCellSize,
+                                                                             const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                             const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void                                    appendDynamicGeometryPartsToModel(RimView* view, cvf::ModelBasicList* model);
+    void                                    appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                              const QDateTime&                  timeStamp,
+                                                                              double                            characteristicCellSize, 
+                                                                              const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                              const caf::DisplayCoordTransform* displayCoordTransform);
 
     size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
-    void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
-    void                                    appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
-    void                                    appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendCompletionsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                                    appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
 
-    void                                    buildWellPathParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                                    buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize, const cvf::BoundingBox& wellPathClipBoundingBox);
     void                                    clearAllBranchData();
     inline RimWellPathCollection*           wellPathCollection();
     inline double                           wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
