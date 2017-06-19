@@ -36,7 +36,7 @@ public:
     int partCount() const;
 
     size_t totalElementCount() const;
-    float characteristicElementSize();
+    float characteristicElementSize() const;
     cvf::BoundingBox boundingBox() const;
 
 

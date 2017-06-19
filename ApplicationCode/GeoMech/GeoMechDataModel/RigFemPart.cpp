@@ -283,7 +283,7 @@ cvf::Vec3f RigFemPart::faceNormal(int elmIdx, int faceIdx) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-float RigFemPart::characteristicElementSize()
+float RigFemPart::characteristicElementSize() const
 {
     if (m_characteristicElementSize != std::numeric_limits<float>::infinity()) return m_characteristicElementSize;
 
