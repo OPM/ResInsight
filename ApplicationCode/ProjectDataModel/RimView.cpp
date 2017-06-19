@@ -732,17 +732,14 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
-                                  const cvf::Vec3d& displayModelOffset,  
-                                  double characteristicCellSize, 
-                                  const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                  cvf::Transform* scaleTransform)
+                                  const cvf::BoundingBox& wellPathClipBoundingBox)
 {
+    if (!this->ownerCase()) return;
+
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     wellPathsPartManager()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
-        displayModelOffset,
-        scaleTransform,
-        characteristicCellSize,
+        this->ownerCase()->characteristicCellSize(),
         wellPathClipBoundingBox,
         transForm.p());
 

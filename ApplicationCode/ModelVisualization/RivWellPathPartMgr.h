@@ -53,11 +53,9 @@ public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
-    void                                    setScaleTransform(cvf::Transform * scaleTransform);
-
     void                                    scheduleGeometryRegen();
 
-    void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
+    void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                                              double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
                                                                              caf::DisplayCoordTransform* displayCoordTransform);
 
@@ -70,7 +68,7 @@ private:
     void                                    appendCompletionsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void                                    appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
 
-    void                                    buildWellPathParts(cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
+    void                                    buildWellPathParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox);
     void                                    clearAllBranchData();
     inline RimWellPathCollection*           wellPathCollection();
     inline double                           wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
@@ -78,7 +76,6 @@ private:
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
-    cvf::ref<cvf::Transform>                m_scaleTransform; 
     bool                                    m_needsTransformUpdate;
 
     struct RivPipeBranchData

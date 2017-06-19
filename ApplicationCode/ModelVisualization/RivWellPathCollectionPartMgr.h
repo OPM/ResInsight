@@ -53,12 +53,8 @@ public:
 
     void scheduleGeometryRegen();
 
-    void setScaleTransform(cvf::Transform * scaleTransform);
-
     void appendStaticGeometryPartsToModel(
         cvf::ModelBasicList*    model, 
-        cvf::Vec3d              displayModelOffset, 
-        cvf::Transform*         scaleTransform, 
         double                  characteristicCellSize, 
         cvf::BoundingBox        wellPathClipBoundingBox,
         caf::DisplayCoordTransform* displayCoordTransform);

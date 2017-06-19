@@ -57,31 +57,18 @@ void RivWellPathCollectionPartMgr::scheduleGeometryRegen()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathCollectionPartMgr::setScaleTransform(cvf::Transform * scaleTransform)
-{
-    for (size_t wIdx = 0; wIdx < m_wellPathCollection->wellPaths.size(); wIdx++)
-    {
-        m_wellPathCollection->wellPaths[wIdx]->partMgr()->setScaleTransform(scaleTransform);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, 
-                                                                    cvf::Transform* scaleTransform, double characteristicCellSize, cvf::BoundingBox wellPathClipBoundingBox,
+void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                    double characteristicCellSize,
+                                                                    cvf::BoundingBox wellPathClipBoundingBox,
                                                                     caf::DisplayCoordTransform* displayCoordTransform)
 {
-    setScaleTransform(scaleTransform);
-
     if (!m_wellPathCollection->isActive()) return;
     if (m_wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
     
     for (size_t wIdx = 0; wIdx < m_wellPathCollection->wellPaths.size(); wIdx++)
     {
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
-        partMgr->setScaleTransform(scaleTransform);
-        partMgr->appendStaticGeometryPartsToModel(model, displayModelOffset, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
+        partMgr->appendStaticGeometryPartsToModel(model, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
     }
 }
 
@@ -98,6 +85,5 @@ void RivWellPathCollectionPartMgr::appendDynamicGeometryPartsToModel(RimView* vi
         RivWellPathPartMgr* partMgr = m_wellPathCollection->wellPaths[wIdx]->partMgr();
         partMgr->appendDynamicGeometryPartsToModel(view, model);
     }
-
 }
 

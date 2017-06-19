@@ -178,10 +178,7 @@ protected:
     void                                    setDefaultView();
 
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
-                                                                const cvf::Vec3d& displayModelOffset,  
-                                                                double characteristicCellSize, 
-                                                                const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                                                cvf::Transform* scaleTransform);
+                                                                const cvf::BoundingBox& wellPathClipBoundingBox);
 
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 

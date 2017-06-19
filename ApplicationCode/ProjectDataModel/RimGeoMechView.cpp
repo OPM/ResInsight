@@ -210,15 +210,10 @@ void RimGeoMechView::createDisplayModel()
 
    // Well path model
 
-   double characteristicCellSize = geoMechCase()->geoMechData()->femParts()->characteristicElementSize();
    cvf::BoundingBox femBBox = geoMechCase()->geoMechData()->femParts()->boundingBox();
 
    m_wellPathPipeVizModel->removeAllParts();
-   addWellPathsToModel(m_wellPathPipeVizModel.p(),
-                       cvf::Vec3d(0, 0, 0),
-                       characteristicCellSize,
-                       femBBox,
-                       scaleTransform());
+   addWellPathsToModel(m_wellPathPipeVizModel.p(), femBBox);
 
    m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
