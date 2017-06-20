@@ -45,6 +45,8 @@ public:
     double                              skinFactor() const { return m_skinFactor(); }
     double                              holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
 
+    void                                setUnitSystemSpecificDefaults();
+
 protected:
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

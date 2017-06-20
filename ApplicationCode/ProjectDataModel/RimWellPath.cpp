@@ -483,6 +483,8 @@ double RimWellPath::combinedScaleFactor() const
 void RimWellPath::setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
     m_unitSystem = unitSystem;
+
+    m_completions->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------

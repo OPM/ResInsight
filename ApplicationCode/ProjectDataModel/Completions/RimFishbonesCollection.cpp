@@ -125,6 +125,7 @@ void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
     subs->fishbonesColor = nextFishbonesColor();
     fishbonesSubs.push_back(subs);
 
+    subs->setUnitSystemSpecificDefaults();
     subs->recomputeLateralLocations();
 }
 
@@ -242,5 +243,31 @@ double RimFishbonesCollection::roughnessFactor(RiaEclipseUnitTools::UnitSystem u
         return RiaEclipseUnitTools::meterToFeet(m_roughnessFactor());
     }
     return m_roughnessFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::setUnitSystemSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_mainBoreDiameter = 0.216;
+            m_linerDiameter = 0.152;
+            m_roughnessFactor = 1e-05;
+        }
+        else
+        {
+            m_mainBoreDiameter = 0.708;
+            m_linerDiameter = 0.5;
+            m_roughnessFactor = 3.28e-05;
+        }
+
+        m_wellPathCollection->setUnitSystemSpecificDefaults();
+    }
 }
 

@@ -43,6 +43,8 @@ public:
     QString                     wellNameForExport() const;
     bool                        hasCompletions() const;
 
+    void                        setUnitSystemSpecificDefaults();
+
 protected:
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 

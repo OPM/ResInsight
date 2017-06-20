@@ -80,6 +80,26 @@ double RimFishbonesPipeProperties::holeDiameter(RiaEclipseUnitTools::UnitSystem 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFishbonesPipeProperties::setUnitSystemSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_lateralHoleDiameter = 12.5;
+        }
+        else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            m_lateralHoleDiameter = 0.5;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishbonesPipeProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering & uiOrdering)
 {
     {

@@ -54,6 +54,8 @@ public:
 
     virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
 
+    void                                setUnitSystemSpecificDefaults();
+
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

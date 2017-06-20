@@ -96,6 +96,14 @@ bool RimWellPathCompletions::hasCompletions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::setUnitSystemSpecificDefaults()
+{
+    m_fishbonesCollection->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 { 
     uiTreeOrdering.skipRemainingChildren(true);

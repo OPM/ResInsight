@@ -94,6 +94,8 @@ public:
     std::vector<cvf::Vec3d>                     coordsForLateral(size_t subIndex, size_t lateralIndex) const;
     std::vector<std::pair<cvf::Vec3d, double>>  coordsAndMDForLateral(size_t subIndex, size_t lateralIndex) const;
     void                                        recomputeLateralLocations();
+
+    void                                        setUnitSystemSpecificDefaults();
     
     // Override from Rim3dPropertiesInterface
     virtual cvf::BoundingBox boundingBoxInDomainCoords() override;

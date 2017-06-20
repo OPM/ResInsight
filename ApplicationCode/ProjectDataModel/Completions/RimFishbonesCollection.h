@@ -54,6 +54,8 @@ public:
     double       linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double       roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
 
+    void         setUnitSystemSpecificDefaults();
+
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );

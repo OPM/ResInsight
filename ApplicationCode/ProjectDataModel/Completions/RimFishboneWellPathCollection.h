@@ -50,6 +50,8 @@ public:
     double                                  holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const { return m_pipeProperties->holeDiameter(unitSystem); }
     double                                  skinFactor() const { return m_pipeProperties->skinFactor(); }
 
+    void                                    setUnitSystemSpecificDefaults();
+
 protected:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

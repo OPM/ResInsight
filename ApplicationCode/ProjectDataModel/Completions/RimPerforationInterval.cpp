@@ -150,6 +150,26 @@ cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setUnitSystemSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_diameter = 0.216;
+        }
+        else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            m_diameter = 0.709;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 
