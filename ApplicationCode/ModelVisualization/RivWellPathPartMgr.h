@@ -52,30 +52,42 @@ public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
-    void                                    scheduleGeometryRegen();
+    void                          scheduleGeometryRegen();
 
-    void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                             double characteristicCellSize,
-                                                                             const cvf::BoundingBox& wellPathClipBoundingBox,
-                                                                             const caf::DisplayCoordTransform* displayCoordTransform);
+    void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                   double characteristicCellSize,
+                                                                   const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void                                    appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
-                                                                              const QDateTime&                  timeStamp,
-                                                                              double                            characteristicCellSize, 
-                                                                              const cvf::BoundingBox&           wellPathClipBoundingBox,
-                                                                              const caf::DisplayCoordTransform* displayCoordTransform);
+    void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                    const QDateTime& timeStamp,
+                                                                    double characteristicCellSize, 
+                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
 
-    size_t                                  segmentIndexFromTriangleIndex(size_t triangleIndex);
+    size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
-    void                                    appendFishbonesPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
-    void                                    appendCompletionsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
-    void                                    appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void                          appendFishbonesPartsToModel(cvf::ModelBasicList* model,
+                                                              const caf::DisplayCoordTransform* displayCoordTransform,
+                                                              double characteristicCellSize);
 
-    void                                    buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize, const cvf::BoundingBox& wellPathClipBoundingBox);
-    void                                    clearAllBranchData();
-    inline RimWellPathCollection*           wellPathCollection();
-    inline double                           wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
+    void                          appendCompletionsToModel(cvf::ModelBasicList* model,
+                                                           const caf::DisplayCoordTransform* displayCoordTransform,
+                                                           double characteristicCellSize);
+
+    void                          appendPerforationsToModel(const QDateTime& currentViewDate,
+                                                            cvf::ModelBasicList* model,
+                                                            const caf::DisplayCoordTransform* displayCoordTransform,
+                                                            double characteristicCellSize);
+
+    void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                     double characteristicCellSize,
+                                                     const cvf::BoundingBox& wellPathClipBoundingBox);
+
+    void                          clearAllBranchData();
+    inline RimWellPathCollection* wellPathCollection();
+    inline double                 wellPathRadius(double characteristicCellSize, RimWellPathCollection* wellPathCollection);
 
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
