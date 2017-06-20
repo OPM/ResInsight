@@ -306,7 +306,12 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
             RiaLogging::error(QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
             return resultCompletion; //Returning empty completion, should not be exported
         }       
+
         totalTrans = totalTrans + completion.transmissibility();
+
+        resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
+        resultCompletion.m_metadata.insert(resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end());
+
     }
 
 
@@ -519,7 +524,6 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
-            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
             CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
 
             double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
@@ -535,6 +539,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                                                                        interval->skinFactor(), 
                                                                        interval->diameter(unitSystem),
                                                                        direction);
+            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD() + QString(" : ") + QString::number(transmissibility)));
             completionData.push_back(completion);
         }
     }

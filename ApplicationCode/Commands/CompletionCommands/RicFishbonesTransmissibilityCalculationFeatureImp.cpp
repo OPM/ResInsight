@@ -62,7 +62,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                 if (intersection.mainBoreCell && settings.removeLateralsInMainBoreCells()) continue;
 
                 double diameter = location.fishbonesSubs->holeDiameter(unitSystem);
-                QString completionMetaData = (location.fishbonesSubs->name() + QString(" Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
+                QString completionMetaData = (location.fishbonesSubs->name() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell, 
                                                                                  diameter / 2, 
                                                                                  location.fishbonesSubs->skinFactor(), 
@@ -120,13 +120,9 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             }
         }
         
-        //TODO: Find main bore direction and use this as direction in which to split cell
-        QString directionToSplitCellVolume = "DX";
-
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
         {
             RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
-            completion.addMetadata(wellBorePart.metaData, "");
 
             double transmissibility = 0.0;
             if (wellBorePart.isMainBore)
@@ -163,7 +159,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                     wellBorePart.wellRadius *2, 
                                                                     direction,
                                                                     wellBorePart.isMainBore);
-
+            completion.addMetadata(wellBorePart.metaData, QString::number(transmissibility));
             completionData.push_back(completion);
         }
     }

@@ -147,9 +147,9 @@ public:
     bool                                      isMainBore() const { return m_isMainBore; }
     bool                                      readyForExport() const { return m_readyForExport; }
 
+    std::vector<RigCompletionMetaData>   m_metadata; //TODO: Is this OK?
 
 private:
-    std::vector<RigCompletionMetaData>   m_metadata;
     QString                              m_wellName;
     IJKCellIndex                         m_cellIndex;
     WellConnectionState                  m_connectionState;
