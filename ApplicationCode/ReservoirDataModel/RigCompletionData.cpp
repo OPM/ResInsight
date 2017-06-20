@@ -39,7 +39,7 @@ RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex&
       m_direction(DIR_UNDEF),
       m_connectionState(OPEN),
       m_count(1),
-      m_wpimult(1),
+      m_wpimult(HUGE_VAL),
       m_isMainBore(false),
       m_readyForExport(false)
 {
@@ -90,7 +90,6 @@ RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData
         result.m_metadata.reserve(result.m_metadata.size() + it->m_metadata.size());
         result.m_metadata.insert(result.m_metadata.end(), it->m_metadata.begin(), it->m_metadata.end());
 
-        //TODO: remove?
         result.m_count += it->m_count;
     }
 
@@ -186,6 +185,7 @@ void RigCompletionData::setCombinedValuesImplicitTransWPImult(double wpimult,
                                                               CompletionType completionType)
 {
     m_wpimult = wpimult;
+    m_direction = celldirection;
     m_completionType = completionType;
     m_skinFactor = skinFactor;
     m_diameter = wellDiameter;

@@ -142,6 +142,7 @@ public:
     double                                    dFactor() const { return m_dFactor; }
     CellDirection                             direction() const { return m_direction; }
     size_t                                    count() const { return m_count; }
+    double                                    wpimult() const { return m_wpimult; }
     CompletionType                            completionType() const { return m_completionType; }
     bool                                      isMainBore() const { return m_isMainBore; }
     bool                                      readyForExport() const { return m_readyForExport; }
@@ -164,7 +165,7 @@ private:
     bool                                 m_readyForExport;
 
     size_t                               m_count; //TODO: Remove, usage replaced by WPImult
-    size_t                               m_wpimult;
+    double                               m_wpimult;
 
     CompletionType                       m_completionType;
 

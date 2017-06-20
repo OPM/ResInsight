@@ -206,7 +206,6 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 
     for (auto& data : completionsPerEclipseCell)
     {
-        //completions.push_back(RigCompletionData::combine(data.second));
         completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
 
     }
