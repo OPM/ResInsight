@@ -691,16 +691,16 @@ void RifReaderEclipseOutput::buildMetaData()
         }
 
         // Default units type is METRIC
-        RigEclipseCaseData::UnitsType unitsType = RigEclipseCaseData::UNITS_METRIC;
+        RiaEclipseUnitTools::UnitSystem unitsType = RiaEclipseUnitTools::UNITS_METRIC;
         {
             int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
             if (unitsTypeValue == 2)
             {
-                unitsType = RigEclipseCaseData::UNITS_FIELD;
+                unitsType = RiaEclipseUnitTools::UNITS_FIELD;
             }
             else if (unitsTypeValue == 3)
             {
-                unitsType = RigEclipseCaseData::UNITS_LAB;
+                unitsType = RiaEclipseUnitTools::UNITS_LAB;
             }
         }
 
@@ -985,8 +985,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         double fieldGasToOilEquivalent  = 1.0e6/5800; // Mega ft^3 to BOE
         double metricGasToOilEquivalent = 1.0/1.0e3; // Sm^3 Gas to Sm^3 oe  
 
-        if (m_eclipseCase->unitsType() == RigEclipseCaseData::UNITS_FIELD)  gasRate = fieldGasToOilEquivalent * gasRate; 
-        if (m_eclipseCase->unitsType() == RigEclipseCaseData::UNITS_METRIC) gasRate = metricGasToOilEquivalent * gasRate; 
+        if (m_eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_FIELD)  gasRate = fieldGasToOilEquivalent * gasRate; 
+        if (m_eclipseCase->unitsType() == RiaEclipseUnitTools::UNITS_METRIC) gasRate = metricGasToOilEquivalent * gasRate; 
 
         resultPoint.m_gasRate   =   gasRate;
     }

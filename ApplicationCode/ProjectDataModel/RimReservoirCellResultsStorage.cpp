@@ -1543,7 +1543,7 @@ bool RimReservoirCellResultsStorage::isDataPresent(size_t scalarResultIndex) con
         return false;
     }
 
-    const std::vector< std::vector<double> > data = m_cellResults->cellScalarResults(scalarResultIndex);
+    const std::vector< std::vector<double> >& data = m_cellResults->cellScalarResults(scalarResultIndex);
 
     for (size_t tsIdx = 0; tsIdx < data.size(); ++tsIdx)
     {
@@ -1575,25 +1575,7 @@ double RimReservoirCellResultsStorage::darchysValue()
 
     if (rimCase && rimCase->eclipseCaseData())
     {
-        RigEclipseCaseData::UnitsType unitsType = rimCase->eclipseCaseData()->unitsType();
-
-        if (unitsType == RigEclipseCaseData::UNITS_FIELD)
-        {
-            darchy = 0.001127;
-        }
-        else if (unitsType == RigEclipseCaseData::UNITS_METRIC)
-        {
-            darchy = 0.008527;
-        }
-        else if (unitsType == RigEclipseCaseData::UNITS_LAB)
-        {
-            darchy = 3.6;
-        }
-        else
-        {
-            darchy = 0.00864; // Assuming (PVT - M)
-            CVF_TIGHT_ASSERT(false); // The enum and doc does not state that the PVT-M actually exists, so to trap this in debug
-        }
+        darchy = RiaEclipseUnitTools::darcysConstant(rimCase->eclipseCaseData()->unitsType());
     }
 
     return darchy;

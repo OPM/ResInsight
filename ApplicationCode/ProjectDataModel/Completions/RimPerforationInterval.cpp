@@ -25,9 +25,7 @@
 #include "RimProject.h"
 #include "RimWellPath.h"
 
-#include "cafPdmUiListEditor.h"
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiDateEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimPerforationInterval, "Perforation");
 
@@ -38,13 +36,12 @@ RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitObject("Perforation", ":/PerforationInterval16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,   "Start MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,   "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216, "Diameter [m]", "", "", "");
-    CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,   "Skin Factor", "", "", "");
-    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,  "Start of History", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_date,  "StartDate",                 "Start Date", "", "", "");
-    m_date.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,                             "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,                             "End MD", "", "", "");
+    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216,                           "Diameter", "", "", "");
+    CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,                             "Skin Factor", "", "", "");
+    CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,                            "Start of History", "", "", "");
+    CAF_PDM_InitField(&m_date,           "StartDate",          QDateTime::currentDateTime(),    "Start Date", "", "", "");
 
     nameField()->uiCapability()->setUiReadOnly(true);
 }
@@ -103,6 +100,24 @@ void RimPerforationInterval::setSkinFactor(double skinFactor)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimPerforationInterval::diameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::feetToMeter(m_diameter());
+    }
+    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::meterToFeet(m_diameter());
+    }
+    return m_diameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimPerforationInterval::isActiveOnDate(const QDateTime& date) const
 {
     if (m_startOfHistory())
@@ -135,6 +150,26 @@ cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::setUnitSystemSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_diameter = 0.216;
+        }
+        else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            m_diameter = 0.709;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 
@@ -161,6 +196,25 @@ void RimPerforationInterval::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    {
+        RimWellPath* wellPath;
+        firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+            {
+                m_startMD.uiCapability()->setUiName("Start MD [m]");
+                m_endMD.uiCapability()->setUiName("End MD [m]");
+                m_diameter.uiCapability()->setUiName("Diameter [m]");
+            }
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+            {
+                m_startMD.uiCapability()->setUiName("Start MD [ft]");
+                m_endMD.uiCapability()->setUiName("End MD [ft]");
+                m_diameter.uiCapability()->setUiName("Diameter [ft]");
+            }
+        }
+    }
     m_date.uiCapability()->setUiReadOnly(m_startOfHistory());
 
     uiOrdering.add(&m_startMD);
@@ -171,5 +225,20 @@ void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.add(&m_date);
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPerforationInterval::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_date)
+    {
+        caf::PdmUiDateEditorAttribute* myAttr = static_cast<caf::PdmUiDateEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->dateFormat = "dd MMM yyyy";
+        }
+    }
 }
 

@@ -112,6 +112,14 @@ std::vector<const RimFishboneWellPath*> RimFishboneWellPathCollection::wellPaths
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFishboneWellPathCollection::setUnitSystemSpecificDefaults()
+{
+    m_pipeProperties->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishboneWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* wellPropertiesGroup = uiOrdering.addNewGroup("Well Properties");

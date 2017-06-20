@@ -185,6 +185,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                                                                  const RicExportWellSegmentsSettingsUi& settings,
                                                                  const std::vector<WellSegmentLocation>& locations)
 {
+    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
+
     formatter.keyword("WELSEGS");
 
     double startMD = wellPath->fishbonesCollection()->startMD();
@@ -246,7 +248,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                 length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
             }
             
-            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(), wellPath->fishbonesCollection()->mainBoreDiameter());
+            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem),
+                                                       wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem));
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
             formatter.add(location.segmentNumber).add(location.segmentNumber);
@@ -255,7 +258,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             formatter.add(length);
             formatter.add(depth);
             formatter.add(diameter);
-            formatter.add(wellPath->fishbonesCollection()->roughnessFactor());
+            formatter.add(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
             formatter.rowCompleted();
 
             previousMD = location.measuredDepth;
@@ -269,7 +272,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.comment("Rough: MSW - Open Hole Roughness Factor");
         for (const WellSegmentLocation& location : locations)
         {
-            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(), wellPath->fishbonesCollection()->mainBoreDiameter());
+            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem),
+                                                       wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem));
             formatter.comment("ICD");
             formatter.add(location.icdSegmentNumber).add(location.icdSegmentNumber);
             formatter.add(location.icdBranchNumber);
@@ -277,7 +281,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             formatter.add(0.1); // ICDs have 0.1 length
             formatter.add(0); // Depth change
             formatter.add(diameter);
-            formatter.add(wellPath->fishbonesCollection()->roughnessFactor());
+            formatter.add(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
             formatter.rowCompleted();
 
             for (const WellSegmentLateral& lateral : location.laterals)
@@ -299,7 +303,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                         depth += intersection.depth;
                         length += intersection.length;
                     }
-                    double diameter = computeEffectiveDiameter(location.fishbonesSubs->tubingDiameter(), location.fishbonesSubs->holeDiameter());
+                    double diameter = computeEffectiveDiameter(location.fishbonesSubs->tubingDiameter(unitSystem), location.fishbonesSubs->holeDiameter(unitSystem));
                     formatter.add(intersection.segmentNumber);
                     formatter.add(intersection.segmentNumber);
                     formatter.add(lateral.branchNumber);
@@ -307,7 +311,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                     formatter.add(length);
                     formatter.add(depth);
                     formatter.add(diameter);
-                    formatter.add(location.fishbonesSubs->openHoleRoughnessFactor());
+                    formatter.add(location.fishbonesSubs->openHoleRoughnessFactor(unitSystem));
                     formatter.rowCompleted();
                 }
             }
@@ -383,6 +387,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWsegvalvTable(RifEclipseData
                                                                   const RicExportWellSegmentsSettingsUi& settings,
                                                                   const std::vector<WellSegmentLocation>& locations)
 {
+    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
+
     {
         formatter.keyword("WSEGVALV");
         std::vector<RifEclipseOutputTableColumn> header = {
@@ -399,7 +405,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWsegvalvTable(RifEclipseData
         formatter.add(location.icdSegmentNumber);
         formatter.add(location.fishbonesSubs->icdFlowCoefficient());
 
-        double icdOrificeRadius = location.fishbonesSubs->icdOrificeDiameter() / 2;
+        double icdOrificeRadius = location.fishbonesSubs->icdOrificeDiameter(unitSystem) / 2;
         double icdArea = icdOrificeRadius * icdOrificeRadius * cvf::PI_D;
         formatter.add(icdArea * static_cast<double>(location.fishbonesSubs->icdCount()));
         formatter.rowCompleted();

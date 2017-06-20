@@ -22,6 +22,8 @@
 #include "RimCheckableNamedObject.h"
 #include "Rim3dPropertiesInterface.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -45,17 +47,20 @@ public:
     void                                setSkinFactor(double skinFactor);
     double                              startMD() const { return m_startMD(); }
     double                              endMD() const { return m_endMD(); }
-    double                              diameter() const { return m_diameter(); }
+    double                              diameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double                              skinFactor() const { return m_skinFactor(); }
 
     bool                                isActiveOnDate(const QDateTime& date) const;
 
     virtual cvf::BoundingBox            boundingBoxInDomainCoords() override;
 
+    void                                setUnitSystemSpecificDefaults();
+
 protected:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual void                        defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     caf::PdmField< double >             m_startMD;

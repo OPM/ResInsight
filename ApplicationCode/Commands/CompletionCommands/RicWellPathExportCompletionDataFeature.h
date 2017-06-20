@@ -136,8 +136,23 @@ public:
     static void                                  markWellPathCells(const std::vector<size_t>& wellPathCells, std::vector<WellSegmentLocation>* locations);
     static CellDirection                         calculateDirectionInCell(RimEclipseCase* eclipseCase, size_t cellIndex, const cvf::Vec3d& lengthsInCell);
     
-    static double                                calculateTransmissibility(RimEclipseCase* eclipseCase, const RimWellPath* wellPath, const cvf::Vec3d& internalCellLengths, double skinFactor, double wellRadius, size_t cellIndex, size_t volumeScaleConstant = 1, QString directionForVolumeScaling = "DX");
+    static double                                calculateTransmissibility(RimEclipseCase* eclipseCase, 
+                                                                           const RimWellPath* wellPath, 
+                                                                           const cvf::Vec3d& internalCellLengths, 
+                                                                           double skinFactor, 
+                                                                           double wellRadius, 
+                                                                           size_t cellIndex, 
+                                                                           size_t volumeScaleConstant = 1, 
+                                                                           CellDirection directionForVolumeScaling = CellDirection::DIR_I);
+    static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
+                                                                                        double skinFactor,
+                                                                                        double wellRadius,
+                                                                                        size_t cellIndex,
+                                                                                        CellDirection direction);
+
 private:
+    static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
+                                                                               const RicExportCompletionDataSettingsUi& settings);
     static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings);
     static void                                  printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, bool includeWpimult);
     static std::vector<RigCompletionData>        getCompletionsForWellAndCompletionType(const std::vector<RigCompletionData>& completions, const QString& wellName, RigCompletionData::CompletionType completionType);

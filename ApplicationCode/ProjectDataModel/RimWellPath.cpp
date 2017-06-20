@@ -366,7 +366,11 @@ void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 { 
     uiTreeOrdering.skipRemainingChildren(true);
     uiTreeOrdering.add(&m_wellLogFile);
-    uiTreeOrdering.add(&m_completions);
+
+    if (m_completions->hasCompletions())
+    {
+        uiTreeOrdering.add(&m_completions);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,6 +483,8 @@ double RimWellPath::combinedScaleFactor() const
 void RimWellPath::setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem)
 {
     m_unitSystem = unitSystem;
+
+    m_completions->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------

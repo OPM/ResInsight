@@ -23,6 +23,7 @@
 #include <QString>
 #include <cmath> // Needed for HUGE_VAL on Linux
 
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -37,7 +38,10 @@ RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex&
       m_dFactor(HUGE_VAL),
       m_direction(DIR_UNDEF),
       m_connectionState(OPEN),
-      m_count(1)
+      m_count(1),
+      m_wpimult(HUGE_VAL),
+      m_isMainBore(false),
+      m_readyForExport(false)
 {
 }
 
@@ -130,31 +134,62 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 //==================================================================================================
 /// 
 //==================================================================================================
-void RigCompletionData::setFromFishbone(double diameter, CellDirection direction)
-{
-    m_completionType = FISHBONES;
-    m_diameter = diameter;
-    m_direction = direction;
-}
-
-//==================================================================================================
-/// 
-//==================================================================================================
-void RigCompletionData::setFromFishbone(double transmissibility, double skinFactor)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
+                                                                     double skinFactor,
+                                                                     double diameter,
+                                                                     CellDirection direction,
+                                                                     bool isMainBore)
 {
     m_completionType = FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
+    m_diameter = diameter;
+    m_direction = direction;
+    m_isMainBore = isMainBore;
 }
 
 //==================================================================================================
 /// 
 //==================================================================================================
-void RigCompletionData::setFromPerforation(double diameter, CellDirection direction)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double transmissibility,
+                                                                        double skinFactor, 
+                                                                        double diameter, 
+                                                                        CellDirection direction)
 {
     m_completionType = PERFORATION;
+    m_transmissibility = transmissibility;
+    m_skinFactor = skinFactor;
     m_diameter = diameter;
     m_direction = direction;
+    m_isMainBore = true;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCompletionData::setCombinedValuesExplicitTrans(double transmissibility, 
+                                                       CompletionType completionType)
+{
+    m_completionType = completionType;
+    m_transmissibility = transmissibility;
+    m_readyForExport = true;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCompletionData::setCombinedValuesImplicitTransWPImult(double wpimult, 
+                                                              CellDirection celldirection, 
+                                                              double skinFactor,
+                                                              double wellDiameter,
+                                                              CompletionType completionType)
+{
+    m_wpimult = wpimult;
+    m_direction = celldirection;
+    m_completionType = completionType;
+    m_skinFactor = skinFactor;
+    m_diameter = wellDiameter;
+    m_readyForExport = true;
 }
 
 //==================================================================================================

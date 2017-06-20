@@ -349,8 +349,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-            if (eclipseUnitsType == RigEclipseCaseData::UNITS_FIELD)
+            RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
+            if (eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD)
             {
                 // See https://github.com/OPM/ResInsight/issues/538
                 

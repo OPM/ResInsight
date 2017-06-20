@@ -37,10 +37,12 @@ struct WellBorePartForTransCalc {
     WellBorePartForTransCalc(cvf::Vec3d lengthsInCell,
                              double wellRadius,
                              double skinFactor,
+                             bool isMainBore,
                              QString metaData)
         : lengthsInCell(lengthsInCell),
         wellRadius(wellRadius),
         skinFactor(skinFactor),
+        isMainBore(isMainBore),
         metaData(metaData)
     {}
 
@@ -48,6 +50,7 @@ struct WellBorePartForTransCalc {
     double                   wellRadius;
     double                   skinFactor;
     QString                  metaData;
+    bool                     isMainBore;
 };
 
 //==================================================================================================
@@ -56,13 +59,8 @@ struct WellBorePartForTransCalc {
 class RicFishbonesTransmissibilityCalculationFeatureImp
 {
 public:
-    static std::vector<RigCompletionData>        generateFishboneLateralsCompdatValues(const RimWellPath* wellPath, 
-                                                                                       const RicExportCompletionDataSettingsUi& settings);
-    static std::vector<RigCompletionData>        generateFishbonesImportedLateralsCompdatValues(const RimWellPath* wellPath, 
-                                                                                                const RicExportCompletionDataSettingsUi& settings);
-    
     static std::vector<RigCompletionData>        generateFishboneCompdatValuesUsingAdjustedCellVolume(const RimWellPath* wellPath, 
-                                                                                                              const RicExportCompletionDataSettingsUi& settings);
+                                                                                                      const RicExportCompletionDataSettingsUi& settings);
 
 
 

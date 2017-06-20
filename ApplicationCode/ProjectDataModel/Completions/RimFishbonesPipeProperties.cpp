@@ -18,6 +18,8 @@
 
 #include "RimFishbonesPipeProperties.h"
 
+#include "RimWellPath.h"
+
 #include <cstdlib>
 
 
@@ -45,8 +47,77 @@ RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+double RimFishbonesPipeProperties::holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            return RiaEclipseUnitTools::inchToMeter(m_lateralHoleDiameter());
+        }
+        else
+        {
+            return m_lateralHoleDiameter() / 1000;
+        }
+    }
+    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            return RiaEclipseUnitTools::meterToFeet(m_lateralHoleDiameter() / 1000);
+        }
+        else
+        {
+            return RiaEclipseUnitTools::inchToFeet(m_lateralHoleDiameter());
+        }
+    }
+    CVF_ASSERT(false);
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesPipeProperties::setUnitSystemSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_lateralHoleDiameter = 12.5;
+        }
+        else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            m_lateralHoleDiameter = 0.5;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishbonesPipeProperties::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering & uiOrdering)
 {
+    {
+        RimWellPath* wellPath;
+        firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+            {
+                m_lateralHoleDiameter.uiCapability()->setUiName("Hole Diameter [mm]");
+            }
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+            {
+                m_lateralHoleDiameter.uiCapability()->setUiName("Hole Diameter [in]");
+            }
+        }
+    }
+
     uiOrdering.add(&m_lateralHoleDiameter);
     uiOrdering.add(&m_skinFactor);
 }

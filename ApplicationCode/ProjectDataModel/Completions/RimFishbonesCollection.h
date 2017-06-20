@@ -20,6 +20,8 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmFieldCvfColor.h"    
@@ -47,13 +49,16 @@ public:
     caf::PdmChildArrayField<RimFishbonesMultipleSubs*>  fishbonesSubs;
 
     void         recalculateStartMD();
-    double       startMD() const { return m_startMD(); }
-    double       mainBoreDiameter() const { return m_mainBoreDiameter(); }
-    double       linerDiameter() const { return m_linerDiameter(); }
-    double       roughnessFactor() const { return m_roughnessFactor(); }
+    double       startMD() const { return m_startMD; }
+    double       mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double       linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double       roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+
+    void         setUnitSystemSpecificDefaults();
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
     cvf::Color3f nextFishbonesColor() const;
