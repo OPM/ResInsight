@@ -62,7 +62,14 @@ void RimPerforationCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
-    proj->createDisplayModelAndRedrawAllViews();
+    if (changedField == &m_isChecked)
+    {
+        proj->reloadCompletionTypeResultsInAllViews();
+    }
+    else
+    {
+        proj->createDisplayModelAndRedrawAllViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
