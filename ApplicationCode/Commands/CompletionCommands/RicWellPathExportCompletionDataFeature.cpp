@@ -138,7 +138,8 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings)
+void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, 
+                                                               const RicExportCompletionDataSettingsUi& exportSettings)
 {
 
     if (exportSettings.caseToApply() == nullptr)
@@ -184,9 +185,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             return;
         }
     }
-
-
-    std::map<IJKCellIndex, std::vector<RigCompletionData> > completionData;
+    
+    std::map<IJKCellIndex, std::vector<RigCompletionData> > completionsPerEclipseCell;
 
     for (auto wellPath : usedWellPaths)
     {
@@ -195,26 +195,24 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         if (exportSettings.includePerforations)
         {
             std::vector<RigCompletionData> perforationCompletionData = generatePerforationsCompdatValues(wellPath, exportSettings);
-            appendCompletionData(&completionData, perforationCompletionData);
+            appendCompletionData(&completionsPerEclipseCell, perforationCompletionData);
         }
         if (exportSettings.includeFishbones)
         {
-//             std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneLateralsCompdatValues(wellPath, exportSettings);
-//             appendCompletionData(&completionData, fishbonesCompletionData);
-//             std::vector<RigCompletionData> fishbonesWellPathCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishbonesImportedLateralsCompdatValues(wellPath, exportSettings);
-//             appendCompletionData(&completionData, fishbonesWellPathCompletionData);
-
             std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(wellPath, exportSettings);
-            appendCompletionData(&completionData, fishbonesCompletionData);
-
+            appendCompletionData(&completionsPerEclipseCell, fishbonesCompletionData);
         }
     }
 
-    // Merge map into a vector of values
     std::vector<RigCompletionData> completions;
-    for (auto& data : completionData)
+    //std::map < IJKCellIndex, std::map<QString, RigCompletionData >> combinedCompletionDataPerEclipseCell; 
+    //Should be moved to map instead of vector
+
+    for (auto& data : completionsPerEclipseCell)
     {
-        completions.push_back(RigCompletionData::combine(data.second));
+        //completions.push_back(RigCompletionData::combine(data.second));
+        completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
+
     }
 
     const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
@@ -259,11 +257,97 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
 }
 
+//==================================================================================================
+/// 
+//==================================================================================================
+RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions,
+                                                                                        const RicExportCompletionDataSettingsUi& settings)
+{
+    CVF_ASSERT(!completions.empty());
+    QString wellName = completions[0].wellName();
+    IJKCellIndex cellIndexIJK = completions[0].cellIndex();
+    RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
+    size_t cellIndex = grid->cellIndexFromIJK(cellIndexIJK.i, cellIndexIJK.j, cellIndexIJK.k);
+    RigCompletionData::CompletionType completionType = completions[0].completionType();
+
+    //completion type, skin factor, well bore diameter and cell direction are taken from (first) main bore, 
+    //if no main bore they are taken from first completion
+    double skinfactor = completions[0].skinFactor();
+    double wellBoreDiameter = completions[0].diameter();
+    CellDirection cellDirection = completions[0].direction();
+    
+    for (const RigCompletionData& completion : completions)
+    {
+        if (completion.isMainBore())
+        {
+            skinfactor = completion.skinFactor();
+            wellBoreDiameter = completion.diameter();
+            cellDirection = completion.direction();
+            break;
+        }
+    }
+
+
+    RigCompletionData resultCompletion(wellName, cellIndexIJK);
+
+    double totalTrans = 0.0;
+
+    for (const RigCompletionData& completion : completions)
+    {
+        if (completion.completionType() != completions[0].completionType())
+        {
+            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            return resultCompletion; //Returning empty completion, should not be exported
+        }
+
+        if (completion.wellName() != completions[0].wellName())
+        {
+            RiaLogging::error(QString("Cannot combine completions from different wells in same cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            return resultCompletion; //Returning empty completion, should not be exported
+        }
+        
+        if (completion.transmissibility() == HUGE_VAL)
+        {
+            RiaLogging::error(QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            return resultCompletion; //Returning empty completion, should not be exported
+        }       
+        totalTrans = totalTrans + completion.transmissibility();
+    }
+
+
+    if (settings.computeTransmissibility() && !settings.includeWpimult) //TODO: replace with explicitTransmissibilityExport setting
+    {
+        resultCompletion.setCombinedValuesExplicitTrans(totalTrans, completionType);
+    }
+
+    if (settings.includeWpimult) //TODO: replace with implicitTransmissibilityExportByWPImult
+    {
+        //calculate trans for main bore - but as Eclipse will do it!      
+        double transmissibilityEclipseCalculation = RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(settings.caseToApply(),
+                                                                                                                                   skinfactor,
+                                                                                                                                   wellBoreDiameter / 2,
+                                                                                                                                   cellIndex,
+                                                                                                                                   cellDirection);
+
+        double wpimult = totalTrans / transmissibilityEclipseCalculation;
+        resultCompletion.setCombinedValuesImplicitTransWPImult(wpimult, cellDirection, skinfactor, wellBoreDiameter, completionType);
+    }
+        
+    return resultCompletion;
+}
+
+
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, bool includeWpimult)
 {
+    //TODO: Check that completion is ready for export
+    //TODO: Use wpimult instead of count for export!
+
     QString filePath = QDir(exportFolder).filePath(fileName);
     QFile exportFile(filePath);
     if (!exportFile.open(QIODevice::WriteOnly))
@@ -280,6 +364,8 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
 
     // Print completion data
     generateCompdatTable(formatter, completions);
+
+    
     if (includeWpimult)
     {
         generateWpimultTable(formatter, completions);
@@ -707,4 +793,68 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.z(), permy, permx, dy, dx, wellRadius, skinFactor, darcy);
 
     return RigTransmissibilityEquations::totalConnectionFactor(transx, transy, transz);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
+                                                                                      double skinFactor,
+                                                                                      double wellRadius,
+                                                                                      size_t cellIndex,
+                                                                                      CellDirection direction)
+{
+    RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "DZ");
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
+    cvf::ref<RigResultAccessor> permxAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMX");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
+    cvf::ref<RigResultAccessor> permyAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMY");
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
+    cvf::ref<RigResultAccessor> permzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RifReaderInterface::MATRIX_RESULTS, 0, "PERMZ");
+
+    double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
+    double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
+    double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
+    double permx = permxAccessObject->cellScalarGlobIdx(cellIndex);
+    double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
+    double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
+
+    //TODO: EclipseCaseData should use RiaEclipseUnitTools to simplify this!!!
+    RiaEclipseUnitTools::UnitSystem units = RiaEclipseUnitTools::UNITS_UNKNOWN;
+    if (eclipseCase->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
+    {
+        units = RiaEclipseUnitTools::UNITS_FIELD;
+    }
+    else if (eclipseCase->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
+    {
+        units = RiaEclipseUnitTools::UNITS_METRIC;
+    }
+    double darcy = RiaEclipseUnitTools::darcysConstant(units);
+
+
+
+    double trans = cvf::UNDEFINED_DOUBLE;
+    if (direction == CellDirection::DIR_I)
+    {
+        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(dx, permy, permz, dy, dz, wellRadius, skinFactor, darcy);
+    }
+    else if (direction == CellDirection::DIR_J)
+    {
+        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(dy, permx, permz, dx, dz, wellRadius, skinFactor, darcy);
+    }
+    else if (direction == CellDirection::DIR_K)
+    {
+        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(dz, permy, permx, dy, dx, wellRadius, skinFactor, darcy);
+    }
+
+    return trans;
 }

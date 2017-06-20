@@ -115,7 +115,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                 if (intersection.mainBoreCell && settings.removeLateralsInMainBoreCells()) continue;
 
                 double diameter = location.fishbonesSubs->holeDiameter() / 1000;
-                QString completionMetaData = (location.fishbonesSubs->name(), QString("Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
+                QString completionMetaData = (location.fishbonesSubs->name() + QString(" Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell, 
                                                                                  diameter / 2, 
                                                                                  location.fishbonesSubs->skinFactor(), 
@@ -155,8 +155,11 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
         bool cellIsActive = activeCellInfo->isActive(cellIndex);
         if (!cellIsActive) continue;
         
+        //TODO: Only laterals should contribute to reduction!
         size_t NumberOfCellContributions = wellBoreParts.size();
         //Simplest implementation possible, this can be improved later
+
+        //TODO: Find main bore direction and use this as direction in which to split cell
         QString directionToSplitCellVolume = "DX";
 
         for (WellBorePartForTransCalc wellBorePart : wellBoreParts)
@@ -165,6 +168,8 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             completion.addMetadata(wellBorePart.metaData, "");
             if (settings.computeTransmissibility())
             {
+
+
                 double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
                                                                                                             wellPath,
                                                                                                             wellBorePart.lengthsInCell,

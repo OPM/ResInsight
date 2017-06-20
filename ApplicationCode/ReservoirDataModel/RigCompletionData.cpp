@@ -22,6 +22,8 @@
 
 #include <QString>
 #include <cmath> // Needed for HUGE_VAL on Linux
+#include "CompletionCommands\RicExportCompletionDataSettingsUi.h"
+#include "CompletionCommands\RicWellPathExportCompletionDataFeature.h"
 
 //==================================================================================================
 /// 
@@ -37,7 +39,10 @@ RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex&
       m_dFactor(HUGE_VAL),
       m_direction(DIR_UNDEF),
       m_connectionState(OPEN),
-      m_count(1)
+      m_count(1),
+      m_wpimult(1),
+      m_isMainBore(false),
+      m_readyForExport(false)
 {
 }
 
@@ -86,6 +91,7 @@ RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData
         result.m_metadata.reserve(result.m_metadata.size() + it->m_metadata.size());
         result.m_metadata.insert(result.m_metadata.end(), it->m_metadata.begin(), it->m_metadata.end());
 
+        //TODO: remove?
         result.m_count += it->m_count;
     }
 
@@ -155,6 +161,33 @@ void RigCompletionData::setFromPerforation(double diameter, CellDirection direct
     m_completionType = PERFORATION;
     m_diameter = diameter;
     m_direction = direction;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCompletionData::setCombinedValuesExplicitTrans(double transmissibility, 
+                                                       CompletionType completionType)
+{
+    m_completionType = completionType;
+    m_transmissibility = transmissibility;
+    m_readyForExport = true;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCompletionData::setCombinedValuesImplicitTransWPImult(double wpimult, 
+                                                              CellDirection celldirection, 
+                                                              double skinFactor,
+                                                              double wellDiameter,
+                                                              CompletionType completionType)
+{
+    m_wpimult = wpimult;
+    m_completionType = completionType;
+    m_skinFactor = skinFactor;
+    m_diameter = wellDiameter;
+    m_readyForExport = true;
 }
 
 //==================================================================================================
