@@ -138,13 +138,15 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                                      double skinFactor,
                                                                      double diameter,
-                                                                     CellDirection direction)
+                                                                     CellDirection direction,
+                                                                     bool isMainBore)
 {
     m_completionType = FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
     m_diameter = diameter;
     m_direction = direction;
+    m_isMainBore = isMainBore;
 }
 
 //==================================================================================================

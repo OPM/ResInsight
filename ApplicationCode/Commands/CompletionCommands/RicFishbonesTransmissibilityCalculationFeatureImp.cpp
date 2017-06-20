@@ -161,7 +161,9 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
             completion.setTransAndWPImultBackgroundDataFromFishbone(transmissibility,  
                                                                     wellBorePart.skinFactor, 
                                                                     wellBorePart.wellRadius *2, 
-                                                                    direction);
+                                                                    direction,
+                                                                    wellBorePart.isMainBore);
+
             completionData.push_back(completion);
         }
     }
