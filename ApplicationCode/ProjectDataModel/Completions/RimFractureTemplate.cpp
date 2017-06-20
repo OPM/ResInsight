@@ -30,7 +30,6 @@
 #include "RimFractureContainment.h"
 
 
-
 namespace caf
 {
     template<>
@@ -270,6 +269,14 @@ double RimFractureTemplate::perforationLengthInFractureUnit(RiaEclipseUnitTools:
     }
 
     return cvf::UNDEFINED_DOUBLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimFractureContainment * RimFractureTemplate::fractureContainment()
+{
+    return m_fractureContainment();
 }
 
 //--------------------------------------------------------------------------------------------------

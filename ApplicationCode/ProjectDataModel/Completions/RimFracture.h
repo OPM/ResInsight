@@ -72,6 +72,8 @@ public:
     cvf::Vec3d                      anchorPosition() const ;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
 
+    bool                            isEclipseCellWithinContainment(const RigMainGrid* mainGrid, 
+                                                                   size_t globalCellIndex);
     size_t                          findAnchorEclipseCell(const RigMainGrid* mainGrid) const;
 
     cvf::Mat4f                      transformMatrix() const; 

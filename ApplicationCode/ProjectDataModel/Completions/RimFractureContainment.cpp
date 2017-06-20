@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RimFractureContainment.h"
 #include "cafPdmUiSliderEditor.h"
+#include "RigMainGrid.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFractureContainment, "FractureContainment");
@@ -42,12 +43,24 @@ RimFractureContainment::RimFractureContainment()
     CAF_PDM_InitObject("Fracture Containment", "", "", "");
 
     CAF_PDM_InitField(&m_isUsingFractureContainment,  "IsUsingFractureContainment",  false, "Fracture Containment", "", "", "");
-    CAF_PDM_InitField(&m_topKLayer, "topKLayer", 0, "Top Layer", "", "", "");
+    CAF_PDM_InitField(&m_topKLayer, "TopKLayer", 0, "Top Layer", "", "", "");
     //m_topKLayer.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
-    CAF_PDM_InitField(&m_bottomKLayer, "bottomKLayer", 0, "Bottom Layer", "", "", "");
+    CAF_PDM_InitField(&m_baseKLayer, "BaseKLayer", 0, "Base Layer", "", "", "");
     //m_topKLayer.uiCapability()->setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_faultTruncation, "m_faultTruncation", "Fault Truncation", "", "", ""); 
+    // This field is not active yet.
+    CAF_PDM_InitFieldNoDefault(&m_faultTruncation, "FaultTruncationType", "Fault Truncation", "", "", ""); 
+    m_faultTruncation.uiCapability()->setUiHidden(true);
+    m_faultTruncation.xmlCapability()->setIOWritable(false); // When in operation, remove
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimFractureContainment::~RimFractureContainment()
+{
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,11 +85,33 @@ QList<caf::PdmOptionItemInfo> RimFractureContainment::calculateValueOptions(cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex) const
+{
+    if (!this->m_isUsingFractureContainment()) return true;
+
+    CVF_ASSERT(mainGrid);
+
+    size_t i,j,k;
+    if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
+
+    bool ok = mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
+
+    if (k <= m_topKLayer()) return false;
+    if (k >= m_baseKLayer()) return false;
+
+    // Todo: use fault propagation mode
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_isUsingFractureContainment);
     uiOrdering.add(&m_topKLayer);
-    uiOrdering.add(&m_bottomKLayer);
-    uiOrdering.add(&m_faultTruncation);
+    uiOrdering.add(&m_baseKLayer);
+    //uiOrdering.add(&m_faultTruncation);
 }
 

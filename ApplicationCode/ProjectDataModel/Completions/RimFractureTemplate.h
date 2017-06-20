@@ -84,6 +84,8 @@ public:
 
     virtual const RigFractureGrid*  fractureGrid() const = 0;
 
+    const RimFractureContainment *  fractureContainment();
+
 protected:
     caf::PdmChildField<RimFractureContainment*> m_fractureContainment;
 

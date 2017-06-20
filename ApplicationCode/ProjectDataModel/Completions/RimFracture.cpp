@@ -64,6 +64,7 @@
 #include <QDebug>
 #include <QString>
 #include "RigHexIntersectionTools.h"
+#include "RimFractureContainment.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimFracture, "Fracture");
 
@@ -435,6 +436,18 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
     m_anchorPosition = pos;
     clearDisplayGeometryCache();
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t globalCellIndex)
+{
+    CVF_ASSERT(fractureTemplate());
+    if (!fractureTemplate()->fractureContainment()->isEnabled()) return true;
+
+    size_t anchorEclipseCell = findAnchorEclipseCell(mainGrid);
+    return fractureTemplate()->fractureContainment()->isEclipseCellWithinContainment(mainGrid, anchorEclipseCell, globalCellIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

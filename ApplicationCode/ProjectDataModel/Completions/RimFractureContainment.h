@@ -21,12 +21,15 @@
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
 
+class RigMainGrid;
+
 class RimFractureContainment : public caf::PdmObject 
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimFractureContainment();
+    ~RimFractureContainment();
 
     enum FaultTruncType
     {
@@ -35,8 +38,11 @@ public:
         CONTINUE_IN_CONTAINMENT_ZONE
     };
 
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    bool isEnabled() const { return m_isUsingFractureContainment();}
+    bool isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t anchorEclipseCell, size_t globalCellIndex) const;
 
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+ 
 protected:
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
@@ -47,7 +53,7 @@ private:
 
     caf::PdmField<bool> m_isUsingFractureContainment;
     caf::PdmField<int>  m_topKLayer;
-    caf::PdmField<int>  m_bottomKLayer;
+    caf::PdmField<int>  m_baseKLayer;
 
 };
 
