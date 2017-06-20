@@ -213,11 +213,12 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // instead of using the application font
     m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
 
-    m_resViewUpdateTimer = NULL;
+    m_resViewUpdateTimer = nullptr;
+    m_recalculateCompletionTypeTimer = nullptr;
 
     m_runningRegressionTests = false;
 
-    m_mainPlotWindow = NULL;
+    m_mainPlotWindow = nullptr;
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 }
@@ -2747,6 +2748,21 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::scheduleRecalculateCompletionTypeAndRedraw()
+{
+    if (!m_recalculateCompletionTypeTimer)
+    {
+        m_recalculateCompletionTypeTimer = new QTimer(this);
+        m_recalculateCompletionTypeTimer->setSingleShot(true);
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecaulculateCompletionType()));
+    }
+
+    m_recalculateCompletionTypeTimer->start(500);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::slotUpdateScheduledDisplayModels()
 {
     // Compress to remove duplicates
@@ -2782,6 +2798,17 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
     }
 
     m_resViewsToUpdate.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::slotRecaulculateCompletionType()
+{
+    for (RimEclipseCase* eclipseCase : project()->activeOilField()->analysisModels->cases())
+    {
+        eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

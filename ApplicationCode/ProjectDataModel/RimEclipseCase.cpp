@@ -249,9 +249,9 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::removeEclipseResultAndScheduleRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName)
+void RimEclipseCase::recalculateCompletionTypeAndRedrawAllViews()
 {
-    m_matrixModelResults->clearScalarResult(type, resultName);
+    m_matrixModelResults->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
 
     for (RimView* view : views())
     {

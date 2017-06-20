@@ -99,6 +99,7 @@ public:
     RimViewWindow*          activePlotWindow() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
+    void                scheduleRecalculateCompletionTypeAndRedraw();
 
     RimProject*         project(); 
 
@@ -224,6 +225,7 @@ private:
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                slotUpdateScheduledDisplayModels();
+    void                slotRecaulculateCompletionType();
 
     // Friend classes required to have access to slotUpdateScheduledDisplayModels
     // As snapshots are produced fast in sequence, the feature must have access to force redraw
@@ -238,6 +240,7 @@ private:
 
     std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
     QTimer*                             m_resViewUpdateTimer;
+    QTimer*                             m_recalculateCompletionTypeTimer;
 
     RiaSocketServer*                    m_socketServer;
 

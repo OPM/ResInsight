@@ -123,7 +123,6 @@ protected:
 
 private:
     void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
-    void            removeEclipseResultAndRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
