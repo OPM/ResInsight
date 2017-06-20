@@ -107,14 +107,17 @@ public:
     RigCompletionData& operator=(const RigCompletionData& other);
 
     void                                 setFromFracture(double transmissibility, double skinFactor);
-    void                                 setFromPerforation(double diameter, CellDirection direction);
    
     void setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                       double skinFactor, 
                                                       double diameter, 
                                                       CellDirection direction);
+    void setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
+                                                         double skinFactor, 
+                                                         double diameter, 
+                                                         CellDirection direction);
 
-    void                                 setCombinedValuesExplicitTrans(double transmissibility, 
+    void                                 setCombinedValuesExplicitTrans(double transmissibility,
                                                                         CompletionType completionType);
     void                                 setCombinedValuesImplicitTransWPImult(double wpimult, 
                                                                                CellDirection celldirection, 

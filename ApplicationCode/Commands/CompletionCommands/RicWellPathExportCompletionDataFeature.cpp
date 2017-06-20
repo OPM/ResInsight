@@ -54,6 +54,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RigActiveCellInfo.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
@@ -505,6 +506,8 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generatePerforationsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
     std::vector<RigCompletionData> completionData;
+    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+
 
     for (const RimPerforationInterval* interval : wellPath->perforationIntervalCollection()->perforations())
     {
@@ -514,13 +517,29 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), perforationPoints);
         for (auto& cell : intersectedCells)
         {
+            bool cellIsActive = activeCellInfo->isActive(cell.cellIndex);
+            if (!cellIsActive) continue;
+
             size_t i, j, k;
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
-            double diameter = interval->diameter();
+
             CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
-            completion.setFromPerforation(diameter, direction);
+
+            double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
+                                                                                                        wellPath,
+                                                                                                        cell.internalCellLengths,
+                                                                                                        interval->skinFactor(),
+                                                                                                        interval->diameter() / 2,
+                                                                                                        cell.cellIndex);
+              
+
+
+            completion.setTransAndWPImultBackgroundDataFromPerforation(transmissibility, 
+                                                                       interval->skinFactor(), 
+                                                                       interval->diameter(),
+                                                                       direction);
             completionData.push_back(completion);
         }
     }

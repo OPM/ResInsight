@@ -22,8 +22,7 @@
 
 #include <QString>
 #include <cmath> // Needed for HUGE_VAL on Linux
-#include "CompletionCommands\RicExportCompletionDataSettingsUi.h"
-#include "CompletionCommands\RicWellPathExportCompletionDataFeature.h"
+
 
 //==================================================================================================
 /// 
@@ -151,11 +150,17 @@ void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double tran
 //==================================================================================================
 /// 
 //==================================================================================================
-void RigCompletionData::setFromPerforation(double diameter, CellDirection direction)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double transmissibility,
+                                                                        double skinFactor, 
+                                                                        double diameter, 
+                                                                        CellDirection direction)
 {
     m_completionType = PERFORATION;
+    m_transmissibility = transmissibility;
+    m_skinFactor = skinFactor;
     m_diameter = diameter;
     m_direction = direction;
+    m_isMainBore = true;
 }
 
 //==================================================================================================
