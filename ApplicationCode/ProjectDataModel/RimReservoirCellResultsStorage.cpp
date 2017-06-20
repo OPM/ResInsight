@@ -1543,7 +1543,7 @@ bool RimReservoirCellResultsStorage::isDataPresent(size_t scalarResultIndex) con
         return false;
     }
 
-    const std::vector< std::vector<double> > data = m_cellResults->cellScalarResults(scalarResultIndex);
+    const std::vector< std::vector<double> >& data = m_cellResults->cellScalarResults(scalarResultIndex);
 
     for (size_t tsIdx = 0; tsIdx < data.size(); ++tsIdx)
     {
