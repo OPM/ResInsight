@@ -109,6 +109,10 @@ namespace Opm {
         /// step.
         ///
         /// This is needed when working with dynamic restart data.
+        /// If constructed from a unified restart file, this function
+        /// will check that the requested step is available in the
+        /// file. If constructed from a non-unified restart file, no
+        /// such check is performed.
         ///
         /// \param[in] step Report step number.
         ///
