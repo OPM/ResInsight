@@ -36,9 +36,9 @@ RimPerforationInterval::RimPerforationInterval()
 {
     CAF_PDM_InitObject("Perforation", ":/PerforationInterval16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,                             "Start MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,                             "End MD [m]", "", "", "");
-    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216,                           "Diameter [m]", "", "", "");
+    CAF_PDM_InitField(&m_startMD,        "StartMeasuredDepth", 0.0,                             "Start MD", "", "", "");
+    CAF_PDM_InitField(&m_endMD,          "EndMeasuredDepth",   0.0,                             "End MD", "", "", "");
+    CAF_PDM_InitField(&m_diameter,       "Diameter",           0.216,                           "Diameter", "", "", "");
     CAF_PDM_InitField(&m_skinFactor,     "SkinFactor",         0.0,                             "Skin Factor", "", "", "");
     CAF_PDM_InitField(&m_startOfHistory, "StartOfHistory",     true,                            "Start of History", "", "", "");
     CAF_PDM_InitField(&m_date,           "StartDate",          QDateTime::currentDateTime(),    "Start Date", "", "", "");
@@ -95,6 +95,24 @@ void RimPerforationInterval::setDiameter(double diameter)
 void RimPerforationInterval::setSkinFactor(double skinFactor)
 {
     m_skinFactor = skinFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimPerforationInterval::diameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::feetToMeter(m_diameter());
+    }
+    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD && wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::meterToFeet(m_diameter());
+    }
+    return m_diameter();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +176,25 @@ void RimPerforationInterval::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    {
+        RimWellPath* wellPath;
+        firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+            {
+                m_startMD.uiCapability()->setUiName("Start MD [m]");
+                m_endMD.uiCapability()->setUiName("End MD [m]");
+                m_diameter.uiCapability()->setUiName("Diameter [m]");
+            }
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+            {
+                m_startMD.uiCapability()->setUiName("Start MD [ft]");
+                m_endMD.uiCapability()->setUiName("End MD [ft]");
+                m_diameter.uiCapability()->setUiName("Diameter [ft]");
+            }
+        }
+    }
     m_date.uiCapability()->setUiReadOnly(m_startOfHistory());
 
     uiOrdering.add(&m_startMD);

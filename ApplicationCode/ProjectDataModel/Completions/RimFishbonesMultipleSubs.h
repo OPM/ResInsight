@@ -22,6 +22,8 @@
 #include "Rim3dPropertiesInterface.h"
 #include "RimFishbonesPipeProperties.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cvfBase.h"
 #include "cvfVector3.h"
 #include "cvfColor3.h"
@@ -79,11 +81,11 @@ public:
     double              exitAngle() const;
     double              buildAngle() const;
 
-    double              tubingDiameter() const;
-    double              holeDiameter() const { return m_pipeProperties()->holeDiameter(); }
+    double              tubingDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double              holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const { return m_pipeProperties()->holeDiameter(unitSystem); }
     double              skinFactor() const { return m_pipeProperties()->skinFactor(); }
-    double              openHoleRoughnessFactor() const { return m_lateralOpenHoleRoghnessFactor(); }
-    double              icdOrificeDiameter() const { return m_icdOrificeDiameter(); }
+    double              openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+    double              icdOrificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double              icdFlowCoefficient() const { return m_icdFlowCoefficient(); }
     size_t              icdCount() const { return m_icdCount(); }
     std::vector<double> lateralLengths() const;

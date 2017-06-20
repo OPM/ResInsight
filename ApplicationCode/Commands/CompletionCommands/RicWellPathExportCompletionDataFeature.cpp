@@ -169,12 +169,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         bool unitSystemMismatch = false;
         for (const RimWellPath* wellPath : usedWellPaths)
         {
-            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_FIELD)
-            {
-                unitSystemMismatch = true;
-                break;
-            }
-            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && exportSettings.caseToApply->eclipseCaseData()->unitsType() != RigEclipseCaseData::UNITS_METRIC)
+            if (wellPath->unitSystem() != exportSettings.caseToApply->eclipseCaseData()->unitsType())
             {
                 unitSystemMismatch = true;
                 break;
@@ -505,6 +500,8 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generatePerforationsCompdatValues(const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
+    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
+
     std::vector<RigCompletionData> completionData;
     const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
 
@@ -524,21 +521,20 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
             settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
             completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()));
-
             CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
 
             double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
                                                                                                         wellPath,
                                                                                                         cell.internalCellLengths,
                                                                                                         interval->skinFactor(),
-                                                                                                        interval->diameter() / 2,
+                                                                                                        interval->diameter(unitSystem) / 2,
                                                                                                         cell.cellIndex);
               
 
 
             completion.setTransAndWPImultBackgroundDataFromPerforation(transmissibility, 
                                                                        interval->skinFactor(), 
-                                                                       interval->diameter(),
+                                                                       interval->diameter(unitSystem),
                                                                        direction);
             completionData.push_back(completion);
         }
@@ -847,19 +843,8 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclips
     double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
     double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
 
-    //TODO: EclipseCaseData should use RiaEclipseUnitTools to simplify this!!!
-    RiaEclipseUnitTools::UnitSystem units = RiaEclipseUnitTools::UNITS_UNKNOWN;
-    if (eclipseCase->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
-    {
-        units = RiaEclipseUnitTools::UNITS_FIELD;
-    }
-    else if (eclipseCase->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
-    {
-        units = RiaEclipseUnitTools::UNITS_METRIC;
-    }
+    RiaEclipseUnitTools::UnitSystem units = eclipseCaseData->unitsType();
     double darcy = RiaEclipseUnitTools::darcysConstant(units);
-
-
 
     double trans = cvf::UNDEFINED_DOUBLE;
     if (direction == CellDirection::DIR_I)

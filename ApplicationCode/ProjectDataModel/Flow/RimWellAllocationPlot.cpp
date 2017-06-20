@@ -356,7 +356,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
-    RigEclipseCaseData::UnitsType unitSet = m_case->eclipseCaseData()->unitsType();
+    RiaEclipseUnitTools::UnitSystem unitSet = m_case->eclipseCaseData()->unitsType();
 
 
     if (m_flowDiagSolution) 
@@ -364,13 +364,13 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         QString unitText;
         switch ( unitSet )
         {
-            case RigEclipseCaseData::UNITS_METRIC:
+            case RiaEclipseUnitTools::UNITS_METRIC:
             unitText = "[m<sup>3</sup>/day]";
             break;
-            case RigEclipseCaseData::UNITS_FIELD:
+            case RiaEclipseUnitTools::UNITS_FIELD:
             unitText = "[Brl/day]";
             break;
-            case RigEclipseCaseData::UNITS_LAB:
+            case RiaEclipseUnitTools::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
             default:
@@ -384,13 +384,13 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         QString unitText;
         switch ( unitSet )
         {
-            case RigEclipseCaseData::UNITS_METRIC:
+            case RiaEclipseUnitTools::UNITS_METRIC:
             unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
             break;
-            case RigEclipseCaseData::UNITS_FIELD:
+            case RiaEclipseUnitTools::UNITS_FIELD:
             unitText = "[Liquid BBL/day], [Gas BOE/day]";
             break;
-            case RigEclipseCaseData::UNITS_LAB:
+            case RiaEclipseUnitTools::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
             default:

@@ -31,7 +31,6 @@
 #include "RimFishboneWellPathCollection.h"
 #include "RimWellPathCompletions.h"
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -40,6 +39,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
     std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeature::findWellSegmentLocations(settings.caseToApply, wellPath);
+
+    RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
 
     // Filter out cells where main bore is present
     if (settings.removeLateralsInMainBoreCells())
@@ -60,7 +61,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
             {
                 if (intersection.mainBoreCell && settings.removeLateralsInMainBoreCells()) continue;
 
-                double diameter = location.fishbonesSubs->holeDiameter() / 1000;
+                double diameter = location.fishbonesSubs->holeDiameter(unitSystem);
                 QString completionMetaData = (location.fishbonesSubs->name() + QString(" Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell, 
                                                                                  diameter / 2, 
@@ -153,7 +154,6 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
 
             }
 
-
             CellDirection direction = RicWellPathExportCompletionDataFeature::calculateDirectionInCell(settings.caseToApply, 
                                                                                                        cellIndex, 
                                                                                                        wellBorePart.lengthsInCell);
@@ -162,19 +162,22 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                     wellBorePart.skinFactor, 
                                                                     wellBorePart.wellRadius *2, 
                                                                     direction);
-
             completionData.push_back(completion);
         }
     }
     return completionData;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLateralsWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc> >& wellBorePartsInCells, const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
 {
+    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
     std::vector<size_t> wellPathCells = RicWellPathExportCompletionDataFeature::findIntersectingCells(settings.caseToApply()->eclipseCaseData(), wellPath->wellPathGeometry()->m_wellPathPoints);
     bool isMainBore = false;
 
-    double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter() / 1000;
+    double diameter = wellPath->fishbonesCollection()->wellPathCollection()->holeDiameter(unitSystem);
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), fishbonesPath->coordinates());
@@ -197,10 +200,13 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells, const RimWellPath* wellPath, const RicExportCompletionDataSettingsUi& settings)
+void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(std::map<size_t, std::vector<WellBorePartForTransCalc>>& wellBorePartsInCells,
+                                                                              const RimWellPath* wellPath,
+                                                                              const RicExportCompletionDataSettingsUi& settings)
 {
+    RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
     bool isMainBore = true;
-    double holeDiameter = wellPath->fishbonesCollection()->mainBoreDiameter();
+    double holeDiameter = wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem);
     double FishboneStartMD = wellPath->fishbonesCollection()->startMD();
 
     std::vector<double> wellPathMD = wellPath->wellPathGeometry()->m_measuredDepths;

@@ -28,8 +28,8 @@ public:
     {
         UNITS_METRIC,
         UNITS_FIELD,
+        UNITS_LAB,
         UNITS_UNKNOWN,
-        //UNITS_LAB
     };
 
     typedef caf::AppEnum< RiaEclipseUnitTools::UnitSystem > UnitSystemType;
@@ -41,6 +41,7 @@ public:
     static double feetToMeter(double feet)          { return feet*meterPerFeet();}
     static double meterToInch(double meter)         { return meter*feetPerMeter()*12; }
     static double inchToMeter(double inch)          { return (inch / 12)*meterPerFeet(); }
+    static double inchToFeet(double inch)           { return inch / 12.0; }
 
     static double darcysConstant(UnitSystem unitSystem);
     

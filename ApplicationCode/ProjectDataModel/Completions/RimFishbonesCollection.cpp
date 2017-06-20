@@ -87,6 +87,39 @@ void RimFishbonesCollection::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    {
+        RimWellPath* wellPath;
+        firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+            {
+                m_startMD.uiCapability()->setUiName("Start MD [m]");
+                m_mainBoreDiameter.uiCapability()->setUiName("Main Bore Diameter [m]");
+                m_linerDiameter.uiCapability()->setUiName("Liner Inner Diameter [m]");
+                m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [m]");
+            }
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+            {
+                m_startMD.uiCapability()->setUiName("Start MD [ft]");
+                m_mainBoreDiameter.uiCapability()->setUiName("Main Bore Diameter [ft]");
+                m_linerDiameter.uiCapability()->setUiName("Liner Inner Diameter [ft]");
+                m_roughnessFactor.uiCapability()->setUiName("Roughness Factor [ft]");
+            }
+        }
+    }
+
+    uiOrdering.add(&m_startMD);
+    uiOrdering.add(&m_mainBoreDiameter);
+    uiOrdering.add(&m_linerDiameter);
+    uiOrdering.add(&m_roughnessFactor);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::appendFishbonesSubs(RimFishbonesMultipleSubs* subs)
 {
     subs->fishbonesColor = nextFishbonesColor();
@@ -155,5 +188,59 @@ void RimFishbonesCollection::recalculateStartMD()
     {
         m_startMD = minStartMD;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(m_mainBoreDiameter());
+    }
+    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(m_mainBoreDiameter());
+    }
+    return m_mainBoreDiameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(m_linerDiameter());
+    }
+    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(m_linerDiameter());
+    }
+    return m_linerDiameter();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesCollection::roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(m_roughnessFactor());
+    }
+    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(m_roughnessFactor());
+    }
+    return m_roughnessFactor();
 }
 

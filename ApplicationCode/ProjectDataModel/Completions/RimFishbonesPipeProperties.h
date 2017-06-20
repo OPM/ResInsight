@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cvfBase.h"
 #include "cvfVector3.h"
 #include "cvfColor3.h"
@@ -41,7 +43,7 @@ public:
     virtual ~RimFishbonesPipeProperties();
 
     double                              skinFactor() const { return m_skinFactor(); }
-    double                              holeDiameter() const { return m_lateralHoleDiameter(); }
+    double                              holeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
 
 protected:
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
