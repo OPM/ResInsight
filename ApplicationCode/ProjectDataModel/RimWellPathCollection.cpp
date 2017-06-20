@@ -440,14 +440,7 @@ RiaEclipseUnitTools::UnitSystemType RimWellPathCollection::findUnitSystemForWell
 
     if (caseBoundingBox.intersects(wellPathBoundingBox))
     {
-        if (eclipseCaseData->unitsType() == RigEclipseCaseData::UNITS_FIELD)
-        {
-            return RiaEclipseUnitTools::UNITS_FIELD;
-        }
-        else if (eclipseCaseData->unitsType() == RigEclipseCaseData::UNITS_METRIC)
-        {
-            return RiaEclipseUnitTools::UNITS_METRIC;
-        }
+        return eclipseCaseData->unitsType();
     }
     return RiaEclipseUnitTools::UNITS_UNKNOWN;
 }

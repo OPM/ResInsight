@@ -45,7 +45,7 @@ RigEclipseCaseData::RigEclipseCaseData()
     m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
     m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
 
-    m_unitsType = UNITS_METRIC;
+    m_unitsType = RiaEclipseUnitTools::UNITS_METRIC;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -429,43 +429,6 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes()
 {
     computeActiveCellIJKBBox();
     computeActiveCellsGeometryBoundingBox();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigEclipseCaseData::darchysValue() const
-{
-    // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
-    //     CDARCY Darcys constant
-    //         = 0.00852702 (E300); 0.008527 (ECLIPSE 100) (METRIC)
-    //         = 0.00112712 (E300); 0.001127 (ECLIPSE 100) (FIELD)
-    //         = 3.6 (LAB)
-    //         = 0.00864 (PVT - M)
-
-    double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
- 
-    RigEclipseCaseData::UnitsType unitsType = this->unitsType();
-
-    if ( unitsType == RigEclipseCaseData::UNITS_FIELD )
-    {
-        darchy = 0.001127;
-    }
-    else if ( unitsType == RigEclipseCaseData::UNITS_METRIC )
-    {
-        darchy = 0.008527;
-    }
-    else if ( unitsType == RigEclipseCaseData::UNITS_LAB )
-    {
-        darchy = 3.6;
-    }
-    else
-    {
-        darchy = 0.00864; // Assuming (PVT - M)
-        CVF_TIGHT_ASSERT(false); // The enum and doc does not state that the PVT-M actually exists, so to trap this in debug
-    }
-   
-    return darchy;
 }
 
 //--------------------------------------------------------------------------------------------------

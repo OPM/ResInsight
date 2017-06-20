@@ -108,7 +108,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                        const std::vector<RimFracture*> fractures,
                                                                                        QTextStream* outputStreamForIntermediateResultsText)
 {
-    double cDarcyInCorrectUnit = caseToApply->eclipseCaseData()->darchysValue();
+    double cDarcyInCorrectUnit = RiaEclipseUnitTools::darcysConstant(caseToApply->eclipseCaseData()->unitsType());
     const RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
     // To handle several fractures in the same eclipse cell we need to keep track of the transmissibility 

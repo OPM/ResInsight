@@ -91,19 +91,40 @@ struct RigCompletionMetaData {
 class RigCompletionData : public cvf::Object
 {
 public:
+    enum CompletionType {
+        FISHBONES,
+        FRACTURE,
+        PERFORATION,
+    };
+
     RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex);
     ~RigCompletionData();
     RigCompletionData(const RigCompletionData& other);
 
-    static RigCompletionData   combine(const RigCompletionData& first, const RigCompletionData& second);
+    static RigCompletionData   combine(const std::vector<RigCompletionData>& completions);
 
     bool operator<(const RigCompletionData& other) const;
     RigCompletionData& operator=(const RigCompletionData& other);
 
     void                                 setFromFracture(double transmissibility, double skinFactor);
-    void                                 setFromFishbone(double diameter, CellDirection direction);
-    void                                 setFromFishbone(double transmissibility, double skinFactor);
-    void                                 setFromPerforation(double diameter, CellDirection direction);
+   
+    void setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
+                                                      double skinFactor, 
+                                                      double diameter, 
+                                                      CellDirection direction);
+    void setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
+                                                         double skinFactor, 
+                                                         double diameter, 
+                                                         CellDirection direction);
+
+    void                                 setCombinedValuesExplicitTrans(double transmissibility,
+                                                                        CompletionType completionType);
+    void                                 setCombinedValuesImplicitTransWPImult(double wpimult, 
+                                                                               CellDirection celldirection, 
+                                                                               double skinFactor, 
+                                                                               double wellDiameter, 
+                                                                               CompletionType completionType);
+
     void                                 addMetadata(const QString& name, const QString& comment);
     static bool                          isDefaultValue(double val);
 
@@ -113,28 +134,37 @@ public:
     WellConnectionState                       connectionState() const { return m_connectionState; }
     double                                    saturation() const { return m_saturation; }
     double                                    transmissibility() const { return m_transmissibility; }
-    double                                    diameter() const { return m_diameter; }
+    double                                    diameter() const { return m_diameter; } //TODO: should be ft or m
     double                                    kh() const { return m_kh; }
     double                                    skinFactor() const { return m_skinFactor; }
     double                                    dFactor() const { return m_dFactor; }
     CellDirection                             direction() const { return m_direction; }
     size_t                                    count() const { return m_count; }
+    CompletionType                            completionType() const { return m_completionType; }
+    bool                                      isMainBore() const { return m_isMainBore; }
+    bool                                      readyForExport() const { return m_readyForExport; }
+
 
 private:
     std::vector<RigCompletionMetaData>   m_metadata;
     QString                              m_wellName;
     IJKCellIndex                         m_cellIndex;
     WellConnectionState                  m_connectionState;
-    double                               m_saturation;
+    double                               m_saturation; //TODO: remove, always use default in Eclipse?
     double                               m_transmissibility;
     double                               m_diameter;
-    double                               m_kh;
+    double                               m_kh; //TODO: Remove, always use default in Eclipse?
     double                               m_skinFactor;
-    double                               m_dFactor;
+    double                               m_dFactor; //TODO: Remove, always use default in Eclipse?
     CellDirection                        m_direction;
 
-    // Number of parts that have contributed to this completion
-    size_t                               m_count;
+    bool                                 m_isMainBore; //to use mainbore for Eclipse calculation
+    bool                                 m_readyForExport;
+
+    size_t                               m_count; //TODO: Remove, usage replaced by WPImult
+    size_t                               m_wpimult;
+
+    CompletionType                       m_completionType;
 
 private:
     static bool                          onlyOneIsDefaulted(double first, double second);

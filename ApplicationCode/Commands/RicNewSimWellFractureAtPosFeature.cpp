@@ -85,9 +85,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     RimEclipseResultCase* eclipseCase = nullptr;
     simWell->firstAncestorOrThisOfType(eclipseCase);
-    RigEclipseCaseData::UnitsType caseUnit = eclipseCase->eclipseCaseData()->unitsType();
-    if      (caseUnit == RigEclipseCaseData::UNITS_METRIC) fracture->fractureUnit = RiaEclipseUnitTools::UNITS_METRIC;
-    else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)  fracture->fractureUnit = RiaEclipseUnitTools::UNITS_FIELD;
+    fracture->fractureUnit = eclipseCase->eclipseCaseData()->unitsType();
     
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {

@@ -28,7 +28,7 @@ public:
     {
         UNITS_METRIC,
         UNITS_FIELD,
-        //UNITS_LAB, // Not yet
+        UNITS_LAB,
         UNITS_UNKNOWN,
     };
 

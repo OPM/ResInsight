@@ -1568,7 +1568,7 @@ double RimReservoirCellResultsStorage::darchysValue()
 
     if (rimCase && rimCase->eclipseCaseData())
     {
-        darchy = rimCase->eclipseCaseData()->darchysValue();
+        darchy = RiaEclipseUnitTools::darcysConstant(rimCase->eclipseCaseData()->unitsType());
     }
 
     return darchy;

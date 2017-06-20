@@ -23,6 +23,8 @@
 
 #include "RifReaderInterface.h"
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cvfAssert.h"
 #include "cvfArray.h"
 #include "cvfObject.h"
@@ -48,14 +50,6 @@ struct RigWellResultPoint;
 //--------------------------------------------------------------------------------------------------
 class RigEclipseCaseData : public cvf::Object
 {
-public:
-    enum UnitsType
-    {
-        UNITS_METRIC,
-        UNITS_FIELD,
-        UNITS_LAB
-    };
-
 public:
     RigEclipseCaseData();
     ~RigEclipseCaseData();
@@ -92,9 +86,8 @@ public:
 
     void                                        computeActiveCellBoundingBoxes();
 
-    UnitsType                                   unitsType() const                   { return m_unitsType; }
-    void                                        setUnitsType(UnitsType unitsType)   { m_unitsType = unitsType; }
-    double                                      darchysValue() const; 
+    RiaEclipseUnitTools::UnitSystem             unitsType() const                   { return m_unitsType; }
+    void                                        setUnitsType(RiaEclipseUnitTools::UnitSystem unitsType)   { m_unitsType = unitsType; }
 
 private:
     void                                        computeActiveCellIJKBBox();
@@ -113,8 +106,8 @@ private:
     cvf::ref<RigFormationNames>                 m_activeFormationNamesData;
 
     cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
-    cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
+    cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether the cell is a well cell or not
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
-    UnitsType                                   m_unitsType;
+    RiaEclipseUnitTools::UnitSystem             m_unitsType;
 };

@@ -57,7 +57,14 @@ void RicNewFishbonesSubsFeature::onActionTriggered(bool isChecked)
 
     RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(fishbonesCollection);
 
-    fishbonesCollection->updateConnectedEditors();
+
+    RimWellPathCollection* wellPathCollection = nullptr;
+    fishbonesCollection->firstAncestorOrThisOfType(wellPathCollection);
+    if (wellPathCollection)
+    {
+        wellPathCollection->uiCapability()->updateConnectedEditors();
+    }
+
     RiuMainWindow::instance()->selectAsCurrentItem(obj);
 
     RimProject* proj;
@@ -78,6 +85,16 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
     if (objHandle)
     {
         objHandle->firstAncestorOrThisOfType(objToFind);
+    }
+
+    if (objToFind == nullptr)
+    {
+        std::vector<RimWellPath*> wellPaths;
+        caf::SelectionManager::instance()->objectsByType(&wellPaths);
+        if (!wellPaths.empty())
+        {
+            return wellPaths[0]->fishbonesCollection();
+        }
     }
 
     return objToFind;

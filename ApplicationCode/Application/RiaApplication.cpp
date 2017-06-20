@@ -985,18 +985,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     {
         if (rimResultReservoir->eclipseCaseData())
         {
-            if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_METRIC)
-            {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RiaEclipseUnitTools::UNITS_METRIC;
-            }
-            else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_FIELD)
-            {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RiaEclipseUnitTools::UNITS_FIELD;
-            }
-            else if (rimResultReservoir->eclipseCaseData()->unitsType() == RigEclipseCaseData::UNITS_LAB)
-            {
-                project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = RiaEclipseUnitTools::UNITS_METRIC;
-            }
+            project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = rimResultReservoir->eclipseCaseData()->unitsType();
         }
     }
 

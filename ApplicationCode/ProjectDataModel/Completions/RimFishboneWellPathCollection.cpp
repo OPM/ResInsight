@@ -23,6 +23,7 @@
 #include "RimFishboneWellPath.h"
 #include "RimView.h"
 #include "RimProject.h"
+#include "RimFishbonesCollection.h"
 
 #include "RigWellPath.h"
 
@@ -56,6 +57,36 @@ RimFishboneWellPathCollection::RimFishboneWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFishboneWellPathCollection::importCompletionsFromFile(const QStringList& filePaths)
+{
+    RifWellPathImporter wellPathImporter;
+
+    for (const QString& filePath : filePaths)
+    {
+        size_t wellDataCount = wellPathImporter.wellDataCount(filePath);
+
+        for (size_t i = 0; i < wellDataCount; ++i)
+        {
+            RifWellPathImporter::WellData wellData = wellPathImporter.readWellData(filePath, i);
+            RimFishboneWellPath* wellCompletion = new RimFishboneWellPath();
+            wellCompletion->setName(wellData.m_name);
+            wellCompletion->setCoordinates(wellData.m_wellPathGeometry->m_wellPathPoints);
+            wellCompletion->setMeasuredDepths(wellData.m_wellPathGeometry->m_measuredDepths);
+            appendCompletion(wellCompletion);
+        }
+    }
+
+    RimFishbonesCollection* fishbonesCollection;
+    firstAncestorOrThisOfType(fishbonesCollection);
+    if (fishbonesCollection != nullptr)
+    {
+        fishbonesCollection->recalculateStartMD();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishboneWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimProject* proj;
@@ -76,6 +107,14 @@ std::vector<const RimFishboneWellPath*> RimFishboneWellPathCollection::wellPaths
     }
 
     return paths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishboneWellPathCollection::setUnitSystemSpecificDefaults()
+{
+    m_pipeProperties->setUnitSystemSpecificDefaults();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,27 +143,5 @@ void RimFishboneWellPathCollection::appendCompletion(RimFishboneWellPath* comple
     if (project)
     {
         project->reloadCompletionTypeResultsInAllViews();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFishboneWellPathCollection::importCompletionsFromFile(const QStringList& filePaths)
-{
-    RifWellPathImporter wellPathImporter;
-
-    foreach(const QString& filePath, filePaths) {
-        size_t wellDataCount = wellPathImporter.wellDataCount(filePath);
-
-        for (size_t i = 0; i < wellDataCount; ++i)
-        {
-            RifWellPathImporter::WellData wellData = wellPathImporter.readWellData(filePath, i);
-            RimFishboneWellPath* wellCompletion = new RimFishboneWellPath();
-            wellCompletion->setName(wellData.m_name);
-            wellCompletion->setCoordinates(wellData.m_wellPathGeometry->m_wellPathPoints);
-            wellCompletion->setMeasuredDepths(wellData.m_wellPathGeometry->m_measuredDepths);
-            appendCompletion(wellCompletion);
-        }
     }
 }

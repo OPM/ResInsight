@@ -93,12 +93,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems(uiItems);
 
-    if (uiItems.size() == 0)
-    {
-        commandIds << "RicNewWellLogPlotFeature";
-        commandIds << "RicNewSummaryPlotFeature";
-    }
-    else if (uiItems.size() == 1)
+    if (uiItems.size() == 1)
     {
         caf::PdmUiItem* uiItem = uiItems[0];
         CVF_ASSERT(uiItem);

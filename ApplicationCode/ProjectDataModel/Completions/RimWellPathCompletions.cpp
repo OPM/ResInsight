@@ -19,10 +19,13 @@
 #include "RimWellPathCompletions.h"
 
 #include "RimFishbonesCollection.h"
+#include "RimFishboneWellPathCollection.h"
 #include "RimPerforationCollection.h"
 #include "RimWellPathFractureCollection.h"
 
 #include "cvfAssert.h"
+
+#include "cafPdmUiTreeOrdering.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellPathCompletions, "WellPathCompletions");
@@ -93,4 +96,41 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
     CVF_ASSERT(m_fractureCollection);
 
     return m_fractureCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPathCompletions::hasCompletions() const
+{
+    return !fishbonesCollection()->fishbonesSubs().empty() ||
+           !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
+           !perforationCollection()->perforations().empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::setUnitSystemSpecificDefaults()
+{
+    m_fishbonesCollection->setUnitSystemSpecificDefaults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
+{ 
+    uiTreeOrdering.skipRemainingChildren(true);
+
+    if (!perforationCollection()->perforations().empty())
+    {
+        uiTreeOrdering.add(&m_perforationCollection);
+    }
+
+    if (!fishbonesCollection()->fishbonesSubs().empty() ||
+        !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
+    {
+        uiTreeOrdering.add(&m_fishbonesCollection);
+    }
 }

@@ -21,7 +21,8 @@
 #include "RiaLogging.h"
 
 #include <QString>
-#include <cmath> // Needed for HUGE_VAL on linux
+#include <cmath> // Needed for HUGE_VAL on Linux
+
 
 //==================================================================================================
 /// 
@@ -37,7 +38,10 @@ RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex&
       m_dFactor(HUGE_VAL),
       m_direction(DIR_UNDEF),
       m_connectionState(OPEN),
-      m_count(1)
+      m_count(1),
+      m_wpimult(1),
+      m_isMainBore(false),
+      m_readyForExport(false)
 {
 }
 
@@ -59,25 +63,36 @@ RigCompletionData::RigCompletionData(const RigCompletionData& other)
 //==================================================================================================
 /// 
 //==================================================================================================
-RigCompletionData RigCompletionData::combine(const RigCompletionData& first, const RigCompletionData& second)
+RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData>& completions)
 {
-    RigCompletionData result(first);
-    CVF_ASSERT(result.m_wellName == second.m_wellName);
-    CVF_ASSERT(result.m_cellIndex == second.m_cellIndex);
+    CVF_ASSERT(!completions.empty());
 
-    if (onlyOneIsDefaulted(result.m_transmissibility, second.m_transmissibility))
+    auto it = completions.cbegin();
+    RigCompletionData result(*it);
+    ++it;
+
+    for (; it != completions.cend(); ++it)
     {
-        RiaLogging::error("Transmissibility defaulted in one but not both, will produce erroneous result");
-    }
-    else
-    {
-        result.m_transmissibility += second.m_transmissibility;
-    }
+        if (it->completionType() != result.completionType())
+        {
+            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(result.m_cellIndex.i).arg(result.m_cellIndex.j).arg(result.m_cellIndex.k));
+            continue;
+        }
+        if (onlyOneIsDefaulted(result.m_transmissibility, it->m_transmissibility))
+        {
+            RiaLogging::error("Transmissibility defaulted in one but not both, will produce erroneous result");
+        }
+        else
+        {
+            result.m_transmissibility += it->m_transmissibility;
+        }
 
-    result.m_metadata.reserve(result.m_metadata.size() + second.m_metadata.size());
-    result.m_metadata.insert(result.m_metadata.end(), second.m_metadata.begin(), second.m_metadata.end());
+        result.m_metadata.reserve(result.m_metadata.size() + it->m_metadata.size());
+        result.m_metadata.insert(result.m_metadata.end(), it->m_metadata.begin(), it->m_metadata.end());
 
-    result.m_count += second.m_count;
+        //TODO: remove?
+        result.m_count += it->m_count;
+    }
 
     return result;
 }
@@ -112,6 +127,7 @@ RigCompletionData& RigCompletionData::operator=(const RigCompletionData& other)
 //==================================================================================================
 void RigCompletionData::setFromFracture(double transmissibility, double skinFactor)
 {
+    m_completionType = FRACTURE;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
 }
@@ -119,28 +135,59 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 //==================================================================================================
 /// 
 //==================================================================================================
-void RigCompletionData::setFromFishbone(double diameter, CellDirection direction)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
+                                                                     double skinFactor,
+                                                                     double diameter,
+                                                                     CellDirection direction)
 {
-    m_diameter = diameter;
-    m_direction = direction;
-}
-
-//==================================================================================================
-/// 
-//==================================================================================================
-void RigCompletionData::setFromFishbone(double transmissibility, double skinFactor)
-{
+    m_completionType = FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
+    m_diameter = diameter;
+    m_direction = direction;
 }
 
 //==================================================================================================
 /// 
 //==================================================================================================
-void RigCompletionData::setFromPerforation(double diameter, CellDirection direction)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromPerforation(double transmissibility,
+                                                                        double skinFactor, 
+                                                                        double diameter, 
+                                                                        CellDirection direction)
 {
+    m_completionType = PERFORATION;
+    m_transmissibility = transmissibility;
+    m_skinFactor = skinFactor;
     m_diameter = diameter;
     m_direction = direction;
+    m_isMainBore = true;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCompletionData::setCombinedValuesExplicitTrans(double transmissibility, 
+                                                       CompletionType completionType)
+{
+    m_completionType = completionType;
+    m_transmissibility = transmissibility;
+    m_readyForExport = true;
+}
+
+//==================================================================================================
+/// 
+//==================================================================================================
+void RigCompletionData::setCombinedValuesImplicitTransWPImult(double wpimult, 
+                                                              CellDirection celldirection, 
+                                                              double skinFactor,
+                                                              double wellDiameter,
+                                                              CompletionType completionType)
+{
+    m_wpimult = wpimult;
+    m_completionType = completionType;
+    m_skinFactor = skinFactor;
+    m_diameter = wellDiameter;
+    m_readyForExport = true;
 }
 
 //==================================================================================================
@@ -204,4 +251,5 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_dFactor = from.m_dFactor;
     target.m_direction = from.m_direction;
     target.m_count = from.m_count;
+    target.m_completionType = from.m_completionType;
 }

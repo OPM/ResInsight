@@ -74,6 +74,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicNewPerforationIntervalFeature::setupActionLook(QAction* actionToSetup)
 {
+    actionToSetup->setIcon(QIcon(":/PerforationInterval16x16.png"));
     actionToSetup->setText("New Perforation Interval");
 }
 
@@ -90,6 +91,16 @@ RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationC
     if (objHandle)
     {
         objHandle->firstAncestorOrThisOfType(objToFind);
+    }
+
+    if (objToFind == nullptr)
+    {
+        std::vector<RimWellPath*> wellPaths;
+        caf::SelectionManager::instance()->objectsByType(&wellPaths);
+        if (!wellPaths.empty())
+        {
+            return wellPaths[0]->perforationIntervalCollection();
+        }
     }
 
     return objToFind;

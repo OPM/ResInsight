@@ -103,8 +103,6 @@ RimFishbonesMultipleSubs::RimFishbonesMultipleSubs()
     nameField()->uiCapability()->setUiReadOnly(true);
 
     m_rigFishbonesGeometry = std::unique_ptr<RigFisbonesGeometry>(new RigFisbonesGeometry(this));
-
-    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +126,6 @@ void RimFishbonesMultipleSubs::setMeasuredDepthAndCount(double measuredDepth, do
 
     computeRangesAndLocations();
     computeRotationAngles();
-    computeSubLateralIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,10 +174,87 @@ double RimFishbonesMultipleSubs::buildAngle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFishbonesMultipleSubs::tubingDiameter() const
+double RimFishbonesMultipleSubs::tubingDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
-    return m_lateralTubingDiameter;
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            return RiaEclipseUnitTools::inchToMeter(m_lateralTubingDiameter());
+        }
+        else
+        {
+            return m_lateralTubingDiameter() / 1000;
+        }
+    }
+    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            return RiaEclipseUnitTools::meterToFeet(m_lateralTubingDiameter() / 1000);
+        }
+        else
+        {
+            return RiaEclipseUnitTools::inchToFeet(m_lateralTubingDiameter());
+        }
+    }
+    CVF_ASSERT(false);
+    return 0.0;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::openHoleRoughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD && unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        return RiaEclipseUnitTools::feetToMeter(m_lateralOpenHoleRoghnessFactor());
+    }
+    else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC && unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        return RiaEclipseUnitTools::meterToFeet(m_lateralOpenHoleRoghnessFactor());
+    }
+    return m_lateralOpenHoleRoghnessFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFishbonesMultipleSubs::icdOrificeDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfTypeAsserted(wellPath);
+    if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            return RiaEclipseUnitTools::inchToMeter(m_icdOrificeDiameter());
+        }
+        else
+        {
+            return m_icdOrificeDiameter() / 1000;
+        }
+    }
+    else if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            return RiaEclipseUnitTools::meterToFeet(m_icdOrificeDiameter() / 1000);
+        }
+        else
+        {
+            return RiaEclipseUnitTools::inchToFeet(m_icdOrificeDiameter());
+        }
+    }
+    CVF_ASSERT(false);
+    return 0.0;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -236,6 +310,46 @@ std::vector<std::pair<cvf::Vec3d, double>> RimFishbonesMultipleSubs::coordsAndMD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::recomputeLateralLocations()
+{
+    computeRangesAndLocations();
+    computeRotationAngles();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFishbonesMultipleSubs::setUnitSystemSpecificDefaults()
+{
+    RimWellPath* wellPath;
+    firstAncestorOrThisOfType(wellPath);
+    if (wellPath)
+    {
+        if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            m_rangeSubSpacing = 13;
+            m_lateralLength = "11";
+            m_lateralTubingDiameter = 8;
+            m_lateralOpenHoleRoghnessFactor = 0.001;
+            m_lateralTubingRoghnessFactor = 1e-05;
+            m_icdOrificeDiameter = 7;
+        }
+        else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            m_rangeSubSpacing = 42;
+            m_lateralLength = "36";
+            m_lateralTubingDiameter = 0.31;
+            m_lateralOpenHoleRoghnessFactor = 0.0032;
+            m_lateralTubingRoghnessFactor = 3.28e-05;
+            m_icdOrificeDiameter = 0.28;
+        }
+        m_pipeProperties->setUnitSystemSpecificDefaults();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     bool recomputeLocations = false;
@@ -275,8 +389,7 @@ void RimFishbonesMultipleSubs::fieldChangedByUi(const caf::PdmFieldHandle* chang
         computeRotationAngles();
     }
 
-    if (recomputeLocations ||
-        changedField == &m_locationOfSubs ||
+    if (changedField == &m_locationOfSubs ||
         changedField == &m_lateralInstallSuccessFraction ||
         changedField == &m_lateralCountPerSub)
     {
@@ -338,6 +451,7 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 
     RimFishbonesCollection* collection;
     this->firstAncestorOrThisOfTypeAsserted(collection);
+    computeSubLateralIndices();
     collection->recalculateStartMD();
 }
 
@@ -346,6 +460,44 @@ void RimFishbonesMultipleSubs::computeRangesAndLocations()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesMultipleSubs::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    {
+        RimWellPath* wellPath;
+        firstAncestorOrThisOfType(wellPath);
+        if (wellPath)
+        {
+            if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_METRIC)
+            {
+                m_lateralLength.uiCapability()->setUiName("Length(s) [m]");
+                m_lateralBuildAngle.uiCapability()->setUiName("Build Angle [deg/m]");
+                m_lateralTubingDiameter.uiCapability()->setUiName("Tubing Diameter [mm]");
+                m_lateralOpenHoleRoghnessFactor.uiCapability()->setUiName("Open Hole Roughness Factor [m]");
+                m_lateralTubingRoghnessFactor.uiCapability()->setUiName("Tubing Roughness Factor [m]");
+
+                m_icdOrificeDiameter.uiCapability()->setUiName("ICD Orifice Diameter [mm]");
+
+                m_locationOfSubs.uiCapability()->setUiName("Measured Depths [m]");
+                m_rangeStart.uiCapability()->setUiName("Start MD [m]");
+                m_rangeEnd.uiCapability()->setUiName("End MD [m]");
+                m_rangeSubSpacing.uiCapability()->setUiName("Spacing [m]");
+            }
+            else if (wellPath->unitSystem() == RiaEclipseUnitTools::UNITS_FIELD)
+            {
+                m_lateralLength.uiCapability()->setUiName("Length(s) [ft]");
+                m_lateralBuildAngle.uiCapability()->setUiName("Build Angle [deg/ft]");
+                m_lateralTubingDiameter.uiCapability()->setUiName("Tubing Diameter [in]");
+                m_lateralOpenHoleRoghnessFactor.uiCapability()->setUiName("Open Hole Roughness Factor [ft]");
+                m_lateralTubingRoghnessFactor.uiCapability()->setUiName("Tubing Roughness Factor [ft]");
+
+                m_icdOrificeDiameter.uiCapability()->setUiName("ICD Orifice Diameter [in]");
+
+                m_locationOfSubs.uiCapability()->setUiName("Measured Depths [ft]");
+                m_rangeStart.uiCapability()->setUiName("Start MD [ft]");
+                m_rangeEnd.uiCapability()->setUiName("End MD [ft]");
+                m_rangeSubSpacing.uiCapability()->setUiName("Spacing [ft]");
+            }
+        }
+    }
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("Appearance");
 

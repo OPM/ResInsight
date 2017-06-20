@@ -35,7 +35,7 @@ public:
 
     RicCaseAndFileExportSettingsUi();
 
-    caf::PdmField<QString>                  fileName;
+    caf::PdmField<QString>                  folder;
     caf::PdmPtrField<RimEclipseCase*>       caseToApply;
 
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;

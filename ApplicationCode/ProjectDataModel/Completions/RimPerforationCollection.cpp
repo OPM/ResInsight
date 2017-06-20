@@ -72,6 +72,8 @@ void RimPerforationCollection::appendPerforation(RimPerforationInterval* perfora
 {
     m_perforations.push_back(perforation);
 
+    perforation->setUnitSystemSpecificDefaults();
+
     updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(perforation);
 
