@@ -41,6 +41,7 @@
 #include "RigWellPath.h"
 
 #include <vector>
+#include "RiaLogging.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -120,7 +121,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
     for (RimFracture* fracture : fractures)
     {
 
-        bool fractureFiniteCond = (fracture->fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
+        bool useFiniteConductivityInFracture = (fracture->fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
 
         using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
 
@@ -132,7 +133,8 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         //////
         // Calculate Matrix To Fracture Trans       
 
-        std::vector<RigFractureCell> fractureCells = fractureGrid->fractureCells();
+        const std::vector<RigFractureCell>& fractureCells = fractureGrid->fractureCells();
+        std::set<size_t> blockedFractureCellIndices;
 
         for (const RigFractureCell fractureCell : fractureCells)
         {
@@ -146,79 +148,98 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
             const std::vector<size_t>& fractureCellContributingEclipseCells                  = eclToFractureTransCalc.globalIndeciesToContributingEclipseCells();
             const std::vector<double>& fractureCellContributingEclipseCellTransmissibilities = eclToFractureTransCalc.contributingEclipseCellTransmissibilities();
-
+            
             size_t stimPlanCellIndex = fractureGrid->getGlobalIndexFromIJ(fractureCell.getI(), fractureCell.getJ());
 
-            for (size_t i = 0; i < fractureCellContributingEclipseCells.size(); i++)
+            bool hasAnyContribEclCellWithinContainment = false;
+ 
+            for ( size_t i = 0; i < fractureCellContributingEclipseCells.size(); i++ )
             {
-                if (fractureFiniteCond)
+                if ( fracture->isEclipseCellWithinContainment(caseToApply->eclipseCaseData()->mainGrid(), fractureCellContributingEclipseCells[i]) )
                 {
-                    transCondenser.addNeighborTransmissibility({ true,  CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
-                                                               { false, CellIdxSpace::STIMPLAN, stimPlanCellIndex },
-                                                               fractureCellContributingEclipseCellTransmissibilities[i]);
+                    hasAnyContribEclCellWithinContainment = true;
+                    if ( useFiniteConductivityInFracture )
+                    {
+                        transCondenser.addNeighborTransmissibility({ true,  CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
+                        { false, CellIdxSpace::STIMPLAN, stimPlanCellIndex },
+                                                                   fractureCellContributingEclipseCellTransmissibilities[i]);
 
+                    }
+                    else
+                    {
+                        transCondenser.addNeighborTransmissibility({ true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
+                        { true, CellIdxSpace::WELL, 1 },
+                                                                   fractureCellContributingEclipseCellTransmissibilities[i]);
+                    }
                 }
-                else
-                {
-                    transCondenser.addNeighborTransmissibility({ true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
-                                                               { true, CellIdxSpace::WELL, 1 },
-                                                               fractureCellContributingEclipseCellTransmissibilities[i]);
-                }
+            }
+
+            if (!hasAnyContribEclCellWithinContainment) 
+            {
+                blockedFractureCellIndices.insert(stimPlanCellIndex);
             }
         }
 
         //////
         // Calculate Transmissibility in the fracture: From one StimPlan Cell to the other
 
-        if (fractureFiniteCond)
+        if (useFiniteConductivityInFracture)
         {
             for (size_t i = 0; i < fractureGrid->iCellCount(); i++)
             {
                 for (size_t j = 0; j < fractureGrid->jCellCount();  j++)
                 {
                     size_t fractureCellIndex = fractureGrid->getGlobalIndexFromIJ(i, j);
-                    const RigFractureCell fractureCell = fractureGrid->cellFromIndex(fractureCellIndex);
+                    
+                    if (blockedFractureCellIndices.count(fractureCellIndex)) continue;
+
+                    const RigFractureCell& fractureCell = fractureGrid->cellFromIndex(fractureCellIndex);
 
                     if (fractureCell.getConductivtyValue() < 1e-7) continue;
 
-                    if (i < fractureGrid->iCellCount()-1)
+                    if ( i < fractureGrid->iCellCount() - 1 )
                     {
                         size_t fractureCellNeighbourXIndex = fractureGrid->getGlobalIndexFromIJ(i + 1, j);
-                        const RigFractureCell fractureCellNeighbourX = fractureGrid->cellFromIndex(fractureCellNeighbourXIndex);
+                        if ( !blockedFractureCellIndices.count(fractureCellNeighbourXIndex) )
+                        {
 
-                        double horizontalTransToXneigbour =
-                            RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivtyValue(),
-                                                                                                  fractureCell.cellSizeX(),
-                                                                                                  fractureCell.cellSizeZ(),
-                                                                                                  fractureCellNeighbourX.getConductivtyValue(),
-                                                                                                  fractureCellNeighbourX.cellSizeX(),
-                                                                                                  fractureCellNeighbourX.cellSizeZ(),
-                                                                                                  cDarcyInCorrectUnit);
+                            const RigFractureCell& fractureCellNeighbourX = fractureGrid->cellFromIndex(fractureCellNeighbourXIndex);
 
-                        transCondenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellIndex },
-                                                                   { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellNeighbourXIndex },
-                                                                   horizontalTransToXneigbour);
+                            double horizontalTransToXneigbour =
+                                RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivtyValue(),
+                                                                                                      fractureCell.cellSizeX(),
+                                                                                                      fractureCell.cellSizeZ(),
+                                                                                                      fractureCellNeighbourX.getConductivtyValue(),
+                                                                                                      fractureCellNeighbourX.cellSizeX(),
+                                                                                                      fractureCellNeighbourX.cellSizeZ(),
+                                                                                                      cDarcyInCorrectUnit);
 
+                            transCondenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellIndex },
+                                                                       { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellNeighbourXIndex },
+                                                                       horizontalTransToXneigbour);
+                        }
                     }
 
-                    if (j < fractureGrid->jCellCount()-1)
+                    if ( j < fractureGrid->jCellCount() - 1 )
                     {
                         size_t fractureCellNeighbourZIndex = fractureGrid->getGlobalIndexFromIJ(i, j + 1);
-                        const RigFractureCell fractureCellNeighbourZ = fractureGrid->cellFromIndex(fractureCellNeighbourZIndex);
+                        if ( !blockedFractureCellIndices.count(fractureCellNeighbourZIndex) )
+                        {
+                            const RigFractureCell& fractureCellNeighbourZ = fractureGrid->cellFromIndex(fractureCellNeighbourZIndex);
 
-                        double verticalTransToZneigbour = 
-                            RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivtyValue(),
-                                                                                                  fractureCell.cellSizeZ(),
-                                                                                                  fractureCell.cellSizeX(),
-                                                                                                  fractureCellNeighbourZ.getConductivtyValue(),
-                                                                                                  fractureCellNeighbourZ.cellSizeZ(),
-                                                                                                  fractureCellNeighbourZ.cellSizeX(),
-                                                                                                  cDarcyInCorrectUnit);
+                            double verticalTransToZneigbour = 
+                                RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans(fractureCell.getConductivtyValue(),
+                                                                                                      fractureCell.cellSizeZ(),
+                                                                                                      fractureCell.cellSizeX(),
+                                                                                                      fractureCellNeighbourZ.getConductivtyValue(),
+                                                                                                      fractureCellNeighbourZ.cellSizeZ(),
+                                                                                                      fractureCellNeighbourZ.cellSizeX(),
+                                                                                                      cDarcyInCorrectUnit);
 
-                        transCondenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellIndex },
-                                                                   { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellNeighbourZIndex },
-                                                                   verticalTransToZneigbour);
-
+                            transCondenser.addNeighborTransmissibility({ false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellIndex },
+                                                                       { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fractureCellNeighbourZIndex },
+                                                                       verticalTransToZneigbour);
+                        }
                     }
                 }
             } 
@@ -227,7 +248,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         /////
         // Calculate transmissibility into the well
         
-        if (fractureFiniteCond)
+        if (useFiniteConductivityInFracture)
         {
             ////
             //If fracture has orientation Azimuth or Transverse, assume only radial inflow
@@ -238,7 +259,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 const RigFractureGrid* fracGrid = fracture->fractureTemplate()->fractureGrid();
                 std::pair<size_t, size_t>  wellCellIJ = fracGrid->fractureCellAtWellCenter();
                 size_t wellCellIndex = fracGrid->getGlobalIndexFromIJ(wellCellIJ.first, wellCellIJ.second);
-                const RigFractureCell wellCell = fractureGrid->cellFromIndex(wellCellIndex);
+
+                if(!blockedFractureCellIndices.count(wellCellIndex))
+                {
+                    const RigFractureCell& wellCell = fractureGrid->cellFromIndex(wellCellIndex);
 
                 double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
                                                                                                          wellCell.cellSizeX(),
@@ -247,25 +271,34 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                                          fracTemplate->skinFactor(),
                                                                                                          cDarcyInCorrectUnit);
 
-                transCondenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
-                { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
-                                                           radialTrans);
+                    transCondenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+                                                               { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
+                                                               radialTrans);
+                }
+                else
+                {
+                    RiaLogging::warning(QString("Fracture well cell is not located within the settings provided by Fracture Containment.") 
+                                        + "\n      Fracture named: " + fracture->name());
+                }
             }
-
-            ////
-            //If fracture has orientation along well, linear inflow along well and radial flow at endpoints
-
             else if (fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH)
             {
+
+                ////
+                //If fracture has orientation along well, linear inflow along well and radial flow at endpoints
+
                 RigWellPathStimplanIntersector wellFractureIntersector(wellPathGeometry, fracture);
                 const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection >& fractureWellCells =  wellFractureIntersector.intersections();
 
                 for (const auto& fracCellIdxIsectDataPair : fractureWellCells)
                 {
                     size_t fracWellCellIdx = fracCellIdxIsectDataPair.first;
-                    RigWellPathStimplanIntersector::WellCellIntersection intersection = fracCellIdxIsectDataPair.second;
 
-                    const RigFractureCell fractureWellCell = fractureGrid->cellFromIndex(fracWellCellIdx);
+                    if(!blockedFractureCellIndices.count(fracWellCellIdx))
+                    {
+                        RigWellPathStimplanIntersector::WellCellIntersection intersection = fracCellIdxIsectDataPair.second;
+
+                        const RigFractureCell& fractureWellCell = fractureGrid->cellFromIndex(fracWellCellIdx);
 
                     double radialTrans = 0.0;
                     if (intersection.endpointCount)
@@ -278,24 +311,30 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                                           cDarcyInCorrectUnit);
                     }
 
-                    double linearTrans = 0.0;
-                    if (intersection.hlength > 0.0 || intersection.vlength > 0.0 )
-                    {
-                        linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivtyValue(),
-                                                                                                          fractureWellCell.cellSizeX(),
-                                                                                                          fractureWellCell.cellSizeZ(),
-                                                                                                          intersection.vlength,
-                                                                                                          intersection.hlength ,
-                                                                                                          fracture->perforationEfficiency, 
-                                                                                                          fracTemplate->skinFactor(),
-                                                                                                          cDarcyInCorrectUnit);
+                        double linearTrans = 0.0;
+                        if (intersection.hlength > 0.0 || intersection.vlength > 0.0 )
+                        {
+                            linearTrans = RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans(fractureWellCell.getConductivtyValue(),
+                                                                                                              fractureWellCell.cellSizeX(),
+                                                                                                              fractureWellCell.cellSizeZ(),
+                                                                                                              intersection.vlength,
+                                                                                                              intersection.hlength ,
+                                                                                                              fracture->perforationEfficiency, 
+                                                                                                              fracTemplate->skinFactor(),
+                                                                                                              cDarcyInCorrectUnit);
+                        }
+
+                        double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
+
+                        transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
+                                                                    { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
+                                                                     totalWellTrans);
                     }
-
-                    double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
-
-                    transCondenser.addNeighborTransmissibility( { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
-                                                                { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
-                                                                 totalWellTrans);
+                    else
+                    {
+                        RiaLogging::warning(QString("Fracture well cell is not located within the settings provided by Fracture Containment.") 
+                                            + "\n      Fracture named: " + fracture->name());
+                    }
                 }
             }
         }

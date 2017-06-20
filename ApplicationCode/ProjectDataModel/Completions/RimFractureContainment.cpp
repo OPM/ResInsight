@@ -96,8 +96,15 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* m
 
     bool ok = mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
 
-    if (k <= m_topKLayer()) return false;
-    if (k >= m_baseKLayer()) return false;
+    if (k+1 <= m_topKLayer()) 
+    {
+        return false;
+    }
+
+    if (k+1 >= m_baseKLayer()) 
+    {
+        return false;
+    }
 
     // Todo: use fault propagation mode
 
