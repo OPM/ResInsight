@@ -143,7 +143,7 @@ public:
                                                                            double wellRadius, 
                                                                            size_t cellIndex, 
                                                                            size_t volumeScaleConstant = 1, 
-                                                                           QString directionForVolumeScaling = "DX");
+                                                                           CellDirection directionForVolumeScaling = CellDirection::DIR_I);
     static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
                                                                                         double skinFactor,
                                                                                         double wellRadius,

@@ -754,7 +754,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
                                                                          double wellRadius, 
                                                                          size_t cellIndex,
                                                                          size_t volumeScaleConstant,
-                                                                         QString directionForVolumeScaling)
+                                                                         CellDirection directionForVolumeScaling)
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
@@ -783,9 +783,9 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
 
     if (volumeScaleConstant != 1)
     {
-        if (directionForVolumeScaling == "DX") dx = dx / volumeScaleConstant;
-        if (directionForVolumeScaling == "DY") dy = dy / volumeScaleConstant;
-        if (directionForVolumeScaling == "DZ") dz = dz / volumeScaleConstant;
+        if (directionForVolumeScaling == CellDirection::DIR_I) dx = dx / volumeScaleConstant;
+        if (directionForVolumeScaling == CellDirection::DIR_J) dy = dy / volumeScaleConstant;
+        if (directionForVolumeScaling == CellDirection::DIR_K) dz = dz / volumeScaleConstant;
     }
 
     double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x(), permy, permz, dy, dz, wellRadius, skinFactor, darcy);

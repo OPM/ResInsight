@@ -136,21 +136,16 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 //==================================================================================================
 /// 
 //==================================================================================================
-void RigCompletionData::setFromFishbone(double diameter, CellDirection direction)
-{
-    m_completionType = FISHBONES;
-    m_diameter = diameter;
-    m_direction = direction;
-}
-
-//==================================================================================================
-/// 
-//==================================================================================================
-void RigCompletionData::setFromFishbone(double transmissibility, double skinFactor)
+void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
+                                                                     double skinFactor,
+                                                                     double diameter,
+                                                                     CellDirection direction)
 {
     m_completionType = FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
+    m_diameter = diameter;
+    m_direction = direction;
 }
 
 //==================================================================================================
