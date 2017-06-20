@@ -306,7 +306,8 @@ void RimSimWellFracture::setBranchGeometry()
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
-    rimWell->calculateWellPipeStaticCenterLine(pipeBranchesCLCoords, pipeBranchesCellIds);
+    rimWell->calculateWellPipeStaticCenterLine(pipeBranchesCLCoords, 
+                                               pipeBranchesCellIds);
 
     for (const auto& branch : pipeBranchesCLCoords)
     {

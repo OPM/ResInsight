@@ -63,14 +63,9 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     }
     
     RimEclipseWell* simWell = simWellItem->m_simWell;
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(simWell);
-    if (!objHandle) return;
+    if (!simWell) return;
 
-    RimEclipseWell* simWellObject = nullptr;
-    objHandle->firstAncestorOrThisOfType(simWellObject);
-    if (!simWellObject) return;
-
-    RimSimWellFractureCollection* fractureCollection = simWellObject->simwellFractureCollection();
+    RimSimWellFractureCollection* fractureCollection = simWell->simwellFractureCollection();
     if (!fractureCollection) return;
 
     RimSimWellFracture* fracture = new RimSimWellFracture();
@@ -79,7 +74,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->setClosestWellCoord(simWellItem->m_domainCoord, simWellItem->m_branchIndex);
 
     RimOilField* oilfield = nullptr;
-    objHandle->firstAncestorOrThisOfType(oilfield);
+    simWell->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
 
     std::vector<RimFracture* > oldFractures;
@@ -89,7 +84,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     fracture->setName(QString("Fracture_") + fracNum);
 
     RimEclipseResultCase* eclipseCase = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseCase);
+    simWell->firstAncestorOrThisOfType(eclipseCase);
     RigEclipseCaseData::UnitsType caseUnit = eclipseCase->eclipseCaseData()->unitsType();
     if      (caseUnit == RigEclipseCaseData::UNITS_METRIC) fracture->fractureUnit = RiaEclipseUnitTools::UNITS_METRIC;
     else if (caseUnit == RigEclipseCaseData::UNITS_FIELD)  fracture->fractureUnit = RiaEclipseUnitTools::UNITS_FIELD;
@@ -100,7 +95,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
         fracture->setFractureTemplate(fracDef);
     }
 
-    simWellObject->updateConnectedEditors();
+    simWell->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
     activeView->scheduleCreateDisplayModelAndRedraw();
