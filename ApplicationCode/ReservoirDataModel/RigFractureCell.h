@@ -42,6 +42,8 @@ public:
     double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() const { return m_i; }
     size_t                  getJ() const { return m_j; }
+
+    bool                    hasNonZeroConductivity() const { return m_concutivityValue > 1e-7; }
         
 
     void                    setConductivityValue(double cond) { m_concutivityValue = cond; }

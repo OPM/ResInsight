@@ -454,7 +454,7 @@ void RimFracture::setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t globalCellIndex)
+bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t globalCellIndex) const
 {
     CVF_ASSERT(fractureTemplate());
     if (!fractureTemplate()->fractureContainment()->isEnabled()) return true;

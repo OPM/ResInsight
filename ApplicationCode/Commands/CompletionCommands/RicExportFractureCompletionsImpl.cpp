@@ -138,7 +138,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
         for (const RigFractureCell fractureCell : fractureCells)
         {
-            if (fractureCell.getConductivtyValue() < 1e-7) continue;
+            if (!fractureCell.hasNonZeroConductivity()) continue;
 
             RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc(caseToApply,
                                                                                       fracture->transformMatrix(),
@@ -195,7 +195,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
                     const RigFractureCell& fractureCell = fractureGrid->cellFromIndex(fractureCellIndex);
 
-                    if (fractureCell.getConductivtyValue() < 1e-7) continue;
+                    if (!fractureCell.hasNonZeroConductivity()) continue;
 
                     if ( i < fractureGrid->iCellCount() - 1 )
                     {
