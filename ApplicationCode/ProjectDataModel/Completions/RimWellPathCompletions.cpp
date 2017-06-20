@@ -105,7 +105,8 @@ bool RimWellPathCompletions::hasCompletions() const
 {
     return !fishbonesCollection()->fishbonesSubs().empty() ||
            !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
-           !perforationCollection()->perforations().empty();
+           !perforationCollection()->perforations().empty() ||
+           !fractureCollection()->fractures().empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,5 +133,10 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
         !fishbonesCollection()->wellPathCollection()->wellPaths().empty())
     {
         uiTreeOrdering.add(&m_fishbonesCollection);
+    }
+
+    if (!fractureCollection()->fractures().empty())
+    {
+        uiTreeOrdering.add(&m_fractureCollection);
     }
 }

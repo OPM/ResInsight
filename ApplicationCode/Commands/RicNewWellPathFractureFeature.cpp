@@ -145,5 +145,15 @@ RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFr
         objHandle->firstAncestorOrThisOfType(objToFind);
     }
 
+    if (objToFind == nullptr)
+    {
+        std::vector<RimWellPath*> wellPaths;
+        caf::SelectionManager::instance()->objectsByType(&wellPaths);
+        if (!wellPaths.empty())
+        {
+            return wellPaths[0]->fractureCollection();
+        }
+    }
+
     return objToFind;
 }
