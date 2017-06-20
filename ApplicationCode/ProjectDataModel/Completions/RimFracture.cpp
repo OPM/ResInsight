@@ -95,7 +95,8 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&tilt, "Tilt", 0.0, "Tilt", "", "", "");
     CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
-    CAF_PDM_InitField(&fractureUnit, "fractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
+    CAF_PDM_InitField(&m_fractureUnit, "fractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
+    m_fractureUnit.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
@@ -129,23 +130,6 @@ std::vector<size_t> RimFracture::getPotentiallyFracturedCells(const RigMainGrid*
 //--------------------------------------------------------------------------------------------------
 void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-
-    if (changedField == &fractureUnit)
-    {
-        if (fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
-        {
-            wellDiameter = RiaEclipseUnitTools::inchToMeter(wellDiameter);
-            perforationLength = RiaEclipseUnitTools::feetToMeter(perforationLength);
-        }
-        else if (fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
-        {
-            wellDiameter = RiaEclipseUnitTools::meterToInch(wellDiameter);
-            perforationLength = RiaEclipseUnitTools::meterToFeet(perforationLength);
-        }
-        this->updateConnectedEditors();
-    }
-
-
     if (changedField == &m_fractureTemplate)
     {
         setFractureTemplate(m_fractureTemplate);
@@ -156,7 +140,6 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
         changedField == &stimPlanTimeIndexToPlot ||
         changedField == this->objectToggleField() ||
         changedField == &showPolygonFractureOutline ||
-        changedField == &fractureUnit ||
         changedField == &dip ||
         changedField == &tilt)
     {
@@ -209,15 +192,29 @@ cvf::BoundingBox RimFracture::boundingBoxInDomainCoords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimFracture::wellRadius() const
+double RimFracture::wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const
 {
-    if (fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    if (m_fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
     {
-        return wellDiameter / 2;
+        if (unitSystem == RiaEclipseUnitTools::UNITS_FIELD)
+        {
+            return RiaEclipseUnitTools::meterToFeet(wellDiameter / 2);
+        }
+        else
+        {
+            return wellDiameter / 2;
+        }
     }
-    else if (fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    else if (m_fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
     {
-        return RiaEclipseUnitTools::inchToFeet(wellDiameter / 2);
+        if (unitSystem == RiaEclipseUnitTools::UNITS_METRIC)
+        {
+            return RiaEclipseUnitTools::inchToMeter(wellDiameter / 2);
+        }
+        else
+        {
+            return RiaEclipseUnitTools::inchToFeet(wellDiameter / 2);
+        }
     }
     return cvf::UNDEFINED_DOUBLE;
 }
@@ -347,12 +344,12 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (fractureUnit == RiaEclipseUnitTools::UNITS_METRIC)
+    if (m_fractureUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
         perforationLength.uiCapability()->setUiName("Perforation Length [m]");
     }
-    else if (fractureUnit == RiaEclipseUnitTools::UNITS_FIELD)
+    else if (m_fractureUnit() == RiaEclipseUnitTools::UNITS_FIELD)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
         perforationLength.uiCapability()->setUiName("Perforation Length [Ft]");
@@ -441,6 +438,22 @@ void RimFracture::setAnchorPosition(const cvf::Vec3d& pos)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiaEclipseUnitTools::UnitSystem RimFracture::fractureUnit() const
+{
+    return m_fractureUnit();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFracture::setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem)
+{
+    m_fractureUnit = unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimFracture::isEclipseCellWithinContainment(const RigMainGrid* mainGrid, size_t globalCellIndex)
 {
     CVF_ASSERT(fractureTemplate());
@@ -500,8 +513,8 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
     }
 
     this->updateAzimuthFromFractureTemplate();
-    this->wellDiameter = fractureTemplate->wellDiameterInFractureUnit(fractureUnit);
-    this->perforationLength = fractureTemplate->perforationLengthInFractureUnit(fractureUnit);
+    this->wellDiameter = fractureTemplate->wellDiameterInFractureUnit(m_fractureUnit());
+    this->perforationLength = fractureTemplate->perforationLengthInFractureUnit(m_fractureUnit());
 }
 
 //--------------------------------------------------------------------------------------------------

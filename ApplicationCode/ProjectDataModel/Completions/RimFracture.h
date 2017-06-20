@@ -66,11 +66,12 @@ public:
     caf::PdmField<int>              stimPlanTimeIndexToPlot;
     caf::PdmField<bool>             showPolygonFractureOutline;
 
-    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  fractureUnit;
 
-    double                          wellRadius() const;
+    double                          wellRadius(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     cvf::Vec3d                      anchorPosition() const ;
     void                            setAnchorPosition(const cvf::Vec3d& pos);
+    RiaEclipseUnitTools::UnitSystem fractureUnit() const;
+    void                            setFractureUnit(RiaEclipseUnitTools::UnitSystem unitSystem);
 
     bool                            isEclipseCellWithinContainment(const RigMainGrid* mainGrid, 
                                                                    size_t globalCellIndex);
@@ -109,6 +110,7 @@ private:
 protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
+    caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  m_fractureUnit;
 
 private:
     caf::PdmField<cvf::Vec3d>                       m_anchorPosition;

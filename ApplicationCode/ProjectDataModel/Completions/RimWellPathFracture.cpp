@@ -169,6 +169,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     locationGroup->add(&tilt);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
+    propertyGroup->add(&m_fractureUnit);
     propertyGroup->add(&m_fractureTemplate);
     propertyGroup->add(&stimPlanTimeIndexToPlot);
     propertyGroup->add(&perforationLength);

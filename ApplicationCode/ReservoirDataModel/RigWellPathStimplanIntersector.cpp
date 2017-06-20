@@ -14,11 +14,11 @@
 #include <cmath>
 
 
-RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture * rimFracture)
+RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture* rimFracture)
 {
     std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->m_wellPathPoints;
     cvf::Mat4f fractureXf                                    = rimFracture->transformMatrix();
-    double wellRadius                                        = rimFracture->wellRadius();
+    double wellRadius                                        = rimFracture->wellRadius(rimFracture->fractureUnit());
     std::vector<cvf::Vec3f> fracturePolygonf ; 
     std::vector<std::vector<cvf::Vec3d> > stpCellPolygons;
     {

@@ -243,7 +243,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                 double radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(wellCell.getConductivtyValue(),
                                                                                                          wellCell.cellSizeX(),
                                                                                                          wellCell.cellSizeZ(),
-                                                                                                         fracture->wellRadius(),
+                                                                                                         fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType()),
                                                                                                          fracTemplate->skinFactor(),
                                                                                                          cDarcyInCorrectUnit);
 
@@ -273,7 +273,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                         radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(fractureWellCell.getConductivtyValue(),
                                                                                                           fractureWellCell.cellSizeX(),
                                                                                                           fractureWellCell.cellSizeZ(),
-                                                                                                          fracture->wellRadius(),
+                                                                                                          fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType()),
                                                                                                           fracTemplate->skinFactor(),
                                                                                                           cDarcyInCorrectUnit);
                     }

@@ -60,7 +60,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     fractureCollection->fractures.push_back(fracture);
 
     fracture->setMeasuredDepth(measuredDepth);
-    fracture->fractureUnit = wellPath->unitSystem();
+    fracture->setFractureUnit(wellPath->unitSystem());
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
     cvf::Vec3d positionAtWellpath = wellPathGeometry->interpolatedPointAlongWellPath(measuredDepth);
