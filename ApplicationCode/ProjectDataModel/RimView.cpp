@@ -612,8 +612,6 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
         
-        wellPathsPartManager()->scheduleGeometryRegen(); 
-
         crossSectionCollection->updateIntersectionBoxGeometry();
 
         if (m_viewer)

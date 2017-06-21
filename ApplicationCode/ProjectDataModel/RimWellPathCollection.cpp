@@ -111,7 +111,7 @@ RimWellPathCollection::~RimWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    scheduleGeometryRegenAndRedrawViews();
+    scheduleRedrawAffectedViews();
 }
 
 
@@ -323,23 +323,11 @@ caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
+void RimWellPathCollection::scheduleRedrawAffectedViews()
 {
-    this->scheduleGeometryRegen();
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::scheduleGeometryRegen()
-{
-    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
-    {
-        this->wellPaths[wIdx]->partMgr()->scheduleGeometryRegen();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

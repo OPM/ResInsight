@@ -67,7 +67,7 @@ void RicWellPathDeleteFeature::onActionTriggered(bool isChecked)
     }
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
-    wellPathCollection->scheduleGeometryRegenAndRedrawViews();
+    wellPathCollection->scheduleRedrawAffectedViews();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -248,8 +248,6 @@ RivWellPathPartMgr* RimWellPath::partMgr()
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    partMgr()->scheduleGeometryRegen();
-
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted(proj);
     if (changedField == &showWellPath)

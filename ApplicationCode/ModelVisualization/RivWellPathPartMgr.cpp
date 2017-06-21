@@ -62,8 +62,6 @@ RivWellPathPartMgr::RivWellPathPartMgr(RimWellPath* wellPath)
 {
     m_rimWellPath = wellPath;
 
-    m_needsTransformUpdate = true;
-
     // Setup a scalar mapper
     cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
     cvf::Color3ubArray legendColors;
@@ -98,23 +96,12 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
-    if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked()) return;
+    if ( !m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked() ) return;
 
-    // This concept is taken from RivReservoirSimWellsPartMgr, and is required to be able to have
-    // separate part managers for each view
-    if (m_fishbonesPartMgrs.size() != m_rimWellPath->fishbonesCollection()->fishbonesSubs.size())
+    for ( auto rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs() )
     {
-        m_fishbonesPartMgrs.clear();
-
-        for (auto rimFishboneSubs : m_rimWellPath->fishbonesCollection()->fishbonesSubs())
-        {
-            m_fishbonesPartMgrs.push_back(new RivFishbonesSubsPartMgr(rimFishboneSubs));
-        }
-    }
-
-    for (auto rivFishbonesPartManager : m_fishbonesPartMgrs)
-    {
-        rivFishbonesPartManager->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
+        cvf::ref<RivFishbonesSubsPartMgr> fishbSubPartMgr = new RivFishbonesSubsPartMgr(rimFishboneSubs);
+        fishbSubPartMgr->appendGeometryPartsToModel(model, displayCoordTransform, characteristicCellSize);
     }
 }
 
@@ -342,7 +329,6 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
         m_wellLabelPart = part;
     }
 
-    m_needsTransformUpdate = false;
 }
 
 
@@ -365,11 +351,8 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     if (wellPathCollection->wellPathVisibility() != RimWellPathCollection::FORCE_ALL_ON && m_rimWellPath->showWellPath() == false )
         return;
 
-    if (m_needsTransformUpdate) 
-    {
-        // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
-        buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
-    }
+    // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
+    buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
  
     if (m_pipeBranchData.m_surfacePart.notNull())
     {
@@ -413,16 +396,6 @@ void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
         return;
 
     appendPerforationsToModel(timeStamp, model, displayCoordTransform, characteristicCellSize);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::scheduleGeometryRegen()
-{
-    m_needsTransformUpdate = true;
-
-    m_fishbonesPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

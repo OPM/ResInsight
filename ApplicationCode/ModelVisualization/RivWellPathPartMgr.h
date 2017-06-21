@@ -52,8 +52,6 @@ public:
     explicit RivWellPathPartMgr(RimWellPath* wellPath);
     ~RivWellPathPartMgr();
 
-    void                          scheduleGeometryRegen();
-
     void                          appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                                    double characteristicCellSize,
                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
@@ -92,8 +90,6 @@ private:
 private:
     caf::PdmPointer<RimWellPath>            m_rimWellPath;
     
-    bool                                    m_needsTransformUpdate;
-
     struct RivPipeBranchData
     {
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
@@ -110,5 +106,4 @@ private:
     cvf::ref<cvf::Effect>                   m_scalarMapperSurfaceEffect; 
     cvf::ref<cvf::Effect>                   m_scalarMapperMeshEffect; 
 
-    cvf::Collection<RivFishbonesSubsPartMgr>  m_fishbonesPartMgrs;
 };

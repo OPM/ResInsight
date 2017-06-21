@@ -93,8 +93,7 @@ public:
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
 
-    void                                scheduleGeometryRegenAndRedrawViews();
-    void                                scheduleGeometryRegen();
+    void                                scheduleRedrawAffectedViews();
 
     void                                appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model, 
                                                                          double                            characteristicCellSize, 
