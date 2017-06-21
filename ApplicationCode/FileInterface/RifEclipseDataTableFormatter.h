@@ -44,6 +44,15 @@ enum RifEclipseOutputTableAlignment
 //==================================================================================================
 //
 //==================================================================================================
+enum RifEclipseOutputTableDoubleFormat
+{
+    SCIENTIFIC,
+    FLOAT,
+};
+
+//==================================================================================================
+//
+//==================================================================================================
 struct RifEclipseOutputTableLine
 {
     RifEclipseOutputTableLineType lineType;
@@ -53,18 +62,38 @@ struct RifEclipseOutputTableLine
 //==================================================================================================
 //
 //==================================================================================================
+struct RifEclipseOutputTableDoubleFormatting
+{
+    RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat format = FLOAT, int width = 5)
+        : format(format),
+          width(width)
+    {}
+
+
+    RifEclipseOutputTableDoubleFormat format;
+    int width;
+};
+
+//==================================================================================================
+//
+//==================================================================================================
 struct RifEclipseOutputTableColumn
 {
-    RifEclipseOutputTableColumn(const QString& title, RifEclipseOutputTableAlignment alignment = LEFT, int width = -1)
+    RifEclipseOutputTableColumn(const QString& title,
+                                RifEclipseOutputTableDoubleFormatting doubleFormat = RifEclipseOutputTableDoubleFormatting(),
+                                RifEclipseOutputTableAlignment alignment = LEFT,
+                                int width = -1)
         : title(title),
+        doubleFormat(doubleFormat),
         alignment(alignment),
         width(width)
     {
     }
 
-    QString                         title;
-    RifEclipseOutputTableAlignment  alignment;
-    int                             width;
+    QString                               title;
+    RifEclipseOutputTableDoubleFormatting doubleFormat;
+    RifEclipseOutputTableAlignment        alignment;
+    int                                   width;
 };
 
 
@@ -90,11 +119,11 @@ public:
 
 private:
     int                                 measure(const QString str);
-    int                                 measure(double num);
+    int                                 measure(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     int                                 measure(int num);
     int                                 measure(size_t num);
 
-    QString                             format(double num);
+    QString                             format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat);
     QString                             format(int num);
     QString                             format(size_t num);
     QString                             formatColumn(const QString str, RifEclipseOutputTableColumn column);
@@ -107,6 +136,5 @@ private:
     std::vector<RifEclipseOutputTableLine>   m_buffer;
     std::vector<QString>                     m_lineBuffer;
     QTextStream&                             m_out;
-    int                                      m_doubleDecimals = 5;
     int                                      m_colSpacing = 5;
 };

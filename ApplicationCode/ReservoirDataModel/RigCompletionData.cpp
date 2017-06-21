@@ -39,7 +39,7 @@ RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex&
       m_direction(DIR_UNDEF),
       m_connectionState(OPEN),
       m_count(1),
-      m_wpimult(1),
+      m_wpimult(HUGE_VAL),
       m_isMainBore(false),
       m_readyForExport(false)
 {
@@ -90,7 +90,6 @@ RigCompletionData RigCompletionData::combine(const std::vector<RigCompletionData
         result.m_metadata.reserve(result.m_metadata.size() + it->m_metadata.size());
         result.m_metadata.insert(result.m_metadata.end(), it->m_metadata.begin(), it->m_metadata.end());
 
-        //TODO: remove?
         result.m_count += it->m_count;
     }
 
@@ -138,13 +137,15 @@ void RigCompletionData::setFromFracture(double transmissibility, double skinFact
 void RigCompletionData::setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                                      double skinFactor,
                                                                      double diameter,
-                                                                     CellDirection direction)
+                                                                     CellDirection direction,
+                                                                     bool isMainBore)
 {
     m_completionType = FISHBONES;
     m_transmissibility = transmissibility;
     m_skinFactor = skinFactor;
     m_diameter = diameter;
     m_direction = direction;
+    m_isMainBore = isMainBore;
 }
 
 //==================================================================================================
@@ -184,6 +185,7 @@ void RigCompletionData::setCombinedValuesImplicitTransWPImult(double wpimult,
                                                               CompletionType completionType)
 {
     m_wpimult = wpimult;
+    m_direction = celldirection;
     m_completionType = completionType;
     m_skinFactor = skinFactor;
     m_diameter = wellDiameter;
@@ -250,6 +252,9 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_skinFactor = from.m_skinFactor;
     target.m_dFactor = from.m_dFactor;
     target.m_direction = from.m_direction;
+    target.m_isMainBore = from.m_isMainBore;
+    target.m_readyForExport = from.m_readyForExport;
     target.m_count = from.m_count;
+    target.m_wpimult = from.m_wpimult;
     target.m_completionType = from.m_completionType;
 }

@@ -44,20 +44,26 @@ public:
     };
     typedef caf::AppEnum<WellSelection> WellSelectionType;
 
+    enum CompdatExport {
+        TRANSMISSIBILITIES,
+        WPIMULT_AND_DEFAULT_CONNECTION_FACTORS,
+    };
+    typedef caf::AppEnum<CompdatExport> CompdatExportType;
+
 
     RicExportCompletionDataSettingsUi();
 
 
     caf::PdmField<ExportSplitType>          fileSplit;
     caf::PdmField<WellSelectionType>        wellSelection;
+    caf::PdmField<CompdatExportType>        compdatExport;
 
-    caf::PdmField<bool>                     computeTransmissibility;
+
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
     caf::PdmField<bool>                     includeFractures;
 
-    caf::PdmField<bool>                     includeWpimult;
-    caf::PdmField<bool>                     removeLateralsInMainBoreCells;
+    caf::PdmField<bool>                     excludeMainBoreForFishbones;
 
     caf::PdmField<int>                      timeStep;
 

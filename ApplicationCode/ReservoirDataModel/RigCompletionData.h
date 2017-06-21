@@ -111,7 +111,9 @@ public:
     void setTransAndWPImultBackgroundDataFromFishbone(double transmissibility, 
                                                       double skinFactor, 
                                                       double diameter, 
-                                                      CellDirection direction);
+                                                      CellDirection direction,
+                                                      bool isMainBore);
+
     void setTransAndWPImultBackgroundDataFromPerforation(double transmissibility, 
                                                          double skinFactor, 
                                                          double diameter, 
@@ -140,13 +142,14 @@ public:
     double                                    dFactor() const { return m_dFactor; }
     CellDirection                             direction() const { return m_direction; }
     size_t                                    count() const { return m_count; }
+    double                                    wpimult() const { return m_wpimult; }
     CompletionType                            completionType() const { return m_completionType; }
     bool                                      isMainBore() const { return m_isMainBore; }
     bool                                      readyForExport() const { return m_readyForExport; }
 
+    std::vector<RigCompletionMetaData>   m_metadata; 
 
 private:
-    std::vector<RigCompletionMetaData>   m_metadata;
     QString                              m_wellName;
     IJKCellIndex                         m_cellIndex;
     WellConnectionState                  m_connectionState;
@@ -162,7 +165,7 @@ private:
     bool                                 m_readyForExport;
 
     size_t                               m_count; //TODO: Remove, usage replaced by WPImult
-    size_t                               m_wpimult;
+    double                               m_wpimult;
 
     CompletionType                       m_completionType;
 

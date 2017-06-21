@@ -152,8 +152,8 @@ RifEclipseDataTableFormatter& RifEclipseDataTableFormatter::add(double num)
 {
     size_t column = m_lineBuffer.size();
     CVF_ASSERT(column < m_columns.size());
-    m_columns[column].width = std::max(measure(num), m_columns[column].width);
-    m_lineBuffer.push_back(format(num));
+    m_columns[column].width = std::max(measure(num, m_columns[column].doubleFormat), m_columns[column].width);
+    m_lineBuffer.push_back(format(num, m_columns[column].doubleFormat));
     return *this;
 }
 
@@ -220,9 +220,9 @@ int RifEclipseDataTableFormatter::measure(const QString str)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifEclipseDataTableFormatter::measure(double num)
+int RifEclipseDataTableFormatter::measure(double num, RifEclipseOutputTableDoubleFormatting doubleFormat)
 {
-    return format(num).length();
+    return format(num, doubleFormat).length();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,9 +244,17 @@ int RifEclipseDataTableFormatter::measure(size_t num)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseDataTableFormatter::format(double num)
+QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDoubleFormatting doubleFormat)
 {
-    return QString("%1").arg(num, 0, 'f', m_doubleDecimals);
+    switch (doubleFormat.format)
+    {
+    case RifEclipseOutputTableDoubleFormat::FLOAT:
+        return QString("%1").arg(num, 0, 'f', doubleFormat.width);
+    case RifEclipseOutputTableDoubleFormat::SCIENTIFIC:
+        return QString("%1").arg(num, 0, 'e');
+    default:
+        return QString("%1");
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
