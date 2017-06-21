@@ -251,7 +251,7 @@ QString RifEclipseDataTableFormatter::format(double num, RifEclipseOutputTableDo
     case RifEclipseOutputTableDoubleFormat::FLOAT:
         return QString("%1").arg(num, 0, 'f', doubleFormat.width);
     case RifEclipseOutputTableDoubleFormat::SCIENTIFIC:
-        return QString("%1").arg(num, 0, 'e');
+        return QString("%1").arg(num, 0, 'E');
     default:
         return QString("%1");
     }
