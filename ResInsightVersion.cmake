@@ -14,7 +14,7 @@ set(ERT_GITHUB_SHA "06a39878636af0bc52582430ad0431450e51139c")
 set(OPM_FLOWDIAGNOSTICS_SHA "b6e59ddcd2feba450c8612a7402c9239e442c0d4")
 
 # https://github.com/OPM/opm-flowdiagnostics-applications
-set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "ccaaa4dd1b553e131a3051687fd615fe728b76ee")
+set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "c78f50897cea10ed56c7eadd1a1b23aa5ffbc56e")
 
 # https://github.com/OPM/opm-parser/blob/master/opm/parser/eclipse/Units/Units.hpp
 # This file was moved from opm-core to opm-parser october 2016

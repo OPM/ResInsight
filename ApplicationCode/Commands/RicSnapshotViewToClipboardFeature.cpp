@@ -146,7 +146,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 
     startPath += "/image.png";
 
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath);
     if (fileName.isEmpty())
     {
         return;

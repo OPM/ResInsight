@@ -170,6 +170,7 @@ public:
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
+    void                                    updateGridBoxData();
     virtual RimCase*                        ownerCase() = 0;
 
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
@@ -188,7 +189,6 @@ protected:
     virtual void                            createDisplayModel() = 0;
     
     void                                    createHighlightAndGridBoxDisplayModel();
-    void                                    updateGridBoxData();
 
     virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
     
