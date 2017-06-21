@@ -215,7 +215,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
     {
         const QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
-        printCompletionsToFile(exportSettings.folder, fileName, completions, exportSettings.includeWpimult);
+        printCompletionsToFile(exportSettings.folder, fileName, completions, exportSettings.compdatExport);
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL)
     {
@@ -231,7 +231,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             }
 
             QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
-            printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.includeWpimult);
+            printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
         }
     }
     else if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::SPLIT_ON_WELL_AND_COMPLETION_TYPE)
@@ -241,12 +241,12 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             {
                 std::vector<RigCompletionData> fishbonesCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FISHBONES);
                 QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.includeWpimult);
+                printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.compdatExport);
             }
             {
                 std::vector<RigCompletionData> perforationCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::PERFORATION);
                 QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.includeWpimult);
+                printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
             }
         }
     }
@@ -307,6 +307,11 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
             return resultCompletion; //Returning empty completion, should not be exported
         }       
 
+        if (settings.excludeMainBoreForFishbones && completionType == RigCompletionData::FISHBONES && completion.isMainBore())
+        {
+            continue;
+        }
+
         totalTrans = totalTrans + completion.transmissibility();
 
         resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
@@ -315,12 +320,12 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
     }
 
 
-    if (settings.computeTransmissibility() && !settings.includeWpimult) //TODO: replace with explicitTransmissibilityExport setting
+    if (settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES) 
     {
         resultCompletion.setCombinedValuesExplicitTrans(totalTrans, completionType);
     }
 
-    if (settings.includeWpimult) //TODO: replace with implicitTransmissibilityExportByWPImult
+    if (settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS) 
     {
         //calculate trans for main bore - but as Eclipse will do it!      
         double transmissibilityEclipseCalculation = RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(settings.caseToApply(),
@@ -343,10 +348,9 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, bool includeWpimult)
+void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     //TODO: Check that completion is ready for export
-    //TODO: Use wpimult instead of count for export!
 
     QString filePath = QDir(exportFolder).filePath(fileName);
     QFile exportFile(filePath);
@@ -366,7 +370,7 @@ void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QStrin
     generateCompdatTable(formatter, completions);
 
     
-    if (includeWpimult)
+    if (exportType == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
     {
         generateWpimultTable(formatter, completions);
     }
@@ -405,7 +409,7 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
         RifEclipseOutputTableColumn("K2"),
         RifEclipseOutputTableColumn("Status"),
         RifEclipseOutputTableColumn("SAT"),
-        RifEclipseOutputTableColumn("TR"),
+        RifEclipseOutputTableColumn("TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::SCIENTIFIC)),
         RifEclipseOutputTableColumn("DIAM"),
         RifEclipseOutputTableColumn("KH"),
         RifEclipseOutputTableColumn("S"),
@@ -419,6 +423,12 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
 
     for (const RigCompletionData& data : completionData)
     {
+        if (data.transmissibility() == 0.0 || data.wpimult()==0.0)
+        {
+            //Don't export completions without transmissibility
+            continue;
+        }
+
         for (const RigCompletionMetaData& metadata : data.metadata())
         {
             formatter.comment(QString("%1 : %2").arg(metadata.name).arg(metadata.comment));
@@ -490,8 +500,13 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
     for (auto& completion : completionData)
     {
+        if (completion.wpimult() == 0.0)
+        {
+            continue;
+        }
+
         formatter.add(completion.wellName());
-        formatter.add(completion.count());
+        formatter.add(completion.wpimult());
         formatter.addZeroBasedCellIndex(completion.cellIndex().i).addZeroBasedCellIndex(completion.cellIndex().j).addZeroBasedCellIndex(completion.cellIndex().k);
         formatter.rowCompleted();
     }

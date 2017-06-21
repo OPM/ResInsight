@@ -252,6 +252,9 @@ void RigCompletionData::copy(RigCompletionData& target, const RigCompletionData&
     target.m_skinFactor = from.m_skinFactor;
     target.m_dFactor = from.m_dFactor;
     target.m_direction = from.m_direction;
+    target.m_isMainBore = from.m_isMainBore;
+    target.m_readyForExport = from.m_readyForExport;
     target.m_count = from.m_count;
+    target.m_wpimult = from.m_wpimult;
     target.m_completionType = from.m_completionType;
 }

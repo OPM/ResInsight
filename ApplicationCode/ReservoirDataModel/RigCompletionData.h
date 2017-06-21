@@ -147,7 +147,7 @@ public:
     bool                                      isMainBore() const { return m_isMainBore; }
     bool                                      readyForExport() const { return m_readyForExport; }
 
-    std::vector<RigCompletionMetaData>   m_metadata; //TODO: Is this OK?
+    std::vector<RigCompletionMetaData>   m_metadata; 
 
 private:
     QString                              m_wellName;

@@ -36,6 +36,14 @@ namespace caf
         addItem(RicExportCompletionDataSettingsUi::CHECKED_WELLS, "CHECKED_WELLS", "Checked Wells");
         setDefault(RicExportCompletionDataSettingsUi::ALL_WELLS);
     }
+
+    template<>
+    void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
+    {
+        addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
+        addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT");
+        setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
+    }
 }
 
 
@@ -50,16 +58,14 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 
     CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
     CAF_PDM_InitFieldNoDefault(&wellSelection, "WellSelection", "Well Selection", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
-
-    CAF_PDM_InitField(&computeTransmissibility, "ComputeTransmissibility", true, "Compute Transmissibility", "", "", "");
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
 
-    CAF_PDM_InitField(&includeWpimult, "IncludeWPIMULT", true, "Include WPIMLUT", "", "", "");
-    CAF_PDM_InitField(&removeLateralsInMainBoreCells, "RemoveLateralsInMainBoreCells", false, "Remove Laterals in Main Bore Cells", "", "", "");
+    CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,4 +93,26 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
         options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
     }
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* generalExportSettings = uiOrdering.addNewGroup("General Export Settings");
+    generalExportSettings->add(&folder);
+    generalExportSettings->add(&caseToApply);
+    generalExportSettings->add(&timeStep);
+    generalExportSettings->add(&compdatExport);
+    generalExportSettings->add(&wellSelection);
+    generalExportSettings->add(&fileSplit);
+
+
+    caf::PdmUiGroup* fishboneGroup = uiOrdering.addNewGroup("Export of Fishbone Completions");
+    fishboneGroup->add(&includeFishbones);
+    fishboneGroup->add(&excludeMainBoreForFishbones);
+
+    caf::PdmUiGroup* perfIntervalGroup = uiOrdering.addNewGroup("Export of Perforation Completions");
+    perfIntervalGroup->add(&includePerforations);
 }

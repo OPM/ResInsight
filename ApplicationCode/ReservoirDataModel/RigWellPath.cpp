@@ -164,6 +164,7 @@ std::vector<cvf::Vec3d> RigWellPath::clippedPointSubset(double startMD, double e
 {
     std::vector<cvf::Vec3d> points;
     if (m_measuredDepths.empty()) return points;
+    if (startMD > endMD) return points;
 
     size_t i = 0;
     // Skip points below startMD
