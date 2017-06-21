@@ -76,13 +76,19 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_filesContainingFaultsSemColSeparated,    "CachedFileNamesContainingFaults", "", "", "", "");
+    m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
 
-    // Obsolete field
+    // Obsolete fields
+    CAF_PDM_InitFieldNoDefault(&m_filesContainingFaults_OBSOLETE,    "FilesContainingFaults", "", "", "", "");
+    m_filesContainingFaults_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
     caseName.xmlCapability()->setIOWritable(false);
     caseName.uiCapability()->setUiHidden(true);
+
+    // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_matrixModelResults.uiCapability()->setUiHidden(true);
@@ -522,6 +528,39 @@ RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::Poro
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseCase::filesContainingFaults() const
+{
+    QString separatedPaths = m_filesContainingFaultsSemColSeparated;
+    QStringList pathList =  separatedPaths.split(";", QString::SkipEmptyParts);
+    std::vector<QString> stdPathList;
+
+    for (auto& path: pathList) stdPathList.push_back(path);
+
+    return stdPathList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::setFilesContainingFaults(const std::vector<QString>& val)
+{
+    QString separatedPaths;
+    
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+        const auto& path = val[i];
+        separatedPaths += path;
+        if (!(i+1 >=  val.size()) )
+        {
+            separatedPaths += ";";
+        }
+    }
+    m_filesContainingFaultsSemColSeparated = separatedPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::openReserviorCase()
 {
     // If read already, return
@@ -663,6 +702,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT(reservoirView);
             reservoirView->loadDataAndUpdate();
+            reservoirView->updateGridBoxData();
         }
 
         RimProject* project = RiaApplication::instance()->project();

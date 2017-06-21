@@ -117,7 +117,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
             return false;
         }
 
-        this->filesContainingFaults = readerInterface->filenamesWithFaults();
+        this->setFilesContainingFaults(readerInterface->filenamesWithFaults());
 
         this->setReservoirData( eclipseCase.p() );
     }
@@ -359,13 +359,14 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
     caseFileName = RimTools::relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
 
     std::vector<QString> relocatedFaultFiles;
-    for (auto faultFileName : filesContainingFaults())
+    const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
+    for (auto faultFileName : orgFilesContainingFaults)
     {
         QString relocatedFaultFile = RimTools::relocateFile(faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
         relocatedFaultFiles.push_back(relocatedFaultFile);
     }
 
-    filesContainingFaults = relocatedFaultFiles;
+    setFilesContainingFaults(relocatedFaultFiles);
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)
