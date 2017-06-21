@@ -50,7 +50,7 @@ class RimPropertyFilterCollection;
 class RimViewController;
 class RimViewLinker;
 class RiuViewer;
-class RivWellPathCollectionPartMgr;
+class RimWellPathCollection;
 
 namespace cvf
 {
@@ -204,7 +204,7 @@ protected:
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
 
-    RivWellPathCollectionPartMgr*           wellPathsPartManager();
+    RimWellPathCollection*                  wellPathsPartManager();
 
     QPointer<RiuViewer>                     m_viewer;
 
@@ -240,13 +240,9 @@ private:
     void                                    setCurrentTimeStepAndUpdate(int frameIdx);
     void                                    endAnimation();
 
-    void                                    ensureWellPathManagerIsCreated();
-
 private:
     bool                                    m_previousGridModeMeshLinesWasFaults;
     caf::PdmField<bool>                     m_disableLighting;
-
-    cvf::ref<RivWellPathCollectionPartMgr>  m_wellPathsPartManager;
 };
 
 

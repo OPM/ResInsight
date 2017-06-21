@@ -37,8 +37,6 @@
 
 #include "RiuMainWindow.h"
 
-#include "RivWellPathCollectionPartMgr.h"
-
 #include "RifWellPathImporter.h"
 
 #include "cafPdmUiEditorHandle.h"
@@ -50,6 +48,7 @@
 
 #include <fstream>
 #include <cmath>
+#include "RivWellPathPartMgr.h"
 
 namespace caf
 {
@@ -92,8 +91,6 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
     wellPaths.uiCapability()->setUiHidden(true);
-
-    m_wellPathCollectionPartManager = new RivWellPathCollectionPartMgr(this);
 
     m_wellPathImporter = new RifWellPathImporter;
 }
@@ -328,10 +325,59 @@ caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
 {
-    m_wellPathCollectionPartManager->scheduleGeometryRegen();
+    this->scheduleGeometryRegen();
     RimProject* proj;
     this->firstAncestorOrThisOfType(proj);
     if (proj) proj->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::scheduleGeometryRegen()
+{
+    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
+    {
+        this->wellPaths[wIdx]->partMgr()->scheduleGeometryRegen();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList* model,
+                                                             double characteristicCellSize,
+                                                             const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                             const caf::DisplayCoordTransform* displayCoordTransform)
+{
+    if (!this->isActive()) return;
+    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
+
+    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
+    {
+        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
+        partMgr->appendStaticGeometryPartsToModel(model, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
+                                                              const QDateTime& timeStamp,
+                                                              double characteristicCellSize,
+                                                              const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                              const caf::DisplayCoordTransform* displayCoordTransform)
+
+{
+    if (!this->isActive()) return;
+    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
+
+    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
+    {
+        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
+        partMgr->appendDynamicGeometryPartsToModel(model, timeStamp, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -40,8 +40,6 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivWellPathCollectionPartMgr.h"
-
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmObjectFactory.h"
@@ -54,6 +52,7 @@
 #include "cvfViewport.h"
 
 #include <limits.h>
+#include "cvfTransform.h"
 
 
 namespace caf {
@@ -426,28 +425,13 @@ void RimView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellPathCollectionPartMgr* RimView::wellPathsPartManager()
+RimWellPathCollection* RimView::wellPathsPartManager()
 {
-    ensureWellPathManagerIsCreated();
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
 
-    CVF_ASSERT(m_wellPathsPartManager.notNull());
-
-    return m_wellPathsPartManager.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimView::ensureWellPathManagerIsCreated()
-{
-    if (m_wellPathsPartManager.isNull())
-    {
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted(proj);
-        CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
-
-        m_wellPathsPartManager = new RivWellPathCollectionPartMgr(proj->activeOilField()->wellPathCollection());
-    }
+    return proj->activeOilField()->wellPathCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -627,7 +611,6 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         // Regenerate well paths
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
-        if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
         
         wellPathsPartManager()->scheduleGeometryRegen(); 
 

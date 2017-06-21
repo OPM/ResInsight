@@ -1,23 +1,52 @@
 @startuml
+/'
+package Viz{
+class RivWellPathPartMgr
+class RivFishbonesSubsPartMgr
+class RivWellFracturePartMgr
+}
+'/
 
-
-
-RimView --> RivWellPathCollectionPartMgr
-
-RivWellPathCollectionPartMgr -* "N" RivWellPathPartMgr
-
-class RivWellPathPartMgr {
-RimWellPath* m_wellPath
+package Pdm{
+class RimView
+class RimOilField
+class RimEclipseCaseCollection
+class RimCase
+class RimWellPath
+class RimWellPathCollection
+class RimFishbonesMultipleSubs
+class RimWellPathCompletions
+class RimFishboneWellPathCollection
+class RimPerforationCollection
+class RimWellPathFractureCollection
+class RimFishbonesCollection
+class RimFracture
 }
 
-class RimWellPath {
-RimWellPathFractureCollection m_fractureCollection;
-}
+RivWellPathPartMgr ..> RimWellPath
+RimWellPath *-->  RivWellPathPartMgr
 
-class RimWellPathFractureCollection {
-caf::PdmChildArrayField<RimWellPathFracture*> fractures;
-}
+RivWellPathPartMgr *--> "n" RivFishbonesSubsPartMgr 
 
+RivFishbonesSubsPartMgr ..> RimFishbonesMultipleSubs
 
+RivWellFracturePartMgr ...> RimFracture
+
+RimOilField *--> RimWellPathCollection
+RimOilField *--> RimEclipseCaseCollection
+RimEclipseCaseCollection *--> "n" RimCase
+
+RimCase *--> "n" RimView
+RimWellPathCollection *--> "n" RimWellPath
+RimWellPath *--> RimWellPathCompletions
+RimFishbonesCollection *--> RimFishbonesMultipleSubs
+RimFishbonesCollection *--> RimFishboneWellPathCollection
+RimWellPathCompletions *--> RimFishbonesCollection
+RimWellPathCompletions *--> RimPerforationCollection
+RimWellPathCompletions *--> RimWellPathFractureCollection
+
+RimWellPathFractureCollection *--> "n" RimFracture
+
+RimFracture *--> RivWellFracturePartMgr
 
 @enduml
