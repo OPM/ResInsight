@@ -25,6 +25,7 @@ class RimWellPath;
 class RimFishbonesMultipleSubs;
 class RimPerforationInterval;
 class RimFracture;
+class RimEclipseCase;
 
 class RigMainGrid;
 class QDateTime;
@@ -36,7 +37,7 @@ class QDateTime;
 class RimCompletionCellIntersectionCalc
 {
 public:
-    static void                     calculateIntersections(const RimProject* project, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate);
+    static void                     calculateIntersections(const RimProject* project, const RimEclipseCase* eclipseCase, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate);
     
 private:
     static void                     calculateWellPathIntersections(const RimWellPath* wellPath, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate);

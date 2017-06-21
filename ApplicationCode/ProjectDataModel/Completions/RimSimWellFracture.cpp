@@ -147,7 +147,7 @@ void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
-        if (proj) proj->createDisplayModelAndRedrawAllViews();
+        if (proj) proj->reloadCompletionTypeResultsInAllViews();
     }
 }
 

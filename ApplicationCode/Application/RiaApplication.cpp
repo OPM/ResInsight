@@ -2748,8 +2748,31 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::scheduleRecalculateCompletionTypeAndRedraw()
+void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawAllViews()
 {
+    for (RimEclipseCase* eclipseCase : project()->activeOilField()->analysisModels->cases())
+    {
+        m_eclipseCasesToRecalculate.push_back(eclipseCase);
+    }
+
+    if (!m_recalculateCompletionTypeTimer)
+    {
+        m_recalculateCompletionTypeTimer = new QTimer(this);
+        m_recalculateCompletionTypeTimer->setSingleShot(true);
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecaulculateCompletionType()));
+    }
+
+    m_recalculateCompletionTypeTimer->start(500);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase)
+{
+    m_eclipseCasesToRecalculate.push_back(eclipseCase);
+
+
     if (!m_recalculateCompletionTypeTimer)
     {
         m_recalculateCompletionTypeTimer = new QTimer(this);
@@ -2805,10 +2828,14 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::slotRecaulculateCompletionType()
 {
-    for (RimEclipseCase* eclipseCase : project()->activeOilField()->analysisModels->cases())
+    std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
+
+    for (RimEclipseCase* eclipseCase : uniqueCases)
     {
         eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
     }
+
+    m_eclipseCasesToRecalculate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

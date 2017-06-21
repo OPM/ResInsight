@@ -770,7 +770,22 @@ bool RimProject::showPlotWindow() const
 void RimProject::reloadCompletionTypeResultsInAllViews()
 {
     createDisplayModelAndRedrawAllViews();
-    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedraw();
+    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
+{
+    std::vector<RimView*> views = eclipseCase->views();
+
+    for (size_t viewIdx = 0; viewIdx < views.size(); viewIdx++)
+    {
+        views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
+    }
+
+    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
 }
 
 //--------------------------------------------------------------------------------------------------

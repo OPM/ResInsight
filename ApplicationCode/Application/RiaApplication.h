@@ -99,7 +99,8 @@ public:
     RimViewWindow*          activePlotWindow() const;
 
     void                scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdate);
-    void                scheduleRecalculateCompletionTypeAndRedraw();
+    void                scheduleRecalculateCompletionTypeAndRedrawAllViews();
+    void                scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase);
 
     RimProject*         project(); 
 
@@ -240,6 +241,7 @@ private:
 
     std::vector<caf::PdmPointer<RimView> > m_resViewsToUpdate;
     QTimer*                             m_resViewUpdateTimer;
+    std::vector<caf::PdmPointer<RimEclipseCase> > m_eclipseCasesToRecalculate;
     QTimer*                             m_recalculateCompletionTypeTimer;
 
     RiaSocketServer*                    m_socketServer;

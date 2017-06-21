@@ -31,6 +31,7 @@
 #include "RimProject.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
+#include "RimEclipseCase.h"
 
 #include "RiuMainWindow.h"
  
@@ -69,9 +70,11 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
 
     fracture->setName(QString("Fracture_") + fracNum);
 
-    RimEclipseResultCase* eclipseCase = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseCase);
-    fracture->setFractureUnit(eclipseCase->eclipseCaseData()->unitsType());
+    {
+        RimEclipseResultCase* eclipseCase = nullptr;
+        objHandle->firstAncestorOrThisOfType(eclipseCase);
+        fracture->setFractureUnit(eclipseCase->eclipseCaseData()->unitsType());
+    }
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
@@ -84,10 +87,14 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     eclipseWell->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
-    RimEclipseView* mainView = nullptr;
-    objHandle->firstAncestorOrThisOfType(mainView);
-    if (mainView) mainView->scheduleCreateDisplayModelAndRedraw();
-
+    RimEclipseCase* eclipseCase = nullptr;
+    objHandle->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase)
+    {
+        RimProject* project;
+        objHandle->firstAncestorOrThisOfTypeAsserted(project);
+        project->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

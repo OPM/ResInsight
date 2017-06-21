@@ -83,9 +83,11 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
 
     fracture->setName(QString("Fracture_") + fracNum);
 
-    RimEclipseResultCase* eclipseCase = nullptr;
-    simWell->firstAncestorOrThisOfType(eclipseCase);
-    fracture->setFractureUnit(eclipseCase->eclipseCaseData()->unitsType());
+    {
+        RimEclipseResultCase* eclipseCase = nullptr;
+        simWell->firstAncestorOrThisOfType(eclipseCase);
+        fracture->setFractureUnit(eclipseCase->eclipseCaseData()->unitsType());
+    }
     
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {
@@ -97,6 +99,15 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
     activeView->scheduleCreateDisplayModelAndRedraw();
+
+    RimEclipseCase* eclipseCase = nullptr;
+    simWell->firstAncestorOrThisOfType(eclipseCase);
+    if (eclipseCase)
+    {
+        RimProject* project;
+        eclipseCase->firstAncestorOrThisOfTypeAsserted(project);
+        project->reloadCompletionTypeResultsForEclipseCase(eclipseCase);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

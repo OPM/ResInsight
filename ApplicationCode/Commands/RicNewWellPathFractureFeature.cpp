@@ -85,11 +85,11 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     wellPath->updateConnectedEditors();
     RiuMainWindow::instance()->selectAsCurrentItem(fracture);
 
-    RimWellPathCollection* wellPathColl = nullptr;
-    fractureCollection->firstAncestorOrThisOfType(wellPathColl);
-    if (wellPathColl)
+    RimProject* project = nullptr;
+    fractureCollection->firstAncestorOrThisOfType(project);
+    if (project)
     {
-        wellPathColl->scheduleGeometryRegenAndRedrawViews();
+        project->reloadCompletionTypeResultsInAllViews();
     }
 }
 

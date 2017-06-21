@@ -111,6 +111,7 @@ public:
     bool            showPlotWindow() const;
 
     void            reloadCompletionTypeResultsInAllViews();
+    void            reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase);
 
 
 protected:

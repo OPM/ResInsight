@@ -363,10 +363,12 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
     }
     else if (resultName == RiaDefines::completionTypeResultName())
     {
+        caf::ProgressInfo progressInfo(m_cellResults->maxTimeStepCount(), "Calculate Completion Type Results");
         m_cellResults->cellScalarResults(scalarResultIndex).resize(m_cellResults->maxTimeStepCount());
         for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); ++timeStepIdx)
         {
             computeCompletionTypeForTimeStep(timeStepIdx);
+            progressInfo.incrementProgress();
         }
     }
 
@@ -1429,7 +1431,7 @@ void RimReservoirCellResultsStorage::computeCompletionTypeForTimeStep(size_t tim
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
     QDateTime timeStepDate = eclipseCase->timeStepDates()[timeStep];
 
-    RimCompletionCellIntersectionCalc::calculateIntersections(project, m_ownerMainGrid, completionTypeResult, timeStepDate);
+    RimCompletionCellIntersectionCalc::calculateIntersections(project, eclipseCase, m_ownerMainGrid, completionTypeResult, timeStepDate);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -32,6 +32,12 @@
 #include "RimWellPathFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimWellPathFractureCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimEclipseWell.h"
+#include "RimSimWellFractureCollection.h"
+#include "RimSimWellFracture.h"
 
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
@@ -45,13 +51,24 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculateIntersections(const RimProject* project, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate)
+void RimCompletionCellIntersectionCalc::calculateIntersections(const RimProject* project, const RimEclipseCase* eclipseCase, const RigMainGrid* grid, std::vector<double>& values, const QDateTime& fromDate)
 {
     for (const RimWellPath* wellPath : project->activeOilField()->wellPathCollection->wellPaths)
     {
         if (wellPath->showWellPath())
         {
             calculateWellPathIntersections(wellPath, grid, values, fromDate);
+        }
+    }
+
+    for (RimEclipseView* view : eclipseCase->reservoirViews())
+    {
+        for (RimEclipseWell* simWell : view->wellCollection()->wells())
+        {
+            for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
+            {
+                calculateFractureIntersections(grid, fracture, values);
+            }
         }
     }
 }
