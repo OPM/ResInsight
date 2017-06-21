@@ -307,6 +307,11 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
             return resultCompletion; //Returning empty completion, should not be exported
         }       
 
+        if (settings.excludeMainBoreForFishbones && completionType == RigCompletionData::FISHBONES && completion.isMainBore())
+        {
+            continue;
+        }
+
         totalTrans = totalTrans + completion.transmissibility();
 
         resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
@@ -346,7 +351,6 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     //TODO: Check that completion is ready for export
-    //TODO: Use wpimult instead of count for export!
 
     QString filePath = QDir(exportFolder).filePath(fileName);
     QFile exportFile(filePath);
@@ -419,6 +423,12 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
 
     for (const RigCompletionData& data : completionData)
     {
+        if (data.transmissibility() == 0.0 || data.wpimult()==0.0)
+        {
+            //Don't export completions without transmissibility
+            continue;
+        }
+
         for (const RigCompletionMetaData& metadata : data.metadata())
         {
             formatter.comment(QString("%1 : %2").arg(metadata.name).arg(metadata.comment));
@@ -490,8 +500,13 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
     for (auto& completion : completionData)
     {
+        if (completion.wpimult() == 0.0)
+        {
+            continue;
+        }
+
         formatter.add(completion.wellName());
-        formatter.add(completion.count());
+        formatter.add(completion.wpimult());
         formatter.addZeroBasedCellIndex(completion.cellIndex().i).addZeroBasedCellIndex(completion.cellIndex().j).addZeroBasedCellIndex(completion.cellIndex().k);
         formatter.rowCompleted();
     }

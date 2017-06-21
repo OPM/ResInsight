@@ -30,6 +30,7 @@
 #include "RimFishbonesMultipleSubs.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimWellPathCompletions.h"
+#include "RigCompletionData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -41,14 +42,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     std::vector<WellSegmentLocation> locations = RicWellPathExportCompletionDataFeature::findWellSegmentLocations(settings.caseToApply, wellPath);
 
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
-
-    // Filter out cells where main bore is present
-    if (settings.removeLateralsInMainBoreCells())
-    {
-        std::vector<size_t> wellPathCells = RicWellPathExportCompletionDataFeature::findIntersectingCells(caseData, wellPath->wellPathGeometry()->m_wellPathPoints);
-        RicWellPathExportCompletionDataFeature::markWellPathCells(wellPathCells, &locations);
-    }
-
     bool isMainBore = false;
 
     std::vector<RigCompletionData> completionData;
@@ -59,8 +52,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
         {
             for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
             {
-                if (intersection.mainBoreCell && settings.removeLateralsInMainBoreCells()) continue;
-
                 double diameter = location.fishbonesSubs->holeDiameter(unitSystem);
                 QString completionMetaData = (location.fishbonesSubs->name() + QString(": Sub: %1 Lateral: %2").arg(location.subIndex).arg(lateral.lateralIndex));
                 WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(intersection.lengthsInCell, 
@@ -159,7 +150,9 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                     wellBorePart.wellRadius *2, 
                                                                     direction,
                                                                     wellBorePart.isMainBore);
+
             completion.addMetadata(wellBorePart.metaData, QString::number(transmissibility));
+            
             completionData.push_back(completion);
         }
     }

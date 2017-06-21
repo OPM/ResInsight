@@ -62,7 +62,7 @@ public:
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
 
-    caf::PdmField<bool>                     removeLateralsInMainBoreCells;
+    caf::PdmField<bool>                     excludeMainBoreForFishbones;
 
     caf::PdmField<int>                      timeStep;
 
