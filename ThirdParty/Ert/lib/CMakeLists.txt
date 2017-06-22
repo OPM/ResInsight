@@ -204,7 +204,6 @@ endif()
 
 if (ERT_USE_OPENMP)
     target_compile_options(ecl PUBLIC ${OpenMP_C_FLAGS})
-    target_link_libraries( ecl PUBLIC ${OpenMP_C_FLAGS})
     target_link_libraries( ecl PUBLIC ${OpenMP_EXE_LINKER_FLAGS})
 endif ()
 
