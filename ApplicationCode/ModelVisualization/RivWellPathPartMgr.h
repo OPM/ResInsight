@@ -66,13 +66,13 @@ public:
     size_t                        segmentIndexFromTriangleIndex(size_t triangleIndex);
 
 private:
-    void                          appendFishbonesPartsToModel(cvf::ModelBasicList* model,
-                                                              const caf::DisplayCoordTransform* displayCoordTransform,
-                                                              double characteristicCellSize);
+    void                          appendFishboneSubsPartsToModel(cvf::ModelBasicList* model,
+                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                 double characteristicCellSize);
 
-    void                          appendCompletionsToModel(cvf::ModelBasicList* model,
-                                                           const caf::DisplayCoordTransform* displayCoordTransform,
-                                                           double characteristicCellSize);
+    void                          appendImportedFishbonesToModel(cvf::ModelBasicList* model,
+                                                                 const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                 double characteristicCellSize);
 
     void                          appendPerforationsToModel(const QDateTime& currentViewDate,
                                                             cvf::ModelBasicList* model,
