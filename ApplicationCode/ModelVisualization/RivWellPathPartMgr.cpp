@@ -38,15 +38,17 @@
 #include "RimWellPathCollection.h"
 
 #include "RimWellPathFractureCollection.h"
+#include "RimWellPathFracture.h"
 
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
+#include "RivWellPathSourceInfo.h"
+
 #include "RivPartPriority.h"
 #include "RivWellFracturePartMgr.h"
 #include "RivWellPathPartMgr.h"
-#include "RivWellPathSourceInfo.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -58,7 +60,6 @@
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfTransform.h"
 #include "cvfqtUtils.h"
-#include "RimWellPathFracture.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -115,7 +116,9 @@ void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendFishboneSubsPartsToModel(cvf::ModelBasicList* model,
+                                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        double characteristicCellSize)
 {
     if ( !m_rimWellPath || !m_rimWellPath->fishbonesCollection()->isChecked() ) return;
 
@@ -129,7 +132,9 @@ void RivWellPathPartMgr::appendFishbonesPartsToModel(cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendImportedFishbonesToModel(cvf::ModelBasicList* model,
+                                                        const caf::DisplayCoordTransform* displayCoordTransform,
+                                                        double characteristicCellSize)
 {
     if (!m_rimWellPath || !m_rimWellPath->fishbonesCollection()->wellPathCollection()->isChecked()) return;
 
@@ -149,7 +154,10 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, co
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(fbWellPath);
 
         cvf::Collection<cvf::Part> parts;
-        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, m_rimWellPath->wellPathColor(), m_rimWellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
+        geoGenerator.cylinderWithCenterLineParts(&parts, 
+                                                 displayCoords, 
+                                                 m_rimWellPath->wellPathColor(), 
+                                                 m_rimWellPath->combinedScaleFactor() * characteristicCellSize * 0.5);
         for (auto part : parts)
         {
             part->setSourceInfo(objectSourceInfo.p());
@@ -161,7 +169,10 @@ void RivWellPathPartMgr::appendCompletionsToModel(cvf::ModelBasicList* model, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewDate, cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewDate, 
+                                                   cvf::ModelBasicList* model, 
+                                                   const caf::DisplayCoordTransform* displayCoordTransform, 
+                                                   double characteristicCellSize)
 {
     if (!m_rimWellPath || !m_rimWellPath->perforationIntervalCollection()->isChecked()) return;
 
@@ -396,18 +407,18 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     appendFracturePartsToModel(model, displayCoordTransform);
 
-    appendFishbonesPartsToModel(model, displayCoordTransform, characteristicCellSize);
-    appendCompletionsToModel(model, displayCoordTransform, characteristicCellSize);
+    appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
+    appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                           const QDateTime& timeStamp,
-                                           double characteristicCellSize, 
-                                           const cvf::BoundingBox& wellPathClipBoundingBox,
-                                           const caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model,
+                                                           const QDateTime& timeStamp,
+                                                           double characteristicCellSize,
+                                                           const cvf::BoundingBox& wellPathClipBoundingBox,
+                                                           const caf::DisplayCoordTransform* displayCoordTransform)
 {
     CVF_ASSERT(model);
 
