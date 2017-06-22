@@ -157,7 +157,7 @@ void RicDeleteItemExec::redo()
 
         if (wellPathColl)
         {
-            wellPathColl->scheduleGeometryRegenAndRedrawViews();
+            wellPathColl->scheduleRedrawAffectedViews();
             wellPathColl->uiCapability()->updateConnectedEditors();
         }
 

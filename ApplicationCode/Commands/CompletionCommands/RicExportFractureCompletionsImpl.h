@@ -31,17 +31,17 @@ class RimFracture;
 class RicExportFractureCompletionsImpl
 {
 public:
-    static std::vector<RigCompletionData> generateCompdatValuesForWellPath(const RimWellPath* wellPath,
+    static std::vector<RigCompletionData> generateCompdatValuesForWellPath(RimWellPath* wellPath,
                                                                            const RicExportCompletionDataSettingsUi& settings, 
                                                                            QTextStream* outputStreamForIntermediateResultsText);
 
-    static std::vector<RigCompletionData> generateCompdatValuesForSimWell(const RimEclipseCase* eclipseCase,
+    static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                           const RimEclipseWell* well,
                                                                           size_t timeStep,
                                                                           QTextStream* outputStreamForIntermediateResultsText);
 
 private:
-    static std::vector<RigCompletionData> generateCompdatValues(const RimEclipseCase* caseToApply,
+    static std::vector<RigCompletionData> generateCompdatValues(RimEclipseCase* caseToApply,
                                                                 const QString& wellPathName,
                                                                 const RigWellPath* wellPathGeometry,
                                                                 const std::vector<RimFracture*> fractures,

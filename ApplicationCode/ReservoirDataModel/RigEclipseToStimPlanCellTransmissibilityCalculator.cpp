@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(const RimEclipseCase* caseToApply,
+RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
                                                                                                        cvf::Mat4f fractureTransform,
                                                                                                        double skinFactor,
                                                                                                        double cDarcy,

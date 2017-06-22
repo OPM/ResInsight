@@ -76,13 +76,19 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_filesContainingFaultsSemColSeparated,    "CachedFileNamesContainingFaults", "", "", "", "");
+    m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
 
-    // Obsolete field
+    // Obsolete fields
+    CAF_PDM_InitFieldNoDefault(&m_filesContainingFaults_OBSOLETE,    "FilesContainingFaults", "", "", "", "");
+    m_filesContainingFaults_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
     caseName.xmlCapability()->setIOWritable(false);
     caseName.uiCapability()->setUiHidden(true);
+
+    // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_matrixModelResults.uiCapability()->setUiHidden(true);
@@ -425,6 +431,51 @@ void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCase::createTimeStepFormatString()
+{
+    std::vector<QDateTime> timeStepDates = this->timeStepDates();
+
+    bool hasHoursAndMinutesInTimesteps = false;
+    bool hasSecondsInTimesteps = false;
+    bool hasMillisecondsInTimesteps = false;
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        if (timeStepDates[i].time().msec() != 0.0)
+        {
+            hasMillisecondsInTimesteps = true;
+            hasSecondsInTimesteps = true;
+            hasHoursAndMinutesInTimesteps = true;
+            break;
+        }
+        else if (timeStepDates[i].time().second() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+            hasSecondsInTimesteps = true;
+        }
+        else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+        }
+    }
+
+    m_timeStepFormatString = "dd.MMM yyyy";
+    if (hasHoursAndMinutesInTimesteps)
+    {
+        m_timeStepFormatString += " - hh:mm";
+        if (hasSecondsInTimesteps)
+        {
+            m_timeStepFormatString += ":ss";
+            if (hasMillisecondsInTimesteps)
+            {
+                m_timeStepFormatString += ".zzz";
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
 {
     if (m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS))
@@ -470,7 +521,7 @@ cvf::Vec3d RimEclipseCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel) 
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
@@ -480,7 +531,51 @@ RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::Poro
     return m_fractureModelResults();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults();
+    }
 
+    return m_fractureModelResults();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseCase::filesContainingFaults() const
+{
+    QString separatedPaths = m_filesContainingFaultsSemColSeparated;
+    QStringList pathList =  separatedPaths.split(";", QString::SkipEmptyParts);
+    std::vector<QString> stdPathList;
+
+    for (auto& path: pathList) stdPathList.push_back(path);
+
+    return stdPathList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::setFilesContainingFaults(const std::vector<QString>& val)
+{
+    QString separatedPaths;
+    
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+        const auto& path = val[i];
+        separatedPaths += path;
+        if (!(i+1 >=  val.size()) )
+        {
+            separatedPaths += ";";
+        }
+    }
+    m_filesContainingFaultsSemColSeparated = separatedPaths;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -516,6 +611,8 @@ bool RimEclipseCase::openReserviorCase()
         if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
     }
 
+    createTimeStepFormatString();
+
     return true;
 }
 
@@ -535,7 +632,7 @@ std::vector<RimView*> RimEclipseCase::views()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RimEclipseCase::timeStepStrings()
+QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
@@ -551,49 +648,10 @@ QStringList RimEclipseCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseCase::timeStepName(int frameIdx)
+QString RimEclipseCase::timeStepName(int frameIdx) const
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
     CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
-
-    if (m_timeStepFormatString.isEmpty())
-    {
-        bool hasHoursAndMinutesInTimesteps = false;
-        bool hasSecondsInTimesteps = false;
-        bool hasMillisecondsInTimesteps = false;
-        for (size_t i = 0; i < timeStepDates.size(); i++)
-        {
-            if (timeStepDates[i].time().msec() != 0.0)
-            {
-                hasMillisecondsInTimesteps = true;
-                hasSecondsInTimesteps = true;
-                hasHoursAndMinutesInTimesteps = true;
-                break;
-            }
-            else if (timeStepDates[i].time().second() != 0.0) {
-                hasHoursAndMinutesInTimesteps = true;
-                hasSecondsInTimesteps = true;
-            }
-            else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-            {
-                hasHoursAndMinutesInTimesteps = true;
-            }
-        }
-
-        m_timeStepFormatString = "dd.MMM yyyy";
-        if (hasHoursAndMinutesInTimesteps)
-        {
-            m_timeStepFormatString += " - hh:mm";
-            if (hasSecondsInTimesteps)
-            {
-                m_timeStepFormatString += ":ss";
-                if (hasMillisecondsInTimesteps)
-                {
-                    m_timeStepFormatString += ".zzz";
-                }
-            }
-        }
-    }
 
     QDateTime date = timeStepDates.at(frameIdx);
 
@@ -626,6 +684,7 @@ void RimEclipseCase::reloadDataAndUpdate()
             RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT(reservoirView);
             reservoirView->loadDataAndUpdate();
+            reservoirView->updateGridBoxData();
         }
 
         RimProject* project = RiaApplication::instance()->project();
@@ -663,7 +722,21 @@ void RimEclipseCase::reloadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimEclipseCase::timeStepDates()
+double RimEclipseCase::characteristicCellSize() const
+{
+    const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if (rigEclipseCase)
+    {
+        return rigEclipseCase->mainGrid()->characteristicIJCellSize();
+    }
+
+    return 10.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
     return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();
 }

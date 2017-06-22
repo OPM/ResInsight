@@ -67,7 +67,6 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
-#include "RivWellPathCollectionPartMgr.h"
 #include "RivWellFracturePartMgr.h"
 
 #include "cafCadNavigation.h"
@@ -440,22 +439,13 @@ void RimEclipseView::createDisplayModel()
 */
     // Well path model
 
-
     m_wellPathPipeVizModel->removeAllParts();
 
-    RigMainGrid* mainGrid = this->mainGrid();
-    if (mainGrid)
-    {
-        // NB! StimPlan legend colors must be updated before well path geometry is added to the model
-        // as the fracture geometry depends on the StimPlan legend colors
-        stimPlanColors->updateLegendData();
+    // NB! StimPlan legend colors must be updated before well path geometry is added to the model
+    // as the fracture geometry depends on the StimPlan legend colors
+    stimPlanColors->updateLegendData();
 
-        addWellPathsToModel(m_wellPathPipeVizModel.p(),
-            mainGrid->displayModelOffset(),
-            mainGrid->characteristicIJCellSize(),
-            currentActiveCellInfo()->geometryBoundingBox(),
-            m_reservoirGridPartManager->scaleTransform());
-    }
+    addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
@@ -638,44 +628,71 @@ void RimEclipseView::updateCurrentTimeStep()
         crossSectionCollection->applySingleColorEffect();
     }
 
-    // Simulation Wells
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
-            simWellModelBasicList->setName("SimWellPipeMod");
-
-            m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
-
-            simWellModelBasicList->updateBoundingBoxesRecursive();
-
-            this->removeModelByName(frameScene, simWellModelBasicList->name());
-            frameScene->addModel(simWellModelBasicList.p());
-            cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
-
-            std::vector<RimFracture*> fractures;
-            this->descendantsIncludingThisOfType(fractures);
-            for (RimFracture* f : fractures)
+            // Simulation Wells
             {
-                RimEclipseWell* eclWell = nullptr;
-                f->firstAncestorOrThisOfType(eclWell);
-                if (eclWell)
-                {
-                    bool isAnyGeometryPresent = eclWell->isWellPipeVisible(m_currentTimeStep) || eclWell->isWellSpheresVisible(m_currentTimeStep);
-                    if (!isAnyGeometryPresent)
-                    {
-                        continue;
-                    }
-                }
+                cvf::String name = "SimWellPipeMod";
+                this->removeModelByName(frameScene, name);
 
-                f->fracturePartManager()->appendGeometryPartsToModel(simWellModelBasicList.p(), transForm.p());
+                cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+                simWellModelBasicList->setName(name);
+
+                m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
+
+                simWellModelBasicList->updateBoundingBoxesRecursive();
+
+                frameScene->addModel(simWellModelBasicList.p());
+
+                m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
             }
 
-            simWellModelBasicList->updateBoundingBoxesRecursive();
+            // Well Paths
+            {
+                cvf::String name = "WellPathMod";
+                this->removeModelByName(frameScene, name);
+                
+                cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+                wellPathModelBasicList->setName(name);
 
-            m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
+                addDynamicWellPathsToModel(wellPathModelBasicList.p(), currentActiveCellInfo()->geometryBoundingBox());
+
+                frameScene->addModel(wellPathModelBasicList.p());
+            }
+
+            // Sim Well Fractures
+            {
+                cvf::String name = "SimWellFracturesModel";
+                this->removeModelByName(frameScene, name);
+
+                cvf::ref<cvf::ModelBasicList> simWellFracturesModelBasicList = new cvf::ModelBasicList;
+                simWellFracturesModelBasicList->setName(name);
+
+                cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+
+                std::vector<RimFracture*> fractures;
+                this->descendantsIncludingThisOfType(fractures);
+                for (RimFracture* f : fractures)
+                {
+                    RimEclipseWell* eclWell = nullptr;
+                    f->firstAncestorOrThisOfType(eclWell);
+                    if (eclWell)
+                    {
+                        bool isAnyGeometryPresent = eclWell->isWellPipeVisible(m_currentTimeStep) || eclWell->isWellSpheresVisible(m_currentTimeStep);
+                        if (!isAnyGeometryPresent)
+                        {
+                            continue;
+                        }
+                    }
+
+                    f->fracturePartManager()->appendGeometryPartsToModel(simWellFracturesModelBasicList.p(), transForm.p());
+                }
+
+                simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
+            }
         }
     }
 

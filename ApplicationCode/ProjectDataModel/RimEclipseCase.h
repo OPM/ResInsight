@@ -63,8 +63,8 @@ public:
     caf::PdmField<bool>                         flipXAxis;
     caf::PdmField<bool>                         flipYAxis;
     
-    caf::PdmField<std::vector<QString> >        filesContainingFaults;
-
+    std::vector<QString>                        filesContainingFaults() const;
+    void                                        setFilesContainingFaults(const std::vector<QString>& val);
 
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
@@ -73,7 +73,8 @@ public:
     const RigEclipseCaseData*                   eclipseCaseData() const;
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
-    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel) const ;
+    RimReservoirCellResultsStorage*             results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RimReservoirCellResultsStorage*       results(RifReaderInterface::PorosityModelResultType porosityModel) const;
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);
@@ -87,9 +88,9 @@ public:
     RimCaseCollection*                          parentCaseCollection();
                                                      
     virtual std::vector<RimView*>               views();
-    virtual QStringList                         timeStepStrings();
-    virtual QString                             timeStepName(int frameIdx);
-    std::vector<QDateTime>                      timeStepDates();
+    virtual QStringList                         timeStepStrings() const override;
+    virtual QString                             timeStepName(int frameIdx) const override;
+    virtual std::vector<QDateTime>              timeStepDates() const override;
 
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const;
@@ -99,8 +100,8 @@ public:
     void                                        reloadDataAndUpdate();
     virtual void                                reloadEclipseGridFile() = 0;
 
-    // Overridden methods from PdmObject
-public:
+
+    virtual double                              characteristicCellSize() const override;
 
 protected:
     virtual void                                initAfterRead();
@@ -114,16 +115,22 @@ protected:
     void                                        setReservoirData(RigEclipseCaseData* eclipseCase);
 
 private:
-    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
+    void                                        createTimeStepFormatString();
 
 private:
+    cvf::ref<RigEclipseCaseData>                m_rigEclipseCase;
+    QString                                     m_timeStepFormatString;
+    std::map<QString , cvf::Color3f>            m_wellToColorMap;
+    caf::PdmField<QString >                     m_filesContainingFaultsSemColSeparated;
+
+
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;
-    QString                                     m_timeStepFormatString;
-
-    std::map<QString , cvf::Color3f>            m_wellToColorMap;
 
     // Obsolete fields
 protected:
     caf::PdmField<QString>                      caseName;
+private:
+    caf::PdmField<std::vector<QString> >        m_filesContainingFaults_OBSOLETE;
+
 };

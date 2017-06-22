@@ -51,7 +51,7 @@ public:
     double                                           parameterFrictionAngleRad() const { return m_frictionAngleRad; }
 
     std::map<std::string, std::vector<std::string> > scalarFieldAndComponentNames(RigFemResultPosEnum resPos);
-    std::vector<std::string>                         stepNames();
+    std::vector<std::string>                         stepNames() const;
     bool                                             assertResultsLoaded(const RigFemResultAddress& resVarAddr);
     void                                             deleteResult(const RigFemResultAddress& resVarAddr);
 

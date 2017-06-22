@@ -67,7 +67,7 @@ void RicWellPathFracturesDeleteAllFeature::onActionTriggered(bool isChecked)
 
         RimWellPathCollection* wellPathColl = nullptr;
         fractureCollection->firstAncestorOrThisOfType(wellPathColl);
-        if (wellPathColl) wellPathColl->scheduleGeometryRegenAndRedrawViews();
+        if (wellPathColl) wellPathColl->scheduleRedrawAffectedViews();
     }
 }
 

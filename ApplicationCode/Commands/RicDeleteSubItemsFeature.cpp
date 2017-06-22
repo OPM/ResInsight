@@ -77,7 +77,7 @@ void RicDeleteSubItemsFeature::onActionTriggered(bool isChecked)
             wellPathColl->deleteAllWellPaths();
 
             wellPathColl->updateConnectedEditors();
-            wellPathColl->scheduleGeometryRegenAndRedrawViews();
+            wellPathColl->scheduleRedrawAffectedViews();
         }
     }
 }

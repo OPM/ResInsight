@@ -53,11 +53,11 @@ public:
     RivFishbonesSubsPartMgr(RimFishbonesMultipleSubs* subs);
     ~RivFishbonesSubsPartMgr();
 
-    void        appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void        appendGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
     void        clearGeometryCache();
 
 private:
-    void        buildParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
+    void        buildParts(const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize);
 
 
 private:

@@ -36,13 +36,19 @@
 
 #include <QString>
 
-//class RimFractureCollection;
-class RivWellPathCollectionPartMgr;
 class RifWellPathImporter;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
 
+namespace cvf {
+class ModelBasicList;
+class BoundingBox;
+}
+
+namespace caf {
+class DisplayCoordTransform;
+}
 
 //==================================================================================================
 ///  
@@ -77,13 +83,8 @@ public:
     caf::PdmField<bool>                 wellPathClip;
     caf::PdmField<int>                  wellPathClipZDistance;
 
-    caf::PdmChildArrayField<RimWellPath*>       wellPaths;
-//     caf::PdmChildField<RimFractureCollection*>  fractureCollection;
-
-    
+    caf::PdmChildArrayField<RimWellPath*> wellPaths;
    
-    RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }
-
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
     
@@ -93,8 +94,18 @@ public:
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
 
+    void                                scheduleRedrawAffectedViews();
 
-    void                                scheduleGeometryRegenAndRedrawViews();
+    void                                appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                         double                            characteristicCellSize, 
+                                                                         const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                         const caf::DisplayCoordTransform* displayCoordTransform);
+
+    void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                          const QDateTime&                  timeStamp,
+                                                                          double                            characteristicCellSize, 
+                                                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
@@ -107,8 +118,6 @@ private:
     void                                sortWellsByName();
 
     RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);
-
-    cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 
     RifWellPathImporter*                m_wellPathImporter;
 };

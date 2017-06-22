@@ -40,8 +40,6 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivWellPathCollectionPartMgr.h"
-
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmObjectFactory.h"
@@ -54,6 +52,7 @@
 #include "cvfViewport.h"
 
 #include <limits.h>
+#include "cvfTransform.h"
 
 
 namespace caf {
@@ -426,6 +425,18 @@ void RimView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RimView::wellPathsPartManager()
+{
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
+
+    return proj->activeOilField()->wellPathCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::setupBeforeSave()
 {
     if (m_viewer)
@@ -600,8 +611,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         // Regenerate well paths
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
-        if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
-
+        
         crossSectionCollection->updateIntersectionBoxGeometry();
 
         if (m_viewer)
@@ -703,24 +713,41 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
-                                  const cvf::Vec3d& displayModelOffset,  
-                                  double characteristicCellSize, 
-                                  const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                  cvf::Transform* scaleTransform)
+                                  const cvf::BoundingBox& wellPathClipBoundingBox)
 {
-    RimOilField* oilFields =                                    RiaApplication::instance()->project()   ? RiaApplication::instance()->project()->activeOilField() : NULL;
-    RimWellPathCollection* wellPathCollection =                 oilFields                               ? oilFields->wellPathCollection() : NULL;
-    RivWellPathCollectionPartMgr* wellPathCollectionPartMgr =   wellPathCollection                      ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
+    if (!this->ownerCase()) return;
 
-    if (wellPathCollectionPartMgr)
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    wellPathsPartManager()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
+        this->ownerCase()->characteristicCellSize(),
+        wellPathClipBoundingBox,
+        transForm.p());
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox)
+{
+    if (!this->ownerCase()) return;
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    QDateTime currentTimeStamp;
+    std::vector<QDateTime> timeStamps = ownerCase()->timeStepDates();
+    if (currentTimeStep() < timeStamps.size())
     {
-        wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList, 
-                                                                    displayModelOffset,
-                                                                    scaleTransform, 
-                                                                    characteristicCellSize, 
-                                                                    wellPathClipBoundingBox,
-                                                                    this->displayCoordTransform().p());
+        currentTimeStamp = timeStamps[currentTimeStep()];
     }
+
+    wellPathsPartManager()->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
+        currentTimeStamp,
+        this->ownerCase()->characteristicCellSize(),
+        wellPathClipBoundingBox,
+        transForm.p());
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
 }

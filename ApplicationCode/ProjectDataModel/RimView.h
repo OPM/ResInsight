@@ -50,6 +50,7 @@ class RimPropertyFilterCollection;
 class RimViewController;
 class RimViewLinker;
 class RiuViewer;
+class RimWellPathCollection;
 
 namespace cvf
 {
@@ -169,6 +170,7 @@ public:
 
 public:
     virtual void                            loadDataAndUpdate() = 0;
+    void                                    updateGridBoxData();
     virtual RimCase*                        ownerCase() = 0;
 
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
@@ -177,17 +179,16 @@ protected:
     void                                    setDefaultView();
 
     void                                    addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
-                                                                const cvf::Vec3d& displayModelOffset,  
-                                                                double characteristicCellSize, 
-                                                                const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                                                cvf::Transform* scaleTransform);
+                                                                const cvf::BoundingBox& wellPathClipBoundingBox);
+
+    void                                    addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
+                                                                       const cvf::BoundingBox& wellPathClipBoundingBox);
 
     static void                             removeModelByName(cvf::Scene* scene, const cvf::String& modelName);
 
     virtual void                            createDisplayModel() = 0;
     
     void                                    createHighlightAndGridBoxDisplayModel();
-    void                                    updateGridBoxData();
 
     virtual void                            createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) = 0;
     
@@ -202,6 +203,8 @@ protected:
 
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
+
+    RimWellPathCollection*                  wellPathsPartManager();
 
     QPointer<RiuViewer>                     m_viewer;
 

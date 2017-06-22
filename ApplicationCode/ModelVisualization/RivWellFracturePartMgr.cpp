@@ -66,7 +66,7 @@ RivWellFracturePartMgr::~RivWellFracturePartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellFracturePartMgr::updatePartGeometry(const caf::DisplayCoordTransform* displayCoordTransform)
 {
     if (m_part.notNull()) return;
     if (!displayCoordTransform) return;
@@ -116,7 +116,7 @@ void RivWellFracturePartMgr::updatePartGeometry(caf::DisplayCoordTransform* disp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellFracturePartMgr::updatePartGeometryTexture(const caf::DisplayCoordTransform* displayCoordTransform)
 {
     if (m_part.notNull()) return;
     if (!displayCoordTransform) return;
@@ -231,7 +231,7 @@ void RivWellFracturePartMgr::updatePartGeometryTexture(caf::DisplayCoordTransfor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(const caf::DisplayCoordTransform* displayCoordTransform)
 {
     m_polygonPart = nullptr;
 
@@ -256,7 +256,7 @@ void RivWellFracturePartMgr::generateFractureOutlinePolygonPart(caf::DisplayCoor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellFracturePartMgr::generateStimPlanMeshPart(const caf::DisplayCoordTransform* displayCoordTransform)
 {
     m_stimPlanMeshPart = nullptr;
 
@@ -285,7 +285,7 @@ void RivWellFracturePartMgr::generateStimPlanMeshPart(caf::DisplayCoordTransform
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, caf::DisplayCoordTransform* displayCoordTransform)
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const caf::DisplayCoordTransform* displayCoordTransform)
 {
     //TODO: This is needed to avoid errors when loading project with stimPlan fractures with multipled timesteps. 
     //Should probably be moved, since it now is called twice in some cases... 
@@ -356,7 +356,7 @@ void RivWellFracturePartMgr::getPolygonBB(float &polygonXmin, float &polygonXmax
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::DisplayCoordTransform* displayCoordTransform)
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(const caf::DisplayCoordTransform* displayCoordTransform)
 {
     std::vector<cvf::uint> lineIndices;
     std::vector<cvf::Vec3f> vertices;
@@ -398,7 +398,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createPolygonDrawable(caf::Di
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RivWellFracturePartMgr::transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> coordinatesVector, cvf::Mat4f m, caf::DisplayCoordTransform* displayCoordTransform)
+std::vector<cvf::Vec3f> RivWellFracturePartMgr::transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> coordinatesVector, cvf::Mat4f m, const caf::DisplayCoordTransform* displayCoordTransform)
 {
     std::vector<cvf::Vec3f> polygonInDisplayCoords;
     for (cvf::Vec3f v : coordinatesVector)
@@ -432,7 +432,7 @@ std::vector<double> RivWellFracturePartMgr::mirrorDataAtSingleDepth(std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellFracturePartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform)
 {
     clearGeometryCache();
 

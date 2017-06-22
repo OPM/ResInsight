@@ -60,7 +60,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered(bool isC
     wellPath->firstAncestorOrThisOfTypeAsserted(wellPathCollection);
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
-    wellPathCollection->scheduleGeometryRegenAndRedrawViews();
+    wellPathCollection->scheduleRedrawAffectedViews();
 
     RiuMainWindow::instance()->selectAsCurrentItem(perforationInterval);
 }

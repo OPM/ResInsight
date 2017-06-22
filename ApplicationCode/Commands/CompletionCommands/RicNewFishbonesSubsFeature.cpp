@@ -171,8 +171,7 @@ void RicNewFishbonesSubsFeature::askUserToSetUsefulScaling(RimFishbonesCollectio
     if (autoAdjustSettings)
     {
         activeView->setScaleZAndUpdate(1.0);
-
-        wellPathColl->scheduleGeometryRegenAndRedrawViews();
+        activeView->scheduleCreateDisplayModelAndRedraw();
 
         RiuMainWindow::instance()->updateScaleValue();
     }

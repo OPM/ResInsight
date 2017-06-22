@@ -992,6 +992,10 @@ private:
     /// of main grid's section within a view.
     std::string firstKeyword_;
 
+    /// True if path (or pointer) to unified restart file was passed
+    /// as constructor argument.
+    bool isUnified_;
+
     /// Map LGR names to integral grid IDs.
     std::unique_ptr<ECLImpl::GridIDCache> gridIDCache_;
 
@@ -1021,44 +1025,55 @@ Opm::ECLRestartData::Impl::Impl(Path prefix)
     : prefix_      (std::move(prefix))
     , result_      (openResultSet(deriveRestartPath(prefix_)))
     , firstKeyword_(firstFileKeyword(result_.get()))
+    , isUnified_   (firstKeyword_ == "SEQNUM")
 {}
 
 Opm::ECLRestartData::Impl::Impl(std::shared_ptr<ecl_file_type> rstrt)
     : prefix_      (ecl_file_get_src_file(rstrt.get()))
     , result_      (std::move(rstrt))
     , firstKeyword_(firstFileKeyword(result_.get()))
+    , isUnified_   (firstKeyword_ == "SEQNUM")
 {}
 
 Opm::ECLRestartData::Impl::Impl(const Impl& rhs)
     : prefix_      (rhs.prefix_)
     , result_      (openResultSet(deriveRestartPath(prefix_)))
     , firstKeyword_(firstFileKeyword(result_.get()))
+    , isUnified_   (rhs.isUnified_)
 {}
 
 Opm::ECLRestartData::Impl::Impl(Impl&& rhs)
     : prefix_      (std::move(rhs.prefix_))
     , result_      (std::move(rhs.result_))
     , firstKeyword_(std::move(rhs.firstKeyword_))
+    , isUnified_   (rhs.isUnified_)
 {}
 
 bool Opm::ECLRestartData::Impl::selectReportStep(const int step)
 {
-    if (! ecl_file_has_report_step(*this, step)) {
+    if (isUnified_ && ! ecl_file_has_report_step(*this, step)) {
         return false;
     }
 
     this->gridIDCache_.reset();
 
     if (auto* globView = ecl_file_get_global_view(*this)) {
-        // Ignore sequence numbers, dates, and simulation time.
-        const auto seqnum  = -1;
-        const auto dates   = static_cast<std::size_t>(-1);
-        const auto simdays = -1.0;
+        if (isUnified_) {
+            // Set active block view to particular report step.
+            // Ignore sequence numbers, dates, and simulation time.
+            const auto seqnum  = -1;
+            const auto dates   = static_cast<std::size_t>(-1);
+            const auto simdays = -1.0;
 
-        this->activeBlock_ =
-            ecl_file_view_add_restart_view(globView, seqnum,
-                                           step, dates, simdays);
+            this->activeBlock_ =
+                ecl_file_view_add_restart_view(globView, seqnum,
+                                               step, dates, simdays);
+        } else {
+            // Set active block view to global.
+            this->activeBlock_ = globView;
+        }
 
+        // Update grid id cache from active view.
         if (this->activeBlock_ != nullptr) {
             this->gridIDCache_
                 .reset(new ECLImpl::GridIDCache(this->activeBlock_));

@@ -54,7 +54,7 @@ RivFishbonesSubsPartMgr::~RivFishbonesSubsPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFishbonesSubsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivFishbonesSubsPartMgr::appendGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
     clearGeometryCache();
 
@@ -82,7 +82,7 @@ void RivFishbonesSubsPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFishbonesSubsPartMgr::buildParts(caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
+void RivFishbonesSubsPartMgr::buildParts(const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize)
 {
     RimWellPath* wellPath = nullptr;
     m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted(wellPath);
