@@ -51,33 +51,48 @@ public:
     RivWellFracturePartMgr(RimFracture* well);
     ~RivWellFracturePartMgr();
 
-    void appendGeometryPartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform);
-    void clearGeometryCache();
+    void                                appendGeometryPartsToModel(cvf::ModelBasicList* model, 
+                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
+    void                                clearGeometryCache();
 
-    static std::vector<double>                 mirrorDataAtSingleDepth(std::vector<double> depthData);
+    static std::vector<double>          mirrorDataAtSingleDepth(std::vector<double> depthData);
 
 private:
-    void updatePartGeometry(const caf::DisplayCoordTransform* displayCoordTransform);
-    void updatePartGeometryTexture(const caf::DisplayCoordTransform* displayCoordTransform);
+    void                                generateSurfacePart(const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void generateFractureOutlinePolygonPart(const caf::DisplayCoordTransform* displayCoordTransform);
-    void generateStimPlanMeshPart(const caf::DisplayCoordTransform* displayCoordTransform);
+    void                                applyFractureUniformColor();
+
+    void                                applyResultTextureColor();
+
+    void                                generateFractureOutlinePolygonPart(const caf::DisplayCoordTransform* displayCoordTransform);
+    void                                generateStimPlanMeshPart(const caf::DisplayCoordTransform* displayCoordTransform);
 
     cvf::ref<cvf::DrawableGeo>          createPolygonDrawable(const caf::DisplayCoordTransform* displayCoordTransform);
-    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, const caf::DisplayCoordTransform* displayCoordTransform);
+    cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, 
+                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax);
+    void                                getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax);
 
-    std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> polygon, cvf::Mat4f m, const caf::DisplayCoordTransform* displayCoordTransform);
-    bool                                stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, double xMin, double xMax, double yMin, double yMax, float polygonXmin, float polygonXmax, float polygonYmin, float polygonYmax);
+    std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> polygon, 
+                                                                         cvf::Mat4f m, 
+                                                                         const caf::DisplayCoordTransform* displayCoordTransform);
+    bool                                stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, 
+                                                                   double xMin, 
+                                                                   double xMax, 
+                                                                   double yMin, 
+                                                                   double yMax, 
+                                                                   float polygonXmin, 
+                                                                   float polygonXmax, 
+                                                                   float polygonYmin, 
+                                                                   float polygonYmax);
 
-    static cvf::ref<cvf::DrawableGeo>   createGeo(const std::vector<cvf::uint>& triangleIndices, const std::vector<cvf::Vec3f>& nodeCoords);
-     
+    static cvf::ref<cvf::DrawableGeo>   buildDrawableGeoFromTriangles(const std::vector<cvf::uint>& triangleIndices, 
+                                                                      const std::vector<cvf::Vec3f>& nodeCoords);
 
 private:
-    caf::PdmPointer<RimFracture> m_rimFracture;
+    caf::PdmPointer<RimFracture>        m_rimFracture;
 
-    cvf::ref<cvf::Part>          m_part;
-    cvf::ref<cvf::Part>          m_polygonPart;
-    cvf::ref<cvf::Part>          m_stimPlanMeshPart;
+    cvf::ref<cvf::Part>                 m_part;
+    cvf::ref<cvf::Part>                 m_polygonPart;
+    cvf::ref<cvf::Part>                 m_stimPlanMeshPart;
 };
