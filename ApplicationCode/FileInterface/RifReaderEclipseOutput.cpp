@@ -44,6 +44,8 @@
 
 #include "ert/ecl/ecl_kw_magic.h"
 #include "ert/ecl/ecl_nnc_export.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
+#include "ert/ecl/ecl_nnc_data.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
@@ -572,38 +574,42 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)
+void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , ecl_file_type * init_file, RigMainGrid * mainGrid)
 {
     if (!m_ecl_init_file ) return;
 
     CVF_ASSERT(mainEclGrid && mainGrid);
 
     // Get the data from ERT
+    ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(mainEclGrid);
+    ecl_nnc_data_type* tran_data = ecl_nnc_data_alloc_tran(mainEclGrid, nnc_geo, ecl_file_get_global_view(init_file));
 
-    int numNNC = ecl_nnc_export_get_size( mainEclGrid );
+    int numNNC = ecl_nnc_data_get_size(tran_data);
+    int geometrySize = ecl_nnc_geometry_size(nnc_geo);
+    CVF_ASSERT(numNNC == geometrySize);
+
     if (numNNC > 0)
     {
-        ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
-
-        ecl_nnc_export(mainEclGrid, init_file, eclNNCData);
-
-        // Transform to our own datastructures
-        //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
+        // Transform to our own data structures
 
         mainGrid->nncData()->connections().resize(numNNC);
         std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+        const double* transValues = ecl_nnc_data_get_values(tran_data);
+
         for (int nIdx = 0; nIdx < numNNC; ++nIdx)
         {
-            RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
-            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
-            RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
-            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
-            transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
+            const ecl_nnc_pair_type* geometry_pair = ecl_nnc_geometry_iget(nnc_geo, nIdx);
+            RigGridBase* grid1 =  mainGrid->gridByIndex(geometry_pair->grid_nr1);
+            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(geometry_pair->global_index1);
+            RigGridBase* grid2 =  mainGrid->gridByIndex(geometry_pair->grid_nr2);
+            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(geometry_pair->global_index2);
+
+            transmissibilityValues[nIdx] = transValues[nIdx];
         }
-
-
-        delete[] eclNNCData;
     }
+
+    ecl_nnc_geometry_free(nnc_geo);
+    ecl_nnc_data_free(tran_data);
 }
 
 
