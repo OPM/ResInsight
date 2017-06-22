@@ -36,6 +36,7 @@
 
 class RigEclipseCaseData;
 class QFile;
+class RimEclipseResultDefinition;
 
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +77,7 @@ public:
 
 
     static bool     writePropertyToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
-    static bool     writeBinaryResultToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
+    static bool     writeBinaryResultToTextFile(const QString& fileName, RigEclipseCaseData* eclipseCase, size_t timeStep, RimEclipseResultDefinition* resultdefinition, const QString& eclipseKeyWord, const double undefinedValue);
 
     static bool     readFaultsAndParseIncludeStatementsRecursively( QFile& file, 
                                                                     qint64 startPos, 

@@ -46,7 +46,7 @@ public:
     void                        close();
 
     size_t                      timeStepCount();
-    std::vector<QDateTime>      timeSteps();
+    void                        timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart) override;
     std::vector<int>            reportNumbers();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);

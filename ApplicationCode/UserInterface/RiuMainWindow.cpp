@@ -56,6 +56,7 @@
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
+#include "cafUtils.h"
 
 #include "cvfTimer.h"
 
@@ -198,6 +199,12 @@ void RiuMainWindow::cleanupGuiBeforeProjectClose()
 void RiuMainWindow::closeEvent(QCloseEvent* event)
 {
     RiaApplication* app = RiaApplication::instance();
+
+    if (app->isMainPlotWindowVisible())
+    {
+        return;
+    }
+
     if (!app->askUserToSaveModifiedProject())
     {
         event->ignore();
@@ -631,7 +638,7 @@ void RiuMainWindow::slotRefreshFileActions()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    bool projectFileExists = QFile::exists(app->project()->fileName());
+    bool projectFileExists = caf::Utils::fileExists(app->project()->fileName());
 
     caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
     CVF_ASSERT(cmdFeatureMgr);

@@ -42,6 +42,12 @@
 #include "RimProject.h"
 #include "RimMainPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimFlowPlotCollection.h"
+#include "RimWellLogPlot.h"
+#include "RimSummaryPlot.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimWellAllocationPlot.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -70,13 +76,19 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
-    filesContainingFaults.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_filesContainingFaultsSemColSeparated,    "CachedFileNamesContainingFaults", "", "", "", "");
+    m_filesContainingFaultsSemColSeparated.uiCapability()->setUiHidden(true);
 
-    // Obsolete field
+    // Obsolete fields
+    CAF_PDM_InitFieldNoDefault(&m_filesContainingFaults_OBSOLETE,    "FilesContainingFaults", "", "", "", "");
+    m_filesContainingFaults_OBSOLETE.xmlCapability()->setIOWritable(false);
+    m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
     caseName.xmlCapability()->setIOWritable(false);
     caseName.uiCapability()->setUiHidden(true);
+
+    // Init
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_matrixModelResults.uiCapability()->setUiHidden(true);
@@ -297,40 +309,7 @@ void RimEclipseCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     if (changedField == &releaseResultMemory)
     {
-        if (this->eclipseCaseData())
-        {
-            for (size_t i = 0; i < reservoirViews().size(); i++)
-            {
-                RimEclipseView* reservoirView = reservoirViews()[i];
-                CVF_ASSERT(reservoirView);
-
-                RimEclipseCellColors* result = reservoirView->cellResult;
-                CVF_ASSERT(result);
-
-                result->setResultVariable(RimDefines::undefinedResultName());
-                result->loadResult();
-
-                RimCellEdgeColors* cellEdgeResult = reservoirView->cellEdgeResult;
-                CVF_ASSERT(cellEdgeResult);
-
-                cellEdgeResult->setResultVariable(RimDefines::undefinedResultName());
-                cellEdgeResult->loadResult();
-
-                reservoirView->createDisplayModelAndRedraw();
-            }
-
-            RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
-            if (matrixModelResults)
-            {
-                matrixModelResults->clearAllResults();
-            }
-
-            RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
-            if (fractureModelResults)
-            {
-                fractureModelResults->clearAllResults();
-            }
-        }
+        reloadDataAndUpdate();
 
         releaseResultMemory = oldValue.toBool();
     }
@@ -549,6 +528,39 @@ RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::Poro
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimEclipseCase::filesContainingFaults() const
+{
+    QString separatedPaths = m_filesContainingFaultsSemColSeparated;
+    QStringList pathList =  separatedPaths.split(";", QString::SkipEmptyParts);
+    std::vector<QString> stdPathList;
+
+    for (auto& path: pathList) stdPathList.push_back(path);
+
+    return stdPathList;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::setFilesContainingFaults(const std::vector<QString>& val)
+{
+    QString separatedPaths;
+    
+    for (size_t i = 0; i < val.size(); ++i)
+    {
+        const auto& path = val[i];
+        separatedPaths += path;
+        if (!(i+1 >=  val.size()) )
+        {
+            separatedPaths += ";";
+        }
+    }
+    m_filesContainingFaultsSemColSeparated = separatedPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::openReserviorCase()
 {
     // If read already, return
@@ -662,6 +674,67 @@ QString RimEclipseCase::timeStepName(int frameIdx)
     QDateTime date = timeStepDates.at(frameIdx);
 
     return date.toString(m_timeStepFormatString);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::reloadDataAndUpdate()
+{
+    if (this->eclipseCaseData())
+    {
+        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
+        if (matrixModelResults)
+        {
+            matrixModelResults->clearAllResults();
+        }
+
+        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
+        if (fractureModelResults)
+        {
+            fractureModelResults->clearAllResults();
+        }
+
+        reloadEclipseGridFile();
+
+        for (size_t i = 0; i < reservoirViews().size(); i++)
+        {
+            RimEclipseView* reservoirView = reservoirViews()[i];
+            CVF_ASSERT(reservoirView);
+            reservoirView->loadDataAndUpdate();
+            reservoirView->updateGridBoxData();
+        }
+
+        RimProject* project = RiaApplication::instance()->project();
+        if (project)
+        {
+            if (project->mainPlotCollection())
+            {
+                RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+                RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
+                RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
+
+                if (wellPlotCollection)
+                {
+                    for (size_t i = 0; i < wellPlotCollection->wellLogPlots().size(); ++i)
+                    {
+                        wellPlotCollection->wellLogPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (summaryPlotCollection)
+                {
+                    for (size_t i = 0; i < summaryPlotCollection->summaryPlots().size(); ++i)
+                    {
+                        summaryPlotCollection->summaryPlots()[i]->loadDataAndUpdate();
+                    }
+                }
+                if (flowPlotCollection)
+                {
+                    flowPlotCollection->loadDataAndUpdate();
+                }
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

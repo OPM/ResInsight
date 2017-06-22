@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   ert_util_abort_gnu_tests.c
  * Author: kflik
  *
@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <ert/util/util.h>
 #include <ert/util/test_util.h>
-#include <ert/util/test_util_abort.h>
 
 
 void      test_assert_util_abort(const char * function_name , void (void *) , void * arg);

@@ -76,9 +76,11 @@ public:
     std::vector<QDateTime>                             timeStepDates() const;
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
+    std::vector<double>                                daysSinceSimulationStart() const;
+    std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
-    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<int>& reportStepNumbers);
+    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers);
 
     // Find or create a slot for the results
 
@@ -126,6 +128,7 @@ public:
         std::vector<QDateTime>      m_timeStepDates;
         std::vector<int>            m_timeStepReportNumbers;
         bool                        m_isSourSimData;
+        std::vector<double>         m_daysSinceSimulationStart;
     };
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}

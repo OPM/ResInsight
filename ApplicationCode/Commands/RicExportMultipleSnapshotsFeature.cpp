@@ -95,8 +95,8 @@ void RicExportMultipleSnapshotsFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicExportMultipleSnapshotsFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Export Multiple Snapshots ...");
-    //actionToSetup->setIcon(QIcon(":/Save.png"));
+    actionToSetup->setText("Advanced Snapshot Export ...");
+    actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
 }
 
 //--------------------------------------------------------------------------------------------------

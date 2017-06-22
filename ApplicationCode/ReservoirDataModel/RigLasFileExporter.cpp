@@ -25,6 +25,7 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafUtils.h"
+
 #include "cvfAssert.h"
 
 #include "laswell.hpp"
@@ -390,7 +391,7 @@ bool RigLasFileExporter::writeToFolder(const QString& exportFolder)
 
         QDir dir(exportFolder);
         QString fileName = dir.absoluteFilePath(QString::fromStdString(lasFileDescr.generateFilename()));
-        if (QFile::exists(fileName))
+        if (caf::Utils::fileExists(fileName))
         {
             QString txt = QString("File %1 exists.\n\nDo you want to overwrite the file?").arg(fileName);
             int ret = QMessageBox::question(NULL, "LAS File Export",

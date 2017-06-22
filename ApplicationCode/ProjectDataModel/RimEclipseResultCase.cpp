@@ -42,6 +42,7 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
+#include "cafUtils.h"
 
 #include <QDir>
 #include <QFile>
@@ -102,7 +103,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
     }
     else
     {
-        if (!QFile::exists(caseFileName()))
+        if (!caf::Utils::fileExists(caseFileName()))
         {
             return false;
         }
@@ -118,7 +119,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
             return false;
         }
 
-        this->filesContainingFaults = readerInterface->filenamesWithFaults();
+        this->setFilesContainingFaults(readerInterface->filenamesWithFaults());
 
         this->setReservoirData( eclipseCase.p() );
     }
@@ -157,6 +158,17 @@ bool RimEclipseResultCase::openEclipseGridFile()
  }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::reloadEclipseGridFile()
+{
+    m_gridAndWellDataIsReadFromFile = false;
+    m_activeCellInfoIsReadFromFile = false;
+    setReservoirData(nullptr);
+    openReserviorCase();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase)
@@ -171,7 +183,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
     }
     else
     {
-        if (!QFile::exists(caseFileName()))
+        if (!caf::Utils::fileExists(caseFileName()))
         {
             return false;
         }
@@ -367,6 +379,16 @@ void RimEclipseResultCase::updateFilePathsFromProjectPath(const QString& newProj
 
     // Update filename and folder paths when opening project from a different file location
     caseFileName = RimTools::relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+
+    std::vector<QString> relocatedFaultFiles;
+    const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
+    for (auto faultFileName : orgFilesContainingFaults)
+    {
+        QString relocatedFaultFile = RimTools::relocateFile(faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+        relocatedFaultFiles.push_back(relocatedFaultFile);
+    }
+
+    setFilesContainingFaults(relocatedFaultFiles);
     
 #if 0 // Output the search path for debugging
     for (size_t i = 0; i < searchedPaths.size(); ++i)

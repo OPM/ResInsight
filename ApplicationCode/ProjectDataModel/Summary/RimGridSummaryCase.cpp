@@ -154,3 +154,11 @@ QString RimGridSummaryCase::eclipseGridFileName() const
     return m_eclipseCase()->gridFileName();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+{
+    // Shouldn't have to do anything
+}
+

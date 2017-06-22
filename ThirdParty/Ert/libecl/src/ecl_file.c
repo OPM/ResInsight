@@ -36,6 +36,7 @@
 #include <ert/ecl/ecl_kw_magic.h>
 #include <ert/ecl/ecl_rsthead.h>
 #include <ert/ecl/ecl_file_kw.h>
+#include <ert/ecl/ecl_type.h>
 
 /**
    This file implements functionality to load an ECLIPSE file in
@@ -418,8 +419,8 @@ ecl_kw_type * ecl_file_iget_kw( const ecl_file_type * file , int global_index) {
   return ecl_file_view_iget_kw( file->active_view , global_index);
 }
 
-ecl_type_enum ecl_file_iget_type( const ecl_file_type * file , int global_index) {
-  return ecl_file_view_iget_type( file->active_view , global_index);
+ecl_data_type ecl_file_iget_data_type( const ecl_file_type * file , int global_index) {
+  return ecl_file_view_iget_data_type( file->active_view , global_index);
 }
 
 int ecl_file_iget_size( const ecl_file_type * file , int global_index) {
@@ -446,8 +447,8 @@ void ecl_file_indexed_read(const ecl_file_type * file , const char * kw, int ind
     ecl_file_view_index_fload_kw(file->active_view, kw, index, index_map, buffer);
 }
 
-ecl_type_enum ecl_file_iget_named_type( const ecl_file_type * file , const char * kw , int ith) {
-  return ecl_file_view_iget_named_type( file->active_view , kw , ith );
+ecl_data_type ecl_file_iget_named_data_type( const ecl_file_type * file , const char * kw , int ith) {
+  return ecl_file_view_iget_named_data_type( file->active_view , kw , ith );
 }
 
 int ecl_file_iget_named_size( const ecl_file_type * file , const char * kw , int ith) {
@@ -515,7 +516,7 @@ static bool ecl_file_scan( ecl_file_type * ecl_file ) {
   bool scan_ok = false;
   fortio_fseek( ecl_file->fortio , 0 , SEEK_SET );
   {
-    ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT_TYPE , NULL);
+    ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT , NULL);
 
     while (true) {
       if (fortio_read_at_eof(ecl_file->fortio)) {
@@ -536,13 +537,6 @@ static bool ecl_file_scan( ecl_file_type * ecl_file ) {
           if (ecl_file_kw_fskip_data( file_kw , ecl_file->fortio ))
             ecl_file_view_add_kw( ecl_file->global_view , file_kw );
           else
-            break;
-        }
-
-        if (read_status == ECL_KW_READ_SKIP) {
-          bool skip_ok = ecl_kw_fskip_data( work_kw , ecl_file->fortio );
-          fprintf(stderr,"** Warning: keyword %s is of type \'C010\' - will be skipped when loading file. skip_ok:%d\n" , ecl_kw_get_header( work_kw ) , skip_ok);
-          if (!skip_ok)
             break;
         }
       }

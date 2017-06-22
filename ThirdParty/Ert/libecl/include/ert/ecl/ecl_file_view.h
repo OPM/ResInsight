@@ -25,6 +25,7 @@
 
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_file_kw.h>
+#include <ert/ecl/ecl_type.h>
 
 
 #ifdef __cplusplus
@@ -63,11 +64,11 @@ typedef struct ecl_file_view_struct ecl_file_view_type;
   const char * ecl_file_view_iget_distinct_kw( const ecl_file_view_type * ecl_file_view , int index);
   int ecl_file_view_get_num_distinct_kw( const ecl_file_view_type * ecl_file_view );
   int ecl_file_view_get_size( const ecl_file_view_type * ecl_file_view );
-  ecl_type_enum ecl_file_view_iget_type( const ecl_file_view_type * ecl_file_view , int index);
+  ecl_data_type ecl_file_view_iget_data_type( const ecl_file_view_type * ecl_file_view , int index);
   int ecl_file_view_iget_size( const ecl_file_view_type * ecl_file_view , int index);
   const char * ecl_file_view_iget_header( const ecl_file_view_type * ecl_file_view , int index);
   ecl_kw_type * ecl_file_view_iget_named_kw( const ecl_file_view_type * ecl_file_view , const char * kw, int ith);
-  ecl_type_enum ecl_file_view_iget_named_type( const ecl_file_view_type * ecl_file_view , const char * kw , int ith);
+  ecl_data_type ecl_file_view_iget_named_data_type( const ecl_file_view_type * ecl_file_view , const char * kw , int ith);
   int ecl_file_view_iget_named_size( const ecl_file_view_type * ecl_file_view , const char * kw , int ith);
   void ecl_file_view_replace_kw( ecl_file_view_type * ecl_file_view , ecl_kw_type * old_kw , ecl_kw_type * new_kw , bool insert_copy);
   bool ecl_file_view_load_all( ecl_file_view_type * ecl_file_view );

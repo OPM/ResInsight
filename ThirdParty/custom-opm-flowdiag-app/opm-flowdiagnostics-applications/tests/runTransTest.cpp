@@ -152,7 +152,7 @@ namespace {
     }
 
     ErrorTolerance
-    testTolerances(const ::Opm::parameter::ParameterGroup& param)
+    testTolerances(const ::Opm::ParameterGroup& param)
     {
         const auto atol = param.getDefault("atol", 1.0e-8);
         const auto rtol = param.getDefault("rtol", 5.0e-12);
@@ -161,7 +161,7 @@ namespace {
     }
 
     std::vector<double>
-    loadReference(const ::Opm::parameter::ParameterGroup& param)
+    loadReference(const ::Opm::ParameterGroup& param)
     {
         namespace fs = boost::filesystem;
 
@@ -185,7 +185,7 @@ namespace {
         };
     }
 
-    bool transfieldAcceptable(const ::Opm::parameter::ParameterGroup& param,
+    bool transfieldAcceptable(const ::Opm::ParameterGroup& param,
                               const std::vector<double>&              trans)
     {
         const auto Tref = loadReference(param);
@@ -206,13 +206,21 @@ namespace {
         return ! ((pointMetric(diff) > tol.absolute) ||
                   (pointMetric(rat)  > tol.relative));
     }
+
+    ::Opm::ECLGraph
+    constructGraph(const example::FilePaths& pth)
+    {
+        const auto I = ::Opm::ECLInitFileData(pth.init);
+
+        return ::Opm::ECLGraph::load(pth.grid, I);
+    }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
 try {
     const auto prm = example::initParam(argc, argv);
     const auto pth = example::FilePaths(prm);
-    const auto G   = example::initGraph(pth);
+    const auto G   = constructGraph(pth);
     const auto T   = G.transmissibility();
     const auto ok  = transfieldAcceptable(prm, T);
 

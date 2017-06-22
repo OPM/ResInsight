@@ -26,6 +26,8 @@
 
 #include "RiuFlowCharacteristicsPlot.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 
@@ -56,6 +58,8 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "");
+
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();
@@ -137,14 +141,16 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         {
             std::vector<RimEclipseResultCase*> cases;
             proj->descendantsIncludingThisOfType(cases);
-
+            RimEclipseResultCase* defaultCase = nullptr;
             for ( RimEclipseResultCase* c : cases )
             {
                 if ( c->defaultFlowDiagSolution() )
                 {
                     options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
+                    if (!defaultCase) defaultCase = c; // Select first
                 }
             }
+            if (!m_case() && defaultCase) m_case = defaultCase;
         }
     }
     else if ( fieldNeedingOptions == &m_flowDiagSolution )
@@ -167,11 +173,11 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
             std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
 
-            std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+            QStringList timeStepDates = m_case->timeStepStrings();
 
             for ( int tsIdx : calculatedTimesteps )
             {
-                options.push_back(caf::PdmOptionItemInfo(timeStepDates[tsIdx].toString(), tsIdx));
+                options.push_back(caf::PdmOptionItemInfo(timeStepDates[tsIdx], tsIdx));
             }
         }
     }
@@ -190,6 +196,8 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
     uiOrdering.add(&m_timeStepSelectionType);
 
     if (m_timeStepSelectionType == SELECT_AVAILABLE) uiOrdering.add(&m_selectedTimeSteps);
+
+    uiOrdering.add(&m_showLegend);
 
     uiOrdering.skipRemainingFields();
 }
@@ -210,7 +218,6 @@ void RimFlowCharacteristicsPlot::zoomAll()
     if (m_flowCharPlotWidget) m_flowCharPlotWidget->zoomAll();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -229,7 +236,6 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
     this->loadDataAndUpdate();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -245,8 +251,6 @@ QImage RimFlowCharacteristicsPlot::snapshotWindowContent()
 
     return image;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -277,6 +281,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         m_currentlyPlottedTimeSteps = calculatedTimesteps;
 
         std::vector<QDateTime> timeStepDates = m_case->timeStepDates();
+        QStringList timeStepStrings = m_case->timeStepStrings();
         std::vector<double> lorenzVals(timeStepDates.size(), HUGE_VAL);
 
         m_flowCharPlotWidget->removeAllCurves();
@@ -285,7 +290,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         {
             lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx).m_lorenzCoefficient;
         }
-        m_flowCharPlotWidget->setLorenzCurve(timeStepDates, lorenzVals);
+        m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
@@ -299,6 +304,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
                                                           flowCharResults.m_sweepEfficiencyCurve.second);
         }
 
+        m_flowCharPlotWidget->showLegend(m_showLegend());
     }
 }
 

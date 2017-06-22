@@ -73,6 +73,35 @@ include (${project}-prereqs)
 include (CMakeLists_files.cmake)
 
 macro (config_hook)
+	if (NOT ERT_FOUND)
+		set (HAVE_ERT_ECL_TYPE_H 0)
+	else ()
+		# ERT_FOUND
+		cmake_push_check_state ()
+
+		set (CMAKE_REQUIRED_INCLUDES ${ERT_INCLUDE_DIR})
+		set (CMAKE_REQUIRED_LIBRARIES ${ERT_LIBRARIES})
+
+		check_cxx_source_compiles (
+"
+#include <iostream>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_type.h>
+
+int main ()
+{
+  ecl_kw_type* kw = nullptr;
+
+  std::cout << ecl_type_get_type(ecl_kw_get_data_type(kw)) << std::endl;
+}
+"
+			HAVE_ERT_ECL_TYPE_H)
+
+		cmake_pop_check_state ()
+	endif ()
+
+	list (APPEND "${project}_CONFIG_VARS" HAVE_ERT_ECL_TYPE_H)
 endmacro (config_hook)
 
 macro (prereqs_hook)

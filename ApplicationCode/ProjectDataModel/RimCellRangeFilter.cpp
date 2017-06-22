@@ -171,7 +171,7 @@ RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    caf::PdmUiSliderEditorAttribute* myAttr = static_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
+    caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
     if (!myAttr || !parentContainer())
     {
         return;

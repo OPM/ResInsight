@@ -94,9 +94,8 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_cellColors->porosityModel());
 
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), porosityModel, timeStep, m_cellColors->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(), timeStep, m_cellColors, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);

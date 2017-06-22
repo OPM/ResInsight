@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from ert.ecl import EclSum
+from ecl.ecl import EclSum
 
 def writeDiff(filename, vector1, vector2):
     with open(filename, "w") as f:

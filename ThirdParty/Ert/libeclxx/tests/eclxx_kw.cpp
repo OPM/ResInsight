@@ -78,7 +78,7 @@ void test_move_semantics_no_crash() {
 }
 
 void test_exception_assing_ref_wrong_type() {
-    auto* ptr = ecl_kw_alloc( "XYZ", 1, ECL_INT_TYPE );
+    auto* ptr = ecl_kw_alloc( "XYZ", 1, ECL_INT );
 
     try {
         ERT::EclKW< double > kw( ptr );

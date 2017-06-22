@@ -37,6 +37,10 @@ class RiuWellAllocationPlot;
 class RimWellLogTrack;
 class RigSingleWellResultsData;
 
+namespace cvf {
+    class Color3f;
+}
+
 namespace caf {
     class PdmOptionItemInfo;
 }
@@ -61,7 +65,7 @@ public:
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    void                                            loadDataAndUpdate();
+    virtual void                                    loadDataAndUpdate() override;
 
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
@@ -69,7 +73,7 @@ public:
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
     caf::PdmObject*                                 plotLegend();
-    RimFlowDiagSolution*                            flowDiagSolution();
+    RimEclipseResultCase*                           rimCase();
     int                                             timeStep();
 
     QString                                         wellName() const;
@@ -110,6 +114,8 @@ private:
 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+
+    cvf::Color3f                                    getTracerColor(const QString& tracerName);
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;

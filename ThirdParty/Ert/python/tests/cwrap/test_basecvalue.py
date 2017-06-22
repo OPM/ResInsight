@@ -1,10 +1,10 @@
-import ert
+import ecl
 from ctypes import c_ubyte, c_double
 from cwrap import BaseCValue, Prototype
-from ert.test import ExtendedTestCase
+from ecl.test import ExtendedTestCase
 
 class TestPrototype(Prototype):
-    lib = ert.load("libert_util")
+    lib = ecl.load("libert_util")
 
     def __init__(self, prototype):
         super(TestPrototype, self).__init__(self.lib, prototype)

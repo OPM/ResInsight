@@ -85,23 +85,23 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
     {
         return 0;
     }
+    std::vector<QDateTime> timeSteps;
+    std::vector<double> daysSinceSimulationStart;
 
-    return timeSteps().size();
+    this->timeSteps(&timeSteps, &daysSinceSimulationStart);
+
+    return timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get the time steps
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
+void RifEclipseUnifiedRestartFileAccess::timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
 {
-    std::vector<QDateTime> timeSteps;
-
     if (openFile())
     {
-        RifEclipseOutputFileTools::timeSteps(m_ecl_file, &timeSteps);
+        RifEclipseOutputFileTools::timeSteps(m_ecl_file, timeSteps, daysSinceSimulationStart);
     }
-
-    return timeSteps;
 }
 
 

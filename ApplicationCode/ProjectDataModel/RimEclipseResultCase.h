@@ -45,6 +45,7 @@ public:
     void                        setSourSimFileName(const QString& fileName);
 
     virtual bool                openEclipseGridFile();
+    virtual void                reloadEclipseGridFile();
     bool                        openAndReadActiveCellData(RigEclipseCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 

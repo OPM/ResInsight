@@ -529,7 +529,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     for (int i = 0; i < resultNames.size(); ++i)
     {
         size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, resultNames[i], false);
-        matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
+        matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
         matrixModelResults->setSourSimData(resIndex);
     }
 
@@ -757,7 +757,7 @@ void RifReaderEclipseOutput::buildMetaData()
         progInfo.incrementProgress();
 
         // Get time steps 
-        m_timeSteps = m_dynamicResultsAccess->timeSteps();
+        m_dynamicResultsAccess->timeSteps(&m_timeSteps, &m_daysSinceSimulationStart);
         std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
 
         QStringList resultNames;
@@ -773,7 +773,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
+                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
             }
         }
 
@@ -786,7 +786,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, reportNumbers);
+                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
             }
         }
 
@@ -823,11 +823,16 @@ void RifReaderEclipseOutput::buildMetaData()
         RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
         std::vector<QDateTime> staticDate;
+        std::vector<double> staticDay;
         std::vector<int> staticReportNumber;
         {
             if ( m_timeSteps.size() > 0 )
             {
                 staticDate.push_back(m_timeSteps.front());
+            }
+            if (m_daysSinceSimulationStart.size() > 0)
+            {
+                staticDay.push_back(m_daysSinceSimulationStart.front());
             }
 
             std::vector<int> reportNumbers;
@@ -854,7 +859,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, staticDate, staticReportNumber);
+                matrixModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
             }
         }
 
@@ -869,7 +874,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, staticDate, staticReportNumber);
+                fractureModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
             }
         }
     }
@@ -1041,6 +1046,9 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
     int cellK = well_conn_get_k( ert_connection );
     bool isCellOpen = well_conn_open( ert_connection );
     double volumeRate = well_conn_get_volume_rate( ert_connection);
+    double oilRate   = well_conn_get_oil_rate(ert_connection) ;
+    double gasRate   = well_conn_get_gas_rate(ert_connection);
+    double waterRate = well_conn_get_water_rate(ert_connection);
 
     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
     // Adjust K so index is always in valid grid region
@@ -1093,6 +1101,27 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBa
         resultPoint.m_ertBranchId = ertBranchId;
         resultPoint.m_ertSegmentId = ertSegmentId;
         resultPoint.m_flowRate = volumeRate; 
+        resultPoint.m_oilRate   =   oilRate;
+        resultPoint.m_waterRate = waterRate;
+
+        /// Unit conversion for use with Well Allocation plots
+        // Convert Gas to oil equivalents
+        // If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel) 
+
+        // Unused Gas to Barrel conversion 
+        // we convert gas to stb as well. Based on 
+        // 1 [stb] = 0.15898729492800007 [m^3]
+        // 1 [ft]  = 0.3048 [m]
+        // megaFt3ToStbFactor = 1.0 / (1.0e-6 * 0.15898729492800007 * ( 1.0 / 0.3048 )^3 )
+        // double megaFt3ToStbFactor = 178107.60668;
+        
+        double fieldGasToOilEquivalent  = 1.0e6/5800; // Mega ft^3 to BOE
+        double metricGasToOilEquivalent = 1.0/1.0e3; // Sm^3 Gas to Sm^3 oe  
+
+        if (m_eclipseCase->unitsType() == RigEclipseCaseData::UNITS_FIELD)  gasRate = fieldGasToOilEquivalent * gasRate; 
+        if (m_eclipseCase->unitsType() == RigEclipseCaseData::UNITS_METRIC) gasRate = metricGasToOilEquivalent * gasRate; 
+
+        resultPoint.m_gasRate   =   gasRate;
     }
 
     return resultPoint;
@@ -1251,7 +1280,9 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
     m_dynamicResultsAccess->readWellData(ert_well_info, importCompleteMswData);
 
-    std::vector<QDateTime> timeSteps = m_dynamicResultsAccess->timeSteps();
+    std::vector<double> daysSinceSimulationStart;
+    std::vector<QDateTime> timeSteps;
+    m_dynamicResultsAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
     std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
 
     bool sameCount = false;

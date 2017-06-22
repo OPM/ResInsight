@@ -22,6 +22,7 @@
 
 #include "RimEclipseView.h"
 #include "RimView.h"
+#include "RimCase.h"
 
 #include "RiuViewer.h"
 
@@ -36,25 +37,35 @@
 //--------------------------------------------------------------------------------------------------
 void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimView* sourceView, std::vector<RimView*>& destinationViews)
 {
+    bool setPointOfInterest = false;
     cvf::Vec3d sourceCamUp;
     cvf::Vec3d sourceCamEye;
     cvf::Vec3d sourceCamViewRefPoint;
+    cvf::Vec3d sourcePointOfInterest;
     sourceView->viewer()->mainCamera()->toLookAt(&sourceCamEye, &sourceCamViewRefPoint, &sourceCamUp);
 
     cvf::Vec3d sourceCamGlobalEye = sourceCamEye;
     cvf::Vec3d sourceCamGlobalViewRefPoint = sourceCamViewRefPoint;
+    if (sourceView->viewer()->getNavigationPolicy() != nullptr)
+    {
+        setPointOfInterest = true;
+        sourcePointOfInterest = sourceView->viewer()->pointOfInterest();
+    }
 
     // Source bounding box in global coordinates including scaleZ
     cvf::BoundingBox sourceSceneBB = sourceView->viewer()->currentScene()->boundingBox();
-
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(sourceView);
-    if (eclipseView && eclipseView->mainGrid())
     {
-        cvf::Vec3d offset = eclipseView->mainGrid()->displayModelOffset();
-        offset.z() *= eclipseView->scaleZ();
+        cvf::Vec3d offset = cvf::Vec3d::ZERO;
+        RimCase* sourceOwnerCase = sourceView->ownerCase();
+        if (sourceOwnerCase)
+        {
+            offset = sourceOwnerCase->displayModelOffset();
+            offset.z() *= sourceView->scaleZ();
+        }
 
         sourceCamGlobalEye += offset;
         sourceCamGlobalViewRefPoint += offset;
+        if (setPointOfInterest) sourcePointOfInterest += offset;
 
         cvf::Mat4d trans;
         trans.setTranslation(offset);
@@ -74,44 +85,41 @@ void RimViewManipulator::applySourceViewCameraOnDestinationViews(RimView* source
 
             // Destination bounding box in global coordinates including scaleZ
             cvf::BoundingBox destSceneBB = destinationViewer->currentScene()->boundingBox();
+            cvf::Vec3d destinationCamEye = sourceCamGlobalEye;
+            cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint;
+            cvf::Vec3d offset = cvf::Vec3d::ZERO;
 
-            RimEclipseView* destEclipseView = dynamic_cast<RimEclipseView*>(destinationView);
-            if (destEclipseView && destEclipseView->mainGrid())
+            RimCase* destinationOwnerCase = destinationView->ownerCase();
+            if (destinationOwnerCase)
             {
-                cvf::Vec3d destOffset = destEclipseView->mainGrid()->displayModelOffset();
-                destOffset.z() *= destEclipseView->scaleZ();
+                offset = destinationOwnerCase->displayModelOffset();
+                offset.z() *= destinationView->scaleZ();
+            }
 
-                cvf::Vec3d destinationCamEye = sourceCamGlobalEye - destOffset;
-                cvf::Vec3d destinationCamViewRefPoint = sourceCamGlobalViewRefPoint - destOffset;
+            destinationCamEye -= offset;
+            destinationCamViewRefPoint -= offset;
 
-                cvf::Mat4d trans;
-                trans.setTranslation(destOffset);
-                destSceneBB.transform(trans);
+            cvf::Mat4d trans;
+            trans.setTranslation(offset);
+            destSceneBB.transform(trans);
 
-                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
-                {
-                    destinationViewer->mainCamera()->setFromLookAt(destinationCamEye, destinationCamViewRefPoint, sourceCamUp);
-                }
-                else
-                {
-                    // Fallback using values from source camera
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
-                }
+            if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
+            {
+                destinationViewer->mainCamera()->setFromLookAt(destinationCamEye, destinationCamViewRefPoint, sourceCamUp);
             }
             else
             {
-                if (isBoundingBoxesOverlappingOrClose(sourceSceneBB, destSceneBB))
-                {
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamGlobalEye, sourceCamGlobalViewRefPoint, sourceCamUp);
-                }
-                else
-                {
-                    // Fallback using values from source camera
-                    destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
-                }
+                // Fallback using values from source camera
+                destinationViewer->mainCamera()->setFromLookAt(sourceCamEye, sourceCamViewRefPoint, sourceCamUp);
             }
 
-            destinationViewer->updateParallelProjectionSettings(sourceView->viewer());
+            if (setPointOfInterest)
+            {
+                cvf::Vec3d pointOfInterest = sourcePointOfInterest;
+                pointOfInterest -= offset;
+                destinationViewer->updateParallelProjectionHeightFromMoveZoom(pointOfInterest);
+                destinationViewer->updateParallelProjectionCameraPosFromPointOfInterestMove(pointOfInterest);
+            }
 
             destinationViewer->update();
         }

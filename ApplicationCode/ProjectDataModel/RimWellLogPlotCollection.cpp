@@ -55,6 +55,34 @@ RimWellLogPlotCollection::~RimWellLogPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateSimWellExtractor(const QString& simWellName, 
+                                                                                   const QString& caseUserDescription, 
+                                                                                   const RigWellPath* wellPathGeom, 
+                                                                                   const RigEclipseCaseData* eclCaseData)
+{
+    if (!(wellPathGeom && eclCaseData))
+    {
+        return nullptr;
+    }
+
+    for (size_t exIdx = 0; exIdx < m_extractors.size(); ++exIdx)
+    {
+        if (m_extractors[exIdx]->caseData() == eclCaseData && m_extractors[exIdx]->wellPathData() == wellPathGeom)
+        {
+            return m_extractors[exIdx].p();
+        }
+    }
+
+    std::string errorIdName = (simWellName + " " + caseUserDescription).toStdString();
+    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(eclCaseData, wellPathGeom, errorIdName);
+    m_extractors.push_back(extractor.p());
+
+    return extractor.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor(RimWellPath* wellPath, RimEclipseCase* eclCase)
 {
     if (!(wellPath && eclCase && wellPath->wellPathGeometry() && eclCase->eclipseCaseData()))

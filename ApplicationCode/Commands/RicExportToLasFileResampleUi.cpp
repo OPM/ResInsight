@@ -121,7 +121,7 @@ void RicExportToLasFileResampleUi::defineEditorAttribute(const caf::PdmFieldHand
 {
     if (field == &exportFolder)
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_selectDirectory = true;
@@ -130,7 +130,7 @@ void RicExportToLasFileResampleUi::defineEditorAttribute(const caf::PdmFieldHand
 
     if (field == &exportTvdrkb || field == &activateResample)
     {
-        caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
+        caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_useNativeCheckBoxLabel = true;

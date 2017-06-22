@@ -8,7 +8,7 @@ endif()
 #-----------------------------------------------------------------
 
 set( ERT_VERSION_MAJOR 2 )   # Remember to update release notes whenever
-set( ERT_VERSION_MINOR 1 )   # you change the ERT_VERSION_MINOR or MAJOR
+set( ERT_VERSION_MINOR 2 )   # you change the ERT_VERSION_MINOR or MAJOR
 set( ERT_VERSION_MICRO git ) # with "new in Ert Version X.X.X"!
 
 # If the micro version is not integer, that should be interpreted as a
@@ -16,14 +16,12 @@ set( ERT_VERSION_MICRO git ) # with "new in Ert Version X.X.X"!
 
 #-----------------------------------------------------------------
 
-option( BUILD_ERT           "Build the full ERT application - Linux only"             OFF)
 option( BUILD_TESTS         "Should the tests be built"                               OFF)
 option( BUILD_APPLICATIONS  "Should we build small utility applications"              OFF)
 option( BUILD_ECL_SUMMARY   "Build the commandline application ecl_summary"           OFF)
 option( BUILD_PYTHON        "Run py_compile on the python wrappers"                   ON )
 option( BUILD_SHARED_LIBS   "Build shared libraries"                                  ON )
 option( INSTALL_ERT         "Should anything be installed when issuing make install?" ON )
-option( ERT_BUILD_GUI       "Should the PyQt based GUI be compiled and installed"     OFF)
 option( ERT_USE_OPENMP      "Use OpenMP"                                              OFF )
 option( ERT_DOC             "Build ERT documantation"                                 OFF)
 option( ERT_BUILD_CXX       "Build some CXX wrappers"                                 ON)
@@ -131,17 +129,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 
-if (BUILD_SHARED_LIBS)
-   set( LIBRARY_TYPE SHARED )
-else()
-   set( LIBRARY_TYPE STATIC )
-   if (BUILD_ERT)
-      message(FATAL_ERROR "The full ERT application must be built with shared libraries")
-   endif()
-   if (BUILD_PYTHON)
-      message(FATAL_ERROR "The Python wrappers require shared libraries")
-   endif()
-endif()
 
 if (MSVC)
    add_definitions( -D__func__="\\"????\\"")
@@ -181,44 +168,14 @@ endif()
 include_directories( ${PROJECT_SOURCE_DIR}/libecl_well/include )
 add_subdirectory( libecl_well )
 
-
-#-----------------------------------------------------------------
-if (BUILD_ERT)
-#-----------------------------------------------------------------
-   if (BUILD_TESTS)
-      option( ERT_LSF_SUBMIT_TEST "Build and run tests of LSF submit" OFF)
-   endif()
-   add_subdirectory( bin )
-
-   include(cmake/ert_module_name.cmake)
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libconfig/include )
-   add_subdirectory( libconfig )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libsched/include )
-   add_subdirectory( libsched )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/librms/include )
-   add_subdirectory( librms )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libanalysis/include )
-   add_subdirectory( libanalysis )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libjob_queue/include )
-   add_subdirectory( libjob_queue )
-
-   include_directories( ${PROJECT_SOURCE_DIR}/libenkf/include )
-   add_subdirectory( libenkf )
-
-   install(DIRECTORY ${PROJECT_SOURCE_DIR}/share DESTINATION ${CMAKE_INSTALL_PREFIX})
-endif()
-
-
 if (BUILD_PYTHON)
    if (ERT_WINDOWS)
-      message(STATUS "Python is not supported on Windows")
+      message(WARNING "Python is not supported on Windows")
+      set( BUILD_PYTHON OFF )
    else()
-      include(cmake/python.cmake2)
+      # If finding the Python interpreter and required packages
+      # fails in the python/CMakeLists.txt file the BUILD_PYTHON
+      # will be set to OFF.
       add_subdirectory( python )
 
       if(ERT_DOC)
@@ -227,3 +184,16 @@ if (BUILD_PYTHON)
    endif()
 endif()
 
+if (BUILD_PYTHON)
+   if (NOT ${BUILD_SHARED_LIBS})
+      message(FATAL_ERROR "The Python wrappers require shared libraries")
+   endif()
+endif()
+
+
+
+configure_file( cmake/libecl-config.cmake.in libecl-config.cmake @ONLY)
+configure_file( cmake/libecl-config-version.cmake.in libecl-config-version.cmake @ONLY)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libecl-config.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/libecl-config-version.cmake
+        DESTINATION lib/libecl )

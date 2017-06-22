@@ -42,9 +42,9 @@ try {
         std::vector<int> completion_cells;
         completion_cells.reserve(well.completions.size());
         for (const auto& completion : well.completions) {
-            const int grid_index = completion.grid_index;
+            const auto& gridName = completion.gridName;
             const auto& ijk = completion.ijk;
-            const int cell_index = setup.graph.activeCell(ijk, grid_index);
+            const int cell_index = setup.graph.activeCell(ijk, gridName);
             if (cell_index >= 0) {
                 completion_cells.push_back(cell_index);
             }

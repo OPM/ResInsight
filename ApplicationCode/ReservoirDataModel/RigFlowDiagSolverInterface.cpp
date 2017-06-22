@@ -104,19 +104,25 @@ void RigFlowDiagTimeStepResult::addResult(const RigFlowDiagResultAddress& resAdd
 }
 
 
-class RigOpmFldStaticData : public cvf::Object
+class RigOpmFlowDiagStaticData : public cvf::Object
 {
 public:
-    RigOpmFldStaticData(const std::string& grid, const std::string& init) : m_eclGraph(Opm::ECLGraph::load(grid, init)), m_hasUnifiedRestartFile(false) 
+    RigOpmFlowDiagStaticData(const std::string& grid, const std::string& init)
     {
-        m_poreVolume = m_eclGraph.poreVolume();
+        Opm::ECLInitFileData initData(init);
+
+        m_eclGraph.reset(new Opm::ECLGraph(Opm::ECLGraph::load(grid, initData)));
+
+        m_hasUnifiedRestartFile = false;
+        m_poreVolume = m_eclGraph->poreVolume();
     }
 
-    Opm::ECLGraph                                   m_eclGraph;
+    std::unique_ptr<Opm::ECLGraph>                  m_eclGraph;
     std::vector<double>                             m_poreVolume;
     std::unique_ptr<Opm::FlowDiagnostics::Toolbox>  m_fldToolbox;
     bool                                            m_hasUnifiedRestartFile;
-    QStringList                                     m_restartFileNames;
+    std::vector<Opm::ECLRestartData>                m_singleRestartDataTimeSteps;
+    std::unique_ptr<Opm::ECLRestartData>            m_unifiedRestartData;
 };
 
 
@@ -150,9 +156,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     RigFlowDiagTimeStepResult result(m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
-   
 
-    if ( m_opmFldData.isNull() )
+    if ( m_opmFlowDiagStaticData.isNull() )
     {
         progressInfo.setProgressDescription("Grid access");
 
@@ -165,66 +170,77 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
 
-        m_opmFldData = new RigOpmFldStaticData(gridFileName.toStdString(),
+        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(),
                                                initFileName.toStdString());
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Calculating Connectivities");
 
         const  Opm::FlowDiagnostics::ConnectivityGraph connGraph =
-            Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(m_opmFldData->m_eclGraph.numCells()),
-            m_opmFldData->m_eclGraph.neighbours() };
+            Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(m_opmFlowDiagStaticData->m_eclGraph->numCells()),
+            m_opmFlowDiagStaticData->m_eclGraph->neighbours() };
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Initialize Solver");
 
         // Create the Toolbox.
 
-        m_opmFldData->m_fldToolbox.reset(new Opm::FlowDiagnostics::Toolbox{ connGraph });
-        m_opmFldData->m_fldToolbox->assignPoreVolume( m_opmFldData->m_poreVolume);
+        m_opmFlowDiagStaticData->m_fldToolbox.reset(new Opm::FlowDiagnostics::Toolbox{ connGraph });
+        m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume);
 
         // Look for unified restart file
 
         QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
         if ( !restartFileName.isEmpty() )
         {
-            m_opmFldData->m_eclGraph.assignFluxDataSource(restartFileName.toStdString());
-            m_opmFldData->m_hasUnifiedRestartFile = true;
+            m_opmFlowDiagStaticData->m_unifiedRestartData.reset(new Opm::ECLRestartData(Opm::ECLRestartData(restartFileName.toStdString())));
+            m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = true;
         }
         else
         {
+            QStringList restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
 
-            m_opmFldData->m_restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
-
-            size_t restartFileCount = static_cast<size_t>(m_opmFldData->m_restartFileNames.size());
+            size_t restartFileCount = static_cast<size_t>(restartFileNames.size());
             size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
 
-            if (restartFileCount <= timeStepIndex &&  restartFileCount !=  maxTimeStepCount )
+            if (restartFileCount <= timeStepIndex &&  restartFileCount != maxTimeStepCount )
             {
                 QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: Could not find all the restart files. Results will not be loaded.");
                 return result;
             }
 
-            m_opmFldData->m_restartFileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
-            m_opmFldData->m_hasUnifiedRestartFile = false;
+            restartFileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
+            m_opmFlowDiagStaticData->m_hasUnifiedRestartFile = false;
+
+            for (auto restartFileName : restartFileNames)
+            {
+                m_opmFlowDiagStaticData->m_singleRestartDataTimeSteps.push_back(Opm::ECLRestartData(restartFileName.toStdString()));
+            }
         }
     }
 
     progressInfo.setProgress(3);
     progressInfo.setProgressDescription("Assigning Flux Field");
 
-    if ( ! m_opmFldData->m_hasUnifiedRestartFile  )
+    Opm::ECLRestartData* currentRestartData = nullptr;
+
+    if ( ! m_opmFlowDiagStaticData->m_hasUnifiedRestartFile  )
     {
-        QString restartFileName = m_opmFldData->m_restartFileNames[static_cast<int>(timeStepIndex)];
-        m_opmFldData->m_eclGraph.assignFluxDataSource(restartFileName.toStdString());
+        currentRestartData = &(m_opmFlowDiagStaticData->m_singleRestartDataTimeSteps[timeStepIndex]);
     }
+    else
+    {
+        currentRestartData = m_opmFlowDiagStaticData->m_unifiedRestartData.get();
+    }
+
+    CVF_ASSERT(currentRestartData);
 
     size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
     m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
 
     int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
 
-    if ( !  m_opmFldData->m_eclGraph.selectReportStep(reportStepNumber) )
+    if ( !currentRestartData->selectReportStep(reportStepNumber) )
     {
         QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: Could not find the requested timestep in the result file. Results will not be loaded.");
         return result;
@@ -235,22 +251,24 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
 
     {
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxField(m_opmFldData->m_eclGraph, false);
+        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
+                                                                                                                            *currentRestartData);
 
-        m_opmFldData->m_fldToolbox->assignConnectionFlux(connectionsVals);
+        m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
 
         progressInfo.incrementProgress();
 
         Opm::ECLWellSolution wsol = Opm::ECLWellSolution{-1.0 , false};
 
-        const std::vector<Opm::ECLWellSolution::WellData> well_fluxes =
-            wsol.solution(m_opmFldData->m_eclGraph.rawResultData(), m_opmFldData->m_eclGraph.numGrids());
+        std::vector<std::string> gridNames = m_opmFlowDiagStaticData->m_eclGraph->activeGrids();
 
-        sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(m_opmFldData->m_eclGraph, well_fluxes);
+        const std::vector<Opm::ECLWellSolution::WellData> well_fluxes = wsol.solution(*currentRestartData, gridNames);
 
-        m_opmFldData->m_fldToolbox->assignInflowFlux(sumWellFluxPrCell);
+        sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(*(m_opmFlowDiagStaticData->m_eclGraph), well_fluxes);
 
-        // Filter connection cells with inconsistent well in flow direction (Hack, we should do something better)
+        m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux(sumWellFluxPrCell);
+
+        // Start Hack: Filter connection cells with inconsistent well in flow direction (Hack, we should do something better)
 
         for ( auto& tracerCellIdxsPair: injectorTracers )
         {
@@ -259,6 +277,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             for (int activeCellIdx : tracerCellIdxsPair.second)
             {
                 auto activeCellIdxFluxPair = sumWellFluxPrCell.find(activeCellIdx);
+                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != sumWellFluxPrCell.end());
+
                 if (activeCellIdxFluxPair->second > 0 )
                 {
                     filteredCellIndices.push_back(activeCellIdx);
@@ -275,6 +295,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             for (int activeCellIdx : tracerCellIdxsPair.second)
             {
                 auto activeCellIdxFluxPair = sumWellFluxPrCell.find(activeCellIdx);
+                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != sumWellFluxPrCell.end());
+
                 if (activeCellIdxFluxPair->second < 0 )
                 {
                     filteredCellIndices.push_back(activeCellIdx);
@@ -282,6 +304,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             }
             if (tracerCellIdxsPair.second.size() != filteredCellIndices.size()) tracerCellIdxsPair.second = filteredCellIndices;
         }
+
+        // End Hack
     }
 
     progressInfo.incrementProgress();
@@ -299,7 +323,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         std::unique_ptr<Toolbox::Forward> injectorSolution;
         try 
         {
-            injectorSolution.reset(new Toolbox::Forward( m_opmFldData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
+            injectorSolution.reset(new Toolbox::Forward( m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
         }
         catch (const std::exception& e)
         {
@@ -329,7 +353,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         std::unique_ptr<Toolbox::Reverse> producerSolution;
         try
         {
-            producerSolution.reset(new Toolbox::Reverse(m_opmFldData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
+            producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
         }
         catch ( const std::exception& e )
         {
@@ -375,7 +399,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         {
             Graph flowCapStorCapCurve =  flowCapacityStorageCapacityCurve(*(injectorSolution.get()),
                                                                           *(producerSolution.get()),
-                                                                           m_opmFldData->m_poreVolume);
+                                                                           m_opmFlowDiagStaticData->m_poreVolume,
+                                                                           0.1);
 
             result.setFlowCapStorageCapCurve(flowCapStorCapCurve);
             result.setSweepEfficiencyCurve(sweepEfficiency(flowCapStorCapCurve));

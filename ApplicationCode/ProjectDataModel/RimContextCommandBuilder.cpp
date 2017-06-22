@@ -333,6 +333,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseWell*>(uiItem))
         {
+            commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewSimWellIntersectionFeature";
             commandIds << "RicShowWellAllocationPlotFeature";
         }
@@ -407,6 +408,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimEclipseCase*>(uiItem))
         {
+            commandIds << "RicReloadCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))

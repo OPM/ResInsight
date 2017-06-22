@@ -60,7 +60,7 @@ namespace caf {
 /// 
 //--------------------------------------------------------------------------------------------------
 AboutDialog::AboutDialog(QWidget* parent)
-:   QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_isCreated = false;
 

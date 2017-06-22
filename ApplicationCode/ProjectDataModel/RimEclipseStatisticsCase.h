@@ -61,6 +61,7 @@ public:
     void updateConnectedEditorsAndReservoirViews();
 
     virtual bool openEclipseGridFile();
+    virtual void reloadEclipseGridFile();
 
     RimCaseCollection* parentStatisticsCaseCollection();
 

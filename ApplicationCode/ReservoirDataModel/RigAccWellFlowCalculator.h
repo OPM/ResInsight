@@ -68,16 +68,12 @@ public:
                              double smallContribThreshold);
 
     const std::vector<double>&                              connectionNumbersFromTop(size_t branchIdx) const;
-    const std::vector<double>&                              accumulatedFlowPrConnection( size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
-    const std::vector<double>&                              flowPrConnection( size_t branchIdx) const;
     const std::vector<double>&                              tracerFlowPrConnection(const QString& tracerName, size_t branchIdx) const;
 
     const std::vector<double>&                              pseudoLengthFromTop(size_t branchIdx) const;
     const std::vector<double>&                              trueVerticalDepth(size_t branchIdx) const;
-    const std::vector<double>&                              accumulatedFlowPrPseudoLength( size_t branchIdx) const;
     const std::vector<double>&                              accumulatedTracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
-    const std::vector<double>&                              flowPrPseudoLength( size_t branchIdx) const;
     const std::vector<double>&                              tracerFlowPrPseudoLength(const QString& tracerName, size_t branchIdx) const;
 
 
@@ -102,7 +98,7 @@ private:
     void                                                    groupSmallTracers(std::map<QString, std::vector<double> >* branchFlowSet, 
                                                                               const std::vector<QString>& tracersToGroup);
 
-    bool                                                    isWellFlowConsistent(bool isProducer) const;
+    bool                                                    isWellFlowConsistent() const;
     std::vector<double>                                     calculateAccumulatedFractions(const std::vector<double>& accumulatedFlowPrTracer) const;
     std::vector<size_t>                                     wrpToUniqueWrpIndexFromBottom(const std::vector<RigWellResultPoint> &branchCells) const;
     static size_t                                           connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx) ;

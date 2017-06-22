@@ -324,7 +324,7 @@ ecl_sum_data_type * ecl_sum_data_alloc_writer( ecl_smspec_type * smspec ) {
 
 static void ecl_sum_data_fwrite_report__( const ecl_sum_data_type * data , int report_step , fortio_type * fortio) {
   {
-    ecl_kw_type * seqhdr_kw = ecl_kw_alloc( SEQHDR_KW , SEQHDR_SIZE , ECL_INT_TYPE );
+    ecl_kw_type * seqhdr_kw = ecl_kw_alloc( SEQHDR_KW , SEQHDR_SIZE , ECL_INT );
     ecl_kw_iset_int( seqhdr_kw , 0 , 0 );
     ecl_kw_fwrite( seqhdr_kw , fortio );
     ecl_kw_free( seqhdr_kw );

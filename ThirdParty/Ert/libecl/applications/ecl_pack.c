@@ -25,6 +25,7 @@
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_endian_flip.h>   
+#include <ert/ecl/ecl_type.h>
 
 
 
@@ -67,7 +68,7 @@ int main(int argc, char ** argv) {
 
       if (target_type == ECL_UNIFIED_RESTART_FILE) {
         int dummy;
-        seqnum_kw = ecl_kw_alloc_new("SEQNUM" , 1 , ECL_INT_TYPE , &dummy);
+        seqnum_kw = ecl_kw_alloc_new("SEQNUM" , 1 , ECL_INT , &dummy);
       } 
       
       {

@@ -1,5 +1,0 @@
-#!/bin/sh
-echo "#!/bin/sh" > qstat
-echo "echo \"Job id                    Name             User            Time Use S Queue\"" >> qstat
-echo "echo \"------------------------- ---------------- --------------- -------- - -----\"" >> qstat
-echo "echo \"1612427.st-lcmm            ...130getupdates fama            00:00:01 E normal\"" >> qstat

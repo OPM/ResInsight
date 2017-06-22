@@ -1,6 +1,5 @@
 /*
-  Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media Project (OPM).
 
@@ -21,12 +20,14 @@
 #ifndef OPM_ECLGRAPH_HEADER_INCLUDED
 #define OPM_ECLGRAPH_HEADER_INCLUDED
 
+#include <opm/utility/ECLPhaseIndex.hpp>
 #include <opm/utility/ECLResultData.hpp>
 #include <opm/utility/ECLUnitHandling.hpp>
 
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <boost/filesystem.hpp>
@@ -45,11 +46,6 @@ namespace Opm {
     class ECLGraph
     {
     public:
-        using Path = boost::filesystem::path;
-
-        /// Enum for indicating requested phase from the flux() method.
-        enum class PhaseIndex { Aqua = 0, Liquid = 1, Vapour = 2 };
-
         /// Disabled default constructor.
         ECLGraph() = delete;
 
@@ -93,17 +89,12 @@ namespace Opm {
         /// \return Fully formed ECLIPSE connection graph with property
         /// associations.
         static ECLGraph
-        load(const Path& grid, const Path& init);
+        load(const boost::filesystem::path& gridFile,
+             const ECLInitFileData&         init);
 
-        /// Assign source object for phase flux calculation.
+        /// Retrieve number of grids in model.
         ///
-        /// \param[in] src Name of ECL restart file, possibly unified, from
-        ///                which next set of phase fluxes should be retrieved.
-        void assignFluxDataSource(const Path& src);
-
-        /// Retrieve number of grids.
-        ///
-        /// \return   The number of LGR grids plus one (the main grid).
+        /// \return The number of LGR grids plus one (the main grid).
         int numGrids() const;
 
         /// Retrieve active cell ID from (I,J,K) tuple in particular grid.
@@ -120,7 +111,7 @@ namespace Opm {
         ///     outside valid range or if the specific cell identified by \p
         ///     ijk and \p gridID is not actually active.
         int activeCell(const std::array<int,3>& ijk,
-                       const int                gridID = 0) const;
+                       const std::string&       gridID = 0) const;
 
         /// Retrieve number of active cells in graph.
         std::size_t numCells() const;
@@ -132,7 +123,12 @@ namespace Opm {
         ///
         /// Mostly useful to determine the set of \c PhaseIndex values for
         /// which flux() will return non-zero values if data available.
-        const std::vector<PhaseIndex>& activePhases() const;
+        const std::vector<ECLPhaseIndex>& activePhases() const;
+
+        /// Retrieve the simulation scenario's set of active grids.
+        ///
+        /// Mostly for canonical lookup of result data in LGRs.
+        const std::vector<std::string>& activeGrids() const;
 
         /// Retrieve neighbourship relations between active cells.
         ///
@@ -157,24 +153,6 @@ namespace Opm {
         /// \endcode.
         std::vector<double> transmissibility() const;
 
-        /// Restrict dynamic result set data to single report step.
-        ///
-        /// This method must be called before calling either flux() or
-        /// rawResultData().
-        ///
-        /// \param[in] rptstep Selected temporal vector.  Report-step ID.
-        ///
-        /// \return Whether or not dynamic data for the requested report
-        ///    step exists in the underlying result set identified in method
-        ///    assignFluxDataSource().
-        bool selectReportStep(const int rptstep) const;
-
-        /// Access underlying result set.
-        ///
-        /// The result set dynamic data corresponds to the most recent call
-        /// to method selectReportStep().
-        const ::Opm::ECLResultData& rawResultData() const;
-
         /// Retrieve phase flux on all connections defined by \code
         /// neighbours() \endcode.
         ///
@@ -186,7 +164,8 @@ namespace Opm {
         ///    output to the restart file).  Numerical values in SI units
         ///    (rm^3/s).
         std::vector<double>
-        flux(const PhaseIndex phase) const;
+        flux(const ECLRestartData& rstrt,
+             const ECLPhaseIndex   phase) const;
 
         /// Retrieve result set vector from current view (e.g., particular
         /// report step) linearised on active cells.
@@ -196,9 +175,10 @@ namespace Opm {
         /// \param[in] vector Name of result set vector.
         ///
         /// \return Result set vector linearised on active cells.
-        template <typename T>
+        template <typename T, class ResultSet>
         std::vector<T>
-        rawLinearisedCellData(const std::string& vector) const;
+        rawLinearisedCellData(const ResultSet&   rset,
+                              const std::string& vector) const;
 
         /// Convenience type alias for \c UnitSystem PMFs (pointer to member
         /// function).
@@ -211,8 +191,12 @@ namespace Opm {
         /// Typical call:
         /// \code
         ///  const auto press =
-        ///      lCD("PRESSURE", &ECLUnits::UnitSystem::pressure);
+        ///      lCD(rstrt, "PRESSURE", &ECLUnits::UnitSystem::pressure);
         /// \endcode
+        ///
+        /// \param[in] rstrt ECL Restart dataset.  It is the responsibility
+        ///    of the caller to ensure that the restart data is correctly
+        ///    positioned on a particular report step.
         ///
         /// \param[in] vector Name of result set vector.
         ///
@@ -223,8 +207,9 @@ namespace Opm {
         /// \return Result set vector linearised on active cells, converted
         ///    to strict SI unit conventions.
         std::vector<double>
-        linearisedCellData(const std::string& vector,
-                           UnitConvention     unit) const;
+        linearisedCellData(const ECLRestartData& rstrt,
+                           const std::string&    vector,
+                           UnitConvention        unit) const;
 
     private:
         /// Implementation class.

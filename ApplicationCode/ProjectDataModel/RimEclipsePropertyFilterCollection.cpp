@@ -70,7 +70,10 @@ void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
     for (size_t i = 0; i < propertyFilters.size(); i++)
     {
         RimEclipsePropertyFilter* propertyFilter = propertyFilters[i];
+        propertyFilter->resultDefinition->setEclipseCase(reservoirView()->eclipseCase());
         propertyFilter->initAfterRead();
+        propertyFilter->resultDefinition->loadResult();
+        propertyFilter->computeResultValueRange();
     }
 }
 

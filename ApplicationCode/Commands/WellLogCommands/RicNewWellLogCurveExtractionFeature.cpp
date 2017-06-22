@@ -41,6 +41,8 @@
 #include <QAction>
 
 #include <vector>
+#include "RimEclipseWell.h"
+#include "RiuSelectionManager.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtractionFeature");
@@ -51,8 +53,8 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtr
 bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
-
-    return (selectedWellLogPlotTrack() != NULL || selectedWellPath() != NULL) && caseAvailable();
+    int branchIndex;
+    return (selectedWellLogPlotTrack() != nullptr || selectedWellPath() != nullptr || selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,15 +67,17 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
     RimWellLogTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
-        addCurve(wellLogPlotTrack, NULL, NULL);
+        addCurve(wellLogPlotTrack, NULL, NULL, nullptr, -1);
     }
     else
     {
         RimWellPath* wellPath = selectedWellPath();
-        if (wellPath)
+        int branchIndex = -1;
+        RimEclipseWell* simWell = selectedSimulationWell(&branchIndex);
+        if (wellPath || simWell)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath);
+            RimWellLogExtractionCurve* plotCurve = addCurve(wellLogPlotTrack, RiaApplication::instance()->activeReservoirView(), wellPath, simWell, branchIndex);
 
             plotCurve->loadDataAndUpdate();
 
@@ -121,6 +125,27 @@ RimWellPath* RicNewWellLogCurveExtractionFeature::selectedWellPath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimEclipseWell* RicNewWellLogCurveExtractionFeature::selectedSimulationWell(int * branchIndex) const
+{
+    RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
+    RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
+    if (simWellSelItem)
+    {
+        (*branchIndex) = static_cast<int>(simWellSelItem->m_branchIndex);
+        return simWellSelItem->m_simWell;
+    }
+    else
+    {
+        std::vector<RimEclipseWell*> selection;
+        caf::SelectionManager::instance()->objectsByType(&selection);
+        (*branchIndex) = 0;
+        return selection.size() > 0 ? selection[0] : NULL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicNewWellLogCurveExtractionFeature::caseAvailable() const
 {
     std::vector<RimCase*> cases;
@@ -132,14 +157,16 @@ bool RicNewWellLogCurveExtractionFeature::caseAvailable() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath)
+RimWellLogExtractionCurve* RicNewWellLogCurveExtractionFeature::addCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimEclipseWell* simWell, int branchIndex)
 {
     CVF_ASSERT(plotTrack);
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
     curve->setColor(curveColor);
-    curve->setWellPath(wellPath);
+    if (wellPath) curve->setWellPath(wellPath);
+    if (simWell) curve->setFromSimulationWellName(simWell->name(), branchIndex);
+
     curve->setPropertiesFromView(view);
 
     plotTrack->addCurve(curve);

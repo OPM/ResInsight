@@ -82,6 +82,7 @@ extern "C" {
   bool                   well_state_is_open( const well_state_type * well_state );   
   int                    well_state_get_well_nr( const well_state_type * well_state );
 
+  const well_conn_type * well_state_get_global_wellhead( const well_state_type * well_state );
   const well_conn_type * well_state_iget_wellhead( const well_state_type * well_state , int grid_nr);
   const well_conn_type * well_state_get_wellhead( const well_state_type * well_state , const char * grid_name);
   

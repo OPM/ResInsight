@@ -32,6 +32,9 @@ extern "C" {
 #include <ert/ecl/grid_dims.h>
 #include <ert/ecl/nnc_info.h>
 
+#define ECL_GRID_COORD_SIZE(nx,ny)    (((nx) + 1) * ((ny) + 1) * 6)
+#define ECL_GRID_ZCORN_SIZE(nx,ny,nz) (((nx) * (ny) * (nz) * 8))
+
 #define ECL_GRID_GLOBAL_GRID   "Global"  // used as key in hash tables over grids.
 #define  ECL_GRID_MAINGRID_LGR_NR 0
 
@@ -46,6 +49,8 @@ extern "C" {
   ecl_coarse_cell_type       * ecl_grid_get_cell_coarse_group1( const ecl_grid_type * ecl_grid , int global_index);
   ecl_coarse_cell_type       * ecl_grid_get_cell_coarse_group3( const ecl_grid_type * ecl_grid , int i , int j , int k);
 
+  int ecl_grid_get_cell_twist1( const ecl_grid_type * ecl_grid, int global_index );
+  int ecl_grid_get_cell_twist3( const ecl_grid_type * ecl_grid, int i , int j , int k);
 
   void            ecl_grid_get_column_property(const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , int i , int j, double_vector_type * column);
   int             ecl_grid_get_global_index_from_xy_top( const ecl_grid_type * ecl_grid , double x , double y);
@@ -84,6 +89,7 @@ extern "C" {
   bool            ecl_grid_cell_contains1(const ecl_grid_type * grid , int global_index , double x , double y , double z);
   bool            ecl_grid_cell_contains3(const ecl_grid_type * grid , int i , int j ,int k , double x , double y , double z);
   int             ecl_grid_get_global_index_from_xyz(ecl_grid_type * grid , double x , double y , double z , int start_index);
+  bool            ecl_grid_get_ijk_from_xyz(ecl_grid_type * grid , double x , double y , double z , int start_index, int *i, int *j, int *k );
   bool            ecl_grid_get_ij_from_xy( const ecl_grid_type * grid , double x , double y , int k , int* i, int* j);
   const  char   * ecl_grid_get_name( const ecl_grid_type * );
   int             ecl_grid_get_active_index3(const ecl_grid_type * ecl_grid , int i , int j , int k);
@@ -130,9 +136,14 @@ extern "C" {
   void            ecl_grid_get_ijk1(const ecl_grid_type * , int global_index , int *, int * , int *);
   void            ecl_grid_get_ijk1A(const ecl_grid_type * , int active_index, int *, int * , int *);
   void            ecl_grid_get_ijk_from_active_index(const ecl_grid_type *, int , int *, int * , int * );
+
   void            ecl_grid_get_xyz3(const ecl_grid_type * , int , int , int , double * , double * , double *);
   void            ecl_grid_get_xyz1(const ecl_grid_type * grid , int global_index , double *xpos , double *ypos , double *zpos);
   void            ecl_grid_get_xyz1A(const ecl_grid_type * grid , int active_index , double *xpos , double *ypos , double *zpos);
+
+  bool            ecl_grid_get_xyz_inside1(const ecl_grid_type * grid , int global_index , double *xpos , double *ypos , double *zpos);
+  bool            ecl_grid_get_xyz_inside3(const ecl_grid_type * grid , int i , int j , int k , double *xpos , double *ypos , double *zpos);
+
   int             ecl_grid_get_global_size( const ecl_grid_type * ecl_grid );
   bool            ecl_grid_compare(const ecl_grid_type * g1 , const ecl_grid_type * g2 , bool include_lgr, bool include_nnc , bool verbose);
   int             ecl_grid_get_active_size( const ecl_grid_type * ecl_grid );
@@ -205,6 +216,7 @@ extern "C" {
   void                    ecl_grid_fprintf_grdecl(  ecl_grid_type * grid , FILE * stream );
   void                    ecl_grid_fprintf_grdecl2(  ecl_grid_type * grid , FILE * stream , ert_ecl_unit_enum output_unit);
 
+  int              ecl_grid_zcorn_index__(int nx, int ny , int i, int j , int k , int c);
   int              ecl_grid_zcorn_index(const ecl_grid_type * grid , int i, int j , int k , int c);
   ecl_grid_type * ecl_grid_alloc_EGRID(const char * grid_file, bool apply_mapaxes );
   ecl_grid_type * ecl_grid_alloc_GRID(const char * grid_file, bool apply_mapaxes );

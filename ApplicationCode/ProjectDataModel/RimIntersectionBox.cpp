@@ -404,14 +404,18 @@ void RimIntersectionBox::defineEditorAttribute(const caf::PdmFieldHandle* field,
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
 
-        if (m_show3DManipulator)
+        if (attrib)
         {
-            attrib->m_buttonText = "Hide 3D manipulator";
+            if (m_show3DManipulator)
+            {
+                attrib->m_buttonText = "Hide 3D manipulator";
+            }
+            else
+            {
+                attrib->m_buttonText = "Show 3D manipulator";
+            }
         }
-        else
-        {
-            attrib->m_buttonText = "Show 3D manipulator";
-        }
+
     }
 }
 

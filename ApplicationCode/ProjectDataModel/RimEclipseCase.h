@@ -62,8 +62,8 @@ public:
     caf::PdmField<bool>                         flipXAxis;
     caf::PdmField<bool>                         flipYAxis;
     
-    caf::PdmField<std::vector<QString> >        filesContainingFaults;
-
+    std::vector<QString>                        filesContainingFaults() const;
+    void                                        setFilesContainingFaults(const std::vector<QString>& val);
 
     bool                                        openReserviorCase();
     virtual bool                                openEclipseGridFile() = 0;
@@ -95,6 +95,9 @@ public:
     virtual cvf::BoundingBox                    allCellsBoundingBox() const;
     virtual cvf::Vec3d                          displayModelOffset() const;
 
+    void                                        reloadDataAndUpdate();
+    virtual void                                reloadEclipseGridFile() = 0;
+
     // Overridden methods from PdmObject
 public:
 
@@ -118,8 +121,13 @@ private:
     QString                                     m_timeStepFormatString;
 
     std::map<QString , cvf::Color3f>            m_wellToColorMap;
+    caf::PdmField<QString >                     m_filesContainingFaultsSemColSeparated;
+
 
     // Obsolete fields
 protected:
     caf::PdmField<QString>                      caseName;
+private:
+    caf::PdmField<std::vector<QString> >        m_filesContainingFaults_OBSOLETE;
+
 };

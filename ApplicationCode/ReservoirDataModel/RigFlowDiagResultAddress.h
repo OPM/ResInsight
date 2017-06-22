@@ -26,6 +26,10 @@
 #define RIG_FLD_COMMUNICATION_RESNAME        "Communication"
 
 #define RIG_FLOW_TOTAL_NAME "Total"
+#define RIG_FLOW_OIL_NAME "Oil"
+#define RIG_FLOW_GAS_NAME "Gas"
+#define RIG_FLOW_WATER_NAME "Water"
+
 #define RIG_RESERVOIR_TRACER_NAME "Reservoir"
 #define RIG_TINY_TRACER_GROUP_NAME "Other"
 

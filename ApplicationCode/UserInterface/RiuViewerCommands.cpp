@@ -294,8 +294,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
-                commandIds << "RicNewWellLogFileCurveFeature";
                 commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicNewWellLogFileCurveFeature";
+                commandIds << "Separator";
                 commandIds << "RicNewWellPathIntersectionFeature";
             }
         }
@@ -308,10 +309,16 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
-                commandIds << "RicNewSimWellIntersectionFeature";
+                commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
-                commandIds << "RicShowContributingWellsFeature";
                 commandIds << "RicPlotProductionRateFeature";
+                commandIds << "Separator";
+                commandIds << "RicShowContributingWellsFeature";
+                commandIds << "Separator";
+                commandIds << "RicNewSimWellIntersectionFeature";
+
+                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
             }
         }
 
@@ -333,7 +340,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
 
     RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
-    if (menu.actions().size() > 0)
+    if (!menu.isEmpty())
     {
         menu.exec(event->globalPos());
     }

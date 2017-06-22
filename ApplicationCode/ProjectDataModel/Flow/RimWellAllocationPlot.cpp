@@ -250,7 +250,6 @@ void RimWellAllocationPlot::updateFromWell()
                                                  depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH ? wfCalculator->trueVerticalDepth(brIdx) :
                                                  std::vector<double>();
         
-        if ( m_flowDiagSolution )
         {
             std::vector<QString> tracerNames = wfCalculator->tracerNames();
             for (const QString& tracerName: tracerNames)
@@ -273,24 +272,7 @@ void RimWellAllocationPlot::updateFromWell()
                 //TODO: THIs is the data to be plotted...
             }
         }
-        else
-        {
-            const std::vector<double>* accFlow = nullptr;
-            if (depthType == RimWellLogPlot::CONNECTION_NUMBER)
-            {
-                accFlow = &(m_flowType == ACCUMULATED ?
-                            wfCalculator->accumulatedFlowPrConnection(brIdx):
-                            wfCalculator->flowPrConnection( brIdx));
-            }
-            else if ( depthType == RimWellLogPlot::PSEUDO_LENGTH || depthType == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
-            {
-                accFlow = &(m_flowType == ACCUMULATED ?
-                            wfCalculator->accumulatedFlowPrPseudoLength(brIdx):
-                            wfCalculator->flowPrPseudoLength( brIdx));
-            }
 
-            addStackedCurve("Total", depthValues, *accFlow, plotTrack);
-        }
 
         updateWellFlowPlotXAxisTitle(plotTrack);
 
@@ -313,10 +295,10 @@ void RimWellAllocationPlot::updateFromWell()
         for ( const auto& tracerVal : totalTracerFractions )
         {
             cvf::Color3f color;
-            if ( m_flowDiagSolution )
+            if (m_flowDiagSolution)
                 color = m_flowDiagSolution->tracerColor(tracerVal.first);
             else
-                color = cvf::Color3f::DARK_GRAY;
+                color = getTracerColor(tracerVal.first);
 
             double tracerPercent = 100*tracerVal.second;
 
@@ -375,24 +357,48 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
     RigEclipseCaseData::UnitsType unitSet = m_case->eclipseCaseData()->unitsType();
-    QString unitText;
-    switch ( unitSet )
+
+
+    if (m_flowDiagSolution) 
     {
-        case RigEclipseCaseData::UNITS_METRIC:
-        unitText = "[m^3/day]";
-        break;
-        case RigEclipseCaseData::UNITS_FIELD:
-        unitText = "[Brl/day]";
-        break;
-        case RigEclipseCaseData::UNITS_LAB:
-        unitText = "[cm^3/hr]";
-        break;
-        default:
-        break;
+        QString unitText;
+        switch ( unitSet )
+        {
+            case RigEclipseCaseData::UNITS_METRIC:
+            unitText = "[m<sup>3</sup>/day]";
+            break;
+            case RigEclipseCaseData::UNITS_FIELD:
+            unitText = "[Brl/day]";
+            break;
+            case RigEclipseCaseData::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>/hr]";
+            break;
+            default:
+            break;
 
+        }
+        plotTrack->setXAxisTitle("Reservoir Flow Rate " + unitText);
     }
+    else
+    {
+        QString unitText;
+        switch ( unitSet )
+        {
+            case RigEclipseCaseData::UNITS_METRIC:
+            unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
+            break;
+            case RigEclipseCaseData::UNITS_FIELD:
+            unitText = "[Liquid BBL/day], [Gas BOE/day]";
+            break;
+            case RigEclipseCaseData::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>/hr]";
+            break;
+            default:
+            break;
 
-    plotTrack->setXAxisTitle("Flow Rate " + unitText);
+        }
+        plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,10 +413,14 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
     curve->setFlowValuesPrDepthValue(tracerName, depthValues, accFlow);
 
     if ( m_flowDiagSolution )
+    {
         curve->setColor(m_flowDiagSolution->tracerColor(tracerName));
+    }
     else
-        curve->setColor(cvf::Color3f::DARK_GRAY);
-    
+    {
+        curve->setColor(getTracerColor(tracerName));
+    }
+
     plotTrack->addCurve(curve);
 
     curve->loadDataAndUpdate();
@@ -524,9 +534,9 @@ caf::PdmObject* RimWellAllocationPlot::plotLegend()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution* RimWellAllocationPlot::flowDiagSolution()
+RimEclipseResultCase* RimWellAllocationPlot::rimCase()
 {
-    return m_flowDiagSolution();
+    return m_case();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -775,4 +785,15 @@ QWidget* RimWellAllocationPlot::createViewWidget(QWidget* mainWindowParent)
     return m_wellAllocationPlotWidget;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimWellAllocationPlot::getTracerColor(const QString& tracerName)
+{
+
+    if (tracerName == RIG_FLOW_OIL_NAME)   return cvf::Color3f::DARK_GREEN;
+    if (tracerName == RIG_FLOW_GAS_NAME)   return cvf::Color3f::DARK_RED;
+    if (tracerName == RIG_FLOW_WATER_NAME) return cvf::Color3f::BLUE;
+    return cvf::Color3f::DARK_GRAY;
+}
 

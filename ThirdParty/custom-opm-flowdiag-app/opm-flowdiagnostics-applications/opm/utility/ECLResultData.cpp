@@ -1,6 +1,5 @@
 /*
-  Copyright 2016 SINTEF ICT, Applied Mathematics.
-  Copyright 2016 Statoil ASA.
+  Copyright 2016, 2017 Statoil ASA.
 
   This file is part of the Open Porous Media Project (OPM).
 
@@ -28,9 +27,15 @@
 #include <ctime>
 #include <exception>
 #include <initializer_list>
+#include <iomanip>
+#include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
+#include <string>
+#include <tuple>
 #include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -46,15 +51,38 @@
 #include <ert/ecl/ecl_util.h>
 #include <ert/util/ert_unique_ptr.hpp>
 
+#if defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+#include <ert/ecl/ecl_type.h>
+#endif // defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+
 /// \file
 ///
 /// Implementation of ECL Result-Set Interface.
 
 namespace {
+    inline ecl_type_enum
+    getKeywordElementType(const ecl_kw_type* kw)
+    {
+#if defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+        return ecl_type_get_type(ecl_kw_get_data_type(kw));
+
+#else // ! (defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H)
+
+        return ecl_kw_get_type(kw);
+#endif // defined(HAVE_ERT_ECL_TYPE_H) && HAVE_ERT_ECL_TYPE_H
+    }
+
     namespace ECLImpl {
-        using FilePtr = ::ERT::ert_unique_ptr<ecl_file_type, ecl_file_close>;
+        using FilePtr = std::shared_ptr<ecl_file_type>;
 
         namespace Details {
+
+            inline std::string
+            firstBlockKeyword(const ecl_file_view_type* block)
+            {
+                return ecl_kw_get_header(ecl_file_view_iget_kw(block, 0));
+            }
+
             /// Convert vector of elements from one element type to another.
             ///
             /// \tparam Input Element type of input collection.
@@ -84,7 +112,9 @@ namespace {
                     result.reserve(x.size());
 
                     for (const auto& xi : x) {
-                        result.emplace_back(xi);
+                        // push_back(T(xi)) because vector<bool> does not
+                        // support emplace_back until C++14.
+                        result.push_back(Output(xi));
                     }
 
                     return result;
@@ -164,6 +194,17 @@ namespace {
             ///
             /// Actual element type of \code ECL_INT_TYPE \endcode.
             template <>
+            struct ElementType<ECL_BOOL_TYPE>
+            {
+                /// Element type of ERT Boolean (LOGICAL) data.  Stored
+                /// internally as 'int'.
+                using type = int;
+            };
+
+            /// Translate ERT type class to keyword element type.
+            ///
+            /// Actual element type of \code ECL_INT_TYPE \endcode.
+            template <>
             struct ElementType<ECL_INT_TYPE>
             {
                 /// Element type of ERT integer data.
@@ -197,6 +238,37 @@ namespace {
             /// \tparam Input Class of ERT keyword data.
             template <ecl_type_enum Input>
             struct ExtractKeywordElements;
+
+            /// Extract ERT keyword Boolean (LOGICAL) data.
+            template <>
+            struct ExtractKeywordElements<ECL_BOOL_TYPE>
+            {
+                using EType = ElementType<ECL_BOOL_TYPE>::type;
+
+                /// Function call operator.
+                ///
+                /// Retrieve actual data elements from ERT keyword of integer
+                /// (specifically, \c int) type.
+                ///
+                /// \param[in] kw ERT keyword instance.
+                ///
+                /// \param[in,out] x Linearised keyword data elements.  On
+                ///    input points to memory block of size \code
+                ///    ecl_kw_get_size(kw) * sizeof *x \endcode bytes.  On
+                ///    output, those bytes are filled with the actual data
+                ///    values of \p kw.
+                void operator()(const ecl_kw_type* kw, EType* x) const
+                {
+                    // 1) Extract raw 'int' values.
+                    ecl_kw_get_memcpy_int_data(kw, x);
+
+                    // 2) Convert to 'bool'-like values by comparing to
+                    //    magic constant ECL_BOOL_TRUE_INT (ecl_util.h).
+                    for (auto n = ecl_kw_get_size(kw), i = 0*n; i < n; ++i) {
+                        x[i] = static_cast<EType>(x[i] == ECL_BOOL_TRUE_INT);
+                    }
+                }
+            };
 
             /// Extract ERT keyword integer data.
             template <>
@@ -294,7 +366,7 @@ namespace {
             static std::vector<T>
             as(const ecl_kw_type* kw, std::false_type)
             {
-                assert (ecl_kw_get_type(kw) == Input);
+                assert (getKeywordElementType(kw) == Input);
 
                 return Details::getData<
                         T, typename Details::ElementType<Input>::type
@@ -352,7 +424,7 @@ namespace {
             static std::vector<std::string>
             as(const ecl_kw_type* kw, std::true_type)
             {
-                assert (ecl_kw_get_type(kw) == ECL_CHAR_TYPE);
+                assert (getKeywordElementType(kw) == ECL_CHAR_TYPE);
 
                 auto result = std::vector<std::string>{};
                 result.reserve(ecl_kw_get_size(kw));
@@ -362,11 +434,126 @@ namespace {
                      i < nkw; ++i)
                 {
                     result.emplace_back(ecl_kw_iget_char_ptr(kw, i));
+
+                    // Trim trailing white-space.
+                    auto& s = result.back();
+
+                    const auto e = s.find_last_not_of(" \t");
+                    if (e != std::string::npos) {
+                        s = s.substr(0, e + 1);
+                    }
                 }
 
                 return result;
             }
         };
+
+        /// Translate grid names to (local) numeric IDs within a
+        /// section/view of an ECL result set.
+        ///
+        /// Provides a caching mechanism to accelerate repeated lookup.
+        class GridIDCache
+        {
+        public:
+            /// Constructor
+            ///
+            /// \param[in] block View relative to which to interpret grid
+            ///    names.
+            explicit GridIDCache(const ecl_file_view_type* block);
+
+            /// Get integral grid ID of particular grid relative to cache's
+            /// view.
+            ///
+            /// \param[in] gridName Name of particular grid.  Empty for the
+            ///    main grid (grid ID 0).
+            ///
+            /// \return Numeric grid ID of \p gridName.  Negative if \p
+            ///    gridName does not correspond to a grdi in the cache's
+            ///    view.
+            int getGridID(const std::string& gridName) const;
+
+        private:
+            /// View into ECL result set.
+            const ecl_file_view_type* block_;
+
+            /// Cache of name->ID map.
+            mutable std::unordered_map<std::string, int> cache_;
+        };
+
+        /// Partition INIT file into sections
+        class InitFileSections
+        {
+        public:
+            explicit InitFileSections(const ecl_file_type* init);
+
+            struct Section {
+                Section(const ecl_file_view_type* blk)
+                    : block   (blk)
+                    , first_kw(Details::firstBlockKeyword(block))
+                {}
+
+                const ecl_file_view_type* block;
+                std::string               first_kw;
+            };
+
+            const std::vector<Section>& sections() const
+            {
+                return this->sect_;
+            }
+
+            using SectionID = std::vector<Section>::size_type;
+
+            SectionID numSections() const
+            {
+                return this->sections().size();
+            }
+
+            const Section& operator[](const SectionID i) const
+            {
+                assert ((i < this->numSections()) && "Internal Error");
+
+                return this->sect_[i];
+            }
+
+        private:
+            const ecl_file_view_type* init_;
+
+            std::vector<Section> sect_;
+        };
+
+        template <typename T>
+        std::vector<T> getKeywordData(const ecl_kw_type* kw)
+        {
+            // Whether or not caller requests a vector<string>.
+            const auto makeStringVector =
+                typename std::is_same<T, std::string>::type{};
+
+            switch (getKeywordElementType(kw)) {
+            case ECL_CHAR_TYPE:
+                return GetKeywordData<ECL_CHAR_TYPE>::
+                    as<T>(kw, makeStringVector);
+
+            case ECL_BOOL_TYPE:
+                return GetKeywordData<ECL_BOOL_TYPE>::
+                    as<T>(kw, makeStringVector);
+
+            case ECL_INT_TYPE:
+                return GetKeywordData<ECL_INT_TYPE>::
+                    as<T>(kw, makeStringVector);
+
+            case ECL_FLOAT_TYPE:
+                return GetKeywordData<ECL_FLOAT_TYPE>::
+                    as<T>(kw, makeStringVector);
+
+            case ECL_DOUBLE_TYPE:
+                return GetKeywordData<ECL_DOUBLE_TYPE>::
+                    as<T>(kw, makeStringVector);
+
+            default:
+                // No operator exists for this type.  Return empty.
+                return {};
+            }
+        }
     } // namespace ECLImpl
 
     /// Predicate for whether or not a particular path represents a regular
@@ -402,18 +589,22 @@ namespace {
     ///
     /// \param[in] file Filename or casename prefix.
     ///
+    /// \param[in] ext Set of possible filename extensions.
+    ///
     /// \return Filesystem element corresponding to result-set.  Either the
-    ///    input \p file itself or, in the case of a casename prefix, the
-    ///    path to a restart file (unified format only).
+    ///    input \p file itself or, in the case of a filename prefix, the
+    ///    first possible match amongst the set generated by the prefix and
+    ///    the input extensions.
     boost::filesystem::path
-    deriveResultPath(boost::filesystem::path file)
+    deriveResultPath(boost::filesystem::path         file,
+                     const std::vector<std::string>& ext)
     {
         if (isFile(file)) {
             return file;
         }
 
-        for (const auto* ext : { ".UNRST", ".FUNRST" }) {
-            file.replace_extension(ext);
+        for (const auto& e : ext) {
+            file.replace_extension(e);
 
             if (isFile(file)) {
                 return file;
@@ -430,30 +621,72 @@ namespace {
         throw std::invalid_argument(os.str());
     }
 
-    /// Load result-set represented by filesystem element.
+    /// Derive filesystem element from prefix or filename.
+    ///
+    /// Pass-through if the input already is a regular file in order to
+    /// support accessing result-sets other than restart files (e.g., the
+    /// INIT vectors).
     ///
     /// Fails (throws an exception of type \code std::invalid_argument
-    /// \endcode) if the input filesystem element does not represent a valid
-    /// result-set resource or if the resource could not be opened (e.g.,
-    /// due to lack of permission).
+    /// \endcode) if no valid filesystem element can be derived from the
+    /// input argument
     ///
-    /// \param[in] rset Fileystem element representing a result-set.
+    /// \param[in] file Filename or casename prefix.
     ///
-    /// \return Accessor handle of result-set.
-    ECLImpl::FilePtr openResultSet(const boost::filesystem::path& rset)
+    /// \return Filesystem element corresponding to result-set.  Either the
+    ///    input \p file itself or, in the case of a casename prefix, the
+    ///    path to a restart file (unified format only).
+    boost::filesystem::path
+    deriveRestartPath(boost::filesystem::path file)
+    {
+        return deriveResultPath(std::move(file), { ".UNRST", ".FUNRST" });
+    }
+
+    /// Derive filesystem element from prefix or filename.
+    ///
+    /// Pass-through if the input already is a regular file in order to
+    /// support accessing result-sets other than restart files (e.g., the
+    /// INIT vectors).
+    ///
+    /// Fails (throws an exception of type \code std::invalid_argument
+    /// \endcode) if no valid filesystem element can be derived from the
+    /// input argument
+    ///
+    /// \param[in] file Filename or casename prefix.
+    ///
+    /// \return Filesystem element corresponding to result-set.  Either the
+    ///    input \p file itself or, in the case of a casename prefix, the
+    ///    path to an INIT file (unformatted or formatted).
+    boost::filesystem::path
+    deriveInitPath(boost::filesystem::path file)
+    {
+        return deriveResultPath(std::move(file), { ".INIT", ".FINIT" });
+    }
+
+    /// Open ECL result set from pathname.
+    ///
+    /// Fails (throws an exception of type \code std::invalid_argument
+    /// \endcode) if the input argument does not refer to a valid filesystem
+    /// element.
+    ///
+    /// \param[in] file Filename.
+    ///
+    /// \return Open stream corresponding to result-set.
+    ECLImpl::FilePtr openResultSet(const boost::filesystem::path& fname)
     {
         // Read-only, keep open between requests
         const auto open_flags = 0;
 
-        auto F = ECLImpl::FilePtr{
-            ecl_file_open(rset.generic_string().c_str(), open_flags)
+        auto F = ECLImpl::FilePtr {
+            ecl_file_open(fname.generic_string().c_str(), open_flags),
+            ecl_file_close
         };
 
         if (! F) {
             std::ostringstream os;
 
-            os << "Failed to load ECL Result object from '"
-               << rset.generic_string() << '\'';
+            os << "Failed to load ECL Result object from "
+               << fname.generic_string();
 
             throw std::invalid_argument(os.str());
         }
@@ -475,19 +708,160 @@ namespace {
         auto* globView =
             ecl_file_get_global_view(const_cast<ecl_file_type*>(file));
 
-        return ecl_kw_get_header(ecl_file_view_iget_kw(globView, 0));
+        return ECLImpl::Details::firstBlockKeyword(globView);
+    }
+
+    std::string paddedGridName(const std::string& gridName)
+    {
+        if (gridName.empty()) {
+            return gridName;
+        }
+
+        std::ostringstream os;
+
+        os << std::setw(8) << std::left << gridName;
+
+        return os.str();
     }
 } // namespace Anonymous
 
-/// Engine powering implementation of \c ECLResultData interface
-class Opm::ECLResultData::Impl
+// ======================================================================
+// Class (Anonymous)::ECLImpl::GridIDCache
+// ======================================================================
+
+ECLImpl::GridIDCache::GridIDCache(const ecl_file_view_type* block)
+    : block_(block)
+{}
+
+int ECLImpl::GridIDCache::getGridID(const std::string& gridName) const
+{
+    if (gridName.empty()) {
+        return ECL_GRID_MAINGRID_LGR_NR;
+    }
+
+    {
+        auto i = this->cache_.find(gridName);
+        if (i != std::end(this->cache_)) {
+            return i->second;
+        }
+    }
+
+    const auto nLGR = ecl_file_view_get_num_named_kw
+        (this->block_, LGR_KW);
+
+    auto lgrID = 0 * nLGR;
+    for (; lgrID < nLGR; ++lgrID)
+    {
+        const auto* kw = ecl_file_view_iget_named_kw
+            (this->block_, LGR_KW, lgrID);
+
+        if ((getKeywordElementType(kw) != ECL_CHAR_TYPE) ||
+            (ecl_kw_get_size(kw) != 1))
+        {
+            // Huh !?!
+            continue;
+        }
+
+        const auto kwname = GetKeywordData<ECL_CHAR_TYPE>
+            ::as<std::string>(kw, std::true_type());
+
+        if (kwname[0] == gridName) {
+            break;
+        }
+    }
+
+    if (lgrID == nLGR) {
+        // No such LGR in block.  Somewhat surprising.
+        return -1;
+    }
+
+    return this->cache_[gridName] =
+        ECL_GRID_MAINGRID_LGR_NR + 1 + lgrID;
+}
+
+// ======================================================================
+// Class (Anonymous)::ECLImpl::InitFileSections
+// ======================================================================
+
+ECLImpl::InitFileSections::InitFileSections(const ecl_file_type* init)
+    // Note: ecl_file_get_global_view() does not modify input arg
+    : init_(ecl_file_get_global_view(const_cast<ecl_file_type*>(init)))
+{
+    const auto* endLGR_kw = "LGRSGONE";
+    const auto nEndLGR =
+        ecl_file_view_get_num_named_kw(this->init_, endLGR_kw);
+
+    if (nEndLGR == 0) {
+        // No LGRs in model.  INIT file consists of global section only,
+        // meaning that the only available section is equal to the global
+        // view (i.e., this->init_).
+        this->sect_.push_back(Section{ this->init_ });
+    }
+    else {
+        const auto* start_kw = INTEHEAD_KW;
+        const auto* end_kw   = endLGR_kw;
+
+        this->sect_.reserve(2 * nEndLGR);
+
+        for (auto sectID = 0*nEndLGR; sectID < nEndLGR; ++sectID) {
+            // Note: Start keyword occurrence lags one behind section ID
+            // when creating sections *between* LGRSGONE keywords.
+            const auto start_kw_occurrence = (sectID > 0)
+                ? sectID - 1 : 0*sectID;
+
+            // Main section 'sectID': [ start_kw, LGRSGONE ]
+            const auto* sect =
+                ecl_file_view_add_blockview2(this->init_, start_kw,
+                                             end_kw, start_kw_occurrence);
+
+            if (sect == nullptr) {
+                continue;
+            }
+
+            const auto firstkw = Details::firstBlockKeyword(sect);
+            const auto occurrence = 0;
+
+            // Main grid sub-section of 'sectID': [ start_kw, LGR ]
+            const auto* main_grid_sect =
+                ecl_file_view_add_blockview2(sect, firstkw.c_str(),
+                                             LGR_KW, occurrence);
+
+            // LGR sub-section of 'sectID': [ LGR, LGRSGONE ]
+            const auto* lgr_sect =
+                ecl_file_view_add_blockview2(sect, LGR_KW,
+                                             end_kw, occurrence);
+
+            // Note: main_grid_sect or lgr_sect *may* (in rare cases) be
+            // nullptr, but we'll deal with that in the calling context.
+            this->sect_.push_back(Section { main_grid_sect });
+            this->sect_.push_back(Section { lgr_sect });
+
+            // start_kw == end_kw for all but first section.
+            start_kw = end_kw;
+        }
+    }
+}
+
+// ======================================================================
+// Class Opm::ECLRestartData::Impl
+// ======================================================================
+
+/// Engine powering implementation of \c ECLRestartData interface
+class Opm::ECLRestartData::Impl
 {
 public:
+    using Path = boost::filesystem::path;
+
     /// Constructor
     ///
-    /// \param[in] rset Filesystem element or casename prefix representing
+    /// \param[in] rstrt Filesystem element or casename prefix representing
     ///    an ECL result-set.
-    Impl(Path rset);
+    Impl(Path rstrt);
+
+    /// Constructor
+    ///
+    /// \param[in] rstrt ECL restart result set
+    Impl(std::shared_ptr<ecl_file_type> rstrt);
 
     /// Copy constructor.
     ///
@@ -499,27 +873,6 @@ public:
     /// \param[in,out] rhs Object from which to constructo new \c Impl
     ///    instance.  Underlying result-set accessor is null upon return.
     Impl(Impl&& rhs);
-
-    /// Access the underlying ERT representation of the result-set.
-    ///
-    /// This is a hole in the interface that exists to be able to access
-    /// ERT's internal data structures for non-neighbouring connections
-    /// (i.e., faults and/or connections between main grid and LGRs).  See
-    /// function ecl_nnc_export() in the ERT.
-    ///
-    /// Handle with care.
-    ///
-    /// \return Handle to underlying ERT representation of result-set.
-    const ecl_file_type* getRawFilePtr() const;
-
-    /// Reset the object's internal view of the result-set to encompass the
-    /// entirety of the underlying file's result vectors.
-    ///
-    /// This is mostly useful in the case of accessing static result-sets
-    /// such as INIT files.
-    ///
-    /// \return Whether or not generating the global view succeeded.
-    bool selectGlobalView();
 
     /// Select a result-set view that corresponds to a single report step.
     ///
@@ -544,7 +897,7 @@ public:
     /// \return Whether or not keyword data for the named result vector is
     ///    available in the specific grid.
     bool haveKeywordData(const std::string& vector,
-                         const int          gridID) const;
+                         const std::string& gridName) const;
 
     /// Retrieve current result-set view's data values for particular named
     /// result vector in particular enumerated grid.
@@ -572,7 +925,7 @@ public:
     template <typename T>
     std::vector<T>
     keywordData(const std::string& vector,
-                const int          gridID) const;
+                const std::string& gridName) const;
 
 private:
     /// RAII class to select a sub-block pertaining to a particular grid
@@ -626,7 +979,7 @@ private:
 
         /// Saved original active view from host (prior to restricting view
         /// to single grid ID).
-        ecl_file_view_type* save_;
+        const ecl_file_view_type* save_;
     };
 
     /// Casename prefix.  Mostly to implement copy ctor.
@@ -639,8 +992,15 @@ private:
     /// of main grid's section within a view.
     std::string firstKeyword_;
 
+    /// True if path (or pointer) to unified restart file was passed
+    /// as constructor argument.
+    bool isUnified_;
+
+    /// Map LGR names to integral grid IDs.
+    std::unique_ptr<ECLImpl::GridIDCache> gridIDCache_;
+
     /// Current active result-set view.
-    mutable ecl_file_view_type* activeBlock_{ nullptr };
+    mutable const ecl_file_view_type* activeBlock_{ nullptr };
 
     /// Support for passing \code *this \endcode to ERT functions that
     /// require an \c ecl_file_type, particularly the function that selects
@@ -657,65 +1017,83 @@ private:
     /// Retrieve result-set keyword that identifies beginning of main grid's
     /// result vectors.
     const std::string& mainGridStart() const;
+
+    int gridID(const std::string& gridName) const;
 };
 
-Opm::ECLResultData::Impl::Impl(Path prefix)
+Opm::ECLRestartData::Impl::Impl(Path prefix)
     : prefix_      (std::move(prefix))
-    , result_      (openResultSet(deriveResultPath(prefix_)))
+    , result_      (openResultSet(deriveRestartPath(prefix_)))
     , firstKeyword_(firstFileKeyword(result_.get()))
+    , isUnified_   (firstKeyword_ == "SEQNUM")
 {}
 
-Opm::ECLResultData::Impl::Impl(const Impl& rhs)
+Opm::ECLRestartData::Impl::Impl(std::shared_ptr<ecl_file_type> rstrt)
+    : prefix_      (ecl_file_get_src_file(rstrt.get()))
+    , result_      (std::move(rstrt))
+    , firstKeyword_(firstFileKeyword(result_.get()))
+    , isUnified_   (firstKeyword_ == "SEQNUM")
+{}
+
+Opm::ECLRestartData::Impl::Impl(const Impl& rhs)
     : prefix_      (rhs.prefix_)
-    , result_      (openResultSet(deriveResultPath(prefix_)))
+    , result_      (openResultSet(deriveRestartPath(prefix_)))
     , firstKeyword_(firstFileKeyword(result_.get()))
+    , isUnified_   (rhs.isUnified_)
 {}
 
-Opm::ECLResultData::Impl::Impl(Impl&& rhs)
+Opm::ECLRestartData::Impl::Impl(Impl&& rhs)
     : prefix_      (std::move(rhs.prefix_))
     , result_      (std::move(rhs.result_))
     , firstKeyword_(std::move(rhs.firstKeyword_))
+    , isUnified_   (rhs.isUnified_)
 {}
 
-const ecl_file_type*
-Opm::ECLResultData::Impl::getRawFilePtr() const
+bool Opm::ECLRestartData::Impl::selectReportStep(const int step)
 {
-    return this->result_.get();
-}
-
-bool Opm::ECLResultData::Impl::selectGlobalView()
-{
-    this->activeBlock_ = ecl_file_get_global_view(*this);
-
-    return this->activeBlock_ != nullptr;
-}
-
-bool Opm::ECLResultData::Impl::selectReportStep(const int step)
-{
-    if (! ecl_file_has_report_step(*this, step)) {
+    if (isUnified_ && ! ecl_file_has_report_step(*this, step)) {
         return false;
     }
 
+    this->gridIDCache_.reset();
+
     if (auto* globView = ecl_file_get_global_view(*this)) {
-        // Ignore sequence numbers, dates, and simulation time.
-        const auto seqnum  = -1;
-        const auto dates   = static_cast<std::size_t>(-1);
-        const auto simdays = -1.0;
+        if (isUnified_) {
+            // Set active block view to particular report step.
+            // Ignore sequence numbers, dates, and simulation time.
+            const auto seqnum  = -1;
+            const auto dates   = static_cast<std::size_t>(-1);
+            const auto simdays = -1.0;
 
-        this->activeBlock_ =
-            ecl_file_view_add_restart_view(globView, seqnum,
-                                           step, dates, simdays);
+            this->activeBlock_ =
+                ecl_file_view_add_restart_view(globView, seqnum,
+                                               step, dates, simdays);
+        } else {
+            // Set active block view to global.
+            this->activeBlock_ = globView;
+        }
 
-        return this->activeBlock_ != nullptr;
+        // Update grid id cache from active view.
+        if (this->activeBlock_ != nullptr) {
+            this->gridIDCache_
+                .reset(new ECLImpl::GridIDCache(this->activeBlock_));
+
+            return true;
+        }
     }
 
     return false;
 }
 
-bool Opm::ECLResultData::Impl::
-haveKeywordData(const std::string& vector, const int gridID) const
+bool Opm::ECLRestartData::Impl::
+haveKeywordData(const std::string& vector,
+                const std::string& gridName) const
 {
-    assert ((gridID >= 0) && "Grid IDs must be non-negative");
+    const auto gridID = this->gridIDCache_->getGridID(gridName);
+
+    if (gridID < 0) {
+        return false;
+    }
 
     // Note: Non-trivial dtor.  Compiler can't ignore object.
     const auto block = Restrict{ *this, gridID };
@@ -730,17 +1108,21 @@ namespace Opm {
 
     template <typename T>
     std::vector<T>
-    ECLResultData::Impl::keywordData(const std::string& vector,
-                                     const int          gridID) const
+    ECLRestartData::Impl::keywordData(const std::string& vector,
+                                      const std::string& gridName) const
     {
-        if (! this->haveKeywordData(vector, gridID)) {
+        if (! this->haveKeywordData(vector, gridName)) {
             std::ostringstream os;
 
-            os << "Cannot Access Non-Existent Keyword Data Pair ("
-               << vector << ", " << gridID << ')';
+            os << "RESTART: Cannot Access Non-Existent Keyword Data Pair ("
+               << vector << ", "
+               << (gridName.empty() ? "Main Grid" : gridName)
+               << ')';
 
             throw std::invalid_argument(os.str());
         }
+
+        const auto gridID = this->gridIDCache_->getGridID(gridName);
 
         // Note: Non-trivial dtor.  Compiler can't ignore object.
         const auto block = Restrict{ *this, gridID };
@@ -754,105 +1136,483 @@ namespace Opm {
         assert ((kw != nullptr) &&
                 "Logic Error In Data Availability Check");
 
-        // Whether or not caller requests a vector<string>.
-        const auto makeStringVector =
-            typename std::is_same<T, std::string>::type{};
-
-        switch (ecl_kw_get_type(kw)) {
-        case ECL_CHAR_TYPE:
-            return ECLImpl::GetKeywordData<ECL_CHAR_TYPE>::
-                as<T>(kw, makeStringVector);
-
-        case ECL_INT_TYPE:
-            return ECLImpl::GetKeywordData<ECL_INT_TYPE>::
-                as<T>(kw, makeStringVector);
-
-        case ECL_FLOAT_TYPE:
-            return ECLImpl::GetKeywordData<ECL_FLOAT_TYPE>::
-                as<T>(kw, makeStringVector);
-
-        case ECL_DOUBLE_TYPE:
-            return ECLImpl::GetKeywordData<ECL_DOUBLE_TYPE>::
-                as<T>(kw, makeStringVector);
-
-        default:
-            // No operator exists for this type.  Return empty.
-            return {};
-        }
+        return ECLImpl::getKeywordData<T>(kw);
     }
 
 } // namespace Opm
 
-Opm::ECLResultData::Impl::operator ecl_file_type*() const
+Opm::ECLRestartData::Impl::operator ecl_file_type*() const
 {
     return this->result_.get();
 }
 
-Opm::ECLResultData::Impl::operator const ecl_file_view_type*() const
+Opm::ECLRestartData::Impl::operator const ecl_file_view_type*() const
 {
     return this->activeBlock_;
 }
 
 const std::string&
-Opm::ECLResultData::Impl::mainGridStart() const
+Opm::ECLRestartData::Impl::mainGridStart() const
 {
     return this->firstKeyword_;
 }
 
+int
+Opm::ECLRestartData::Impl::gridID(const std::string& gridName) const
+{
+    return this->gridIDCache_->getGridID(gridName);
+}
+
 // ======================================================================
-// Implementation of class Opm::ECLResultData Below Separator
+// Class Opm::ECLInitFileData::Impl
 // ======================================================================
 
-Opm::ECLResultData::ECLResultData(const Path& prefix)
-    : pImpl_(new Impl(prefix))
+class Opm::ECLInitFileData::Impl
+{
+public:
+    using Path = boost::filesystem::path;
+
+    /// Constructor.
+    ///
+    /// Construct from filename.  Owning semantics.
+    ///
+    /// \param[in] casePrefix Name or prefix of ECL result data.
+    Impl(Path initFile);
+
+    /// Constructor.
+    ///
+    /// Construct from dataset already input through other means.
+    ///
+    /// Non-owning semantics.
+    Impl(std::shared_ptr<ecl_file_type> initFile);
+
+    /// Copy constructor.
+    ///
+    /// \param[in] rhs Object from which to construct new \c Impl instance.
+    Impl(const Impl& rhs);
+
+    /// Move constructor.
+    ///
+    /// \param[in,out] rhs Object from which to constructo new \c Impl
+    ///    instance.  Underlying result-set accessor is null upon return.
+    Impl(Impl&& rhs);
+
+    const ecl_file_type* getRawFilePtr() const;
+
+    /// Query current result-set view for availability of particular named
+    /// result vector in particular enumerated grid.
+    ///
+    /// \param[in] vector Named result vector for which to query data
+    ///    availability.
+    ///
+    /// \param[in] gridID Identity of specific grid for which to query data
+    ///    availability.
+    ///
+    /// \return Whether or not keyword data for the named result vector is
+    ///    available in the specific grid.
+    bool haveKeywordData(const std::string& vector,
+                         const std::string& gridName) const;
+
+    /// Retrieve current result-set view's data values for particular named
+    /// result vector in particular enumerated grid.
+    ///
+    /// Will fail (throw an exception of type std::invalid_argument) unless
+    /// the requested keyword data is available in the specific grid in the
+    /// current active view.
+    ///
+    /// \tparam T Element type of return value.  The underlying keyword data
+    ///    will be converted to this type if needed and possible.  Note that
+    ///    some type combinations do not make sense.  It is, for instance,
+    ///    not possible to retrieve keyword values of an underlying
+    ///    arithmetic type in the form of a \code std::vector<std::string>
+    ///    \endcode.  Similarly, we cannot access underlying character data
+    ///    through elements of an arithmetic type (e.g., \code
+    ///    std::vector<double> \endcode.)
+    ///
+    /// \param[in] vector Named result vector for which to retrieve
+    ///    keyword data.
+    ///
+    /// \param[in] gridID Identity of specific grid for which to
+    ///    retrieve keyword data.
+    ///
+    /// \return Keyword data values.  Empty if type conversion fails.
+    template <typename T>
+    std::vector<T>
+    keywordData(const std::string& vector,
+                const std::string& gridName) const;
+
+private:
+    using SectionID =
+        ECLImpl::InitFileSections::SectionID;
+
+    /// Result of searching for a particular pairing of (vector,gridName) in
+    /// INIT.
+    struct LookupResult
+    {
+        /// In what INIT file section the KW was located (-1 if not found).
+        SectionID sectID;
+
+        /// Local ID, within sectID, of grid section data section that hosts
+        /// the 'vector' (-1 if not found).
+        int gridSectID;
+    };
+
+    /// Pairing of kw vector and grid name.
+    struct KWKey {
+        /// Keyword/result set vector
+        std::string vector;
+
+        /// ID of grid for which to look up 'vector'.
+        std::string gridName;
+    };
+
+    /// Comparator (std::set<> and std::map<>) for KWKeys.
+    struct CompareKWKey {
+        bool operator()(const KWKey& k1, const KWKey& k2) const
+        {
+            return std::tie(k1.vector, k1.gridName)
+                <  std::tie(k2.vector, k2.gridName);
+        }
+    };
+
+    /// Negative look-up cache.
+    using MissingKW = std::set<KWKey, CompareKWKey>;
+
+    /// Keyword-to-section cache to accelerate repeated look-up.
+    using KWSection = std::map<KWKey, LookupResult, CompareKWKey>;
+
+    /// Casename prefix.  Mostly to implement copy ctor.
+    const Path prefix_;
+
+    /// Raw result set.
+    ECLImpl::FilePtr initFile_;
+
+    /// Sections of the INIT result set.
+    ECLImpl::InitFileSections sections_;
+
+    mutable const ecl_file_view_type* activeBlock_{ nullptr };
+
+    /// Negative look-up cache for haveKeywordData() queries.
+    mutable MissingKW missing_kw_;
+
+    /// Keyword-to-section map for successful haveKeywordData() and
+    /// keywordData() queries.  Accelerates repeated look-up queries.
+    mutable KWSection kw_section_;
+
+    operator const ecl_file_view_type*() const;
+
+    LookupResult
+    lookup(const std::string& vector,
+           const std::string& gridName) const;
+
+    LookupResult lookupMainGrid(const KWKey& key) const;
+
+    LookupResult lookupLGR(const KWKey& key) const;
+
+    void setActiveBlock(const SectionID sect) const;
+
+    const ECLImpl::InitFileSections::Section&
+    getSection(const SectionID sect) const;
+};
+
+Opm::ECLInitFileData::Impl::Impl(Path initFile)
+    : prefix_  (initFile.stem())
+    , initFile_(openResultSet(deriveInitPath(std::move(initFile))))
+    , sections_(initFile_.get())
 {}
 
-Opm::ECLResultData::ECLResultData(const ECLResultData& rhs)
+Opm::ECLInitFileData::Impl::Impl(std::shared_ptr<ecl_file_type> initFile)
+    : prefix_  (Path(ecl_file_get_src_file(initFile.get())).stem())
+    , initFile_(std::move(initFile))
+    , sections_(initFile_.get())
+{}
+
+Opm::ECLInitFileData::Impl::Impl(const Impl& rhs)
+    : prefix_  (rhs.prefix_)
+    , initFile_(rhs.initFile_)
+    , sections_(initFile_.get())
+{}
+
+Opm::ECLInitFileData::Impl::Impl(Impl&& rhs)
+    : prefix_  (std::move(rhs.prefix_))
+    , initFile_(std::move(rhs.initFile_))
+    , sections_(std::move(rhs.sections_))
+{}
+
+const ecl_file_type*
+Opm::ECLInitFileData::Impl::getRawFilePtr() const
+{
+    return this->initFile_.get();
+}
+
+bool
+Opm::ECLInitFileData::Impl::
+haveKeywordData(const std::string& vector,
+                const std::string& gridName) const
+{
+    const auto kwloc = this->lookup(vector, gridName);
+
+    return (kwloc.sectID < this->sections_.numSections())
+        && (kwloc.gridSectID >= 0);
+}
+
+namespace Opm {
+
+    template <typename T>
+    std::vector<T>
+    ECLInitFileData::Impl::
+    keywordData(const std::string& vector,
+                const std::string& gridName) const
+    {
+        if (! this->haveKeywordData(vector, gridName)) {
+            std::ostringstream os;
+
+            os << "INIT: Cannot Access Non-Existent Keyword Data Pair ("
+               << vector << ", "
+               << (gridName.empty() ? "Main Grid" : gridName)
+               << ')';
+
+            throw std::invalid_argument(os.str());
+        };
+
+        const auto kwloc = this->lookup(vector, gridName);
+
+        this->setActiveBlock(kwloc.sectID);
+
+        if (! gridName.empty()) {
+            // We're cons
+            this->activeBlock_ =
+                ecl_file_view_add_blockview(this->activeBlock_, LGR_KW,
+                                            kwloc.gridSectID);
+        }
+
+        const auto occurrence = 0;
+
+        const auto* kw =
+            ecl_file_view_iget_named_kw(*this, vector.c_str(),
+                                        occurrence);
+
+        assert ((kw != nullptr) &&
+                "Logic Error In Data Availability Check");
+
+        return ECLImpl::getKeywordData<T>(kw);
+    }
+
+}
+
+Opm::ECLInitFileData::Impl::operator const ecl_file_view_type*() const
+{
+    return this->activeBlock_;
+}
+
+Opm::ECLInitFileData::Impl::LookupResult
+Opm::ECLInitFileData::Impl::
+lookup(const std::string& vector, const std::string& gridName) const
+{
+    const auto key = KWKey{ vector, gridName };
+
+    {
+        auto m = this->missing_kw_.find(key);
+
+        if (m != std::end(this->missing_kw_)) {
+            // 'vector' known to be mssing for 'gridName'.  Report as such.
+            return { SectionID(-1), -1 };
+        }
+    }
+
+    {
+        auto i = this->kw_section_.find(key);
+
+        if (i != std::end(this->kw_section_)) {
+            // 'vector' previously located for 'gridName'.  Return it.
+            return i->second;
+        }
+    }
+
+    if (gridName.empty()) {
+        return this->lookupMainGrid(key);
+    }
+
+    return this->lookupLGR(key);
+}
+
+Opm::ECLInitFileData::Impl::LookupResult
+Opm::ECLInitFileData::Impl::lookupMainGrid(const KWKey& key) const
+{
+    assert (key.gridName.empty() && "Logic Error");
+
+    const auto* kwheader = key.vector.c_str();
+
+    // Main grid sections are even numbered.
+    for (auto nSect = this->sections_.numSections(), sectID = 0*nSect;
+         sectID < nSect; sectID += 2)
+    {
+        const auto& s = this->getSection(sectID);
+
+        // Skip empty sections
+        if (s.block == nullptr) { continue; }
+
+        const auto count =
+            ecl_file_view_get_num_named_kw(s.block, kwheader);
+
+        if (count > 0) {
+            // Result-set 'vector' present in main grid.  Record and return.
+
+            // Assume that keyword does not occur multiple times in main
+            // grid section.
+            const auto gridSectID = 0;
+
+            return this->kw_section_[key] =
+                LookupResult { sectID, gridSectID };
+        }
+    }
+
+    // No result-set 'vector' in main grid.  Record as missing and return
+    // "not found".
+    this->missing_kw_.insert(key);
+
+    return { SectionID(-1), -1 };
+}
+
+Opm::ECLInitFileData::Impl::LookupResult
+Opm::ECLInitFileData::Impl::lookupLGR(const KWKey& key) const
+{
+    assert ((! key.gridName.empty()) && "Logic Error");
+
+    const auto  gridID   = paddedGridName(key.gridName);
+    const auto* kwheader = key.vector.c_str();
+    const auto* gridName = gridID.c_str();
+
+    // LGR sections are odd numbered.
+    for (auto nSect = this->sections_.numSections(), sectID = 0*nSect + 1;
+         sectID < nSect; sectID += 2)
+    {
+        const auto& s = this->getSection(sectID);
+
+        // Skip empty sections.
+        if (s.block == nullptr) { continue; }
+
+        const auto nLGR =
+            ecl_file_view_get_num_named_kw(s.block, LGR_KW);
+
+        assert ((nLGR > 0) && "Logic Error");
+
+        for (auto lgrID = 0*nLGR; lgrID < nLGR; ++lgrID) {
+            const auto* kw =
+                ecl_file_view_iget_named_kw(s.block, LGR_KW, lgrID);
+
+            if (! ecl_kw_data_equal(kw, gridName)) {
+                // This is not the grid you're looking for.
+                continue;
+            }
+
+            // This LGR section pertains to key.gridName.  Look for
+            // key.vector between this occurrence of LGR_KW and the next.
+            // Continue searching if we don't find that vector however,
+            // because there may be multiple relevant LGR instances for
+            // key.gridName.
+
+            const auto* lgrSect =
+                ecl_file_view_add_blockview(s.block, LGR_KW, lgrID);
+
+            const auto kwCount =
+                ecl_file_view_get_num_named_kw(lgrSect, kwheader);
+
+            if (kwCount > 0) {
+                // We found the key.vector in this LGR data section.  Record
+                // position and return it to caller.
+
+                return this->kw_section_[key] =
+                    LookupResult { SectionID(sectID), lgrID };
+            }
+
+            // Did not find 'key.vector' in this LGR data section.  Continue
+            // searching nonetheless because there may be more LGR sections
+            // that pertain to 'key.gridName'.
+        }
+    }
+
+    // key.vector not found for key.gridName in any of the LGR sections.
+    // Record as missing and return "not found".
+
+    this->missing_kw_.insert(key);
+
+    return { SectionID(-1), -1 };
+}
+
+void
+Opm::ECLInitFileData::Impl::setActiveBlock(const SectionID sect) const
+{
+    this->activeBlock_ = this->getSection(sect).block;
+}
+
+const ECLImpl::InitFileSections::Section&
+Opm::ECLInitFileData::Impl::getSection(const SectionID sect) const
+{
+    assert (sect < this->sections_.numSections());
+
+    return this->sections_[sect];
+}
+
+// ######################################################################
+//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+// Public Interfaces Follow
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ######################################################################
+
+// ======================================================================
+// Implementation of class Opm::ECLRestartData Below Separator
+// ======================================================================
+
+Opm::ECLRestartData::ECLRestartData(boost::filesystem::path rstrt)
+    : pImpl_(new Impl(std::move(rstrt)))
+{}
+
+Opm::ECLRestartData::ECLRestartData(std::shared_ptr<ecl_file_type> rstrt)
+    : pImpl_(new Impl(std::move(rstrt)))
+{}
+
+Opm::ECLRestartData::ECLRestartData(const ECLRestartData& rhs)
     : pImpl_(new Impl(*rhs.pImpl_))
 {}
 
-Opm::ECLResultData::ECLResultData(ECLResultData&& rhs)
+Opm::ECLRestartData::ECLRestartData(ECLRestartData&& rhs)
     : pImpl_(std::move(rhs.pImpl_))
 {}
 
-Opm::ECLResultData&
-Opm::ECLResultData::operator=(const ECLResultData& rhs)
+Opm::ECLRestartData&
+Opm::ECLRestartData::operator=(const ECLRestartData& rhs)
 {
     this->pImpl_.reset(new Impl(*rhs.pImpl_));
 
     return *this;
 }
 
-Opm::ECLResultData&
-Opm::ECLResultData::operator=(ECLResultData&& rhs)
+Opm::ECLRestartData&
+Opm::ECLRestartData::operator=(ECLRestartData&& rhs)
 {
     this->pImpl_ = std::move(rhs.pImpl_);
 
     return *this;
 }
 
-Opm::ECLResultData::~ECLResultData()
+Opm::ECLRestartData::~ECLRestartData()
 {}
 
-const ecl_file_type*
-Opm::ECLResultData::getRawFilePtr() const
+bool Opm::ECLRestartData::selectReportStep(const int step) const
 {
-    return this->pImpl_->getRawFilePtr();
-}
+    // selectReportStep() const is a bit of a lie.  pImpl_ is a const
+    // pointer to modifiable Impl.
 
-bool Opm::ECLResultData::selectGlobalView()
-{
-    return this->pImpl_->selectGlobalView();
-}
-
-bool Opm::ECLResultData::selectReportStep(const int step)
-{
     return this->pImpl_->selectReportStep(step);
 }
 
 bool
-Opm::ECLResultData::
-haveKeywordData(const std::string& vector, const int gridID) const
+Opm::ECLRestartData::
+haveKeywordData(const std::string& vector,
+                const std::string& gridID) const
 {
     return this->pImpl_->haveKeywordData(vector, gridID);
 }
@@ -861,23 +1621,109 @@ namespace Opm {
 
     template <typename T>
     std::vector<T>
-    ECLResultData::keywordData(const std::string& vector,
-                               const int          gridID) const
+    ECLRestartData::keywordData(const std::string& vector,
+                                const std::string& gridID) const
     {
         return this->pImpl_->template keywordData<T>(vector, gridID);
     }
 
     // Explicit instantiations for those types we care about.
     template std::vector<std::string>
-    ECLResultData::keywordData<std::string>(const std::string& vector,
-                                            const int          gridID) const;
+    ECLRestartData::keywordData<std::string>(const std::string& vector,
+                                             const std::string& gridID) const;
+
+    template std::vector<bool>
+    ECLRestartData::keywordData<bool>(const std::string& vector,
+                                      const std::string& gridID) const;
 
     template std::vector<int>
-    ECLResultData::keywordData<int>(const std::string& vector,
-                                    const int          gridID) const;
+    ECLRestartData::keywordData<int>(const std::string& vector,
+                                     const std::string& gridID) const;
 
     template std::vector<double>
-    ECLResultData::keywordData<double>(const std::string& vector,
-                                       const int          gridID) const;
+    ECLRestartData::keywordData<double>(const std::string& vector,
+                                        const std::string& gridID) const;
+
+} // namespace Opm::ECL
+
+// ======================================================================
+// Implementation of class Opm::ECLInitFileData Below Separator
+// ======================================================================
+
+Opm::ECLInitFileData::ECLInitFileData(boost::filesystem::path init)
+    : pImpl_(new Impl(std::move(init)))
+{}
+
+Opm::ECLInitFileData::ECLInitFileData(std::shared_ptr<ecl_file_type> init)
+    : pImpl_(new Impl(std::move(init)))
+{}
+
+Opm::ECLInitFileData::ECLInitFileData(const ECLInitFileData& rhs)
+    : pImpl_(new Impl(*rhs.pImpl_))
+{}
+
+Opm::ECLInitFileData::ECLInitFileData(ECLInitFileData&& rhs)
+    : pImpl_(std::move(rhs.pImpl_))
+{}
+
+Opm::ECLInitFileData&
+Opm::ECLInitFileData::operator=(const ECLInitFileData& rhs)
+{
+    this->pImpl_.reset(new Impl(*rhs.pImpl_));
+
+    return *this;
+}
+
+Opm::ECLInitFileData&
+Opm::ECLInitFileData::operator=(ECLInitFileData&& rhs)
+{
+    this->pImpl_ = std::move(rhs.pImpl_);
+
+    return *this;
+}
+
+Opm::ECLInitFileData::~ECLInitFileData()
+{}
+
+bool
+Opm::ECLInitFileData::
+haveKeywordData(const std::string& vector,
+                const std::string& gridID) const
+{
+    return this->pImpl_->haveKeywordData(vector, gridID);
+}
+
+const ecl_file_type*
+Opm::ECLInitFileData::getRawFilePtr() const
+{
+    return this->pImpl_->getRawFilePtr();
+}
+
+namespace Opm {
+
+    template <typename T>
+    std::vector<T>
+    ECLInitFileData::keywordData(const std::string& vector,
+                                 const std::string& gridID) const
+    {
+        return this->pImpl_->template keywordData<T>(vector, gridID);
+    }
+
+    // Explicit instantiations for those types we care about.
+    template std::vector<std::string>
+    ECLInitFileData::keywordData<std::string>(const std::string& vector,
+                                              const std::string& gridID) const;
+
+    template std::vector<bool>
+    ECLInitFileData::keywordData<bool>(const std::string& vector,
+                                       const std::string& gridID) const;
+
+    template std::vector<int>
+    ECLInitFileData::keywordData<int>(const std::string& vector,
+                                      const std::string& gridID) const;
+
+    template std::vector<double>
+    ECLInitFileData::keywordData<double>(const std::string& vector,
+                                         const std::string& gridID) const;
 
 } // namespace Opm::ECL

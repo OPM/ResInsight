@@ -38,3 +38,11 @@ RimEclipseWell* RivSimWellPipeSourceInfo::well() const
 {
     return m_eclipseWell.p();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RivSimWellPipeSourceInfo::branchIndex() const
+{
+    return m_branchIndex;
+}

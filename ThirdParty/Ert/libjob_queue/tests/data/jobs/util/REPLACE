@@ -1,6 +1,0 @@
-STDOUT        replace.stdout
-STDERR        replace.stderr
-
-EXECUTABLE  /project/res/x86_64_RH_4/bin/replace.x
-ARGLIST       <FROM> <TO> <FILE>
-

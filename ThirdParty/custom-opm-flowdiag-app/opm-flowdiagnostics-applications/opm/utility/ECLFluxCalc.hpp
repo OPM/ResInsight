@@ -21,10 +21,14 @@
 #define OPM_ECLFLUXCALC_HEADER_INCLUDED
 
 #include <opm/utility/ECLGraph.hpp>
+#include <opm/utility/ECLPhaseIndex.hpp>
+#include <opm/utility/ECLSaturationFunc.hpp>
+
 #include <vector>
 
 namespace Opm
 {
+    class ECLRestartData;
 
     /// Class for computing connection fluxes in the absence of flux output.
     class ECLFluxCalc
@@ -33,30 +37,36 @@ namespace Opm
         /// Construct from ECLGraph.
         ///
         /// \param[in] graph Connectivity data, as well as providing a means to read data from the restart file.
-        explicit ECLFluxCalc(const ECLGraph& graph);
-
-        using PhaseIndex = ECLGraph::PhaseIndex;
+        explicit ECLFluxCalc(const ECLGraph&     graph,
+                             ECLSaturationFunc&& satfunc);
 
         /// Retrive phase flux on all connections defined by \code
         /// graph.neighbours() \endcode.
+        ///
+        /// \param[in] rstrt ECL Restart data set from which to extract
+        ///            relevant data per cell.
         ///
         /// \param[in] phase Canonical phase for which to retrive flux.
         ///
         /// \return Flux values corresponding to selected phase.
         ///         Empty if required data is missing.
         ///         Numerical values in SI units (rm^3/s).
-        std::vector<double> flux(const PhaseIndex phase) const;
+        std::vector<double>
+        flux(const ECLRestartData& rstrt,
+             const ECLPhaseIndex   phase) const;
 
     private:
         struct DynamicData
         {
             std::vector<double> pressure;
+            std::vector<double> relperm;
         };
 
         double singleFlux(const int connection,
                           const DynamicData& dyn_data) const;
 
         const ECLGraph& graph_;
+        ECLSaturationFunc satfunc_;
         std::vector<int> neighbours_;
         std::vector<double> transmissibility_;
     };

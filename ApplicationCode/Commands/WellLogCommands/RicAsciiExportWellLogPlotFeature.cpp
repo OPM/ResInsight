@@ -93,7 +93,7 @@ void RicAsciiExportWellLogPlotFeature::onActionTriggered(bool isChecked)
         bool writeFiles = caf::Utils::getSaveDirectoryAndCheckOverwriteFiles(defaultDir, fileNames, &saveDir);
         if (!writeFiles) return;
 
-        RiaLogging::debug(QString("Writing to directory %!").arg(saveDir));
+        RiaLogging::info(QString("Writing to directory %!").arg(saveDir));
         for (RimWellLogPlot* wellLogPlot : selectedWellLogPlots)
         {
             QString fileName = saveDir + "/" + caf::Utils::makeValidFileBasename(wellLogPlot->description()) + ".ascii";

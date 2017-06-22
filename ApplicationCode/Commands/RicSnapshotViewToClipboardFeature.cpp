@@ -146,7 +146,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
 
     startPath += "/image.png";
 
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath);
     if (fileName.isEmpty())
     {
         return;
@@ -278,6 +278,6 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 void RicSnapshotAllPlotsToFileFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Snapshot All Plots To File");
-    actionToSetup->setIcon(QIcon(":/SnapShotSave.png"));
+    actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
 }
 

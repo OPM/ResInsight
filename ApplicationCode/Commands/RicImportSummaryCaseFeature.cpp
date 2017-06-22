@@ -19,6 +19,7 @@
 #include "RicImportSummaryCaseFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
@@ -102,10 +103,14 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
     newSumCase->loadCase();
 
-    RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
 
-    RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+    if (app->preferences()->autoCreatePlotsOnImport())
+    {
+        RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
+        RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+
+        RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
+    }
 
     sumCaseColl->updateConnectedEditors();
     app->addToRecentFiles(fileName);
