@@ -35,7 +35,6 @@ namespace caf
         addItem(RicExportCompletionDataSettingsUi::ALL_WELLS,     "ALL_WELLS",     "All Wells");
         addItem(RicExportCompletionDataSettingsUi::CHECKED_WELLS, "CHECKED_WELLS", "Checked Wells");
         addItem(RicExportCompletionDataSettingsUi::SELECTED_WELLS, "SELECTED_WELLS", "Selected Wells");
-        addItem(RicExportCompletionDataSettingsUi::CHECKED_AND_SELECTED_WELLS, "CHECKED_AND_SELECTED_WELLS", "Checked and Selected Wells");
         setDefault(RicExportCompletionDataSettingsUi::ALL_WELLS);
     }
 
@@ -109,7 +108,6 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
         else
         {
             options.push_back(caf::PdmOptionItemInfo("Selected Wells", SELECTED_WELLS));
-            options.push_back(caf::PdmOptionItemInfo("Selected and Checked Wells", CHECKED_AND_SELECTED_WELLS));
         }
     }
     else

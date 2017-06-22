@@ -122,14 +122,17 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
     std::vector<RimWellPath*> wellPaths;
     caf::SelectionManager::instance()->objectsByType(&wellPaths);
 
-    std::vector<RimWellPathCollection*> wellPathCollections;
-    caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
-
-    for (auto wellPathCollection : wellPathCollections)
+    if (wellPaths.empty())
     {
-        for (auto wellPath : wellPathCollection->wellPaths())
+        std::vector<RimWellPathCollection*> wellPathCollections;
+        caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+
+        for (auto wellPathCollection : wellPathCollections)
         {
-            wellPaths.push_back(wellPath);
+            for (auto wellPath : wellPathCollection->wellPaths())
+            {
+                wellPaths.push_back(wellPath);
+            }
         }
     }
 
@@ -169,8 +172,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         usedWellPaths = wellPaths;
     }
-    else if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_WELLS
-             || exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_AND_SELECTED_WELLS)
+    else if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_WELLS)
     {
         for (auto wellPath : wellPaths)
         {

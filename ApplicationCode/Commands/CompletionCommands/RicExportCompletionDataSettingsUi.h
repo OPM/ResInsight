@@ -42,7 +42,6 @@ public:
         ALL_WELLS,
         CHECKED_WELLS,
         SELECTED_WELLS,
-        CHECKED_AND_SELECTED_WELLS
     };
     typedef caf::AppEnum<WellSelection> WellSelectionType;
 
