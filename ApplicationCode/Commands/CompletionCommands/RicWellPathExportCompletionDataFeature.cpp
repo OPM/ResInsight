@@ -572,7 +572,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                                                                        interval->skinFactor(), 
                                                                        interval->diameter(unitSystem),
                                                                        direction);
-            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD() + QString(" : ") + QString::number(transmissibility)));
+            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()) + QString(" : ") + QString::number(transmissibility));
             completionData.push_back(completion);
         }
     }
