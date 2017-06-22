@@ -77,7 +77,11 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
     std::map<size_t, std::vector<WellBorePartForTransCalc> > wellBorePartsInCells; //wellBore = main bore or fishbone lateral
     findFishboneLateralsWellBoreParts(wellBorePartsInCells, wellPath, settings);
     findFishboneImportedLateralsWellBoreParts(wellBorePartsInCells, wellPath, settings);
-    findMainWellBoreParts(wellBorePartsInCells, wellPath, settings);
+    if (!wellBorePartsInCells.empty())
+    {
+        //Don't include main bore if there are no fishbones
+        findMainWellBoreParts(wellBorePartsInCells, wellPath, settings);
+    }
 
     std::vector<RigCompletionData> completionData;
 
