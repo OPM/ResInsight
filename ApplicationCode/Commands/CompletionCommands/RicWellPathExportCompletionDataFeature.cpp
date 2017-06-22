@@ -79,8 +79,10 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
+    
+    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
 
-    RicExportCompletionDataSettingsUi exportSettings;
+    RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -98,7 +100,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
+        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings.folder);
 
         exportCompletions(wellPaths, exportSettings);
     }
@@ -139,6 +141,18 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeature::noWellPathsSelectedDirectly()
+{
+    std::vector<RimWellPath*> wellPaths;
+    caf::SelectionManager::instance()->objectsByType(&wellPaths);
+
+    if (wellPaths.empty()) return true;
+    else return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, 
                                                                const RicExportCompletionDataSettingsUi& exportSettings)
 {
@@ -150,11 +164,13 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
 
     std::vector<RimWellPath*> usedWellPaths;
-    if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::ALL_WELLS)
+    if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::ALL_WELLS
+        || exportSettings.wellSelection == RicExportCompletionDataSettingsUi::SELECTED_WELLS)
     {
         usedWellPaths = wellPaths;
     }
-    else if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_WELLS)
+    else if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_WELLS
+             || exportSettings.wellSelection == RicExportCompletionDataSettingsUi::CHECKED_AND_SELECTED_WELLS)
     {
         for (auto wellPath : wellPaths)
         {

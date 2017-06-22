@@ -41,6 +41,8 @@ public:
     enum WellSelection {
         ALL_WELLS,
         CHECKED_WELLS,
+        SELECTED_WELLS,
+        CHECKED_AND_SELECTED_WELLS
     };
     typedef caf::AppEnum<WellSelection> WellSelectionType;
 
@@ -52,6 +54,7 @@ public:
 
 
     RicExportCompletionDataSettingsUi();
+    RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected);
 
 
     caf::PdmField<ExportSplitType>          fileSplit;
@@ -72,5 +75,8 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
+    bool                                    m_onlyWellPathCollectionSelected;
 
 };

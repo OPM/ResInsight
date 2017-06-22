@@ -126,6 +126,7 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
     std::vector<RimWellPath*>                    selectedWellPaths();
+    bool                                         noWellPathsSelectedDirectly();
 
 public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath);
