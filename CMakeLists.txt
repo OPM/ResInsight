@@ -118,33 +118,25 @@ else()
         set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
         add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
     else()
-        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert)
+        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/lib/include/ert)
         add_subdirectory(ThirdParty/Ert)
     endif ()
 
     list(APPEND ERT_INCLUDE_DIRS
-        ${ERT_INCLUDE_ROOT}/libecl/include/
-        ${ERT_INCLUDE_ROOT}/libert_util/include/
-        ${ERT_INCLUDE_ROOT}/libgeometry/include/
-        ${ERT_INCLUDE_ROOT}/libecl_well/include/
-        ${ERT_INCLUDE_ROOT}/libeclxx/include
-        ${ERT_INCLUDE_ROOT}/libert_utilxx/include
-
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
+        ${ERT_INCLUDE_ROOT}/ecl/
+        ${ERT_INCLUDE_ROOT}/util/
+        ${ERT_INCLUDE_ROOT}/geometry/
+        ${ERT_INCLUDE_ROOT}/ecl_well/
     )
 
     list(APPEND ERT_LIBRARIES
 	        ecl 
-	        eclxx
-	        ecl_well 
-	        ert_geometry 
-	        ert_util  
     )
 
     if (MSVC)
       set_property(TARGET  
           ${ERT_LIBRARIES}
-          ecl_lfs
+#          ecl_lfs
 	      PROPERTY FOLDER "Thirdparty/ERT"
       )
     endif()
