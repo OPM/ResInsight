@@ -19,6 +19,7 @@ set(TEST_SOURCES
     test_grdecl.py
     test_grid.py
     test_grid_statoil.py
+    test_grid_generator.py
     test_indexed_read.py
     test_ecl_kw_statoil.py
     test_ecl_kw.py
@@ -40,11 +41,14 @@ set(TEST_SOURCES
     test_geertsma.py
     test_ecl_type.py
     test_restart_head.py
+    test_fk_user_data.py
 )
 
 add_python_package("python.tests.ecl"  ${PYTHON_INSTALL_PREFIX}/tests/ecl "${TEST_SOURCES}" False)
 
+addPythonTest(tests.ecl.test_fk_user_data.FKTest)
 addPythonTest(tests.ecl.test_grid.GridTest )
+addPythonTest(tests.ecl.test_grid_generator.GridGeneratorTest )
 addPythonTest(tests.ecl.test_ecl_kw.KWTest)
 addPythonTest(tests.ecl.test_kw_function.KWFunctionTest)
 addPythonTest(tests.ecl.test_ecl_3dkw.Ecl3DKWTest )

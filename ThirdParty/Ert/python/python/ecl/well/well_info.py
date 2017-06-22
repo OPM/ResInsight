@@ -1,3 +1,20 @@
+#  Copyright (C) 2017  Statoil ASA, Norway.
+#
+#  This file is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
+
+from os.path import isfile
 from cwrap import BaseCClass
 from ecl.ecl import EclGrid
 from ecl.ecl.ecl_file import EclFile
@@ -82,9 +99,14 @@ class WellInfo(BaseCClass):
         """
         return self._has_well( item )
 
+    def _assert_file_exists(self, rst_file):
+        if not isfile(rst_file):
+            raise IOError('No such file %s' % rst_file)
+
     def addWellFile(self, rst_file, load_segment_information):
         """ @type rstfile: str or EclFile """
         if isinstance(rst_file, str):
+            self._assert_file_exists(rst_file)
             self._load_rstfile(rst_file, load_segment_information)
         elif isinstance(rst_file, EclFile):
             self._load_rst_eclfile(rst_file, load_segment_information)

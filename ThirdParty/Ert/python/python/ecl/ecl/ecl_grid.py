@@ -47,7 +47,8 @@ class EclGrid(BaseCClass):
     _alloc_rectangular            = EclPrototype("ecl_grid_obj ecl_grid_alloc_rectangular( int , int , int , double , double , double , int*)" , bind = False)
     _exists                       = EclPrototype("bool ecl_grid_exists( char* )" , bind = False)
 
-    _get_lgr                      = EclPrototype("ecl_grid_ref ecl_grid_get_lgr( ecl_grid , char* )")
+    _get_numbered_lgr             = EclPrototype("ecl_grid_ref ecl_grid_get_lgr_from_lgr_nr( ecl_grid , int)")
+    _get_named_lgr                = EclPrototype("ecl_grid_ref ecl_grid_get_lgr( ecl_grid , char* )")
     _get_cell_lgr                 = EclPrototype("ecl_grid_ref ecl_grid_get_cell_lgr1( ecl_grid , int )")
     _num_coarse_groups            = EclPrototype("int  ecl_grid_get_num_coarse_groups( ecl_grid )")
     _in_coarse_group1             = EclPrototype("bool ecl_grid_cell_in_coarse_group1( ecl_grid , int)")
@@ -78,7 +79,8 @@ class EclGrid(BaseCClass):
     _cell_contains                = EclPrototype("bool ecl_grid_cell_contains_xyz1( ecl_grid , int , double , double , double )")
     _cell_regular                 = EclPrototype("bool ecl_grid_cell_regular1( ecl_grid , int)")
     _num_lgr                      = EclPrototype("int  ecl_grid_get_num_lgr( ecl_grid )")
-    _has_lgr                      = EclPrototype("bool ecl_grid_has_lgr( ecl_grid , char* )")
+    _has_numbered_lgr             = EclPrototype("bool ecl_grid_has_lgr_nr( ecl_grid , int)")
+    _has_named_lgr                = EclPrototype("bool ecl_grid_has_lgr( ecl_grid , char* )")
     _grid_value                   = EclPrototype("double ecl_grid_get_property( ecl_grid , ecl_kw , int , int , int)")
     _get_cell_volume              = EclPrototype("double ecl_grid_get_cell_volume1( ecl_grid , int )")
     _get_cell_thickness           = EclPrototype("double ecl_grid_get_cell_thickness1( ecl_grid , int )")
@@ -103,6 +105,11 @@ class EclGrid(BaseCClass):
     _compressed_kw_copy           = EclPrototype("void   ecl_grid_compressed_kw_copy( ecl_grid , ecl_kw , ecl_kw)")
     _global_kw_copy               = EclPrototype("void   ecl_grid_global_kw_copy( ecl_grid , ecl_kw , ecl_kw)")
     _create_volume_keyword        = EclPrototype("ecl_kw_obj ecl_grid_alloc_volume_kw( ecl_grid , bool)")
+    _use_mapaxes                  = EclPrototype("bool ecl_grid_use_mapaxes(ecl_grid)")
+    _export_coord                 = EclPrototype("ecl_kw_obj ecl_grid_alloc_coord_kw( ecl_grid )")
+    _export_zcorn                 = EclPrototype("ecl_kw_obj ecl_grid_alloc_zcorn_kw( ecl_grid )")
+    _export_actnum                = EclPrototype("ecl_kw_obj ecl_grid_alloc_actnum_kw( ecl_grid )")
+    _export_mapaxes               = EclPrototype("ecl_kw_obj ecl_grid_alloc_mapaxes_kw( ecl_grid )")
 
 
 
@@ -896,31 +903,40 @@ class EclGrid(BaseCClass):
         """
         Query if the grid has an LGR with name @lgr_name.
         """
-        if self._has_lgr( lgr_name ):
+        if self._has_named_lgr( lgr_name ):
             return True
         else:
             return False
 
 
-    def get_lgr( self , lgr_name ):
-        """
-        Get EclGrid instance with LGR content.
+    def get_lgr(self, lgr_key):
+        """Get EclGrid instance with LGR content.
 
-        Return an EclGrid instance based on the LGR named
-        @lgr_name. The LGR grid instance is in most questions like an
-        ordinary grid instance; the only difference is that it can not
-        be used for further queries about LGRs.
+        Return an EclGrid instance based on the LGR @lgr, the input
+        argument can either be the name of an LGR or the grid number
+        of the LGR. The LGR grid instance is mostly like an ordinary
+        grid instance; the only difference is that it can not be used
+        for further queries about LGRs.
 
-        If the grid does not contain an LGR with this name the method
-        will return None.
+        If the grid does not contain an LGR with this name/nr
+        exception KeyError will be raised.
+
         """
-        if self._has_lgr( lgr_name ):
-            lgr = self._get_lgr( name )
-            lgr.setParent( self )
-            return lgr
+        lgr = None
+        if isinstance(lgr_key, int):
+            if self._has_numbered_lgr(lgr_key):
+                lgr = self._get_numbered_lgr(lgr_key)
         else:
-            raise KeyError("No such LGR:%s" % lgr_name)
+            if self._has_named_lgr(lgr_key):
+                lgr = self._get_named_lgr(lgr_key)
 
+        if lgr is None:
+            raise KeyError("No such LGR: %s" % lgr_key)
+
+        lgr.setParent(self)
+        return lgr
+
+    
 
     def get_cell_lgr( self, active_index = None , global_index = None , ijk = None):
         """
@@ -1199,3 +1215,18 @@ class EclGrid(BaseCClass):
         """
 
         return self._create_volume_keyword( active_size )
+
+    def export_coord(self):
+        return self._export_coord()
+
+    def export_zcorn(self):
+        return self._export_zcorn()
+
+    def export_actnum(self):
+        return self._export_actnum()
+
+    def export_mapaxes(self):
+        if not self._use_mapaxes():
+            return None
+
+        return self._export_mapaxes()

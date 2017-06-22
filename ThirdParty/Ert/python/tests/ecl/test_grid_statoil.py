@@ -387,3 +387,22 @@ class GridTest(ExtendedTestCase):
         grdecl_file = self.createTestPath("Statoil/ECLIPSE/1.6.0_issueGrdecl/test_aug2016_gridOnly.grdecl")
         grid = EclGrid.loadFromGrdecl( grdecl_file )
         
+
+    def test_lgr_get(self):
+        grid = EclGrid(self.createTestPath("Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID"))
+        for (nr,name) in [ ( 104 , "LG003017"),
+                           (2 , "LG006024"),
+                           (  4 , "LG005025"),
+                           ( 82 , "LG011029"),
+                           (100 , "LG007021"),
+                           (110 , "LG003014")]:
+            lgr_name = grid.get_lgr( name )
+            lgr_nr = grid.get_lgr( nr )
+
+            self.assertEqual( lgr_name , lgr_nr )
+
+        with self.assertRaises(KeyError):
+            grid.get_lgr("NO/SUCHLGR")
+
+        with self.assertRaises(KeyError):
+            grid.get_lgr(1024)

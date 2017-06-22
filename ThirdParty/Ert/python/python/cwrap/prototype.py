@@ -160,6 +160,9 @@ class Prototype(object):
 
     @classmethod
     def registerType(cls, type_name, type_class_or_function, is_return_type=True, storage_type=None):
+        if storage_type is None and (inspect.isfunction(type_class_or_function)):
+          storage_type = ctypes.c_void_p
+
         _registerType(type_name,
                       type_class_or_function,
                       is_return_type = is_return_type,

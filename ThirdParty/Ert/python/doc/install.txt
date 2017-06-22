@@ -29,12 +29,11 @@ the py_compile module.
 
 Installing the shared libraries
 -------------------------------
-The ctypes module is based on the dlopen() system call to open shared
-libraries libecl.so, libert_util.so and so on. The final dlopen() call is
-not passed any path information, i.e. the runtime linker must be able
-to locate the shared libraries based solely on the normal runtime
-linking conventions. This means that you have two alternatives when
-installing the shared libraries:
+The ctypes module is based on the dlopen() system call to open the shared
+libecl.so. The final dlopen() call is not passed any path information, i.e. the
+runtime linker must be able to locate the shared libraries based solely on the
+normal runtime linking conventions. This means that you have two alternatives
+when installing the shared libraries:
 
  1. Install all the libraries in one of the standard library locations
     like /usr/local/lib.
@@ -43,8 +42,7 @@ installing the shared libraries:
     subsequently update the LD_LIBRARY_PATH variable to point to this
     directory.
 
-The shared libraries you will need are: libert_util.so, libecl.so,
-librms.so, libsched.so, libenkf.so, libjob_queue.so, libconfig.so and libgeometry.so
+The shared libraries you will need is 'libecl.so'
 
 The test environment
 --------------------

@@ -6,8 +6,8 @@ from ecl.test import ExtendedTestCase,TestAreaContext
 class RngTest(ExtendedTestCase):
 
     def test_enums(self):
-        self.assertEnumIsFullyDefined(RngAlgTypeEnum, "rng_alg_type", "libert_util/include/ert/util/rng.h")
-        self.assertEnumIsFullyDefined(RngInitModeEnum, "rng_init_mode", "libert_util/include/ert/util/rng.h")
+        self.assertEnumIsFullyDefined(RngAlgTypeEnum, "rng_alg_type", "lib/include/ert/util/rng.h")
+        self.assertEnumIsFullyDefined(RngInitModeEnum, "rng_init_mode", "lib/include/ert/util/rng.h")
 
     def test_rng_default(self):
         rng = RandomNumberGenerator()

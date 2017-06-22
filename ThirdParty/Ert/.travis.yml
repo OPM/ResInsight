@@ -1,6 +1,15 @@
-dist: trusty
-sudo: false
 language: c
+
+matrix:
+  fast_finish: true
+  include:
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+    - os: linux
+      sudo: false
+      compiler: gcc
+      dist: trusty
 
 addons:
   apt:
@@ -11,6 +20,9 @@ addons:
     - valgrind
     - gcc-4.8
     - g++-4.8
+    - clang
+    - cmake
+    - cmake-data
 
 env:
   global:
@@ -18,7 +30,18 @@ env:
 
 install:
 - if [[ "$CC" == "gcc" ]]; then export CXX="g++-4.8"; fi
-- wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    export CONDA_OS=MacOSX;
+  else
+    export CONDA_OS=Linux;
+  fi
+- export TRAVIS_PYTHON_VERSION="2.7"
+# We do this conditionally because it saves us some downloading if the version is the same.
+- if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+    wget https://repo.continuum.io/miniconda/Miniconda2-latest-${CONDA_OS}-x86_64.sh -O miniconda.sh;
+  else
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-${CONDA_OS}-x86_64.sh -O miniconda.sh;
+  fi
 - bash miniconda.sh -b -p $HOME/miniconda
 - export CONDA_HOME="$HOME/miniconda"
 - export PATH="$CONDA_HOME/bin:$PATH"
@@ -29,10 +52,7 @@ install:
 - conda install pylint numpy pandas
 
 before_script:
-- mkdir build
-- cd build
-- cmake -DBUILD_TESTS=ON -DBUILD_PYTHON=ON -DERT_BUILD_CXX=ON -DBUILD_APPLICATIONS=ON ..
+  - wget https://raw.githubusercontent.com/Statoil/ert/master/travis/build_total.py
 
 script:
-- make
-- ctest --output-on-failure -E ert_util_ping
+  - python build_total.py ecl

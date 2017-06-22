@@ -79,7 +79,37 @@ class EclFileTest(ExtendedTestCase):
                 self.assertTrue( ecl_file.has_kw("KW2"))
                 self.assertEqual(ecl_file[1], ecl_file[-1])
 
+    def test_save_kw(self):
+        with TestAreaContext("python/ecl_file/save_kw"):
+            data = range(1000)
+            kw = EclKW("MY_KEY",  len(data), EclDataType.ECL_INT)
+            for index, val in enumerate(data):
+                kw[index] = val
 
+            clean_dump = "my_clean_file"
+            fortio = FortIO(clean_dump, FortIO.WRITE_MODE)
+            kw.fwrite(fortio)
+            fortio.close()
+
+            test_file = "my_dump_file"
+            fortio = FortIO(test_file, FortIO.WRITE_MODE)
+            kw.fwrite(fortio)
+            fortio.close()
+
+            self.assertFilesAreEqual(clean_dump, test_file)
+
+            ecl_file = EclFile(test_file, flags=EclFileFlagEnum.ECL_FILE_WRITABLE)
+            loaded_kw = ecl_file["MY_KEY"][0]
+            self.assertTrue(kw.equal(loaded_kw))
+
+            ecl_file.save_kw(loaded_kw)
+            ecl_file.close()
+
+            self.assertFilesAreEqual(clean_dump, test_file)
+
+            ecl_file = EclFile(test_file)
+            loaded_kw = ecl_file["MY_KEY"][0]
+            self.assertTrue(kw.equal(loaded_kw))
 
     def test_gc(self):
         kw1 = EclKW("KW1" , 100 , EclDataType.ECL_INT)
