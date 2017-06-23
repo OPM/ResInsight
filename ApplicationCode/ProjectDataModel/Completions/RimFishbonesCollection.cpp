@@ -111,10 +111,13 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
     }
 
-    uiOrdering.add(&m_startMD);
-    uiOrdering.add(&m_mainBoreDiameter);
-    uiOrdering.add(&m_linerDiameter);
-    uiOrdering.add(&m_roughnessFactor);
+    caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup("Fishbone Well Properties");
+    wellGroup->add(&m_startMD);
+    wellGroup->add(&m_mainBoreDiameter);
+
+    caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
+    mswGroup->add(&m_linerDiameter);
+    mswGroup->add(&m_roughnessFactor);
 }
 
 //--------------------------------------------------------------------------------------------------
