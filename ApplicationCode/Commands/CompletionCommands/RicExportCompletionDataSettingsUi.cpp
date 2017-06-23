@@ -42,7 +42,7 @@ namespace caf
     void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
     {
         addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
-        addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT");
+        addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
         setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
     }
 }
@@ -156,13 +156,29 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         caf::PdmUiGroup* fishboneGroup = uiOrdering.addNewGroup("Export of Fishbone Completions");
         fishboneGroup->add(&includeFishbones);
         fishboneGroup->add(&excludeMainBoreForFishbones);
+        if (!includeFishbones) excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
+        else excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
 
         caf::PdmUiGroup* perfIntervalGroup = uiOrdering.addNewGroup("Export of Perforation Completions");
         perfIntervalGroup->add(&includePerforations);
         perfIntervalGroup->add(&timeStep);
-
+        if (!includePerforations) timeStep.uiCapability()->setUiReadOnly(true);
+        else  timeStep.uiCapability()->setUiReadOnly(false);
+        
         caf::PdmUiGroup* fractureGroup = uiOrdering.addNewGroup("Export of Fracture Completions");
         fractureGroup->add(&includeFractures);
+        
+        if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        {
+            includeFractures = false;
+            includeFractures.uiCapability()->setUiReadOnly(true);
+        }
+        else if (compdatExport == TRANSMISSIBILITIES)
+        {
+            includeFractures = true;
+            includeFractures.uiCapability()->setUiReadOnly(false);
+        }
+
     }
     uiOrdering.skipRemainingFields();
 }

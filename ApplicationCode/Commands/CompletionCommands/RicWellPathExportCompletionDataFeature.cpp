@@ -109,8 +109,6 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    //RicExportCompletionDataSettingsUi exportSettings;
-
     bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
     RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
 
@@ -436,12 +434,12 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
     }
 
 
-    if (settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES) 
+    if (completions[0].completionType() == RigCompletionData::FRACTURE 
+        || settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES) 
     {
         resultCompletion.setCombinedValuesExplicitTrans(totalTrans, completionType);
     }
-
-    if (settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS) 
+    else if (settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS) 
     {
         //calculate trans for main bore - but as Eclipse will do it!      
         double transmissibilityEclipseCalculation = RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(settings.caseToApply(),
@@ -616,7 +614,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
     for (auto& completion : completionData)
     {
-        if (completion.wpimult() == 0.0)
+        if (completion.wpimult() == 0.0 || completion.isDefaultValue(completion.wpimult()))
         {
             continue;
         }
