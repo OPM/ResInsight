@@ -201,8 +201,8 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
 
     bool wellCenterFractureCellFound = false;
 
-    int numberOfCellsX = 25;
-    int numberOfCellsY = 25;
+    int numberOfCellsX = 35;
+    int numberOfCellsY = 35;
     
     double cellSizeX = (halfLength * 2) / numberOfCellsX;
     double cellSizeZ = height / numberOfCellsY;
