@@ -36,7 +36,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
-                                                                                                       cvf::Mat4f fractureTransform,
+                                                                                                       cvf::Mat4d fractureTransform,
                                                                                                        double skinFactor,
                                                                                                        double cDarcy,
                                                                                                        const RigFractureCell& stimPlanCell)
@@ -109,9 +109,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     std::vector<cvf::Vec3d> stimPlanPolygonTransformed;
     for (cvf::Vec3d v : m_stimPlanCell.getPolygon())
     {
-        cvf::Vec3f stimPlanPolygonNode = cvf::Vec3f(v);
-        stimPlanPolygonNode.transformPoint(m_fractureTransform);
-        stimPlanPolygonTransformed.push_back(cvf::Vec3d(stimPlanPolygonNode));
+        v.transformPoint(m_fractureTransform);
+        stimPlanPolygonTransformed.push_back(v);
     }
 
     std::vector<size_t> fracCells = getPotentiallyFracturedCellsForPolygon(stimPlanPolygonTransformed);
@@ -144,18 +143,18 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         RigCellGeometryTools::findCellLocalXYZ(hexCorners, localX, localY, localZ);
 
         //Transform planCell polygon(s) and averageZdirection to x/y coordinate system (where fracturePolygon already is located)
-        cvf::Mat4f invertedTransMatrix = m_fractureTransform.getInverted();
+        cvf::Mat4d invertedTransMatrix = m_fractureTransform.getInverted();
         for (std::vector<cvf::Vec3d> & planeCellPolygon : planeCellPolygons)
         {
             for (cvf::Vec3d& v : planeCellPolygon)
             {
-                v.transformPoint(static_cast<cvf::Mat4d>(invertedTransMatrix));
+                v.transformPoint(invertedTransMatrix);
             }
         }
 
         cvf::Vec3d localZinFracPlane;
         localZinFracPlane = localZ;
-        localZinFracPlane.transformVector(static_cast<cvf::Mat4d>(invertedTransMatrix));
+        localZinFracPlane.transformVector(invertedTransMatrix);
         cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
         directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
         directionOfLength.normalize();

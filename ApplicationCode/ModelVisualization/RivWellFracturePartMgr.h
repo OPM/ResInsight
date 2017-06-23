@@ -73,8 +73,8 @@ private:
 
     void                                getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax);
 
-    std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(std::vector<cvf::Vec3f> polygon, 
-                                                                         cvf::Mat4f m, 
+    std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon, 
+                                                                         cvf::Mat4d m, 
                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
     bool                                stimPlanCellTouchesPolygon(const std::vector<cvf::Vec3f>& polygon, 
                                                                    double xMin, 
@@ -92,7 +92,7 @@ private:
 private:
     caf::PdmPointer<RimFracture>        m_rimFracture;
 
-    cvf::ref<cvf::Part>                 m_part;
+    cvf::ref<cvf::Part>                 m_surfacePart;
     cvf::ref<cvf::Part>                 m_polygonPart;
     cvf::ref<cvf::Part>                 m_stimPlanMeshPart;
 };

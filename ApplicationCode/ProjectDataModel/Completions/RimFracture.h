@@ -77,7 +77,7 @@ public:
                                                                    size_t globalCellIndex) const;
     size_t                          findAnchorEclipseCell(const RigMainGrid* mainGrid) const;
 
-    cvf::Mat4f                      transformMatrix() const; 
+    cvf::Mat4d                      transformMatrix() const; 
 
     void                            setFractureTemplate(RimFractureTemplate* fractureTemplate);
     RimFractureTemplate*            fractureTemplate() const;

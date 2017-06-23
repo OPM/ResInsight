@@ -230,25 +230,25 @@ cvf::Vec3d RimFracture::anchorPosition() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4f RimFracture::transformMatrix() const
+cvf::Mat4d RimFracture::transformMatrix() const
 {
     cvf::Vec3d center = anchorPosition();
 
     // Dip (in XY plane)
-    cvf::Mat4f dipRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(dip()));
+    cvf::Mat4d dipRotation = cvf::Mat4d::fromRotation(cvf::Vec3d::Z_AXIS, cvf::Math::toRadians(dip()));
 
     // Dip (out of XY plane)
-    cvf::Mat4f tiltRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::X_AXIS, cvf::Math::toRadians(tilt()));
+    cvf::Mat4d tiltRotation = cvf::Mat4d::fromRotation(cvf::Vec3d::X_AXIS, cvf::Math::toRadians(tilt()));
 
 
     // Ellipsis geometry is produced in XY-plane, rotate 90 deg around X to get zero azimuth along Y
-    cvf::Mat4f rotationFromTesselator = cvf::Mat4f::fromRotation(cvf::Vec3f::X_AXIS, cvf::Math::toRadians(90.0f));
+    cvf::Mat4d rotationFromTesselator = cvf::Mat4d::fromRotation(cvf::Vec3d::X_AXIS, cvf::Math::toRadians(90.0f));
     
     // Azimuth rotation
-    cvf::Mat4f azimuthRotation = cvf::Mat4f::fromRotation(cvf::Vec3f::Z_AXIS, cvf::Math::toRadians(-azimuth()-90));
+    cvf::Mat4d azimuthRotation = cvf::Mat4d::fromRotation(cvf::Vec3d::Z_AXIS, cvf::Math::toRadians(-azimuth()-90));
 
-    cvf::Mat4f m = azimuthRotation * rotationFromTesselator * dipRotation * tiltRotation;
-    m.setTranslation(cvf::Vec3f(center));
+    cvf::Mat4d m = azimuthRotation * rotationFromTesselator * dipRotation * tiltRotation;
+    m.setTranslation(center);
 
     return m;
 }
@@ -272,11 +272,15 @@ void RimFracture::triangleGeometry(std::vector<cvf::uint>* triangleIndices, std:
             fractureDef->fractureTriangleGeometry(nodeCoords, triangleIndices, fractureUnit());
         }
 
-        cvf::Mat4f m = transformMatrix();
+        cvf::Mat4d m = transformMatrix();
 
         for (cvf::Vec3f& v : *nodeCoords)
         {
-            v.transformPoint(m);
+            cvf::Vec3d vd(v);
+
+            vd.transformPoint(m);
+
+            v = cvf::Vec3f(vd);
         }
 }
 

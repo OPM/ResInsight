@@ -34,7 +34,7 @@ class RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
     explicit RigEclipseToStimPlanCellTransmissibilityCalculator(RimEclipseCase* caseToApply,
-                                                                cvf::Mat4f fractureTransform,
+                                                                cvf::Mat4d fractureTransform,
                                                                 double skinFactor,
                                                                 double cDarcy,
                                                                 const RigFractureCell& stimPlanCell);
@@ -51,7 +51,7 @@ private:
     RimEclipseCase*                     m_case;
     double                              m_cDarcy;
     double                              m_fractureSkinFactor;
-    cvf::Mat4f                          m_fractureTransform;
+    cvf::Mat4d                          m_fractureTransform;
     const RigFractureCell&              m_stimPlanCell;
 
     std::vector<size_t>                 m_globalIndeciesToContributingEclipseCells;

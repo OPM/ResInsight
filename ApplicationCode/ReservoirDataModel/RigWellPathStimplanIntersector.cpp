@@ -17,7 +17,7 @@
 RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture* rimFracture)
 {
     std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->m_wellPathPoints;
-    cvf::Mat4f fractureXf                                    = rimFracture->transformMatrix();
+    cvf::Mat4d fractureXf                                    = rimFracture->transformMatrix();
     double wellRadius                                        = rimFracture->wellRadius(rimFracture->fractureUnit());
     std::vector<cvf::Vec3f> fracturePolygonf ; 
     std::vector<std::vector<cvf::Vec3d> > stpCellPolygons;
@@ -39,14 +39,14 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
 ///  Todo: Use only the perforated parts of the well path
 //--------------------------------------------------------------------------------------------------
 
-void RigWellPathStimplanIntersector::calculate(const cvf::Mat4f &fractureXf, 
+void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d &fractureXf, 
                                                const std::vector<cvf::Vec3d>& wellPathPointsOrg, 
                                                double wellRadius, 
                                                double perforationLength,
                                                const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons, 
                                                std::map<size_t, WellCellIntersection>& m_stimPlanCellIdxToIntersectionInfoMap)
 {
-    cvf::Mat4d toFractureXf = cvf::Mat4d(fractureXf.getInverted());
+    cvf::Mat4d toFractureXf = fractureXf.getInverted();
 
     std::vector<cvf::Vec3d> perforationLengthBoundingBoxPolygon;
     double cicleRadius = perforationLength / 2;

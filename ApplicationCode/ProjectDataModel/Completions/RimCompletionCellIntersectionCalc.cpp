@@ -163,9 +163,9 @@ void RimCompletionCellIntersectionCalc::calculateFractureIntersections(const Rig
         std::vector<cvf::Vec3d> fractureCellTransformed;
         for (const auto& v : fractureCell.getPolygon())
         {
-            cvf::Vec3f polygonNode = cvf::Vec3f(v);
+            cvf::Vec3d polygonNode = v;
             polygonNode.transformPoint(fracture->transformMatrix());
-            fractureCellTransformed.push_back(cvf::Vec3d(polygonNode));
+            fractureCellTransformed.push_back(polygonNode);
         }
 
         std::vector<size_t> potentialCells;

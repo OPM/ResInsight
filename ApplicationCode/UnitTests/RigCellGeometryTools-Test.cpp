@@ -281,7 +281,7 @@ TEST(RigWellPathStimplanIntersector, intersection)
 {
 
     {
-        cvf::Mat4f fractureXf = cvf::Mat4f::IDENTITY;
+        cvf::Mat4d fractureXf = cvf::Mat4d::IDENTITY;
         fractureXf.setTranslation({ 50.0f, 0.0f, 0.0f });
 
         //std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
@@ -315,7 +315,7 @@ TEST(RigWellPathStimplanIntersector, intersection)
     }
 
     {
-        cvf::Mat4f fractureXf = cvf::Mat4f::IDENTITY;
+        cvf::Mat4d fractureXf = cvf::Mat4d::IDENTITY;
 
 //         std::vector<cvf::Vec3f> fracturePolygon ={ {0.0f, 0.0f, 0.0f},  {5.0f, 10.0f, 0.0f}, {10.0f, 0.0f, 0.0f} };
         double perforationLength = 10;

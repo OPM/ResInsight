@@ -44,7 +44,7 @@ public:
 
 private:
     friend class RigWellPathStimplanIntersectorTester;
-    static void calculate(const cvf::Mat4f& fractureXf,
+    static void calculate(const cvf::Mat4d& fractureXf,
                           const std::vector<cvf::Vec3d>& wellPathPoints,
                           double wellRadius,
                           double perforationLength,
@@ -58,7 +58,7 @@ private:
 class RigWellPathStimplanIntersectorTester
 {
 public:
-    static void testCalculate(const cvf::Mat4f& fractureXf,
+    static void testCalculate(const cvf::Mat4d& fractureXf,
                               const std::vector<cvf::Vec3d>& wellPathPoints,
                               double wellRadius,
                               double perforationLength,

@@ -135,13 +135,13 @@ bool RigHexIntersectionTools::planeHexCellIntersection(cvf::Vec3d* hexCorners, c
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RigHexIntersectionTools::planeHexIntersectionPolygons(std::array<cvf::Vec3d, 8> hexCorners,
-                                                           cvf::Mat4f transformMatrixForPlane,
+                                                           cvf::Mat4d transformMatrixForPlane,
                                                            std::vector<std::vector<cvf::Vec3d> >& polygons)
 {
     bool isCellIntersected = false;
 
     cvf::Plane fracturePlane;
-    fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(transformMatrixForPlane.translation()),
+    fracturePlane.setFromPointAndNormal(transformMatrixForPlane.translation(),
                                         static_cast<cvf::Vec3d>(transformMatrixForPlane.col(2)));
 
     //Find line-segments where cell and fracture plane intersects
