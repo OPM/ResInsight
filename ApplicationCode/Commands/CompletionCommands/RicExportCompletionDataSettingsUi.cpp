@@ -34,6 +34,7 @@ namespace caf
     {
         addItem(RicExportCompletionDataSettingsUi::ALL_WELLS,     "ALL_WELLS",     "All Wells");
         addItem(RicExportCompletionDataSettingsUi::CHECKED_WELLS, "CHECKED_WELLS", "Checked Wells");
+        addItem(RicExportCompletionDataSettingsUi::SELECTED_WELLS, "SELECTED_WELLS", "Selected Wells");
         setDefault(RicExportCompletionDataSettingsUi::ALL_WELLS);
     }
 
@@ -54,6 +55,13 @@ CAF_PDM_SOURCE_INIT(RicExportCompletionDataSettingsUi, "RicExportCompletionDataS
 //--------------------------------------------------------------------------------------------------
 RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWellPathCollectionSelected)
+{
     CAF_PDM_InitObject("RimExportCompletionDataSettings", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&fileSplit, "FileSplit", "File Split", "", "", "");
@@ -67,6 +75,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
     CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Include Fractures", "", "", "");
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
+    m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,6 +115,18 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
             options.push_back(caf::PdmOptionItemInfo(timeStepNames[i], i));
         }
     }
+    else if (fieldNeedingOptions == &wellSelection)
+    {
+        if (m_onlyWellPathCollectionSelected)
+        {
+            options.push_back(caf::PdmOptionItemInfo("All Wells", ALL_WELLS));
+            options.push_back(caf::PdmOptionItemInfo("Checked Wells", CHECKED_WELLS));
+        }
+        else
+        {
+            options.push_back(caf::PdmOptionItemInfo("Selected Wells", SELECTED_WELLS));
+        }
+    }
     else
     {
         options = RicCaseAndFileExportSettingsUi::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
@@ -117,12 +139,15 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+
     caf::PdmUiGroup* generalExportSettings = uiOrdering.addNewGroup("General Export Settings");
     generalExportSettings->add(&folder);
     generalExportSettings->add(&caseToApply);
-    generalExportSettings->add(&timeStep);
     generalExportSettings->add(&compdatExport);
+    
     generalExportSettings->add(&wellSelection);
+    if(!m_onlyWellPathCollectionSelected) wellSelection.setValue(SELECTED_WELLS);
+
     generalExportSettings->add(&fileSplit);
 
     if (!m_displayForSimWell)
@@ -134,6 +159,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 
         caf::PdmUiGroup* perfIntervalGroup = uiOrdering.addNewGroup("Export of Perforation Completions");
         perfIntervalGroup->add(&includePerforations);
+        perfIntervalGroup->add(&timeStep);
 
         caf::PdmUiGroup* fractureGroup = uiOrdering.addNewGroup("Export of Fracture Completions");
         fractureGroup->add(&includeFractures);

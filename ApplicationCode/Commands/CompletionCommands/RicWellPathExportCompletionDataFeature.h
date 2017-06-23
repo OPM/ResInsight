@@ -129,6 +129,8 @@ protected:
     std::vector<RimWellPath*>                    selectedWellPaths();
     std::vector<RimEclipseWell*>                 selectedSimWells();
 
+    bool                                         noWellPathsSelectedDirectly();
+
 public:
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath);
     static std::vector<WellSegmentLocation>      findWellSegmentLocations(const RimEclipseCase* caseToApply, const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs);

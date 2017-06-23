@@ -120,6 +120,10 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
         exportSettings.showForWellPath();
     }
 
+    
+    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
+
+    RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -137,7 +141,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
+        RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings.folder);
 
         exportCompletions(wellPaths, simWells, exportSettings);
     }
@@ -159,20 +163,35 @@ std::vector<RimWellPath*> RicWellPathExportCompletionDataFeature::selectedWellPa
     std::vector<RimWellPath*> wellPaths;
     caf::SelectionManager::instance()->objectsByType(&wellPaths);
 
-    std::vector<RimWellPathCollection*> wellPathCollections;
-    caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
-
-    for (auto wellPathCollection : wellPathCollections)
+    if (wellPaths.empty())
     {
-        for (auto wellPath : wellPathCollection->wellPaths())
+        std::vector<RimWellPathCollection*> wellPathCollections;
+        caf::SelectionManager::instance()->objectsByType(&wellPathCollections);
+
+        for (auto wellPathCollection : wellPathCollections)
         {
-            wellPaths.push_back(wellPath);
+            for (auto wellPath : wellPathCollection->wellPaths())
+            {
+                wellPaths.push_back(wellPath);
+            }
         }
     }
 
     std::set<RimWellPath*> uniqueWellPaths(wellPaths.begin(), wellPaths.end());
     wellPaths.assign(uniqueWellPaths.begin(), uniqueWellPaths.end());
     return wellPaths;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicWellPathExportCompletionDataFeature::noWellPathsSelectedDirectly()
+{
+    std::vector<RimWellPath*> wellPaths;
+    caf::SelectionManager::instance()->objectsByType(&wellPaths);
+
+    if (wellPaths.empty()) return true;
+    else return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +234,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
 
     std::vector<RimWellPath*> usedWellPaths;
-    if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::ALL_WELLS)
+    if (exportSettings.wellSelection == RicExportCompletionDataSettingsUi::ALL_WELLS
+        || exportSettings.wellSelection == RicExportCompletionDataSettingsUi::SELECTED_WELLS)
     {
         usedWellPaths = wellPaths;
     }
@@ -652,7 +672,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                                                                        interval->skinFactor(), 
                                                                        interval->diameter(unitSystem),
                                                                        direction);
-            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD() + QString(" : ") + QString::number(transmissibility)));
+            completion.addMetadata("Perforation", QString("StartMD: %1 - EndMD: %2").arg(interval->startMD()).arg(interval->endMD()) + QString(" : ") + QString::number(transmissibility));
             completionData.push_back(completion);
         }
     }
