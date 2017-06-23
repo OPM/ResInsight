@@ -109,7 +109,10 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    RicExportCompletionDataSettingsUi exportSettings;
+    //RicExportCompletionDataSettingsUi exportSettings;
+
+    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
+    RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
 
     if (wellPaths.empty())
     {
@@ -119,11 +122,6 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         exportSettings.showForWellPath();
     }
-
-    
-    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
-
-    RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
