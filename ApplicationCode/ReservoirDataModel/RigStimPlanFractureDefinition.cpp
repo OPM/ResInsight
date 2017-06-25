@@ -124,7 +124,9 @@ std::vector<std::pair<QString, QString> > RigStimPlanFractureDefinition::getStim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataAtTimeIndex(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
+std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataAtTimeIndex(const QString& resultName, 
+                                                                                           const QString& unitName, 
+                                                                                           size_t timeStepIndex) const
 {
     std::vector<std::vector<double>> notMirrordedData = this->getDataAtTimeIndex(resultName, unitName, timeStepIndex);
     std::vector<std::vector<double>> mirroredData;
@@ -141,19 +143,27 @@ std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataA
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(const QString& resultNameFromColors, const QString& resultUnitFromColors, int m_activeTimeStepIndex, RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit, double m_wellPathDepthAtFracture)
+cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(const QString& resultNameFromColors, 
+                                                                            const QString& resultUnitFromColors, 
+                                                                            int m_activeTimeStepIndex, 
+                                                                            RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit, 
+                                                                            double m_wellPathDepthAtFracture)
 {
     std::vector<RigFractureCell> stimPlanCells;
     std::pair<size_t, size_t> wellCenterStimPlanCellIJ = std::make_pair(0, 0);
 
     bool wellCenterStimPlanCellFound = false;
 
-    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = this->getMirroredDataAtTimeIndex(resultNameFromColors, resultUnitFromColors, m_activeTimeStepIndex);
+    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = this->getMirroredDataAtTimeIndex(resultNameFromColors, 
+                                                                                                        resultUnitFromColors, 
+                                                                                                        m_activeTimeStepIndex);
 
     QString condUnit;
     if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC ) condUnit = "md-m";
     if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_FIELD )  condUnit = "md-ft";
-    std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getMirroredDataAtTimeIndex("CONDUCTIVITY", condUnit, m_activeTimeStepIndex);
+    std::vector<std::vector<double>> conductivityValuesAtTimeStep = this->getMirroredDataAtTimeIndex("CONDUCTIVITY", 
+                                                                                                     condUnit, 
+                                                                                                     m_activeTimeStepIndex);
 
     std::vector<double> depthCoordsAtNodes = this->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture);
     std::vector<double> xCoordsAtNodes = this->getNegAndPosXcoords();

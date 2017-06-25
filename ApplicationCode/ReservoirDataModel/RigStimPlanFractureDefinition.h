@@ -47,7 +47,7 @@ public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();
 
-    RiaEclipseUnitTools::UnitSystem                 unitSet() { return m_unitSet; }
+    RiaEclipseUnitTools::UnitSystem           unitSet() { return m_unitSet; }
     void                                      setUnitSet(RiaEclipseUnitTools::UnitSystem unitset) { m_unitSet = unitset;}
 
     size_t                                    gridXCount() { return m_gridXs.size();}
@@ -62,7 +62,6 @@ public:
     double                                    minDepth()   { return depths[0]; }
     double                                    maxDepth()   { return depths.back(); }
     size_t                                    depthCount() { return depths.size(); }
-
 
     // Grid Geometry
 
@@ -110,7 +109,7 @@ private:
     size_t                                    getTimeStepIndex(double timeStepValue);
     size_t                                    resultIndex(const QString& resultName, const QString& unit) const;
                                               
-    RiaEclipseUnitTools::UnitSystem                 m_unitSet;
+    RiaEclipseUnitTools::UnitSystem           m_unitSet;
     std::vector<double>                       m_gridXs;
     std::vector<double>                       m_gridYs;
     std::vector<double>                       depths;
