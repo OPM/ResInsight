@@ -116,7 +116,7 @@ public:
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase() const;
-    virtual RimCase*                                ownerCase();
+    virtual RimCase*                                ownerCase() const override;
 
     RigMainGrid*                                    mainGrid() const;
 

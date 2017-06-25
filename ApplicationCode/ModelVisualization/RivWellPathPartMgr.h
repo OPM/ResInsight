@@ -44,6 +44,7 @@ class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
 class RimWellPathCollection;
+class RimEclipseView;
 
 class QDateTime;
 
@@ -57,6 +58,9 @@ public:
                                                                    double characteristicCellSize,
                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
+
+    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                                   const RimEclipseView* eclView);
 
     void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                                     const QDateTime& timeStamp,
@@ -80,8 +84,6 @@ private:
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
                                                             double characteristicCellSize);
 
-    void                          appendFracturePartsToModel(cvf::ModelBasicList* model, 
-                                                             const caf::DisplayCoordTransform* displayCoordTransform);
 
     void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
                                                      double characteristicCellSize,

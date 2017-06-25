@@ -49,6 +49,7 @@
 #include <fstream>
 #include <cmath>
 #include "RivWellPathPartMgr.h"
+#include "RimEclipseView.h"
 
 namespace caf
 {
@@ -346,6 +347,22 @@ void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList
     {
         RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
         partMgr->appendStaticGeometryPartsToModel(model, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                             const RimEclipseView* eclView)
+{
+    if (!this->isActive()) return;
+    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
+
+    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
+    {
+        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
+        partMgr->appendStaticFracturePartsToModel(model, eclView);
     }
 }
 

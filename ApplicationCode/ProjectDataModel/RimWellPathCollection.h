@@ -40,6 +40,7 @@ class RifWellPathImporter;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
+class RimEclipseView;
 
 namespace cvf {
 class ModelBasicList;
@@ -100,6 +101,9 @@ public:
                                                                          double                            characteristicCellSize, 
                                                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
+
+    void                                appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                                         const RimEclipseView* eclView);
 
     void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
                                                                           const QDateTime&                  timeStamp,

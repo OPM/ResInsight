@@ -447,6 +447,8 @@ void RimEclipseView::createDisplayModel()
 
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
+    wellPathsPartManager()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
+
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
     // Create Scenes from the frameModels
@@ -688,10 +690,11 @@ void RimEclipseView::updateCurrentTimeStep()
                         }
                     }
 
-                    f->fracturePartManager()->appendGeometryPartsToModel(simWellFracturesModelBasicList.p(), transForm.p());
+                    f->fracturePartManager()->appendGeometryPartsToModel(simWellFracturesModelBasicList.p(), this);
                 }
 
                 simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
+                frameScene->addModel(simWellFracturesModelBasicList.p());
             }
         }
     }
@@ -1506,7 +1509,7 @@ cvf::Transform* RimEclipseView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimEclipseView::ownerCase()
+RimCase* RimEclipseView::ownerCase() const
 {
     return eclipseCase();
 }

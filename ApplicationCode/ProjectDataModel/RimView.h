@@ -163,7 +163,7 @@ public:
 
     virtual void                            zoomAll() override;
 
-    cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform();
+    cvf::ref<caf::DisplayCoordTransform>    displayCoordTransform() const;
 
     virtual QWidget*                        viewWidget() override;
     void                                    forceShowWindowOn();
@@ -171,7 +171,7 @@ public:
 public:
     virtual void                            loadDataAndUpdate() = 0;
     void                                    updateGridBoxData();
-    virtual RimCase*                        ownerCase() = 0;
+    virtual RimCase*                        ownerCase() const = 0;
 
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
 protected:

@@ -61,7 +61,7 @@ public:
 
     void                                                setGeoMechCase(RimGeoMechCase* gmCase);
     RimGeoMechCase*                                     geoMechCase();
-    virtual RimCase*                                    ownerCase();
+    virtual RimCase*                                    ownerCase() const override;
 
     virtual void                                        loadDataAndUpdate();
 

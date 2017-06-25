@@ -101,7 +101,7 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, const caf::DisplayCoordTransform* displayCoordTransform)
+void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const RimEclipseView* eclView)
 {
     if (!m_rimWellPath || !m_rimWellPath->fractureCollection()->isChecked()) return;
 
@@ -109,7 +109,7 @@ void RivWellPathPartMgr::appendFracturePartsToModel(cvf::ModelBasicList* model, 
     {
         CVF_ASSERT(f);
 
-        f->fracturePartManager()->appendGeometryPartsToModel(model, displayCoordTransform);
+        f->fracturePartManager()->appendGeometryPartsToModel(model, eclView);
     }
 }
 
@@ -384,12 +384,6 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
     buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
 
-    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
-    {
-        // Always recompute geometry, as the well part can be displayed in more than one view
-        f->fracturePartManager()->clearGeometryCache();
-    }
-
     if (m_pipeBranchData.m_surfacePart.notNull())
     {
         model->addPart(m_pipeBranchData.m_surfacePart.p());
@@ -404,8 +398,6 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     {
         model->addPart(m_wellLabelPart.p());
     }
-
-    appendFracturePartsToModel(model, displayCoordTransform);
 
     appendFishboneSubsPartsToModel(model, displayCoordTransform, characteristicCellSize);
     appendImportedFishbonesToModel(model, displayCoordTransform, characteristicCellSize);

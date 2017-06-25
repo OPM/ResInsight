@@ -41,6 +41,7 @@ namespace caf
 
 class RimFracture;
 class RimStimPlanFractureTemplate;
+class RimEclipseView;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -52,7 +53,7 @@ public:
     ~RivWellFracturePartMgr();
 
     void                                appendGeometryPartsToModel(cvf::ModelBasicList* model, 
-                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
+                                                                   const RimEclipseView* eclView);
     void                                clearGeometryCache();
 
     static std::vector<double>          mirrorDataAtSingleDepth(std::vector<double> depthData);
@@ -60,9 +61,9 @@ public:
 private:
     void                                generateSurfacePart(const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void                                applyFractureUniformColor();
+    void                                applyFractureUniformColor(const RimEclipseView* activeView);
 
-    void                                applyResultTextureColor();
+    void                                applyResultTextureColor(const RimEclipseView* activeView);
 
     void                                generateFractureOutlinePolygonPart(const caf::DisplayCoordTransform* displayCoordTransform);
     void                                generateStimPlanMeshPart(const caf::DisplayCoordTransform* displayCoordTransform);
@@ -71,7 +72,10 @@ private:
     cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, 
                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
 
-    void                                getPolygonBB(float &polygonXmin, float &polygonXmax, float &polygonYmin, float &polygonYmax);
+    void                                getPolygonBB(float &polygonXmin, 
+                                                     float &polygonXmax,
+                                                     float &polygonYmin, 
+                                                     float &polygonYmax);
 
     std::vector<cvf::Vec3f>             transfromToFractureDisplayCoords(const std::vector<cvf::Vec3f>& polygon, 
                                                                          cvf::Mat4d m, 
