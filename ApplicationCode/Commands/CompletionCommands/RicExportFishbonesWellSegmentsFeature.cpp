@@ -248,9 +248,6 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                 depth += location.trueVerticalDepth - previousTVD;
                 length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
             }
-            
-            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem),
-                                                       wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem));
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
             formatter.add(location.segmentNumber).add(location.segmentNumber);
@@ -258,7 +255,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             formatter.add(location.segmentNumber - 1); // All main stem segments are connected to the segment below them
             formatter.add(length);
             formatter.add(depth);
-            formatter.add(diameter);
+            formatter.add(wellPath->fishbonesCollection()->linerDiameter(unitSystem));
             formatter.add(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
             formatter.rowCompleted();
 
@@ -273,15 +270,13 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.comment("Rough: MSW - Open Hole Roughness Factor");
         for (const WellSegmentLocation& location : locations)
         {
-            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem),
-                                                       wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem));
             formatter.comment("ICD");
             formatter.add(location.icdSegmentNumber).add(location.icdSegmentNumber);
             formatter.add(location.icdBranchNumber);
             formatter.add(location.segmentNumber);
             formatter.add(0.1); // ICDs have 0.1 length
             formatter.add(0); // Depth change
-            formatter.add(diameter);
+            formatter.add(wellPath->fishbonesCollection()->linerDiameter(unitSystem));
             formatter.add(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
             formatter.rowCompleted();
 
