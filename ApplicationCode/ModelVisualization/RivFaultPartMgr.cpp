@@ -103,7 +103,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 {
     CVF_ASSERT(cellResultColors);
 
-    updateNNCColors(cellResultColors);
+    updateNNCColors(timeStepIndex, cellResultColors);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
@@ -182,7 +182,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors)
 {
-    updateNNCColors(cellResultColors);
+    updateNNCColors(timeStepIndex, cellResultColors);
 
     if (m_nativeFaultFaces.notNull())
     {
@@ -375,7 +375,7 @@ void RivFaultPartMgr::updatePartEffect()
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
-    updateNNCColors(NULL);
+    updateNNCColors(0, NULL);
 
     // Update mesh colors as well, in case of change
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -642,7 +642,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
+void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors)
 {
     if (m_NNCFaces.isNull()) return;
 
@@ -661,10 +661,11 @@ void RivFaultPartMgr::updateNNCColors(RimEclipseCellColors* cellResultColors)
     if (showNncsWithScalarMappedColor)
     {
         size_t scalarSetIndex = cellResultColors->scalarResultIndex();
+        RimDefines::ResultCatType resultType = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, scalarSetIndex);
+        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, resultType, scalarSetIndex, timeStepIndex);
 
         cvf::ref<cvf::Effect> nncEffect;
 

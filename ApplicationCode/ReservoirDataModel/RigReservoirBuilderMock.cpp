@@ -542,7 +542,7 @@ void RigReservoirBuilderMock::addFaults(RigEclipseCaseData* eclipseCase)
         addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);
     }
 
-    std::vector<double>& tranVals = grid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+    std::vector<double>& tranVals = grid->nncData()->makeStaticConnectionScalarResult(RigNNCData::COMB_TRANS);
     for (size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx)
     {
         tranVals[cIdx] = 0.2;

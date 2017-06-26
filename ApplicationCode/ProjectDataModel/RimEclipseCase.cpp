@@ -582,7 +582,22 @@ bool RimEclipseCase::openReserviorCase()
             size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                eclipseCaseData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::COMB_TRANS, combinedTransResIdx);
+            }
+            size_t combinedWatFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedWaterFluxResultName());
+            if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::FLUX_WAT, combinedWatFluxResIdx);
+            }
+            size_t combinedOilFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedOilFluxResultName());
+            if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::FLUX_OIL, combinedOilFluxResIdx);
+            }
+            size_t combinedGasFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedGasFluxResultName());
+            if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::FLUX_GAS, combinedGasFluxResIdx);
             }
         }
 

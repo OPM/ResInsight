@@ -321,6 +321,30 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riAreaNormTranZResultName()));
         statisticsCalculator = calc;
     }
+    else if (resultName == RimDefines::combinedWaterFluxResultName())
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRWATI+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRWATJ+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRWATK+"));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedOilFluxResultName())
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLROILI+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLROILJ+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLROILK+"));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedGasFluxResultName())
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASI+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASJ+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASK+"));
+        statisticsCalculator = calc;
+    }
     else
     {
         statisticsCalculator = new RigEclipseNativeStatCalc(this, scalarResultIndex);
@@ -691,6 +715,34 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
                 soilIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
                 this->setMustBeCalculated(soilIndex);
             }
+        }
+    }
+
+    // FLUX
+    {
+        size_t waterIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedWaterFluxResultName());
+        if (waterIndex == cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRWATI+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRWATJ+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRWATK+") != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedWaterFluxResultName(), false);
+        }
+        size_t oilIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedOilFluxResultName());
+        if (oilIndex == cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLROILI+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLROILJ+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLROILK+") != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedOilFluxResultName(), false);
+        }
+        size_t gasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedGasFluxResultName());
+        if (gasIndex == cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASI+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASJ+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASK+") != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedGasFluxResultName(), false);
         }
     }
 

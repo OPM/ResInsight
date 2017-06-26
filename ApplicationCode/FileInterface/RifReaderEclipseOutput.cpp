@@ -419,7 +419,10 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     {
         progInfo.setProgressDescription("Reading NNC data");
         progInfo.setNextProgressIncrement(5);
-        transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+        transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+        progInfo.incrementProgress();
+
+        transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
         progInfo.incrementProgress();
 
         progInfo.setProgressDescription("Processing NNC data");
@@ -574,7 +577,7 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , ecl_file_type * init_file, RigMainGrid * mainGrid)
+void RifReaderEclipseOutput::transferStaticNNCData(const ecl_grid_type* mainEclGrid , ecl_file_type* init_file, RigMainGrid* mainGrid)
 {
     if (!m_ecl_init_file ) return;
 
@@ -593,7 +596,7 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
         // Transform to our own data structures
 
         mainGrid->nncData()->connections().resize(numNNC);
-        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::COMB_TRANS);
         const double* transValues = ecl_nnc_data_get_values(tran_data);
 
         for (int nIdx = 0; nIdx < numNNC; ++nIdx)
@@ -610,6 +613,25 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
 
     ecl_nnc_geometry_free(nnc_geo);
     ecl_nnc_data_free(tran_data);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::transferDynamicNNCData(const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid)
+{
+    CVF_ASSERT(mainEclGrid && mainGrid);
+
+    size_t timeStepCount = m_dynamicResultsAccess->timeStepCount();
+
+    std::vector< std::vector<double> >& waterFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::FLUX_WAT, timeStepCount);
+    std::vector< std::vector<double> >& oilFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::FLUX_OIL, timeStepCount);
+    std::vector< std::vector<double> >& gasFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::FLUX_GAS, timeStepCount);
+
+    for (size_t timeStep = 0; timeStep < timeStepCount; ++timeStep)
+    {
+        m_dynamicResultsAccess->dynamicNNCResults(mainEclGrid, timeStep, &waterFluxData[timeStep], &oilFluxData[timeStep], &gasFluxData[timeStep]);
+    }
 }
 
 

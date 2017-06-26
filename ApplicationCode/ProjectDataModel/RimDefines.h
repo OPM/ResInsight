@@ -49,6 +49,9 @@ public:
     static QString undefinedGridFaultName()             { return "Undefined Grid Faults"; }
     static QString undefinedGridFaultWithInactiveName() { return "Undefined Grid Faults With Inactive"; }
     static QString combinedTransmissibilityResultName() { return "TRANXYZ"; }
+    static QString combinedWaterFluxResultName()        { return "FLRWATIJK"; }
+    static QString combinedOilFluxResultName()          { return "FLROILIJK"; }
+    static QString combinedGasFluxResultName()          { return "FLRGASIJK"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
     static QString combinedMultResultName()             { return "MULTXYZ"; }
 

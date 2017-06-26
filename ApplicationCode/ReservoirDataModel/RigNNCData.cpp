@@ -166,38 +166,92 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>& RigNNCData::makeConnectionScalarResult(size_t scalarResultIndex)
+std::vector<double>& RigNNCData::makeStaticConnectionScalarResult(NNCDataType nncDataType)
 {
-    std::vector<double>& results = m_connectionResults[scalarResultIndex];
-    results.resize(m_connections.size(), HUGE_VAL);
+    std::vector< std::vector<double> >& results = m_connectionResults[nncDataType];
+    results.resize(1);
+    results[0].resize(m_connections.size(), HUGE_VAL);
+    return results[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigNNCData::staticConnectionScalarResult(size_t scalarResultIndex) const
+{
+    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (!nncDataType) return nullptr;
+
+    std::map<NNCDataType, std::vector< std::vector<double> > >::const_iterator it = m_connectionResults.find(*nncDataType);
+
+    CVF_ASSERT(it->second.size() == 1);
+
+    if (it != m_connectionResults.end())
+    {
+        return &(it->second[0]);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector< std::vector<double> >& RigNNCData::makeDynamicConnectionScalarResult(NNCDataType nncDataType, size_t timeStepCount)
+{
+    auto& results = m_connectionResults[nncDataType];
+    results.resize(timeStepCount);
     return results;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::connectionScalarResult(size_t scalarResultIndex) const
+const std::vector< std::vector<double> >* RigNNCData::dynamicConnectionScalarResult(size_t scalarResultIndex) const
 {
-    std::map<size_t, std::vector<double> >::const_iterator it = m_connectionResults.find(scalarResultIndex);
+    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (!nncDataType) return nullptr;
+
+    auto it = m_connectionResults.find(*nncDataType);
+
     if (it != m_connectionResults.end())
+    {
         return &(it->second);
+    }
     else
-        return NULL;
+    {
+        return nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
+const std::vector<double>* RigNNCData::dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const
 {
-    std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
+    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (!nncDataType) return nullptr;
+
+    auto it = m_connectionResults.find(*nncDataType);
+
     if (it != m_connectionResults.end())
     {
-        std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
-        std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
-        emptyData.swap(realData);
-        m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
+        if (it->second.size() > timeStep)
+        {
+            return &(it->second[timeStep]);
+        }
     }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setScalarResultIndex(NNCDataType nncDataType, size_t scalarResultIndex)
+{
+    m_resultIndexToNNCDataType[scalarResultIndex] = nncDataType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,8 +259,24 @@ void RigNNCData::setCombTransmisibilityScalarResultIndex(size_t scalarResultInde
 //--------------------------------------------------------------------------------------------------
 bool RigNNCData::hasScalarValues(size_t scalarResultIndex)
 {
-    std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(scalarResultIndex);
+    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (!nncDataType) return false;
+
+    auto it = m_connectionResults.find(*nncDataType);
     return (it != m_connectionResults.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigNNCData::NNCDataType* RigNNCData::getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const
+{
+    auto it = m_resultIndexToNNCDataType.find(scalarResultIndex);
+    if (it != m_resultIndexToNNCDataType.end())
+    {
+        return &it->second;
+    }
+    return nullptr;
 }
 
 /*

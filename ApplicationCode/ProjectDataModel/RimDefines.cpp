@@ -97,6 +97,18 @@ bool RimDefines::isPerCellFaceResult(const QString& resultName)
     {
         return true;
     }
+    else if (resultName.compare(RimDefines::combinedWaterFluxResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedOilFluxResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedGasFluxResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
 
     return false;
 }

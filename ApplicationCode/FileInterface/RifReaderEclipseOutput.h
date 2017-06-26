@@ -82,8 +82,8 @@ private:
     bool                    openDynamicAccess();
 
     void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
-    void                    transferNNCData( const ecl_grid_type * mainEclGrid , ecl_file_type * init_file, 
-                                             RigMainGrid * mainGrid);
+    void                    transferStaticNNCData(const ecl_grid_type* mainEclGrid , ecl_file_type* init_file, RigMainGrid* mainGrid);
+    void                    transferDynamicNNCData(const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid);
     
     RifEclipseRestartDataAccess*   createDynamicResultsAccess();
 
