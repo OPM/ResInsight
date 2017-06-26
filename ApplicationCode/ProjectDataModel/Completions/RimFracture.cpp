@@ -100,6 +100,9 @@ RimFracture::RimFracture(void)
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
+    //TODO: 
+    CAF_PDM_InitField(&m_wellPathAzimuth, "WellPathAzimuth", 0.0, "Well Path Azimuth", "", "", "");
+
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
 
@@ -348,6 +351,8 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    m_wellPathAzimuth.uiCapability()->setUiReadOnly(true);
+
     if (m_fractureUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");

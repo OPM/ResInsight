@@ -129,6 +129,9 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition()
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
     double wellPathAzimuth = wellPathGeometry->wellPathAzimuthAngle(fracturePosition());
+
+    if (wellPathAzimuth < 0) wellPathAzimuth += 360;
+
     return wellPathAzimuth;
 }
 
@@ -150,6 +153,8 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
     positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath(m_measuredDepth());
 
     this->setAnchorPosition(positionAlongWellpath);
+    m_wellPathAzimuth = wellAzimuthAtFracturePosition();
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +170,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_measuredDepth);
     locationGroup->add(&azimuth);
+    locationGroup->add(&m_wellPathAzimuth);
     locationGroup->add(&dip);
     locationGroup->add(&tilt);
 

@@ -111,6 +111,7 @@ protected:
     caf::PdmPtrField<RimFractureTemplate*>          m_fractureTemplate;
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  m_fractureUnit;
+    caf::PdmField<double>                           m_wellPathAzimuth;
 
 private:
     caf::PdmField<cvf::Vec3d>                       m_anchorPosition;
