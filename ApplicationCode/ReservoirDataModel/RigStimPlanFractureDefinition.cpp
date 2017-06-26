@@ -25,6 +25,7 @@
 #include "RigFractureCell.h"
 #include "RiaLogging.h"
 #include "RigFractureGrid.h"
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -163,13 +164,13 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(int 
     std::vector<double> xCoordsAtNodes = this->getNegAndPosXcoords();
 
     std::vector<double> xCoords;
-    for ( int i = 0; i < xCoordsAtNodes.size() - 1; i++ ) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
+    for ( int i = 0; i < static_cast<int>(xCoordsAtNodes.size()) - 1; i++ ) xCoords.push_back((xCoordsAtNodes[i] + xCoordsAtNodes[i + 1]) / 2);
     std::vector<double> depthCoords;
-    for ( int i = 0; i < depthCoordsAtNodes.size() - 1; i++ ) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
+    for ( int i = 0; i < static_cast<int>(depthCoordsAtNodes.size()) - 1; i++ ) depthCoords.push_back((depthCoordsAtNodes[i] + depthCoordsAtNodes[i + 1]) / 2);
 
-    for ( int i = 0; i < xCoords.size() - 1; i++ )
+    for ( int i = 0; i < static_cast<int>(xCoords.size()) - 1; i++ )
     {
-        for ( int j = 0; j < depthCoords.size() - 1; j++ )
+        for ( int j = 0; j < static_cast<int>(depthCoords.size()) - 1; j++ )
         {
             std::vector<cvf::Vec3d> cellPolygon;
             cellPolygon.push_back(cvf::Vec3d(xCoords[i],     depthCoords[j],     0.0));
@@ -230,11 +231,11 @@ std::vector<double> RigStimPlanFractureDefinition::fractureGridResults(const QSt
                                                                                                unitName,
                                                                                                timeStepIndex);
 
-    for ( int i = 0; i < mirroredGridXCount() - 2; i++ )
+    for ( int i = 0; i < static_cast<int>(mirroredGridXCount()) - 2; i++ )
     {
-        for ( int j = 0; j < depthCount() - 2; j++ )
+        for ( int j = 0; j < static_cast<int>(depthCount()) - 2; j++ )
         {
-            if ( j+1 < resultValuesAtTimeStep.size() && i+1 < resultValuesAtTimeStep[j + 1].size() )
+            if ( j+1 < static_cast<int>(resultValuesAtTimeStep.size()) && i+1 < static_cast<int>(resultValuesAtTimeStep[j + 1].size()) )
             {
                 fractureGridResults.push_back(resultValuesAtTimeStep[j + 1][i + 1]);
             }
@@ -331,7 +332,7 @@ void sortPolygon(std::vector<cvf::Vec3f> &polygon)
 {
     if (polygon.size() == 0) return;
 
-    for (int i = 1; i < polygon.size() - 1; i++)
+    for (int i = 1; i < static_cast<int>(polygon.size()) - 1; i++)
     {
         cvf::Vec3f lastNode = polygon[i - 1];
         cvf::Vec3f node = polygon[i];
@@ -365,9 +366,9 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
 
     std::vector<double> adjustedDepths = this->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture);
 
-    for ( int k = 0; k < dataAtTimeStep.size(); k++ )
+    for ( int k = 0; k < static_cast<int>(dataAtTimeStep.size()); k++ )
     {
-        for ( int i = 0; i < dataAtTimeStep[k].size(); i++ )
+        for ( int i = 0; i < static_cast<int>(dataAtTimeStep[k].size()); i++ )
         {
             if ( (dataAtTimeStep[k])[i] < 1e-7 )  //polygon should consist of nodes with value 0
             {
@@ -376,7 +377,7 @@ std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolyg
                     polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_gridXs[i]),
                                                  static_cast<float>(adjustedDepths[k]), 0.0f));
                 }
-                else if ( (k < dataAtTimeStep.size() - 1) && ((dataAtTimeStep[k + 1])[(i)] > 1e-7) )//cell below different from 0
+                else if ( (k < static_cast<int>(dataAtTimeStep.size()) - 1) && ((dataAtTimeStep[k + 1])[(i)] > 1e-7) )//cell below different from 0
                 {
                     polygon.push_back(cvf::Vec3f(static_cast<float>(this->m_gridXs[i]),
                                                  static_cast<float>(adjustedDepths[k]), 0.0f));
