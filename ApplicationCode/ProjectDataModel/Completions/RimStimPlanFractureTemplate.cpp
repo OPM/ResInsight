@@ -359,6 +359,14 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimStimPlanFractureTemplate::fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
+{
+   return m_stimPlanFractureDefinitionData->fractureGridResults(resultName, unitName, timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 {
     return m_fractureGrid.p();
@@ -369,17 +377,9 @@ const RigFractureGrid* RimStimPlanFractureTemplate::fractureGrid() const
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::updateFractureGrid()
 {
-    RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-    if (!activeView) return;
-    QString resultNameFromColors = activeView->stimPlanColors->resultName();
-    QString resultUnitFromColors = activeView->stimPlanColors->unit();
-
-    m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(resultNameFromColors,
-                                                                          resultUnitFromColors,
-                                                                          m_activeTimeStepIndex,
+    m_fractureGrid = m_stimPlanFractureDefinitionData->createFractureGrid(m_activeTimeStepIndex,
                                                                           fractureTemplateUnit,
                                                                           m_wellPathDepthAtFracture);
-
 }
 
 

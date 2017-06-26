@@ -77,9 +77,7 @@ public:
     std::vector<std::pair<QString, QString> > resultNamesWithUnit() const;
     void                                    computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const;
     std::vector<std::vector<double>>        resultValues(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
-
-    // OBSOLETE : Function used by upscaling only
-    void                                    getStimPlanDataAsPolygonsAndValues(std::vector<std::vector<cvf::Vec3d> > &cellsAsPolygons, std::vector<double> &parameterValue, const QString& resultName, const QString& unitName, size_t timeStepIndex);
+    std::vector<double>                     fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const;
 
 protected:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -93,8 +91,6 @@ private:
     bool                                    setBorderPolygonResultNameToDefault();
     void                                    setDepthOfWellPathAtFracture();
     QString                                 getUnitForStimPlanParameter(QString parameterName);
-
-    void                                    sortPolygon(std::vector<cvf::Vec3f> &polygon);
 
     caf::PdmField<int>                      m_activeTimeStepIndex;
     caf::PdmField<bool>                     m_showStimPlanMesh;

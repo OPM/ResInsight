@@ -47,10 +47,10 @@ public:
     RigStimPlanFractureDefinition();
     ~RigStimPlanFractureDefinition();
 
-    RiaEclipseUnitTools::UnitSystem           unitSet() { return m_unitSet; }
+    RiaEclipseUnitTools::UnitSystem           unitSet() const { return m_unitSet; }
     void                                      setUnitSet(RiaEclipseUnitTools::UnitSystem unitset) { m_unitSet = unitset;}
 
-    size_t                                    gridXCount() { return m_gridXs.size();}
+    size_t                                    gridXCount() const { return m_gridXs.size();}
     void                                      setGridXs(const std::vector<double>& gridXs) {  m_gridXs = gridXs; }
 
 
@@ -59,9 +59,9 @@ public:
     
     void                                      setGridYs(const std::vector<double>& gridYs) {  m_gridYs = gridYs; }
 
-    double                                    minDepth()   { return depths[0]; }
-    double                                    maxDepth()   { return depths.back(); }
-    size_t                                    depthCount() { return depths.size(); }
+    double                                    minDepth()   const { return depths[0]; }
+    double                                    maxDepth()   const { return depths.back(); }
+    size_t                                    depthCount() const { return depths.size(); }
 
     // Grid Geometry
 
@@ -72,12 +72,11 @@ public:
                                                                          size_t timeStepIndex) const;
                                               
                                               
-    cvf::ref<RigFractureGrid>                 createFractureGrid(const QString& resultNameFromColors,
-                                                                 const QString& resultUnitFromColors,
-                                                                 int m_activeTimeStepIndex,
+    cvf::ref<RigFractureGrid>                 createFractureGrid(int m_activeTimeStepIndex,
                                                                  RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit,
                                                                  double m_wellPathDepthAtFracture);
                                               
+
     void                                      createFractureTriangleGeometry(double m_wellPathDepthAtFracture,
                                                                              RiaEclipseUnitTools::UnitSystem neededUnit,
                                                                              const QString& fractureUserName,
@@ -100,6 +99,9 @@ public:
     size_t                                    totalNumberTimeSteps();
     void                                      setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue);
     const std::vector<std::vector<double>>&   getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
+    std::vector<double>                       fractureGridResults(const QString& resultName, 
+                                                                  const QString& unitName, 
+                                                                  size_t timeStepIndex) const;
     void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const;
     
     // Setup                          
@@ -108,7 +110,8 @@ private:
     bool                                      timeStepExisist(double timeStepValue);
     size_t                                    getTimeStepIndex(double timeStepValue);
     size_t                                    resultIndex(const QString& resultName, const QString& unit) const;
-                                              
+    size_t                                    mirroredGridXCount() const { return m_gridXs.size() ? m_gridXs.size() + m_gridXs.size() - 1  : 0 ;}
+
     RiaEclipseUnitTools::UnitSystem           m_unitSet;
     std::vector<double>                       m_gridXs;
     std::vector<double>                       m_gridYs;

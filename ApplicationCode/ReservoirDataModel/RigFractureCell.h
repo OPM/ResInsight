@@ -39,21 +39,16 @@ public:
 
     const std::vector<cvf::Vec3d>& getPolygon() const { return m_polygon; }
     double                  getConductivtyValue() const { return m_concutivityValue; }
-    double                  getDisplayValue() { return m_displayValue; }
     size_t                  getI() const { return m_i; }
     size_t                  getJ() const { return m_j; }
 
     bool                    hasNonZeroConductivity() const { return m_concutivityValue > 1e-7; }
-        
-
     void                    setConductivityValue(double cond) { m_concutivityValue = cond; }
-    void                    setDisplayValue(double value) { m_displayValue = value; };
 
     double                  cellSizeX() const;
     double                  cellSizeZ() const;
 private:
     std::vector<cvf::Vec3d> m_polygon;
-    double                  m_displayValue;
     double                  m_concutivityValue;
     size_t                  m_i;
     size_t                  m_j;

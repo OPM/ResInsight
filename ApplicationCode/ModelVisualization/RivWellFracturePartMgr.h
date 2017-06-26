@@ -66,11 +66,13 @@ private:
     void                                applyResultTextureColor(const RimEclipseView* activeView);
 
     void                                generateFractureOutlinePolygonPart(const caf::DisplayCoordTransform* displayCoordTransform);
-    void                                generateStimPlanMeshPart(const caf::DisplayCoordTransform* displayCoordTransform);
+    void                                generateStimPlanMeshPart(const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                 const RimEclipseView* activeView);
 
     cvf::ref<cvf::DrawableGeo>          createPolygonDrawable(const caf::DisplayCoordTransform* displayCoordTransform);
     cvf::ref<cvf::DrawableGeo>          createStimPlanMeshDrawable(RimStimPlanFractureTemplate* stimPlanFracTemplate, 
-                                                                   const caf::DisplayCoordTransform* displayCoordTransform);
+                                                                   const caf::DisplayCoordTransform* displayCoordTransform,
+                                                                   const RimEclipseView* activeView);
 
     void                                getPolygonBB(float &polygonXmin, 
                                                      float &polygonXmax,

@@ -143,9 +143,7 @@ std::vector<std::vector<double>> RigStimPlanFractureDefinition::getMirroredDataA
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(const QString& resultNameFromColors, 
-                                                                            const QString& resultUnitFromColors, 
-                                                                            int m_activeTimeStepIndex, 
+cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(int m_activeTimeStepIndex, 
                                                                             RiaEclipseUnitTools::UnitSystemType fractureTemplateUnit, 
                                                                             double m_wellPathDepthAtFracture)
 {
@@ -153,10 +151,6 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
     std::pair<size_t, size_t> wellCenterStimPlanCellIJ = std::make_pair(0, 0);
 
     bool wellCenterStimPlanCellFound = false;
-
-    std::vector<std::vector<double>> displayPropertyValuesAtTimeStep = this->getMirroredDataAtTimeIndex(resultNameFromColors, 
-                                                                                                        resultUnitFromColors, 
-                                                                                                        m_activeTimeStepIndex);
 
     QString condUnit;
     if ( fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC ) condUnit = "md-m";
@@ -178,10 +172,10 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
         for ( int j = 0; j < depthCoords.size() - 1; j++ )
         {
             std::vector<cvf::Vec3d> cellPolygon;
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i + 1]), static_cast<float>(depthCoords[j + 1]), 0.0));
-            cellPolygon.push_back(cvf::Vec3d(static_cast<float>(xCoords[i]), static_cast<float>(depthCoords[j + 1]), 0.0));
+            cellPolygon.push_back(cvf::Vec3d(xCoords[i],     depthCoords[j],     0.0));
+            cellPolygon.push_back(cvf::Vec3d(xCoords[i + 1], depthCoords[j],     0.0));
+            cellPolygon.push_back(cvf::Vec3d(xCoords[i + 1], depthCoords[j + 1], 0.0));
+            cellPolygon.push_back(cvf::Vec3d(xCoords[i],     depthCoords[j + 1], 0.0));
 
             RigFractureCell stimPlanCell(cellPolygon, i, j);
             if ( conductivityValuesAtTimeStep.size() > 0 ) //Assuming vector to be of correct length, or no values
@@ -193,14 +187,6 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
                 stimPlanCell.setConductivityValue(cvf::UNDEFINED_DOUBLE);
             }
 
-            if ( displayPropertyValuesAtTimeStep.size() > 0 )
-            {
-                stimPlanCell.setDisplayValue(displayPropertyValuesAtTimeStep[j + 1][i + 1]);
-            }
-            else
-            {
-                stimPlanCell.setDisplayValue(cvf::UNDEFINED_DOUBLE);
-            }
 
             if ( cellPolygon[0].x() < 0.0 && cellPolygon[1].x() > 0.0 )
             {
@@ -230,6 +216,36 @@ cvf::ref<RigFractureGrid> RigStimPlanFractureDefinition::createFractureGrid(cons
     m_fractureGrid->setJCellCount(this->adjustedDepthCoordsAroundWellPathPosition(m_wellPathDepthAtFracture).size() - 2);
 
     return m_fractureGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigStimPlanFractureDefinition::fractureGridResults(const QString& resultName,
+                                                                       const QString& unitName,
+                                                                       size_t timeStepIndex) const
+{
+    std::vector<double> fractureGridResults;
+    std::vector<std::vector<double>> resultValuesAtTimeStep = this->getMirroredDataAtTimeIndex(resultName, 
+                                                                                               unitName,
+                                                                                               timeStepIndex);
+
+    for ( int i = 0; i < mirroredGridXCount() - 2; i++ )
+    {
+        for ( int j = 0; j < depthCount() - 2; j++ )
+        {
+            if ( j+1 < resultValuesAtTimeStep.size() && i+1 < resultValuesAtTimeStep[j + 1].size() )
+            {
+                fractureGridResults.push_back(resultValuesAtTimeStep[j + 1][i + 1]);
+            }
+            else
+            {
+                fractureGridResults.push_back(HUGE_VAL);
+            }
+        }
+    }
+
+    return fractureGridResults;
 }
 
 //--------------------------------------------------------------------------------------------------
