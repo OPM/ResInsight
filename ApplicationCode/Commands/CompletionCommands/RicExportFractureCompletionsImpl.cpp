@@ -300,17 +300,6 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
                         const RigFractureCell& fractureWellCell = fractureGrid->cellFromIndex(fracWellCellIdx);
 
-                        double radialTrans = 0.0;
-                        if (intersection.endpointCount)
-                        {
-                            radialTrans = RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(fractureWellCell.getConductivtyValue(),
-                                                                                                              fractureWellCell.cellSizeX(),
-                                                                                                              fractureWellCell.cellSizeZ(),
-                                                                                                              fracture->wellRadius(caseToApply->eclipseCaseData()->unitsType()),
-                                                                                                              fracTemplate->skinFactor(),
-                                                                                                              cDarcyInCorrectUnit);
-                        }
-
                         double linearTrans = 0.0;
                         if (intersection.hlength > 0.0 || intersection.vlength > 0.0)
                         {
@@ -324,11 +313,9 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
                                                                                                               cDarcyInCorrectUnit);
                         }
 
-                        double totalWellTrans = 0.5 * intersection.endpointCount * radialTrans + linearTrans;
-
                         transCondenser.addNeighborTransmissibility({ true, RigTransmissibilityCondenser::CellAddress::WELL, 1 },
                                                                    { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, fracWellCellIdx },
-                                                                   totalWellTrans);
+                                                                   linearTrans);
                     }
                     else
                     {
