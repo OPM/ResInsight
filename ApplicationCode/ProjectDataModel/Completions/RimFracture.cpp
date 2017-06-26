@@ -382,6 +382,15 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
             perforationLength.uiCapability()->setUiHidden(true);
         }
 
+        if (fractureTemplate()->conductivityType == RimFractureTemplate::FINITE_CONDUCTIVITY)
+        {
+            wellDiameter.uiCapability()->setUiHidden(false);
+        }
+        else if (fractureTemplate()->conductivityType == RimFractureTemplate::INFINITE_CONDUCTIVITY)
+        {
+            wellDiameter.uiCapability()->setUiHidden(true);
+        }
+
         RimFractureTemplate* fracTemplate = fractureTemplate();
         if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
         {

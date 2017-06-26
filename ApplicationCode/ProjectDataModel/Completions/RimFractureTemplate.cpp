@@ -205,6 +205,15 @@ void RimFractureTemplate::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
         perforationEfficiency.uiCapability()->setUiHidden(true);
         perforationLength.uiCapability()->setUiHidden(true);
     }
+
+    if (conductivityType == FINITE_CONDUCTIVITY)
+    {
+        wellDiameter.uiCapability()->setUiHidden(false);
+    }
+    else if (conductivityType == INFINITE_CONDUCTIVITY)
+    {
+        wellDiameter.uiCapability()->setUiHidden(true);
+    }
  
 }
 

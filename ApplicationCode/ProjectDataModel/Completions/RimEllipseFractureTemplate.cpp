@@ -312,6 +312,18 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
         wellDiameter.uiCapability()->setUiName("Well Diameter [inches]");
     }
 
+
+    if (conductivityType == FINITE_CONDUCTIVITY)
+    {
+        permeability.uiCapability()->setUiHidden(false);
+        width.uiCapability()->setUiHidden(false);
+    }
+    else if (conductivityType == INFINITE_CONDUCTIVITY)
+    {
+        permeability.uiCapability()->setUiHidden(true);
+        width.uiCapability()->setUiHidden(true);
+    }
+
     
     uiOrdering.add(&name);
 
@@ -326,11 +338,8 @@ void RimEllipseFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
     propertyGroup->add(&conductivityType);
-    if (conductivityType == RimFractureTemplate::FINITE_CONDUCTIVITY)
-    {
-        propertyGroup->add(&permeability);
-        propertyGroup->add(&width);
-    }
+    propertyGroup->add(&permeability);
+    propertyGroup->add(&width);
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);
     propertyGroup->add(&perforationEfficiency);
