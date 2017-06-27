@@ -241,4 +241,14 @@ bool Utils::fileExists(const QString& fileName)
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString Utils::fileExtension(const QString & fileName)
+{
+    QFileInfo fi(fileName);
+
+    return fi.suffix();
+}
+
 } // namespace caf

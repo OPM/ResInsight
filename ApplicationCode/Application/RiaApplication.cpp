@@ -1478,17 +1478,26 @@ bool RiaApplication::parseArguments()
         QStringList caseNames = cvfqt::Utils::toQStringList(o.values());
         foreach (QString caseName, caseNames)
         {
-            QString caseFileNameWithExt = caseName + ".EGRID";
-            if (caf::Utils::fileExists(caseFileNameWithExt))
+            QString fileExtension = caf::Utils::fileExtension(caseName);
+            if (caf::Utils::fileExists(caseName) &&
+                (fileExtension == "EGRID" || fileExtension == "GRID"))
             {
-                openEclipseCaseFromFile(caseFileNameWithExt);
+                openEclipseCaseFromFile(caseName);
             }
             else
             {
-                caseFileNameWithExt = caseName + ".GRID";
+                QString caseFileNameWithExt = caseName + ".EGRID";
                 if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
+                }
+                else
+                {
+                    caseFileNameWithExt = caseName + ".GRID";
+                    if (caf::Utils::fileExists(caseFileNameWithExt))
+                    {
+                        openEclipseCaseFromFile(caseFileNameWithExt);
+                    }
                 }
             }
         }
