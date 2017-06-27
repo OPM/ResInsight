@@ -61,6 +61,7 @@ public:
 private:
     void                                generateSurfacePart(const caf::DisplayCoordTransform* displayCoordTransform);
 
+    void                                generateContainmentMaskPart(const RimEclipseView* activeView);
     void                                applyFractureUniformColor(const RimEclipseView* activeView);
 
     void                                applyResultTextureColor(const RimEclipseView* activeView);
@@ -99,6 +100,7 @@ private:
     caf::PdmPointer<RimFracture>        m_rimFracture;
 
     cvf::ref<cvf::Part>                 m_surfacePart;
+    cvf::ref<cvf::Part>                 m_containmentMaskPart;
     cvf::ref<cvf::Part>                 m_polygonPart;
     cvf::ref<cvf::Part>                 m_stimPlanMeshPart;
 };

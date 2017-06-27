@@ -18,6 +18,7 @@
 #include "RimFractureContainment.h"
 #include "cafPdmUiSliderEditor.h"
 #include "RigMainGrid.h"
+#include "RimProject.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFractureContainment, "FractureContainment");
@@ -120,5 +121,19 @@ void RimFractureContainment::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.add(&m_topKLayer);
     uiOrdering.add(&m_baseKLayer);
     //uiOrdering.add(&m_faultTruncation);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_isUsingFractureContainment 
+        || m_isUsingFractureContainment())
+    {
+        RimProject* proj;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj) proj->createDisplayModelAndRedrawAllViews();
+    }
 }
 
