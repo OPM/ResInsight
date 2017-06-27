@@ -87,11 +87,11 @@ void RimSimWellFracture::updateAzimuthFromFractureTemplate()
     {
         double simWellAzimuth = wellAzimuthAtFracturePosition();
 
-        if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH )
+        if (orientation == RimFractureTemplate::ALONG_WELL_PATH )
         {
             azimuth = simWellAzimuth;
         }
-        if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
+        else if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             if (simWellAzimuth + 90 < 360) azimuth = simWellAzimuth + 90;
             else azimuth = simWellAzimuth - 90;
@@ -181,7 +181,9 @@ void RimSimWellFracture::updateFracturePositionFromLocation()
         if (proj) proj->createDisplayModelAndRedrawAllViews();
     }
     m_wellPathAzimuth = wellAzimuthAtFracturePosition();
+    setWellFractureAzimuthDiffAndWarning();
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -198,6 +200,8 @@ void RimSimWellFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     locationGroup->add(&m_branchIndex);
     locationGroup->add(&azimuth);
     locationGroup->add(&m_wellPathAzimuth);
+    locationGroup->add(&m_wellFractureAzimuthDiff);
+    locationGroup->add(&m_wellFractureAzimuthAngleWarning);
     locationGroup->add(&dip);
     locationGroup->add(&tilt);
 

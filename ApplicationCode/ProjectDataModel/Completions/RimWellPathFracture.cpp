@@ -98,11 +98,11 @@ void RimWellPathFracture::updateAzimuthFromFractureTemplate()
 
         double wellPathAzimuth = wellAzimuthAtFracturePosition();
 
-        if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
         {
             azimuth = wellPathAzimuth;
         }
-        if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
+        else if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             if (wellPathAzimuth + 90 < 360) azimuth = wellPathAzimuth + 90;
             else azimuth = wellPathAzimuth - 90;
@@ -154,7 +154,7 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
 
     this->setAnchorPosition(positionAlongWellpath);
     m_wellPathAzimuth = wellAzimuthAtFracturePosition();
-
+    setWellFractureAzimuthDiffAndWarning();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,6 +171,8 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     locationGroup->add(&m_measuredDepth);
     locationGroup->add(&azimuth);
     locationGroup->add(&m_wellPathAzimuth);
+    locationGroup->add(&m_wellFractureAzimuthDiff);
+    locationGroup->add(&m_wellFractureAzimuthAngleWarning);
     locationGroup->add(&dip);
     locationGroup->add(&tilt);
 
@@ -184,6 +186,7 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* fractureCenterGroup = uiOrdering.addNewGroup("Fracture Center Info");
     fractureCenterGroup->add(&m_uiAnchorPosition);
+    
 }
 
 //--------------------------------------------------------------------------------------------------

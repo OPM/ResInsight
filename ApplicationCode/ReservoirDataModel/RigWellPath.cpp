@@ -133,15 +133,14 @@ double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
             p2 = m_wellPathPoints[closestIndex + 0];
         }
 
-        cvf::Vec3d direction = p1 - p2;
+        cvf::Vec3d direction = p2 - p1;
 
 
-        if (abs(direction.x()) > 1e-5)
+        if (abs(direction.y()) > 1e-5)
         {
-            double atanValue = direction.y() / direction.x();
+            double atanValue = direction.x() / direction.y();
             AzimuthAngle = atan(atanValue);
             AzimuthAngle = cvf::Math::toDegrees(AzimuthAngle);
-            AzimuthAngle = -AzimuthAngle;
         }
     }
 
