@@ -22,16 +22,17 @@
 #include "RimCellRangeFilter.h"
 
 #include "RigActiveCellInfo.h"
-#include "RigGridBase.h"
-#include "RigMainGrid.h"
+#include "RigReservoirGridTools.h"
 
-#include "RimEclipseCase.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimViewController.h"
 
 #include "cafPdmUiSliderEditor.h"
+
 #include "cvfAssert.h"
+#include "cvfStructGrid.h"
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilter, "CellRangeFilter");
 
@@ -125,8 +126,16 @@ void RimCellRangeFilter::setDefaultValues()
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
-    RigActiveCellInfo* actCellInfo = parentContainer()->activeCellInfo();
-    if (grid == parentContainer()->gridByIndex(0) && actCellInfo)
+    RimView* rimView = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(rimView);
+    RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
+    
+    RimCase* rimCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(rimCase);
+   
+    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid(rimCase);
+
+    if (grid == mainGrid && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -195,8 +204,15 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         myAttr->m_maximum = static_cast<int>(grid->cellCountK());
     }
 
-    RigActiveCellInfo* actCellInfo = parentContainer()->activeCellInfo();
-    if (grid == parentContainer()->gridByIndex(0) && actCellInfo)
+    RimCase* rimCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(rimCase);
+    const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid(rimCase);
+    
+    RimView* rimView = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(rimView);
+    RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
+
+    if (grid == mainGrid && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -264,12 +280,15 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
     if (useOptionsOnly) (*useOptionsOnly) = true;
 
     if (&gridIndex == fieldNeedingOptions)
-    { 
-        for (int gIdx = 0; gIdx < parentContainer()->gridCount(); ++gIdx)
+    {
+        RimCase* rimCase = nullptr;
+        this->firstAncestorOrThisOfTypeAsserted(rimCase);
+
+        for (int gIdx = 0; gIdx < RigReservoirGridTools::gridCount(rimCase); ++gIdx)
         {
             QString gridName;
 
-            gridName += parentContainer()->gridName(gIdx);
+            gridName += RigReservoirGridTools::gridName(rimCase, gIdx);
             if (gIdx == 0)
             {
                 if (gridName.isEmpty())
@@ -307,15 +326,15 @@ bool RimCellRangeFilter::isRangeFilterControlled() const
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellRangeFilter::selectedGrid()
 {
-    if (gridIndex() >= parentContainer()->gridCount())
+    RimCase* rimCase = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(rimCase);
+
+    int clampedIndex = gridIndex();
+    if (clampedIndex >= RigReservoirGridTools::gridCount(rimCase))
     {
-        gridIndex = 0;
+        clampedIndex = 0;
     }
 
-    const cvf::StructGridInterface* grid = parentContainer()->gridByIndex(gridIndex());
-
-    CVF_ASSERT(grid);
-
-    return grid;
+    return RigReservoirGridTools::gridByIndex(rimCase, clampedIndex);
 }
 
