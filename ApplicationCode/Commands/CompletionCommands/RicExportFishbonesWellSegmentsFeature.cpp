@@ -76,8 +76,7 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
 
     exportSettings.folder = defaultDir;
 
-    //Bjørnar: skal denne være noe annet?
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Well Segments", "");
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
