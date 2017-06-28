@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RicExportCarfin.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileResampleUi.h
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.h
@@ -14,19 +15,21 @@ ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
+${CEE_CURRENT_LIST_DIR}RicCellRangeUi.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RicExportCarfin.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileResampleUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.cpp
-
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCellRangeUi.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
