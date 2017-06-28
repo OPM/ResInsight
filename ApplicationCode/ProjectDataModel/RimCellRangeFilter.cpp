@@ -288,11 +288,10 @@ QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCellRangeFilter::isRangeFilterControlled()
+bool RimCellRangeFilter::isRangeFilterControlled() const
 {
-    RimView* rimView = NULL;
-    firstAncestorOrThisOfType(rimView);
-    CVF_ASSERT(rimView);
+    RimView* rimView = nullptr;
+    firstAncestorOrThisOfTypeAsserted(rimView);
 
     bool isRangeFilterControlled = false;
     if (rimView && rimView->viewController() && rimView->viewController()->isRangeFiltersControlled())
