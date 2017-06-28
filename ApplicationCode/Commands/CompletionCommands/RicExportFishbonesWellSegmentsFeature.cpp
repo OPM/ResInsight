@@ -63,7 +63,7 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    RicExportWellSegmentsSettingsUi exportSettings;
+    RicCaseAndFileExportSettingsUi exportSettings;
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -155,7 +155,7 @@ bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings)
+void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings)
 {
     QString filePath = QDir(settings.folder()).filePath("Welsegs");
     QFile exportFile(filePath);
@@ -186,7 +186,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
                                                                  const RimWellPath* wellPath,
-                                                                 const RicExportWellSegmentsSettingsUi& settings,
+                                                                 const RicCaseAndFileExportSettingsUi& settings,
                                                                  const std::vector<WellSegmentLocation>& locations)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
@@ -211,8 +211,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.add(startTVD);
         formatter.add(startMD);
         formatter.add("1*");
-        formatter.add(settings.lengthAndDepth().text()); 
-        formatter.add(settings.pressureDrop().text());
+        formatter.add(wellPath->fishbonesCollection()->lengthAndDepth().text()); 
+        formatter.add(wellPath->fishbonesCollection()->pressureDrop().text());
 
         formatter.rowCompleted();
     }
@@ -241,7 +241,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 
         for (const WellSegmentLocation& location : locations)
         {
-            if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
+            if (wellPath->fishbonesCollection()->lengthAndDepth() == RimFishbonesCollection::INC)
             {
                 depth = location.trueVerticalDepth - previousTVD;
                 length = location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
@@ -292,7 +292,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 
                 for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
                 {
-                    if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
+                    if (wellPath->fishbonesCollection()->lengthAndDepth() == RimFishbonesCollection::INC)
                     {
                         depth = intersection.depth;
                         length = intersection.length;
@@ -325,7 +325,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseDataTableFormatter& formatter,
                                                                   const RimWellPath* wellPath,
-                                                                  const RicExportWellSegmentsSettingsUi& settings,
+                                                                  const RicCaseAndFileExportSettingsUi& settings,
                                                                   const std::vector<WellSegmentLocation>& locations)
 {
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
@@ -383,7 +383,7 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
                                                                   const RimWellPath* wellPath,
-                                                                  const RicExportWellSegmentsSettingsUi& settings,
+                                                                  const RicCaseAndFileExportSettingsUi& settings,
                                                                   const std::vector<WellSegmentLocation>& locations)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();

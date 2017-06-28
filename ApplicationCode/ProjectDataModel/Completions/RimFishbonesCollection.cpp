@@ -31,6 +31,25 @@
 
 #include <algorithm>
 
+namespace caf {
+    template<>
+    void RimFishbonesCollection::PressureDropEnum::setUp()
+    {
+        addItem(RimFishbonesCollection::HYDROSTATIC,                       "H--", "Hydrostatic");
+        addItem(RimFishbonesCollection::HYDROSTATIC_FRICTION,              "HF-", "Hydrostatic + Friction");
+        addItem(RimFishbonesCollection::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration");
+        setDefault(RimFishbonesCollection::HYDROSTATIC);
+    }
+
+    template<>
+    void RimFishbonesCollection::LengthAndDepthEnum::setUp()
+    {
+        addItem(RimFishbonesCollection::INC, "INC", "Incremental");
+        addItem(RimFishbonesCollection::ABS, "ABS", "Absolute");
+        setDefault(RimFishbonesCollection::INC);
+    }
+}
+
 CAF_PDM_SOURCE_INIT(RimFishbonesCollection, "FishbonesCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -55,6 +74,9 @@ RimFishbonesCollection::RimFishbonesCollection()
     CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.216,      "Main Bore Diameter",   "", "", "");
     CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.152,      "Liner Inner Diameter", "", "", "");
     CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  1e-05,      "Roughness Factor",     "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_pressureDrop, "PressureDrop", "Pressure Drop", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_lengthAndDepth, "LengthAndDepth", "Length and Depth", "", "", "");
 
     manuallyModifiedStartMD = false;
 }
@@ -118,6 +140,8 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
     mswGroup->add(&m_linerDiameter);
     mswGroup->add(&m_roughnessFactor);
+    mswGroup->add(&m_pressureDrop);
+    mswGroup->add(&m_lengthAndDepth);
 }
 
 //--------------------------------------------------------------------------------------------------

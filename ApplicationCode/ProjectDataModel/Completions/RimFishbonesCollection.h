@@ -41,6 +41,21 @@ class RimFishbonesCollection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum PressureDropType {
+        HYDROSTATIC,
+        HYDROSTATIC_FRICTION,
+        HYDROSTATIC_FRICTION_ACCELERATION
+    };
+
+    typedef caf::AppEnum<PressureDropType> PressureDropEnum;
+
+    enum LengthAndDepthType {
+        ABS,
+        INC
+    };
+
+    typedef caf::AppEnum<LengthAndDepthType> LengthAndDepthEnum;
+
     RimFishbonesCollection();
 
     RimFishboneWellPathCollection* wellPathCollection() const;
@@ -53,6 +68,9 @@ public:
     double       mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double       linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double       roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
+
+    PressureDropEnum    pressureDrop() const { return m_pressureDrop(); }
+    LengthAndDepthEnum  lengthAndDepth() const { return m_lengthAndDepth(); }
 
     void         setUnitSystemSpecificDefaults();
 
@@ -70,6 +88,9 @@ private:
     caf::PdmField<double>                               m_mainBoreDiameter;
     caf::PdmField<double>                               m_linerDiameter;
     caf::PdmField<double>                               m_roughnessFactor;
+
+    caf::PdmField<PressureDropEnum>                     m_pressureDrop;
+    caf::PdmField<LengthAndDepthEnum>                   m_lengthAndDepth;
 
     bool                                                manuallyModifiedStartMD;
 };

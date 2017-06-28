@@ -20,7 +20,7 @@
 
 #include "RifEclipseDataTableFormatter.h"
 
-#include "RicExportWellSegmentsSettingsUi.h"
+#include "RicCaseAndFileExportSettingsUi.h"
 
 #include "RicWellPathExportCompletionDataFeature.h"
 
@@ -46,10 +46,10 @@ private:
     static RimFishbonesCollection*               selectedFishbonesCollection();
     static RimWellPath*                          selectedWellPath();
 
-    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings);
-    static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
-    static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicExportWellSegmentsSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings);
+    static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
+    static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
 
     static double                                computeEffectiveDiameter(double innerDiameter, double outerDiameter);
 };
