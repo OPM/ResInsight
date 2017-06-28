@@ -19,24 +19,26 @@
 
 #include "RicSaveEclipseResultAsInputPropertyExec.h"
 
-#include "RimEclipseCellColors.h"
-#include "RimBinaryExportSettings.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCase.h"
+#include "RiaApplication.h"
 
-#include "RigCaseCellResultsData.h"
+#include "RicExportFeatureImpl.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifReaderInterface.h"
 
-#include "RiaApplication.h"
+#include "RigCaseCellResultsData.h"
+
+#include "RimBinaryExportSettings.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
-
-#include <QFileInfo>
-#include <QMessageBox>
 #include "cafUtils.h"
+
+#include <QMessageBox>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -90,6 +92,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Binary Eclipse Data to Text File", "");
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {

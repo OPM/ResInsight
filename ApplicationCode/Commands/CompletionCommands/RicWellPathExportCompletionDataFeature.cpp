@@ -21,40 +21,41 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RimProject.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimFishbonesMultipleSubs.h"
-#include "RimFishbonesCollection.h"
+#include "RicExportCompletionDataSettingsUi.h"
+#include "RicExportFeatureImpl.h"
+#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigResultAccessorFactory.h"
+#include "RigTransmissibilityEquations.h"
+#include "RigWellLogExtractionTools.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
+
 #include "RimFishboneWellPath.h"
 #include "RimFishboneWellPathCollection.h"
-#include "RimPerforationInterval.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
-
-#include "RicExportCompletionDataSettingsUi.h"
 
 #include "RiuMainWindow.h"
 
-#include "RigWellLogExtractionTools.h"
-#include "RigWellPathIntersectionTools.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigWellPath.h"
-#include "RigResultAccessorFactory.h"
-#include "RigTransmissibilityEquations.h"
-
-#include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include "cvfPlane.h"
 
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
-#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
-#include "RigActiveCellInfo.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
@@ -98,6 +99,8 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     exportSettings.folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings.folder);

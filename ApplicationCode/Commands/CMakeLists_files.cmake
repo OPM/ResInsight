@@ -36,6 +36,8 @@ ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.h
+${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.h
+
 
 
 # General delete of any object in a child array field
@@ -79,6 +81,8 @@ ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicExportFaultsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.cpp
+
 
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.cpp

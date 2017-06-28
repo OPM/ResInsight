@@ -52,7 +52,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle, const QString& uiConfigName)
 {
-    initialize(parent, object, windowTitle, uiConfigName, QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    initialize(parent, object, windowTitle, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +63,9 @@ PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* obj
 PdmUiPropertyViewDialog::PdmUiPropertyViewDialog(QWidget* parent, PdmObject* object, const QString& windowTitle,
                                                  const QString& uiConfigName, const QDialogButtonBox::StandardButtons& standardButtons)
 {
-    initialize(parent, object, windowTitle, uiConfigName, standardButtons);
+    m_buttonBox = new QDialogButtonBox(standardButtons);
+
+    initialize(parent, object, windowTitle, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,20 +79,28 @@ PdmUiPropertyViewDialog::~PdmUiPropertyViewDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::initialize(QWidget* parent, PdmObject* object, const QString& windowTitle,
-                                         const QString& uiConfigName, const QDialogButtonBox::StandardButtons& standardButtons)
+QDialogButtonBox* PdmUiPropertyViewDialog::dialogButtonBox()
 {
-    m_pdmObject = object;
-    m_windowTitle = windowTitle;
-    m_uiConfigName = uiConfigName;
-
-    setupUi(standardButtons);
+    return m_buttonBox;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiPropertyViewDialog::setupUi(const QDialogButtonBox::StandardButtons& standardButtons)
+void PdmUiPropertyViewDialog::initialize(QWidget* parent, PdmObject* object, const QString& windowTitle,
+                                         const QString& uiConfigName)
+{
+    m_pdmObject = object;
+    m_windowTitle = windowTitle;
+    m_uiConfigName = uiConfigName;
+
+    setupUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiPropertyViewDialog::setupUi()
 {
     setWindowTitle(m_windowTitle);
 
@@ -102,11 +114,12 @@ void PdmUiPropertyViewDialog::setupUi(const QDialogButtonBox::StandardButtons& s
     m_pdmUiPropertyView->showProperties(m_pdmObject);
 
     // Buttons
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(standardButtons);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    //CAF_ASSERT(m_buttonBox->buttons().size() > 0);
 
-    dialogLayout->addWidget(buttonBox);
+    connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(m_buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    dialogLayout->addWidget(m_buttonBox);
 }
 
 

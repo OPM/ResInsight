@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RicExportFeatureImpl.h"
+
 #include "RimProject.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
@@ -77,6 +79,8 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
     exportSettings.folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Well Segments", "");
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());

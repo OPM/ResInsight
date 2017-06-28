@@ -19,22 +19,25 @@
 
 #include "RicSaveEclipseInputPropertyFeature.h"
 
-#include "RimEclipseInputProperty.h"
-#include "RimEclipseInputPropertyCollection.h"
-#include "RimExportInputPropertySettings.h"
-#include "RimEclipseInputCase.h"
+#include "RiaApplication.h"
+
+#include "RicExportFeatureImpl.h"
 
 #include "RifEclipseInputFileTools.h"
 
-#include "RiaApplication.h"
+#include "RimEclipseInputCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
+#include "RimExportInputPropertySettings.h"
+
 #include "RiuMainWindow.h"
 
-#include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QMessageBox>
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicSaveEclipseInputPropertyFeature, "RicSaveEclipseInputPropertyFeature");
 
@@ -99,6 +102,8 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered(bool isChecked)
     }
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Eclipse Property to Text File", "");
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->eclipseCaseData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
