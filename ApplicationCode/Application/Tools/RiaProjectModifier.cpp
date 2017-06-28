@@ -21,6 +21,7 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCaseCollection.h"
+#include "RimEclipseInputCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
@@ -78,6 +79,25 @@ void RiaProjectModifier::setReplaceSourceCasesById(int caseGroupIdToReplace, std
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaProjectModifier::setReplacePropertiesFolderFirstOccurrence(QString newPropertiesFolder)
+{
+    m_caseIdToPropertiesFolderMap[RiaProjectModifier::firstOccurrenceId()] = makeFilePathAbsolute(newPropertiesFolder);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaProjectModifier::setReplacePropertiesFolder(int caseIdToReplace, QString newPropertiesFolder)
+{
+    if (caseIdToReplace >= 0)
+    {
+        m_caseIdToPropertiesFolderMap[caseIdToReplace] = makeFilePathAbsolute(newPropertiesFolder);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RiaProjectModifier::applyModificationsToProject(RimProject* project) 
 {
     if (m_caseIdToGridFileNameMap.size() > 0)
@@ -88,6 +108,11 @@ bool RiaProjectModifier::applyModificationsToProject(RimProject* project)
     if (m_groupIdToGridFileNamesMap.size() > 0)
     {
         replaceSourceCases(project);
+    }
+
+    if (m_caseIdToPropertiesFolderMap.size() > 0)
+    {
+        replacePropertiesFolder(project);
     }
 
     return true;
@@ -168,6 +193,38 @@ void RiaProjectModifier::replaceCase(RimProject* project)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaProjectModifier::replacePropertiesFolder(RimProject* project)
+{
+    std::vector<RimCase*> allCases;
+    project->allCases(allCases);
+
+    for (RimCase* rimCase : allCases)
+    {
+        RimEclipseInputCase* inputCase = dynamic_cast<RimEclipseInputCase*>(rimCase);
+
+        if (inputCase)
+        {
+            for (auto item : m_caseIdToPropertiesFolderMap)
+            {
+                int caseIdToReplace = item.first;
+
+                if (caseIdToReplace == RiaProjectModifier::firstOccurrenceId())
+                {
+                    caseIdToReplace = firstInputCaseId(project);
+                }
+
+                if (caseIdToReplace == inputCase->caseId())
+                {
+                    inputCase->updateAdditionalFileFolder(item.second);
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns absolute path name to the specified file. 
 /// 
 /// If \a relOrAbsolutePath is a relative, the current working directory for the process will be
@@ -230,6 +287,26 @@ int RiaProjectModifier::firstGroupId(RimProject* project)
             {
                 return analysisModels->caseGroups[0]->groupId();
             }
+        }
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaProjectModifier::firstInputCaseId(RimProject * project)
+{
+    std::vector<RimCase*> allCases;
+    project->allCases(allCases);
+
+    for (RimCase* rimCase : allCases)
+    {
+        RimEclipseInputCase* resultCase = dynamic_cast<RimEclipseInputCase*>(rimCase);
+        if (resultCase)
+        {
+            return resultCase->caseId();
         }
     }
 

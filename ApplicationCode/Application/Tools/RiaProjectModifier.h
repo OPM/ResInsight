@@ -47,21 +47,28 @@ public:
     void            setReplaceSourceCasesFirstOccurrence(std::vector<QString> newGridFileNames);
     void            setReplaceSourceCasesById(int caseGroupIdToReplace, std::vector<QString> newGridFileNames);
 
+    void            setReplacePropertiesFolderFirstOccurrence(QString newPropertiesFolder);
+    void            setReplacePropertiesFolder(int caseIdToReplace, QString newPropertiesFolder);
+
     bool            applyModificationsToProject(RimProject* project);
 
 private:
     void            replaceSourceCases(RimProject* project);
     void            replaceCase(RimProject* project);
+    void            replacePropertiesFolder(RimProject* project);
+
     static QString  makeFilePathAbsolute(QString relOrAbsolutePath);
     static QString  caseNameFromGridFileName(QString fullGridFilePathName);
 
     static int      firstCaseId(RimProject* project);
     static int      firstGroupId(RimProject* project);
+    static int      firstInputCaseId(RimProject* project);
 
     static int      firstOccurrenceId();
 
 private:
     std::map<int, QString>               m_caseIdToGridFileNameMap;
     std::map<int, std::vector<QString> > m_groupIdToGridFileNamesMap;
+    std::map<int, QString>               m_caseIdToPropertiesFolderMap;
 };
 

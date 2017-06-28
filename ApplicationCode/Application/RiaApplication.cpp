@@ -1305,6 +1305,7 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
     progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
+    progOpt.registerOption("replacePropertiesFolder",   "[<caseId>] <newPropertiesFolder>", "Replace the folder containing property files for an eclipse input case.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("help",                      "",                                 "Displays help text.");
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
@@ -1468,6 +1469,30 @@ bool RiaApplication::parseArguments()
             projectLoadAction = PLA_CALCULATE_STATISTICS;
         }
 
+        if (cvf::Option o = progOpt.option("replacePropertiesFolder"))
+        {
+            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
+
+            if (o.valueCount() == 1)
+            {
+                QString propertiesFolder = cvfqt::Utils::toQString(o.safeValue(0));
+                projectModifier->setReplacePropertiesFolderFirstOccurrence(propertiesFolder);
+            }
+            else
+            {
+                size_t optionIdx = 0;
+                while (optionIdx < o.valueCount())
+                {
+                    const int caseId = o.safeValue(optionIdx++).toInt(-1);
+                    QString propertiesFolder = cvfqt::Utils::toQString(o.safeValue(optionIdx++));
+
+                    if (caseId != -1 && !propertiesFolder.isEmpty())
+                    {
+                        projectModifier->setReplacePropertiesFolder(caseId, propertiesFolder);
+                    }
+                }
+            }
+        }
 
         loadProject(projectFileName, projectLoadAction, projectModifier.p());
     }
