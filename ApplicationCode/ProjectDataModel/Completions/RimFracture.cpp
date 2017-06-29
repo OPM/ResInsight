@@ -581,7 +581,14 @@ void RimFracture::setFractureTemplate(RimFractureTemplate* fractureTemplate)
         stimPlanTimeIndexToPlot = stimPlanFracTemplate->activeTimeStepIndex();
     }
 
-    this->updateAzimuthFromFractureTemplate();
+    if (fractureTemplate->orientationType == RimFractureTemplate::AZIMUTH)
+    {
+        azimuth = fractureTemplate->azimuthAngle;
+    }
+    else
+    {
+        this->updateAzimuthBasedOnWellAzimuthAngle();
+    }
     this->wellDiameter = fractureTemplate->wellDiameterInFractureUnit(m_fractureUnit());
     this->perforationLength = fractureTemplate->perforationLengthInFractureUnit(m_fractureUnit());
 }

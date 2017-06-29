@@ -76,7 +76,7 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
     if (changedField == &m_measuredDepth)
     {
         updatePositionFromMeasuredDepth();
-        updateAzimuthFromFractureTemplate();
+        updateAzimuthBasedOnWellAzimuthAngle();
 
         RimProject* proj = nullptr;
         this->firstAncestorOrThisOfType(proj);
@@ -87,32 +87,26 @@ void RimWellPathFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::updateAzimuthFromFractureTemplate()
+void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
-    RimFractureTemplate::FracOrientationEnum orientation;
-    if (fractureTemplate()) orientation = fractureTemplate()->orientationType();
-    else orientation = RimFractureTemplate::AZIMUTH;
+    if (!fractureTemplate()) return;
 
-    if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH
+        || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
 
         double wellPathAzimuth = wellAzimuthAtFracturePosition();
 
-        if (orientation == RimFractureTemplate::ALONG_WELL_PATH)
+        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH)
         {
             azimuth = wellPathAzimuth;
         }
-        else if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        if (fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             if (wellPathAzimuth + 90 < 360) azimuth = wellPathAzimuth + 90;
             else azimuth = wellPathAzimuth - 90;
         }
     }
-    //TODO: Reset value if choosing azimuth in frac template!
-    //     else //Azimuth value read from template 
-//     {
-//         azimuth = attachedFractureTemplate()->azimuthAngle;
-//     }
 }
 
 //--------------------------------------------------------------------------------------------------

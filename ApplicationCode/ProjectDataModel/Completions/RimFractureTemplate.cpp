@@ -122,13 +122,17 @@ void RimFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
                 {
                     if (changedField == &azimuthAngle && (abs(oldValue.toDouble() - fracture->azimuth()) < 1e-5))
                     {
-                        fracture->updateAzimuthFromFractureTemplate();
+                        fracture->azimuth = azimuthAngle;
                         fracture->clearDisplayGeometryCache();
                     }
 
                     if (changedField == &orientationType)
                     {
-                        fracture->updateAzimuthFromFractureTemplate();
+                        if (newValue == AZIMUTH)
+                        {
+                            fracture->azimuth = azimuthAngle;
+                        }
+                        else fracture->updateAzimuthBasedOnWellAzimuthAngle();
 
                         fracture->clearDisplayGeometryCache();
                     }

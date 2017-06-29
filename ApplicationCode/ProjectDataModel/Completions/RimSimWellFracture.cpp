@@ -77,33 +77,27 @@ void RimSimWellFracture::setClosestWellCoord(cvf::Vec3d& position, size_t branch
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::updateAzimuthFromFractureTemplate()
+void RimSimWellFracture::updateAzimuthBasedOnWellAzimuthAngle()
 {
     updateBranchGeometry();
-
-    RimFractureTemplate::FracOrientationEnum orientation;
-    if (fractureTemplate()) orientation = fractureTemplate()->orientationType();
-    else orientation = RimFractureTemplate::AZIMUTH;
-
-    if (orientation == RimFractureTemplate::ALONG_WELL_PATH || orientation== RimFractureTemplate::TRANSVERSE_WELL_PATH)
+    
+    if (!fractureTemplate()) return;
+    if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH 
+        || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
     {
         double simWellAzimuth = wellAzimuthAtFracturePosition();
 
-        if (orientation == RimFractureTemplate::ALONG_WELL_PATH )
+        if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH )
         {
             azimuth = simWellAzimuth;
         }
-        else if (orientation == RimFractureTemplate::TRANSVERSE_WELL_PATH)
+        else if (fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
             if (simWellAzimuth + 90 < 360) azimuth = simWellAzimuth + 90;
             else azimuth = simWellAzimuth - 90;
         }
     }
-    else //Azimuth value read from template 
-    {
-        if (fractureTemplate()) azimuth = fractureTemplate()->azimuthAngle;
-        else azimuth = 0.0;
-    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,7 +139,7 @@ void RimSimWellFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 
         if (orientation != RimFractureTemplate::AZIMUTH)
         {
-            updateAzimuthFromFractureTemplate();
+            updateAzimuthBasedOnWellAzimuthAngle();
         }
 
         RimProject* proj;

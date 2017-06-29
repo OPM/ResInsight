@@ -93,10 +93,9 @@ public:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     cvf::Vec3d                      fracturePosition() const;
 
-    virtual void                    updateAzimuthFromFractureTemplate() = 0;
+    virtual void                    updateAzimuthBasedOnWellAzimuthAngle() = 0;
     virtual double                  wellAzimuthAtFracturePosition() const = 0;
-
-
+    
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
