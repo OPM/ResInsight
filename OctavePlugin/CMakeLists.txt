@@ -8,6 +8,7 @@ set(CPP_SOURCES
     riSetActiveCellProperty.cpp
     riGetActiveCellInfo.cpp
     riGetMainGridDimensions.cpp
+    riGetNNCConnections.cpp
     riGetCurrentCase.cpp
     riGetCaseGroups.cpp
     riGetSelectedCases.cpp
@@ -172,6 +173,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetNNCConnections.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
