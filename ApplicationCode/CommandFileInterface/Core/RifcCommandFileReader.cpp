@@ -20,6 +20,7 @@
 
 #include "RicfCommandObject.h"
 #include "RicfObjectCapability.h"
+#include "RicfMessages.h"
 
 #include "cafPdmObjectFactory.h"
 
@@ -29,7 +30,8 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream& inputStream, 
-                                                                    caf::PdmObjectFactory* objectFactory)
+                                                                    caf::PdmObjectFactory* objectFactory,
+                                                                    RicfMessages* errorMessageContainer)
 {
     std::vector<RicfCommandObject*> readCommands;
 
@@ -54,6 +56,8 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
                     if ( isBracket != QChar('(') )
                     {
                         // Error, could not find start bracket for command
+                        errorMessageContainer->addError("Could not find start bracket for command " + commandName);
+
                         return readCommands;
                     }
                     break;
@@ -72,6 +76,8 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
 
         if ( cObj == nullptr )
         {
+            errorMessageContainer->addError("The command: \"" + commandName + "\" does not exist.");
+
             // Error: Unknown command
             // Skip to end of command
             QChar currentChar;
@@ -108,7 +114,7 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
         {
             readCommands.push_back(cObj);
             auto rcfCap = cObj->capability<RicfObjectCapability>();
-            rcfCap->readFields(inputStream, objectFactory);
+            rcfCap->readFields(inputStream, objectFactory, errorMessageContainer);
         }
     }
 

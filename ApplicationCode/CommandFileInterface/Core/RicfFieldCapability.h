@@ -23,12 +23,19 @@
 #include <QTextStream>
 #include <QString>
 
+class RicfMessages;
+
 template <typename DataType>
 struct RicfFieldReader
 {
-    static void    readFieldData(DataType & fieldValue, QTextStream& inputStream)
+    static void    readFieldData(DataType & fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
     {
         inputStream >> fieldValue;
+        if (inputStream.status() == QTextStream::ReadCorruptData)
+        {
+            errorMessageContainer->addError("Argument value is unreadable");
+            inputStream.setStatus( QTextStream::Ok);
+        }
     }
 };
 
@@ -44,7 +51,7 @@ struct RicfFieldWriter
 template <>
 struct RicfFieldReader<QString>
 {
-    static void    readFieldData(QString & fieldValue, QTextStream& inputStream);
+    static void    readFieldData(QString & fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer);
 };
 
 template <>
@@ -68,11 +75,11 @@ public:
 
     // Xml Serializing
 public:
-    virtual void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory) override
+    virtual void        readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer) override
     {
         //m_field->xmlCapability()->assertValid(); 
         typename FieldType::FieldDataType value; 
-        RicfFieldReader<typename FieldType::FieldDataType>::readFieldData(value, inputStream);  
+        RicfFieldReader<typename FieldType::FieldDataType>::readFieldData(value, inputStream, errorMessageContainer);  
         m_field->setValue(value); 
     }
 

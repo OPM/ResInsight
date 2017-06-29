@@ -21,6 +21,8 @@
 #include <QTextStream>
 #include "RicfFieldHandle.h"
 #include "cafPdmXmlFieldHandle.h"
+#include "RicfMessages.h"
+
 
 
 
@@ -44,14 +46,17 @@ RicfObjectCapability::~RicfObjectCapability()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfObjectCapability::readFields(QTextStream& inputStream, caf::PdmObjectFactory* objectFactory)
+void RicfObjectCapability::readFields(QTextStream& inputStream, 
+                                      caf::PdmObjectFactory* objectFactory, 
+                                      RicfMessages* errorMessageContainer)
 {
     std::set<QString> readFields;
-    bool readLastArgument = false;
-    while ( !inputStream.atEnd() && !readLastArgument )
+    bool isLastArgumentRead = false;
+    while ( !inputStream.atEnd() && !isLastArgumentRead )
     {
         // Read field keyword
-
+        bool fieldDataFound = true;
+        bool isEndOfArgumentFound = false;
         QString keyword;
         {
             inputStream.skipWhiteSpace();
@@ -69,6 +74,16 @@ void RicfObjectCapability::readFields(QTextStream& inputStream, caf::PdmObjectFa
                     if ( currentChar != QChar('=') )
                     {
                         // Error message: Missing "=" after argument name
+                        errorMessageContainer->addError("Can't find the '=' after the argument  named: \"" + keyword); 
+                        fieldDataFound = false;
+                        if (currentChar == QChar(')') )
+                        {
+                            isLastArgumentRead = true;
+                        }
+                        else if (currentChar == QChar(',') )
+                        {
+                            isEndOfArgumentFound = true;
+                        }
                     }
                     break;
                 }
@@ -84,29 +99,35 @@ void RicfObjectCapability::readFields(QTextStream& inputStream, caf::PdmObjectFa
             if ( readFields.count(keyword) )
             {
                 // Warning message: Referenced the same argument several times
+                errorMessageContainer->addWarning("The argument: \"" + keyword + "\" is referenced several times." ); 
             }
         }
 
-        // Make field read its data
-
-        caf::PdmFieldHandle* fieldHandle = m_owner->findField(keyword);
-        if ( fieldHandle && fieldHandle->xmlCapability() && fieldHandle->capability<RicfFieldHandle>() )
+        if (fieldDataFound)
         {
-            caf::PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
-            RicfFieldHandle* rcfField = fieldHandle->capability<RicfFieldHandle>();
+            // Make field read its data
 
-            if ( xmlFieldHandle->isIOReadable() )
+            caf::PdmFieldHandle* fieldHandle = m_owner->findField(keyword);
+            if ( fieldHandle && fieldHandle->xmlCapability() && fieldHandle->capability<RicfFieldHandle>() )
             {
-                rcfField->readFieldData(inputStream, objectFactory);
-            }
+                caf::PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
+                RicfFieldHandle* rcfField = fieldHandle->capability<RicfFieldHandle>();
 
-        }
-        else
-        {
-            // Error message: Unknown argument name
+                if ( xmlFieldHandle->isIOReadable() )
+                {
+                    rcfField->readFieldData(inputStream, objectFactory, errorMessageContainer);
+                }
+
+            }
+            else
+            {
+                // Error message: Unknown argument name
+                errorMessageContainer->addWarning("The argument: \"" + keyword + "\" does not exist.");
+            }
         }
 
         // Skip to end of argument ',' or end of call ')' 
+        if (!(isLastArgumentRead || isEndOfArgumentFound) )
         {
             QChar currentChar;
             bool isOutsideQuotes = true;
@@ -122,7 +143,7 @@ void RicfObjectCapability::readFields(QTextStream& inputStream, caf::PdmObjectFa
 
                     if ( currentChar == QChar(')') )
                     {
-                        readLastArgument = true;
+                        isLastArgumentRead = true;
                         break;
                     }
                     if ( currentChar == QChar('\"') )

@@ -17,35 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cafPdmObjectCapability.h"
+#include <vector>
+#include <QString>
 
-namespace caf
-{
-class PdmObjectHandle;
-class PdmObjectFactory;
-}
-
-class QTextStream;
-class RicfMessages;
-
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class RicfObjectCapability : public caf::PdmObjectCapability
+class RicfMessages
 {
 public:
-    RicfObjectCapability(caf::PdmObjectHandle* owner, bool giveOwnership);
+    enum MessageType
+    {
+        WARNING, 
+        ERROR
+    };
 
-    virtual ~RicfObjectCapability();
+    void addWarning(const QString& message) { m_messages.push_back(std::make_pair(WARNING, message));}
+    void addError(const QString& message)   { m_messages.push_back(std::make_pair(ERROR, message));}
 
-    void             readFields(QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, RicfMessages* errorMessageContainer);
-    void             writeFields(QTextStream& outputStream) const;
-
-private:
-    caf::PdmObjectHandle* m_owner;
+    std::vector<std::pair<MessageType, QString> > m_messages;
 };
-
 
 

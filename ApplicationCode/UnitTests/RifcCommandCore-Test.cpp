@@ -3,6 +3,7 @@
 #include "RifcCommandFileReader.h"
 #include "RicfCommandObject.h"
 #include "cafPdmField.h"
+#include "RicfMessages.h"
 
 class TestCommand1: public RicfCommandObject
 {
@@ -63,8 +64,9 @@ TEST(RicfCommands, Test1)
     //std::cout << commandString.toStdString() << std::endl;
 
     QTextStream inputStream(&commandString);
+    RicfMessages errors;
 
-    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance());
+    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
     EXPECT_EQ(4, objects.size());
 
     auto tc2 = dynamic_cast<TestCommand1*>(objects[0]);
@@ -87,6 +89,47 @@ TEST(RicfCommands, Test1)
     for (auto obj: objects)
     {
         obj->execute();
+    }
+
+    for (auto obj: objects)
+    {
+        delete(obj);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RicfCommands, ErrorMessages)
+{
+    QString commandString("TesCommand1(IntArgument=3, TextArgument=\"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", DoubleArgument=5.0e3) \n"
+                          "TestCommand1 (  IntArgument = , \n  TextA rgument =  \"Dette er en tekst, \\\"og\\\" jeg er: (happy)\", \n  DoubleArgument  ) \n"
+                          "  TestCommand1(TextArgument=Litt kortere tekst.\") \n"
+                          "TC3 ( ta = \"Hepp\", ia = 3, da= 0.123)");
+
+    //std::cout << commandString.toStdString() << std::endl;
+
+    QTextStream inputStream(&commandString);
+    RicfMessages errors;
+
+    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
+
+    EXPECT_EQ(2, objects.size());
+    EXPECT_EQ(5, errors.m_messages.size());
+
+    for (const auto& msg: errors.m_messages)
+    {
+        QString label;
+        if (msg.first == RicfMessages::ERROR)
+        {
+            label = "Error  : ";
+        }
+        else
+        {
+            label = "Warning: ";
+        }
+        std::cout << label.toStdString() << msg.second.toStdString() << std::endl;
     }
 
     for (auto obj: objects)

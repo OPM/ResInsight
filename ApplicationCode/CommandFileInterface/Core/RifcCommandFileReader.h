@@ -26,6 +26,8 @@ namespace caf
     class PdmObjectFactory;
 }
 
+class RicfMessages;
+
 //==================================================================================================
 //
 // 
@@ -35,7 +37,8 @@ class RicfCommandFileReader
 {
 public:
    static std::vector<RicfCommandObject*> readCommands(QTextStream& inputStream, 
-                                                       caf::PdmObjectFactory* objectFactory);
+                                                       caf::PdmObjectFactory* objectFactory,
+                                                       RicfMessages* errorMessageContainer);
    static void                            writeCommands(QTextStream& outputStream, 
                                                         const std::vector<RicfCommandObject*>& commandsToWrite);
 };

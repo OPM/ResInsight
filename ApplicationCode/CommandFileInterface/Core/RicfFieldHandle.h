@@ -25,6 +25,8 @@ class PdmObjectFactory;
 class PdmFieldHandle;
 }
 
+class RicfMessages;
+
 class QTextStream;
 
 //==================================================================================================
@@ -39,7 +41,9 @@ public:
 
     virtual ~RicfFieldHandle();
  
-    virtual void    readFieldData (QTextStream& inputStream, caf::PdmObjectFactory* objectFactory)  = 0;
+    virtual void    readFieldData (QTextStream& inputStream, 
+                                   caf::PdmObjectFactory* objectFactory,
+                                   RicfMessages* errorMessageContainer )  = 0;
     virtual void    writeFieldData(QTextStream& outputStream) const = 0;
 
 private:

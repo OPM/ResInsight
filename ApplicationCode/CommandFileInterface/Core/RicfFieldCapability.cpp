@@ -17,13 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicfFieldCapability.h"
+#include "RicfMessages.h"
+
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& inputStream)
+void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
 {
     fieldValue = "";
 
@@ -59,6 +61,7 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
     {
         // Unexpected start of string, Missing '"'
         // Error message
+        errorMessageContainer->addError("String argument does not seem to be quoted. Missing the start '\"'");
         // Could interpret as unquoted text
     }
 
