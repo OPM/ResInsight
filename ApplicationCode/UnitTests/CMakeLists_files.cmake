@@ -10,6 +10,7 @@ set (SOURCE_GROUP_HEADER_FILES
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}Ert-Test.cpp
+${CEE_CURRENT_LIST_DIR}RifcCommandCore-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary-Test.cpp

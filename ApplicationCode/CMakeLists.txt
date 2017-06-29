@@ -46,6 +46,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
+    ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
@@ -122,6 +123,8 @@ list( APPEND REFERENCED_CMAKE_FILES
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
+
+    CommandFileInterface/Core/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
