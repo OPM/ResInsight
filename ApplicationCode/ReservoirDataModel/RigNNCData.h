@@ -58,30 +58,31 @@ public:
 class RigNNCData : public cvf::Object
 {
 public:
-    enum NNCDataType {
-        FLUX_WAT,
-        FLUX_OIL,
-        FLUX_GAS,
-        COMB_TRANS,
-        RI_COMB_TRANS,
-        RI_COMB_MULT,
-        RI_COMB_TRANS_BY_AREA,
-    };
+    static QString propertyNameFluxWat()           { return "FLRWAT"; }
+    static QString propertyNameFluxOil()           { return "FLROIL"; }
+    static QString propertyNameFluxGas()           { return "FLRGAS"; }
+    static QString propertyNameCombTrans()         { return "TRAN"; }
+    static QString propertyNameRiCombTrans()       { return "riTRAN"; }
+    static QString propertyNameRiCombTransByArea() { return "riTRANbyArea"; }
+    static QString propertyNameRiCombMult()        { return "riMULT"; }
    
     RigNNCData();
 
     void processConnections(const RigMainGrid& mainGrid);
   
     std::vector<RigConnection>&         connections()        { return m_connections; }
-    const std::vector<RigConnection>&   connections() const  { return m_connections; };
+    const std::vector<RigConnection>&   connections() const  { return m_connections; }
 
-    std::vector<double>&                      makeStaticConnectionScalarResult(NNCDataType nncDataType);
+    std::vector<double>&                      makeStaticConnectionScalarResult(QString nncDataType);
     const std::vector<double>*                staticConnectionScalarResult(size_t scalarResultIndex) const;
-    std::vector< std::vector<double> >&       makeDynamicConnectionScalarResult(NNCDataType nncDataType, size_t timeStepCount);
+    const std::vector<double>*                staticConnectionScalarResultByName(const QString& nncDataType) const;
+    std::vector< std::vector<double> >&       makeDynamicConnectionScalarResult(QString nncDataType, size_t timeStepCount);
     const std::vector< std::vector<double> >* dynamicConnectionScalarResult(size_t scalarResultIndex) const;
     const std::vector<double>*                dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const;
+    const std::vector< std::vector<double> >* dynamicConnectionScalarResultByName(const QString& nncDataType) const;
+    const std::vector<double>*                dynamicConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const;
 
-    void setScalarResultIndex(NNCDataType nncDataType, size_t scalarResultIndex);
+    void setScalarResultIndex(const QString& nncDataType, size_t scalarResultIndex);
 
     bool hasScalarValues(size_t scalarResultIndex);
 
@@ -90,10 +91,10 @@ private: // This section is possibly not needed
     //typedef std::map<size_t, caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
     //ConnectionSearchMap m_cellIdxToFaceToConnectionIdxMap;
 
-    const NNCDataType* getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const;
+    const QString getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const;
 
 private:
     std::vector<RigConnection>                                 m_connections; 
-    std::map<NNCDataType, std::vector< std::vector<double> > > m_connectionResults;
-    std::map<size_t, NNCDataType>                              m_resultIndexToNNCDataType;
+    std::map<QString, std::vector< std::vector<double> > >     m_connectionResults;
+    std::map<size_t, QString>                                  m_resultIndexToNNCDataType;
 };

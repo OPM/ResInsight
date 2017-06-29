@@ -166,7 +166,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>& RigNNCData::makeStaticConnectionScalarResult(NNCDataType nncDataType)
+std::vector<double>& RigNNCData::makeStaticConnectionScalarResult(QString nncDataType)
 {
     std::vector< std::vector<double> >& results = m_connectionResults[nncDataType];
     results.resize(1);
@@ -179,15 +179,14 @@ std::vector<double>& RigNNCData::makeStaticConnectionScalarResult(NNCDataType nn
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>* RigNNCData::staticConnectionScalarResult(size_t scalarResultIndex) const
 {
-    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
-    if (!nncDataType) return nullptr;
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (nncDataType.isNull()) return nullptr;
 
-    std::map<NNCDataType, std::vector< std::vector<double> > >::const_iterator it = m_connectionResults.find(*nncDataType);
-
-    CVF_ASSERT(it->second.size() == 1);
+    std::map<QString, std::vector< std::vector<double> > >::const_iterator it = m_connectionResults.find(nncDataType);
 
     if (it != m_connectionResults.end())
     {
+        CVF_ASSERT(it->second.size() == 1);
         return &(it->second[0]);
     }
     else
@@ -199,7 +198,26 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResult(size_t scala
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector<double> >& RigNNCData::makeDynamicConnectionScalarResult(NNCDataType nncDataType, size_t timeStepCount)
+const std::vector<double>* RigNNCData::staticConnectionScalarResultByName(const QString& nncDataType) const
+{
+    std::map<QString, std::vector< std::vector<double> > >::const_iterator it = m_connectionResults.find(nncDataType);
+
+
+    if (it != m_connectionResults.end())
+    {
+        CVF_ASSERT(it->second.size() == 1);
+        return &(it->second[0]);
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector< std::vector<double> >& RigNNCData::makeDynamicConnectionScalarResult(QString nncDataType, size_t timeStepCount)
 {
     auto& results = m_connectionResults[nncDataType];
     results.resize(timeStepCount);
@@ -211,10 +229,10 @@ std::vector< std::vector<double> >& RigNNCData::makeDynamicConnectionScalarResul
 //--------------------------------------------------------------------------------------------------
 const std::vector< std::vector<double> >* RigNNCData::dynamicConnectionScalarResult(size_t scalarResultIndex) const
 {
-    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
-    if (!nncDataType) return nullptr;
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (nncDataType.isNull()) return nullptr;
 
-    auto it = m_connectionResults.find(*nncDataType);
+    auto it = m_connectionResults.find(nncDataType);
 
     if (it != m_connectionResults.end())
     {
@@ -231,10 +249,10 @@ const std::vector< std::vector<double> >* RigNNCData::dynamicConnectionScalarRes
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>* RigNNCData::dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const
 {
-    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
-    if (!nncDataType) return nullptr;
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (nncDataType.isNull()) return nullptr;
 
-    auto it = m_connectionResults.find(*nncDataType);
+    auto it = m_connectionResults.find(nncDataType);
 
     if (it != m_connectionResults.end())
     {
@@ -249,7 +267,36 @@ const std::vector<double>* RigNNCData::dynamicConnectionScalarResult(size_t scal
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setScalarResultIndex(NNCDataType nncDataType, size_t scalarResultIndex)
+const std::vector<std::vector<double>>* RigNNCData::dynamicConnectionScalarResultByName(const QString& nncDataType) const
+{
+    auto it = m_connectionResults.find(nncDataType);
+    if (it != m_connectionResults.end())
+    {
+        return &(it->second);
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigNNCData::dynamicConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const
+{
+    auto it = m_connectionResults.find(nncDataType);
+    if (it != m_connectionResults.end())
+    {
+        if (it->second.size() > timeStep)
+        {
+            return &(it->second[timeStep]);
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setScalarResultIndex(const QString& nncDataType, size_t scalarResultIndex)
 {
     m_resultIndexToNNCDataType[scalarResultIndex] = nncDataType;
 }
@@ -259,24 +306,24 @@ void RigNNCData::setScalarResultIndex(NNCDataType nncDataType, size_t scalarResu
 //--------------------------------------------------------------------------------------------------
 bool RigNNCData::hasScalarValues(size_t scalarResultIndex)
 {
-    const NNCDataType* nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
-    if (!nncDataType) return false;
+    QString nncDataType = getNNCDataTypeFromScalarResultIndex(scalarResultIndex);
+    if (nncDataType.isNull()) return false;
 
-    auto it = m_connectionResults.find(*nncDataType);
+    auto it = m_connectionResults.find(nncDataType);
     return (it != m_connectionResults.end());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigNNCData::NNCDataType* RigNNCData::getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const
+const QString RigNNCData::getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const
 {
     auto it = m_resultIndexToNNCDataType.find(scalarResultIndex);
     if (it != m_resultIndexToNNCDataType.end())
     {
-        return &it->second;
+        return it->second;
     }
-    return nullptr;
+    return QString();
 }
 
 /*

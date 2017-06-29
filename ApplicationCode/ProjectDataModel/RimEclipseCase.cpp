@@ -582,22 +582,22 @@ bool RimEclipseCase::openReserviorCase()
             size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::COMB_TRANS, combinedTransResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(), combinedTransResIdx);
             }
             size_t combinedWatFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedWaterFluxResultName());
             if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::FLUX_WAT, combinedWatFluxResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(), combinedWatFluxResIdx);
             }
             size_t combinedOilFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedOilFluxResultName());
             if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::FLUX_OIL, combinedOilFluxResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(), combinedOilFluxResIdx);
             }
             size_t combinedGasFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedGasFluxResultName());
             if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::FLUX_GAS, combinedGasFluxResIdx);
+                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(), combinedGasFluxResIdx);
             }
         }
 

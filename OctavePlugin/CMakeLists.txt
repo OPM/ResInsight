@@ -11,6 +11,8 @@ set(CPP_SOURCES
     riGetNNCConnections.cpp
     riGetCurrentCase.cpp
     riGetCaseGroups.cpp
+    riGetDynamicNNCValues.cpp
+    riGetStaticNNCValues.cpp
     riGetSelectedCases.cpp
     riGetCases.cpp
     riGetTimeStepDates.cpp
@@ -174,6 +176,8 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetNNCConnections.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetDynamicNNCValues.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetStaticNNCValues.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"

@@ -39,9 +39,7 @@
 #include "RimReservoirCellResultsStorage.h"
 
 #include <QTcpSocket>
-
-
-
+#include <QErrorMessage>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -54,8 +52,6 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
-        if (!rimCase) return true;
-
         // Write data back to octave: columnCount, GridNr I J K GridNr I J K
         if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()))
         {
@@ -95,3 +91,126 @@ public:
 };
 
 static bool RiaGetNNCConnections_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetNNCConnections>(RiaGetNNCConnections::commandName());
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetDynamicNNCValues: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetDynamicNNCValues"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        // Write data back to octave: connectionCount, timeStepCount, property values
+        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()))
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0;
+            return true;
+        }
+
+        QString propertyName = args[2];
+
+        RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
+        const std::vector< std::vector<double> >* nncValues = mainGrid->nncData()->dynamicConnectionScalarResultByName(propertyName);
+
+        if (nncValues == nullptr)
+        {
+            socketStream << (quint64)0 << (quint64)0;
+            return true;
+        }
+
+        std::vector<size_t> requestedTimeSteps;
+        if (args.size() > 3)
+        {
+            bool timeStepReadError = false;
+            for (int argIdx = 3; argIdx < args.size(); ++argIdx)
+            {
+                bool conversionOk = false;
+                int tsIdx = args[argIdx].toInt(&conversionOk);
+
+                if (conversionOk)
+                {
+                    requestedTimeSteps.push_back(tsIdx);
+                }
+                else
+                {
+                    timeStepReadError = true;
+                }
+            }
+
+            if (timeStepReadError)
+            {
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetDynamicNNCValues : \n") + RiaSocketServer::tr("An error occurred while interpreting the requested time steps."));
+            }
+        }
+        else
+        {
+            for (size_t timeStep = 0; timeStep < nncValues->size(); ++timeStep)
+            {
+                requestedTimeSteps.push_back(timeStep);
+            }
+        }
+
+        // then the connection count and time step count.
+        size_t connectionCount = mainGrid->nncData()->connections().size();
+        size_t timeStepCount = requestedTimeSteps.size();
+
+        socketStream << (quint64)connectionCount;
+        socketStream << (quint64)timeStepCount;
+
+        for (size_t timeStep : requestedTimeSteps)
+        {
+            const std::vector<double>& timeStepValues = nncValues->at(timeStep);
+            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)timeStepValues.data(), sizeof(double) * timeStepValues.size());
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetDynamicNNCValues_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetDynamicNNCValues>(RiaGetDynamicNNCValues::commandName());
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetStaticNNCValues: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetStaticNNCValues"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        QString propertyName = args[2];
+
+        // Write data back to octave: connectionCount, property values
+        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()))
+        {
+            // No data available
+            socketStream << (quint64)0;
+            return true;
+        }
+
+        RigMainGrid* mainGrid = rimCase->eclipseCaseData()->mainGrid();
+        const std::vector<double>* nncValues = mainGrid->nncData()->staticConnectionScalarResultByName(propertyName);
+
+        if (nncValues == nullptr)
+        {
+            socketStream << (quint64)0;
+            return true;
+        }
+
+        // connection count
+        size_t connectionCount = mainGrid->nncData()->connections().size();
+        socketStream << (quint64)connectionCount;
+
+        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)nncValues->data(), sizeof(double) * nncValues->size());
+
+        return true;
+    }
+};
+
+static bool RiaGetStaticNNCValues_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetStaticNNCValues>(RiaGetStaticNNCValues::commandName());

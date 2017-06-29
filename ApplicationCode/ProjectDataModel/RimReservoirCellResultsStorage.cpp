@@ -1006,8 +1006,8 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
     std::vector<double> & permXResults = m_cellResults->cellScalarResults(permXResultIdx)[0];
     std::vector<double> & permYResults = m_cellResults->cellScalarResults(permYResultIdx)[0];
     std::vector<double> & permZResults = m_cellResults->cellScalarResults(permZResultIdx)[0];
-    std::vector<double> & riCombTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::RI_COMB_TRANS);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::RI_COMB_TRANS, riCombTransScalarResultIndex);
+    std::vector<double> & riCombTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTrans());
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransScalarResultIndex);
 
     std::vector<double> * ntgResults     = NULL;
     if (hasNTGResults)
@@ -1250,12 +1250,10 @@ void RimReservoirCellResultsStorage::computeNncCombRiMULT()
 
     if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombMultScalarResultIndex)) return;
 
-    std::vector<double> & riMultResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::RI_COMB_MULT);
-    const std::vector<double> * riTransResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(RigNNCData::RI_COMB_TRANS);
-    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(RigNNCData::COMB_TRANS);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::RI_COMB_MULT, riCombMultScalarResultIndex);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::RI_COMB_TRANS, riCombTransScalarResultIndex);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::COMB_TRANS, combTransScalarResultIndex);
+    std::vector<double> & riMultResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombMult());
+    const std::vector<double> * riTransResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex);
+    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombMult(), riCombMultScalarResultIndex);
 
     for (size_t nncConIdx = 0; nncConIdx < riMultResults.size(); ++nncConIdx)
     {
@@ -1386,8 +1384,8 @@ void RimReservoirCellResultsStorage::computeNncCombRiTRANSbyArea()
 
     if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransByAreaScResIdx)) return;
 
-    std::vector<double> & riAreaNormTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::RI_COMB_TRANS_BY_AREA);
-    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::RI_COMB_TRANS_BY_AREA, riCombTransByAreaScResIdx);
+    std::vector<double> & riAreaNormTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTransByArea());
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTransByArea(), riCombTransByAreaScResIdx);
     const std::vector<double> * transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
 
     const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->connections();
