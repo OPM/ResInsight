@@ -61,7 +61,9 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
     {
         // Unexpected start of string, Missing '"'
         // Error message
-        errorMessageContainer->addError("String argument does not seem to be quoted. Missing the start '\"'");
+        errorMessageContainer->addError("String argument does not seem to be quoted. Missing the start '\"' in the \"" 
+                                        + errorMessageContainer->currentArgument + "\" argument of the command: \"" 
+                                        + errorMessageContainer->currentCommand + "\"" );
         // Could interpret as unquoted text
     }
 

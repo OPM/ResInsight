@@ -114,7 +114,9 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
         {
             readCommands.push_back(cObj);
             auto rcfCap = cObj->capability<RicfObjectCapability>();
+            errorMessageContainer->currentCommand = commandName;
             rcfCap->readFields(inputStream, objectFactory, errorMessageContainer);
+            errorMessageContainer->currentCommand = "";
         }
     }
 

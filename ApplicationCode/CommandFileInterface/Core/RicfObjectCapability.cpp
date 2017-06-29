@@ -74,7 +74,7 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
                     if ( currentChar != QChar('=') )
                     {
                         // Error message: Missing "=" after argument name
-                        errorMessageContainer->addError("Can't find the '=' after the argument  named: \"" + keyword); 
+                        errorMessageContainer->addError("Can't find the '=' after the argument  named: \"" + keyword + "\" in the command: \"" + errorMessageContainer->currentCommand + "\"" ); 
                         fieldDataFound = false;
                         if (currentChar == QChar(')') )
                         {
@@ -99,7 +99,7 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
             if ( readFields.count(keyword) )
             {
                 // Warning message: Referenced the same argument several times
-                errorMessageContainer->addWarning("The argument: \"" + keyword + "\" is referenced several times." ); 
+                errorMessageContainer->addWarning("The argument: \"" + keyword + "\" is referenced several times in the command: \"" + errorMessageContainer->currentCommand + "\"" ); 
             }
         }
 
@@ -115,14 +115,16 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
 
                 if ( xmlFieldHandle->isIOReadable() )
                 {
+                    errorMessageContainer->currentArgument = keyword;
                     rcfField->readFieldData(inputStream, objectFactory, errorMessageContainer);
+                    errorMessageContainer->currentArgument = keyword;
                 }
 
             }
             else
             {
                 // Error message: Unknown argument name
-                errorMessageContainer->addWarning("The argument: \"" + keyword + "\" does not exist.");
+                errorMessageContainer->addWarning("The argument: \"" + keyword + "\" does not exist in the command: \"" + errorMessageContainer->currentCommand + "\"");
             }
         }
 

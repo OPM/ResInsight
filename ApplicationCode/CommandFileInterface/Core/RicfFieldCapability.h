@@ -33,7 +33,10 @@ struct RicfFieldReader
         inputStream >> fieldValue;
         if (inputStream.status() == QTextStream::ReadCorruptData)
         {
-            errorMessageContainer->addError("Argument value is unreadable");
+            errorMessageContainer->addError("Argument value is unreadable in the argument: \"" 
+                                            + errorMessageContainer->currentArgument + "\" in the command: \"" 
+                                            + errorMessageContainer->currentCommand + "\"" );
+
             inputStream.setStatus( QTextStream::Ok);
         }
     }

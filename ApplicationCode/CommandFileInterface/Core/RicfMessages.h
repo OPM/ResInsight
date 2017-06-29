@@ -32,6 +32,8 @@ public:
     void addWarning(const QString& message) { m_messages.push_back(std::make_pair(WARNING, message));}
     void addError(const QString& message)   { m_messages.push_back(std::make_pair(ERROR, message));}
 
+    QString currentCommand;
+    QString currentArgument;
     std::vector<std::pair<MessageType, QString> > m_messages;
 };
 
