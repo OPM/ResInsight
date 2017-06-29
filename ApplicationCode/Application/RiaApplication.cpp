@@ -88,7 +88,7 @@
 #include "RiuFlowCharacteristicsPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
-#include "RicSnapshotViewToClipboardFeature.h"
+#include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include "cafFixedAtlasFont.h"

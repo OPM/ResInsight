@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "RicExportMultipleSnapshotsFeature.h"
+#include "ExportCommands/RicExportMultipleSnapshotsFeature.h"
 
 #include "RimCase.h"
 #include "RimEclipseCellColors.h"
