@@ -101,10 +101,10 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
     CAF_PDM_InitFieldNoDefault(&m_uiWellPathAzimuth, "WellPathAzimuth", "Well Path Azimuth", "", "", "");
-    m_uiWellPathAzimuth.registerGetMethod(this, &RimFracture::wellAzimuthAtFracturePosition);
+    m_uiWellPathAzimuth.registerGetMethod(this, &RimFracture::wellAzimuthAtFracturePositionText);
     m_uiWellPathAzimuth.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between Fracture and Well", "", "", "");
-    m_uiWellFractureAzimuthDiff.registerGetMethod(this, &RimFracture::wellFractureAzimuthDiff);
+    m_uiWellFractureAzimuthDiff.registerGetMethod(this, &RimFracture::wellFractureAzimuthDiffText);
     m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&m_wellFractureAzimuthAngleWarning, "WellFractureAzimithAngleWarning", QString("Difference is below 10 degrees. Consider longitudinal fracture"), "", "", "", "");
     m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly(true);
@@ -187,6 +187,21 @@ double RimFracture::wellFractureAzimuthDiff() const
 {
     double wellDifference = abs(wellAzimuthAtFracturePosition() - azimuth);
     return wellDifference;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimFracture::wellFractureAzimuthDiffText() const
+{
+    double wellDifference = wellFractureAzimuthDiff();
+    return QString::number(wellDifference, 'f', 2);
+}
+
+QString RimFracture::wellAzimuthAtFracturePositionText() const
+{
+    double wellAzimuth = wellAzimuthAtFracturePosition();
+    return QString::number(wellAzimuth, 'f', 2);
 }
 
 //--------------------------------------------------------------------------------------------------

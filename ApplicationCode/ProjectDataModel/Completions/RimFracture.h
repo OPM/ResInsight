@@ -106,7 +106,9 @@ private:
     cvf::Vec3d                      fracturePositionForUi() const;
     double                          wellFractureAzimuthDiff() const; 
     
-    
+    QString                         wellFractureAzimuthDiffText() const;
+    QString                         wellAzimuthAtFracturePositionText() const;
+
     virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
 
 protected:
@@ -114,8 +116,8 @@ protected:
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  m_fractureUnit;
 
-    caf::PdmProxyValueField<double>                 m_uiWellPathAzimuth; 
-    caf::PdmProxyValueField<double>                 m_uiWellFractureAzimuthDiff; 
+    caf::PdmProxyValueField<QString>                m_uiWellPathAzimuth; 
+    caf::PdmProxyValueField<QString>                m_uiWellFractureAzimuthDiff; 
     caf::PdmField<QString>                          m_wellFractureAzimuthAngleWarning;
 
 
