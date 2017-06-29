@@ -43,7 +43,7 @@ public:
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                    updateAzimuthFromFractureTemplate() override;
 
-    double                          wellAzimuthAtFracturePosition() override;
+    double                          wellAzimuthAtFracturePosition() const override;
 
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

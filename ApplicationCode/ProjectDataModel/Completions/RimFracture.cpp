@@ -100,9 +100,14 @@ RimFracture::RimFracture(void)
 
     CAF_PDM_InitField(&stimPlanTimeIndexToPlot, "timeIndexToPlot", 0, "StimPlan Time Step", "", "", ""); 
 
-    CAF_PDM_InitField(&m_wellPathAzimuth, "WellPathAzimuth", 0.0, "Well Path Azimuth", "", "", "");
-    CAF_PDM_InitField(&m_wellFractureAzimuthDiff, "WellFractureAzimuthDiff", 0.0, "Azimuth Difference Between Fracture and Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_uiWellPathAzimuth, "WellPathAzimuth", "Well Path Azimuth", "", "", "");
+    m_uiWellPathAzimuth.registerGetMethod(this, &RimFracture::wellAzimuthAtFracturePosition);
+    m_uiWellPathAzimuth.uiCapability()->setUiReadOnly(true);
+    CAF_PDM_InitFieldNoDefault(&m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between Fracture and Well", "", "", "");
+    m_uiWellFractureAzimuthDiff.registerGetMethod(this, &RimFracture::wellFractureAzimuthDiff);
+    m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&m_wellFractureAzimuthAngleWarning, "WellFractureAzimithAngleWarning", QString("Difference is below 10 degrees. Consider longitudinal fracture"), "", "", "", "");
+    m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly(true);
 
     m_fracturePartMgr = new RivWellFracturePartMgr(this);
 }
@@ -163,7 +168,6 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
             this->firstAncestorOrThisOfTypeAsserted(proj);
             proj->reloadCompletionTypeResultsInAllViews();
         }
-        setWellFractureAzimuthDiffAndWarning();
     }
 
 }
@@ -174,6 +178,15 @@ void RimFracture::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 cvf::Vec3d RimFracture::fracturePosition() const
 {
     return m_anchorPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimFracture::wellFractureAzimuthDiff() const
+{
+    double wellDifference = abs(wellAzimuthAtFracturePosition() - azimuth);
+    return wellDifference;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,10 +365,6 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    m_wellPathAzimuth.uiCapability()->setUiReadOnly(true);
-    m_wellFractureAzimuthDiff.uiCapability()->setUiReadOnly(true);
-    m_wellFractureAzimuthAngleWarning.uiCapability()->setUiReadOnly(true);
-
     if (m_fractureUnit() == RiaEclipseUnitTools::UNITS_METRIC)
     {
         wellDiameter.uiCapability()->setUiName("Well Diameter [m]");
@@ -372,18 +381,24 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         if (fractureTemplate()->orientationType == RimFractureTemplate::ALONG_WELL_PATH
             || fractureTemplate()->orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH)
         {
+            m_uiWellPathAzimuth.uiCapability()->setUiHidden(true);
+            m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden(true);
             m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(true);
         }
 
         else if (fractureTemplate()->orientationType == RimFractureTemplate::AZIMUTH)
         {
-            if (abs(m_wellFractureAzimuthDiff) > 10)
+            m_uiWellPathAzimuth.uiCapability()->setUiHidden(false);
+            m_uiWellFractureAzimuthDiff.uiCapability()->setUiHidden(false);
+            if (wellFractureAzimuthDiff() < 10
+                || (wellFractureAzimuthDiff() > 170 && wellFractureAzimuthDiff() < 190 ) 
+                || wellFractureAzimuthDiff() > 350)
             {
-                m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(true);
+                m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(false);
             }
             else
             {
-                m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(false);
+                m_wellFractureAzimuthAngleWarning.uiCapability()->setUiHidden(true);
             }
         }
 
@@ -436,18 +451,6 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     {
         stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
     }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFracture::setWellFractureAzimuthDiffAndWarning() //TODO: updateWellFra
-{
-    double wellFractureDiffAngle = abs(m_wellPathAzimuth - azimuth);
-    if (wellFractureDiffAngle > 180) wellFractureDiffAngle = 360 - wellFractureDiffAngle;
-    
-    m_wellFractureAzimuthDiff = wellFractureDiffAngle;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -118,13 +118,10 @@ void RimWellPathFracture::updateAzimuthFromFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimWellPathFracture::wellAzimuthAtFracturePosition()
+double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 {
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(this);
-    if (!objHandle) return cvf::UNDEFINED_DOUBLE;
-
     RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType(wellPath);
+    this->firstAncestorOrThisOfType(wellPath);
     if (!wellPath) return cvf::UNDEFINED_DOUBLE;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
@@ -153,8 +150,6 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
     positionAlongWellpath = wellPathGeometry->interpolatedPointAlongWellPath(m_measuredDepth());
 
     this->setAnchorPosition(positionAlongWellpath);
-    m_wellPathAzimuth = wellAzimuthAtFracturePosition();
-    setWellFractureAzimuthDiffAndWarning();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,8 +165,8 @@ void RimWellPathFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
     caf::PdmUiGroup* locationGroup = uiOrdering.addNewGroup("Location / Orientation");
     locationGroup->add(&m_measuredDepth);
     locationGroup->add(&azimuth);
-    locationGroup->add(&m_wellPathAzimuth);
-    locationGroup->add(&m_wellFractureAzimuthDiff);
+    locationGroup->add(&m_uiWellPathAzimuth);
+    locationGroup->add(&m_uiWellFractureAzimuthDiff);
     locationGroup->add(&m_wellFractureAzimuthAngleWarning);
     locationGroup->add(&dip);
     locationGroup->add(&tilt);

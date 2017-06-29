@@ -44,7 +44,7 @@ public:
     void                                            updateFracturePositionFromLocation();
     void                                            updateAzimuthFromFractureTemplate() override;
 
-    double                                          wellAzimuthAtFracturePosition() override;
+    double                                          wellAzimuthAtFracturePosition() const override;
     double                                          wellDipAtFracturePosition();
 
     int                                             branchIndex() const { return m_branchIndex(); }

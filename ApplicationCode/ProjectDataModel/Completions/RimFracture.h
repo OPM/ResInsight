@@ -94,16 +94,17 @@ public:
     cvf::Vec3d                      fracturePosition() const;
 
     virtual void                    updateAzimuthFromFractureTemplate() = 0;
-    virtual double                  wellAzimuthAtFracturePosition() = 0;
+    virtual double                  wellAzimuthAtFracturePosition() const = 0;
+
 
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;
-    void                            setWellFractureAzimuthDiffAndWarning();
 
 private:
     cvf::Vec3d                      fracturePositionForUi() const;
+    double                          wellFractureAzimuthDiff() const; 
     
     
     virtual cvf::BoundingBox        boundingBoxInDomainCoords() override;
@@ -113,8 +114,8 @@ protected:
     caf::PdmProxyValueField<cvf::Vec3d>             m_uiAnchorPosition;
     caf::PdmField< RiaEclipseUnitTools::UnitSystemType >  m_fractureUnit;
 
-    caf::PdmField<double>                           m_wellPathAzimuth;
-    caf::PdmField<double>                           m_wellFractureAzimuthDiff;
+    caf::PdmProxyValueField<double>                 m_uiWellPathAzimuth; 
+    caf::PdmProxyValueField<double>                 m_uiWellFractureAzimuthDiff; 
     caf::PdmField<QString>                          m_wellFractureAzimuthAngleWarning;
 
 
