@@ -41,8 +41,6 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
                 if ( currentChar == QChar('"') ) // End Quote
                 {
                     // Reached end of string
-                    // Read and eat , or ) ?
-
                     break;
                 }
                 else

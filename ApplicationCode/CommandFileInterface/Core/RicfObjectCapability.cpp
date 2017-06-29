@@ -59,7 +59,21 @@ void RicfObjectCapability::readFields(QTextStream& inputStream, caf::PdmObjectFa
             {
                 QChar currentChar;
                 inputStream >> currentChar;
-                if ( currentChar.isSpace() || currentChar == QChar('=') )
+                if ( currentChar.isSpace() )
+                {
+                    // Must skip to, and read "="
+
+                    inputStream.skipWhiteSpace();
+                    inputStream >> currentChar;
+
+                    if ( currentChar != QChar('=') )
+                    {
+                        // Error message: Missing "=" after argument name
+                    }
+                    break;
+                }
+
+                if ( currentChar == QChar('=') )
                 {
                     break;
                 }
