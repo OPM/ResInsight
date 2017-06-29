@@ -42,7 +42,7 @@ int RigReservoirGridTools::gridCount(RimCase* rimCase)
 
     if (eclipseMainGrid)
     {
-        return eclipseMainGrid->gridCount();
+        return static_cast<int>(eclipseMainGrid->gridCount());
     }
     else if (geoMechPartCollection)
     {
