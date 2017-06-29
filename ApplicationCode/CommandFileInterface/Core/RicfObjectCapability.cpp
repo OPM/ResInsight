@@ -59,17 +59,17 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
         bool isEndOfArgumentFound = false;
         QString keyword;
         {
-            inputStream.skipWhiteSpace();
+            errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
             while ( !inputStream.atEnd() )
             {
                 QChar currentChar;
-                inputStream >> currentChar;
+                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                 if ( currentChar.isSpace() )
                 {
                     // Must skip to, and read "="
 
-                    inputStream.skipWhiteSpace();
-                    inputStream >> currentChar;
+                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+                    currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
 
                     if ( currentChar != QChar('=') )
                     {
@@ -135,7 +135,7 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
             bool isOutsideQuotes = true;
             while ( !inputStream.atEnd() )
             {
-                inputStream >> currentChar;
+                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                 if ( isOutsideQuotes )
                 {
                     if ( currentChar == QChar(',') )
@@ -162,7 +162,7 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
 
                     if ( currentChar == QChar('\\') )
                     {
-                        inputStream >> currentChar;
+                        currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                     }
                 }
             }

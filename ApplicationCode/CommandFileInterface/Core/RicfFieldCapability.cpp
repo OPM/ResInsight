@@ -29,15 +29,15 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
 {
     fieldValue = "";
 
-    inputStream.skipWhiteSpace();
+    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
     QString accumulatedFieldValue;
     QChar currentChar;
-    inputStream >> currentChar;
+    currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
     if ( currentChar == QChar('"') )
     {
         while ( !inputStream.atEnd() )
         {
-            inputStream >> currentChar;
+            currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
             if ( currentChar != QChar('\\') )
             {
                 if ( currentChar == QChar('"') ) // End Quote
@@ -52,7 +52,7 @@ void RicfFieldReader<QString>::readFieldData(QString& fieldValue, QTextStream& i
             }
             else
             {
-                inputStream >> currentChar;
+                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                 accumulatedFieldValue += currentChar;
             }
         }

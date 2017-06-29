@@ -37,22 +37,21 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
 
     while ( !inputStream.atEnd() )
     {
-        inputStream.skipWhiteSpace();
-
+        errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
         // Read command name
         QString commandName;
         bool foundStartBracet = false;
         {
-            inputStream.skipWhiteSpace();
+            errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
             while ( !inputStream.atEnd() )
             {
                 QChar currentChar;
-                inputStream >> currentChar;
+                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                 if ( currentChar.isSpace() )
                 {
-                    inputStream.skipWhiteSpace();
+                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
                     QChar isBracket('a');
-                    inputStream >> isBracket;
+                    isBracket = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                     if ( isBracket != QChar('(') )
                     {
                         // Error, could not find start bracket for command
@@ -84,7 +83,7 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
             bool isOutsideQuotes = true;
             while ( !inputStream.atEnd() )
             {
-                inputStream >> currentChar;
+                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                 if ( isOutsideQuotes )
                 {
                     if ( currentChar == QChar(')') )
@@ -105,7 +104,7 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
 
                     if ( currentChar == QChar('\\') )
                     {
-                        inputStream >> currentChar;
+                        currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                     }
                 }
             }

@@ -108,7 +108,7 @@ TEST(RicfCommands, ErrorMessages)
                           "  TestCommand1(TextArgument=Litt kortere tekst.\") \n"
                           "TC3 ( ta = \"Hepp\", ia = 3, da= 0.123)");
 
-    //std::cout << commandString.toStdString() << std::endl;
+    std::cout << commandString.toStdString() << std::endl;
 
     QTextStream inputStream(&commandString);
     RicfMessages errors;

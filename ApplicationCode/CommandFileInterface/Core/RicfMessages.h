@@ -15,26 +15,36 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
+
 #include <vector>
 #include <QString>
+
+class QTextStream;
 
 class RicfMessages
 {
 public:
+    RicfMessages() : m_currentLineNumber(1) {}
+
     enum MessageType
     {
         WARNING, 
         ERROR
     };
 
-    void addWarning(const QString& message) { m_messages.push_back(std::make_pair(WARNING, message));}
-    void addError(const QString& message)   { m_messages.push_back(std::make_pair(ERROR, message));}
+    void    addWarning(const QString& message);
+    void    addError(const QString& message);
+
+    void    skipWhiteSpaceWithLineNumberCount(QTextStream& inputStream);
+    QChar   readCharWithLineNumberCount(QTextStream& inputStream);
 
     QString currentCommand;
     QString currentArgument;
     std::vector<std::pair<MessageType, QString> > m_messages;
+
+private:
+    int m_currentLineNumber;
 };
 
 
