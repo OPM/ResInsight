@@ -19,11 +19,11 @@
 #pragma once
 
 #include "RicfFieldHandle.h"
+#include "RicfMessages.h"
 
 #include <QTextStream>
 #include <QString>
 
-class RicfMessages;
 
 template <typename DataType>
 struct RicfFieldReader
