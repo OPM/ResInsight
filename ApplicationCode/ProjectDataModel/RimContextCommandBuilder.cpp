@@ -399,6 +399,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicWellPathExportCompletionDataFeature";
         commandIds << "RicWellPathImportCompletionsFileFeature";
         commandIds << "RicFlyToObjectFeature";
+        commandIds << "RicExportCarfin";
 
         // Work in progress -- End
 

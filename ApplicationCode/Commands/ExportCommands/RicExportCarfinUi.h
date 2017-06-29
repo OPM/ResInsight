@@ -19,51 +19,50 @@
 #pragma once
 
 #include "cafPdmObject.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
-#include "cafVecIjk.h"
+#include "cafPdmPtrField.h"
 
-class RimCase;
-class RigActiveCellInfo;
+class RimEclipseCase;
+class RicCellRangeUi;
 
+namespace caf {
+    class VecIjk;
+}
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCellRangeUi : public caf::PdmObject
+class RicExportCarfinUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicCellRangeUi();
+    RicExportCarfinUi();
 
-    void setCase(RimCase* rimCase);
+    void setCase(RimEclipseCase* rimCase);
 
-    caf::VecIjk start() const;
-    caf::VecIjk count() const;
-
-    QString gridName() const;
+    int                     maxWellCount() const;
+    caf::VecIjk             lgrCellCount() const;
+    const RicCellRangeUi*   cellRange() const;
+    QString                 exportFileName() const;
+    RimEclipseCase*         caseToApply() const;
+    QString                 gridName() const;
 
 private:
-    // PDM overrides
-    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
-    void                clampValues();
-    void                setDefaultValues();
-    RigActiveCellInfo*  activeCellInfo() const;
-    void                updateLegendText();
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-    caf::PdmPointer<RimCase> m_case;
+    caf::PdmField<QString>              m_exportFileName;
+    caf::PdmPtrField<RimEclipseCase*>   m_caseToApply;
+    caf::PdmChildField<RicCellRangeUi*> m_cellRange;
 
-    caf::PdmField<int>  m_gridIndex;
-
-    caf::PdmField<int>  m_startIndexI;    // Eclipse indexing, first index is 1
-    caf::PdmField<int>  m_startIndexJ;    // Eclipse indexing, first index is 1
-    caf::PdmField<int>  m_startIndexK;    // Eclipse indexing, first index is 1
     caf::PdmField<int>  m_cellCountI;
     caf::PdmField<int>  m_cellCountJ;
     caf::PdmField<int>  m_cellCountK;
+
+    caf::PdmField<int>  m_maxWellCount;
 };

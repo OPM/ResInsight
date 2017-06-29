@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimCase;
+class RimEclipseCase;
 
 //==================================================================================================
 /// 
@@ -31,12 +31,10 @@ class RicExportCarfin : public caf::CmdFeature
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimCase* selectedCase();
+    static RimEclipseCase* selectedCase();
 };
-
-
