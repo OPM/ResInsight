@@ -20,6 +20,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include "cafPdmPtrField.h"
 #include "cafVecIjk.h"
 
 class RimCase;
@@ -40,11 +41,9 @@ public:
 
     caf::VecIjk start() const;
     caf::VecIjk count() const;
-
-    QString gridName() const;
+    QString     gridName() const;
 
 private:
-    // PDM overrides
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -56,7 +55,7 @@ private:
     void                updateLegendText();
 
 private:
-    caf::PdmPointer<RimCase> m_case;
+    caf::PdmPtrField<RimCase*> m_case;
 
     caf::PdmField<int>  m_gridIndex;
 

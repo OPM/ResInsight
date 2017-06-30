@@ -43,6 +43,9 @@ RicCellRangeUi::RicCellRangeUi()
 {
     CAF_PDM_InitObject("Cell Range", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_case, "Case", "Case", "", "", "");
+    m_case.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_gridIndex, "GridIndex", 0, "Grid", "", "", "");
 
     CAF_PDM_InitField(&m_startIndexI, "StartIndexI", 1, "Start index I", "", "", "");
@@ -66,9 +69,12 @@ RicCellRangeUi::RicCellRangeUi()
 //--------------------------------------------------------------------------------------------------
 void RicCellRangeUi::setCase(RimCase* rimCase)
 {
-    m_case = rimCase;
+    if (m_case != rimCase)
+    {
+        m_case = rimCase;
 
-    setDefaultValues();
+        setDefaultValues();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,7 +257,7 @@ void RicCellRangeUi::setDefaultValues()
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RicCellRangeUi::activeCellInfo() const
 {
-    RimEclipseCase* rimEclipeCase = dynamic_cast<RimEclipseCase*>(m_case.p());
+    RimEclipseCase* rimEclipeCase = dynamic_cast<RimEclipseCase*>(m_case());
     if (rimEclipeCase && rimEclipeCase->eclipseCaseData())
     {
         return rimEclipeCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
