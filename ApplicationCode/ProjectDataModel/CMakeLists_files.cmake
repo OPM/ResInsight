@@ -89,6 +89,7 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
+${CEE_CURRENT_LIST_DIR}RimDialogData.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -176,6 +177,7 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
+${CEE_CURRENT_LIST_DIR}RimDialogData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

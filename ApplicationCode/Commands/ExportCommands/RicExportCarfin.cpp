@@ -18,6 +18,7 @@
 
 #include "RicExportCarfin.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicCellRangeUi.h"
@@ -26,13 +27,16 @@
 
 #include "RifEclipseDataTableFormatter.h"
 
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
+#include "RimProject.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QFile>
+
 
 CAF_CMD_SOURCE_INIT(RicExportCarfin, "RicExportCarfin");
 
@@ -57,15 +61,18 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
     RimEclipseCase* rimCase = RicExportCarfin::selectedCase();
     CVF_ASSERT(rimCase);
 
-    RicExportCarfinUi carfinUi;
-    carfinUi.setCase(rimCase);
+    QString exportCarfinDataAsString = RiaApplication::instance()->project()->dialogData()->exportCarfinDataAsString();
+    
+    RicExportCarfinUi* exportCarfinObject = RiaApplication::instance()->project()->dialogData()->exportCarfin();
 
-    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, &carfinUi, "Export CARFIN to Eclipse Data", "");
+    exportCarfinObject->setCase(rimCase);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(nullptr, exportCarfinObject, "Export CARFIN to Eclipse Data", "");
     RicExportFeatureImpl::configureForExport(&propertyDialog);
 
     if (propertyDialog.exec() == QDialog::Accepted)
     {
-        QString filePath = carfinUi.exportFileName();
+        QString filePath = exportCarfinObject->exportFileName();
         QFile exportFile(filePath);
         if (!exportFile.open(QIODevice::WriteOnly))
         {
@@ -93,28 +100,33 @@ void RicExportCarfin::onActionTriggered(bool isChecked)
         formatter.keyword("CARFIN");
         formatter.header(header);
 
-        formatter.add(carfinUi.cellRange()->start().i());
-        formatter.add(carfinUi.cellRange()->start().i() + carfinUi.cellRange()->count().i());
+        formatter.add(exportCarfinObject->cellRange()->start().i());
+        formatter.add(exportCarfinObject->cellRange()->start().i() + exportCarfinObject->cellRange()->count().i());
 
-        formatter.add(carfinUi.cellRange()->start().j());
-        formatter.add(carfinUi.cellRange()->start().j() + carfinUi.cellRange()->count().j());
+        formatter.add(exportCarfinObject->cellRange()->start().j());
+        formatter.add(exportCarfinObject->cellRange()->start().j() + exportCarfinObject->cellRange()->count().j());
 
-        formatter.add(carfinUi.cellRange()->start().k());
-        formatter.add(carfinUi.cellRange()->start().k() + carfinUi.cellRange()->count().k());
+        formatter.add(exportCarfinObject->cellRange()->start().k());
+        formatter.add(exportCarfinObject->cellRange()->start().k() + exportCarfinObject->cellRange()->count().k());
 
-        formatter.add(carfinUi.lgrCellCount().i());
-        formatter.add(carfinUi.lgrCellCount().j());
-        formatter.add(carfinUi.lgrCellCount().k());
+        formatter.add(exportCarfinObject->lgrCellCount().i());
+        formatter.add(exportCarfinObject->lgrCellCount().j());
+        formatter.add(exportCarfinObject->lgrCellCount().k());
 
-        formatter.add(carfinUi.maxWellCount());
+        formatter.add(exportCarfinObject->maxWellCount());
 
-        if (!carfinUi.gridName().isEmpty())
+        if (!exportCarfinObject->gridName().isEmpty())
         {
-            formatter.add(carfinUi.gridName());
+            formatter.add(exportCarfinObject->gridName());
         }
 
         formatter.rowCompleted();
         formatter.tableCompleted();
+
+    }
+    else
+    {
+        RiaApplication::instance()->project()->dialogData()->setExportCarfinDataFromString(exportCarfinDataAsString);
     }
 }
 

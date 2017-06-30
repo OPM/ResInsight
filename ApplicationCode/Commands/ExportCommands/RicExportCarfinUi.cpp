@@ -56,13 +56,13 @@ RicExportCarfinUi::RicExportCarfinUi()
 //--------------------------------------------------------------------------------------------------
 void RicExportCarfinUi::setCase(RimEclipseCase* rimCase)
 {
-    m_caseToApply = rimCase;
-    m_cellRange->setCase(rimCase);
+    bool isDifferent = (rimCase != m_caseToApply);
 
-    if (rimCase)
+    setCasePointers(rimCase);
+
+    if (isDifferent)
     {
-        QString caseFolder = rimCase->locationOnDisc();
-        m_exportFileName = caseFolder + "/carfin.data";
+        setDefaultValuesFromCase();
     }
 }
 
@@ -117,6 +117,32 @@ QString RicExportCarfinUi::gridName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicExportCarfinUi::setCasePointers(RimEclipseCase* rimCase)
+{
+    m_caseToApply = rimCase;
+    m_cellRange->setCase(rimCase);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCarfinUi::setDefaultValuesFromCase()
+{
+    if (m_caseToApply)
+    {
+        QString caseFolder = m_caseToApply->locationOnDisc();
+        m_exportFileName = caseFolder + "/carfin.data";
+    }
+
+    m_cellCountI = 2;
+    m_cellCountJ = 2;
+    m_cellCountK = 2;
+    m_maxWellCount = 8;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicExportCarfinUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -136,7 +162,8 @@ void RicExportCarfinUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (changedField == &m_caseToApply)
     {
-        setCase(m_caseToApply);
+        setCasePointers(m_caseToApply);
+        setDefaultValuesFromCase();
     }
 }
 
