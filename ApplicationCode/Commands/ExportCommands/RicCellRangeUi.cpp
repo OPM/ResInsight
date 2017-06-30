@@ -169,6 +169,7 @@ void RicCellRangeUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
     if (changedField == &m_gridIndex)
     {
+        setDefaultValues();
         updateLegendText();
     }
 

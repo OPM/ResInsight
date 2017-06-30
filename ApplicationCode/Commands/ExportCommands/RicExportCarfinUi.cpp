@@ -40,7 +40,7 @@ RicExportCarfinUi::RicExportCarfinUi()
     CAF_PDM_InitFieldNoDefault(&m_cellRange, "CellRange", "CellRange", "", "", "");
     m_cellRange = new RicCellRangeUi;
 
-    CAF_PDM_InitFieldNoDefault(&m_exportFileName, "ExportFileName", "Export FileName", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_exportFileName, "ExportFileName", "Export Filename", "", "", "");
     m_exportFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_caseToApply, "CaseToApply", "Source Case", "", "", "");
@@ -145,8 +145,8 @@ void RicExportCarfinUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 void RicExportCarfinUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_exportFileName);
     uiOrdering.add(&m_caseToApply);
+    uiOrdering.add(&m_exportFileName);
     
     caf::PdmUiGroup* sourceGridBox = uiOrdering.addNewGroup("Source Grid Box");
     m_cellRange->uiOrdering(uiConfigName, *sourceGridBox);
