@@ -127,8 +127,8 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
     CAF_PDM_InitField(&m_rangeMode, "RangeType", RangeModeEnum(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
-    CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
-    CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
+    CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Max value of the legend", "");
+    CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Min value of the legend (if mapping is logarithmic only positive values are valid)", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
     resultVariableName.uiCapability()->setUiHidden(true);
 
