@@ -119,7 +119,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &selectedEclipseResults)
     {
-        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view().p());
+        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view());
         if (rimEclipseView)
         {
             QStringList varList;
