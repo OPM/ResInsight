@@ -102,7 +102,7 @@ public:
     std::vector<double>                       fractureGridResults(const QString& resultName, 
                                                                   const QString& unitName, 
                                                                   size_t timeStepIndex) const;
-    void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const;
+    void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
     
     // Setup                          
     void                                      reorderYgridToDepths();

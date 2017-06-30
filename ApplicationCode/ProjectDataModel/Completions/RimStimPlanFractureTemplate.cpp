@@ -348,11 +348,11 @@ std::vector<std::pair<QString, QString> > RimStimPlanFractureTemplate::resultNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue) const
+void RimStimPlanFractureTemplate::computeMinMax(const QString& resultName, const QString& unitName, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const
 {
     if (m_stimPlanFractureDefinitionData.notNull())
     {
-        m_stimPlanFractureDefinitionData->computeMinMax(resultName, unitName, minValue, maxValue);
+        m_stimPlanFractureDefinitionData->computeMinMax(resultName, unitName, minValue, maxValue, posClosestToZero, negClosestToZero);
     }
 }
 

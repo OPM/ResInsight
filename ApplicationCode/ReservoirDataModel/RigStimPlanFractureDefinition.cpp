@@ -563,9 +563,11 @@ const std::vector<std::vector<double>>& RigStimPlanFractureDefinition::getDataAt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const
+void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, const QString& unit, 
+                                                  double* minValue, double* maxValue,
+                                                  double* posClosestToZero, double* negClosestToZero) const
 {
-    CVF_ASSERT(minValue && maxValue);
+    CVF_ASSERT(minValue && maxValue && posClosestToZero && negClosestToZero);
 
     size_t resIndex = resultIndex(resultName, unit);
     if (resIndex == cvf::UNDEFINED_SIZE_T) return;
@@ -584,6 +586,16 @@ void RigStimPlanFractureDefinition::computeMinMax(const QString& resultName, con
                 if (resultValue > *maxValue)
                 {
                     *maxValue = resultValue;
+                }
+
+                if (resultValue > 0 && resultValue < *posClosestToZero)
+                {
+                    *posClosestToZero = resultValue;
+                }
+
+                if (resultValue < 0 && resultValue > *negClosestToZero)
+                {
+                    *posClosestToZero = resultValue;
                 }
             }
         }

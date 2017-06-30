@@ -91,14 +91,14 @@ std::vector<QString> RimFractureTemplateCollection::stimPlanResultNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue) const
+void RimFractureTemplateCollection::computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const
 {
     for (const RimFractureTemplate* f : fractureDefinitions())
     {
         auto stimPlanFracture = dynamic_cast<const RimStimPlanFractureTemplate*>(f);
         if (stimPlanFracture)
         {
-            stimPlanFracture->computeMinMax(resultName, unit, minValue, maxValue);
+            stimPlanFracture->computeMinMax(resultName, unit, minValue, maxValue, posClosestToZero, negClosestToZero);
         }
     }
 }

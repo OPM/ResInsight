@@ -247,14 +247,17 @@ void RimStimPlanColors::updateLegendData()
     {
         double minValue = HUGE_VAL;
         double maxValue = -HUGE_VAL;
+        double posClosestToZero = HUGE_VAL;
+        double negClosestToZero = -HUGE_VAL;
 
         RimFractureTemplateCollection* fracTemplateColl = fractureTemplateCollection();
 
-        fracTemplateColl->computeMinMax(resultName(), unit(), &minValue, &maxValue);
+        fracTemplateColl->computeMinMax(resultName(), unit(), &minValue, &maxValue, &posClosestToZero, &negClosestToZero);
 
         if (minValue != HUGE_VAL)
         {
             legendConfig->setAutomaticRanges(minValue, maxValue, minValue, maxValue);
+            legendConfig->setClosestToZeroValues(posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero);
         }
 
         legendConfig->setTitle(cvfqt::Utils::toString(m_resultNameAndUnit()));
