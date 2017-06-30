@@ -66,6 +66,8 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&m_borderPolygonResultName, "parameterForPolyton", QString(""), "Parameter", "", "", "");
+    m_borderPolygonResultName.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitField(&m_activeTimeStepIndex, "activeTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
     CAF_PDM_InitField(&m_showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
 
@@ -213,6 +215,12 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
             m_borderPolygonResultName = property.first;
             return true;
         }
+    }
+    //else: Set to first property
+    if (resultNamesWithUnit().size() > 1)
+    {
+        m_borderPolygonResultName = resultNamesWithUnit()[0].first;
+        return true;
     }
     return false;
 }
@@ -451,9 +459,6 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     propertyGroup->add(&perforationLength);
     propertyGroup->add(&perforationEfficiency);
     propertyGroup->add(&wellDiameter);
-
-    caf::PdmUiGroup* polygonGroup = uiOrdering.addNewGroup("Fracture Polygon Basis");
-    polygonGroup->add(&m_borderPolygonResultName);
 }
 
 //--------------------------------------------------------------------------------------------------

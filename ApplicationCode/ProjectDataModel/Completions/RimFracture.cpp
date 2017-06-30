@@ -94,7 +94,8 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitField(&wellDiameter, "wellDiameter", 0.216, "Well Diameter at Fracture", "", "", "");
     CAF_PDM_InitField(&dip, "Dip", 0.0, "Dip", "", "", "");
     CAF_PDM_InitField(&tilt, "Tilt", 0.0, "Tilt", "", "", "");
-    CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", true, "Show Polygon Outline", "", "", "");
+    CAF_PDM_InitField(&showPolygonFractureOutline, "showPolygonFractureOutline", false, "Show Polygon Outline", "", "", "");
+    showPolygonFractureOutline.uiCapability()->setUiHidden(true);
     CAF_PDM_InitField(&m_fractureUnit, "fractureUnit", caf::AppEnum<RiaEclipseUnitTools::UnitSystem>(RiaEclipseUnitTools::UNITS_METRIC), "Fracture Unit System", "", "", "");
     m_fractureUnit.uiCapability()->setUiReadOnly(true);
 
@@ -452,14 +453,10 @@ void RimFracture::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(false);
             stimPlanTimeIndexToPlot.uiCapability()->setUiReadOnly(true);
-
-            showPolygonFractureOutline.uiCapability()->setUiHidden(false);
         }
         else
         {
             stimPlanTimeIndexToPlot.uiCapability()->setUiHidden(true);
-
-            showPolygonFractureOutline.uiCapability()->setUiHidden(true);
         }
     }
     else
