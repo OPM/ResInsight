@@ -217,7 +217,7 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
         }
     }
     //else: Set to first property
-    if (resultNamesWithUnit().size() > 1)
+    if (resultNamesWithUnit().size() > 0)
     {
         m_borderPolygonResultName = resultNamesWithUnit()[0].first;
         return true;
@@ -318,7 +318,7 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
     }
 
     if (foundMultiple)  RiaLogging::error(QString("Multiple units found for same parameter"));
-    if (!found)         RiaLogging::error(QString("Unit for parameter not found for %1 template").arg(name()));
+    if (!found)         RiaLogging::error(QString("Requested unit / parameter not found for %1 template").arg(name()));
     return unit;
 }
 
