@@ -54,6 +54,7 @@
 #include "cvfPlane.h"
 
 #include <QAction>
+#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -369,13 +370,22 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
+void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& folderName, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     //TODO: Check that completion is ready for export
 
-    QString filePath = QDir(exportFolder).filePath(fileName);
+    QDir exportFolder = QDir(folderName);
+
+    if (!exportFolder.exists())
+    {
+        bool createdPath = exportFolder.mkpath(folderName);
+        if (createdPath) RiaLogging::info("Created export folder " + folderName);
+        else RiaLogging::error("Selected output folder does not exist, and could not be created.");
+    }
+
+    QString filePath = exportFolder.filePath(fileName);
     QFile exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly))
+        if (!exportFile.open(QIODevice::WriteOnly))
     {
         RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(filePath));
         return;
