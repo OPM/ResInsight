@@ -26,6 +26,7 @@
 #include "RimFractureTemplate.h"
 #include "RimEclipseWell.h"
 #include "RimSimWellFractureCollection.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimSimWellFracture.h"
 
 #include "RigEclipseCaseData.h"
@@ -120,14 +121,35 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 
     for (RimFracture* fracture : fractures)
     {
-
         bool useFiniteConductivityInFracture = (fracture->fractureTemplate()->conductivityType() == RimFractureTemplate::FINITE_CONDUCTIVITY);
-
-        using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
-
+        
         RimFractureTemplate* fracTemplate = fracture->fractureTemplate();
         const RigFractureGrid* fractureGrid = fracTemplate->fractureGrid();
 
+        //If finite cond chosen and conductivity not present in stimplan file, do not calculate trans for this fracture
+        if (useFiniteConductivityInFracture)
+        {
+            if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
+            {
+                RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
+                bool conductivityInFile = false;
+                for (auto parameterUnit : fracTemplateStimPlan->resultNamesWithUnit())
+                {
+                    if (parameterUnit.first == "CONDUCTIVITY") conductivityInFile = true;
+                }
+                if (!conductivityInFile)
+                {
+                    RiaLogging::error("Trying to export completion data for stimPlan fracture without conductivity data for " + fracture->name());
+                    RiaLogging::error("No transmissibilities will be calculated for " + fracture->name());
+
+                    continue;
+
+                }
+            }
+        }
+
+
+        using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
         RigTransmissibilityCondenser transCondenser;
 
         //////
