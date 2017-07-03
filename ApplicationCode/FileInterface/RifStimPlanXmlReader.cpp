@@ -18,6 +18,7 @@
 
 #include "RifStimPlanXmlReader.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RigStimPlanFractureDefinition.h"
 #include "RiaLogging.h"
 
@@ -32,6 +33,7 @@
 cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFile(const QString& stimPlanFileName, QString * errorMessage)
 {
     RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(stimPlanFileName));
+    RiaEclipseUnitTools::UnitSystemType unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
 
     cvf::ref<RigStimPlanFractureDefinition> stimPlanFileData = new RigStimPlanFractureDefinition;
     size_t startingNegXsValues = 0;
@@ -46,7 +48,14 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
         QXmlStreamReader xmlStream;
         xmlStream.setDevice(&dataFile);
         xmlStream.readNext();
-        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p());
+        startingNegXsValues = readStimplanGridAndTimesteps(xmlStream, stimPlanFileData.p(), unitSystem);
+
+        stimPlanFileData->setUnitSet(unitSystem);
+        if (unitSystem != RiaEclipseUnitTools::UNITS_UNKNOWN)
+            RiaLogging::info(QString("Setting unit system for StimPlan fracture template %1 to %2").arg(stimPlanFileName).arg(unitSystem.uiText()));
+        else 
+            RiaLogging::error(QString("Found invalid units for %1. Unit system not set.").arg(stimPlanFileName));
+
 
         if (xmlStream.hasError())
         {
@@ -92,21 +101,6 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
 
                 RiaLogging::info(QString("%1 [%2]").arg(parameter, unit));
 
-                if (parameter == "CONDUCTIVITY")
-                {
-                    if (unit == "md-ft")
-                    {
-                        stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_FIELD);
-                        RiaLogging::info(QString("Setting unit system to Field for StimPlan fracture template %1").arg(stimPlanFileName));
-                    }
-                    if (unit == "md-m")
-                    {
-                        stimPlanFileData->setUnitSet(RiaEclipseUnitTools::UNITS_METRIC);
-                        RiaLogging::info(QString("Setting unit system to Metric for StimPlan fracture template %1").arg(stimPlanFileName));
-                    }
-                }
-
-
             }
             else if (xmlStream2.name() == "time")
             {
@@ -151,11 +145,12 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData)
+size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData, RiaEclipseUnitTools::UnitSystemType& unit)
 {
 
     size_t startNegValuesXs = 0;
     size_t startNegValuesYs = 0;
+    QString gridunit = "unknown";
 
     xmlStream.readNext();
 
@@ -166,6 +161,10 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
 
         if (xmlStream.isStartElement())
         {
+            if (xmlStream.name() == "grid")
+            {
+                gridunit = getAttributeValueString(xmlStream, "uom");
+            }
 
             if (xmlStream.name() == "xs")
             {
@@ -191,12 +190,15 @@ size_t RifStimPlanXmlReader::readStimplanGridAndTimesteps(QXmlStreamReader &xmlS
         }
     }
 
+    if (gridunit == "m")       unit = RiaEclipseUnitTools::UNITS_METRIC;
+    else if (gridunit == "ft") unit = RiaEclipseUnitTools::UNITS_FIELD;
+    else                       unit = RiaEclipseUnitTools::UNITS_UNKNOWN;
+
     if (startNegValuesYs > 0)
     {
         RiaLogging::error(QString("Negative depth values detected in XML file"));
     }
     return startNegValuesXs;
-
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -318,7 +318,7 @@ QString RimStimPlanFractureTemplate::getUnitForStimPlanParameter(QString paramet
     }
 
     if (foundMultiple)  RiaLogging::error(QString("Multiple units found for same parameter"));
-    if (!found)         RiaLogging::error(QString("Unit for parameter not found"));
+    if (!found)         RiaLogging::error(QString("Unit for parameter not found for %1 template").arg(name()));
     return unit;
 }
 
