@@ -622,6 +622,8 @@ void RifReaderEclipseOutput::transferDynamicNNCData(const ecl_grid_type* mainEcl
 {
     CVF_ASSERT(mainEclGrid && mainGrid);
 
+    if (m_dynamicResultsAccess.isNull()) return;
+
     size_t timeStepCount = m_dynamicResultsAccess->timeStepCount();
 
     std::vector< std::vector<double> >& waterFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::propertyNameFluxWat(), timeStepCount);
