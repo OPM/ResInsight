@@ -86,7 +86,7 @@ public:
         hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
 
         socketStream << (qint32)hostGrid->gridIndex();
-        socketStream << (qint32)i << (qint32)j << (qint32)k;
+        socketStream << (qint32)(i+1) << (qint32)(j+1) << (qint32)(k+1);
     }
 };
 
