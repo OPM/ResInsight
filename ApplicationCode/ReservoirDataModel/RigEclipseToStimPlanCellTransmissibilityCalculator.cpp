@@ -158,6 +158,10 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
         directionOfLength.cross(localZinFracPlane, cvf::Vec3d(0, 0, 1));
         directionOfLength.normalize();
+        //Fracture plane is XY  - so localZinFracPlane is in this plane. 
+        //Crossing this vector with a vector normal to this plane (0,0,1) gives a vector for in the ij-direction in the frac plane 
+        //This is the direction in which we calculate the length of the fracture element in the cell, 
+        //to use in the skinfactor contribution (S*l/pi) to the transmissibility. 
 
         std::vector<std::vector<cvf::Vec3d> > polygonsForStimPlanCellInEclipseCell;
         cvf::Vec3d areaVector;
@@ -186,8 +190,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             area = areaVector.length();
             areaOfFractureParts.push_back(area);
 
-            //TODO: the l in the sl/pi term in the denominator of the Tmj expression should be the length of the full Eclipse cell
-            //In the current form the implementation gives correct result only if s=0 (fracture templte skin factor). 
+            //TODO: should the l in the sl/pi term in the denominator of the Tmj expression  be the length of the full Eclipse cell or fracture?
             length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, fracturePartPolygon);
             lengthXareaOfFractureParts.push_back(length * area);
 
