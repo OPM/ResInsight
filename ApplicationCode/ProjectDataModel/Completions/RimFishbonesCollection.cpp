@@ -66,7 +66,7 @@ RimFishbonesCollection::RimFishbonesCollection()
 
     fishbonesSubs.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Well Paths", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPathCollection, "WellPathCollection", "Imported Laterals", "", "", "");
     m_wellPathCollection = new RimFishboneWellPathCollection;
     m_wellPathCollection.uiCapability()->setUiHidden(true);
 
