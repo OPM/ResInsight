@@ -53,7 +53,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered(bool isChecked)
 
     QString defaultDir = app->lastUsedDialogDirectoryWithFallback("WELL_PATH_EXPORT_DIR", projectFolder);
 
-    QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((wellPath->name())) + ".dev";
+    QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename((wellPath->name())) + "_laterals.dev";
     QString completeFilename = QFileDialog::getSaveFileName(nullptr, "Select File for Well Path Data Export", defaultFileName, "Well Path Text File(*.dev);;All files(*.*)");
     if (completeFilename.isEmpty()) return;
 
