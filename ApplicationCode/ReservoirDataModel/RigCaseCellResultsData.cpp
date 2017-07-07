@@ -231,6 +231,11 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::SOURSIMRL, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
         scalarResultIndex = this->findScalarResultIndex(RimDefines::GENERATED, resultName);
     }
 
@@ -673,16 +678,6 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setSourSimData(size_t scalarResultIndex)
-{
-    CVF_ASSERT(scalarResultIndex < m_resultInfos.size());
-
-    m_resultInfos[scalarResultIndex].m_isSourSimData = true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::eraseAllSourSimData()
 {
     std::vector<size_t> sourSimIndices;
@@ -690,7 +685,7 @@ void RigCaseCellResultsData::eraseAllSourSimData()
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
         ResultInfo& ri = m_resultInfos[i];
-        if (ri.m_isSourSimData)
+        if (ri.m_resultType == RimDefines::SOURSIMRL)
         {
             ri.m_resultType = RimDefines::REMOVED;
         }

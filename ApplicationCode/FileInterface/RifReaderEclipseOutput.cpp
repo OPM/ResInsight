@@ -533,9 +533,8 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 
     for (int i = 0; i < resultNames.size(); ++i)
     {
-        size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, resultNames[i], false);
+        size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::SOURSIMRL, resultNames[i], false);
         matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
-        matrixModelResults->setSourSimData(resIndex);
     }
 
     m_hdfReaderInterface = std::move(myReader);
@@ -975,42 +974,47 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::sourSimRlResult(const QString& result, size_t stepIndex, std::vector<double>* values)
+{
+    values->clear();
+
+    if ( !m_hdfReaderInterface ) return;
+
+    if ( m_eclipseCase->mainGrid()->gridCount() == 0 )
+    {
+        RiaLogging::error("No grids available");
+
+        return ;
+    }
+
+    size_t activeCellCount = cvf::UNDEFINED_SIZE_T;
+    {
+        RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+        fracActCellInfo->gridActiveCellCounts(0, activeCellCount);
+    }
+
+    bool readCellResultOk = m_hdfReaderInterface->dynamicResult(result, stepIndex, values);
+
+    if (activeCellCount != values->size())
+    {
+        values->clear();
+
+        RiaLogging::error("SourSimRL results does not match the number of active cells in the grid");
+        return;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Get dynamic result at given step index. Will concatenate values for the main grid and all sub grids.
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
+bool RifReaderEclipseOutput::dynamicResult(const QString& result, 
+                                           PorosityModelResultType matrixOrFracture, 
+                                           size_t stepIndex, 
+                                           std::vector<double>* values)
 {
-#ifdef USE_HDF5
-    if (m_hdfReaderInterface)
-    {
-        if (m_eclipseCase->mainGrid()->gridCount() == 0)
-        {
-            RiaLogging::error("No grids available");
-            
-            return false;
-        }
-
-        size_t activeCellCount = cvf::UNDEFINED_SIZE_T;
-        {
-            RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-            fracActCellInfo->gridActiveCellCounts(0, activeCellCount);
-        }
-
-        bool readCellResultOk = m_hdfReaderInterface->dynamicResult(result, stepIndex, values);
-
-        if (activeCellCount != values->size())
-        {
-            for (size_t i=0; i < values->size(); i++)
-            {
-                values->at(i) = HUGE_VAL;
-            }
-
-            RiaLogging::error("No grids available");
-            return false;
-        }
-
-        return readCellResultOk;
-    }
-#endif
+ 
 
     if (m_dynamicResultsAccess.isNull())
     {

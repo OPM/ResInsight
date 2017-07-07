@@ -38,6 +38,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QUuid>
+#include "RifReaderEclipseOutput.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
@@ -242,6 +243,11 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
+        scalarResultIndex = this->findOrLoadScalarResult(RimDefines::SOURSIMRL, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
         scalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::GENERATED, resultName);
     }
 
@@ -418,6 +424,26 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         }
     }
 
+    // Handle SourSimRL reading
+
+    if (type == RimDefines::SOURSIMRL)
+    {
+        RifReaderEclipseOutput* eclReader = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
+        if (eclReader)
+        {
+            size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+
+            size_t i;
+            for ( i = 0; i < timeStepCount; i++ )
+            {
+                std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[i];
+                eclReader->sourSimRlResult(resultName, i, &values);
+            }
+        } 
+    }
+
     return scalarResultIndex;
 }
 
@@ -491,6 +517,26 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
             // Error logging
             CVF_ASSERT(false);
         }
+    }
+
+    // Handle SourSimRL reading
+
+    if (type == RimDefines::SOURSIMRL)
+    {
+        RifReaderEclipseOutput* eclReader = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
+        if (eclReader)
+        {
+            size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+
+            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIndex];
+
+            if ( values.size() == 0)
+            {
+                eclReader->sourSimRlResult(resultName, timeStepIndex, &values);
+            }
+        } 
     }
 
     return scalarResultIndex;

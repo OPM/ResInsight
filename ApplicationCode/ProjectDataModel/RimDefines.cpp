@@ -29,6 +29,7 @@ namespace caf
     {
         addItem(RimDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE",   "Dynamic");
         addItem(RimDefines::STATIC_NATIVE,  "STATIC_NATIVE",    "Static");
+        addItem(RimDefines::SOURSIMRL,  "SOURSIMRL",    "SourSimRL");
         addItem(RimDefines::GENERATED,      "GENERATED",        "Generated");
         addItem(RimDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
         addItem(RimDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");

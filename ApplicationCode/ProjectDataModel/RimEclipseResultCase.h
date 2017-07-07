@@ -43,6 +43,7 @@ public:
     void                        setGridFileName(const QString& caseFileName);
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
     void                        setSourSimFileName(const QString& fileName);
+    bool                        hasSourSimFile();
 
     virtual bool                openEclipseGridFile();
     virtual void                reloadEclipseGridFile();

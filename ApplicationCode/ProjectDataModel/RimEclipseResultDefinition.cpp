@@ -422,32 +422,40 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     if ( fieldNeedingOptions == &m_resultTypeUiField )
     {
         bool hasFlowDiagFluxes = false;
+        bool hasSourSimRLFile = false;
         RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
         if ( eclResCase && eclResCase->eclipseCaseData() )
         {
             hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
+            hasSourSimRLFile = eclResCase->hasSourSimFile();
         }
+
 
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
         // Do not include flow diagnostics results if not available or is a time history curve
-        if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr )
+        if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr || !hasSourSimRLFile)
         {
             using ResCatEnum = caf::AppEnum< RimDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
             {
                 RimDefines::ResultCatType resType = ResCatEnum::fromIndex(i);
-                if ( resType != RimDefines::FLOW_DIAGNOSTICS )
+                if ( resType == RimDefines::FLOW_DIAGNOSTICS 
+                    && (!hasFlowDiagFluxes || timeHistoryCurve) )
                 {
-                    QString uiString = ResCatEnum::uiTextFromIndex(i);
-                    options.push_back(caf::PdmOptionItemInfo(uiString, resType));
+                        continue;
                 }
+
+                if ( resType == RimDefines::SOURSIMRL 
+                    && (!hasSourSimRLFile ) )
+                {
+                    continue;
+                }
+
+                QString uiString = ResCatEnum::uiTextFromIndex(i);
+                options.push_back(caf::PdmOptionItemInfo(uiString, resType));
             }
-        }
-        else
-        {
-            // Do nothing, and thereby use the defaults of the AppEnum field
         }
     }
 
@@ -854,6 +862,10 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
     if (hasResult())
     {
         if (m_resultType() == RimDefines::DYNAMIC_NATIVE)
+        {
+            return true;
+        }
+        else if (m_resultType() == RimDefines::SOURSIMRL)
         {
             return true;
         }

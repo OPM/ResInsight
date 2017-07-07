@@ -30,6 +30,7 @@ public:
     {
         DYNAMIC_NATIVE,
         STATIC_NATIVE,
+        SOURSIMRL,
         GENERATED,
         INPUT_PROPERTY,
         FORMATION_NAMES,

@@ -1108,6 +1108,8 @@ public:
         std::vector<QString> resTypeNames;
         resTypes.push_back(RimDefines::DYNAMIC_NATIVE);
         resTypeNames.push_back("DynamicNative");
+        resTypes.push_back(RimDefines::SOURSIMRL);
+        resTypeNames.push_back("SourSimRL");
         resTypes.push_back(RimDefines::STATIC_NATIVE );
         resTypeNames.push_back("StaticNative");
         resTypes.push_back(RimDefines::GENERATED     );
