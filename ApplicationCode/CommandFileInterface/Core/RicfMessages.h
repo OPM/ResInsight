@@ -29,8 +29,8 @@ public:
 
     enum MessageType
     {
-        WARNING, 
-        ERROR
+        MESSAGE_WARNING,
+        MESSAGE_ERROR
     };
 
     void    addWarning(const QString& message);
@@ -38,6 +38,7 @@ public:
 
     void    skipWhiteSpaceWithLineNumberCount(QTextStream& inputStream);
     QChar   readCharWithLineNumberCount(QTextStream& inputStream);
+    QChar   peekNextChar(QTextStream& inputStream);
 
     QString currentCommand;
     QString currentArgument;

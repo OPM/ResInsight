@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 void RicfMessages::addWarning(const QString& message)
 {
-    m_messages.push_back(std::make_pair(WARNING, "Line " + QString::number(m_currentLineNumber) +": " + message));
+    m_messages.push_back(std::make_pair(MESSAGE_WARNING, "Line " + QString::number(m_currentLineNumber) +": " + message));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ void RicfMessages::addWarning(const QString& message)
 //--------------------------------------------------------------------------------------------------
 void RicfMessages::addError(const QString& message)
 {
-    m_messages.push_back(std::make_pair(ERROR, "Line " + QString::number(m_currentLineNumber) +": " + message));
+    m_messages.push_back(std::make_pair(MESSAGE_ERROR, "Line " + QString::number(m_currentLineNumber) +": " + message));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +62,20 @@ QChar RicfMessages::readCharWithLineNumberCount(QTextStream& inputStream)
     if ( ch == QChar('\n') )
     {
         m_currentLineNumber++;
+    }
+    return ch;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QChar RicfMessages::peekNextChar(QTextStream& inputStream)
+{
+    QChar ch;
+    if (!inputStream.atEnd())
+    {
+        inputStream >> ch;
+        inputStream.seek(inputStream.pos() - 1);
     }
     return ch;
 }
