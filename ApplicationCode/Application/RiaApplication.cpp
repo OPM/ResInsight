@@ -91,6 +91,8 @@
 #include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
+#include "RicfCommandFileExecutor.h"
+
 #include "cafFixedAtlasFont.h"
 
 #include "cafAppEnum.h"
@@ -1307,6 +1309,7 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
     progOpt.registerOption("replacePropertiesFolder",   "[<caseId>] <newPropertiesFolder>", "Replace the folder containing property files for an eclipse input case.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("commandFile",               "<commandfile>",                    "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("help",                      "",                                 "Displays help text.");
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
     progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
@@ -1592,6 +1595,24 @@ bool RiaApplication::parseArguments()
         }
 
         // Returning false will exit the application
+        return false;
+    }
+
+    if (cvf::Option o = progOpt.option("commandFile"))
+    {
+        QString commandFile = cvfqt::Utils::toQString(o.safeValue(0));
+        QFile file(commandFile);
+        RicfMessages messages;
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            // TODO : Error logging?
+            return false;
+        }
+
+        QTextStream in(&file);
+        RicfCommandFileExecutor::instance()->executeCommands(in);
+        closeAllWindows();
+        processEvents();
         return false;
     }
 
