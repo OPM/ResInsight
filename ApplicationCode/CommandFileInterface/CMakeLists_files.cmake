@@ -3,12 +3,14 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloseProject.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandFileExecutor.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfOpenProject.h
+${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloseProject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandFileExecutor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfOpenProject.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -1838,6 +1838,14 @@ std::vector<QAction*> RiaApplication::recentFileActions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::setStartDir(const QString& startDir)
+{
+    m_startupDefaultDirectory = startDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileName)
 {
     std::vector<QString> fileList;

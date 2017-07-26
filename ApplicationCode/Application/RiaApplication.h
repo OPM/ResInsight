@@ -194,6 +194,8 @@ public:
     void                  addToRecentFiles(const QString& fileName);
     std::vector<QAction*> recentFileActions() const;
 
+    void                setStartDir(const QString& startDir);
+
 private:
     enum ProjectLoadAction
     {
