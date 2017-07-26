@@ -21,6 +21,8 @@
 #include "RicfFieldHandle.h"
 #include "RicfMessages.h"
 
+#include "cafAppEnum.h"
+
 #include <QTextStream>
 #include <QString>
 
@@ -61,6 +63,102 @@ template <>
 struct RicfFieldWriter<QString>
 {
     static void    writeFieldData(const QString & fieldValue, QTextStream&  outputStream);
+};
+
+template <typename T>
+struct RicfFieldReader< caf::AppEnum<T> >
+{
+    static void readFieldData(caf::AppEnum<T>& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+    {
+        errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+        QString accumulatedFieldValue;
+        QChar nextChar;
+        QChar currentChar;
+        while (!inputStream.atEnd())
+        {
+            nextChar = errorMessageContainer->peekNextChar(inputStream);
+            if (nextChar.isLetterOrNumber() || nextChar == QChar('_'))
+            {
+                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+                accumulatedFieldValue += currentChar;
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (!fieldValue.setFromText(accumulatedFieldValue))
+        {
+            // Unexpected enum value
+            // Error message
+            errorMessageContainer->addError("Argument must be valid enum value. "
+                + errorMessageContainer->currentArgument + "\" argument of the command: \""
+                + errorMessageContainer->currentCommand + "\"");
+        }
+    }
+};
+
+template <typename T>
+struct RicfFieldWriter< caf::AppEnum<T> >
+{
+    static void writeFieldData(const caf::AppEnum<T>& fieldValue, QTextStream&  outputStream)
+    {
+        outputStream << fieldValue;
+    }
+};
+
+template <typename T>
+struct RicfFieldReader< std::vector<T> >
+{
+    static void readFieldData(std::vector<T>& fieldValue, QTextStream& inputStream, RicfMessages* errorMessageContainer)
+    {
+        errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+        QChar chr = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+        if (chr == QChar('[')) {
+            while (!inputStream.atEnd())
+            {
+                errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+                QChar nextChar = errorMessageContainer->peekNextChar(inputStream);
+                if (nextChar == QChar(']'))
+                {
+                    nextChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+                    break;
+                }
+                else if (nextChar == QChar(','))
+                {
+                    nextChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
+                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+                }
+
+                typename T value;
+                RicfFieldReader<typename T>::readFieldData(value, inputStream, errorMessageContainer);
+                fieldValue.push_back(value);
+            }
+        }
+        else {
+            errorMessageContainer->addError("Array argument is missing start '['. " 
+                                            + errorMessageContainer->currentArgument + "\" argument of the command: \"" 
+                                            + errorMessageContainer->currentCommand + "\"" );
+        }
+    }
+};
+
+template <typename T>
+struct RicfFieldWriter< std::vector<T> >
+{
+    static void    writeFieldData(const std::vector<T>& fieldValue, QTextStream&  outputStream)
+    {
+        outputStream << "[";
+        for (size_t i = 0; i < fieldValue.size(); ++i)
+        {
+            RicfFieldWriter<typename T>::writeFieldData(fieldValue[i], outputStream); 
+            if (i < fieldValue.size() - 1)
+            {
+                outputStream << ", ";
+            }
+        }
+        outputStream << "]";
+    }
 };
 
 
