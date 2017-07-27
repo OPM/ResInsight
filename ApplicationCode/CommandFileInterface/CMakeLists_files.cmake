@@ -10,6 +10,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfLoadCase.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfOpenProject.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.h
+${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -23,6 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfLoadCase.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfOpenProject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetExportFolder.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfSetStartDir.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
