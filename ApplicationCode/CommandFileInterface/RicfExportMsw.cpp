@@ -21,6 +21,7 @@
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimProject.h"
 #include "RimOilField.h"
@@ -51,12 +52,22 @@ void RicfExportMsw::execute()
 {
     RicCaseAndFileExportSettingsUi exportSettings;
 
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
     {
-        if (c->caseId() == m_caseId())
+        bool foundCase = false;
+        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
         {
-            exportSettings.caseToApply = c;
-            break;
+            if (c->caseId() == m_caseId())
+            {
+                exportSettings.caseToApply = c;
+                foundCase = true;
+                break;
+            }
+        }
+
+        if (!foundCase)
+        {
+            RiaLogging::error(QString("exportMsw: Could not find case with ID %1.").arg(m_caseId()));
+            return;
         }
     }
 
@@ -68,6 +79,11 @@ void RicfExportMsw::execute()
     exportSettings.folder = exportFolder;
 
     RimWellPath* wellPath = RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPathByName(m_wellPathName);
+    if (!wellPath)
+    {
+        RiaLogging::error(QString("exportMsw: Could not find well path with name %1").arg(m_wellPathName()));
+        return;
+    }
 
     std::vector<RimFishbonesMultipleSubs*> fishbonesSubs;
     

@@ -21,6 +21,7 @@
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include "RimProject.h"
 #include "RimOilField.h"
@@ -63,12 +64,21 @@ void RicfExportWellPathCompletions::execute()
     exportSettings.includeFishbones = m_includeFishbones;
     exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
 
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
     {
-        if (c->caseId() == m_caseId())
+        bool foundCase = false;
+        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels->cases())
         {
-            exportSettings.caseToApply = c;
-            break;
+            if (c->caseId() == m_caseId())
+            {
+                exportSettings.caseToApply = c;
+                foundCase = true;
+                break;
+            }
+        }
+        if (!foundCase)
+        {
+            RiaLogging::error(QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId()));
+            return;
         }
     }
 

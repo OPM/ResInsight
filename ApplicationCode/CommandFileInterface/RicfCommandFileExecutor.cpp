@@ -21,6 +21,8 @@
 #include "RifcCommandFileReader.h"
 #include "RicfCommandObject.h"
 
+#include "RiaLogging.h"
+
 namespace caf {
     template<>
     void RicfCommandFileExecutor::ExportTypeEnum::setUp()
@@ -55,7 +57,14 @@ void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
     std::vector<RicfCommandObject*> commands = RicfCommandFileReader::readCommands(stream, caf::PdmDefaultObjectFactory::instance(), &m_messages);
     for (auto message : m_messages.m_messages)
     {
-        std::cout << message.second.toUtf8().constData();
+        if (message.first == RicfMessages::MESSAGE_WARNING)
+        {
+            RiaLogging::warning(message.second);
+        }
+        else
+        {
+            RiaLogging::error(message.second);
+        }
     }
     for (RicfCommandObject* command : commands)
     {

@@ -20,6 +20,7 @@
 #include "RicfRunOctaveScript.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 #include <QFileInfo>
 
@@ -46,12 +47,17 @@ void RicfRunOctaveScript::execute()
     processArguments << "--path" << scriptFileInfo.absolutePath();
     processArguments << scriptFileInfo.absoluteFilePath();
 
+    bool ok;
     if (m_caseIds().empty())
     {
-        RiaApplication::instance()->launchProcess(octavePath, processArguments);
+        ok = RiaApplication::instance()->launchProcess(octavePath, processArguments);
     }
     else
     {
-        RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, m_caseIds());
+        ok = RiaApplication::instance()->launchProcessForMultipleCases(octavePath, processArguments, m_caseIds());
+    }
+    if (!ok)
+    {
+        RiaLogging::error(QString("runOctaveScript: Could not execute script %1").arg(m_path()));
     }
 }

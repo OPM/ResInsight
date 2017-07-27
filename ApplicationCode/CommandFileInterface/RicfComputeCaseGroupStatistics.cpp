@@ -1,4 +1,3 @@
-#include "RicfComputeCaseGroupStatistics.h"
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2017 Statoil ASA
@@ -29,6 +28,7 @@
 #include "RimView.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 CAF_PDM_SOURCE_INIT(RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics");
 
@@ -47,6 +47,7 @@ void RicfComputeCaseGroupStatistics::execute()
 {
     for (int caseId : m_caseIds())
     {
+        bool foundCase = false;
         for (RimIdenticalGridCaseGroup* group : RiaApplication::instance()->project()->activeOilField()->analysisModels()->caseGroups)
         {
             for (RimEclipseCase* c : group->statisticsCaseCollection->reservoirs)
@@ -58,8 +59,21 @@ void RicfComputeCaseGroupStatistics::execute()
                     {
                         statsCase->computeStatisticsAndUpdateViews();
                     }
+                    else
+                    {
+                        RiaLogging::warning(QString("computeCaseGroupStatistics: Found case with ID %1, but it is not a statistics case, cannot compute statistics.").arg(caseId));
+                    }
+                    foundCase = true;
+                    break;
                 }
             }
+
+            if (foundCase) break;
+        }
+
+        if (!foundCase)
+        {
+            RiaLogging::warning(QString("computeCaseGroupStatistics: Could not find statistics case with ID %1.").arg(caseId));
         }
     }
 }

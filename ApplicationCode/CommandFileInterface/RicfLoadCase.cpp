@@ -19,6 +19,7 @@
 #include "RicfLoadCase.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 CAF_PDM_SOURCE_INIT(RicfLoadCase, "loadCase");
 
@@ -35,5 +36,9 @@ RicfLoadCase::RicfLoadCase()
 //--------------------------------------------------------------------------------------------------
 void RicfLoadCase::execute()
 {
-    RiaApplication::instance()->openEclipseCaseFromFile(m_path);
+    bool ok = RiaApplication::instance()->openEclipseCaseFromFile(m_path);
+    if (!ok)
+    {
+        RiaLogging::error(QString("loadCase: Unable to load case from %1").arg(m_path()));
+    }
 }

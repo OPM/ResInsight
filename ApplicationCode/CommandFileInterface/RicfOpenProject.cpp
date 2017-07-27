@@ -19,6 +19,7 @@
 #include "RicfOpenProject.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 CAF_PDM_SOURCE_INIT(RicfOpenProject, "openProject");
 
@@ -35,5 +36,9 @@ RicfOpenProject::RicfOpenProject()
 //--------------------------------------------------------------------------------------------------
 void RicfOpenProject::execute()
 {
-    RiaApplication::instance()->loadProject(m_path);
+    bool ok = RiaApplication::instance()->loadProject(m_path);
+    if (!ok)
+    {
+        RiaLogging::error(QString("openProject: Unable to open project at %1").arg(m_path()));
+    }
 }

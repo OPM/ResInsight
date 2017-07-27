@@ -26,6 +26,7 @@
 #include "RimView.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 
 CAF_PDM_SOURCE_INIT(RicfSetTimeStep, "setTimeStep");
 
@@ -45,12 +46,21 @@ void RicfSetTimeStep::execute()
 {
     RimEclipseCase* eclipseCase;
 
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases)
     {
-        if (c->caseId == m_caseId)
+        bool foundCase = false;
+        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases)
         {
-            eclipseCase = c;
-            break;
+            if (c->caseId == m_caseId)
+            {
+                eclipseCase = c;
+                foundCase = true;
+                break;
+            }
+        }
+        if (!foundCase)
+        {
+            RiaLogging::error(QString("setTimeStep: Could not find case with ID %1").arg(m_caseId()));
+            return;
         }
     }
 

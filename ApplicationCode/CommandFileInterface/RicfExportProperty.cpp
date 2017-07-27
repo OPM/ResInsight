@@ -21,6 +21,8 @@
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
+
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
@@ -61,12 +63,21 @@ void RicfExportProperty::execute()
 
     RimEclipseCase* eclipseCase;
 
-    for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases)
     {
-        if (c->caseId == m_caseId)
+        bool foundCase = false;
+        for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases)
         {
-            eclipseCase = c;
-            break;
+            if (c->caseId == m_caseId)
+            {
+                eclipseCase = c;
+                foundCase = true;
+                break;
+            }
+        }
+        if (!foundCase)
+        {
+            RiaLogging::error(QString("exportProperty: Could not find case with ID %1").arg(m_caseId()));
+            return;
         }
     }
 
@@ -76,6 +87,11 @@ void RicfExportProperty::execute()
     {
         view = dynamic_cast<RimEclipseView*>(v);
         if (view) break;
+    }
+    if (!view)
+    {
+        RiaLogging::error(QString("exportProperty: Could not find a view for case with ID %1").arg(m_caseId()));
+        return;
     }
 
     if (m_eclipseKeyword().isNull())
