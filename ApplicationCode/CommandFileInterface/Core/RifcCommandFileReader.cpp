@@ -69,6 +69,12 @@ std::vector<RicfCommandObject*> RicfCommandFileReader::readCommands(QTextStream&
             }
         }
 
+        if (commandName.isEmpty() && inputStream.atEnd())
+        {
+            // Read past the last command
+            break;
+        }
+
         CAF_ASSERT(objectFactory);
         caf::PdmObjectHandle* obj = objectFactory->create(commandName);
         RicfCommandObject* cObj = dynamic_cast<RicfCommandObject*>(obj);

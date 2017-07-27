@@ -59,11 +59,12 @@ void RicfCommandFileExecutor::executeCommands(QTextStream& stream)
     {
         if (message.first == RicfMessages::MESSAGE_WARNING)
         {
-            RiaLogging::warning(message.second);
+            RiaLogging::warning(QString("Command file parsing warning: %1").arg(message.second));
         }
         else
         {
-            RiaLogging::error(message.second);
+            RiaLogging::error(QString("Command file parsing error: %1").arg(message.second));
+            return;
         }
     }
     for (RicfCommandObject* command : commands)
