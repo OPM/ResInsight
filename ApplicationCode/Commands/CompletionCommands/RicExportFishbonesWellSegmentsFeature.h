@@ -42,11 +42,13 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
     virtual bool isCommandEnabled() override;
 
+public:
+    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings);
+
 private:
     static RimFishbonesCollection*               selectedFishbonesCollection();
     static RimWellPath*                          selectedWellPath();
 
-    static void                                  exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings);
     static void                                  generateWelsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
     static void                                  generateCompsegsTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
     static void                                  generateWsegvalvTable(RifEclipseDataTableFormatter& formatter, const RimWellPath* wellPath, const RicCaseAndFileExportSettingsUi& settings, const std::vector<WellSegmentLocation>& locations);
