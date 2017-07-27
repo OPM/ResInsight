@@ -2,6 +2,7 @@
 set (SOURCE_GROUP_HEADER_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloseProject.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandFileExecutor.h
+${CMAKE_CURRENT_LIST_DIR}/RicfComputeCaseGroupStatistics.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.h
@@ -18,6 +19,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfSetTimeStep.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CMAKE_CURRENT_LIST_DIR}/RicfCloseProject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandFileExecutor.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfComputeCaseGroupStatistics.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.cpp
