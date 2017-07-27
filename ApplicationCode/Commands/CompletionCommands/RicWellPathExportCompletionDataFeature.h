@@ -150,11 +150,11 @@ public:
                                                                                         double wellRadius,
                                                                                         size_t cellIndex,
                                                                                         CellDirection direction);
+    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings);
 
 private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 
                                                                                const RicExportCompletionDataSettingsUi& settings);
-    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings);
     static void                                  printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType);
     static std::vector<RigCompletionData>        getCompletionsForWellAndCompletionType(const std::vector<RigCompletionData>& completions, const QString& wellName, RigCompletionData::CompletionType completionType);
 
