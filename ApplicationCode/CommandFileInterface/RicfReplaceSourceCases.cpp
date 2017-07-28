@@ -53,7 +53,7 @@ void RicfReplaceSourceCases::execute()
         return;
     }
 
-    cvf::ref<RiaProjectModifier> projectModifier;
+    cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
 
     std::vector<QString> listFileNames = RiaApplication::readFileListFromTextFile(m_gridListFile());
     if (m_caseGroupId() == -1)

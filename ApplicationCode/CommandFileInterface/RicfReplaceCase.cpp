@@ -54,7 +54,7 @@ void RicfReplaceCase::execute()
     }
 
 
-    cvf::ref<RiaProjectModifier> projectModifier;
+    cvf::ref<RiaProjectModifier> projectModifier = new RiaProjectModifier;
     if (m_caseId() == -1)
     {
         projectModifier->setReplaceCaseFirstOccurrence(m_newGridFile());
