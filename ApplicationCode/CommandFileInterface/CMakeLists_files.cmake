@@ -4,6 +4,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCloseProject.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandFileExecutor.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfComputeCaseGroupStatistics.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.h
+${CMAKE_CURRENT_LIST_DIR}/RicfExportMultiCaseSnapshots.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.h
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPathCompletions.h
@@ -23,6 +24,7 @@ ${CMAKE_CURRENT_LIST_DIR}/RicfCloseProject.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfCommandFileExecutor.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfComputeCaseGroupStatistics.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportMsw.cpp
+${CMAKE_CURRENT_LIST_DIR}/RicfExportMultiCaseSnapshots.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportProperty.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportSnapshots.cpp
 ${CMAKE_CURRENT_LIST_DIR}/RicfExportWellPathCompletions.cpp
