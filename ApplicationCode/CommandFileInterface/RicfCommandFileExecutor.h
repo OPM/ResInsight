@@ -21,6 +21,8 @@
 
 #include "cafAppEnum.h"
 
+#include <map>
+
 class RicfCommandFileExecutor
 {
 public:
