@@ -16,34 +16,53 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicfOpenProject.h"
+#include "RicfReplaceCase.h"
 
 #include "RicfCommandFileExecutor.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaProjectModifier.h"
 
-CAF_PDM_SOURCE_INIT(RicfOpenProject, "openProject");
+CAF_PDM_SOURCE_INIT(RicfReplaceCase, "replaceCase");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicfOpenProject::RicfOpenProject()
+RicfReplaceCase::RicfReplaceCase()
 {
-    RICF_InitField(&m_path, "path", QString(), "Path", "", "", "");
+    RICF_InitField(&m_caseId,        "case",        -1, "Case ID",  "", "", "");
+    RICF_InitField(&m_newGridFile,   "newGridFile", QString(), "New Grid File",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfOpenProject::execute()
+void RicfReplaceCase::execute()
 {
-    bool ok = RiaApplication::instance()->loadProject(m_path);
-    if (!ok)
+    if (m_newGridFile().isNull())
     {
-        RiaLogging::error(QString("openProject: Unable to open project at %1").arg(m_path()));
+        RiaLogging::error("replaceCase: Required parameter newGridFile.");
         return;
     }
 
-    RicfCommandFileExecutor::instance()->setLastProjectPath(m_path);
+    QString lastProjectPath = RicfCommandFileExecutor::instance()->getLastProjectPath();
+    if (lastProjectPath.isNull())
+    {
+        RiaLogging::error("replaceCase: 'openProject' must be called before 'replaceCase' to specify project file to replace case in.");
+        return;
+    }
+
+
+    cvf::ref<RiaProjectModifier> projectModifier;
+    if (m_caseId() == -1)
+    {
+        projectModifier->setReplaceCaseFirstOccurrence(m_newGridFile());
+    }
+    else
+    {
+        projectModifier->setReplaceCase(m_caseId(), m_newGridFile());
+    }
+
+    RiaApplication::instance()->loadProject(lastProjectPath, RiaApplication::PLA_NONE, projectModifier.p());
 }

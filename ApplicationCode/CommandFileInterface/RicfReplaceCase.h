@@ -15,39 +15,22 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
+#include "RicfCommandObject.h"
 
-#include "RicfMessages.h"
+#include "cafPdmField.h"
 
-#include "cafAppEnum.h"
-
-class RicfCommandFileExecutor
+class RicfReplaceCase : public RicfCommandObject
 {
-public:
-    enum ExportType {
-        COMPLETIONS,
-        SNAPSHOTS,
-        PROPERTIES,
-        STATISTICS
-    };
-
-    typedef caf::AppEnum<ExportType> ExportTypeEnum;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    RicfCommandFileExecutor();
-    ~RicfCommandFileExecutor();
+    RicfReplaceCase();
 
-    void    executeCommands(QTextStream& stream);
-    void    setExportPath(ExportType type, QString path);
-    QString getExportPath(ExportType type) const;
-    void    setLastProjectPath(const QString& path);
-    QString getLastProjectPath() const;
-
-    static RicfCommandFileExecutor* instance();
+    virtual void execute() override;
 
 private:
-    RicfMessages m_messages;
-
-    std::map<ExportType, QString> m_exportPaths;
-    QString                       m_lastProjectPath;
+    caf::PdmField<QString> m_newGridFile;
+    caf::PdmField<int>     m_caseId;
 };

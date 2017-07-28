@@ -82,6 +82,12 @@ public:
         NAVIGATION_POLICY_RMS
     };
 
+    enum ProjectLoadAction
+    {
+        PLA_NONE = 0,
+        PLA_CALCULATE_STATISTICS = 1
+    };
+
 public:
     RiaApplication(int& argc, char** argv);
     ~RiaApplication();
@@ -123,6 +129,7 @@ public:
     QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool                loadProject(const QString& projectFileName);
+    bool                loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
@@ -196,17 +203,11 @@ public:
 
     void                setStartDir(const QString& startDir);
 
-private:
-    enum ProjectLoadAction
-    {
-        PLA_NONE = 0,
-        PLA_CALCULATE_STATISTICS = 1
-    };
+    static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
-    bool                    loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+private:
 
     void                    onProjectOpenedOrClosed();
-    std::vector<QString>    readFileListFromTextFile(QString listFileName);
     void                    setWindowCaptionFromAppState();
     
     void                    clearViewsScheduledForUpdate();

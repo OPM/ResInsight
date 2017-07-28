@@ -84,7 +84,7 @@ void RicfCommandFileExecutor::setExportPath(ExportType type, QString path)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RicfCommandFileExecutor::getExportPath(ExportType type)
+QString RicfCommandFileExecutor::getExportPath(ExportType type) const
 {
     auto it = m_exportPaths.find(type);
     QString path;
@@ -93,6 +93,22 @@ QString RicfCommandFileExecutor::getExportPath(ExportType type)
         path = it->second;
     }
     return path;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicfCommandFileExecutor::setLastProjectPath(const QString& path)
+{
+    m_lastProjectPath = path;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RicfCommandFileExecutor::getLastProjectPath() const
+{
+    return m_lastProjectPath;
 }
 
 //--------------------------------------------------------------------------------------------------
