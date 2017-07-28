@@ -130,8 +130,8 @@ struct RicfFieldReader< std::vector<T> >
                     errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
                 }
 
-                typename T value;
-                RicfFieldReader<typename T>::readFieldData(value, inputStream, errorMessageContainer);
+                T value;
+                RicfFieldReader<T>::readFieldData(value, inputStream, errorMessageContainer);
                 fieldValue.push_back(value);
             }
         }
@@ -146,12 +146,12 @@ struct RicfFieldReader< std::vector<T> >
 template <typename T>
 struct RicfFieldWriter< std::vector<T> >
 {
-    static void    writeFieldData(const std::vector<T>& fieldValue, QTextStream&  outputStream)
+    static void writeFieldData(const std::vector<T>& fieldValue, QTextStream&  outputStream)
     {
         outputStream << "[";
         for (size_t i = 0; i < fieldValue.size(); ++i)
         {
-            RicfFieldWriter<typename T>::writeFieldData(fieldValue[i], outputStream); 
+            RicfFieldWriter<T>::writeFieldData(fieldValue[i], outputStream); 
             if (i < fieldValue.size() - 1)
             {
                 outputStream << ", ";

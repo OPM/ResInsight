@@ -121,7 +121,7 @@ TEST(RicfCommands, ErrorMessages)
     for (const auto& msg: errors.m_messages)
     {
         QString label;
-        if (msg.first == RicfMessages::ERROR)
+        if (msg.first == RicfMessages::MESSAGE_ERROR)
         {
             label = "Error  : ";
         }
