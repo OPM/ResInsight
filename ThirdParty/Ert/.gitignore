@@ -24,3 +24,15 @@ scratch.sparsebundle
 *.DS_Store
 __ecl_lib_path.py
 __ecl_lib_info.py
+
+# generated files
+libert_util/include/ert/util/*_vector.h
+libert_util/src/*_vector.c
+
+lib/
+
+# build configuration files
+libecl-config-version.cmake
+libecl-config.cmake
+libert_util/include/ert/util/build_config.h
+libert_util/include/ert/util/ert_api_config.h
