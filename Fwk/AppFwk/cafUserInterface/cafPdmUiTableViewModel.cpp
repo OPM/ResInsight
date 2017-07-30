@@ -196,7 +196,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
         {
             if (fieldHandle->uiCapability()->isUiReadOnly(m_currentConfigName))
             {
-                return Qt::lightGray;
+                return QColor(Qt::lightGray);
             }
         }
     }
