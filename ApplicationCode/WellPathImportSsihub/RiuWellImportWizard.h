@@ -208,9 +208,7 @@ public slots:
 
     int         wellSelectionPageId();
 
-#ifndef QT_NO_OPENSSL
     void sslErrors(QNetworkReply*,const QList<QSslError> &errors);
-#endif
 
 private slots:
     void        slotCurrentIdChanged(int currentId);
