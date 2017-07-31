@@ -2163,7 +2163,11 @@ void RiaApplication::waitForProcess() const
 {
     while (m_runningWorkerProcess)
     {
+#ifdef WIN32
         Sleep(100);
+#else
+        usleep(100000);
+#endif
     }
 }
 
