@@ -85,10 +85,6 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
   list(APPEND ERT_LIBRARIES
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libeclxx.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
   )
   
 else()
@@ -354,18 +350,6 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.2
         )
       
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
