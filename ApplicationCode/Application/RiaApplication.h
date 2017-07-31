@@ -165,6 +165,7 @@ public:
     bool                launchProcess(const QString& program, const QStringList& arguments);
     bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
     void                terminateProcess();
+    void                waitForProcess() const;
     
     RiaPreferences*     preferences();
     void                applyPreferences();
@@ -266,6 +267,8 @@ private:
 
     QString                             m_helpText;
     bool                                m_runningRegressionTests;
+
+    bool                                m_runningWorkerProcess;
 
     RiuMainPlotWindow*                  m_mainPlotWindow;
     

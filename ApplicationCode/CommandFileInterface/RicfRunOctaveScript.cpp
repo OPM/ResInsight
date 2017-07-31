@@ -60,4 +60,8 @@ void RicfRunOctaveScript::execute()
     {
         RiaLogging::error(QString("runOctaveScript: Could not execute script %1").arg(m_path()));
     }
+    else
+    {
+        RiaApplication::instance()->waitForProcess();
+    }
 }

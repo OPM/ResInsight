@@ -217,6 +217,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
 
     m_runningRegressionTests = false;
 
+    m_runningWorkerProcess = false;
+
     m_mainPlotWindow = NULL;
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
@@ -1943,6 +1945,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     if (exitStatus == QProcess::CrashExit)
     {
     //    MFLog::error("Simulation execution crashed or was aborted.");
+        m_runningWorkerProcess = false;
         return;
     }
 
@@ -1954,6 +1957,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     if (exitCode != 0)
     {
       //  MFLog::error(QString("Simulation execution failed (exit code %1).").arg(exitCode));
+        m_runningWorkerProcess = false;
         return;
     }
 
@@ -1966,6 +1970,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     {
         // Disable concept of current case
         m_socketServer->setCurrentCaseId(-1);
+        m_runningWorkerProcess = false;
     }
 }
 
@@ -1990,6 +1995,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
             m_socketServer->setCurrentCaseId(-1);
         }
 
+        m_runningWorkerProcess = true;
         m_workerProcess = new caf::UiProcess(this);
 
         QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
@@ -2026,6 +2032,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         {
             m_workerProcess->close();
             m_workerProcess = NULL;
+            m_runningWorkerProcess = false;
 
             RiuMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();
 
@@ -2145,7 +2152,19 @@ void RiaApplication::terminateProcess()
         m_workerProcess->close();
     }
 
+    m_runningWorkerProcess = false;
     m_workerProcess = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::waitForProcess() const
+{
+    while (m_runningWorkerProcess)
+    {
+        Sleep(100);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
