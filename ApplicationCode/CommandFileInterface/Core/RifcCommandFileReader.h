@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 class RicfCommandObject;
 class QTextStream;
 
@@ -39,6 +41,7 @@ public:
    static std::vector<RicfCommandObject*> readCommands(QTextStream& inputStream, 
                                                        caf::PdmObjectFactory* objectFactory,
                                                        RicfMessages* errorMessageContainer);
+
    static void                            writeCommands(QTextStream& outputStream, 
                                                         const std::vector<RicfCommandObject*>& commandsToWrite);
 };
