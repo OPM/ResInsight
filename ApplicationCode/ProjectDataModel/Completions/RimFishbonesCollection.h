@@ -65,6 +65,7 @@ public:
 
     void         recalculateStartMD();
     double       startMD() const { return m_startMD; }
+    double       mainBoreSkinFactor() const { return m_skinFactor; }
     double       mainBoreDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double       linerDiameter(RiaEclipseUnitTools::UnitSystem unitSystem) const;
     double       roughnessFactor(RiaEclipseUnitTools::UnitSystem unitSystem) const;
@@ -85,6 +86,7 @@ private:
     caf::PdmChildField<RimFishboneWellPathCollection*>  m_wellPathCollection;
 
     caf::PdmField<double>                               m_startMD;
+    caf::PdmField<double>                               m_skinFactor;
     caf::PdmField<double>                               m_mainBoreDiameter;
     caf::PdmField<double>                               m_linerDiameter;
     caf::PdmField<double>                               m_roughnessFactor;

@@ -72,6 +72,7 @@ RimFishbonesCollection::RimFishbonesCollection()
 
     CAF_PDM_InitField(&m_startMD,           "StartMD",          HUGE_VAL,   "Start MD",             "", "", "");
     CAF_PDM_InitField(&m_mainBoreDiameter,  "MainBoreDiameter", 0.216,      "Main Bore Diameter",   "", "", "");
+    CAF_PDM_InitField(&m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "");
     CAF_PDM_InitField(&m_linerDiameter,     "LinerDiameter",    0.152,      "Liner Inner Diameter", "", "", "");
     CAF_PDM_InitField(&m_roughnessFactor,   "RoughnessFactor",  1e-05,      "Roughness Factor",     "", "", "");
 
@@ -136,6 +137,7 @@ void RimFishbonesCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* wellGroup = uiOrdering.addNewGroup("Fishbone Well Properties");
     wellGroup->add(&m_startMD);
     wellGroup->add(&m_mainBoreDiameter);
+    wellGroup->add(&m_skinFactor);
 
     caf::PdmUiGroup* mswGroup = uiOrdering.addNewGroup("Multi Segment Wells");
     mswGroup->add(&m_linerDiameter);
