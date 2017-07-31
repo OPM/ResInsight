@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "RicfCommandObject.h"
 
 #include "CompletionCommands/RicExportCompletionDataSettingsUi.h"
@@ -24,6 +25,11 @@
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
 
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
 class RicfExportWellPathCompletions : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;

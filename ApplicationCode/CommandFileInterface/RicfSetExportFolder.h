@@ -17,12 +17,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "RicfCommandObject.h"
 
 #include "RicfCommandFileExecutor.h"
 
 #include "cafPdmField.h"
 
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
 class RicfSetExportFolder : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
