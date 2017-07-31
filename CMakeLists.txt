@@ -139,6 +139,10 @@ else()
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
+list(APPEND THIRD_PARTY_LIBRARIES
+    ${ERT_LIBRARIES}
+)
+
 
 ################################################################################ 
 # Subset of Boost, used by NRLib and flow diagnostics application 
