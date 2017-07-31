@@ -18,12 +18,15 @@
 
 #include "RicExportFractureCompletionsImpl.h"
 
+#include "RiaLogging.h"
+
 #include "RicExportCompletionDataSettingsUi.h"
 
 #include "RimEclipseCase.h"
 #include "RimFracture.h"
 #include "RimWellPath.h"
 #include "RimFractureTemplate.h"
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimStimPlanFractureTemplate.h"
@@ -42,7 +45,6 @@
 #include "RigWellPath.h"
 
 #include <vector>
-#include "RiaLogging.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -68,13 +70,18 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                                                  const RimEclipseWell* well,
-                                                                                                 size_t timeStep,
                                                                                                  QTextStream* outputStreamForIntermediateResultsText)
 {
     std::vector<RigCompletionData> completionData;
 
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+    
+    RimEclipseView* view = nullptr;
+    well->firstAncestorOrThisOfTypeAsserted(view);
+    
+    size_t timeStep = view->currentTimeStep();
+
     well->calculateWellPipeDynamicCenterLine(timeStep, pipeBranchesCLCoords, pipeBranchesCellIds);
 
     for (size_t branchIndex = 0; branchIndex < pipeBranchesCLCoords.size(); ++branchIndex)

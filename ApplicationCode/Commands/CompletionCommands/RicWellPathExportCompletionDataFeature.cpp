@@ -310,7 +310,9 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
 
     for (auto simWell : simWells)
     {
-        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(), simWell, exportSettings.timeStep(), &fractureTransmissibilityExportInformationStream);
+        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(), 
+                                                                                                                                  simWell, 
+                                                                                                                                  &fractureTransmissibilityExportInformationStream);
         appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
     }
 

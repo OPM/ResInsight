@@ -37,7 +37,6 @@ public:
 
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
                                                                           const RimEclipseWell* well,
-                                                                          size_t timeStep,
                                                                           QTextStream* outputStreamForIntermediateResultsText);
 
 private:
