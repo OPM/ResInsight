@@ -67,7 +67,7 @@ TEST(RicfCommands, Test1)
     RicfMessages errors;
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
-    EXPECT_EQ(4, objects.size());
+    EXPECT_EQ((size_t)4, objects.size());
 
     auto tc2 = dynamic_cast<TestCommand1*>(objects[0]);
     EXPECT_EQ(39, tc2->m_textArgument().size());
@@ -115,8 +115,8 @@ TEST(RicfCommands, ErrorMessages)
 
     auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
 
-    EXPECT_EQ(2, objects.size());
-    EXPECT_EQ(5, errors.m_messages.size());
+    EXPECT_EQ((size_t)2, objects.size());
+    EXPECT_EQ((size_t)5, errors.m_messages.size());
 
     for (const auto& msg: errors.m_messages)
     {
