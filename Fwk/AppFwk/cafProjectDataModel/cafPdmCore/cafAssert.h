@@ -2,6 +2,7 @@
 #pragma once
 
 #include <iostream>
+#include <cstdlib>
 
 #define CAF_ASSERT(expr)                                             \
   do                                                                 \

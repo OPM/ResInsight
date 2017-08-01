@@ -11,7 +11,6 @@ ${CEE_CURRENT_LIST_DIR}RicExportCompletionDataSettingsUi.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.h
-${CEE_CURRENT_LIST_DIR}RicExportWellSegmentsSettingsUi.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.h
@@ -29,7 +28,6 @@ ${CEE_CURRENT_LIST_DIR}RicExportCompletionDataSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.cpp
-${CEE_CURRENT_LIST_DIR}RicExportWellSegmentsSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.cpp

@@ -42,9 +42,9 @@ RimFishboneWellPathCollection::RimFishboneWellPathCollection()
     CAF_PDM_InitObject("WellPathCompletions", ":/FishBoneGroupFromFile16x16.png", "", "");
 
     nameField()->uiCapability()->setUiHidden(true);
-    this->setName("Well Paths");
+    this->setName("Imported Laterals");
 
-    CAF_PDM_InitFieldNoDefault(&m_wellPaths, "WellPaths", "Well Paths", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellPaths, "WellPaths", "Imported Laterals", "", "", "");
     m_wellPaths.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_pipeProperties, "PipeProperties", "Pipe Properties", "", "", "");

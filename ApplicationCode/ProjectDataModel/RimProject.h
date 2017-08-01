@@ -34,6 +34,7 @@ class RigMainGrid;
 
 class RimCase;
 class RimCommandObject;
+class RimDialogData;
 class RimEclipseCase;
 class RimEllipseFractureTemplate;
 class RimWellPathFractureCollection;
@@ -113,6 +114,7 @@ public:
     void            reloadCompletionTypeResultsInAllViews();
     void            reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase);
 
+    RimDialogData*  dialogData() const;
 
 protected:
     // Overridden methods
@@ -127,6 +129,9 @@ private:
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
+
+    caf::PdmChildField<RimDialogData*>  m_dialogData;
+
 
     caf::PdmField<bool>     m_show3DWindow;
     caf::PdmField<bool>     m_showPlotWindow;

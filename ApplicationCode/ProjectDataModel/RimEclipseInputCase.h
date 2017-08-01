@@ -23,6 +23,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -61,6 +62,11 @@ public:
 
     virtual void                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
 
+    void                        updateAdditionalFileFolder(const QString& newFolder);
+
+private:
+    std::vector<QString>        additionalFiles() const;
+
 protected:
     virtual void                defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
@@ -68,7 +74,9 @@ private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
     // Fields
-    caf::PdmField<std::vector<QString> >       m_additionalFileNames;
-    caf::PdmField<QString>                     m_gridFileName;
+    caf::PdmField<QString>                          m_gridFileName;
+    caf::PdmProxyValueField< std::vector<QString> > m_additionalFiles;
 
+    // Obsolete fields
+    caf::PdmField<std::vector<QString> >       m_additionalFilenames_OBSOLETE;
 };

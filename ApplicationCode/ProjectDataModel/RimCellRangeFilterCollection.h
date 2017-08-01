@@ -22,17 +22,11 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
-class RigActiveCellInfo;
-class RigFemPartCollection;
-class RigGridBase;
 class RimView;
 class RimCellRangeFilter;
-class RimEclipseView;
-class RigMainGrid;
 
 namespace cvf {
     class CellRangeFilter;
-    class StructGridInterface;
 };
 
 //==================================================================================================
@@ -55,12 +49,6 @@ public:
     bool                            hasActiveFilters() const;
     bool                            hasActiveIncludeFilters() const;
 
-    const cvf::StructGridInterface* gridByIndex(int gridIndex) const;
-    int                             gridCount() const;
-    QString                         gridName(int gridIndex) const;
-
-    RigActiveCellInfo*              activeCellInfo() const;
-
     void                            updateDisplayModeNotifyManagedViews(RimCellRangeFilter* changedRangeFilter);
     void                            updateIconState();
 
@@ -71,9 +59,4 @@ protected:
 
 private:
     RimView*                        baseView() const;
-
-private:
-    RimEclipseView*                 eclipseView() const;
-    RigMainGrid*                    mainGrid() const;
-    RigFemPartCollection*           femPartColl() const;
 };

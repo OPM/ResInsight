@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,25 @@
 
 #pragma once
 
-#include "RicCaseAndFileExportSettingsUi.h"
+#include "RicfCommandObject.h"
 
 #include "cafPdmField.h"
 
 //==================================================================================================
-///  
-///  
+//
+//
+//
 //==================================================================================================
-class RicExportWellSegmentsSettingsUi : public RicCaseAndFileExportSettingsUi
+class RicfSetTimeStep : public RicfCommandObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
+    RicfSetTimeStep();
 
-    enum PressureDropType {
-        HYDROSTATIC,
-        HYDROSTATIC_FRICTION,
-        HYDROSTATIC_FRICTION_ACCELERATION
-    };
+    virtual void execute() override;
 
-    typedef caf::AppEnum<RicExportWellSegmentsSettingsUi::PressureDropType> PressureDropEnum;
-
-    enum LengthAndDepthType {
-        ABS,
-        INC
-    };
-
-    typedef caf::AppEnum<RicExportWellSegmentsSettingsUi::LengthAndDepthType> LengthAndDepthEnum;
-
-    RicExportWellSegmentsSettingsUi();
-
-    caf::PdmField<PressureDropEnum>         pressureDrop;
-    caf::PdmField<LengthAndDepthEnum>       lengthAndDepth;
+private:
+    caf::PdmField<int> m_caseId;
+    caf::PdmField<int> m_timeStepIndex;
 };

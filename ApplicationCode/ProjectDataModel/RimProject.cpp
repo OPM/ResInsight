@@ -31,6 +31,7 @@
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
 #include "RimContextCommandBuilder.h"
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
@@ -121,6 +122,11 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitField(&m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "");
     m_showPlotWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_dialogData, "DialogData", "DialogData", "", "", "");
+    m_dialogData = new RimDialogData();
+    m_dialogData.uiCapability()->setUiHidden(true);
+    m_dialogData.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
@@ -771,6 +777,14 @@ void RimProject::reloadCompletionTypeResultsInAllViews()
 {
     createDisplayModelAndRedrawAllViews();
     RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDialogData* RimProject::dialogData() const
+{
+    return m_dialogData;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,43 +21,45 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RimProject.h"
-#include "RimWellPath.h"
-#include "RimWellPathCollection.h"
-#include "RimFishbonesMultipleSubs.h"
-#include "RimFishbonesCollection.h"
+#include "RicExportCompletionDataSettingsUi.h"
+#include "RicExportFeatureImpl.h"
+#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RicExportFractureCompletionsImpl.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigResultAccessorFactory.h"
+#include "RigTransmissibilityEquations.h"
+#include "RigWellLogExtractionTools.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
+
 #include "RimFishboneWellPath.h"
 #include "RimFishboneWellPathCollection.h"
-#include "RimPerforationInterval.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesMultipleSubs.h"
 #include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
-
-#include "RicExportCompletionDataSettingsUi.h"
 
 #include "RiuMainWindow.h"
 
-#include "RigWellLogExtractionTools.h"
-#include "RigWellPathIntersectionTools.h"
-#include "RigEclipseCaseData.h"
-#include "RigMainGrid.h"
-#include "RigWellPath.h"
-#include "RigResultAccessorFactory.h"
-#include "RigTransmissibilityEquations.h"
-
-#include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
 
 #include "cvfPlane.h"
 
 #include <QAction>
+#include <QDir>
 #include <QFileDialog>
 #include <QMessageBox>
-#include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
-#include "RicExportFractureCompletionsImpl.h"
-#include "RigActiveCellInfo.h"
 
 CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCompletionDataFeature");
 
@@ -135,6 +137,8 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     exportSettings.folder = defaultDir;
 
     caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings.folder);
@@ -464,13 +468,22 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
+void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& folderName, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     //TODO: Check that completion is ready for export
 
-    QString filePath = QDir(exportFolder).filePath(fileName);
+    QDir exportFolder = QDir(folderName);
+
+    if (!exportFolder.exists())
+    {
+        bool createdPath = exportFolder.mkpath(folderName);
+        if (createdPath) RiaLogging::info("Created export folder " + folderName);
+        else RiaLogging::error("Selected output folder does not exist, and could not be created.");
+    }
+
+    QString filePath = exportFolder.filePath(fileName);
     QFile exportFile(filePath);
-    if (!exportFile.open(QIODevice::WriteOnly))
+        if (!exportFile.open(QIODevice::WriteOnly))
     {
         RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(filePath));
         return;

@@ -44,11 +44,11 @@ int main(int argc, char *argv[])
     window.loadWinGeoAndDockToolBarLayout();
     window.showWindow();
 
-    RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(window.messagePanel()));
-    RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
-
     if (app.parseArguments())
     {
+        RiaLogging::setLoggerInstance(new RiuMessagePanelLogger(window.messagePanel()));
+        RiaLogging::loggerInstance()->setLevel(RI_LL_DEBUG);
+
         int exitCode = app.exec();
         RiaLogging::deleteLoggerInstance();
 

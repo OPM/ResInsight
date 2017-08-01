@@ -216,8 +216,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
 
     for (auto& cell : intersectedCellsIntersectionInfo)
     {
-        //TODO: should skinFactor be taken from well group instead??? 
-        double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
+        double skinFactor = wellPath->fishbonesCollection()->mainBoreSkinFactor();
         QString completionMetaData = wellPath->name() + " main bore";
         WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc(cell.internalCellLengths,
                                                                          holeDiameter / 2,

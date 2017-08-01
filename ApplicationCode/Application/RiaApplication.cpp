@@ -90,8 +90,10 @@
 #include "RiuFlowCharacteristicsPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
-#include "RicSnapshotViewToClipboardFeature.h"
+#include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
+
+#include "RicfCommandFileExecutor.h"
 
 #include "cafFixedAtlasFont.h"
 
@@ -217,6 +219,8 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_recalculateCompletionTypeTimer = nullptr;
 
     m_runningRegressionTests = false;
+
+    m_runningWorkerProcess = false;
 
     m_mainPlotWindow = nullptr;
 
@@ -1320,7 +1324,9 @@ bool RiaApplication::parseArguments()
     progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
     progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
+    progOpt.registerOption("replacePropertiesFolder",   "[<caseId>] <newPropertiesFolder>", "Replace the folder containing property files for an eclipse input case.", cvf::ProgramOptions::MULTI_VALUE);
     progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("commandFile",               "<commandfile>",                    "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("help",                      "",                                 "Displays help text.");
     progOpt.registerOption("?",                         "",                                 "Displays help text.");
     progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
@@ -1483,6 +1489,30 @@ bool RiaApplication::parseArguments()
             projectLoadAction = PLA_CALCULATE_STATISTICS;
         }
 
+        if (cvf::Option o = progOpt.option("replacePropertiesFolder"))
+        {
+            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
+
+            if (o.valueCount() == 1)
+            {
+                QString propertiesFolder = cvfqt::Utils::toQString(o.safeValue(0));
+                projectModifier->setReplacePropertiesFolderFirstOccurrence(propertiesFolder);
+            }
+            else
+            {
+                size_t optionIdx = 0;
+                while (optionIdx < o.valueCount())
+                {
+                    const int caseId = o.safeValue(optionIdx++).toInt(-1);
+                    QString propertiesFolder = cvfqt::Utils::toQString(o.safeValue(optionIdx++));
+
+                    if (caseId != -1 && !propertiesFolder.isEmpty())
+                    {
+                        projectModifier->setReplacePropertiesFolder(caseId, propertiesFolder);
+                    }
+                }
+            }
+        }
 
         loadProject(projectFileName, projectLoadAction, projectModifier.p());
     }
@@ -1493,17 +1523,26 @@ bool RiaApplication::parseArguments()
         QStringList caseNames = cvfqt::Utils::toQStringList(o.values());
         foreach (QString caseName, caseNames)
         {
-            QString caseFileNameWithExt = caseName + ".EGRID";
-            if (caf::Utils::fileExists(caseFileNameWithExt))
+            QString fileExtension = caf::Utils::fileExtension(caseName);
+            if (caf::Utils::fileExists(caseName) &&
+                (fileExtension == "EGRID" || fileExtension == "GRID"))
             {
-                openEclipseCaseFromFile(caseFileNameWithExt);
+                openEclipseCaseFromFile(caseName);
             }
             else
             {
-                caseFileNameWithExt = caseName + ".GRID";
+                QString caseFileNameWithExt = caseName + ".EGRID";
                 if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
                     openEclipseCaseFromFile(caseFileNameWithExt);
+                }
+                else
+                {
+                    caseFileNameWithExt = caseName + ".GRID";
+                    if (caf::Utils::fileExists(caseFileNameWithExt))
+                    {
+                        openEclipseCaseFromFile(caseFileNameWithExt);
+                    }
                 }
             }
         }
@@ -1573,6 +1612,24 @@ bool RiaApplication::parseArguments()
         }
 
         // Returning false will exit the application
+        return false;
+    }
+
+    if (cvf::Option o = progOpt.option("commandFile"))
+    {
+        QString commandFile = cvfqt::Utils::toQString(o.safeValue(0));
+        QFile file(commandFile);
+        RicfMessages messages;
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            // TODO : Error logging?
+            return false;
+        }
+
+        QTextStream in(&file);
+        RicfCommandFileExecutor::instance()->executeCommands(in);
+        closeAllWindows();
+        processEvents();
         return false;
     }
 
@@ -1798,6 +1855,14 @@ std::vector<QAction*> RiaApplication::recentFileActions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::setStartDir(const QString& startDir)
+{
+    m_startupDefaultDirectory = startDir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileName)
 {
     std::vector<QString> fileList;
@@ -1895,6 +1960,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     if (exitStatus == QProcess::CrashExit)
     {
     //    MFLog::error("Simulation execution crashed or was aborted.");
+        m_runningWorkerProcess = false;
         return;
     }
 
@@ -1906,6 +1972,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     if (exitCode != 0)
     {
       //  MFLog::error(QString("Simulation execution failed (exit code %1).").arg(exitCode));
+        m_runningWorkerProcess = false;
         return;
     }
 
@@ -1918,6 +1985,7 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     {
         // Disable concept of current case
         m_socketServer->setCurrentCaseId(-1);
+        m_runningWorkerProcess = false;
     }
 }
 
@@ -1942,6 +2010,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
             m_socketServer->setCurrentCaseId(-1);
         }
 
+        m_runningWorkerProcess = true;
         m_workerProcess = new caf::UiProcess(this);
 
         QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
@@ -1978,6 +2047,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         {
             m_workerProcess->close();
             m_workerProcess = NULL;
+            m_runningWorkerProcess = false;
 
             RiuMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();
 
@@ -2097,7 +2167,23 @@ void RiaApplication::terminateProcess()
         m_workerProcess->close();
     }
 
+    m_runningWorkerProcess = false;
     m_workerProcess = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::waitForProcess() const
+{
+    while (m_runningWorkerProcess)
+    {
+#ifdef WIN32
+        Sleep(100);
+#else
+        usleep(100000);
+#endif
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 
 #include "RicExportToLasFileFeature.h"
 
+#include "RicExportFeatureImpl.h"
 #include "RicExportToLasFileResampleUi.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
@@ -78,6 +79,7 @@ void RicExportToLasFileFeature::onActionTriggered(bool isChecked)
     }
     
     caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Export Curve Data to LAS file(s)", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
     propertyDialog.resize(QSize(400, 200));
     
     if (propertyDialog.exec() == QDialog::Accepted &&

@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RicExportFeatureImpl.h"
+
 #include "RimProject.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
@@ -61,7 +63,7 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
 
-    RicExportWellSegmentsSettingsUi exportSettings;
+    RicCaseAndFileExportSettingsUi exportSettings;
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -76,8 +78,9 @@ void RicExportFishbonesWellSegmentsFeature::onActionTriggered(bool isChecked)
 
     exportSettings.folder = defaultDir;
 
-    //Bjørnar: skal denne være noe annet?
-    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Completion Data", "");
+    caf::PdmUiPropertyViewDialog propertyDialog(RiuMainWindow::instance(), &exportSettings, "Export Well Segments", "");
+    RicExportFeatureImpl::configureForExport(&propertyDialog);
+
     if (propertyDialog.exec() == QDialog::Accepted)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", QFileInfo(exportSettings.folder).absolutePath());
@@ -152,7 +155,7 @@ bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicExportWellSegmentsSettingsUi& settings)
+void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings)
 {
     QString filePath = QDir(settings.folder()).filePath("Welsegs");
     QFile exportFile(filePath);
@@ -183,7 +186,7 @@ void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataTableFormatter& formatter,
                                                                  const RimWellPath* wellPath,
-                                                                 const RicExportWellSegmentsSettingsUi& settings,
+                                                                 const RicCaseAndFileExportSettingsUi& settings,
                                                                  const std::vector<WellSegmentLocation>& locations)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
@@ -208,8 +211,8 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.add(startTVD);
         formatter.add(startMD);
         formatter.add("1*");
-        formatter.add(settings.lengthAndDepth().text()); 
-        formatter.add(settings.pressureDrop().text());
+        formatter.add(wellPath->fishbonesCollection()->lengthAndDepth().text()); 
+        formatter.add(wellPath->fishbonesCollection()->pressureDrop().text());
 
         formatter.rowCompleted();
     }
@@ -238,7 +241,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 
         for (const WellSegmentLocation& location : locations)
         {
-            if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
+            if (wellPath->fishbonesCollection()->lengthAndDepth() == RimFishbonesCollection::INC)
             {
                 depth = location.trueVerticalDepth - previousTVD;
                 length = location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
@@ -248,9 +251,6 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
                 depth += location.trueVerticalDepth - previousTVD;
                 length += location.fishbonesSubs->measuredDepth(location.subIndex) - previousMD;
             }
-            
-            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem),
-                                                       wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem));
 
             formatter.comment(QString("Segment for sub %1").arg(location.subIndex));
             formatter.add(location.segmentNumber).add(location.segmentNumber);
@@ -258,7 +258,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
             formatter.add(location.segmentNumber - 1); // All main stem segments are connected to the segment below them
             formatter.add(length);
             formatter.add(depth);
-            formatter.add(diameter);
+            formatter.add(wellPath->fishbonesCollection()->linerDiameter(unitSystem));
             formatter.add(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
             formatter.rowCompleted();
 
@@ -273,15 +273,13 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
         formatter.comment("Rough: MSW - Open Hole Roughness Factor");
         for (const WellSegmentLocation& location : locations)
         {
-            double diameter = computeEffectiveDiameter(wellPath->fishbonesCollection()->linerDiameter(unitSystem),
-                                                       wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem));
             formatter.comment("ICD");
             formatter.add(location.icdSegmentNumber).add(location.icdSegmentNumber);
             formatter.add(location.icdBranchNumber);
             formatter.add(location.segmentNumber);
             formatter.add(0.1); // ICDs have 0.1 length
             formatter.add(0); // Depth change
-            formatter.add(diameter);
+            formatter.add(wellPath->fishbonesCollection()->linerDiameter(unitSystem));
             formatter.add(wellPath->fishbonesCollection()->roughnessFactor(unitSystem));
             formatter.rowCompleted();
 
@@ -294,7 +292,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 
                 for (const WellSegmentLateralIntersection& intersection : lateral.intersections)
                 {
-                    if (settings.lengthAndDepth() == RicExportWellSegmentsSettingsUi::INC)
+                    if (wellPath->fishbonesCollection()->lengthAndDepth() == RimFishbonesCollection::INC)
                     {
                         depth = intersection.depth;
                         length = intersection.length;
@@ -327,7 +325,7 @@ void RicExportFishbonesWellSegmentsFeature::generateWelsegsTable(RifEclipseDataT
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseDataTableFormatter& formatter,
                                                                   const RimWellPath* wellPath,
-                                                                  const RicExportWellSegmentsSettingsUi& settings,
+                                                                  const RicCaseAndFileExportSettingsUi& settings,
                                                                   const std::vector<WellSegmentLocation>& locations)
 {
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
@@ -385,7 +383,7 @@ void RicExportFishbonesWellSegmentsFeature::generateCompsegsTable(RifEclipseData
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::generateWsegvalvTable(RifEclipseDataTableFormatter& formatter,
                                                                   const RimWellPath* wellPath,
-                                                                  const RicExportWellSegmentsSettingsUi& settings,
+                                                                  const RicCaseAndFileExportSettingsUi& settings,
                                                                   const std::vector<WellSegmentLocation>& locations)
 {
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();

@@ -40,6 +40,7 @@ message(STATUS ${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore
     ${QT_LIBRARIES}
+    ${THREAD_LIBRARY}
 )
 
 
