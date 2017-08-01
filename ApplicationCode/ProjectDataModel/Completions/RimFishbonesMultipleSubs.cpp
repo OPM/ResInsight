@@ -711,9 +711,16 @@ std::vector<double> RimFishbonesMultipleSubs::locationsFromStartSpacingAndCount(
 //--------------------------------------------------------------------------------------------------
 int RimFishbonesMultipleSubs::randomValueFromRange(int min, int max)
 {
+    // See http://www.cplusplus.com/reference/cstdlib/rand/ 
+
     int range = abs(max - min);
     int random_integer = min + int(range*rand() / (RAND_MAX + 1.0));
-    
+
     return random_integer;
+    int randomNumberInRange = rand() % range;
+
+    int randomValue = min + randomNumberInRange;
+
+    return randomValue;
 }
 
