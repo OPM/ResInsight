@@ -414,21 +414,30 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 
     for (const RigCompletionData& completion : completions)
     {
+        resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
+        resultCompletion.m_metadata.insert(resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end());
+
         if (completion.completionType() != completions[0].completionType())
         {
-            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            QString errorMessage = QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            RiaLogging::error(errorMessage);
+            resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
         }
 
         if (completion.wellName() != completions[0].wellName())
         {
-            RiaLogging::error(QString("Cannot combine completions from different wells in same cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            QString errorMessage = QString("Cannot combine completions from different wells in same cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            RiaLogging::error(errorMessage);
+            resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
         }
         
         if (completion.transmissibility() == HUGE_VAL)
         {
-            RiaLogging::error(QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            QString errorMessage = QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            RiaLogging::error(errorMessage);
+            resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
         }       
 
@@ -438,15 +447,10 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
         }
 
         totalTrans = totalTrans + completion.transmissibility();
-
-        resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
-        resultCompletion.m_metadata.insert(resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end());
-
     }
 
 
-    if (completions[0].completionType() == RigCompletionData::FRACTURE 
-        || settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES) 
+    if (settings.compdatExport == RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES) 
     {
         resultCompletion.setCombinedValuesExplicitTrans(totalTrans, completionType);
     }
