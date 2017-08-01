@@ -368,6 +368,11 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
                 printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
             }
+            {
+                std::vector<RigCompletionData> fractureCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FRACTURE);
+                QString fileName = QString("%1_Fractures_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                printCompletionsToFile(exportSettings.folder, fileName, fractureCompletions, exportSettings.compdatExport);
+            }
         }
     }
 }
