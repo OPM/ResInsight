@@ -137,8 +137,8 @@ double RigSimulationWellCoordsAndMD::simWellAzimuthAngle(const cvf::Vec3d& posit
 {
     size_t closestIndex = findClosestIndex(position);
 
-     //For vertical well (x-component of direction = 0) returned angle will be 0. 
-    double azimuthAngle = 0.0;
+     //For vertical well (x-component of direction = 0) returned angle will be 90. 
+    double azimuthAngle = 90.0;
 
     if (closestIndex != cvf::UNDEFINED_DOUBLE)
     {
