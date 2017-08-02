@@ -12,7 +12,7 @@ endif()
 
 option(USE_QT5 "Use version 5.x of the Qt library" OFF)
 if(USE_QT5)
-  find_package(Qt5 COMPONENTS Core REQUIRED)
+  find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 else()
   find_package(Qt4 REQUIRED)
   include(${QT_USE_FILE})
@@ -46,5 +46,5 @@ cvfqtUtils.cpp
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 if(USE_QT5)
-  qt5_use_modules(${PROJECT_NAME} Core)
+  qt5_use_modules(${PROJECT_NAME} Core Widgets)
 endif()

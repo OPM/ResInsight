@@ -5,7 +5,7 @@ project (CommonCode)
 # Qt
 option(USE_QT5 "Use version 5.x of the Qt library" OFF)
 if(USE_QT5)
-  find_package(Qt5 COMPONENTS Core Gui OpenGL)
+  find_package(Qt5 COMPONENTS Core Gui Widgets OpenGL)
 else()
   find_package ( Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl )
   include (${QT_USE_FILE})
@@ -64,5 +64,5 @@ add_library( ${PROJECT_NAME}
     ${MOC_FILES_CPP}
 )
 if(USE_QT5)
-  qt5_use_modules(${PROJECT_NAME} Core Gui OpenGL)
+  qt5_use_modules(${PROJECT_NAME} Core Gui Widgets OpenGL)
 endif()
