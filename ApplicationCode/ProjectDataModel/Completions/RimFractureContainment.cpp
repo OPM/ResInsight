@@ -97,12 +97,12 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* m
 
     bool ok = mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
 
-    if (k+1 <= m_topKLayer()) 
+    if (k+1 < m_topKLayer()) 
     {
         return false;
     }
 
-    if (k+1 >= m_baseKLayer()) 
+    if (k+1 > m_baseKLayer()) 
     {
         return false;
     }
@@ -133,7 +133,10 @@ void RimFractureContainment::fieldChangedByUi(const caf::PdmFieldHandle* changed
     {
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
-        if (proj) proj->createDisplayModelAndRedrawAllViews();
+        if (proj)
+        {
+            proj->reloadCompletionTypeResultsInAllViews();
+        }
     }
 }
 
