@@ -99,7 +99,12 @@ DEFUN_DLD (riGetDynamicNNCValues, args, nargout,
            "\n"
            "   riGetDynamicNNCValues([CaseId], PropertyName, [RequestedTimeSteps])\n"
            "\n"
-           "This function retrieves the dynamic NNC values for each connection for the requested time steps."
+           "This function returns a matrix with the dynamic NNC values for each connection for the requested time steps.\n"
+           "The matrix has a number of rows equal to the number of NNC connections and a number of columns equal to the requested time steps.\n"
+           "\n"
+           "See riGetNNCConnections for information about each individual connection.\n"
+           "If the CaseId is not defined, ResInsight's Current Case is used.\n"
+           "If RequestedTimeSteps are left empty, values for all time steps will be returned.\n"
            )
 {
     int nargin = args.length ();

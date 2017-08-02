@@ -83,7 +83,10 @@ DEFUN_DLD (riGetStaticNNCValues, args, nargout,
            "\n"
            "   riGetStaticNNCValues([CaseId], PropertyName)\n"
            "\n"
-           "This function retrieves the static NNC values for each connection."
+           "This function returns a vector with the static NNC values for each connection.\n"
+           "\n"
+           "See riGetNNCConnections for information about each individual connection.\n"
+           "If the CaseId is not defined, ResInsight's Current Case is used.\n"
            )
 {
     int nargin = args.length ();

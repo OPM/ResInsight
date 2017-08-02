@@ -88,8 +88,13 @@ DEFUN_DLD(riGetNNCConnections, args, nargout,
     "\n"
     "  riGetNNCConnections([CaseId])\n"
     "\n"
-    "This function returns a two dimensional matrix containing grid and IJK information\n"
-    "for each NNC in the requested case."
+    "This function returns a two dimensional matrix containing grid and IJK information for each NNC in the requested case.\n"
+    "The columns contain the following information:\n"
+    "[GridIdx, I, J, K]:\n"
+    "    GridIdx :       The index of the grid the cell resides in. (Main grid has index 0)\n"
+    "    I, J, K :       1-based index address of the cell in the grid.\n"
+    "\n"
+    "If the CaseId is not defined, ResInsight's Current Case is used.\n"
 )
 {
     int nargin = args.length();
