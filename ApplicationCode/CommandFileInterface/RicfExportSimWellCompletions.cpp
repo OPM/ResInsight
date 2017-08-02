@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicfExportWellPathCompletions.h"
+#include "RicfExportSimWellCompletions.h"
 
 #include "RicfCommandFileExecutor.h"
 
@@ -27,17 +27,21 @@
 #include "RimOilField.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseView.h"
+#include "RimEclipseWellCollection.h"
+#include "RimEclipseWell.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
 
 #include "CompletionCommands/RicWellPathExportCompletionDataFeature.h"
 
-CAF_PDM_SOURCE_INIT(RicfExportWellPathCompletions, "exportWellPathCompletions");
+CAF_PDM_SOURCE_INIT(RicfExportSimWellCompletions, "exportSimWellCompletions");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicfExportWellPathCompletions::RicfExportWellPathCompletions()
+RicfExportSimWellCompletions::RicfExportSimWellCompletions()
 {
     RICF_InitField(&m_caseId,                      "case",                        -1,                                                     "Case ID",  "", "", "");
     RICF_InitField(&m_timeStep,                    "timeStep",                    -1,                                                     "Time Step Index",  "", "", "");
@@ -45,24 +49,18 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     RICF_InitField(&m_wellSelection,               "wellSelection",               RicExportCompletionDataSettingsUi::WellSelectionType(), "Well Selection",  "", "", "");
     RICF_InitField(&m_fileSplit,                   "fileSplit",                   RicExportCompletionDataSettingsUi::ExportSplitType(),   "File Split",  "", "", "");
     RICF_InitField(&m_compdatExport,               "compdatExport",               RicExportCompletionDataSettingsUi::CompdatExportType(), "Compdat Export",  "", "", "");
-    RICF_InitField(&m_includePerforations,         "includePerforations",         true,                                                   "Include Perforations",  "", "", "");
-    RICF_InitField(&m_includeFishbones,            "includeFishbones",            true,                                                   "Include Fishbones",  "", "", "");
-    RICF_InitField(&m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false,                                                  "Exclude Main Bore for Fishbones",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicfExportWellPathCompletions::execute()
+void RicfExportSimWellCompletions::execute()
 {
     RicExportCompletionDataSettingsUi exportSettings(false);
     exportSettings.timeStep = m_timeStep;
     exportSettings.wellSelection = m_wellSelection;
     exportSettings.fileSplit = m_fileSplit;
     exportSettings.compdatExport = m_compdatExport;
-    exportSettings.includePerforations = m_includePerforations;
-    exportSettings.includeFishbones = m_includeFishbones;
-    exportSettings.excludeMainBoreForFishbones = m_excludeMainBoreForFishbones;
 
     {
         bool foundCase = false;
@@ -77,7 +75,7 @@ void RicfExportWellPathCompletions::execute()
         }
         if (!foundCase)
         {
-            RiaLogging::error(QString("exportWellPathCompletions: Could not find case with ID %1").arg(m_caseId()));
+            RiaLogging::error(QString("exportSimWellCompletions: Could not find case with ID %1").arg(m_caseId()));
             return;
         }
     }
@@ -89,30 +87,43 @@ void RicfExportWellPathCompletions::execute()
     }
     exportSettings.folder = exportFolder;
 
-    std::vector<RimWellPath*> wellPaths;
+    // FIXME : Select correct view?
+    RimEclipseView* view;
+    for (RimView* v : exportSettings.caseToApply->views())
+    {
+        view = dynamic_cast<RimEclipseView*>(v);
+        if (view) break;
+    }
+    if (!view)
+    {
+        RiaLogging::error(QString("exportSimWellCompletions: Could not find a view for case with ID %1").arg(m_caseId()));
+        return;
+    }
+
+    std::vector<RimEclipseWell*> simWells;
     if (m_wellPathNames().empty())
     {
-        std::copy(RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths().begin(),
-                  RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPaths().end(),
-                  std::back_inserter(wellPaths));
+        std::copy(view->wellCollection->wells.begin(),
+                  view->wellCollection->wells.end(),
+                  std::back_inserter(simWells));
     }
     else
     {
         for (const QString& wellPathName : m_wellPathNames())
         {
-            RimWellPath* wellPath = RiaApplication::instance()->project()->activeOilField()->wellPathCollection->wellPathByName(wellPathName);
-            if (wellPath)
+            RimEclipseWell* simWell = view->wellCollection->findWell(wellPathName);
+            if (simWell)
             {
-                wellPaths.push_back(wellPath);
+                simWells.push_back(simWell);
             }
             else
             {
-                RiaLogging::warning(QString("exportWellPathCompletions: Could not find well path with name %1").arg(wellPathName));
+                RiaLogging::warning(QString("exportSimWellCompletions: Could not find well with name %1 on case with ID %2").arg(wellPathName).arg(m_caseId()));
             }
         }
     }
 
-    std::vector<RimEclipseWell*> simWells;
+    std::vector<RimWellPath*> wellPaths;
 
     RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, exportSettings);
 }
