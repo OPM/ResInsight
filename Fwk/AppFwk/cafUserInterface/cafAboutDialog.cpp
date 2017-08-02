@@ -39,9 +39,15 @@
 #include "cafAssert.h"
 
 #include <QtCore/QVariant>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
+#else
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
+#endif
 #include <QtOpenGL/QGLFormat>
 
 namespace caf {

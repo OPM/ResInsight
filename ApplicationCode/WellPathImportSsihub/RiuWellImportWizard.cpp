@@ -36,6 +36,10 @@
 
 #include <QObject>
 #include <QtGui>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
 #include <QtNetwork>
 
 #include <algorithm>

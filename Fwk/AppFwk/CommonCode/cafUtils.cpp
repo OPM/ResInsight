@@ -40,7 +40,12 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QLineEdit>
+#else
 #include <QtGui/QLineEdit>
+#endif
 
 #include <QtOpenGL/QGLContext>
 

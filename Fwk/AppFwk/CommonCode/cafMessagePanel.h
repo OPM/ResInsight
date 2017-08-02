@@ -37,7 +37,12 @@
 
 #pragma once
 
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets/QWidget>
+#else
 #include <QtGui/QWidget>
+#endif
 
 class QDockWidget;
 class QTextEdit;
