@@ -33,8 +33,8 @@ double RigTransmissibilityEquations::peacemanRadius(double permeabilityNormalDir
                                                     double cellSizeNormalDirection2)
 {
     double nominator = cvf::Math::sqrt(
-                       pow(cellSizeNormalDirection2, 2) + pow(permeabilityNormalDirection1 / permeabilityNormalDirection2, 1 / 2)
-                     + pow(cellSizeNormalDirection1, 2) + pow(permeabilityNormalDirection2 / permeabilityNormalDirection1, 1 / 2));
+                       pow(cellSizeNormalDirection2, 2) * pow(permeabilityNormalDirection1 / permeabilityNormalDirection2, 1 / 2)
+                     + pow(cellSizeNormalDirection1, 2) * pow(permeabilityNormalDirection2 / permeabilityNormalDirection1, 1 / 2));
 
     double denominator = pow((permeabilityNormalDirection1 / permeabilityNormalDirection2), 1 / 4)
                        + pow((permeabilityNormalDirection2 / permeabilityNormalDirection1), 1 / 4);
