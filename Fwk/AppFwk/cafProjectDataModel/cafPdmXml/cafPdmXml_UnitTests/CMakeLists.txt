@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 2.8)
 
-find_package ( Qt4 COMPONENTS QtCore  )
-include (${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core)
+else()
+  find_package ( Qt4 COMPONENTS QtCore  )
+  include (${QT_USE_FILE})
+endif()
 
 project ( cafPdmXml_UnitTests )
 
@@ -21,6 +26,9 @@ add_executable (${PROJECT_NAME}
 	cafPdmAdvancedTemplateTest.cpp
 )
 message(STATUS ${PROJECT_NAME}" - Qt includes : "  ${QT_LIBRARIES})
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core)
+endif()
 
 target_link_libraries ( ${PROJECT_NAME}
     cafPdmCore

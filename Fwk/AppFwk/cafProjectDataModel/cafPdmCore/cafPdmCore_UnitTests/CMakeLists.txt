@@ -1,7 +1,12 @@
 cmake_minimum_required (VERSION 2.8)
 
-find_package ( Qt4 COMPONENTS QtCore QtGui  )
-include (${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core Gui)
+else()
+  find_package ( Qt4 COMPONENTS QtCore QtGui  )
+  include (${QT_USE_FILE})
+endif()
 
 project ( cafPdmCore_UnitTests )
 
@@ -32,6 +37,9 @@ set( PROJECT_FILES
 add_executable (${PROJECT_NAME}
 	${PROJECT_FILES}
 )
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core Gui)
+endif()
 
 source_group("" FILES ${PROJECT_FILES})
 

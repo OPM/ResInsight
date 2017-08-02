@@ -2,8 +2,13 @@ cmake_minimum_required (VERSION 2.8)
 
 project (ApplicationCode)
 find_package(Boost COMPONENTS filesystem)
-find_package(Qt4 COMPONENTS QtCore QtGui QtScript)
-include(${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core Gui Script)
+else()
+  find_package(Qt4 COMPONENTS QtCore QtGui QtScript)
+  include(${QT_USE_FILE})
+endif()
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
@@ -190,9 +195,13 @@ set ( QT_MOC_HEADERS
     SocketInterface/RiaSocketServer.h
 )
 
-qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
-
-qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+if(USE_QT5)
+  qt5_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
+  qt5_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+else()
+  qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
+  qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
+endif()
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
@@ -207,7 +216,11 @@ set( QRC_FILES
 )
 
 # Runs RCC on specified files
-qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
+if(USE_QT5)
+  qt5_add_resources (QRC_FILES_CPP ${QRC_FILES} )
+else()
+  qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
+endif()
 
 # Adding resource (RC) files for Windows
 if ( MSVC )
@@ -253,7 +266,9 @@ set( EXE_FILES
 )
 
 add_executable( ResInsight ${EXE_FILES} )
-
+if(USE_QT5)
+  qt5_use_modules(ResInsight Core Gui Script)
+endif()
 
 #############################################################################
 # Application icon for MacOS X bundle

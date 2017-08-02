@@ -1,11 +1,15 @@
 cmake_minimum_required (VERSION 2.8)
 
 project ( WellPathImportSsihubTestApp )
-
-
-set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
-find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
-include (${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  set(QT_COMPONENTS_REQUIRED Core Gui OpenGL Network Script ScriptTools)
+  find_package(Qt5 COMPONENTS ${QT_COMPONENTS_REQUIRED})
+else()
+  set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
+  find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
+  include (${QT_USE_FILE})
+endif()
 
 # Open GL
 find_package( OpenGL )
@@ -51,7 +55,9 @@ add_executable ( ${PROJECT_NAME}
     ${MOC_FILES_CPP}
     ${QRC_FILES_CPP}
 )
-
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} ${QT_COMPONENTS_REQUIRED})
+endif()
 target_link_libraries ( ${PROJECT_NAME}
 
     cafProjectDataModel

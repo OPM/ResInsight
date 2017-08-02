@@ -3,8 +3,13 @@ cmake_minimum_required (VERSION 2.8)
 project (cafVizExtensions)
 
 # Qt
-find_package(Qt4 COMPONENTS QtCore)
-include(${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core)
+else()
+  find_package(Qt4 COMPONENTS QtCore)
+  include(${QT_USE_FILE})
+endif()
 
 # Open GL
 find_package( OpenGL )
@@ -40,3 +45,6 @@ add_library( ${PROJECT_NAME}
     cafHexGridIntersectionTools/cafHexGridIntersectionTools.h
     cafHexGridIntersectionTools/cafHexGridIntersectionTools.cpp
 )
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core)
+endif()

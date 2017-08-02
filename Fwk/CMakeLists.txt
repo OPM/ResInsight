@@ -2,9 +2,13 @@ cmake_minimum_required (VERSION 2.8)
 
 project (TestCafAndVizFwk)
 
-find_package (Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
-include (${QT_USE_FILE})
-
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core Gui OpenGL REQUIRED)
+else()
+  find_package (Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
+  include (${QT_USE_FILE})
+endif()
 
 # Libraries
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmCore)
