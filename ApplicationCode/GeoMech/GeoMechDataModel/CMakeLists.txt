@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 
 project (RigGeoMechDataModel)
+find_package(Qt4 COMPONENTS QtCore)
+include(${QT_USE_FILE})
 
 include_directories(
 	${LibCore_SOURCE_DIR}

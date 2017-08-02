@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.8)
 
 project (ApplicationCode)
 find_package(Boost COMPONENTS filesystem)
+find_package(Qt4 COMPONENTS QtCore QtGui QtScript)
+include(${QT_USE_FILE})
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories

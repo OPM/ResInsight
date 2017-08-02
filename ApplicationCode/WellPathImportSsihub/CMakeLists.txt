@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.8)
 
 project (WellPathImportSsihub)
+find_package(Qt4 COMPONENTS QtCore QtGui QtNetwork)
+include(${QT_USE_FILE})
 
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS   

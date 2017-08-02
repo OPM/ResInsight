@@ -2,6 +2,10 @@ cmake_minimum_required (VERSION 2.8)
 
 project (cafVizExtensions)
 
+# Qt
+find_package(Qt4 COMPONENTS QtCore)
+include(${QT_USE_FILE})
+
 # Open GL
 find_package( OpenGL )
 
