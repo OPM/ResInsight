@@ -35,7 +35,13 @@ endif()
 ################################################################################
 # OpenMP
 ################################################################################
-option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
+# Apple Clang currently doesn't do OpenMP
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(OMP_DEFAULT "OFF")
+else()
+    set(OMP_DEFAULT "ON")
+endif()
+option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ${OMP_DEFAULT})
 if (RESINSIGHT_USE_OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)
