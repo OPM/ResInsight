@@ -12,11 +12,12 @@
 #include "cvfMath.h"
 
 #include <cmath>
+#include "RimSimWellFracture.h"
 
 
-RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture* rimFracture)
+RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, RimFracture* rimFracture)
 {
-    std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->m_wellPathPoints;
+    std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->wellPathPointsIncludingFractureIntersection(rimFracture->fractureMD());
     cvf::Mat4d fractureXf                                    = rimFracture->transformMatrix();
     double wellRadius                                        = rimFracture->wellRadius(rimFracture->fractureUnit());
     std::vector<cvf::Vec3f> fracturePolygonf ; 

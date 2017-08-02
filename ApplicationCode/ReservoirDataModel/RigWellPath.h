@@ -45,6 +45,7 @@ public:
     void                        twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2) const;
     std::vector<cvf::Vec3d>     clippedPointSubset(double startMD, double endMD) const;
 
+    std::vector<cvf::Vec3d>     wellPathPointsIncludingFractureIntersection(double fractureIntersectionMD) const;
 private:
     bool    m_hasDatumElevation;
     double  m_datumElevation;

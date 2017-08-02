@@ -37,7 +37,7 @@ public:
     RimWellPathFracture(void);
     virtual ~RimWellPathFracture(void);
 
-    double                          measuredDepth() const;
+    double                          fractureMD() const override { return m_measuredDepth; }
     void                            setMeasuredDepth(double mdValue);
 
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

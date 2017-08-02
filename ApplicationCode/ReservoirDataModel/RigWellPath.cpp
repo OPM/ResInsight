@@ -229,3 +229,38 @@ std::vector<cvf::Vec3d> RigWellPath::clippedPointSubset(double startMD, double e
     return points;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigWellPath::wellPathPointsIncludingFractureIntersection(double fractureIntersectionMD) const
+{
+    std::vector<cvf::Vec3d> points;
+    if (m_measuredDepths.empty()) return points;
+
+    cvf::Vec3d fractureWellPathPpoint = interpolatedPointAlongWellPath(fractureIntersectionMD);
+
+    for (size_t i = 0; i < m_measuredDepths.size()-1; i++)
+    {
+        if (m_measuredDepths[i] < fractureIntersectionMD)
+        {
+            points.push_back(m_wellPathPoints[i]);
+            if (m_measuredDepths[i + 1] > fractureIntersectionMD)
+            {
+                points.push_back(fractureWellPathPpoint);
+            }
+        }
+        else if (m_measuredDepths[i] < fractureIntersectionMD)
+        {
+            if (i == 0)
+            {
+                points.push_back(fractureWellPathPpoint);
+            }
+            points.push_back(m_wellPathPoints[i]);
+        }
+    }
+    points.push_back(m_wellPathPoints.back());
+
+    return points;
+
+}
+

@@ -46,6 +46,8 @@ public:
 
     double                                          wellAzimuthAtFracturePosition() const override;
     double                                          wellDipAtFracturePosition();
+    double                                          fractureMD() const override { return m_location; }
+
 
     int                                             branchIndex() const { return m_branchIndex(); }
 

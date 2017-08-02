@@ -38,7 +38,7 @@ public:
         int endpointCount;
     };
 
-    RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, const RimFracture * rimFracture);
+    RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, RimFracture * rimFracture);
 
     const std::map<size_t, WellCellIntersection >& intersections() { return m_stimPlanCellIdxToIntersectionInfoMap; }
 
