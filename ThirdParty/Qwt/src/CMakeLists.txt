@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(Qwt)
+find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL)
+include(${QT_USE_FILE})
 
 if (MSVC)
     # Disable some annoying warnings (relative to warning level 3)
