@@ -2168,6 +2168,7 @@ void RiaApplication::waitForProcess() const
 #else
         usleep(100000);
 #endif
+        processEvents();
     }
 }
 
