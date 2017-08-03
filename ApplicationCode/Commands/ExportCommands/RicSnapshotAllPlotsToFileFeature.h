@@ -25,15 +25,20 @@ class RimViewWindow;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicSnapshotViewToClipboardFeature : public caf::CmdFeature
+class RicSnapshotAllPlotsToFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void saveAllPlots();
+
+    static void exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName);
 
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
-
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 };
+
 

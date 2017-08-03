@@ -20,7 +20,7 @@
 
 #include "RicfCommandFileExecutor.h"
 
-#include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
+#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 
 #include "RiaApplication.h"
 

@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "RicSnapshotViewToClipboardFeature.h"
+#include "RicSnapshotViewToFileFeature.h"
 
 #include "RigFemResultPosEnum.h"
 
