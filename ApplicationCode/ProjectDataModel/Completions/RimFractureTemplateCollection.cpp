@@ -126,3 +126,18 @@ void RimFractureTemplateCollection::loadAndUpdateData()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFractureTemplateCollection::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+{
+    for (RimFractureTemplate* f : fractureDefinitions())
+    {
+        RimStimPlanFractureTemplate* stimPlanFracture = dynamic_cast<RimStimPlanFractureTemplate*>(f);
+        if (stimPlanFracture)
+        {
+            stimPlanFracture->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+    }
+}
+

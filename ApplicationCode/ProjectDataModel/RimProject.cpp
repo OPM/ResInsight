@@ -438,6 +438,9 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
         if (oilField->summaryCaseCollection() != NULL) {
             oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
+
+        CVF_ASSERT(oilField->fractureDefinitionCollection());
+        oilField->fractureDefinitionCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
 
 

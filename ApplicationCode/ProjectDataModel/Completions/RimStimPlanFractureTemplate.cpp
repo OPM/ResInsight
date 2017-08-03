@@ -21,16 +21,19 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
+#include "RifStimPlanXmlReader.h"
+
 #include "RigStimPlanFractureDefinition.h"
 #include "RigFractureGrid.h"
 
+#include "RigFractureCell.h"
 #include "RimEclipseView.h"
 #include "RimFracture.h"
+#include "RimFractureContainment.h"
 #include "RimProject.h"
-#include "RigFractureCell.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanLegendConfig.h"
-#include "RimFractureContainment.h"
+#include "RimTools.h"
 
 #include "RivWellFracturePartMgr.h"
 
@@ -46,7 +49,6 @@
 #include <algorithm>
 #include <vector>
 #include <cmath>
-#include "RifStimPlanXmlReader.h"
 
 
 
@@ -178,6 +180,13 @@ QString RimStimPlanFractureTemplate::fileNameWithOutPath()
     return stimplanfileFileInfo.fileName();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStimPlanFractureTemplate::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+{
+    m_stimPlanFileName = RimTools::relocateFile(m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr, nullptr);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

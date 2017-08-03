@@ -62,6 +62,9 @@ public:
     const QString&                          fileName();
     QString                                 fileNameWithOutPath();
 
+    void                                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+
+
     // Fracture geometry
      
     const RigFractureGrid*                  fractureGrid() const;

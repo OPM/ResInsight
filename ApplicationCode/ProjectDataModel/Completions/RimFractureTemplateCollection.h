@@ -48,4 +48,5 @@ public:
     void                                        deleteFractureDefinitions();
     void                                        loadAndUpdateData();
 
+    void                                        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 };
