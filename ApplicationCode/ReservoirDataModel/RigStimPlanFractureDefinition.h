@@ -97,7 +97,7 @@ public:
     std::vector<std::pair<QString, QString> > getStimPlanPropertyNamesUnits() const;
     bool                                      numberOfParameterValuesOK(std::vector<std::vector<double>> propertyValuesAtTimestep);
     size_t                                    totalNumberTimeSteps();
-    void                                      setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue);
+    void                                      setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue, double condScalingFactor);
     const std::vector<std::vector<double>>&   getDataAtTimeIndex(const QString& resultName, const QString& unit, size_t timeStepIndex) const;
     std::vector<double>                       fractureGridResults(const QString& resultName, 
                                                                   const QString& unitName, 

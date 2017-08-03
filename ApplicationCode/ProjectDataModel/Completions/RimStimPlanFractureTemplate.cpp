@@ -72,6 +72,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate(void)
 
     CAF_PDM_InitField(&m_activeTimeStepIndex, "activeTimeStepIndex", 0, "Active TimeStep Index", "", "", "");
     CAF_PDM_InitField(&m_showStimPlanMesh, "showStimPlanMesh", true, "Show StimPlan Mesh", "", "", "");
+    CAF_PDM_InitField(&m_conductivityScalingFactor, "FractureConductivityFactor", 1.0, "Conductivity Scaling Factor", "", "The conductivity values read from file will be scaled with this parameters", "");
 
     m_fractureGrid = new RigFractureGrid();
 }
@@ -121,8 +122,17 @@ void RimStimPlanFractureTemplate::fieldChangedByUi(const caf::PdmFieldHandle* ch
     }
 
 
-    if (&m_wellPathDepthAtFracture == changedField || &m_borderPolygonResultName == changedField || &m_activeTimeStepIndex == changedField || &m_showStimPlanMesh == changedField)
+    if (&m_wellPathDepthAtFracture == changedField 
+        || &m_borderPolygonResultName == changedField 
+        || &m_activeTimeStepIndex == changedField 
+        || &m_showStimPlanMesh == changedField
+        || &m_conductivityScalingFactor == changedField)
     {
+        if (&m_conductivityScalingFactor == changedField)
+        {
+            loadDataAndUpdate();
+        }
+
         RimProject* proj;
         this->firstAncestorOrThisOfType(proj);
         if (proj)
@@ -240,7 +250,7 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
 void RimStimPlanFractureTemplate::loadDataAndUpdate()
 {
     QString errorMessage;
-    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(), &errorMessage);
+    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName(), m_conductivityScalingFactor(), &errorMessage);
     if (errorMessage.size() > 0) RiaLogging::error(errorMessage);
 
     if (m_stimPlanFractureDefinitionData.notNull())
@@ -463,6 +473,7 @@ void RimStimPlanFractureTemplate::defineUiOrdering(QString uiConfigName, caf::Pd
     m_fractureContainment()->defineUiOrdering(uiConfigName, *trGr);
 
     caf::PdmUiGroup* propertyGroup = uiOrdering.addNewGroup("Properties");
+    propertyGroup->add(&m_conductivityScalingFactor);
     propertyGroup->add(&conductivityType);
     propertyGroup->add(&skinFactor);
     propertyGroup->add(&perforationLength);

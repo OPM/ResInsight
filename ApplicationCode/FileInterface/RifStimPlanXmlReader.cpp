@@ -30,7 +30,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFile(const QString& stimPlanFileName, QString * errorMessage)
+cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFile(const QString& stimPlanFileName, 
+                                                                                  double conductivityScalingFactor, 
+                                                                                  QString * errorMessage)
 {
     RiaLogging::info(QString("Starting to open StimPlan XML file: '%1'").arg(stimPlanFileName));
     RiaEclipseUnitTools::UnitSystemType unitSystem = RiaEclipseUnitTools::UNITS_UNKNOWN;
@@ -115,7 +117,7 @@ cvf::ref<RigStimPlanFractureDefinition> RifStimPlanXmlReader::readStimPlanXMLFil
                     return nullptr;
                 }
 
-                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue);
+                stimPlanFileData->setDataAtTimeValue(parameter, unit, propertyValuesAtTimestep, timeStepValue, conductivityScalingFactor);
                
             }
         }

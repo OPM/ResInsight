@@ -517,8 +517,20 @@ size_t RigStimPlanFractureDefinition::resultIndex(const QString& resultName, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue)
+void RigStimPlanFractureDefinition::setDataAtTimeValue(QString resultName, QString unit, std::vector<std::vector<double>> data, double timeStepValue, double condScalingFactor)
 {
+    if (resultName == "CONDUCTIVITY")
+    {
+        for (std::vector<double> &dataAtDepth : data)
+        {
+            for (double &dataValue : dataAtDepth)
+            {
+                dataValue = dataValue * condScalingFactor;
+            }
+        }
+    }
+
+
     size_t resIndex = resultIndex(resultName, unit);
 
     if (resIndex != cvf::UNDEFINED_SIZE_T)

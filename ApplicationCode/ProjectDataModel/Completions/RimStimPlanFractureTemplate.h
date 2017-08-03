@@ -103,6 +103,7 @@ private:
 
     caf::PdmField<QString>                  m_stimPlanFileName;
     cvf::ref<RigStimPlanFractureDefinition> m_stimPlanFractureDefinitionData;
+    caf::PdmField<double>                   m_conductivityScalingFactor;
     cvf::ref<RigFractureGrid>               m_fractureGrid;
 
 };

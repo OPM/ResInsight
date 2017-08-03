@@ -33,7 +33,7 @@ class QXmlStreamReader;
 class RifStimPlanXmlReader
 {
 public:
-    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName, QString * errorMessage);
+    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile(const QString& stimPlanFileName, double conductivityScalingFactor, QString * errorMessage);
 
 private:
     static size_t                           readStimplanGridAndTimesteps(QXmlStreamReader &xmlStream, RigStimPlanFractureDefinition* stimPlanFileData, RiaEclipseUnitTools::UnitSystemType& unit);
