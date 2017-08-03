@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RicfReplaceCase, "replaceCase");
 //--------------------------------------------------------------------------------------------------
 RicfReplaceCase::RicfReplaceCase()
 {
-    RICF_InitField(&m_caseId,        "case",        -1, "Case ID",  "", "", "");
+    RICF_InitField(&m_caseId,        "caseId",      -1, "Case ID",  "", "", "");
     RICF_InitField(&m_newGridFile,   "newGridFile", QString(), "New Grid File",  "", "", "");
 }
 

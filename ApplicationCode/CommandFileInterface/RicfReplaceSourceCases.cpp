@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RicfReplaceSourceCases, "replaceSourceCases");
 //--------------------------------------------------------------------------------------------------
 RicfReplaceSourceCases::RicfReplaceSourceCases()
 {
-    RICF_InitField(&m_caseGroupId,  "group",        -1,        "Group ID",  "", "", "");
+    RICF_InitField(&m_caseGroupId,  "caseGroupId",  -1,        "Case Group ID",  "", "", "");
     RICF_InitField(&m_gridListFile, "gridListFile", QString(), "Grid List File",  "", "", "");
 }
 

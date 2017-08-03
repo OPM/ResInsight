@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT(RicfSetTimeStep, "setTimeStep");
 //--------------------------------------------------------------------------------------------------
 RicfSetTimeStep::RicfSetTimeStep()
 {
-    RICF_InitField(&m_caseId,        "case",      -1, "Case ID",  "", "", "");
+    RICF_InitField(&m_caseId,        "caseId",    -1, "Case ID",  "", "", "");
     RICF_InitField(&m_timeStepIndex, "timeStep",  -1, "Time Step Index",  "", "", "");
 }
 
