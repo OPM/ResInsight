@@ -359,25 +359,3 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivSimWellPipesPartMgr::findGridIndexAndCellIndex(size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
-{
-    CVF_ASSERT(branchIndex < m_wellBranches.size());
-
-    RivPipeBranchData* branchData = pipeBranchData(branchIndex);
-    if (branchData)
-    {
-        size_t segmentIndex = branchData->m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
-
-        *gridIndex = branchData->m_cellIds[segmentIndex].m_gridIndex;
-        *cellIndex = branchData->m_cellIds[segmentIndex].m_gridCellIndex;
-    }
-    else
-    {
-        *gridIndex = cvf::UNDEFINED_SIZE_T;
-        *cellIndex = cvf::UNDEFINED_SIZE_T;
-    }
-}
-
