@@ -648,6 +648,8 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
 
     bool showNncsWithScalarMappedColor = false;
 
+    RimEclipseView* eclipseView = nullptr;
+
     if (cellResultColors)
     {
         size_t scalarSetIndex = cellResultColors->scalarResultIndex();
@@ -656,6 +658,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
         {
             showNncsWithScalarMappedColor = true;
         }
+        eclipseView = cellResultColors->reservoirView();
     }
 
     if (showNncsWithScalarMappedColor)
@@ -673,12 +676,14 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
         {
             // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
+            if (eclipseView) nncEffgen.disableLighting(eclipseView->isLightingDisabled());
             nncEffect = nncEffgen.generateCachedEffect();
         }
         else
         {
             // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_1);
+            if (eclipseView) nncEffgen.disableLighting(eclipseView->isLightingDisabled());
             nncEffect = nncEffgen.generateCachedEffect();
         }
 
