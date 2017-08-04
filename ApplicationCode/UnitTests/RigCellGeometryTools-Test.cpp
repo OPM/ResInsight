@@ -272,6 +272,45 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest)
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
+//Recreating bug...
+{
+    std::vector<cvf::Vec3d> polygonExample;
+
+    polygonExample.push_back(cvf::Vec3d(1.00, 0.00, 0.0));
+    polygonExample.push_back(cvf::Vec3d(0.00, 1.00, 0.0));
+    polygonExample.push_back(cvf::Vec3d(-1.00, 0.00, 0.0));
+    polygonExample.push_back(cvf::Vec3d(0.00, -1.00, 0.0));
+
+
+    std::vector<cvf::Vec3d> polyLine1;
+    polyLine1.push_back(cvf::Vec3d(2.0, 2.0, 0.0));
+    polyLine1.push_back(cvf::Vec3d(0.0, 0.0, 0.0));
+    polyLine1.push_back(cvf::Vec3d(-2.0, -2.0, 0.0));
+
+    std::vector< std::vector<cvf::Vec3d> > clippedLines1 = RigCellGeometryTools::clipPolylineByPolygon(polyLine1,
+                                                                                                       polygonExample,
+                                                                                                       RigCellGeometryTools::INTERPOLATE_LINE_Z);
+
+    EXPECT_EQ(1, clippedLines1.size());
+    EXPECT_EQ(0.0, clippedLines1.front()[0].z());
+
+    std::vector<cvf::Vec3d> polyLine2;
+    polyLine2.push_back(cvf::Vec3d(2.0, 0.0, 0.0));
+    polyLine2.push_back(cvf::Vec3d(0.0, 0.0, 0.0));
+    polyLine2.push_back(cvf::Vec3d(-2.0, 0.0, 0.0));
+
+    std::vector< std::vector<cvf::Vec3d> > clippedLines2 = RigCellGeometryTools::clipPolylineByPolygon(polyLine2,
+                                                                                                       polygonExample,
+                                                                                                       RigCellGeometryTools::INTERPOLATE_LINE_Z);
+    EXPECT_EQ(1, clippedLines2.size());
+    EXPECT_EQ(0.0, clippedLines2.front()[0].z());
+    //Since both the line and the polygon is in the z=0 plane, the expected clipped line should be in this plane
+}
+
 #include "RigWellPathStimplanIntersector.h"
 
 //--------------------------------------------------------------------------------------------------
