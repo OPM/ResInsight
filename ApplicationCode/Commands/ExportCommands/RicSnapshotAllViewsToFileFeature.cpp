@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSnapshotAllPlotsToFileFeature.h"
+#include "RicSnapshotAllViewsToFileFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
@@ -24,11 +24,16 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimViewWindow.h"
+#include "RimView.h"
+#include "RimCase.h"
 
 #include "RicSnapshotViewToFileFeature.h"
 #include "RicSnapshotFilenameGenerator.h"
 
-#include "RiuMainPlotWindow.h"
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+
+#include "RigFemResultPosEnum.h"
 
 #include "cafUtils.h"
 
@@ -41,26 +46,21 @@
 #include <QMessageBox>
 
 
-CAF_CMD_SOURCE_INIT(RicSnapshotAllPlotsToFileFeature, "RicSnapshotAllPlotsToFileFeature");
-
+CAF_CMD_SOURCE_INIT(RicSnapshotAllViewsToFileFeature, "RicSnapshotAllViewsToFileFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
+void RicSnapshotAllViewsToFileFeature::saveAllViews()
 {
     RiaApplication* app = RiaApplication::instance();
-
-    RiuMainPlotWindow* mainPlotWindow = app->mainPlotWindow();
-    if (!mainPlotWindow) return;
-
     RimProject* proj = app->project();
     if (!proj) return;
 
     // Save images in snapshot catalog relative to project directory
     QString snapshotFolderName = app->createAbsolutePathFromProjectRelativePath("snapshots");
 
-    exportSnapshotOfAllPlotsIntoFolder(snapshotFolderName);
+    exportSnapshotOfAllViewsIntoFolder(snapshotFolderName);
 
     QString text = QString("Exported snapshots to folder : \n%1").arg(snapshotFolderName);
     QMessageBox::information(nullptr, "Export Snapshots To Folder", text);
@@ -69,12 +69,14 @@ void RicSnapshotAllPlotsToFileFeature::saveAllPlots()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QString snapshotFolderName)
+void RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(QString snapshotFolderName)
 {
-    RiaApplication* app = RiaApplication::instance();
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd) return;
 
-    RimProject* proj = app->project();
-    if (!proj) return;
+    RimProject* project = RiaApplication::instance()->project();
+
+    if (project == nullptr) return;
 
     QDir snapshotPath(snapshotFolderName);
     if (!snapshotPath.exists())
@@ -84,19 +86,41 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QStrin
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
-    std::vector<RimViewWindow*> viewWindows;
-    proj->mainPlotCollection()->descendantsIncludingThisOfType(viewWindows);
+    RiaLogging::info(QString("Exporting snapshot of all views to %1").arg(snapshotFolderName));
 
-    for (auto viewWindow : viewWindows)
+    std::vector<RimCase*> projectCases;
+    project->allCases(projectCases);
+
+    for (size_t i = 0; i < projectCases.size(); i++)
     {
-        if (viewWindow->isMdiWindow() && viewWindow->viewWidget())
+        RimCase* cas = projectCases[i];
+        if (!cas) continue;
+
+        std::vector<RimView*> views = cas->views();
+
+        for (size_t j = 0; j < views.size(); j++)
         {
-            QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName(viewWindow);
+            RimView* riv = views[j];
 
-            QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-            absoluteFileName.replace(" ", "_");
+            if (riv && riv->viewer())
+            {
+                RiaApplication::instance()->setActiveReservoirView(riv);
 
-            RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, viewWindow);
+                RiuViewer* viewer = riv->viewer();
+                mainWnd->setActiveViewer(viewer->layoutWidget());
+
+                RiaApplication::instance()->clearViewsScheduledForUpdate();
+
+                //riv->updateCurrentTimeStepAndRedraw();
+                riv->createDisplayModelAndRedraw();
+                viewer->repaint();
+
+                QString fileName = RicSnapshotFilenameGenerator::generateSnapshotFileName(riv);
+
+                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
+                
+                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
+            }
         }
     }
 }
@@ -104,7 +128,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
+bool RicSnapshotAllViewsToFileFeature::isCommandEnabled()
 {
     return true;
 }
@@ -112,7 +136,7 @@ bool RicSnapshotAllPlotsToFileFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
+void RicSnapshotAllViewsToFileFeature::onActionTriggered(bool isChecked)
 {
     QWidget* currentActiveWidget = nullptr;
     if (RiaApplication::activeViewWindow())
@@ -120,14 +144,14 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
         currentActiveWidget = RiaApplication::activeViewWindow()->viewWidget();
     }
 
-    RicSnapshotAllPlotsToFileFeature::saveAllPlots();
+    RicSnapshotAllViewsToFileFeature::saveAllViews();
 
     if (currentActiveWidget)
     {
-        RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-        if (mainPlotWindow)
+        RiuMainWindow* mainWindow = RiuMainWindow::instance();
+        if (mainWindow)
         {
-            mainPlotWindow->setActiveViewer(currentActiveWidget);
+            mainWindow->setActiveViewer(currentActiveWidget);
         }
     }
 }
@@ -135,9 +159,9 @@ void RicSnapshotAllPlotsToFileFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotAllPlotsToFileFeature::setupActionLook(QAction* actionToSetup)
+void RicSnapshotAllViewsToFileFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Snapshot All Plots To File");
+    actionToSetup->setText("Snapshot All Views To File");
     actionToSetup->setIcon(QIcon(":/SnapShotSaveViews.png"));
 }
 

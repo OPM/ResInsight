@@ -90,6 +90,7 @@
 #include "RicImportSummaryCaseFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include "RicfCommandFileExecutor.h"
@@ -1575,7 +1576,7 @@ bool RiaApplication::parseArguments()
                 // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder 
                 // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
                 QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath("snapshots");
-                saveSnapshotForAllViews(absolutePathToSnapshotDir);
+                RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir);
 
                 mainWnd->loadWinGeoAndDockToolBarLayout();
             }
@@ -2273,62 +2274,6 @@ bool RiaApplication::openFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
-{
-    RiuMainWindow* mainWnd = RiuMainWindow::instance();
-    if (!mainWnd) return;
-
-    if (m_project.isNull()) return;
-
-    QDir snapshotPath(snapshotFolderName);
-    if (!snapshotPath.exists())
-    {
-        if (!snapshotPath.mkpath(".")) return;
-    }
-
-    const QString absSnapshotPath = snapshotPath.absolutePath();
-
-    std::vector<RimCase*> projectCases;
-    m_project->allCases(projectCases);
-
-    for (size_t i = 0; i < projectCases.size(); i++)
-    {
-        RimCase* cas = projectCases[i];
-        if (!cas) continue;
-
-        std::vector<RimView*> views = cas->views();
-
-        for (size_t j = 0; j < views.size(); j++)
-        {
-            RimView* riv = views[j];
-
-            if (riv && riv->viewer())
-            {
-                setActiveReservoirView(riv);
-
-                RiuViewer* viewer = riv->viewer();
-                mainWnd->setActiveViewer(viewer->layoutWidget());
-
-                clearViewsScheduledForUpdate();
-
-                //riv->updateCurrentTimeStepAndRedraw();
-                riv->createDisplayModelAndRedraw();
-                viewer->repaint();
-
-                QString fileName = cas->caseUserDescription() + "-" + riv->name();
-                fileName = caf::Utils::makeValidFileBasename(fileName);
-
-                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
-                
-                RicSnapshotViewToFileFeature::saveSnapshotAs(absoluteFileName, riv);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
@@ -2347,7 +2292,7 @@ void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileNam
         bool loadOk = loadProject(templateProjectFileName, PLA_NONE, &modifier);
         if (loadOk)
         {
-            saveSnapshotForAllViews(snapshotFolderName);
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(snapshotFolderName);
         }
     }
 
@@ -2492,7 +2437,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
             resizeMaximizedPlotWindows();
 
             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
-            saveSnapshotForAllViews(fullPathGeneratedFolder);
+            RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(fullPathGeneratedFolder);
 
             RicSnapshotAllPlotsToFileFeature::exportSnapshotOfAllPlotsIntoFolder(fullPathGeneratedFolder);
 

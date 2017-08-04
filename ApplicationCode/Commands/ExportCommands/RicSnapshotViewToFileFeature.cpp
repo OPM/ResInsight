@@ -26,6 +26,8 @@
 #include "RimViewWindow.h"
 #include "RiuMainPlotWindow.h"
 
+#include "RicSnapshotFilenameGenerator.h"
+
 #include "cafUtils.h"
 
 #include <QAction>
@@ -51,11 +53,11 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs(const QString& fileName, RimVi
         {
             if (image.save(fileName))
             {
-                qDebug() << "Exported snapshot image to " << fileName;
+                RiaLogging::info(QString("Exported snapshot image to %1").arg(fileName));
             }
             else
             {
-                qDebug() << "Error when trying to export snapshot image to " << fileName;
+                RiaLogging::error(QString("Error when trying to export snapshot image to %1").arg(fileName));
             }
         }
     }
@@ -99,7 +101,7 @@ void RicSnapshotViewToFileFeature::onActionTriggered(bool isChecked)
         startPath = app->lastUsedDialogDirectory("IMAGE_SNAPSHOT");
     }
 
-    startPath += "/image.png";
+    startPath = caf::Utils::constructFullFileName(startPath, RicSnapshotFilenameGenerator::generateSnapshotFileName(viewWindow), ".png");
 
     QString fileName = QFileDialog::getSaveFileName(NULL, tr("Export to File"), startPath);
     if (fileName.isEmpty())

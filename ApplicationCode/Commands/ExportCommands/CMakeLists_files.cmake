@@ -16,6 +16,8 @@ ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSnapshotAllPlotsToFileFeature.h
+${CEE_CURRENT_LIST_DIR}RicSnapshotAllViewsToFileFeature.h
+${CEE_CURRENT_LIST_DIR}RicSnapshotFilenameGenerator.h
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToFileFeature.h
 )
@@ -32,6 +34,8 @@ ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSnapshotAllPlotsToFileFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSnapshotAllViewsToFileFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSnapshotFilenameGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToClipboardFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSnapshotViewToFileFeature.cpp
 )

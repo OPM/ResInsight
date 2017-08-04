@@ -21,6 +21,7 @@
 #include "RicfCommandFileExecutor.h"
 
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
 #include "RiaApplication.h"
 
@@ -65,7 +66,7 @@ void RicfExportSnapshots::execute()
     }
     if (m_type == RicfExportSnapshots::VIEWS || m_type == RicfExportSnapshots::ALL)
     {
-        RiaApplication::instance()->saveSnapshotForAllViews(absolutePathToSnapshotDir);
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir);
     }
     if (m_type == RicfExportSnapshots::PLOTS || m_type == RicfExportSnapshots::ALL)
     {

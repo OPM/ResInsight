@@ -141,7 +141,6 @@ public:
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
-    void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
 
@@ -206,12 +205,12 @@ public:
 
     static std::vector<QString> readFileListFromTextFile(QString listFileName);
 
+    void                    clearViewsScheduledForUpdate();
+
 private:
 
     void                    onProjectOpenedOrClosed();
     void                    setWindowCaptionFromAppState();
-    
-    void                    clearViewsScheduledForUpdate();
 
     void                    createMainPlotWindow();
     void                    deleteMainPlotWindow();
