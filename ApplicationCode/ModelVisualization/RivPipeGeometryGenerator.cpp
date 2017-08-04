@@ -590,7 +590,7 @@ void RivPipeGeometryGenerator::clearComputedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RivPipeGeometryGenerator::pipeSegmentIndexFromTriangleIndex(size_t triangleIndex) const
+size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIndex) const
 {
     size_t segIndex = triangleIndex / (m_crossSectionNodeCount * 2);
 

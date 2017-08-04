@@ -445,7 +445,7 @@ void RivWellPathPartMgr::clearAllBranchData()
 //--------------------------------------------------------------------------------------------------
 size_t RivWellPathPartMgr::segmentIndexFromTriangleIndex(size_t triangleIndex)
 {
-    return m_pipeBranchData.m_pipeGeomGenerator->pipeSegmentIndexFromTriangleIndex(triangleIndex);
+    return m_pipeBranchData.m_pipeGeomGenerator->segmentIndexFromTriangleIndex(triangleIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
