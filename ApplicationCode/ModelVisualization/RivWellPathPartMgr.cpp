@@ -255,7 +255,7 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
                     clippedPoints.push_back(wellPathGeometry->m_wellPathPoints[idx]);
                 }
 
-                pbd.m_pipeGeomGenerator->setFirstSegmentIndex(firstVisibleSegmentIndex);
+                pbd.m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex);
             }
 
             if (clippedPoints.size() < 2) return;
