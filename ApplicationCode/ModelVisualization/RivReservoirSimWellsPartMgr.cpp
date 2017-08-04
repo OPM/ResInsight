@@ -189,14 +189,3 @@ const std::vector< std::vector <cvf::Vec3d> >* RivReservoirSimWellsPartMgr::cent
     return NULL;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivReservoirSimWellsPartMgr::findGridIndexAndCellIndex(size_t wellIdx, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex)
-{
-    if (wellIdx < m_wellPipesPartMgrs.size())
-    {
-        m_wellPipesPartMgrs[wellIdx]->findGridIndexAndCellIndex(branchIndex, triangleIndex, gridIndex, cellIndex);
-    }
-}
-

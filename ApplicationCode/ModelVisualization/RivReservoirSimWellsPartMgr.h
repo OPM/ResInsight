@@ -53,8 +53,6 @@ public:
 
     const std::vector< std::vector <cvf::Vec3d> >*  centerLineOfWellBranches(int wellIdx);
 
-    void findGridIndexAndCellIndex(size_t wellIdx, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex);
-
 private:
     caf::PdmPointer<RimEclipseView>   m_reservoirView;
     cvf::ref<cvf::Transform>            m_scaleTransform; 

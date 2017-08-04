@@ -120,8 +120,6 @@ public:
 
     RigMainGrid*                                    mainGrid() const;
 
-    void                                            findGridIndexAndCellIndex(RimEclipseWell* eclipseWell, size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex);
-
     // Display model generation
 
     virtual void                                    loadDataAndUpdate();
