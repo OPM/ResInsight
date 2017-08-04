@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT(RicfComputeCaseGroupStatistics, "computeCaseGroupStatistics"
 //--------------------------------------------------------------------------------------------------
 RicfComputeCaseGroupStatistics::RicfComputeCaseGroupStatistics()
 {
-    RICF_InitField(&m_caseIds, "cases", std::vector<int>(), "Case IDs",  "", "", "");
+    RICF_InitField(&m_caseIds, "caseIds", std::vector<int>(), "Case IDs",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

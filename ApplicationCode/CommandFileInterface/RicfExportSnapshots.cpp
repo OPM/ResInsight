@@ -20,7 +20,7 @@
 
 #include "RicfCommandFileExecutor.h"
 
-#include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
+#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 
 #include "RiaApplication.h"
 
@@ -46,7 +46,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 RicfExportSnapshots::RicfExportSnapshots()
 {
-    RICF_InitField(&m_type, "type",  RicfExportSnapshots::SnapshotsTypeEnum(), "Type",  "", "", "");
+    RICF_InitField(&m_type, "type", RicfExportSnapshots::SnapshotsTypeEnum(), "Type",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

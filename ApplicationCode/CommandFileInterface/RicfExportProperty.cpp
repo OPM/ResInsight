@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT(RicfExportProperty, "exportProperty");
 //--------------------------------------------------------------------------------------------------
 RicfExportProperty::RicfExportProperty()
 {
-    RICF_InitField(&m_caseId,         "case",           -1,        "Case", "", "", "");
+    RICF_InitField(&m_caseId,         "caseId",         -1,        "Case ID", "", "", "");
     RICF_InitField(&m_timeStepIndex,  "timeStep",       -1,        "Time Step Index", "", "", "");
     RICF_InitField(&m_propertyName,   "property",       QString(), "Property Name", "", "", "");
     RICF_InitField(&m_eclipseKeyword, "eclipseKeyword", QString(), "Eclipse Keyword", "", "", "");

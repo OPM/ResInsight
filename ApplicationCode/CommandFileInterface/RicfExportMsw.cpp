@@ -41,8 +41,8 @@ CAF_PDM_SOURCE_INIT(RicfExportMsw, "exportMsw");
 //--------------------------------------------------------------------------------------------------
 RicfExportMsw::RicfExportMsw()
 {
-    RICF_InitField(&m_caseId,       "case",     -1,        "Case", "", "", "");
-    RICF_InitField(&m_wellPathName, "wellPath", QString(), "Case", "", "", "");
+    RICF_InitField(&m_caseId,       "caseId",   -1,        "Case ID", "", "", "");
+    RICF_InitField(&m_wellPathName, "wellPath", QString(), "Well Path Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

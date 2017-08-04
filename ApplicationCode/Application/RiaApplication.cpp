@@ -90,7 +90,8 @@
 #include "RiuFlowCharacteristicsPlot.h"
 
 #include "RicImportSummaryCaseFeature.h"
-#include "ExportCommands/RicSnapshotViewToClipboardFeature.h"
+#include "ExportCommands/RicSnapshotViewToFileFeature.h"
+#include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include "RicfCommandFileExecutor.h"
@@ -2183,6 +2184,7 @@ void RiaApplication::waitForProcess() const
 #else
         usleep(100000);
 #endif
+        processEvents();
     }
 }
 

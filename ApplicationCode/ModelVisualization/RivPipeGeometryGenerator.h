@@ -63,7 +63,7 @@ public:
     void centerlineTextureCoords(cvf::Vec2fArray* textureCoords, const std::vector<double>& segmentResults, const cvf::ScalarMapper* mapper) const;
 
     void    setFirstVisibleSegmentIndex(size_t segmentIndex);
-    size_t  pipeSegmentIndexFromTriangleIndex(size_t triangleIndex) const;
+    size_t  segmentIndexFromTriangleIndex(size_t triangleIndex) const;
 
     void cylinderWithCenterLineParts(cvf::Collection<cvf::Part>* destinationParts, const std::vector<cvf::Vec3d>& centerCoords, const cvf::Color3f& color, double radius);
 private:

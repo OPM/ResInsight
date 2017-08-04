@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT(RicfExportWellPathCompletions, "exportWellPathCompletions");
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 {
-    RICF_InitField(&m_caseId,                      "case",                        -1,                                                     "Case ID",  "", "", "");
+    RICF_InitField(&m_caseId,                      "caseId",                      -1,                                                     "Case ID",  "", "", "");
     RICF_InitField(&m_timeStep,                    "timeStep",                    -1,                                                     "Time Step Index",  "", "", "");
     RICF_InitField(&m_wellPathNames,               "wellPathNames",               std::vector<QString>(),                                 "Well Path Names",  "", "", "");
     RICF_InitField(&m_wellSelection,               "wellSelection",               RicExportCompletionDataSettingsUi::WellSelectionType(), "Well Selection",  "", "", "");

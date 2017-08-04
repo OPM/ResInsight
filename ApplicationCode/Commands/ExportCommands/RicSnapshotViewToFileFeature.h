@@ -25,15 +25,16 @@ class RimViewWindow;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicSnapshotViewToClipboardFeature : public caf::CmdFeature
+class RicSnapshotViewToFileFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void saveSnapshotAs(const QString& fileName, RimViewWindow* viewWindow);
 
 protected:
     // Overrides
     virtual bool isCommandEnabled() override;
-    virtual void onActionTriggered( bool isChecked ) override;
-    virtual void setupActionLook( QAction* actionToSetup ) override;
-
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 };
-
