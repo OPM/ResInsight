@@ -18,6 +18,7 @@
 
 #include "RimFractureTemplateCollection.h"
 
+#include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplate.h"
 #include "RimStimPlanFractureTemplate.h"
 
@@ -137,6 +138,12 @@ void RimFractureTemplateCollection::updateFilePathsFromProjectPath(const QString
         if (stimPlanFracture)
         {
             stimPlanFracture->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+
+        RimEllipseFractureTemplate* ellipseFracture = dynamic_cast<RimEllipseFractureTemplate*>(f);
+        if (ellipseFracture)
+        {
+            ellipseFracture->loadDataAndUpdate();
         }
     }
 }

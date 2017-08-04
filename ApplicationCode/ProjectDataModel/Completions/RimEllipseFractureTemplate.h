@@ -52,6 +52,8 @@ public:
     caf::PdmField<float>     width;
     caf::PdmField<float>     permeability;
     
+    void                            loadDataAndUpdate();
+
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     
     void                            fractureTriangleGeometry(std::vector<cvf::Vec3f>* nodeCoords, 
@@ -68,5 +70,4 @@ protected:
 private:
     void                             setupFractureGridCells();
     cvf::ref<RigFractureGrid>        m_fractureGrid;
-
 };

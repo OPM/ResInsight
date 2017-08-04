@@ -65,6 +65,13 @@ RimEllipseFractureTemplate::~RimEllipseFractureTemplate()
 {
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEllipseFractureTemplate::loadDataAndUpdate()
+{
+    setupFractureGridCells();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -138,7 +145,6 @@ void RimEllipseFractureTemplate::fractureTriangleGeometry(std::vector<cvf::Vec3f
         RiaLogging::error(QString("Error: Could not convert units for fracture / fracture template"));
         return;
     }
-
 
     tesselator.tesselateEllipsis(a, b, triangleIndices, nodeCoords);
 }
@@ -277,10 +283,7 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
     m_fractureGrid->setWellCenterFractureCellIJ(wellCenterFractureCellIJ);
     m_fractureGrid->setICellCount(numberOfCellsX);
     m_fractureGrid->setJCellCount(numberOfCellsY);
-
-
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
