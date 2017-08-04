@@ -370,7 +370,7 @@ void RivSimWellPipesPartMgr::findGridIndexAndCellIndex(size_t branchIndex, size_
     RivPipeBranchData* branchData = pipeBranchData(branchIndex);
     if (branchData)
     {
-        size_t resultIndex = branchData->m_pipeGeomGenerator->pipeResultIndexFromTriangleIndex(triangleIndex);
+        size_t resultIndex = branchData->m_pipeGeomGenerator->pipeSegmentIndexFromTriangleIndex(triangleIndex);
 
         *gridIndex = branchData->m_cellIds[resultIndex].m_gridIndex;
         *cellIndex = branchData->m_cellIds[resultIndex].m_gridCellIndex;

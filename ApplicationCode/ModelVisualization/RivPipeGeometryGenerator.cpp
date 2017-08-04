@@ -38,7 +38,7 @@ RivPipeGeometryGenerator::RivPipeGeometryGenerator()
     m_crossSectionNodeCount = 8;
     m_minimumBendAngle = 80.0;
     m_bendScalingFactor = 0.00001;
-    m_firstSegmentIndex = 0;
+    m_firstVisibleSegmentIndex = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,31 +590,22 @@ void RivPipeGeometryGenerator::clearComputedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RivPipeGeometryGenerator::segmentIndexFromTriangleIndex(size_t triangleIndex) const
+size_t RivPipeGeometryGenerator::pipeSegmentIndexFromTriangleIndex(size_t triangleIndex) const
 {
-    size_t filteredIndex = triangleIndex / (m_crossSectionNodeCount * 2);
+    size_t segIndex = triangleIndex / (m_crossSectionNodeCount * 2);
 
-    return filteredIndex + m_firstSegmentIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RivPipeGeometryGenerator::pipeResultIndexFromTriangleIndex(size_t triangleIndex) const
-{
-    size_t segIndex = segmentIndexFromTriangleIndex(triangleIndex);
-
+    CVF_ASSERT(segIndex < m_filteredPipeSegmentToResult.size());
     size_t resultIndex = m_filteredPipeSegmentToResult[segIndex];
 
-    return resultIndex;
+    return resultIndex + m_firstVisibleSegmentIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Well pipes are clipped, set index to first segment in visible well path
 //--------------------------------------------------------------------------------------------------
-void RivPipeGeometryGenerator::setFirstSegmentIndex(size_t segmentIndex)
+void RivPipeGeometryGenerator::setFirstVisibleSegmentIndex(size_t segmentIndex)
 {
-    m_firstSegmentIndex = segmentIndex;
+    m_firstVisibleSegmentIndex = segmentIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
