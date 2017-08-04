@@ -46,6 +46,7 @@ ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.h
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.h
+${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.h
 
 
 
@@ -101,6 +102,7 @@ ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.cpp
 
 
 

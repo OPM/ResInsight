@@ -18,6 +18,8 @@
 
 #include "RicNewWellPathFractureFeature.h"
 
+#include "RicFractureNameGenerator.h"
+
 #include "RiaApplication.h"
 
 #include "RigWellPath.h"
@@ -70,11 +72,7 @@ void RicNewWellPathFractureFeature::addFracture(RimWellPath* wellPath, double me
     fractureCollection->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
 
-    std::vector<RimFracture* > oldFractures;
-    oilfield->descendantsIncludingThisOfType(oldFractures);
-    QString fracNum = QString("%1").arg(oldFractures.size(), 2, 10, QChar('0'));
-
-    fracture->setName(QString("Fracture_") + fracNum);
+    fracture->setName(RicFractureNameGenerator::nameForNewFracture());
 
     if (oilfield->fractureDefinitionCollection->fractureDefinitions.size() > 0)
     {

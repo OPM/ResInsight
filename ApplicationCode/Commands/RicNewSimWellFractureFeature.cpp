@@ -18,6 +18,8 @@
 
 #include "RicNewSimWellFractureFeature.h"
 
+#include "RicFractureNameGenerator.h"
+
 #include "RiaApplication.h"
 #include "RigEclipseCaseData.h"
 
@@ -64,11 +66,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     objHandle->firstAncestorOrThisOfType(oilfield);
     if (!oilfield) return;
 
-    std::vector<RimFracture* > oldFractures;
-    oilfield->descendantsIncludingThisOfType(oldFractures);
-    QString fracNum = QString("%1").arg(oldFractures.size(), 2, 10, QChar('0'));
-
-    fracture->setName(QString("Fracture_") + fracNum);
+    fracture->setName(RicFractureNameGenerator::nameForNewFracture());
 
     {
         RimEclipseResultCase* eclipseCase = nullptr;
