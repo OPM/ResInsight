@@ -87,7 +87,7 @@ void getSelectedCells(int32NDArray& selectedCellInfo, const QString &hostName, q
 DEFUN_DLD (riGetSelectedCells, args, nargout,
            "Usage:\n"
            "\n"
-           "  Matrix[numSelectedCells][5] riGetSelectedCells()\n"
+           "  Matrix[numSelectedCells][5] riGetSelectedCells([CaseId])\n"
            "\n"
            "This function returns a two dimensional matrix containing cell info for each selected cell.\n"
            "The columns contain the following information:\n"
