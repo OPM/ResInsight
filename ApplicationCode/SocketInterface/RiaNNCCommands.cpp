@@ -214,3 +214,74 @@ public:
 };
 
 static bool RiaGetStaticNNCValues_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetStaticNNCValues>(RiaGetStaticNNCValues::commandName());
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetNNCPropertyNames: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetNNCPropertyNames"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+
+        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()))
+        {
+            // No data available
+            socketStream << (quint64)0;
+            return true;
+        }
+
+        RigNNCData* nncData = rimCase->eclipseCaseData()->mainGrid()->nncData();
+
+        std::vector<QString> propertyTypes;
+        std::vector<QString> propertyNames;
+
+        std::vector<RigNNCData::NNCResultType> resultTypes;
+        std::vector<QString> resultTypeNames;
+
+        resultTypes.push_back(RigNNCData::NNC_DYNAMIC);
+        resultTypeNames.push_back("DynamicNative");
+        resultTypes.push_back(RigNNCData::NNC_STATIC);
+        resultTypeNames.push_back("StaticNative");
+        resultTypes.push_back(RigNNCData::NNC_GENERATED);
+        resultTypeNames.push_back("Generated");
+
+        for (size_t rtIdx = 0; rtIdx < resultTypes.size(); ++rtIdx)
+        {
+            std::vector<QString> availableParameters = nncData->availableProperties(resultTypes[rtIdx]);
+
+            for (const QString& parameter : availableParameters)
+            {
+                propertyNames.push_back(parameter);
+                propertyTypes.push_back(resultTypeNames[rtIdx]);
+            }
+        }
+
+        qint64 byteCount = 0;
+
+        for (size_t ptIdx = 0; ptIdx < propertyNames.size(); ++ptIdx)
+        {
+            byteCount += propertyNames[ptIdx].size() * sizeof(QChar);
+            byteCount += propertyTypes[ptIdx].size() * sizeof(QChar);
+        }
+
+        // Byte count
+        socketStream << byteCount;
+
+        // Parameter count
+        socketStream << (quint64)propertyNames.size();
+
+        for (size_t ptIdx = 0; ptIdx < propertyNames.size(); ++ptIdx)
+        {
+            socketStream << propertyNames[ptIdx];
+            socketStream << propertyTypes[ptIdx];
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetNNCPropertyNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetNNCPropertyNames>(RiaGetNNCPropertyNames::commandName());

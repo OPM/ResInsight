@@ -58,6 +58,13 @@ public:
 class RigNNCData : public cvf::Object
 {
 public:
+    enum NNCResultType
+    {
+        NNC_DYNAMIC,
+        NNC_STATIC,
+        NNC_GENERATED
+    };
+
     static QString propertyNameFluxWat()           { return "FLRWAT"; }
     static QString propertyNameFluxOil()           { return "FLROIL"; }
     static QString propertyNameFluxGas()           { return "FLRGAS"; }
@@ -81,6 +88,8 @@ public:
     const std::vector<double>*                dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const;
     const std::vector< std::vector<double> >* dynamicConnectionScalarResultByName(const QString& nncDataType) const;
     const std::vector<double>*                dynamicConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const;
+
+    std::vector<QString>                      availableProperties(NNCResultType resultType) const;
 
     void setScalarResultIndex(const QString& nncDataType, size_t scalarResultIndex);
 

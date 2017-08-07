@@ -296,6 +296,28 @@ const std::vector<double>* RigNNCData::dynamicConnectionScalarResultByName(const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RigNNCData::availableProperties(NNCResultType resultType) const
+{
+    std::vector<QString> properties;
+
+    for (auto it : m_connectionResults)
+    {
+        if (resultType == NNC_STATIC && it.second.size() == 1 && it.second[0].size() > 0)
+        {
+            properties.push_back(it.first);
+        }
+        else if (resultType == NNC_DYNAMIC && it.second.size() > 1 && it.second[0].size() > 0)
+        {
+            properties.push_back(it.first);
+        }
+    }
+    
+    return properties;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigNNCData::setScalarResultIndex(const QString& nncDataType, size_t scalarResultIndex)
 {
     m_resultIndexToNNCDataType[scalarResultIndex] = nncDataType;
