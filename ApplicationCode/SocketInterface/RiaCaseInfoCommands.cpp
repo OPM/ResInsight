@@ -627,11 +627,11 @@ public:
 
             if (caseId == reservoirCase->caseId)
             {
-                caseNumber.push_back(caseId);
-                gridNumber.push_back(gridIndex);
-                cellI.push_back(i + 1);
-                cellJ.push_back(j + 1);
-                cellK.push_back(k + 1);
+                caseNumber.push_back(static_cast<int>(caseId));
+                gridNumber.push_back(static_cast<int>(gridIndex));
+                cellI.push_back(static_cast<int>(i + 1));
+                cellJ.push_back(static_cast<int>(j + 1));
+                cellK.push_back(static_cast<int>(k + 1));
             }
         }
     }
