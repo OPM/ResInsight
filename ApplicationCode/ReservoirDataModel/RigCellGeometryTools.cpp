@@ -344,6 +344,10 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
                                                                                   const std::vector<cvf::Vec3d>& polygon, 
                                                                                   ZInterpolationType interpolType)
 {
+
+    //Adjusting polygon to avoid clipper issue with interpolating z-values when lines crosses though polygon vertecies
+    std::vector<cvf::Vec3d> adjustedPolygon = ajustPolygonToAvoidIntersectionsAtVertex(polyLine, polygon);
+
     int polygonScaleFactor = 10000; //For transform to clipper int 
 
     //Convert to int for clipper library and store as clipper "path"
@@ -354,7 +358,7 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
     }
 
     ClipperLib::Path polygonPath;
-    for (const cvf::Vec3d& v : polygon)
+    for (const cvf::Vec3d& v : adjustedPolygon)
     {
         ClipperLib::IntPoint intp = toClipperPoint(v);
         intp.Z = std::numeric_limits<int>::max();
@@ -446,3 +450,44 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine(std::pair<cvf::Vec3d, c
     double length = lineBoundingBox.extent().length();
     return length;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAtVertex(const std::vector<cvf::Vec3d>& polyLine, 
+                                                                                       const std::vector<cvf::Vec3d>& polygon)
+{
+    std::vector<cvf::Vec3d> adjustedPolygon; 
+
+    double treshold =  (1.0 / 10000.0) * 5; //5 times polygonScaleFactor for converting to int for clipper
+
+    for (cvf::Vec3d polygonPoint : polygon)
+    {
+        
+        for (int i = 0; i < polyLine.size() - 1; i++)
+        {
+            cvf::Vec3d linePoint1(polyLine[i].x(), polyLine[i].y(), 0.0);
+            cvf::Vec3d linePoint2(polyLine[i + 1].x(), polyLine[i + 1].y(), 0.0);
+
+            double pointDistanceFromLine = cvf::GeometryTools::linePointSquareDist(linePoint1, linePoint2, polygonPoint);
+            if (pointDistanceFromLine < treshold)
+            {
+                //calculate new polygonPoint
+                cvf::Vec3d directionOfLineSegment = linePoint2 - linePoint1;
+                //finding normal to the direction of the line segment in the XY plane (z=0)
+                cvf::Vec3d normalToLine(-directionOfLineSegment.y(), directionOfLineSegment.x(), 0.0);
+                normalToLine.normalize();
+                polygonPoint = polygonPoint + normalToLine * 0.005;
+            }
+        }
+        adjustedPolygon.push_back(polygonPoint);
+    }
+    
+    return adjustedPolygon;
+}
+
+
+
+
+
+

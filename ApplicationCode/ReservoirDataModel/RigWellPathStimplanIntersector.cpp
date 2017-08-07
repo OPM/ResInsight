@@ -67,7 +67,9 @@ void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d &fractureXf,
     // Clip well path to fracture domain 
 
     std::vector<std::vector<cvf::Vec3d> > wellPathPartsWithinFracture =
-        RigCellGeometryTools::clipPolylineByPolygon(fractureRelativeWellPathPoints, perforationLengthBoundingBoxPolygon, RigCellGeometryTools::INTERPOLATE_LINE_Z);
+        RigCellGeometryTools::clipPolylineByPolygon(fractureRelativeWellPathPoints, 
+                                                    perforationLengthBoundingBoxPolygon, 
+                                                    RigCellGeometryTools::INTERPOLATE_LINE_Z);
 
     // Remove the part of the well path that is more than well radius away from the fracture plane
 
