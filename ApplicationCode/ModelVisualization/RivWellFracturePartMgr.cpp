@@ -140,7 +140,7 @@ void RivWellFracturePartMgr::generateContainmentMaskPart(const RimEclipseView* a
     {
         if (!m_rimFracture->isEclipseCellWithinContainment(activeView->mainGrid(), resCellIdx))
         {
-            // Calculat Eclipse cell intersection with fracture plane 
+            // Calculate Eclipse cell intersection with fracture plane 
 
             std::array<cvf::Vec3d,8> corners; 
             activeView->mainGrid()->cellCornerVertices(resCellIdx, corners.data());   

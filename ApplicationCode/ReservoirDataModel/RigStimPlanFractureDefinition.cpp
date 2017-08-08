@@ -358,7 +358,12 @@ void sortPolygon(std::vector<cvf::Vec3f> &polygon)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolygon(const QString& resultName, const QString& resultUnit, int m_activeTimeStepIndex, double m_wellPathDepthAtFracture, RiaEclipseUnitTools::UnitSystem neededUnit, const QString& fractureUserName)
+std::vector<cvf::Vec3f> RigStimPlanFractureDefinition::createFractureBorderPolygon(const QString& resultName, 
+                                                                                   const QString& resultUnit, 
+                                                                                   int m_activeTimeStepIndex, 
+                                                                                   double m_wellPathDepthAtFracture, 
+                                                                                   RiaEclipseUnitTools::UnitSystem neededUnit, 
+                                                                                   const QString& fractureUserName)
 {
     std::vector<cvf::Vec3f> polygon;
 
