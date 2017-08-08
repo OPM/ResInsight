@@ -91,9 +91,7 @@ else()
 
     # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
     SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
-    SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
 
     # Remember original state
     set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
