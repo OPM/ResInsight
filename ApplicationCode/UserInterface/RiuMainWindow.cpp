@@ -58,6 +58,8 @@
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
+#include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+
 #include "cvfTimer.h"
 
 #include <QAction>
@@ -1271,7 +1273,7 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
 
     // Save images in snapshot catalog relative to project directory
     QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath("snapshots");
-    app->saveSnapshotForAllViews(absolutePathToSnapshotDir);
+    RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir);
 }
 
 //--------------------------------------------------------------------------------------------------

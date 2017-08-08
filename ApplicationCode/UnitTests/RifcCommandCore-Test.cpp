@@ -117,6 +117,12 @@ TEST(RicfCommands, ErrorMessages)
 
     EXPECT_EQ((size_t)2, objects.size());
     EXPECT_EQ((size_t)5, errors.m_messages.size());
+    // Errors should be:
+    // Line 1 : TesCommand1 does not exist
+    // Line 2 : Unreadable value for argument IntArgument
+    // Line 3 : Can't find = after argument named TextA (space withing argument name)
+    // Line 4 : Can't find = after argument named DoubleArgument
+    // Line 5 : Missing quotes around TextArgument value
 
     for (const auto& msg: errors.m_messages)
     {
@@ -133,6 +139,28 @@ TEST(RicfCommands, ErrorMessages)
     }
 
     for (auto obj: objects)
+    {
+        delete(obj);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RicfCommands, EmptyArgumentList)
+{
+    // Ensure no error messages when command with no arguments is read
+    QString commandString("TestCommand1()");
+
+    QTextStream inputStream(&commandString);
+    RicfMessages errors;
+
+    auto objects = RicfCommandFileReader::readCommands(inputStream, caf::PdmDefaultObjectFactory::instance(), &errors);
+
+    EXPECT_EQ((size_t)1, objects.size());
+    EXPECT_EQ((size_t)0, errors.m_messages.size());
+
+    for (auto obj : objects)
     {
         delete(obj);
     }

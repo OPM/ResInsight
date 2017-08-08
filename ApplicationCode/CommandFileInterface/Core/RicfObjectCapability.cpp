@@ -55,45 +55,55 @@ void RicfObjectCapability::readFields(QTextStream& inputStream,
     while ( !inputStream.atEnd() && !isLastArgumentRead )
     {
         // Read field keyword
-        bool fieldDataFound = true;
+        bool fieldDataFound = false;
         bool isEndOfArgumentFound = false;
         QString keyword;
         {
             errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
-            while ( !inputStream.atEnd() )
             {
                 QChar currentChar;
-                currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
-                if ( currentChar.isSpace() )
+                while (!inputStream.atEnd())
                 {
-                    // Must skip to, and read "="
-
-                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
                     currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
 
-                    if ( currentChar != QChar('=') )
+                    if (currentChar == QChar('=') || currentChar == QChar(')') || currentChar == QChar(',') || currentChar.isSpace())
                     {
-                        // Error message: Missing "=" after argument name
-                        errorMessageContainer->addError("Can't find the '=' after the argument  named: \"" + keyword + "\" in the command: \"" + errorMessageContainer->currentCommand + "\"" ); 
-                        fieldDataFound = false;
-                        if (currentChar == QChar(')') )
-                        {
-                            isLastArgumentRead = true;
-                        }
-                        else if (currentChar == QChar(',') )
-                        {
-                            isEndOfArgumentFound = true;
-                        }
+                        break;
                     }
-                    break;
+                    else
+                    {
+                        keyword += currentChar;
+                    }
+
                 }
 
-                if ( currentChar == QChar('=') )
+                if (currentChar.isSpace())
                 {
-                    break;
+                    errorMessageContainer->skipWhiteSpaceWithLineNumberCount(inputStream);
+                    currentChar = errorMessageContainer->readCharWithLineNumberCount(inputStream);
                 }
 
-                keyword += currentChar;
+                if (currentChar == QChar('='))
+                {
+                    fieldDataFound = true;
+                }
+                else if (currentChar == QChar(')'))
+                {
+                    if (!keyword.isNull())
+                    {
+                        errorMessageContainer->addError(QString("Can't find the '=' after the argument named '%1' in the command '%2'").arg(keyword).arg(errorMessageContainer->currentCommand));
+                    }
+                    isLastArgumentRead = true;
+                }
+                else if (currentChar == QChar(','))
+                {
+                    errorMessageContainer->addError(QString("Can't find the '=' after the argument named '%1' in the command '%2'").arg(keyword).arg(errorMessageContainer->currentCommand));
+                    isEndOfArgumentFound = true;
+                }
+                else
+                {
+                    errorMessageContainer->addError(QString("Can't find the '=' after the argument named '%1' in the command '%2'").arg(keyword).arg(errorMessageContainer->currentCommand));
+                }
             }
 
             if ( readFields.count(keyword) )

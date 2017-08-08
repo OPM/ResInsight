@@ -160,6 +160,7 @@ private:
                                                                                const RicExportCompletionDataSettingsUi& settings);
     static void                                  printCompletionsToFile(const QString& exportFolder, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType);
     static std::vector<RigCompletionData>        getCompletionsForWellAndCompletionType(const std::vector<RigCompletionData>& completions, const QString& wellName, RigCompletionData::CompletionType completionType);
+    static std::map<IJKCellIndex, std::vector<RigCompletionData> > getCompletionsForWell(const std::map<IJKCellIndex, std::vector<RigCompletionData>>& cellToCompletionMap, const QString& wellName);
 
     static void                                  generateCompdatTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);
     static void                                  generateWpimultTable(RifEclipseDataTableFormatter& formatter, const std::vector<RigCompletionData>& completionData);

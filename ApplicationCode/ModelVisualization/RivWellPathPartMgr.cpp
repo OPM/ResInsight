@@ -272,12 +272,28 @@ void RivWellPathPartMgr::buildWellPathParts(const caf::DisplayCoordTransform* di
 
             if (firstVisibleSegmentIndex != cvf::UNDEFINED_SIZE_T)
             {
+                if (firstVisibleSegmentIndex > 0)
+                {
+                    double wellPathStartPoint = wellPathClipBoundingBox.max().z() + wellPathCollection->wellPathClipZDistance;
+                    double stepsize = (wellPathStartPoint - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1].z()) / 
+                                      (wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex].z() - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1].z());
+
+                    cvf::Vec3d newPoint = wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1] +
+                                          stepsize * (wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex] - wellPathGeometry->m_wellPathPoints[firstVisibleSegmentIndex - 1]);
+
+                    clippedPoints.push_back(newPoint);
+                    pbd.m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex - 1);
+                }
+                else
+                {
+                    pbd.m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex);
+                }
+
                 for (size_t idx = firstVisibleSegmentIndex; idx < wellPathGeometry->m_wellPathPoints.size(); idx++)
                 {
                     clippedPoints.push_back(wellPathGeometry->m_wellPathPoints[idx]);
                 }
 
-                pbd.m_pipeGeomGenerator->setFirstVisibleSegmentIndex(firstVisibleSegmentIndex);
             }
 
             if (clippedPoints.size() < 2) return;
