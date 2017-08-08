@@ -180,37 +180,43 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 # 
 # HDF5  
 #
-option(RESINSIGHT_ENABLE_HDF5 "Use HDF5" OFF)
-if(RESINSIGHT_ENABLE_HDF5)
-    if(MSVC)
-        # Must specyfy libraries manually
-        # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
+if(MSVC)
+    # Must specyfy libraries manually
+    # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
 
-        set(RESINSIGHT_HDF5_INCLUDE_DIR "" CACHE PATH "Path to HDF5 includes")
-        set(RESINSIGHT_HDF5_LIBRARY_DIR "" CACHE PATH "Path to HDF5 libraries")
+    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
+    if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
         
-        include_directories(${RESINSIGHT_HDF5_INCLUDE_DIR})
+        include_directories(${RESINSIGHT_HDF5_DIR}/include)
         
-		list(APPEND THIRD_PARTY_LIBRARIES
+	    list(APPEND THIRD_PARTY_LIBRARIES
             # libzlib.lib is not included here, as it is linked implicitly by Qt
 		    
-            ${RESINSIGHT_HDF5_LIBRARY_DIR}/libhdf5.lib
-		    ${RESINSIGHT_HDF5_LIBRARY_DIR}/libhdf5_cpp.lib
-		    ${RESINSIGHT_HDF5_LIBRARY_DIR}/libszip.lib
-		)
-    else()
-	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-        find_package(HDF5 REQUIRED COMPONENTS CXX)
-        if (HDF5_FOUND)
-		    add_definitions(${HDF5_DEFINITIONS})
-		    include_directories(${HDF5_INCLUDE_DIRS})
+            ${RESINSIGHT_HDF5_DIR}/lib/libhdf5.lib
+		    ${RESINSIGHT_HDF5_DIR}/lib/libhdf5_cpp.lib
+		    ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
+	    )
 
-		    list(APPEND THIRD_PARTY_LIBRARIES
-		        ${HDF5_LIBRARIES}
-		    )
-        endif()
+	    set(RESINSIGHT_USE_HDF5 1)
+	    message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
     endif()
+else()
+	add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+    find_package(HDF5 REQUIRED COMPONENTS CXX)
+    if (HDF5_FOUND)
+		add_definitions(${HDF5_DEFINITIONS})
+		include_directories(${HDF5_INCLUDE_DIRS})
 
+		list(APPEND THIRD_PARTY_LIBRARIES
+		    ${HDF5_LIBRARIES}
+		)
+
+	    set(RESINSIGHT_USE_HDF5 1)
+	    message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+    endif()
+endif()
+
+if (${RESINSIGHT_USE_HDF5})
     list( APPEND CPP_SOURCES
         FileInterface/RifHdf5Reader.h
         FileInterface/RifHdf5Reader.cpp
