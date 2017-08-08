@@ -222,20 +222,16 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
         }
     }
 
-    std::vector<RigCompletionData> completions;
-    //std::map < IJKCellIndex, std::map<QString, RigCompletionData >> combinedCompletionDataPerEclipseCell; 
-    //Should be moved to map instead of vector
-
-    for (auto& data : completionsPerEclipseCell)
-    {
-        completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
-
-    }
-
     const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
     if (exportSettings.fileSplit == RicExportCompletionDataSettingsUi::UNIFIED_FILE)
     {
+        std::vector<RigCompletionData> completions;
+        for (auto& data : completionsPerEclipseCell)
+        {
+            completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
+        }
+
         const QString fileName = QString("UnifiedCompletions_%1").arg(eclipseCaseName);
         printCompletionsToFile(exportSettings.folder, fileName, completions, exportSettings.compdatExport);
     }
@@ -243,6 +239,12 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         for (auto wellPath : usedWellPaths)
         {
+            std::map<IJKCellIndex, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, wellPath->completions()->wellNameForExport());
+            std::vector<RigCompletionData> completions;
+            for (auto& data : filteredWellCompletions)
+            {
+                completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
+            }
             std::vector<RigCompletionData> wellCompletions;
             for (auto completion : completions)
             {
@@ -260,6 +262,12 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     {
         for (auto wellPath : usedWellPaths)
         {
+            std::map<IJKCellIndex, std::vector<RigCompletionData> > filteredWellCompletions = getCompletionsForWell(completionsPerEclipseCell, wellPath->completions()->wellNameForExport());
+            std::vector<RigCompletionData> completions;
+            for (auto& data : filteredWellCompletions)
+            {
+                completions.push_back(combineEclipseCellCompletions(data.second, exportSettings));
+            }
             {
                 std::vector<RigCompletionData> fishbonesCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FISHBONES);
                 QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
@@ -425,6 +433,27 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::getComple
         }
     }
     return filteredCompletions;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<IJKCellIndex, std::vector<RigCompletionData> > RicWellPathExportCompletionDataFeature::getCompletionsForWell(const std::map<IJKCellIndex, std::vector<RigCompletionData>>& cellToCompletionMap, const QString& wellName)
+{
+    std::map<IJKCellIndex, std::vector<RigCompletionData> > wellCompletions;
+
+    for (const auto& it : cellToCompletionMap)
+    {
+        for (auto& completion : it.second)
+        {
+            if (completion.wellName() == wellName)
+            {
+                wellCompletions[it.first].push_back(completion);
+            }
+        }
+    }
+
+    return wellCompletions;
 }
 
 //--------------------------------------------------------------------------------------------------
