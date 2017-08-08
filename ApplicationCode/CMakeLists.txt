@@ -197,7 +197,7 @@ if(MSVC)
 		    ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
 	    )
 
-	    set(RESINSIGHT_USE_HDF5 1 PARENT_SCOPE)
+	    set(RESINSIGHT_USE_HDF5 1)
 	    message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
     endif()
 else()
@@ -211,7 +211,7 @@ else()
 		    ${HDF5_LIBRARIES}
 		)
 
-	    set(RESINSIGHT_USE_HDF5 1 PARENT_SCOPE)
+	    set(RESINSIGHT_USE_HDF5 1)
 	    message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
     endif()
 endif()
@@ -226,6 +226,9 @@ if (${RESINSIGHT_USE_HDF5})
 
 	add_definitions(-DUSE_HDF5)
 endif()
+
+# make variable available to parent scope
+set(RESINSIGHT_USE_HDF5 ${RESINSIGHT_USE_HDF5} PARENT_SCOPE)
 
 #############################################################################
 # Qt specifics: Moc, ui, resources
