@@ -215,30 +215,32 @@ set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
 
-install(TARGETS ecl
-        EXPORT  ecl-config
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY include/
-        DESTINATION include
-        PATTERN *.h
-)
-install(DIRECTORY include/
-        DESTINATION include
-        PATTERN *.hpp EXCLUDE
-)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
-        DESTINATION include
-        PATTERN *.h
-)
-
-if (ERT_BUILD_CXX)
+if (INSTALL_ERT)
+    install(TARGETS ecl
+            EXPORT  ecl-config
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     install(DIRECTORY include/
             DESTINATION include
-            PATTERN *.hpp
-)
-endif ()
+            PATTERN *.h
+    )
+    install(DIRECTORY include/
+            DESTINATION include
+            PATTERN *.hpp EXCLUDE
+    )
+    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
+            DESTINATION include
+            PATTERN *.h
+    )
+
+    if (ERT_BUILD_CXX)
+        install(DIRECTORY include/
+                DESTINATION include
+                PATTERN *.hpp
+    )
+    endif ()
+endif()
 
 if (NOT BUILD_TESTS)
     return ()
