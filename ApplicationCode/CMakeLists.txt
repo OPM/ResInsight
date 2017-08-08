@@ -197,7 +197,7 @@ if(MSVC)
 		    ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
 	    )
 
-	    set(RESINSIGHT_USE_HDF5 1)
+	    set(RESINSIGHT_USE_HDF5 1 PARENT_SCOPE)
 	    message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
     endif()
 else()
@@ -211,7 +211,7 @@ else()
 		    ${HDF5_LIBRARIES}
 		)
 
-	    set(RESINSIGHT_USE_HDF5 1)
+	    set(RESINSIGHT_USE_HDF5 1 PARENT_SCOPE)
 	    message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
     endif()
 endif()
