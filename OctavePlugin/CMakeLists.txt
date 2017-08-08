@@ -32,6 +32,7 @@ set(CPP_SOURCES
     riGetWellNames.cpp
     riGetWellStatus.cpp
     riGetWellCells.cpp
+    riSetNNCProperty.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -202,6 +203,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riSetNNCProperty.oct"
       SOURCES
       ${CPP_SOURCES}
       riSettings.h 

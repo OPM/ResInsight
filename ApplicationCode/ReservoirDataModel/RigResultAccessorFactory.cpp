@@ -161,6 +161,19 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
         return cellFaceAccessObject;
     }
+    else if (uiResultName.endsWith("IJK"))
+    {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+        QString baseName = uiResultName.left(uiResultName.size() - 3);
+
+        cvf::ref<RigResultAccessor> iAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("%1I").arg(baseName));
+        cvf::ref<RigResultAccessor> jAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("%1J").arg(baseName));
+        cvf::ref<RigResultAccessor> kAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("%1K").arg(baseName));
+
+        cellFaceAccessObject->setTransResultAccessors(iAccessor.p(), jAccessor.p(), kAccessor.p());
+
+        return cellFaceAccessObject;
+    }
 
     return RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
 }

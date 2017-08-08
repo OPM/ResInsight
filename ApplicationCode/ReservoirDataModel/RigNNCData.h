@@ -83,11 +83,22 @@ public:
     std::vector<double>&                      makeStaticConnectionScalarResult(QString nncDataType);
     const std::vector<double>*                staticConnectionScalarResult(size_t scalarResultIndex) const;
     const std::vector<double>*                staticConnectionScalarResultByName(const QString& nncDataType) const;
+
     std::vector< std::vector<double> >&       makeDynamicConnectionScalarResult(QString nncDataType, size_t timeStepCount);
     const std::vector< std::vector<double> >* dynamicConnectionScalarResult(size_t scalarResultIndex) const;
     const std::vector<double>*                dynamicConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const;
     const std::vector< std::vector<double> >* dynamicConnectionScalarResultByName(const QString& nncDataType) const;
     const std::vector<double>*                dynamicConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const;
+
+    std::vector< std::vector<double> >&       makeGeneratedConnectionScalarResult(QString nncDataType, size_t timeStepCount);
+    const std::vector< std::vector<double> >* generatedConnectionScalarResult(size_t scalarResultIndex) const;
+    const std::vector<double>*                generatedConnectionScalarResult(size_t scalarResultIndex, size_t timeStep) const;
+    std::vector< std::vector<double> >*       generatedConnectionScalarResult(size_t scalarResultIndex);
+    std::vector<double>*                      generatedConnectionScalarResult(size_t scalarResultIndex, size_t timeStep);
+    const std::vector< std::vector<double> >* generatedConnectionScalarResultByName(const QString& nncDataType) const;
+    const std::vector<double>*                generatedConnectionScalarResultByName(const QString& nncDataType, size_t timeStep) const;
+    std::vector< std::vector<double> >*       generatedConnectionScalarResultByName(const QString& nncDataType);
+    std::vector<double>*                      generatedConnectionScalarResultByName(const QString& nncDataType, size_t timeStep);
 
     std::vector<QString>                      availableProperties(NNCResultType resultType) const;
 
@@ -95,12 +106,9 @@ public:
 
     bool hasScalarValues(size_t scalarResultIndex);
 
-private: // This section is possibly not needed
-    //const std::vector<size_t>& findConnectionIndices(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;
-    //typedef std::map<size_t, caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
-    //ConnectionSearchMap m_cellIdxToFaceToConnectionIdxMap;
-
+private:
     const QString getNNCDataTypeFromScalarResultIndex(size_t scalarResultIndex) const;
+    bool          isNative(QString nncDataType) const;
 
 private:
     std::vector<RigConnection>                                 m_connections; 

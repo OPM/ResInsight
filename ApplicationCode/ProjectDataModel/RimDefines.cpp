@@ -110,6 +110,10 @@ bool RimDefines::isPerCellFaceResult(const QString& resultName)
     {
         return true;
     }
+    else if (resultName.endsWith("IJK"))
+    {
+        return true;
+    }
 
     return false;
 }

@@ -350,6 +350,15 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "FLRGASK+"));
         statisticsCalculator = calc;
     }
+    else if (resultName.endsWith("IJK"))
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        QString baseName = resultName.left(resultName.size() - 3);
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::GENERATED, QString("%1I").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::GENERATED, QString("%1J").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::GENERATED, QString("%1K").arg(baseName)));
+        statisticsCalculator = calc;
+    }
     else
     {
         statisticsCalculator = new RigEclipseNativeStatCalc(this, scalarResultIndex);

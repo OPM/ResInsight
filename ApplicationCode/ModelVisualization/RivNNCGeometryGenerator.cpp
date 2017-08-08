@@ -164,6 +164,10 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
     {
         nncResultVals = m_nncData->dynamicConnectionScalarResult(scalarResultIndex, timeStepIndex);
     }
+    else if (resultType == RimDefines::GENERATED)
+    {
+        nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, timeStepIndex);
+    }
 
     if (!nncResultVals)
     {
