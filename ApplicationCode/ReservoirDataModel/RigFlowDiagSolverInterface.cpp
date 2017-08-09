@@ -39,7 +39,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
-    : m_activeCellCount(activeCellCount), m_lorenzCoefficient(HUGE_VAL)
+    : m_activeCellCount(activeCellCount)
 {
 
 }
@@ -394,24 +394,46 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
             }
         }
-
-        try
-        {
-            Graph flowCapStorCapCurve =  flowCapacityStorageCapacityCurve(*(injectorSolution.get()),
-                                                                          *(producerSolution.get()),
-                                                                           m_opmFlowDiagStaticData->m_poreVolume,
-                                                                           0.1);
-
-            result.setFlowCapStorageCapCurve(flowCapStorCapCurve);
-            result.setSweepEfficiencyCurve(sweepEfficiency(flowCapStorCapCurve));
-            result.setLorenzCoefficient(lorenzCoefficient(flowCapStorCapCurve));
-        }
-        catch ( const std::exception& e )
-        {
-            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-        }
     }
 
     return result; // Relying on implicit move constructor
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>& injector_tof,
+                                                                                                                    const std::vector<double>& producer_tof,
+                                                                                                                    double max_pv_fraction)
+{
+    using namespace Opm::FlowDiagnostics;
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame result;
+
+    try
+    {
+        Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve(injector_tof,
+                                                                     producer_tof,
+                                                                     m_opmFlowDiagStaticData->m_poreVolume,
+                                                                     max_pv_fraction);
+
+        result.m_flowCapStorageCapCurve = flowCapStorCapCurve;
+        result.m_lorenzCoefficient = lorenzCoefficient(flowCapStorCapCurve);
+        result.m_sweepEfficiencyCurve = sweepEfficiency(flowCapStorCapCurve);
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
+    }
+
+    return result;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame::FlowCharacteristicsResultFrame()
+    : m_lorenzCoefficient(HUGE_VAL)
+{
+
+}

@@ -41,7 +41,6 @@ RigFlowDiagResults::RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t
     m_timeStepCount = timeStepCount;
     m_hasAtemptedNativeResults.resize(timeStepCount, false);
     m_injProdPairFluxCommunicationTimesteps.resize(timeStepCount);
-    m_flowCharResultFrames.resize(timeStepCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,12 +119,6 @@ void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t f
         }
 
         m_injProdPairFluxCommunicationTimesteps[frameIndex].swap(nativeTimestepResults.injProdWellPairFluxes());
-
-        m_flowCharResultFrames[frameIndex].m_lorenzCoefficient = nativeTimestepResults.lorenzCoefficient();
-        m_flowCharResultFrames[frameIndex].m_flowCapStorageCapCurve.first.swap(nativeTimestepResults.flowCapStorageCapCurve().first);
-        m_flowCharResultFrames[frameIndex].m_flowCapStorageCapCurve.second.swap(nativeTimestepResults.flowCapStorageCapCurve().second);
-        m_flowCharResultFrames[frameIndex].m_sweepEfficiencyCurve.first.swap(nativeTimestepResults.sweepEfficiencyCurve().first);
-        m_flowCharResultFrames[frameIndex].m_sweepEfficiencyCurve.second.swap(nativeTimestepResults.sweepEfficiencyCurve().second);
 
         m_hasAtemptedNativeResults[frameIndex] = true;
     }
@@ -679,8 +672,31 @@ std::vector<int> RigFlowDiagResults::calculatedTimeSteps()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagResults::FlowCharacteristicsResultFrame::FlowCharacteristicsResultFrame()
-    : m_lorenzCoefficient(HUGE_VAL)
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(int frameIndex, double max_pv_fraction)
 {
+    std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+    
+    std::set<std::string> injectorNames;
+    std::set<std::string> producerNames;
 
+    for (const QString& tracerName : tracerNames)
+    {
+        RimFlowDiagSolution::TracerStatusType status = m_flowDiagSolution->tracerStatusInTimeStep(tracerName, frameIndex);
+        if (status == RimFlowDiagSolution::INJECTOR)
+        {
+            injectorNames.insert(tracerName.toStdString());
+        }
+        else if (status == RimFlowDiagSolution::PRODUCER)
+        {
+            producerNames.insert(tracerName.toStdString());
+        }
+    }
+
+    RigFlowDiagResultAddress injectorAddress(RIG_FLD_TOF_RESNAME, injectorNames);
+    RigFlowDiagResultAddress producerAddress(RIG_FLD_TOF_RESNAME, producerNames);
+
+    const std::vector<double>* injectorResults = resultValues(injectorAddress, frameIndex);
+    const std::vector<double>* producerResults = resultValues(producerAddress, frameIndex);
+
+    return solverInterface()->calculateFlowCharacteristics(*injectorResults, *producerResults, max_pv_fraction);
 }

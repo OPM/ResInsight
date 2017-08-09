@@ -19,6 +19,8 @@
 
 #include "RigFlowDiagResultAddress.h"
 
+#include "RigFlowDiagSolverInterface.h"
+
 #include "RimFlowDiagSolution.h"
 
 #include "cafPdmPointer.h"
@@ -32,7 +34,6 @@
 
 class RigFlowDiagResultFrames;
 class RigStatisticsDataCache;
-class RigFlowDiagSolverInterface;
 class RigActiveCellInfo;
 
 class RigFlowDiagResults: public cvf::Object
@@ -65,18 +66,8 @@ public:
 
     std::vector<int>                         calculatedTimeSteps();
         
-    struct FlowCharacteristicsResultFrame
-    {
-        FlowCharacteristicsResultFrame();
 
-        using Curve = std::pair< std::vector<double>, std::vector<double> >;
-
-        Curve m_flowCapStorageCapCurve;
-        Curve m_sweepEfficiencyCurve;
-        double m_lorenzCoefficient;
-    };
-
-    const FlowCharacteristicsResultFrame&    flowCharacteristicsResults(int frameIndex) { return m_flowCharResultFrames[frameIndex];}
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex, double max_pv_fraction);
 
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
@@ -133,11 +124,6 @@ private:
 
     using InjectorProducerCommunicationMap = std::map< std::pair<std::string, std::string>, std::pair<double, double> >;
     std::vector<InjectorProducerCommunicationMap> m_injProdPairFluxCommunicationTimesteps;
-
-
-
-    std::vector<FlowCharacteristicsResultFrame> m_flowCharResultFrames;
-
 };
 
 
