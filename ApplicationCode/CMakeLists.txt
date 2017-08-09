@@ -27,7 +27,6 @@ include_directories(
 	${ResInsight_SOURCE_DIR}/ThirdParty
     ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
     ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
-	${ERT_INCLUDE_DIRS}
 
     ${boost-Subset_SOURCE_DIR}
     ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/

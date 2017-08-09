@@ -79,6 +79,8 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
   endif()
 
+    message(FATAL_ERROR "TODO: Building using and external system installed ERT is broken.")
+
   list(APPEND ERT_INCLUDE_DIRS
     ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
   )
@@ -109,25 +111,18 @@ else()
     endif()
 
     if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
-        set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
-        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+        add_subdirectory(${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
     else()
-        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/lib/include)
         add_subdirectory(ThirdParty/Ert)
     endif ()
 
-    list(APPEND ERT_INCLUDE_DIRS
-	${CMAKE_BINARY_DIR}/ThirdParty/Ert/lib/include
-        ${ERT_INCLUDE_ROOT}/
-    )
-
-    list(APPEND ERT_LIBRARIES
-	        ecl 
+    list(APPEND THIRD_PARTY_LIBRARIES
+        ecl 
     )
 
     if (MSVC)
       set_property(TARGET  
-          ${ERT_LIBRARIES}
+          ecl
 	      PROPERTY FOLDER "Thirdparty/ERT"
       )
     endif()
@@ -136,10 +131,6 @@ else()
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
-
-list(APPEND THIRD_PARTY_LIBRARIES
-    ${ERT_LIBRARIES}
-)
 
 
 ################################################################################ 
