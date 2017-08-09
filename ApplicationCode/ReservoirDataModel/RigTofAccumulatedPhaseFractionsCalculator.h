@@ -40,7 +40,12 @@ class RigTofAccumulatedPhaseFractionsCalculator
 public:
     void computeTOFaccumulations();
 
-    void sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, const std::vector<double>* fractionData, std::vector<double>& porvResults, std::vector<double>& swatResults, std::vector<double>& soilResults, std::vector<double>& sgasResults);
+    static void sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, 
+                                             const std::vector<double>* fractionData, 
+                                             const std::vector<double>* porvResults, 
+                                             const std::vector<double>* swatResults, 
+                                             const std::vector<double>* soilResults, 
+                                             const std::vector<double>* sgasResults);
 
 private:
     RimEclipseCase*                             m_case;

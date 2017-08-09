@@ -50,20 +50,22 @@ void RigTofAccumulatedPhaseFractionsCalculator::computeTOFaccumulations()
     size_t scalarResultIndexSgas = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
 
-    std::vector<double>& swatResults = eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSwat, m_timeStep);
-    std::vector<double>& soilResults = eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSoil, m_timeStep);
-    std::vector<double>& sgasResults = eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSgas, m_timeStep);
-    std::vector<double>& porvResults = eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexPorv, m_timeStep);
+    const std::vector<double>* swatResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSwat, m_timeStep));
+    const std::vector<double>* soilResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSoil, m_timeStep));
+    const std::vector<double>* sgasResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSgas, m_timeStep));
+    const std::vector<double>* porvResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexPorv, m_timeStep));
     
     const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
     std::string resultNameTof = "TOF";
-    const std::vector<double>* tofData = m_flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameTof, m_wellName.toStdString()),
-                                                                                                      m_timeStep);
+    const std::vector<double>* tofData = m_flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameTof, 
+                                                                                                                      m_wellName.toStdString()),
+                                                                                             m_timeStep);
     
     std::string resultNameFraction = "Fraction";
-    const std::vector<double>* fractionData = m_flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameFraction, m_wellName.toStdString()),
-                                                                                                      m_timeStep);
+    const std::vector<double>* fractionData = m_flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameFraction, 
+                                                                                                                           m_wellName.toStdString()),
+                                                                                                  m_timeStep);
 
 
     sortTofAndCalculateAccPhaseFraction(tofData, fractionData, porvResults, swatResults, soilResults, sgasResults);
@@ -75,7 +77,12 @@ void RigTofAccumulatedPhaseFractionsCalculator::computeTOFaccumulations()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, const std::vector<double>* fractionData, std::vector<double>& porvResults, std::vector<double>& swatResults, std::vector<double>& soilResults, std::vector<double>& sgasResults)
+void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, 
+                                                                                    const std::vector<double>* fractionData, 
+                                                                                    const std::vector<double>* porvResults, 
+                                                                                    const std::vector<double>* swatResults, 
+                                                                                    const std::vector<double>* soilResults, 
+                                                                                    const std::vector<double>* sgasResults)
 {
     std::map<double, int> tofAndIndexMap;
 
@@ -102,10 +109,10 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
         double tofValue = element.first;
         tofInIncreasingOrder.push_back(tofValue);
 
-        fractionPorvSum += fractionData->at(index) * porvResults[index];
-        fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults[index] * swatResults[index];
-        fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults[index] * soilResults[index];
-        fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults[index] * sgasResults[index];
+        fractionPorvSum += fractionData->at(index) * porvResults->at(index);
+        fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults->at(index) * swatResults->at(index);
+        fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults->at(index) * soilResults->at(index);
+        fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults->at(index) * sgasResults->at(index);
 
         accumulatedPhaseFractionSwat.push_back(fractionPorvPhaseSumSwat / fractionPorvSum);
         accumulatedPhaseFractionSoil.push_back(fractionPorvPhaseSumSoil / fractionPorvSum);

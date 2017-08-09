@@ -23,7 +23,44 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFraction)
+TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFractionTest)
 {
-//TODO
+    std::vector<double> tofDataVector;
+    tofDataVector.push_back(0.001);
+    tofDataVector.push_back(0.1);
+    tofDataVector.push_back(0.01);
+    
+    std::vector<double> fractionDataVector;
+    fractionDataVector.push_back(0.002);
+    fractionDataVector.push_back(0.2);
+    fractionDataVector.push_back(0.02);
+
+    std::vector<double> porvResultVector;
+    porvResultVector.push_back(0.002);
+    porvResultVector.push_back(0.2);
+    porvResultVector.push_back(0.02);
+
+    std::vector<double> swatResultVector;
+    swatResultVector.push_back(0.1);
+    swatResultVector.push_back(0.3);
+    swatResultVector.push_back(0.6);
+
+    std::vector<double> soilResultVector;
+    soilResultVector.push_back(0.3);
+    soilResultVector.push_back(0.6);
+    soilResultVector.push_back(0.1);
+
+    std::vector<double> sgasResultVector;
+    sgasResultVector.push_back(0.6);
+    sgasResultVector.push_back(0.1);
+    sgasResultVector.push_back(0.3);
+
+    RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(&(tofDataVector),
+                                                                                   &(fractionDataVector),
+                                                                                   &(porvResultVector),
+                                                                                   &(swatResultVector),
+                                                                                   &(soilResultVector),
+                                                                                   &(sgasResultVector));
+    
+    EXPECT_EQ(1, 1);
 }
