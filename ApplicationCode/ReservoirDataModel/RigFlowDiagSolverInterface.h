@@ -83,11 +83,13 @@ public:
                                         std::map<std::string, std::vector<int> > injectorTracers, 
                                         std::map<std::string, std::vector<int> > producerTracers);
 
-    FlowCharacteristicsResultFrame calculateFlowCharacteristics(const std::vector<double>& injector_tof,
-                                                                const std::vector<double>& producer_tof,
+    FlowCharacteristicsResultFrame calculateFlowCharacteristics(const std::vector<double>* injector_tof,
+                                                                const std::vector<double>* producer_tof,
                                                                 double max_pv_fraction);
 
 private:
+    std::string getInitFileName() const;
+
     RimEclipseResultCase * m_eclipseCase;
 
     cvf::ref<RigOpmFlowDiagStaticData> m_opmFlowDiagStaticData;

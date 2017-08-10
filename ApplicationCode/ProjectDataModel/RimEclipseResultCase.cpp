@@ -136,14 +136,11 @@ bool RimEclipseResultCase::openEclipseGridFile()
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
 
-    if (eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+
+    if (m_flowDiagSolutions.size() == 0)
     {
-        m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
-        
-        if (m_flowDiagSolutions.size() == 0)
-        {
-            m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
-        }
+        m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
     }
     
     return true;

@@ -164,14 +164,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         // Get set of files
         QString gridFileName = m_eclipseCase->gridFileName();
 
-        QStringList m_filesWithSameBaseName;
+        std::string initFileName = getInitFileName();
 
-        if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
+        if (initFileName.empty()) return result;
 
-        QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
-
-        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(),
-                                               initFileName.toStdString());
+        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName);
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Calculating Connectivities");
@@ -189,6 +186,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume);
 
         // Look for unified restart file
+        QStringList m_filesWithSameBaseName;
+
+        if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
 
         QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
         if ( !restartFileName.isEmpty() )
@@ -251,10 +251,19 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
 
     {
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
-                                                                                                                            *currentRestartData);
+        if (m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+        {
+            Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
+                *currentRestartData);
+            m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
+        }
+        else
+        {
+            Opm::ECLInitFileData init(getInitFileName());
+            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), init, *currentRestartData);
+            m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
+        }
 
-        m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
 
         progressInfo.incrementProgress();
 
@@ -402,17 +411,22 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>& injector_tof,
-                                                                                                                    const std::vector<double>& producer_tof,
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>* injector_tof,
+                                                                                                                    const std::vector<double>* producer_tof,
                                                                                                                     double max_pv_fraction)
 {
     using namespace Opm::FlowDiagnostics;
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame result;
 
+    if (injector_tof == nullptr || producer_tof == nullptr)
+    {
+        return result;
+    }
+
     try
     {
-        Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve(injector_tof,
-                                                                     producer_tof,
+        Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve(*injector_tof,
+                                                                     *producer_tof,
                                                                      m_opmFlowDiagStaticData->m_poreVolume,
                                                                      max_pv_fraction);
 
@@ -426,6 +440,22 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInte
     }
 
     return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RigFlowDiagSolverInterface::getInitFileName() const
+{
+    QString gridFileName = m_eclipseCase->gridFileName();
+
+    QStringList m_filesWithSameBaseName;
+
+    if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName)) return std::string();
+
+    QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
+
+    return initFileName.toStdString();
 }
 
 

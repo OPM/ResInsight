@@ -698,5 +698,5 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
     const std::vector<double>* injectorResults = resultValues(injectorAddress, frameIndex);
     const std::vector<double>* producerResults = resultValues(producerAddress, frameIndex);
 
-    return solverInterface()->calculateFlowCharacteristics(*injectorResults, *producerResults, max_pv_fraction);
+    return solverInterface()->calculateFlowCharacteristics(injectorResults, producerResults, max_pv_fraction);
 }

@@ -81,6 +81,24 @@ namespace RigFlowDiagInterfaceTools {
         return extractFluxField(G, getFlux);
     }
 
+    inline Opm::FlowDiagnostics::ConnectionValues
+        calculateFluxField(const Opm::ECLGraph& G,
+                           const Opm::ECLInitFileData& init,
+                           const Opm::ECLRestartData& rstrt)
+    {
+        auto satfunc = Opm::ECLSaturationFunc(G, init);
+
+        Opm::ECLFluxCalc calc(G, std::move(satfunc));
+
+        auto getFlux = [&calc, &rstrt]
+        (const Opm::ECLPhaseIndex p)
+        {
+            return calc.flux(rstrt, p);
+        };
+
+        return extractFluxField(G, getFlux);
+    }
+
     template <class WellFluxes>
     Opm::FlowDiagnostics::CellSetValues
         extractWellFlows(const Opm::ECLGraph& G,
