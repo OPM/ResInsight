@@ -421,18 +421,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_resultTypeUiField )
     {
-        bool hasFlowDiagFluxes = false;
-        RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
-        if ( eclResCase && eclResCase->eclipseCaseData() )
-        {
-            hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
-        }
-
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
         // Do not include flow diagnostics results if not available or is a time history curve
-        if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr )
+        if ( timeHistoryCurve != nullptr )
         {
             using ResCatEnum = caf::AppEnum< RiaDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
