@@ -18,16 +18,17 @@
 
 #include "RigTofAccumulatedPhaseFractionsCalculator.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RimEclipseCase.h"
-#include "RimReservoirCellResultsStorage.h"
+#include "RigFlowDiagResultAddress.h"
+#include "RigFlowDiagResults.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigSingleWellResultsData.h"
-#include "RigFlowDiagResultAddress.h"
+
+#include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
-#include "RigFlowDiagResults.h"
-#include "RigCaseCellResultsData.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include <map>
 
@@ -36,13 +37,15 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalculator(RimEclipseCase* caseToApply, 
+RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalculator(RimEclipseResultCase* caseToApply, 
                                                                                      QString wellname, 
                                                                                      size_t timestep)
     :m_case(caseToApply),
     m_wellName(wellname),
     m_timeStep(timestep)
 {
+    m_flowDiagSolution = caseToApply->defaultFlowDiagSolution();
+
     computeTOFaccumulations();
 }
 
@@ -80,23 +83,16 @@ void RigTofAccumulatedPhaseFractionsCalculator::computeTOFaccumulations()
                                                                                                                            m_wellName.toStdString()),
                                                                                                   m_timeStep);
 
-
-    std::vector<double> accumulatedPhaseFractionSwat;
-    std::vector<double> accumulatedPhaseFractionSoil;
-    std::vector<double> accumulatedPhaseFractionSgas;
-    std::vector<double> tofInIncreasingOrder;
-
-
     sortTofAndCalculateAccPhaseFraction(tofData, 
                                         fractionData, 
                                         porvResults, 
                                         swatResults, 
                                         soilResults, 
                                         sgasResults, 
-                                        accumulatedPhaseFractionSwat, 
-                                        accumulatedPhaseFractionSoil, 
-                                        accumulatedPhaseFractionSgas, 
-                                        tofInIncreasingOrder);
+                                        m_accumulatedPhaseFractionSwat, 
+                                        m_accumulatedPhaseFractionSoil, 
+                                        m_accumulatedPhaseFractionSgas, 
+                                        m_tofInIncreasingOrder);
 
 
 

@@ -28,7 +28,7 @@
 #include <array>
 #include "RimFlowDiagSolution.h"
 
-class RimEclipseCase;
+class RimEclipseResultCase;
 
 //==================================================================================================
 /// 
@@ -38,7 +38,7 @@ class RigTofAccumulatedPhaseFractionsCalculator
 {
 
 public:
-    explicit RigTofAccumulatedPhaseFractionsCalculator(RimEclipseCase* caseToApply,
+    explicit RigTofAccumulatedPhaseFractionsCalculator(RimEclipseResultCase* caseToApply,
                                                        QString wellname, 
                                                        size_t timestep);
 
@@ -63,7 +63,7 @@ private:
 
 
 private:
-    RimEclipseCase*                             m_case;
+    RimEclipseResultCase*                       m_case;
     QString                                     m_wellName;
     size_t                                      m_timeStep;
 
