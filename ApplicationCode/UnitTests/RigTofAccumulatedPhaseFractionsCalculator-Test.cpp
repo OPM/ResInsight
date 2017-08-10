@@ -19,7 +19,6 @@
 
 #include "RigTofAccumulatedPhaseFractionsCalculator.h"
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -36,9 +35,9 @@ TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFract
     fractionDataVector.push_back(0.02);
 
     std::vector<double> porvResultVector;
-    porvResultVector.push_back(0.002);
-    porvResultVector.push_back(0.2);
-    porvResultVector.push_back(0.02);
+    porvResultVector.push_back(1);
+    porvResultVector.push_back(1);
+    porvResultVector.push_back(1.5);
 
     std::vector<double> swatResultVector;
     swatResultVector.push_back(0.1);
@@ -55,12 +54,29 @@ TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFract
     sgasResultVector.push_back(0.1);
     sgasResultVector.push_back(0.3);
 
+
+    std::vector<double> accumulatedPhaseFractionSwat;
+    std::vector<double> accumulatedPhaseFractionSoil;
+    std::vector<double> accumulatedPhaseFractionSgas;
+    std::vector<double> tofInIncreasingOrder;
+
     RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(&(tofDataVector),
                                                                                    &(fractionDataVector),
                                                                                    &(porvResultVector),
                                                                                    &(swatResultVector),
                                                                                    &(soilResultVector),
-                                                                                   &(sgasResultVector));
+                                                                                   &(sgasResultVector), 
+                                                                                   tofInIncreasingOrder,
+                                                                                   accumulatedPhaseFractionSwat,
+                                                                                   accumulatedPhaseFractionSoil,
+                                                                                   accumulatedPhaseFractionSgas
+                                                                                   );
     
-    EXPECT_EQ(1, 1);
+    EXPECT_LT(tofInIncreasingOrder[0], tofInIncreasingOrder[1]);
+    EXPECT_LT(tofInIncreasingOrder[1], tofInIncreasingOrder[2]);
+    
+    EXPECT_DOUBLE_EQ(accumulatedPhaseFractionSwat[0], 0.1000);
+    EXPECT_DOUBLE_EQ(accumulatedPhaseFractionSoil[1], 0.1125);
+    EXPECT_LT(accumulatedPhaseFractionSgas[2] - 0.13017, 0.00001);
 }
+

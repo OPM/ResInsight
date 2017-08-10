@@ -45,7 +45,11 @@ public:
                                              const std::vector<double>* porvResults, 
                                              const std::vector<double>* swatResults, 
                                              const std::vector<double>* soilResults, 
-                                             const std::vector<double>* sgasResults);
+                                             const std::vector<double>* sgasResults,
+                                             std::vector<double>& tofInIncreasingOrder,
+                                             std::vector<double>& accumulatedPhaseFractionSwat,
+                                             std::vector<double>& accumulatedPhaseFractionSoil,
+                                             std::vector<double>& accumulatedPhaseFractionSgas);
 
 private:
     RimEclipseCase*                             m_case;
