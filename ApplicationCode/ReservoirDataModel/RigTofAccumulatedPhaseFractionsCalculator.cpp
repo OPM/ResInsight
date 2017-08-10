@@ -105,11 +105,25 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
                                                                                     std::vector<double>& accumulatedPhaseFractionSgas)
 
 {
-    std::map<double, int> tofAndIndexMap;
+    std::map<double, std::vector<int> > tofAndIndexMap;
 
     for (int i = 0; i < tofData->size(); i++)
     {
-        tofAndIndexMap[tofData->at(i)] = i;
+        auto it = tofAndIndexMap.find(tofData->at(i));
+        if (it == tofAndIndexMap.end())
+        {
+            //Key does not exist
+            std::vector<int> vectorOfIndexes;
+            vectorOfIndexes.push_back(i);
+            tofAndIndexMap[tofData->at(i)] = vectorOfIndexes;
+        }
+        else
+        {
+            //Key does exisit
+            std::vector<int> vectorOfIndexes = it->second;
+            vectorOfIndexes.push_back(i);
+            tofAndIndexMap[tofData->at(i)] = vectorOfIndexes;
+        }
     }
 
 
@@ -118,17 +132,18 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
     double fractionPorvPhaseSumSoil = 0.0;
     double fractionPorvPhaseSumSgas = 0.0;
     
-    for (auto element : tofAndIndexMap) //todo  - check handling of several cells have same tof value
+    for (auto element : tofAndIndexMap) 
     {
-        int index = element.second;
         double tofValue = element.first;
+        for (int index : element.second)
+        {
+            fractionPorvSum += fractionData->at(index) * porvResults->at(index);
+            fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults->at(index) * swatResults->at(index);
+            fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults->at(index) * soilResults->at(index);
+            fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults->at(index) * sgasResults->at(index);
+        }
+
         tofInIncreasingOrder.push_back(tofValue);
-
-        fractionPorvSum += fractionData->at(index) * porvResults->at(index);
-        fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults->at(index) * swatResults->at(index);
-        fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults->at(index) * soilResults->at(index);
-        fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults->at(index) * sgasResults->at(index);
-
         accumulatedPhaseFractionSwat.push_back(fractionPorvPhaseSumSwat / fractionPorvSum);
         accumulatedPhaseFractionSoil.push_back(fractionPorvPhaseSumSoil / fractionPorvSum);
         accumulatedPhaseFractionSgas.push_back(fractionPorvPhaseSumSgas / fractionPorvSum);
