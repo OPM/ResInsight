@@ -469,7 +469,7 @@ void RicWellPathExportCompletionDataFeature::generateCompdatTable(RifEclipseData
         RifEclipseOutputTableColumn("K2"),
         RifEclipseOutputTableColumn("Status"),
         RifEclipseOutputTableColumn("SAT"),
-        RifEclipseOutputTableColumn("TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::SCIENTIFIC)),
+        RifEclipseOutputTableColumn("TR", RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat::RIF_SCIENTIFIC)),
         RifEclipseOutputTableColumn("DIAM"),
         RifEclipseOutputTableColumn("KH"),
         RifEclipseOutputTableColumn("S"),
