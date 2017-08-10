@@ -20,8 +20,6 @@
 
 #include "RifReaderMockModel.h"
 
-#include "RifReaderInterface.h"
-
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 

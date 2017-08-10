@@ -68,6 +68,9 @@ bool RifReaderInterface::isNNCsEnabled()
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 {
     if (m_settings.notNull())
@@ -77,3 +80,43 @@ const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 
     return QString();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderInterface::setTimestepIndicesForImport(const std::vector<size_t>& timeStepIndices)
+{
+    m_includedTimeStepIndices = timeStepIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
+{
+    if (m_includedTimeStepIndices.empty()) return true;
+
+    for (auto i : m_includedTimeStepIndices)
+    {
+        if (i == timeStepIndex)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RifReaderInterface::timeStepIndexOnFile(size_t timeStepIndex) const
+{
+    if (timeStepIndex < m_includedTimeStepIndices.size())
+    {
+        return m_includedTimeStepIndices[timeStepIndex];
+    }
+
+    return timeStepIndex;
+}
+

@@ -657,9 +657,27 @@ void RifReaderEclipseOutput::buildMetaData()
 
         progInfo.incrementProgress();
 
+        std::vector<int> reportNumbers;
+
         // Get time steps 
-        m_dynamicResultsAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
-        std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+        {
+            std::vector<QDateTime> timeStepsOnFile;
+            std::vector<double> daysSinceSimulationStartOnFile;
+            std::vector<int> reportNumbersOnFile;
+
+            m_dynamicResultsAccess->timeSteps(&timeStepsOnFile, &daysSinceSimulationStartOnFile);
+            reportNumbersOnFile = m_dynamicResultsAccess->reportNumbers();
+
+            for (size_t i = 0; i < timeStepsOnFile.size(); i++)
+            {
+                if (this->isTimeStepIncludedByFilter(i))
+                {
+                    timeSteps.push_back(timeStepsOnFile[i]);
+                    daysSinceSimulationStart.push_back(daysSinceSimulationStartOnFile[i]);
+                    reportNumbers.push_back(reportNumbersOnFile[i]);
+                }
+            }
+        }
 
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
@@ -857,8 +875,10 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
 
     if (m_dynamicResultsAccess.notNull())
     {
+        size_t indexOnFile = timeStepIndexOnFile(stepIndex);
+
         std::vector<double> fileValues;
-        if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
+        if (!m_dynamicResultsAccess->results(result, indexOnFile, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
         {
             return false;
         }

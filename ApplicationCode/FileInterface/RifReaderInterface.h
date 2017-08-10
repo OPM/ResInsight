@@ -70,7 +70,15 @@ public:
     void                        setFilenamesWithFaults(const std::vector<QString>& filenames)   { m_filenamesWithFaults = filenames; }
     std::vector<QString>        filenamesWithFaults()                                           { return m_filenamesWithFaults; }
 
+    void                        setTimestepIndicesForImport(const std::vector<size_t>& timeStepIndices);
+
+protected:
+    bool                        isTimeStepIncludedByFilter(size_t timeStepIndex) const;
+    size_t                      timeStepIndexOnFile(size_t timeStepIndex) const;
+
 private:
     std::vector<QString>                m_filenamesWithFaults;
     caf::PdmPointer<RifReaderSettings>  m_settings;
+    
+    std::vector<size_t>                 m_includedTimeStepIndices;
 };
