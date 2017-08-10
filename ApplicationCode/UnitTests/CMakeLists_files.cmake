@@ -24,6 +24,7 @@ ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper-Test.cpp
 ${CEE_CURRENT_LIST_DIR}ScalarMapper-Test.cpp
 ${CEE_CURRENT_LIST_DIR}WellPathAsciiFileReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}opm-flowdiagnostics-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator-Test.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

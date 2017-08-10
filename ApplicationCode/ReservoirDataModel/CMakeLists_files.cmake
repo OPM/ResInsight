@@ -58,7 +58,7 @@ ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
 ${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.h
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.h
-${CEE_CURRENT_LIST_DIR}RigTOFaccumulatedPhaseFractionsPlot.h
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.h
 
 
 )
@@ -112,7 +112,7 @@ ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
 ${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.cpp
-${CEE_CURRENT_LIST_DIR}RigTOFaccumulatedPhaseFractionsPlot.cpp
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.cpp
 
 )
 

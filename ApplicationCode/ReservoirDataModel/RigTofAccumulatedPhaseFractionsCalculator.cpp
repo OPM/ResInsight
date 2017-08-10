@@ -89,3 +89,48 @@ void RigTofAccumulatedPhaseFractionsCalculator::computeTOFaccumulations()
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData,
+                                                                                    const std::vector<double>* fractionData,
+                                                                                    const std::vector<double>* porvResults,
+                                                                                    const std::vector<double>* swatResults,
+                                                                                    const std::vector<double>* soilResults,
+                                                                                    const std::vector<double>* sgasResults,
+                                                                                    std::vector<double>& tofInIncreasingOrder,
+                                                                                    std::vector<double>& accumulatedPhaseFractionSwat,
+                                                                                    std::vector<double>& accumulatedPhaseFractionSoil,
+                                                                                    std::vector<double>& accumulatedPhaseFractionSgas)
+
+{
+    std::map<double, int> tofAndIndexMap;
+
+    for (int i = 0; i < tofData->size(); i++)
+    {
+        tofAndIndexMap[tofData->at(i)] = i;
+    }
+
+
+    double fractionPorvSum = 0.0;
+    double fractionPorvPhaseSumSwat = 0.0;
+    double fractionPorvPhaseSumSoil = 0.0;
+    double fractionPorvPhaseSumSgas = 0.0;
+    
+    for (auto element : tofAndIndexMap) //todo  - check handling of several cells have same tof value
+    {
+        int index = element.second;
+        double tofValue = element.first;
+        tofInIncreasingOrder.push_back(tofValue);
+
+        fractionPorvSum += fractionData->at(index) * porvResults->at(index);
+        fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults->at(index) * swatResults->at(index);
+        fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults->at(index) * soilResults->at(index);
+        fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults->at(index) * sgasResults->at(index);
+
+        accumulatedPhaseFractionSwat.push_back(fractionPorvPhaseSumSwat / fractionPorvSum);
+        accumulatedPhaseFractionSoil.push_back(fractionPorvPhaseSumSoil / fractionPorvSum);
+        accumulatedPhaseFractionSgas.push_back(fractionPorvPhaseSumSgas / fractionPorvSum);
+    }
+}
