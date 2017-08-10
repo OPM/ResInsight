@@ -35,8 +35,8 @@ class RigFlowDiagTimeStepResult
 public:
     explicit RigFlowDiagTimeStepResult(size_t activeCellCount);
 
-    void setTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
-    void setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
+    void setTracerTOF     (const std::string& tracerName, RigFlowDiagResultAddress::PhaseSelection phaseSelection, const std::map<int, double>& cellValues);
+    void setTracerFraction(const std::string& tracerName, RigFlowDiagResultAddress::PhaseSelection phaseSelection, const std::map<int, double>& cellValues);
     void setInjProdWellPairFlux(const std::string& injectorTracerName,
                                 const std::string& producerTracerName, 
                                 const std::pair<double, double>& injProdFluxes) ;
@@ -80,6 +80,7 @@ public:
     virtual ~RigFlowDiagSolverInterface();
 
     RigFlowDiagTimeStepResult calculate(size_t timestep,  
+                                        RigFlowDiagResultAddress::PhaseSelection phaseSelection,
                                         std::map<std::string, std::vector<int> > injectorTracers, 
                                         std::map<std::string, std::vector<int> > producerTracers);
 

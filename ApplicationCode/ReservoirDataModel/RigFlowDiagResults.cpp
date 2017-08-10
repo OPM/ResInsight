@@ -39,7 +39,7 @@ RigFlowDiagResults::RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t
 {
 
     m_timeStepCount = timeStepCount;
-    m_hasAtemptedNativeResults.resize(timeStepCount, false);
+    m_hasAtemptedNativeResults.resize(timeStepCount);
     m_injProdPairFluxCommunicationTimesteps.resize(timeStepCount);
 }
 
@@ -91,7 +91,7 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 
     if (!solverInterface()) return nullptr;
 
-    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex);
+    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex, resVarAddr.phaseSelection);
 
     return findScalarResultFrame(resVarAddr, frameIndex);
 }
@@ -99,12 +99,14 @@ const std::vector<double>* RigFlowDiagResults::findOrCalculateResult(const RigFl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex)
+void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection)
 {
-    if ( !m_hasAtemptedNativeResults[frameIndex] )
+    auto it = m_hasAtemptedNativeResults[frameIndex].find(phaseSelection);
+    if ( it == m_hasAtemptedNativeResults[frameIndex].end() || !it->second )
     {
 
         RigFlowDiagTimeStepResult nativeTimestepResults =  solverInterface()->calculate(frameIndex,
+                                                                                        phaseSelection,
                                                                                         m_flowDiagSolution->allInjectorTracerActiveCellIndices(frameIndex),
                                                                                         m_flowDiagSolution->allProducerTracerActiveCellIndices(frameIndex));
 
@@ -118,9 +120,9 @@ void RigFlowDiagResults::calculateNativeResultsIfNotPreviouslyAttempted(size_t f
             nativeResFrames->frameData(frameIndex).swap(resIt.second);
         }
 
-        m_injProdPairFluxCommunicationTimesteps[frameIndex].swap(nativeTimestepResults.injProdWellPairFluxes());
+        m_injProdPairFluxCommunicationTimesteps[frameIndex][phaseSelection].swap(nativeTimestepResults.injProdWellPairFluxes());
 
-        m_hasAtemptedNativeResults[frameIndex] = true;
+        m_hasAtemptedNativeResults[frameIndex][phaseSelection] = true;
     }
 }
 
@@ -421,7 +423,7 @@ std::vector<const std::vector<double>* > RigFlowDiagResults::findResultsForSelec
         if (tracerType != RimFlowDiagSolution::CLOSED 
             && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
         {
-            selectedTracersResults.push_back(findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, tracerName), frameIndex));
+            selectedTracersResults.push_back(findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, resVarAddr.phaseSelection, tracerName), frameIndex));
         }
     }
 
@@ -448,7 +450,7 @@ RigFlowDiagResults::findNamedResultsForSelectedTracers(const RigFlowDiagResultAd
         if (tracerType != RimFlowDiagSolution::CLOSED 
             && ( tracerType == wantedTracerType || wantedTracerType == RimFlowDiagSolution::UNDEFINED) )
         {
-            selectedTracersResults.push_back(std::make_pair(tracerName, findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, tracerName), frameIndex)));
+            selectedTracersResults.push_back(std::make_pair(tracerName, findOrCalculateResult(RigFlowDiagResultAddress(nativeResultName, resVarAddr.phaseSelection, tracerName), frameIndex)));
         }
     }
 
@@ -625,10 +627,10 @@ std::pair<double, double> RigFlowDiagResults::injectorProducerPairFluxes(const s
                                                                          const std::string& prodTracerName, 
                                                                          int frameIndex)
 {
-    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex);
+    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex, RigFlowDiagResultAddress::PHASE_ALL);
 
-    auto commPair =  m_injProdPairFluxCommunicationTimesteps[frameIndex].find(std::make_pair(injTracername, prodTracerName));
-    if (commPair != m_injProdPairFluxCommunicationTimesteps[frameIndex].end())
+    auto commPair =  m_injProdPairFluxCommunicationTimesteps[frameIndex][RigFlowDiagResultAddress::PHASE_ALL].find(std::make_pair(injTracername, prodTracerName));
+    if (commPair != m_injProdPairFluxCommunicationTimesteps[frameIndex][RigFlowDiagResultAddress::PHASE_ALL].end())
     {
         return commPair->second;
     }
@@ -643,10 +645,10 @@ std::pair<double, double> RigFlowDiagResults::injectorProducerPairFluxes(const s
 //--------------------------------------------------------------------------------------------------
 double RigFlowDiagResults::maxAbsPairFlux(int frameIndex)
 {
-    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex);
+    calculateNativeResultsIfNotPreviouslyAttempted(frameIndex, RigFlowDiagResultAddress::PHASE_ALL);
     double maxFlux = 0.0;
 
-    for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[frameIndex])
+    for (const auto& commPair : m_injProdPairFluxCommunicationTimesteps[frameIndex][RigFlowDiagResultAddress::PHASE_ALL])
     {
         if (fabs(commPair.second.first)  > maxFlux ) maxFlux = fabs(commPair.second.first);
         if (fabs(commPair.second.second) > maxFlux ) maxFlux = fabs(commPair.second.second);
@@ -658,12 +660,16 @@ double RigFlowDiagResults::maxAbsPairFlux(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RigFlowDiagResults::calculatedTimeSteps()
+std::vector<int> RigFlowDiagResults::calculatedTimeSteps(RigFlowDiagResultAddress::PhaseSelection phaseSelection)
 {
     std::vector<int> timestepIndices;
     for (size_t tsIdx = 0; tsIdx < m_timeStepCount; ++tsIdx)
     {
-        if (m_hasAtemptedNativeResults[tsIdx]) timestepIndices.push_back(static_cast<int>(tsIdx));
+        auto it = m_hasAtemptedNativeResults[tsIdx].find(phaseSelection);
+        if (it != m_hasAtemptedNativeResults[tsIdx].end() && it->second)
+        {
+            timestepIndices.push_back(static_cast<int>(tsIdx));
+        }
     }
 
     return timestepIndices;
@@ -692,8 +698,8 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
         }
     }
 
-    RigFlowDiagResultAddress injectorAddress(RIG_FLD_TOF_RESNAME, injectorNames);
-    RigFlowDiagResultAddress producerAddress(RIG_FLD_TOF_RESNAME, producerNames);
+    RigFlowDiagResultAddress injectorAddress(RIG_FLD_TOF_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, injectorNames);
+    RigFlowDiagResultAddress producerAddress(RIG_FLD_TOF_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, producerNames);
 
     const std::vector<double>* injectorResults = resultValues(injectorAddress, frameIndex);
     const std::vector<double>* producerResults = resultValues(producerAddress, frameIndex);

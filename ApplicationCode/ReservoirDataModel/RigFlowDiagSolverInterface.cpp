@@ -49,12 +49,14 @@ RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName, const std::map<int, double>& cellValues)
+void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName,
+                                             RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                             const std::map<int, double>& cellValues)
 {
     std::set<std::string> tracers;
     tracers.insert(tracerName);
     
-    RigFlowDiagResultAddress resAddr(RIG_FLD_TOF_RESNAME, tracers);
+    RigFlowDiagResultAddress resAddr(RIG_FLD_TOF_RESNAME, phaseSelection, tracers);
 
     this->addResult(resAddr, cellValues);
 
@@ -68,12 +70,14 @@ void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues)
+void RigFlowDiagTimeStepResult::setTracerFraction(const std::string& tracerName,
+                                                  RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                                  const std::map<int, double>& cellValues)
 {
     std::set<std::string> tracers;
     tracers.insert(tracerName);
 
-    this->addResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracers), cellValues);
+    this->addResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, phaseSelection, tracers), cellValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,6 +152,7 @@ RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepIndex,
+                                                                RigFlowDiagResultAddress::PhaseSelection phaseSelection,
                                                                 std::map<std::string, std::vector<int> > injectorTracers,
                                                                 std::map<std::string, std::vector<int> > producerTracers)
 {
@@ -254,13 +259,14 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         if (m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
         {
             Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
-                *currentRestartData);
+                                                                                                                                *currentRestartData,
+                                                                                                                                phaseSelection);
             m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
         }
         else
         {
             Opm::ECLInitFileData init(getInitFileName());
-            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), init, *currentRestartData);
+            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), init, *currentRestartData, phaseSelection);
             m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
         }
 
@@ -343,9 +349,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
         {
             CellSetValues tofVals = injectorSolution->fd.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), tofVals);
+            result.setTracerTOF(tracerId.to_string(), phaseSelection, tofVals);
             CellSetValues fracVals = injectorSolution->fd.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), fracVals);
+            result.setTracerFraction(tracerId.to_string(), phaseSelection, fracVals);
         }
 
         progressInfo.incrementProgress();
@@ -373,9 +379,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
         {
             CellSetValues tofVals = producerSolution->fd.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), tofVals);
+            result.setTracerTOF(tracerId.to_string(), phaseSelection, tofVals);
             CellSetValues fracVals = producerSolution->fd.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), fracVals);
+            result.setTracerFraction(tracerId.to_string(), phaseSelection, fracVals);
         }
 
         progressInfo.incrementProgress();

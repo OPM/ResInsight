@@ -18,6 +18,19 @@
 
 #include "RigFlowDiagResultAddress.h"
 
+namespace caf
+{
+    template<>
+    void RigFlowDiagResultAddress::PhaseSelectionEnum::setUp()
+    {
+        addItem(RigFlowDiagResultAddress::PHASE_ALL,   "PHASE_ALL", "All");
+        addItem(RigFlowDiagResultAddress::PHASE_OIL,   "PHASE_OIL", "Oil");
+        addItem(RigFlowDiagResultAddress::PHASE_GAS,   "PHASE_GAS", "Gas");
+        addItem(RigFlowDiagResultAddress::PHASE_WAT,   "PHASE_WAT", "Water");
+
+        setDefault(RigFlowDiagResultAddress::PHASE_ALL);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -35,6 +48,10 @@ std::string RigFlowDiagResultAddress::uiText() const
     std::string uiVarname = variableName;
 
     std::string uitext = uiVarname;
+    if (phaseSelection != PHASE_ALL)
+    {
+        uitext += " (" + RigFlowDiagResultAddress::PhaseSelectionEnum(phaseSelection).uiText().toStdString() + ")";
+    }
     uitext += " (";
     for (const std::string& tracerName : selectedTracerNames)
     {
@@ -49,6 +66,11 @@ std::string RigFlowDiagResultAddress::uiText() const
 //--------------------------------------------------------------------------------------------------
 std::string RigFlowDiagResultAddress::uiShortText() const
 {
-    return variableName;
+    std::string uitext = variableName;
+    if (phaseSelection != PHASE_ALL)
+    {
+        uitext += " (" + RigFlowDiagResultAddress::PhaseSelectionEnum(phaseSelection).uiText().toStdString() + ")";
+    }
+    return uitext;
 }
 

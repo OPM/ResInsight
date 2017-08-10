@@ -64,14 +64,14 @@ public:
     std::pair<double, double>                injectorProducerPairFluxes(const std::string& injTracername, const std::string& prodTracerName, int frameIndex);
     double                                   maxAbsPairFlux(int frameIndex);
 
-    std::vector<int>                         calculatedTimeSteps();
+    std::vector<int>                         calculatedTimeSteps(RigFlowDiagResultAddress::PhaseSelection phaseSelection);
         
 
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex, double max_pv_fraction);
 
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
-    void                                     calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex);
+    void                                     calculateNativeResultsIfNotPreviouslyAttempted(size_t frameIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection);
 
     std::vector<double>*                     calculateDerivedResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
 
@@ -117,13 +117,13 @@ private:
     size_t                                   m_timeStepCount;
     caf::PdmPointer<RimFlowDiagSolution>     m_flowDiagSolution;
 
-    std::vector<bool>                        m_hasAtemptedNativeResults;
+    std::vector< std::map<RigFlowDiagResultAddress::PhaseSelection, bool > > m_hasAtemptedNativeResults;
 
     std::map< RigFlowDiagResultAddress, cvf::ref<RigFlowDiagResultFrames> >  m_resultSets;
     std::map< RigFlowDiagResultAddress, cvf::ref<RigStatisticsDataCache>  >  m_resultStatistics;
 
     using InjectorProducerCommunicationMap = std::map< std::pair<std::string, std::string>, std::pair<double, double> >;
-    std::vector<InjectorProducerCommunicationMap> m_injProdPairFluxCommunicationTimesteps;
+    std::vector< std::map<RigFlowDiagResultAddress::PhaseSelection, InjectorProducerCommunicationMap> > m_injProdPairFluxCommunicationTimesteps;
 };
 
 

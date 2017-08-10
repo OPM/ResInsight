@@ -82,6 +82,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_selectedTracers.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
 
     // Ui only fields
 
@@ -131,6 +132,7 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
     this->setFlowSolution(other->m_flowSolution());
     this->setSelectedTracers(other->m_selectedTracers());
     m_flowTracerSelectionMode = other->m_flowTracerSelectionMode();
+    m_phaseSelection = other->m_phaseSelection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +238,11 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             m_selectedTracers = newSelection;
         }
 
+        loadDataAndUpdate();
+    }
+
+    if (&m_phaseSelection == changedField)
+    {
         loadDataAndUpdate();
     }
 
@@ -713,7 +720,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
         }
     }
 
-    return RigFlowDiagResultAddress(m_resultVariable().toStdString(), selTracerNames);
+    return RigFlowDiagResultAddress(m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1019,6 +1026,8 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
             uiOrdering.add(&m_selectedTracersUiFieldFilter);
             uiOrdering.add(&m_selectedTracersUiField);
         }
+
+        uiOrdering.add(&m_phaseSelection);
 
         if ( m_flowSolution() == nullptr )
         {

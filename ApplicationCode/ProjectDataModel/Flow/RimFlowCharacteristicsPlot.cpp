@@ -120,7 +120,7 @@ void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
     if (!m_flowDiagSolution()) return;
 
     RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
-    std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+    std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
     
     if (m_currentlyPlottedTimeSteps == calculatedTimesteps) return;
 
@@ -172,7 +172,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         if ( m_flowDiagSolution )
         {
             RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
-            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
 
             QStringList timeStepDates = m_case->timeStepStrings();
 
@@ -264,7 +264,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
     if (m_flowDiagSolution && m_flowCharPlotWidget)
     {
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
-        std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+        std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
         
         if (m_timeStepSelectionType == SELECT_AVAILABLE)
         {
