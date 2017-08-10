@@ -194,8 +194,6 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
     m_fileName.clear();
     m_filesWithSameBaseName.clear();
 
-    m_timeSteps.clear();
-
     m_eclipseCase = NULL;
 
     m_ecl_init_file = NULL;
@@ -648,6 +646,9 @@ void RifReaderEclipseOutput::buildMetaData()
     RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
     RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
 
+    std::vector<QDateTime> timeSteps;
+    std::vector<double> daysSinceSimulationStart;
+
     // Create access object for dynamic results
     m_dynamicResultsAccess = createDynamicResultsAccess();
     if (m_dynamicResultsAccess.notNull())
@@ -657,7 +658,7 @@ void RifReaderEclipseOutput::buildMetaData()
         progInfo.incrementProgress();
 
         // Get time steps 
-        m_dynamicResultsAccess->timeSteps(&m_timeSteps, &m_daysSinceSimulationStart);
+        m_dynamicResultsAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
         std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
 
         QStringList resultNames;
@@ -673,7 +674,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
+                matrixModelResults->setTimeStepDates(resIndex, timeSteps, daysSinceSimulationStart, reportNumbers);
             }
         }
 
@@ -686,7 +687,7 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
+                fractureModelResults->setTimeStepDates(resIndex, timeSteps, daysSinceSimulationStart, reportNumbers);
             }
         }
 
@@ -726,13 +727,13 @@ void RifReaderEclipseOutput::buildMetaData()
         std::vector<double> staticDay;
         std::vector<int> staticReportNumber;
         {
-            if ( m_timeSteps.size() > 0 )
+            if ( timeSteps.size() > 0 )
             {
-                staticDate.push_back(m_timeSteps.front());
+                staticDate.push_back(timeSteps.front());
             }
-            if (m_daysSinceSimulationStart.size() > 0)
+            if (daysSinceSimulationStart.size() > 0)
             {
-                staticDay.push_back(m_daysSinceSimulationStart.front());
+                staticDay.push_back(daysSinceSimulationStart.front());
             }
 
             std::vector<int> reportNumbers;
@@ -1655,7 +1656,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
         }
 
 
-        wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(m_timeSteps);
+        wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(timeSteps);
 
         wells.push_back(wellResults.p());
 
@@ -1831,14 +1832,6 @@ void RifReaderEclipseOutput::openInitFile()
     {
         m_ecl_init_file = ecl_file_open(initFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifReaderEclipseOutput::timeSteps()
-{
-    return m_timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -80,16 +80,11 @@ private:
 
     QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
 
-    virtual std::vector<QDateTime> timeSteps();
-
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files
     QStringList                             m_filesWithSameBaseName;    // Set of files in filename's path with same base name as filename
 
     RigEclipseCaseData*                     m_eclipseCase;
-
-    std::vector<QDateTime>                  m_timeSteps;
-    std::vector<double>                     m_daysSinceSimulationStart;
 
     ecl_file_type*                          m_ecl_init_file;            // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;     // File access to dynamic results
