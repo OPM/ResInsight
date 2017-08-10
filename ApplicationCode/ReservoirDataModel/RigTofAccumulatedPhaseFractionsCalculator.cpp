@@ -36,6 +36,19 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalculator(RimEclipseCase* caseToApply, 
+                                                                                     QString wellname, 
+                                                                                     size_t timestep)
+    :m_case(caseToApply),
+    m_wellName(wellname),
+    m_timeStep(timestep)
+{
+    computeTOFaccumulations();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigTofAccumulatedPhaseFractionsCalculator::computeTOFaccumulations()
 {
     RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
@@ -109,23 +122,16 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
 
     for (int i = 0; i < tofData->size(); i++)
     {
-        auto it = tofAndIndexMap.find(tofData->at(i));
-        if (it == tofAndIndexMap.end())
+        std::vector<int> vectorOfIndexes;
+        vectorOfIndexes.push_back(i);
+
+        auto iteratorBoolFromInsertToMap = tofAndIndexMap.insert(std::make_pair(tofData->at(i), vectorOfIndexes));
+        if (!iteratorBoolFromInsertToMap.second)
         {
-            //Key does not exist
-            std::vector<int> vectorOfIndexes;
-            vectorOfIndexes.push_back(i);
-            tofAndIndexMap[tofData->at(i)] = vectorOfIndexes;
-        }
-        else
-        {
-            //Key does exisit
-            std::vector<int> vectorOfIndexes = it->second;
-            vectorOfIndexes.push_back(i);
-            tofAndIndexMap[tofData->at(i)] = vectorOfIndexes;
+            //Element exist alread, was not inserted
+            iteratorBoolFromInsertToMap.first->second.push_back(i);
         }
     }
-
 
     double fractionPorvSum = 0.0;
     double fractionPorvPhaseSumSwat = 0.0;

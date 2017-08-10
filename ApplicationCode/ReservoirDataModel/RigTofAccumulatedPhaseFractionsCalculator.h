@@ -38,8 +38,15 @@ class RigTofAccumulatedPhaseFractionsCalculator
 {
 
 public:
-    void computeTOFaccumulations();
+    explicit RigTofAccumulatedPhaseFractionsCalculator(RimEclipseCase* caseToApply,
+                                                       QString wellname, 
+                                                       size_t timestep);
 
+    const std::vector<double>&  sortedUniqueTOFValues() const { return m_tofInIncreasingOrder; }
+    const std::vector<double>&  accumulatedPhaseFractionsSwat() const { return m_accumulatedPhaseFractionSwat; }
+    const std::vector<double>&  accumulatedPhaseFractionsSoil() const { return m_accumulatedPhaseFractionSoil; }
+    const std::vector<double>&  accumulatedPhaseFractionsSgas() const { return m_accumulatedPhaseFractionSgas; }
+    
     static void sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, 
                                              const std::vector<double>* fractionData, 
                                              const std::vector<double>* porvResults, 
@@ -52,11 +59,20 @@ public:
                                              std::vector<double>& accumulatedPhaseFractionSgas);
 
 private:
+    void computeTOFaccumulations();
+
+
+private:
     RimEclipseCase*                             m_case;
     QString                                     m_wellName;
+    size_t                                      m_timeStep;
 
-    caf::PdmField<int>                          m_timeStep;
-    caf::PdmPtrField<RimFlowDiagSolution*>      m_flowDiagSolution;
+    RimFlowDiagSolution*      m_flowDiagSolution ; //hente fra case, rimEclipseResultCase?
+
+    std::vector<double> m_tofInIncreasingOrder;
+    std::vector<double> m_accumulatedPhaseFractionSwat;
+    std::vector<double> m_accumulatedPhaseFractionSgas;
+    std::vector<double> m_accumulatedPhaseFractionSoil;
 
 };
 
