@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "RiaDefines.h"
 #include "RimEclipseResultDefinition.h"
 
 #include "cafPdmChildArrayField.h"
