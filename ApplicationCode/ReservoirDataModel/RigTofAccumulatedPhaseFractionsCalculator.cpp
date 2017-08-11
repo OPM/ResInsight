@@ -18,6 +18,9 @@
 
 #include "RigTofAccumulatedPhaseFractionsCalculator.h"
 
+#include "RiaDefines.h"
+#include "RiaPorosityModel.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResultAddress.h"
@@ -42,17 +45,17 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                                      size_t timestep)
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
 
     size_t scalarResultIndexSwat = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
     size_t scalarResultIndexSoil = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
     size_t scalarResultIndexSgas = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
-    const std::vector<double>* swatResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSwat, timestep));
-    const std::vector<double>* soilResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSoil, timestep));
-    const std::vector<double>* sgasResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSgas, timestep));
-    const std::vector<double>* porvResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexPorv, timestep));
+    const std::vector<double>* swatResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSwat, timestep));
+    const std::vector<double>* soilResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSoil, timestep));
+    const std::vector<double>* sgasResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSgas, timestep));
+    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, timestep));
         
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
@@ -97,7 +100,7 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
 {
     std::map<double, std::vector<int> > tofAndIndexMap;
 
-    for (int i = 0; i < tofData->size(); i++)
+    for (int i = 0; i < static_cast<int>(tofData->size()); i++)
     {
         std::vector<int> vectorOfIndexes;
         vectorOfIndexes.push_back(i);

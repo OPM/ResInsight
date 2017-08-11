@@ -18,17 +18,11 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-
-#include "cvfBase.h"
-#include "cvfVector3.h"
-
-#include <array>
-#include "RimFlowDiagSolution.h"
+#include <cstddef>
+#include <vector>
 
 class RimEclipseResultCase;
+class QString;
 
 //==================================================================================================
 /// 
