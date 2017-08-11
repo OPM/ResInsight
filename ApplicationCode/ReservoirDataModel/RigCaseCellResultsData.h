@@ -32,10 +32,10 @@
 #include <cmath>
 
 class RifReaderInterface;
-class RigMainGrid;
 class RigActiveCellInfo;
+class RigMainGrid;
+class RigResultInfo;
 class RigStatisticsDataCache;
-class ResultInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -108,7 +108,7 @@ public:
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:
-    const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
+    const std::vector<RigResultInfo>&                       infoForEachResultIndex() { return m_resultInfos;}
 
     bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
     void                                                    setMustBeCalculated(size_t scalarResultIndex);
@@ -127,9 +127,8 @@ private:
     cvf::Collection<RigStatisticsDataCache>                 m_statisticsDataCache;
 
 private:
-    std::vector<ResultInfo>                                 m_resultInfos;
+    std::vector<RigResultInfo>                              m_resultInfos;
 
     RigMainGrid*                                            m_ownerMainGrid;
     RigActiveCellInfo*                                      m_activeCellInfo;
-
 };

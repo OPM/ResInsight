@@ -242,7 +242,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         std::vector<double> daysSinceSimulationStart = rigCaseData->results(poroModel)->daysSinceSimulationStart(0);
         std::vector<int> reportStepNumbers =  rigCaseData->results(poroModel)->reportStepNumbers(0);
 
-        const std::vector<ResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
+        const std::vector<RigResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
         {

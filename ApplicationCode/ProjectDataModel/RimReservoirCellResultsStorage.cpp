@@ -91,7 +91,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     if (!m_cellResults) return;
 
-    const std::vector<ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
+    const std::vector<RigResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
 
     bool hasResultsToStore = false;
     for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 

@@ -207,7 +207,7 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const
 {
-    std::vector<ResultInfo>::const_iterator it;
+    std::vector<RigResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == type && it->m_resultName == resultName)
@@ -268,7 +268,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType ty
 
     scalarResultIndex = this->resultCount();
     m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-    ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
+    RigResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
     m_resultInfos.push_back(resInfo);
 
     // Create statistics calculator and add statistics cache object
@@ -341,7 +341,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType ty
 QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resType) const
 {
     QStringList varList;
-    std::vector<ResultInfo>::const_iterator it;
+    std::vector<RigResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == resType )
@@ -621,7 +621,7 @@ bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultTy
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 {
-    std::vector<ResultInfo>::const_iterator it;
+    std::vector<RigResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)
@@ -638,7 +638,7 @@ bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 {
-    std::vector<ResultInfo>::iterator it;
+    std::vector<RigResultInfo>::iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)

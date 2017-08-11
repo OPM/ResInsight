@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ResultInfo::ResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
+RigResultInfo::RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
                        QString resultName, size_t gridScalarResultIndex)
     : m_resultType(resultType),
     m_needsToBeStored(needsToBeStored),

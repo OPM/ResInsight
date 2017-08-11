@@ -24,10 +24,10 @@
 
 class QString;
 
-class ResultInfo
+class RigResultInfo
 {
 public:
-    ResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
+    RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
                QString resultName, size_t gridScalarResultIndex);
 
 public:
