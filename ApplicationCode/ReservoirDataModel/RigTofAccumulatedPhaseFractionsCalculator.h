@@ -47,6 +47,8 @@ public:
     const std::vector<double>&  accumulatedPhaseFractionsSoil() const { return m_accumulatedPhaseFractionSoil; }
     const std::vector<double>&  accumulatedPhaseFractionsSgas() const { return m_accumulatedPhaseFractionSgas; }
     
+
+private:
     static void sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, 
                                              const std::vector<double>* fractionData, 
                                              const std::vector<double>* porvResults, 
@@ -59,16 +61,6 @@ public:
                                              std::vector<double>& accumulatedPhaseFractionSgas);
 
 private:
-    void computeTOFaccumulations();
-
-
-private:
-    RimEclipseResultCase*                       m_case;
-    QString                                     m_wellName;
-    size_t                                      m_timeStep;
-
-    RimFlowDiagSolution*      m_flowDiagSolution ; //hente fra case, rimEclipseResultCase?
-
     std::vector<double> m_tofInIncreasingOrder;
     std::vector<double> m_accumulatedPhaseFractionSwat;
     std::vector<double> m_accumulatedPhaseFractionSgas;
@@ -76,3 +68,4 @@ private:
 
 };
 
+//TODO: tester... 

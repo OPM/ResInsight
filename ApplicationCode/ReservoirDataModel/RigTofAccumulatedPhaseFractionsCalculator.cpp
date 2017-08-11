@@ -40,64 +40,45 @@
 RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalculator(RimEclipseResultCase* caseToApply, 
                                                                                      QString wellname, 
                                                                                      size_t timestep)
-    :m_case(caseToApply),
-    m_wellName(wellname),
-    m_timeStep(timestep)
 {
-    m_flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
-    computeTOFaccumulations();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigTofAccumulatedPhaseFractionsCalculator::computeTOFaccumulations()
-{
-    RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
-
+    RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
-    
-
-    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
 
     size_t scalarResultIndexSwat = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
     size_t scalarResultIndexSoil = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
     size_t scalarResultIndexSgas = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
+    const std::vector<double>* swatResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSwat, timestep));
+    const std::vector<double>* soilResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSoil, timestep));
+    const std::vector<double>* sgasResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSgas, timestep));
+    const std::vector<double>* porvResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexPorv, timestep));
 
-    const std::vector<double>* swatResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSwat, m_timeStep));
-    const std::vector<double>* soilResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSoil, m_timeStep));
-    const std::vector<double>* sgasResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSgas, m_timeStep));
-    const std::vector<double>* porvResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexPorv, m_timeStep));
     
-    const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
+    RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
     std::string resultNameTof = "TOF";
-    const std::vector<double>* tofData = m_flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameTof, 
-                                                                                                                      m_wellName.toStdString()),
-                                                                                             m_timeStep);
-    
+    const std::vector<double>* tofData = flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameTof,
+                                                                                                                    wellname.toStdString()),
+                                                                                           timestep);
+
     std::string resultNameFraction = "Fraction";
-    const std::vector<double>* fractionData = m_flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameFraction, 
-                                                                                                                           m_wellName.toStdString()),
-                                                                                                  m_timeStep);
+    const std::vector<double>* fractionData = flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameFraction,
+                                                                                                                         wellname.toStdString()),
+                                                                                                timestep);
 
-    sortTofAndCalculateAccPhaseFraction(tofData, 
-                                        fractionData, 
-                                        porvResults, 
-                                        swatResults, 
-                                        soilResults, 
-                                        sgasResults, 
-                                        m_accumulatedPhaseFractionSwat, 
-                                        m_accumulatedPhaseFractionSoil, 
-                                        m_accumulatedPhaseFractionSgas, 
+    sortTofAndCalculateAccPhaseFraction(tofData,
+                                        fractionData,
+                                        porvResults,
+                                        swatResults,
+                                        soilResults,
+                                        sgasResults,
+                                        m_accumulatedPhaseFractionSwat,
+                                        m_accumulatedPhaseFractionSoil,
+                                        m_accumulatedPhaseFractionSgas,
                                         m_tofInIncreasingOrder);
-
-
-
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
