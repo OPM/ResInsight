@@ -58,11 +58,13 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
 
     std::string resultNameTof = "TOF";
     const std::vector<double>* tofData = flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameTof,
+                                                                                                                    RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
                                                                                                                     wellname.toStdString()),
                                                                                            timestep);
 
     std::string resultNameFraction = "Fraction";
     const std::vector<double>* fractionData = flowDiagSolution->flowDiagResults()->resultValues(RigFlowDiagResultAddress(resultNameFraction,
+                                                                                                                         RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
                                                                                                                          wellname.toStdString()),
                                                                                                 timestep);
 
