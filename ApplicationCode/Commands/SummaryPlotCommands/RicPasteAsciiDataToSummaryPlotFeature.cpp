@@ -20,6 +20,7 @@
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 #include "RicNewSummaryPlotFeature.h"
+#include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "RiaLogging.h"
 
@@ -32,6 +33,8 @@
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
+#include "cafPdmUiPropertyViewDialog.h"
+#include "cafPdmSettings.h"
 
 #include "cvfAssert.h"
 #include "cvfColor3.h"
@@ -89,9 +92,18 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
             return;
         }
     }
+
+    RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
+    caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
+    if (propertyDialog.exec() != QDialog::Accepted) return;
+
+    caf::PdmSettings::writeFieldsToApplicationStore(&pasteOptions);
+
     QString text = getPastedData();
 
-    std::vector<RimAsciiDataCurve*> curves = parseCurves(text);
+    std::vector<RimAsciiDataCurve*> curves = parseCurves(text, pasteOptions);
     
     for (RimAsciiDataCurve* curve : curves)
     {
@@ -138,7 +150,7 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves(QString& data)
+std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings)
 {
     std::vector<RimAsciiDataCurve*> curves;
     std::vector<QString> headers;
@@ -180,7 +192,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         // Skip empty lines
         if (line.isEmpty()) continue;
 
-        QStringList columns = line.split('\t');
+        QStringList columns = line.split(settings.cellSeparator());
 
         if (columns.size() != numColumns + 1)
         {
@@ -188,7 +200,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
             continue;
         }
 
-        QDateTime date = parseDateString(columns[0]);
+        QDateTime date = QDateTime::fromString(columns[0], settings.dateFormat());
         if (!date.isValid())
         {
             RiaLogging::warning(QString("First column of row %1 could not be parsed as a date: %2").arg(row).arg(columns[0]));
@@ -199,7 +211,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         for (size_t col = 1; col < columns.size(); ++col)
         {
             bool ok;
-            values[col - 1].push_back(columns[static_cast<int>(col)].toDouble(&ok));
+            values[col - 1].push_back(settings.decimalLocale().toDouble(columns[static_cast<int>(col)], &ok));
             if (!ok)
             {
                 RiaLogging::warning(QString("Could not parse value at row %1 column %2 as double: %3. Defaulting to 0.0").arg(row).arg(col).arg(columns[static_cast<int>(col)]));
@@ -227,10 +239,10 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
             switch (it.first)
             {
             case CURVE_GAS:
-                color = RimSummaryCurveAppearanceCalculator::cycledRedColor(i);
+                color = RimSummaryCurveAppearanceCalculator::cycledGreenColor(i);
                 break;
             case CURVE_OIL:
-                color = RimSummaryCurveAppearanceCalculator::cycledGreenColor(i);
+                color = RimSummaryCurveAppearanceCalculator::cycledRedColor(i);
                 break;
             case CURVE_WAT:
                 color = RimSummaryCurveAppearanceCalculator::cycledBlueColor(i);
@@ -244,21 +256,6 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
     }
 
     return curves;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QDateTime RicPasteAsciiDataToSummaryPlotFeature::parseDateString(const QString& date)
-{
-    QDateTime parsedDate;
-
-    parsedDate = QDateTime::fromString(date, "dd.MM.yyyy hh:mm");
-    if (parsedDate.isValid()) return parsedDate;
-
-    parsedDate = QDateTime::fromString(date, "dd.MM.yyyy");
-
-    return parsedDate;
 }
 
 //--------------------------------------------------------------------------------------------------

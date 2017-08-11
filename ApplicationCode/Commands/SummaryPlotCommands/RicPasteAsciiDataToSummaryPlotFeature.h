@@ -29,6 +29,7 @@
 class RimSummaryCurve;
 class RimSummaryCurveFilter;
 class RimAsciiDataCurve;
+class RicPasteAsciiDataToSummaryPlotFeatureUi;
 
 //==================================================================================================
 /// 
@@ -55,9 +56,7 @@ private:
     static QString                         getPastedData();
     static bool                            hasPastedText();
 
-    static std::vector<RimAsciiDataCurve*> parseCurves(QString& data);
-
-    static QDateTime                       parseDateString(const QString& date);
+    static std::vector<RimAsciiDataCurve*> parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings);
 
     static CurveType                       guessCurveType(const QString& curveName);
 };
