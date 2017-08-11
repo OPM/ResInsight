@@ -28,6 +28,8 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 
+#include <QDateTime>
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 

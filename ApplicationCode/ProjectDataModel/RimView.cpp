@@ -51,6 +51,8 @@
 #include "cvfScene.h"
 #include "cvfViewport.h"
 
+#include <QDateTime>
+
 #include <limits.h>
 #include "cvfTransform.h"
 
