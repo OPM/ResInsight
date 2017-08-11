@@ -430,11 +430,16 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             hasSourSimRLFile = eclResCase->hasSourSimFile();
         }
 
+#ifndef USE_HDF5
+        // If using ResInsight without HDF5 support, ignore SourSim files and
+        // do not show it as a result category.
+        hasSourSimRLFile = false;
+#endif
+
 
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
-        // Do not include flow diagnostics results if not available or is a time history curve
         if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr || !hasSourSimRLFile)
         {
             using ResCatEnum = caf::AppEnum< RimDefines::ResultCatType >;

@@ -77,6 +77,9 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     CAF_PDM_InitField(&m_sourSimFileName, "SourSimFileName", QString(), "SourSim File Name", "", "", "");
     m_sourSimFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+#ifndef USE_HDF5
+    m_sourSimFileName.uiCapability()->setUiHidden(true);
+#endif
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;

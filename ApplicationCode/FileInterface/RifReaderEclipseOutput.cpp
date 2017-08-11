@@ -494,7 +494,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
         if (hdfTimeSteps.size() != m_timeSteps.size())
         {
             RiaLogging::error("HDF: Time step count does not match");
-            RiaLogging::error(QString("HDF: Elicpse count %1").arg(m_timeSteps.size()));
+            RiaLogging::error(QString("HDF: Eclipse count %1").arg(m_timeSteps.size()));
             RiaLogging::error(QString("HDF:     HDF count %1").arg(hdfTimeSteps.size()));
 
             return;
@@ -509,7 +509,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 
                 QString dateStr("yyyy.MMM.ddd hh:mm");
 
-                RiaLogging::error(QString("HDF: Elicpse date %1").arg(m_timeSteps[i].toString(dateStr)));
+                RiaLogging::error(QString("HDF: Eclipse date %1").arg(m_timeSteps[i].toString(dateStr)));
                 RiaLogging::error(QString("HDF:     HDF date %1").arg(hdfTimeSteps[i].toString(dateStr)));
 
                 isTimeStampsEqual = false;
