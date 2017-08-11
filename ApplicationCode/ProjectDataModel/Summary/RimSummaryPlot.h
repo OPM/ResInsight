@@ -36,6 +36,7 @@ class RimSummaryCurveFilter;
 class RimSummaryYAxisProperties;
 class RimSummaryTimeAxisProperties;
 class RimGridTimeHistoryCurve;
+class RimAsciiDataCurve;
 class PdmUiTreeOrdering;
 
 class QwtPlotCurve;
@@ -60,6 +61,8 @@ public:
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
+
+    void                                            addAsciiDataCruve(RimAsciiDataCurve* curve);
 
     caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
@@ -125,6 +128,7 @@ private:
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters;
+    caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
     caf::PdmField<bool>                                 m_isAutoZoom;
     caf::PdmChildField<RimSummaryYAxisProperties*>      m_leftYAxisProperties;

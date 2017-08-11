@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,25 +19,45 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+#include "cafPdmPointer.h"
 
-class RimSummaryCase;
-class RimSummaryPlotCollection;
-class RimSummaryPlot;
+
+#include <vector>
+
+#include <QDateTime>
+
+class RimSummaryCurve;
+class RimSummaryCurveFilter;
+class RimAsciiDataCurve;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicNewSummaryPlotFeature : public caf::CmdFeature
+class RicPasteAsciiDataToSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
 public:
-    static RimSummaryPlot* createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase);
+    enum CurveType
+    {
+        CURVE_GAS,
+        CURVE_OIL,
+        CURVE_WAT,
+        CURVE_UNKNOWN,
+    };
 
 protected:
     // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook(QAction* actionToSetup);
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
 
+private:
+    static QString                         getPastedData();
+    static bool                            hasPastedText();
+
+    static std::vector<RimAsciiDataCurve*> parseCurves(QString& data);
+
+    static QDateTime                       parseDateString(const QString& date);
+
+    static CurveType                       guessCurveType(const QString& curveName);
 };
