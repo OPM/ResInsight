@@ -43,8 +43,8 @@ TEST(RigCellGeometryTools, createPolygonTest)
 
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
 
-    EXPECT_EQ(polygons.size(), 1);
-    EXPECT_EQ(polygons[0].size(), 5);
+    EXPECT_EQ(polygons.size(), (size_t) 1);
+    EXPECT_EQ(polygons[0].size(), (size_t) 5);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ TEST(RigCellGeometryTools, createMultiplePolygonTest)
 
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
 
-    EXPECT_EQ(polygons.size(), 2);
+    EXPECT_EQ(polygons.size(), (size_t) 2);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ TEST(RigCellGeometryTools, createPolygonTestRealCase)
 
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
 
-    EXPECT_EQ(polygons.size(), 1);
+    EXPECT_EQ(polygons.size(), (size_t) 1);
 
 }
 
@@ -215,8 +215,8 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest)
                                                                                                           polygonExample,
                                                                                                           RigCellGeometryTools::INTERPOLATE_LINE_Z);
 
-        EXPECT_EQ(1, clippedLines.size());
-        EXPECT_EQ(3, clippedLines.front().size());
+        EXPECT_EQ( (size_t) 1, clippedLines.size());
+        EXPECT_EQ( (size_t) 3, clippedLines.front().size());
         EXPECT_EQ(0.0, clippedLines.front()[0].x());
         EXPECT_EQ(1.0, clippedLines.front()[0].y());
         EXPECT_EQ(1.5, clippedLines.front()[0].z());
@@ -235,8 +235,8 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest)
                                                                                                           polygonExample,
                                                                                                           RigCellGeometryTools::USE_HUGEVAL);
 
-        EXPECT_EQ(1, clippedLines.size());
-        EXPECT_EQ(3, clippedLines.front().size());
+        EXPECT_EQ( (size_t) 1, clippedLines.size());
+        EXPECT_EQ( (size_t) 3, clippedLines.front().size());
         EXPECT_EQ(0.0, clippedLines.front()[0].x());
         EXPECT_EQ(1.0, clippedLines.front()[0].y());
         EXPECT_EQ(HUGE_VAL, clippedLines.front()[0].z());
@@ -257,9 +257,9 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest)
                                                                                                           polygonExample,
                                                                                                           RigCellGeometryTools::USE_HUGEVAL);
 
-        EXPECT_EQ(2, clippedLines.size());
-        EXPECT_EQ(2, clippedLines.front().size());
-        EXPECT_EQ(3, clippedLines.back().size());
+        EXPECT_EQ( (size_t) 2, clippedLines.size());
+        EXPECT_EQ( (size_t) 2, clippedLines.front().size());
+        EXPECT_EQ( (size_t) 3, clippedLines.back().size());
 
         EXPECT_EQ(0.5, clippedLines.front()[0].x());
         EXPECT_EQ(2.5, clippedLines.front()[0].y());
@@ -295,7 +295,7 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
                                                                                                        polygonExample,
                                                                                                        RigCellGeometryTools::INTERPOLATE_LINE_Z);
 
-    EXPECT_EQ(1, clippedLines1.size());
+    EXPECT_EQ( (size_t) 1, clippedLines1.size());
     EXPECT_EQ(0.0, clippedLines1.front()[0].z());
 
     std::vector<cvf::Vec3d> polyLine2;
@@ -306,7 +306,7 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
     std::vector< std::vector<cvf::Vec3d> > clippedLines2 = RigCellGeometryTools::clipPolylineByPolygon(polyLine2,
                                                                                                        polygonExample,
                                                                                                        RigCellGeometryTools::INTERPOLATE_LINE_Z);
-    EXPECT_EQ(1, clippedLines2.size());
+    EXPECT_EQ( (size_t) 1, clippedLines2.size());
     EXPECT_EQ(0.0, clippedLines2.front()[0].z());
     //Since both the line and the polygon is in the z=0 plane, the expected clipped line should be in this plane
 }
@@ -344,12 +344,12 @@ TEST(RigWellPathStimplanIntersector, intersection)
                                                             stpCellPolygons,
                                                             stimPlanCellIdxToIntersectionInfoMap);
 
-        EXPECT_EQ(2, stimPlanCellIdxToIntersectionInfoMap.size());
+        EXPECT_EQ( (size_t) 2, stimPlanCellIdxToIntersectionInfoMap.size());
         auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
-        EXPECT_EQ(2, it->first);
+        EXPECT_EQ( (size_t) 2, it->first);
         EXPECT_EQ(1, it->second.endpointCount);
         ++it;
-        EXPECT_EQ(3, it->first);
+        EXPECT_EQ( (size_t) 3, it->first);
         EXPECT_EQ(1, it->second.endpointCount);
     }
 
@@ -381,9 +381,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
 
 
 
-            EXPECT_EQ(1, stimPlanCellIdxToIntersectionInfoMap.size());
+            EXPECT_EQ( (size_t) 1, stimPlanCellIdxToIntersectionInfoMap.size());
             auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
-            EXPECT_EQ(0, it->first);
+            EXPECT_EQ( (size_t) 0, it->first);
             EXPECT_EQ(2, it->second.endpointCount);
         }
 
@@ -400,9 +400,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
 
 
 
-            EXPECT_EQ(1, stimPlanCellIdxToIntersectionInfoMap.size());
+            EXPECT_EQ( (size_t) 1, stimPlanCellIdxToIntersectionInfoMap.size());
             auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
-            EXPECT_EQ(0, it->first);
+            EXPECT_EQ( (size_t) 0, it->first);
             EXPECT_EQ(2, it->second.endpointCount);
         }
 
@@ -419,9 +419,9 @@ TEST(RigWellPathStimplanIntersector, intersection)
 
 
 
-            EXPECT_EQ(1, stimPlanCellIdxToIntersectionInfoMap.size());
+            EXPECT_EQ( (size_t) 1, stimPlanCellIdxToIntersectionInfoMap.size());
             auto it = stimPlanCellIdxToIntersectionInfoMap.begin();
-            EXPECT_EQ(0, it->first);
+            EXPECT_EQ( (size_t) 0, it->first);
             EXPECT_EQ(2, it->second.endpointCount);
         }
 
