@@ -391,7 +391,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
             for (i = 0; i < timeStepCount; i++)
             {
                 std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[i];
-                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, i, &values))
+                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -402,7 +402,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
             m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
 
             std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
+            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -472,7 +472,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
             std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIndex];
             if (values.size() == 0)
             {
-                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, timeStepIndex, &values))
+                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, timeStepIndex, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -483,7 +483,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
             m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
 
             std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
+            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
             }

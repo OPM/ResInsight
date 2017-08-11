@@ -86,7 +86,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
     std::vector<RigCompletionData> completionData;
 
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
-    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
     for (auto cellAndWellBoreParts : wellBorePartsInCells)
     {

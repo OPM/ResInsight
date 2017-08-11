@@ -53,8 +53,8 @@ public:
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
     void                    close();
 
-    bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
-    bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
+    bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values);
+    bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
@@ -72,13 +72,13 @@ private:
 
     void                    openInitFile();
 
-    void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
+    void                    extractResultValuesBasedOnPorosityModel(RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
     void                    transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, 
                                              RigMainGrid * mainGrid);
     
     RifEclipseRestartDataAccess*   createDynamicResultsAccess();
 
-    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
+    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, RiaDefines::PorosityModelType matrixOrFracture, size_t timeStepCount) const;
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

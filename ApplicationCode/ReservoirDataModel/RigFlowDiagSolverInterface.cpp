@@ -158,7 +158,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 {
     using namespace Opm::FlowDiagnostics;
 
-    RigFlowDiagTimeStepResult result(m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
+    RigFlowDiagTimeStepResult result(m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount());
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
 
@@ -206,7 +206,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             QStringList restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
 
             size_t restartFileCount = static_cast<size_t>(restartFileNames.size());
-            size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+            size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
 
             if (restartFileCount <= timeStepIndex &&  restartFileCount != maxTimeStepCount )
             {
@@ -241,9 +241,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     CVF_ASSERT(currentRestartData);
 
     size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
-    m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
+    m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
 
-    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
+    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
 
     if ( !currentRestartData->selectReportStep(reportStepNumber) )
     {
@@ -256,7 +256,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
 
     {
-        if (m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+        if (m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
         {
             Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
                                                                                                                                 *currentRestartData,

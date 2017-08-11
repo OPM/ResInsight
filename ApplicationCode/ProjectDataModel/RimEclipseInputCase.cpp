@@ -88,11 +88,11 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
     if (fileNames.contains(RiaDefines::mockModelBasicInputCase()))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(fileNames[0]);
-        results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
-        eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
-        eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
+        eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->computeDerivedData();
+        eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->computeDerivedData();
         
         QFileInfo gridFileName(fileNames[0]);
         QString caseName = gridFileName.completeBaseName();
@@ -206,8 +206,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
         CVF_ASSERT(this->eclipseCaseData());
         CVF_ASSERT(readerInterface.notNull());
 
-        results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
         this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
         
@@ -219,8 +219,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
     RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        RimReservoirCellResultsStorage* matrixResults = results(RifReaderInterface::MATRIX_RESULTS);
-        RimReservoirCellResultsStorage* fractureResults = results(RifReaderInterface::FRACTURE_RESULTS);
+        RimReservoirCellResultsStorage* matrixResults = results(RiaDefines::MATRIX_MODEL);
+        RimReservoirCellResultsStorage* fractureResults = results(RiaDefines::FRACTURE_MODEL);
 
         matrixResults->computeDepthRelatedResults();
         fractureResults->computeDepthRelatedResults();
@@ -318,7 +318,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
         for (const QString fileKeyword : fileKeywordSet)
         {
             {
-                QString resultName = this->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeyword);
+                QString resultName = this->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeyword);
                 if (RifEclipseInputFileTools::readProperty(filenames[i], this->eclipseCaseData(), fileKeyword, resultName))
                 {
                     RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;

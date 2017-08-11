@@ -105,7 +105,6 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
     updateNNCColors(cellResultColors);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
     RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 

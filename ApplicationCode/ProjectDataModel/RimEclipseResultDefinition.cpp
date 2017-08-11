@@ -153,9 +153,7 @@ RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResul
 {
     if (!m_eclipseCase ) return nullptr;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModel());
-
-    return m_eclipseCase->results(porosityModel);
+    return m_eclipseCase->results(m_porosityModel());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -993,8 +991,8 @@ bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
     if ( m_eclipseCase
         && m_eclipseCase->eclipseCaseData()
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL) 
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount() > 0 )
         {
             return true;
         } 

@@ -106,8 +106,6 @@ public:
     std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
     std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
 
-    static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RiaDefines::PorosityModelType porosityModel);
-
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:

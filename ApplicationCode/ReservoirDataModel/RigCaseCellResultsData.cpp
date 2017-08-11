@@ -600,16 +600,6 @@ size_t RigCaseCellResultsData::addStaticScalarResult(RiaDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromProjectModelPorosityModel(RiaDefines::PorosityModelType porosityModel)
-{
-    if (porosityModel == RiaDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
-    
-    return RifReaderInterface::FRACTURE_RESULTS;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName)
 {
     bool anyNameUpdated = false;
