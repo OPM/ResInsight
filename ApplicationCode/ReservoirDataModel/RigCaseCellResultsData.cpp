@@ -20,13 +20,15 @@
 
 #include "RigCaseCellResultsData.h"
 
-#include "RigMainGrid.h"
-#include "RigStatisticsDataCache.h"
-#include "RigStatisticsMath.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
+#include "RigMainGrid.h"
+#include "RigResultInfo.h"
+#include "RigStatisticsDataCache.h"
+#include "RigStatisticsMath.h"
 
 #include <QDateTime>
+
 #include <math.h>
 
 

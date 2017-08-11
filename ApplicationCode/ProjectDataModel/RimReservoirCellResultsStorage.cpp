@@ -21,9 +21,10 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
 #include "RigCell.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigResultInfo.h"
 
 #include "RimEclipseCase.h"
 #include "RimTools.h"
@@ -90,7 +91,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     if (!m_cellResults) return;
 
-    const std::vector<RigCaseCellResultsData::ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
+    const std::vector<ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
 
     bool hasResultsToStore = false;
     for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 

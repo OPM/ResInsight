@@ -35,6 +35,7 @@ class RifReaderInterface;
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigStatisticsDataCache;
+class ResultInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -107,23 +108,6 @@ public:
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:
-    class ResultInfo
-    {
-    public:
-        ResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
-            : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex), m_mustBeCalculated(mustBeCalculated) { }
-
-    public:
-        RiaDefines::ResultCatType   m_resultType;
-        bool                        m_needsToBeStored;
-        bool                        m_mustBeCalculated;
-        QString                     m_resultName;
-        size_t                      m_gridScalarResultIndex;
-        std::vector<QDateTime>      m_timeStepDates;
-        std::vector<int>            m_timeStepReportNumbers;
-        std::vector<double>         m_daysSinceSimulationStart;
-    };
-
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
 
     bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
