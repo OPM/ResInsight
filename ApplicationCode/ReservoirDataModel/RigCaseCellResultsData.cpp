@@ -394,8 +394,8 @@ bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
 //--------------------------------------------------------------------------------------------------
 QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepDates.size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepDates[timeStepIndex];
+    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepInfos.size() > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].m_timeStepInfos[timeStepIndex].m_date;
     else
         return QDateTime();
 }
@@ -406,7 +406,9 @@ QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t 
 std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size())
-        return m_resultInfos[scalarResultIndex].m_timeStepDates;
+    {
+        return m_resultInfos[scalarResultIndex].dates();
+    }
     else
         return std::vector<QDateTime>();
 }
@@ -440,7 +442,7 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scal
 {
     if (scalarResultIndex < m_resultInfos.size())
     {
-        return m_resultInfos[scalarResultIndex].m_daysSinceSimulationStart;
+        return m_resultInfos[scalarResultIndex].daysSinceSimulationStarts();
     }
     else
     {
@@ -453,8 +455,8 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart(size_t scal
 //--------------------------------------------------------------------------------------------------
 int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const
 {
-    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepReportNumbers.size() > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepReportNumbers[timeStepIndex];
+    if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepInfos.size() > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].m_timeStepInfos[timeStepIndex].m_reportNumber;
     else
         return -1;
 }
@@ -465,25 +467,33 @@ int RigCaseCellResultsData::reportStepNumber(size_t scalarResultIndex, size_t ti
 std::vector<int> RigCaseCellResultsData::reportStepNumbers(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() )
-        return  m_resultInfos[scalarResultIndex].m_timeStepReportNumbers;
+        return m_resultInfos[scalarResultIndex].reportNumbers();
     else
         return std::vector<int>();
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers)
+std::vector<RigTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t scalarResultIndex) const
+{
+    if (scalarResultIndex < m_resultInfos.size())
+        return m_resultInfos[scalarResultIndex].m_timeStepInfos;
+    else
+        return std::vector<RigTimeStepInfo>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigTimeStepInfo>& timeStepInfos)
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 
-    m_resultInfos[scalarResultIndex].m_timeStepDates = dates;
-    m_resultInfos[scalarResultIndex].m_daysSinceSimulationStart = daysSinceSimulationStart;
-    m_resultInfos[scalarResultIndex].m_timeStepReportNumbers = reportStepNumbers;
+    m_resultInfos[scalarResultIndex].m_timeStepInfos = timeStepInfos;
 
     std::vector< std::vector<double> >& dataValues = this->cellScalarResults(scalarResultIndex);
-    dataValues.resize(dates.size());
+    dataValues.resize(timeStepInfos.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,9 +506,9 @@ size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMos
 
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
-        if (m_resultInfos[i].m_timeStepDates.size() > maxTsCount)
+        if (m_resultInfos[i].m_timeStepInfos.size() > maxTsCount)
         {
-            maxTsCount = m_resultInfos[i].m_timeStepDates.size();
+            maxTsCount = m_resultInfos[i].m_timeStepInfos.size();
             scalarResultIndexWithMaxTsCount = i;
         }
     }

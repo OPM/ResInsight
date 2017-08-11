@@ -18,6 +18,38 @@
 
 #include "RigResultInfo.h"
 
+#include "cvfAssert.h"
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigTimeStepInfo::RigTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart)
+    : m_date(date),
+    m_reportNumber(reportNumber),
+    m_daysSinceSimulationStart(daysSinceSimulationStart)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigTimeStepInfo> RigTimeStepInfo::createTimeStepInfos(std::vector<QDateTime> dates,
+                                                                  std::vector<int> reportNumbers,
+                                                                  std::vector<double> daysSinceSimulationStarts)
+{
+    CVF_ASSERT(dates.size() == reportNumbers.size());
+    CVF_ASSERT(dates.size() == daysSinceSimulationStarts.size());
+
+    std::vector<RigTimeStepInfo> timeStepInfos;
+
+    for (size_t i = 0; i < dates.size(); i++)
+    {
+        timeStepInfos.push_back(RigTimeStepInfo(dates[i], reportNumbers[i], daysSinceSimulationStarts[i]));
+    }
+
+    return timeStepInfos;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -30,3 +62,49 @@ RigResultInfo::RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToB
     m_gridScalarResultIndex(gridScalarResultIndex)
 {
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RigResultInfo::dates() const
+{
+    std::vector<QDateTime> values;
+
+    for (auto v : m_timeStepInfos)
+    {
+        values.push_back(v.m_date);
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigResultInfo::daysSinceSimulationStarts() const
+{
+    std::vector<double> values;
+
+    for (auto v : m_timeStepInfos)
+    {
+        values.push_back(v.m_daysSinceSimulationStart);
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RigResultInfo::reportNumbers() const
+{
+    std::vector<int> values;
+
+    for (auto v : m_timeStepInfos)
+    {
+        values.push_back(v.m_reportNumber);
+    }
+
+    return values;
+}
+

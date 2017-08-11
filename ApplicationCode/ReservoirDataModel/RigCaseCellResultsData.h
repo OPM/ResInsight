@@ -36,6 +36,7 @@ class RigActiveCellInfo;
 class RigMainGrid;
 class RigResultInfo;
 class RigStatisticsDataCache;
+class RigTimeStepInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -81,7 +82,9 @@ public:
     std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
-    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers);
+    
+    std::vector<RigTimeStepInfo>                       timeStepInfos(size_t scalarResultIndex) const;
+    void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigTimeStepInfo>& timeStepInfos);
 
     // Find or create a slot for the results
 

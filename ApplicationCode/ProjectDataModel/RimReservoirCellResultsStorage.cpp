@@ -140,15 +140,15 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
                 cacheEntry->m_resultType = resInfo[rIdx].m_resultType;
                 cacheEntry->m_resultName = resInfo[rIdx].m_resultName;
-                cacheEntry->m_timeStepDates = resInfo[rIdx].m_timeStepDates;
-                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].m_daysSinceSimulationStart;
+                cacheEntry->m_timeStepDates = resInfo[rIdx].dates();
+                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].daysSinceSimulationStarts();
 
                 // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
 
                 // Write all the scalar values for each time step to the stream, 
                 // starting with the number of values 
-                for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].m_timeStepDates.size() ; ++tsIdx)
+                for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].dates().size() ; ++tsIdx)
                 {
                     const std::vector<double>* data = NULL;
                     if (tsIdx < timestepCount)
@@ -379,7 +379,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
     if (m_readerInterface.notNull())
     {
         // Add one more result to result container
-        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
 
         bool resultLoadingSucess = true;
 
@@ -461,7 +461,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
 
     if (m_readerInterface.notNull())
     {
-        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
 
         bool resultLoadingSucess = true;
 
@@ -525,7 +525,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         if (swatForTimeStep.size() > 0)
         {
             soilResultValueCount = swatForTimeStep.size();
-            soilTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepDates.size();
+            soilTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepInfos.size();
         }
     }
 
@@ -536,7 +536,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         {
             soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep.size());
 
-            size_t sgasTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSGAS].m_timeStepDates.size();
+            size_t sgasTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSGAS].m_timeStepInfos.size();
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
     }
@@ -1494,7 +1494,11 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
         size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
 
-        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates(), resInfo->m_daysSinceSimulationStart(), std::vector<int>()); // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
+        std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
+        reportNumbers.resize(resInfo->m_timeStepDates().size());
+        std::vector<RigTimeStepInfo> timeStepInfos = RigTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart());
+
+        m_cellResults->setTimeStepInfos(resultIndex, timeStepInfos);
 
         progress.setProgressDescription(resInfo->m_resultName);
 

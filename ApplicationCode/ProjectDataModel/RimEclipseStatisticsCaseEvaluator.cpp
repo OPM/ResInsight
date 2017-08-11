@@ -43,20 +43,18 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
-    std::vector<double> sourceDaysSinceSimulationStart = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->daysSinceSimulationStart(0);
-    std::vector<int> sourceReportStepNumbers = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->reportStepNumbers(0);
+    std::vector<RigTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepInfos(0);
 
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
-    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates, sourceDaysSinceSimulationStart, sourceReportStepNumbers);
+    destinationCellResults->setTimeStepInfos(destinationScalarResultIndex, sourceTimeStepInfos);
     std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
-    dataValues.resize(sourceTimeStepDates.size());
+    dataValues.resize(sourceTimeStepInfos.size());
 
 
     // Initializes the size of the destination dataset to active union cell count
-    for (size_t i = 0; i < sourceTimeStepDates.size(); i++)
+    for (size_t i = 0; i < sourceTimeStepInfos.size(); i++)
     {
         dataValues[i].resize(activeUnionCellCount, HUGE_VAL);
     }

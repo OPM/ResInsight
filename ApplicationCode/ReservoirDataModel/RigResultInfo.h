@@ -20,15 +20,41 @@
 
 #include "RiaDefines.h"
 
+#include <QDateTime>
+#include <QString>
+
 #include <vector>
 
-class QString;
+//==================================================================================================
+/// 
+//==================================================================================================
+class RigTimeStepInfo
+{
+public:
+    RigTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart);
 
+    static std::vector<RigTimeStepInfo> createTimeStepInfos(std::vector<QDateTime> dates,
+                                                            std::vector<int> reportNumbers,
+                                                            std::vector<double> daysSinceSimulationStarts);
+public:
+    QDateTime   m_date;
+    int         m_reportNumber;
+    double      m_daysSinceSimulationStart;
+};
+
+
+//==================================================================================================
+/// 
+//==================================================================================================
 class RigResultInfo
 {
 public:
     RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
                QString resultName, size_t gridScalarResultIndex);
+
+    std::vector<QDateTime>  dates() const;
+    std::vector<double>     daysSinceSimulationStarts() const;
+    std::vector<int>        reportNumbers() const;
 
 public:
     RiaDefines::ResultCatType   m_resultType;
@@ -36,7 +62,6 @@ public:
     bool                        m_mustBeCalculated;
     QString                     m_resultName;
     size_t                      m_gridScalarResultIndex;
-    std::vector<QDateTime>      m_timeStepDates;
-    std::vector<int>            m_timeStepReportNumbers;
-    std::vector<double>         m_daysSinceSimulationStart;
+    
+    std::vector<RigTimeStepInfo> m_timeStepInfos;
 };
