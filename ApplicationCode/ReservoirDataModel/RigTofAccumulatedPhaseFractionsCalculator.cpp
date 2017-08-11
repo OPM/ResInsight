@@ -41,7 +41,6 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                                      QString wellname, 
                                                                                      size_t timestep)
 {
-
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
@@ -54,8 +53,7 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
     const std::vector<double>* soilResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSoil, timestep));
     const std::vector<double>* sgasResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexSgas, timestep));
     const std::vector<double>* porvResults = &(eclipseCaseData->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndexPorv, timestep));
-
-    
+        
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
     std::string resultNameTof = "TOF";
@@ -105,7 +103,7 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
         auto iteratorBoolFromInsertToMap = tofAndIndexMap.insert(std::make_pair(tofData->at(i), vectorOfIndexes));
         if (!iteratorBoolFromInsertToMap.second)
         {
-            //Element exist alread, was not inserted
+            //Element exist already, was not inserted
             iteratorBoolFromInsertToMap.first->second.push_back(i);
         }
     }

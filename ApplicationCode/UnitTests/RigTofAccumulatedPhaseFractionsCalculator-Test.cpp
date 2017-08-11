@@ -60,17 +60,17 @@ TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFract
     std::vector<double> accumulatedPhaseFractionSgas;
     std::vector<double> tofInIncreasingOrder;
 
-    RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(&(tofDataVector),
-                                                                                   &(fractionDataVector),
-                                                                                   &(porvResultVector),
-                                                                                   &(swatResultVector),
-                                                                                   &(soilResultVector),
-                                                                                   &(sgasResultVector), 
-                                                                                   tofInIncreasingOrder,
-                                                                                   accumulatedPhaseFractionSwat,
-                                                                                   accumulatedPhaseFractionSoil,
-                                                                                   accumulatedPhaseFractionSgas
-                                                                                   );
+    RigTofAccumulatedPhaseFractionsCalculatorTester::testSortTofAndCalculateAccPhaseFraction(&(tofDataVector),
+                                                                                             &(fractionDataVector),
+                                                                                             &(porvResultVector),
+                                                                                             &(swatResultVector),
+                                                                                             &(soilResultVector),
+                                                                                             &(sgasResultVector), 
+                                                                                             tofInIncreasingOrder,
+                                                                                             accumulatedPhaseFractionSwat,
+                                                                                             accumulatedPhaseFractionSoil,
+                                                                                             accumulatedPhaseFractionSgas
+                                                                                             );
     
     EXPECT_LT(tofInIncreasingOrder[0], tofInIncreasingOrder[1]);
     EXPECT_LT(tofInIncreasingOrder[1], tofInIncreasingOrder[2]);
@@ -131,16 +131,16 @@ TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFract
     std::vector<double> accumulatedPhaseFractionSgas2;
     std::vector<double> tofInIncreasingOrder2;
 
-    RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(&(tofDataVector2),
-                                                                                   &(fractionDataVector2),
-                                                                                   &(porvResultVector2),
-                                                                                   &(swatResultVector2),
-                                                                                   &(soilResultVector2),
-                                                                                   &(sgasResultVector2),
-                                                                                   tofInIncreasingOrder2,
-                                                                                   accumulatedPhaseFractionSwat2,
-                                                                                   accumulatedPhaseFractionSoil2,
-                                                                                   accumulatedPhaseFractionSgas2);
+    RigTofAccumulatedPhaseFractionsCalculatorTester::testSortTofAndCalculateAccPhaseFraction(&(tofDataVector2),
+                                                                                             &(fractionDataVector2),
+                                                                                             &(porvResultVector2),
+                                                                                             &(swatResultVector2),
+                                                                                             &(soilResultVector2),
+                                                                                             &(sgasResultVector2),
+                                                                                             tofInIncreasingOrder2,
+                                                                                             accumulatedPhaseFractionSwat2,
+                                                                                             accumulatedPhaseFractionSoil2,
+                                                                                             accumulatedPhaseFractionSgas2);
     EXPECT_EQ(tofInIncreasingOrder2.size(), 3);
 
     double sumForOneTOF = accumulatedPhaseFractionSwat2[2] 

@@ -49,6 +49,7 @@ public:
     
 
 private:
+    friend class RigTofAccumulatedPhaseFractionsCalculatorTester;
     static void sortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData, 
                                              const std::vector<double>* fractionData, 
                                              const std::vector<double>* porvResults, 
@@ -68,4 +69,29 @@ private:
 
 };
 
-//TODO: tester... 
+class RigTofAccumulatedPhaseFractionsCalculatorTester
+{
+public:
+    static void testSortTofAndCalculateAccPhaseFraction(const std::vector<double>* tofData,
+                                                        const std::vector<double>* fractionData,
+                                                        const std::vector<double>* porvResults,
+                                                        const std::vector<double>* swatResults,
+                                                        const std::vector<double>* soilResults,
+                                                        const std::vector<double>* sgasResults,
+                                                        std::vector<double>& tofInIncreasingOrder,
+                                                        std::vector<double>& accumulatedPhaseFractionSwat,
+                                                        std::vector<double>& accumulatedPhaseFractionSoil,
+                                                        std::vector<double>& accumulatedPhaseFractionSgas)
+    {
+        RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(tofData, 
+                                                                                       fractionData, 
+                                                                                       porvResults, 
+                                                                                       swatResults, 
+                                                                                       soilResults,
+                                                                                       sgasResults,
+                                                                                       tofInIncreasingOrder, 
+                                                                                       accumulatedPhaseFractionSwat, 
+                                                                                       accumulatedPhaseFractionSoil, 
+                                                                                       accumulatedPhaseFractionSgas);
+    }
+};
