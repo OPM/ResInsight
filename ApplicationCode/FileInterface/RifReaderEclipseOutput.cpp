@@ -458,6 +458,14 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
     CVF_ASSERT(matrixModelResults);
 
+    if (fileName.isEmpty())
+    {
+        RiaLogging::info("HDF: Removing all existing Sour Sim data ...");
+        matrixModelResults->eraseAllSourSimData();
+
+        return;
+    }
+
     RiaLogging::info(QString("HDF: Start import of data from : ").arg(fileName));
 
     RiaLogging::info("HDF: Removing all existing Sour Sim data ...");

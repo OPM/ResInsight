@@ -410,6 +410,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicReloadCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
+            commandIds << "RicDeleteSourSimDataFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {
