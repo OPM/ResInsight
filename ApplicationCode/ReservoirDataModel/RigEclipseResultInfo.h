@@ -28,12 +28,12 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigTimeStepInfo
+class RigEclipseTimeStepInfo
 {
 public:
-    RigTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart);
+    RigEclipseTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart);
 
-    static std::vector<RigTimeStepInfo> createTimeStepInfos(std::vector<QDateTime> dates,
+    static std::vector<RigEclipseTimeStepInfo> createTimeStepInfos(std::vector<QDateTime> dates,
                                                             std::vector<int> reportNumbers,
                                                             std::vector<double> daysSinceSimulationStarts);
 public:
@@ -46,10 +46,10 @@ public:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigResultInfo
+class RigEclipseResultInfo
 {
 public:
-    RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
+    RigEclipseResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
                QString resultName, size_t gridScalarResultIndex);
 
     std::vector<QDateTime>  dates() const;
@@ -63,5 +63,5 @@ public:
     QString                     m_resultName;
     size_t                      m_gridScalarResultIndex;
     
-    std::vector<RigTimeStepInfo> m_timeStepInfos;
+    std::vector<RigEclipseTimeStepInfo> m_timeStepInfos;
 };

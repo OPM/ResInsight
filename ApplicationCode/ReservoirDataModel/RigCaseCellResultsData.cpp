@@ -23,7 +23,7 @@
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
 #include "RigMainGrid.h"
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
 
@@ -207,7 +207,7 @@ std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResu
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const
 {
-    std::vector<RigResultInfo>::const_iterator it;
+    std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == type && it->m_resultName == resultName)
@@ -268,7 +268,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType ty
 
     scalarResultIndex = this->resultCount();
     m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-    RigResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
+    RigEclipseResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
     m_resultInfos.push_back(resInfo);
 
     // Create statistics calculator and add statistics cache object
@@ -341,7 +341,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType ty
 QStringList RigCaseCellResultsData::resultNames(RiaDefines::ResultCatType resType) const
 {
     QStringList varList;
-    std::vector<RigResultInfo>::const_iterator it;
+    std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_resultType == resType )
@@ -475,18 +475,18 @@ std::vector<int> RigCaseCellResultsData::reportStepNumbers(size_t scalarResultIn
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t scalarResultIndex) const
+std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size())
         return m_resultInfos[scalarResultIndex].m_timeStepInfos;
     else
-        return std::vector<RigTimeStepInfo>();
+        return std::vector<RigEclipseTimeStepInfo>();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigTimeStepInfo>& timeStepInfos)
+void RigCaseCellResultsData::setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos)
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 
@@ -621,7 +621,7 @@ bool RigCaseCellResultsData::updateResultName(RiaDefines::ResultCatType resultTy
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 {
-    std::vector<RigResultInfo>::const_iterator it;
+    std::vector<RigEclipseResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)
@@ -638,7 +638,7 @@ bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 {
-    std::vector<RigResultInfo>::iterator it;
+    std::vector<RigEclipseResultInfo>::iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); ++it)
     {
         if (it->m_gridScalarResultIndex == scalarResultIndex)

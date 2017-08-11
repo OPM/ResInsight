@@ -25,7 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -238,9 +238,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     {
         RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
 
-        std::vector<RigTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
 
-        const std::vector<RigResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
+        const std::vector<RigEclipseResultInfo> resultInfos = rigCaseData->results(poroModel)->infoForEachResultIndex();
 
         for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
         {

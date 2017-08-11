@@ -16,14 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigTimeStepInfo::RigTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart)
+RigEclipseTimeStepInfo::RigEclipseTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart)
     : m_date(date),
     m_reportNumber(reportNumber),
     m_daysSinceSimulationStart(daysSinceSimulationStart)
@@ -33,18 +33,18 @@ RigTimeStepInfo::RigTimeStepInfo(const QDateTime& date, int reportNumber, double
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigTimeStepInfo> RigTimeStepInfo::createTimeStepInfos(std::vector<QDateTime> dates,
+std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos(std::vector<QDateTime> dates,
                                                                   std::vector<int> reportNumbers,
                                                                   std::vector<double> daysSinceSimulationStarts)
 {
     CVF_ASSERT(dates.size() == reportNumbers.size());
     CVF_ASSERT(dates.size() == daysSinceSimulationStarts.size());
 
-    std::vector<RigTimeStepInfo> timeStepInfos;
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     for (size_t i = 0; i < dates.size(); i++)
     {
-        timeStepInfos.push_back(RigTimeStepInfo(dates[i], reportNumbers[i], daysSinceSimulationStarts[i]));
+        timeStepInfos.push_back(RigEclipseTimeStepInfo(dates[i], reportNumbers[i], daysSinceSimulationStarts[i]));
     }
 
     return timeStepInfos;
@@ -53,7 +53,7 @@ std::vector<RigTimeStepInfo> RigTimeStepInfo::createTimeStepInfos(std::vector<QD
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigResultInfo::RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
+RigEclipseResultInfo::RigEclipseResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
                        QString resultName, size_t gridScalarResultIndex)
     : m_resultType(resultType),
     m_needsToBeStored(needsToBeStored),
@@ -66,7 +66,7 @@ RigResultInfo::RigResultInfo(RiaDefines::ResultCatType resultType, bool needsToB
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RigResultInfo::dates() const
+std::vector<QDateTime> RigEclipseResultInfo::dates() const
 {
     std::vector<QDateTime> values;
 
@@ -81,7 +81,7 @@ std::vector<QDateTime> RigResultInfo::dates() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigResultInfo::daysSinceSimulationStarts() const
+std::vector<double> RigEclipseResultInfo::daysSinceSimulationStarts() const
 {
     std::vector<double> values;
 
@@ -96,7 +96,7 @@ std::vector<double> RigResultInfo::daysSinceSimulationStarts() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RigResultInfo::reportNumbers() const
+std::vector<int> RigEclipseResultInfo::reportNumbers() const
 {
     std::vector<int> values;
 

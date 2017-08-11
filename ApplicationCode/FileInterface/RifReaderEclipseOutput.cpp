@@ -30,7 +30,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 
 #include "cafProgressInfo.h"
 
@@ -647,7 +647,7 @@ void RifReaderEclipseOutput::buildMetaData()
     RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RiaDefines::MATRIX_MODEL);
     RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RiaDefines::FRACTURE_MODEL);
 
-    std::vector<RigTimeStepInfo> timeStepInfos;
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     // Create access object for dynamic results
     m_dynamicResultsAccess = createDynamicResultsAccess();
@@ -721,7 +721,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
         RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
-        std::vector<RigTimeStepInfo> staticTimeStepInfo;
+        std::vector<RigEclipseTimeStepInfo> staticTimeStepInfo;
         if (!timeStepInfos.empty())
         {
             staticTimeStepInfo.push_back(timeStepInfos.front());
@@ -1639,7 +1639,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
         std::vector<QDateTime> filteredTimeSteps;
         {
-            std::vector<RigTimeStepInfo> filteredTimeStepInfos = createFilteredTimeStepInfos();
+            std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos = createFilteredTimeStepInfos();
             for (auto a : filteredTimeStepInfos)
             {
                 filteredTimeSteps.push_back(a.m_date);
@@ -1765,9 +1765,9 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeStepInfos()
+std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeStepInfos()
 {
-    std::vector<RigTimeStepInfo> timeStepInfos;
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     if (m_dynamicResultsAccess.notNull())
     {
@@ -1782,7 +1782,7 @@ std::vector<RigTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeStepInfos
         {
             if (this->isTimeStepIncludedByFilter(i))
             {
-                timeStepInfos.push_back(RigTimeStepInfo(timeStepsOnFile[i], reportNumbersOnFile[i], daysSinceSimulationStartOnFile[i]));
+                timeStepInfos.push_back(RigEclipseTimeStepInfo(timeStepsOnFile[i], reportNumbersOnFile[i], daysSinceSimulationStartOnFile[i]));
             }
         }
     }

@@ -22,7 +22,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -35,7 +35,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
 
     RigCaseCellResultsData* cellResults = eclipseCase->results(RiaDefines::MATRIX_MODEL);
 
-    std::vector<RigTimeStepInfo> timeStepInfos;
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
     {
         std::vector<QDateTime> dates;
         std::vector<double> days;
@@ -48,7 +48,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
             repNumbers.push_back(i);
         }
 
-        timeStepInfos = RigTimeStepInfo::createTimeStepInfos(dates, repNumbers, days);
+        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(dates, repNumbers, days);
     }
 
     for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
@@ -59,7 +59,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
 
     if (m_reservoirBuilder.timeStepCount() == 0) return true;
 
-    std::vector<RigTimeStepInfo> staticResultTimeStepInfos;
+    std::vector<RigEclipseTimeStepInfo> staticResultTimeStepInfos;
     staticResultTimeStepInfos.push_back(timeStepInfos[0]);
 
     for (int i = 0; i < static_cast<int>(m_reservoirBuilder.resultCount()); i++)

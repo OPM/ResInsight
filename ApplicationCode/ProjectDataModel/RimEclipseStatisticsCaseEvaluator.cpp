@@ -24,7 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
@@ -44,7 +44,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<RigTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepInfos(0);
+    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepInfos(0);
 
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);

@@ -34,9 +34,9 @@
 class RifReaderInterface;
 class RigActiveCellInfo;
 class RigMainGrid;
-class RigResultInfo;
+class RigEclipseResultInfo;
 class RigStatisticsDataCache;
-class RigTimeStepInfo;
+class RigEclipseTimeStepInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -83,8 +83,8 @@ public:
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
     
-    std::vector<RigTimeStepInfo>                       timeStepInfos(size_t scalarResultIndex) const;
-    void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigTimeStepInfo>& timeStepInfos);
+    std::vector<RigEclipseTimeStepInfo>                       timeStepInfos(size_t scalarResultIndex) const;
+    void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
 
     // Find or create a slot for the results
 
@@ -109,7 +109,7 @@ public:
     bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:
-    const std::vector<RigResultInfo>&                       infoForEachResultIndex() { return m_resultInfos;}
+    const std::vector<RigEclipseResultInfo>&                       infoForEachResultIndex() { return m_resultInfos;}
 
     bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
     void                                                    setMustBeCalculated(size_t scalarResultIndex);
@@ -128,7 +128,7 @@ private:
     cvf::Collection<RigStatisticsDataCache>                 m_statisticsDataCache;
 
 private:
-    std::vector<RigResultInfo>                              m_resultInfos;
+    std::vector<RigEclipseResultInfo>                              m_resultInfos;
 
     RigMainGrid*                                            m_ownerMainGrid;
     RigActiveCellInfo*                                      m_activeCellInfo;

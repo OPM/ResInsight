@@ -24,7 +24,7 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigResultInfo.h"
+#include "RigEclipseResultInfo.h"
 
 #include "RimEclipseCase.h"
 #include "RimTools.h"
@@ -91,7 +91,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     if (!m_cellResults) return;
 
-    const std::vector<RigResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
+    const std::vector<RigEclipseResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
 
     bool hasResultsToStore = false;
     for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 
@@ -1496,7 +1496,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
 
         std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
         reportNumbers.resize(resInfo->m_timeStepDates().size());
-        std::vector<RigTimeStepInfo> timeStepInfos = RigTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart());
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart());
 
         m_cellResults->setTimeStepInfos(resultIndex, timeStepInfos);
 
