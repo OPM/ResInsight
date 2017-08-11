@@ -30,6 +30,7 @@ class RigGridBase;
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigFault;
+class RigTimeStepInfo;
 
 struct RigWellResultPoint;
 
@@ -79,6 +80,8 @@ private:
     RifEclipseRestartDataAccess*   createDynamicResultsAccess();
 
     QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, RiaPorosityModel::PorosityModelType matrixOrFracture, size_t timeStepCount) const;
+    
+    std::vector<RigTimeStepInfo> createFilteredTimeStepInfos();
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

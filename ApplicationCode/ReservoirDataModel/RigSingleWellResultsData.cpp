@@ -37,12 +37,12 @@ const RigWellResultFrame& RigSingleWellResultsData::wellResultFrame(size_t resul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes)
+void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& simulationTimeSteps)
 {
     m_resultTimeStepIndexToWellTimeStepIndex.clear();
     if (m_wellCellsTimeSteps.size() == 0) return;
 
-    m_resultTimeStepIndexToWellTimeStepIndex.resize(resultTimes.size(), cvf::UNDEFINED_SIZE_T);
+    m_resultTimeStepIndexToWellTimeStepIndex.resize(simulationTimeSteps.size(), cvf::UNDEFINED_SIZE_T);
 
     if (false)
     {
@@ -54,29 +54,23 @@ void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndi
         }
 
         qDebug() << "Result TimeStamps";
-        for (size_t i = 0; i < resultTimes.size(); i++)
+        for (size_t i = 0; i < simulationTimeSteps.size(); i++)
         {
-            qDebug() << resultTimes[i].toString();
+            qDebug() << simulationTimeSteps[i].toString();
         }
-
     }
 
-    int resultIdx = 0;
-    size_t wellIdx = 0;
-    size_t activeWellIdx = cvf::UNDEFINED_SIZE_T;
-
-    while (wellIdx <= m_wellCellsTimeSteps.size() && resultIdx < static_cast<int>(resultTimes.size()))
+    for (size_t resultTimeStepIndex = 0; resultTimeStepIndex< simulationTimeSteps.size(); resultTimeStepIndex++)
     {
-        if (wellIdx < m_wellCellsTimeSteps.size() && m_wellCellsTimeSteps[wellIdx].m_timestamp <= resultTimes[resultIdx])
+        size_t wellTimeStepIndex = 0;
+
+        while (wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
+               m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp < simulationTimeSteps[resultTimeStepIndex])
         {
-            activeWellIdx = wellIdx;
-            wellIdx++;
+            wellTimeStepIndex++;
         }
 
-        CVF_ASSERT(resultIdx < static_cast<int>(m_resultTimeStepIndexToWellTimeStepIndex.size()));
-        m_resultTimeStepIndexToWellTimeStepIndex[resultIdx] = activeWellIdx;
-
-        resultIdx++;
+        m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
     }
 }
 
