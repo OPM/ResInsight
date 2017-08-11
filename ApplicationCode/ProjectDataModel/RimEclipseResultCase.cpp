@@ -532,6 +532,7 @@ void RimEclipseResultCase::defineEditorAttribute(const caf::PdmFieldHandle* fiel
         if (myAttr)
         {
             myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";
+            myAttr->m_defaultPath = QFileInfo(caseFileName()).absolutePath();
         }
     }
 }

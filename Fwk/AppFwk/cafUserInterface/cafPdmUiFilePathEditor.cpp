@@ -154,7 +154,14 @@ void PdmUiFilePathEditor::fileSelectionClicked()
     QString defaultPath;
     if ( m_lineEdit->text().isEmpty())
     {
-        defaultPath = QDir::homePath();
+        if (m_attributes.m_defaultPath.isNull())
+        {
+            defaultPath = QDir::homePath();
+        }
+        else
+        {
+            defaultPath = m_attributes.m_defaultPath;
+        }
     }
     else
     {
