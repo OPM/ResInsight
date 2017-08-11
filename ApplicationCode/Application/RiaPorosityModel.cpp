@@ -21,11 +21,14 @@
 #include "cafAppEnum.h"
 
 
-template<>
-void caf::AppEnum< RiaDefines::PorosityModelType >::setUp()
+namespace caf
 {
-    addItem(RiaDefines::MATRIX_MODEL,   "MATRIX_MODEL",     "Matrix");
-    addItem(RiaDefines::FRACTURE_MODEL, "FRACTURE_MODEL",   "Fracture");
+    template<>
+    void caf::AppEnum< RiaDefines::PorosityModelType >::setUp()
+    {
+        addItem(RiaDefines::MATRIX_MODEL,   "MATRIX_MODEL",     "Matrix");
+        addItem(RiaDefines::FRACTURE_MODEL, "FRACTURE_MODEL",   "Fracture");
 
-    setDefault(RiaDefines::MATRIX_MODEL);
+        setDefault(RiaDefines::MATRIX_MODEL);
+    }
 }

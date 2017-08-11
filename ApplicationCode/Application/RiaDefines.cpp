@@ -19,6 +19,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaDefines.h"
+
 #include "cafAppEnum.h"
 
 
@@ -306,5 +307,5 @@ double RiaDefines::minimumDefaultValuePlot()
 //--------------------------------------------------------------------------------------------------
 double RiaDefines::maximumDefaultValuePlot()
 {
-    return  100.0;
+    return 100.0;
 }
