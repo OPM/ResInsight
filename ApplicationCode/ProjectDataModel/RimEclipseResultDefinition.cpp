@@ -902,7 +902,7 @@ void RimEclipseResultDefinition::setResultType(RiaDefines::ResultCatType val)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::setPorosityModel(RiaDefines::PorosityModelType val)
+void RimEclipseResultDefinition::setPorosityModel(RiaPorosityModel::PorosityModelType val)
 {
     m_porosityModel = val;
     m_porosityModelUiField = val;
@@ -991,8 +991,8 @@ bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
     if ( m_eclipseCase
         && m_eclipseCase->eclipseCaseData()
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL) 
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount() > 0 )
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaPorosityModel::FRACTURE_MODEL) 
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaPorosityModel::FRACTURE_MODEL)->reservoirActiveCellCount() > 0 )
         {
             return true;
         } 

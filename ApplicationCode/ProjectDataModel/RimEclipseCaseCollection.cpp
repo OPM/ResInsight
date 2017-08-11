@@ -171,7 +171,7 @@ RigMainGrid* RimEclipseCaseCollection::registerCaseInGridCollection(RigEclipseCa
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
+        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaPorosityModel::MATRIX_MODEL));
   
         equalGrid = rigEclipseCase->mainGrid();
     }

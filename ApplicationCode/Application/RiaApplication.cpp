@@ -36,7 +36,6 @@
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
-#include "RiaDefines.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"

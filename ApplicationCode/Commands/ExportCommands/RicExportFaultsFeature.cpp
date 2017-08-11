@@ -25,7 +25,6 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
-#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimFault.h"
 

@@ -33,7 +33,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
   
     m_reservoir = eclipseCase;
 
-    RigCaseCellResultsData* cellResults = eclipseCase->results(RiaDefines::MATRIX_MODEL);
+    RigCaseCellResultsData* cellResults = eclipseCase->results(RiaPorosityModel::MATRIX_MODEL);
 
     std::vector<RigTimeStepInfo> timeStepInfos;
     {
@@ -113,7 +113,7 @@ bool RifReaderMockModel::inputProperty(const QString& propertyName, std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values)
+bool RifReaderMockModel::staticResult(const QString& result, RiaPorosityModel::PorosityModelType matrixOrFracture, std::vector<double>* values)
 {
     m_reservoirBuilder.staticResult(m_reservoir, result, values);
 
@@ -123,7 +123,7 @@ bool RifReaderMockModel::staticResult(const QString& result, RiaDefines::Porosit
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
+bool RifReaderMockModel::dynamicResult(const QString& result, RiaPorosityModel::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
     m_reservoirBuilder.dynamicResult(m_reservoir, result, stepIndex, values);
 

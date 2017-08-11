@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RifReaderInterface.h"
+#include "RiaPorosityModel.h"
 
 #include "RimCase.h"
 #include "RiaDefines.h"
@@ -73,8 +73,8 @@ public:
     const RigEclipseCaseData*                   eclipseCaseData() const;
     cvf::Color3f                                defaultWellColor(const QString& wellName);
 
-    RimReservoirCellResultsStorage*             results(RiaDefines::PorosityModelType porosityModel);
-    const RimReservoirCellResultsStorage*       results(RiaDefines::PorosityModelType porosityModel) const;
+    RimReservoirCellResultsStorage*             results(RiaPorosityModel::PorosityModelType porosityModel);
+    const RimReservoirCellResultsStorage*       results(RiaPorosityModel::PorosityModelType porosityModel) const;
                                                       
     RimEclipseView*                             createAndAddReservoirView();
     RimEclipseView*                             createCopyAndAddView(const RimEclipseView* sourceView);

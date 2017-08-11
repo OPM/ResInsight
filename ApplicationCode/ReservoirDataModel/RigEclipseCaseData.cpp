@@ -434,9 +434,9 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelType porosityModel)
+RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaPorosityModel::PorosityModelType porosityModel)
 {
-    if (porosityModel == RiaDefines::MATRIX_MODEL)
+    if (porosityModel == RiaPorosityModel::MATRIX_MODEL)
     {
         return m_activeCellInfo.p();
     }
@@ -447,9 +447,9 @@ RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelType porosityModel) const
+const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaPorosityModel::PorosityModelType porosityModel) const
 {
-    if (porosityModel == RiaDefines::MATRIX_MODEL)
+    if (porosityModel == RiaPorosityModel::MATRIX_MODEL)
     {
         return m_activeCellInfo.p();
     }
@@ -460,9 +460,9 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::Porosity
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo(RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo)
+void RigEclipseCaseData::setActiveCellInfo(RiaPorosityModel::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo)
 {
-    if (porosityModel == RiaDefines::MATRIX_MODEL)
+    if (porosityModel == RiaPorosityModel::MATRIX_MODEL)
     {
         m_activeCellInfo = activeCellInfo;
         m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
@@ -604,9 +604,9 @@ RigFormationNames* RigEclipseCaseData::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelType porosityModel)
+RigCaseCellResultsData* RigEclipseCaseData::results(RiaPorosityModel::PorosityModelType porosityModel)
 {
-    if (porosityModel == RiaDefines::MATRIX_MODEL)
+    if (porosityModel == RiaPorosityModel::MATRIX_MODEL)
     {
         return m_matrixModelResults.p();
     }
@@ -617,9 +617,9 @@ RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelTyp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelType porosityModel) const
+const RigCaseCellResultsData* RigEclipseCaseData::results(RiaPorosityModel::PorosityModelType porosityModel) const
 {
-    if (porosityModel == RiaDefines::MATRIX_MODEL)
+    if (porosityModel == RiaPorosityModel::MATRIX_MODEL)
     {
         return m_matrixModelResults.p();
     }

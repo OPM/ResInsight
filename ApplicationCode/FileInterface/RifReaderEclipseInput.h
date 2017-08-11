@@ -38,6 +38,6 @@ public:
 
     virtual void                close() {}
 
-    virtual bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )                      { return false; }
-    virtual bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values )   { return false; }
+    virtual bool                staticResult(const QString& result, RiaPorosityModel::PorosityModelType matrixOrFracture, std::vector<double>* values )                      { return false; }
+    virtual bool                dynamicResult(const QString& result, RiaPorosityModel::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values )   { return false; }
 };

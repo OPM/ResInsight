@@ -128,8 +128,8 @@ bool RimEclipseResultCase::openEclipseGridFile()
         this->setReservoirData( eclipseCase.p() );
     }
 
-    results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
-    results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaPorosityModel::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaPorosityModel::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
     progInfo.incrementProgress();
 
@@ -188,7 +188,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
 
-        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RiaDefines::MATRIX_MODEL)->timeStepDates();
+        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RiaPorosityModel::MATRIX_MODEL)->timeStepDates();
         if (timeStepDates.size() == 0)
         {
             return false;
@@ -207,8 +207,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         readerInterface = readerEclipseOutput;
     }
 
-    results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
-    results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaPorosityModel::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaPorosityModel::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
     CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());

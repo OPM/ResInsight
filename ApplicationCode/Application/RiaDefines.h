@@ -37,12 +37,6 @@ public:
         REMOVED
     };
 
-    enum PorosityModelType
-    {
-        MATRIX_MODEL,
-        FRACTURE_MODEL
-    };
-
     enum CompletionType {
         WELL_PATH,
         PERFORATION_INTERVAL,

@@ -113,7 +113,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         eclipseView->eclipseCase() &&
         eclipseView->eclipseCase()->eclipseCaseData())
     {
-        RiaDefines::PorosityModelType porosityModel = eclipseView->cellResult()->porosityModel();
+        RiaPorosityModel::PorosityModelType porosityModel = eclipseView->cellResult()->porosityModel();
 
         std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->eclipseCaseData()->results(porosityModel)->timeStepDates();
 

@@ -68,7 +68,7 @@ public:
 
     RigMainGrid*                        mainGrid();
 
-    RigActiveCellInfo*                  unionOfActiveCells(RiaDefines::PorosityModelType porosityType);
+    RigActiveCellInfo*                  unionOfActiveCells(RiaPorosityModel::PorosityModelType porosityType);
     void                                computeUnionOfActiveCells();
 
     static bool                         isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);

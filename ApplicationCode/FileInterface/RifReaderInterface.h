@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "RiaDefines.h"
+#include "RiaPorosityModel.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -59,8 +59,8 @@ public:
     virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
    
-    virtual bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) = 0;
-    virtual bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
+    virtual bool                staticResult(const QString& result, RiaPorosityModel::PorosityModelType matrixOrFracture, std::vector<double>* values) = 0;
+    virtual bool                dynamicResult(const QString& result, RiaPorosityModel::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
 
     void                        setFilenamesWithFaults(const std::vector<QString>& filenames)   { m_filenamesWithFaults = filenames; }
     std::vector<QString>        filenamesWithFaults()                                           { return m_filenamesWithFaults; }

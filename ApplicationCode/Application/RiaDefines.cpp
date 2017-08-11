@@ -37,15 +37,6 @@ namespace caf
     }
 
     template<>
-    void caf::AppEnum< RiaDefines::PorosityModelType >::setUp()
-    {
-        addItem(RiaDefines::MATRIX_MODEL,   "MATRIX_MODEL",     "Matrix");
-        addItem(RiaDefines::FRACTURE_MODEL, "FRACTURE_MODEL",   "Fracture");
-
-        setDefault(RiaDefines::MATRIX_MODEL);
-    }
-
-    template<>
     void caf::AppEnum< RiaDefines::DepthUnitType >::setUp()
     {
         addItem(RiaDefines::UNIT_METER,  "UNIT_METER",   "Meter");
