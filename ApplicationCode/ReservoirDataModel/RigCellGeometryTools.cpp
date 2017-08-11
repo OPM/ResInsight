@@ -464,7 +464,7 @@ std::vector<cvf::Vec3d> RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAt
     for (cvf::Vec3d polygonPoint : polygon)
     {
         
-        for (int i = 0; i < polyLine.size() - 1; i++)
+        for (size_t i = 0; i < polyLine.size() - 1; i++)
         {
             cvf::Vec3d linePoint1(polyLine[i].x(), polyLine[i].y(), 0.0);
             cvf::Vec3d linePoint2(polyLine[i + 1].x(), polyLine[i + 1].y(), 0.0);

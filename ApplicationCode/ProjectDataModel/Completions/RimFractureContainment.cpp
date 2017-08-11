@@ -92,17 +92,17 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* m
 
     CVF_ASSERT(mainGrid);
 
-    size_t i,j,k;
+    size_t i, j, k;
     if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
 
     bool ok = mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
 
-    if (k+1 < m_topKLayer()) 
+    if (k + 1 < static_cast<size_t>(m_topKLayer())) 
     {
         return false;
     }
 
-    if (k+1 > m_baseKLayer()) 
+    if (k + 1 > static_cast<size_t>(m_baseKLayer())) 
     {
         return false;
     }
