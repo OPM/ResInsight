@@ -669,7 +669,9 @@ void RimFishbonesMultipleSubs::computeSubLateralIndices()
     m_subLateralIndices.clear();
     for (size_t subIndex = 0; subIndex < m_locationOfSubs().size(); ++subIndex)
     {
-        SubLateralIndex subLateralIndex{ subIndex };
+        SubLateralIndex subLateralIndex;
+        subLateralIndex.subIndex = subIndex;
+
         for (size_t lateralIndex = 0; lateralIndex < m_lateralCountPerSub(); ++lateralIndex)
         {
             subLateralIndex.lateralIndices.push_back(lateralIndex);
