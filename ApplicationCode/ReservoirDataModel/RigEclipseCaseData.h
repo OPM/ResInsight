@@ -64,12 +64,12 @@ public:
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
 
-    RigCaseCellResultsData*                     results(RiaPorosityModel::PorosityModelType porosityModel);
-    const RigCaseCellResultsData*               results(RiaPorosityModel::PorosityModelType porosityModel) const;
+    RigCaseCellResultsData*                     results(RiaDefines::PorosityModelType porosityModel);
+    const RigCaseCellResultsData*               results(RiaDefines::PorosityModelType porosityModel) const;
 
-    RigActiveCellInfo*                          activeCellInfo(RiaPorosityModel::PorosityModelType porosityModel);
-    const RigActiveCellInfo*                    activeCellInfo(RiaPorosityModel::PorosityModelType porosityModel) const;
-    void                                        setActiveCellInfo(RiaPorosityModel::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo);
+    RigActiveCellInfo*                          activeCellInfo(RiaDefines::PorosityModelType porosityModel);
+    const RigActiveCellInfo*                    activeCellInfo(RiaDefines::PorosityModelType porosityModel) const;
+    void                                        setActiveCellInfo(RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo);
 
     void                                        setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                          activeFormationNames(); 

@@ -374,7 +374,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
         return;
     }
 
-    RiaPorosityModel::PorosityModelType porosityModel = resultColors->porosityModel();
+    RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
     if (resultColors->isTernarySaturationSelected())
     {
         RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
@@ -537,7 +537,7 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
                     adjustedTimeStep = 0;
                 }
 
-                RiaPorosityModel::PorosityModelType porosityModel = m_reservoirView->cellResult()->porosityModel();
+                RiaDefines::PorosityModelType porosityModel = m_reservoirView->cellResult()->porosityModel();
                 cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultIdx(m_reservoirView->eclipseCase()->eclipseCaseData(), m_gridIndex, porosityModel, adjustedTimeStep, resultIndex);
                 if (resultAccessor.notNull())
                 {
@@ -664,7 +664,7 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
                 size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
                 size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
 
-                RiaPorosityModel::PorosityModelType porosityModel = resultColors->porosityModel();
+                RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
 
                 cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, soilScalarSetIndex);
                 cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createFromResultIdx(eclipseCaseData, m_gridIndex, porosityModel, m_timeStepIndex, sgasScalarSetIndex);

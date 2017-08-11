@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(RigEclipseCaseData* eclipseCase,
                                                                              size_t gridIndex,
-                                                                             RiaPorosityModel::PorosityModelType porosityModel,
+                                                                             RiaDefines::PorosityModelType porosityModel,
                                                                              size_t timeStepIndex,
                                                                              const QString& uiResultName)
 {
@@ -134,7 +134,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigEclipseCaseData* eclipseCase,
                                                                             size_t gridIndex,
-                                                                            RiaPorosityModel::PorosityModelType porosityModel,
+                                                                            RiaDefines::PorosityModelType porosityModel,
                                                                             size_t timeStepIndex,
                                                                             const QString& uiResultName,
                                                                             RiaDefines::ResultCatType resultType)
@@ -209,7 +209,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
                                                                                    size_t gridIndex,
-                                                                                   RiaPorosityModel::PorosityModelType porosityModel,
+                                                                                   RiaDefines::PorosityModelType porosityModel,
                                                                                    size_t timeStepIndex,
                                                                                    const QString& uiResultName)
 {
@@ -237,7 +237,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigEclipseCaseData* eclipseCase,
                                                                           size_t gridIndex,
-                                                                          RiaPorosityModel::PorosityModelType porosityModel,
+                                                                          RiaDefines::PorosityModelType porosityModel,
                                                                           size_t timeStepIndex,
                                                                           size_t resultIndex)
 {

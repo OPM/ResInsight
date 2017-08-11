@@ -30,14 +30,14 @@ public:
     static cvf::ref<RigResultModifier>
         createResultModifier(RigEclipseCaseData* eclipseCase,
                              size_t gridIndex,
-                             RiaPorosityModel::PorosityModelType porosityModel,
+                             RiaDefines::PorosityModelType porosityModel,
                              size_t timeStepIndex,
                              QString& uiResultName);
 
     static cvf::ref<RigResultModifier>
         createResultModifier(RigEclipseCaseData* eclipseCase,
                              size_t gridIndex,
-                             RiaPorosityModel::PorosityModelType porosityModel,
+                             RiaDefines::PorosityModelType porosityModel,
                              size_t timeStepIndex,
                              size_t scalarResultIndex);
 };

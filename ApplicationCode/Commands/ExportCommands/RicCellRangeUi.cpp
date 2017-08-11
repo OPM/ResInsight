@@ -260,7 +260,7 @@ RigActiveCellInfo* RicCellRangeUi::activeCellInfo() const
     RimEclipseCase* rimEclipeCase = dynamic_cast<RimEclipseCase*>(m_case());
     if (rimEclipeCase && rimEclipeCase->eclipseCaseData())
     {
-        return rimEclipeCase->eclipseCaseData()->activeCellInfo(RiaPorosityModel::MATRIX_MODEL);
+        return rimEclipeCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     }
 
     return nullptr;

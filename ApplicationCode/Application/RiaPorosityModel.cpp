@@ -22,10 +22,10 @@
 
 
 template<>
-void caf::AppEnum< RiaPorosityModel::PorosityModelType >::setUp()
+void caf::AppEnum< RiaDefines::PorosityModelType >::setUp()
 {
-    addItem(RiaPorosityModel::MATRIX_MODEL,   "MATRIX_MODEL",     "Matrix");
-    addItem(RiaPorosityModel::FRACTURE_MODEL, "FRACTURE_MODEL",   "Fracture");
+    addItem(RiaDefines::MATRIX_MODEL,   "MATRIX_MODEL",     "Matrix");
+    addItem(RiaDefines::FRACTURE_MODEL, "FRACTURE_MODEL",   "Fracture");
 
-    setDefault(RiaPorosityModel::MATRIX_MODEL);
+    setDefault(RiaDefines::MATRIX_MODEL);
 }

@@ -260,7 +260,7 @@ TEST(RigReservoirTest, UnifiedTestFile)
 
 
 
-void buildResultInfoString(RigReservoir* reservoir, RiaPorosityModel::PorosityModelType porosityModel, RiaDefines::ResultCatType resultType)
+void buildResultInfoString(RigReservoir* reservoir, RiaDefines::PorosityModelType porosityModel, RiaDefines::ResultCatType resultType)
 {
     RigCaseCellResultsData* matrixResults = reservoir->results(porosityModel);
     {
@@ -302,22 +302,22 @@ TEST(RigReservoirTest, DualPorosityTest)
     qDebug() << "\n\n" << 
         "Matrix porosities, DYNAMIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RiaPorosityModel::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::MATRIX_MODEL, RiaDefines::DYNAMIC_NATIVE);
 
     qDebug() << "\n\n" << 
         "Matrix porosities, STATIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RiaPorosityModel::MATRIX_MODEL, RiaDefines::STATIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::MATRIX_MODEL, RiaDefines::STATIC_NATIVE);
 
     qDebug() << "\n\n" << 
         "Fracture porosities, DYNAMIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RiaPorosityModel::FRACTURE_MODEL, RiaDefines::DYNAMIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::FRACTURE_MODEL, RiaDefines::DYNAMIC_NATIVE);
 
     qDebug() << "\n\n" << 
         "Fracture porosities, STATIC results" <<
         "----------------------------------";
-    buildResultInfoString(reservoir.p(), RiaPorosityModel::FRACTURE_MODEL, RiaDefines::STATIC_NATIVE);
+    buildResultInfoString(reservoir.p(), RiaDefines::FRACTURE_MODEL, RiaDefines::STATIC_NATIVE);
 }
 
 

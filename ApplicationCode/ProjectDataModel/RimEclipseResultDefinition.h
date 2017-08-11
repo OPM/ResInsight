@@ -66,8 +66,8 @@ public:
 
     RiaDefines::ResultCatType       resultType() const { return m_resultType(); }
     void                            setResultType(RiaDefines::ResultCatType val);
-    RiaPorosityModel::PorosityModelType   porosityModel() const { return m_porosityModel(); }
-    void                            setPorosityModel(RiaPorosityModel::PorosityModelType val);
+    RiaDefines::PorosityModelType   porosityModel() const { return m_porosityModel(); }
+    void                            setPorosityModel(RiaDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
     
@@ -108,7 +108,7 @@ protected:
 
 protected:
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultType;
-    caf::PdmField< caf::AppEnum< RiaPorosityModel::PorosityModelType > >  m_porosityModel;
+    caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModel;
     caf::PdmField<QString>                                          m_resultVariable;
 
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolution;
@@ -121,7 +121,7 @@ protected:
     // User interface only fields, to support "filtering"-like behaviour etc.
 
     caf::PdmField< caf::AppEnum< RiaDefines::ResultCatType > >      m_resultTypeUiField;
-    caf::PdmField< caf::AppEnum< RiaPorosityModel::PorosityModelType > >  m_porosityModelUiField;
+    caf::PdmField< caf::AppEnum< RiaDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;

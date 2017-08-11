@@ -95,14 +95,14 @@ public:
         RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
         if (!rimCase) return true;
 
-        RiaPorosityModel::PorosityModelType porosityModel = RiaPorosityModel::MATRIX_MODEL;
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
 
         if (args.size() > 2)
         {
             QString prorosityModelString = args[2];
             if (prorosityModelString.toUpper() == "FRACTURE")
             {
-                porosityModel = RiaPorosityModel::FRACTURE_MODEL;
+                porosityModel = RiaDefines::FRACTURE_MODEL;
             }
         }
 
@@ -144,7 +144,7 @@ public:
         return true;
     }
 
-    static void calculateMatrixModelActiveCellInfo(RimEclipseCase* reservoirCase, RiaPorosityModel::PorosityModelType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
+    static void calculateMatrixModelActiveCellInfo(RimEclipseCase* reservoirCase, RiaDefines::PorosityModelType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
     {
         gridNumber.clear();
         cellI.clear();
@@ -412,7 +412,7 @@ public:
         size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
         if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->eclipseCaseData()->results(RiaPorosityModel::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
             if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
             {
                 canFetchData = false;
@@ -431,7 +431,7 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaPorosityModel::MATRIX_MODEL)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
@@ -499,7 +499,7 @@ public:
         size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
         if (rimCase && rimCase->eclipseCaseData())
         {
-            rimCase->eclipseCaseData()->results(RiaPorosityModel::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
             if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
             {
                 canFetchData = false;
@@ -518,7 +518,7 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaPorosityModel::MATRIX_MODEL)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
+        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart(scalarIndexWithMaxTimeStepCount);
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);

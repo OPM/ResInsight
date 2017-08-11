@@ -184,7 +184,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RigEclipseCaseData* rigCaseData = mainCase->eclipseCaseData();
     CVF_ASSERT(rigCaseData);
 
-    RiaPorosityModel::PorosityModelType poroModel = RiaPorosityModel::MATRIX_MODEL;
+    RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
     mainCase->results(poroModel)->cellResults()->createPlaceholderResultEntries();
 
 
@@ -217,8 +217,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RimEclipseCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
-        if (rimReservoir->results(RiaPorosityModel::MATRIX_MODEL)->storedResultsCount() > 0 ||
-            rimReservoir->results(RiaPorosityModel::FRACTURE_MODEL)->storedResultsCount() > 0)
+        if (rimReservoir->results(RiaDefines::MATRIX_MODEL)->storedResultsCount() > 0 ||
+            rimReservoir->results(RiaDefines::FRACTURE_MODEL)->storedResultsCount() > 0)
         {
             foundResultsInCache = true;
             break;
@@ -236,7 +236,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // for all cases
 
     {
-        RiaPorosityModel::PorosityModelType poroModel = RiaPorosityModel::MATRIX_MODEL;
+        RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
 
         std::vector<RigTimeStepInfo> timeStepInfos = rigCaseData->results(poroModel)->timeStepInfos(0);
 
@@ -330,7 +330,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeM[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaPorosityModel::MATRIX_MODEL)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->isActive(reservoirCellIndex))
                     {
                         activeM[gridLocalCellIndex] = 1;
                     }
@@ -338,7 +338,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeF[gridLocalCellIndex] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaPorosityModel::FRACTURE_MODEL)->isActive(reservoirCellIndex))
+                    if (caseCollection->reservoirs[caseIdx]->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->isActive(reservoirCellIndex))
                     {
                         activeF[gridLocalCellIndex] = 1;
                     }
@@ -422,13 +422,13 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
-        if (rimStaticsCase->results(RiaPorosityModel::MATRIX_MODEL)->cellResults())
+        if (rimStaticsCase->results(RiaDefines::MATRIX_MODEL)->cellResults())
         {
-            rimStaticsCase->results(RiaPorosityModel::MATRIX_MODEL)->cellResults()->clearAllResults();
+            rimStaticsCase->results(RiaDefines::MATRIX_MODEL)->cellResults()->clearAllResults();
         }
-        if (rimStaticsCase->results(RiaPorosityModel::FRACTURE_MODEL)->cellResults())
+        if (rimStaticsCase->results(RiaDefines::FRACTURE_MODEL)->cellResults())
         {
-            rimStaticsCase->results(RiaPorosityModel::FRACTURE_MODEL)->cellResults()->clearAllResults();
+            rimStaticsCase->results(RiaDefines::FRACTURE_MODEL)->cellResults()->clearAllResults();
         }
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
@@ -472,9 +472,9 @@ bool RimIdenticalGridCaseGroup::contains(RimEclipseCase* reservoir) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RiaPorosityModel::PorosityModelType porosityType)
+RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RiaDefines::PorosityModelType porosityType)
 {
-    if (porosityType == RiaPorosityModel::MATRIX_MODEL)
+    if (porosityType == RiaDefines::MATRIX_MODEL)
     {
         return m_unionOfMatrixActiveCells.p();
     }

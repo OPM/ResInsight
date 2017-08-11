@@ -22,10 +22,8 @@
 
 #include <QString>
 
-class RiaDefines
+namespace RiaDefines
 {
-
-public:
     enum ResultCatType
     {
         DYNAMIC_NATIVE,
@@ -43,38 +41,38 @@ public:
         FISHBONES
     };
 
-    static bool isPerCellFaceResult(const QString& resultName);
+    bool isPerCellFaceResult(const QString& resultName);
 
-    static QString undefinedResultName()                { return "None"; }
-    static QString undefinedGridFaultName()             { return "Undefined Grid Faults"; }
-    static QString undefinedGridFaultWithInactiveName() { return "Undefined Grid Faults With Inactive"; }
-    static QString combinedTransmissibilityResultName() { return "TRANXYZ"; }
-    static QString ternarySaturationResultName()        { return "TERNARY"; }
-    static QString combinedMultResultName()             { return "MULTXYZ"; }
+    QString undefinedResultName();
+    QString undefinedGridFaultName();
+    QString undefinedGridFaultWithInactiveName();
+    QString combinedTransmissibilityResultName();
+    QString ternarySaturationResultName();
+    QString combinedMultResultName();
 
-    static QString riTranXResultName()                  { return "riTRANX"; }
-    static QString riTranYResultName()                  { return "riTRANY"; }
-    static QString riTranZResultName()                  { return "riTRANZ"; }
-    static QString combinedRiTranResultName()           { return "riTRANXYZ"; }
+    QString riTranXResultName();
+    QString riTranYResultName();
+    QString riTranZResultName();
+    QString combinedRiTranResultName();
 
-    static QString riMultXResultName()                  { return "riMULTX"; }
-    static QString riMultYResultName()                  { return "riMULTY"; }
-    static QString riMultZResultName()                  { return "riMULTZ"; }
-    static QString combinedRiMultResultName()           { return "riMULTXYZ"; }
+    QString riMultXResultName();
+    QString riMultYResultName();
+    QString riMultZResultName();
+    QString combinedRiMultResultName();
 
-    static QString riAreaNormTranXResultName()         { return "riTRANXbyArea"; }
-    static QString riAreaNormTranYResultName()         { return "riTRANYbyArea"; }
-    static QString riAreaNormTranZResultName()         { return "riTRANZbyArea"; }
-    static QString combinedRiAreaNormTranResultName()  { return "riTRANXYZbyArea"; }
+    QString riAreaNormTranXResultName();
+    QString riAreaNormTranYResultName();
+    QString riAreaNormTranZResultName();
+    QString combinedRiAreaNormTranResultName();
 
-    static QString completionTypeResultName()          { return "Completion Type"; }
+    QString completionTypeResultName();
 
     // Mock model text identifiers
-    static QString mockModelBasic()                    { return "Result Mock Debug Model Simple"; }
-    static QString mockModelBasicWithResults()         { return "Result Mock Debug Model With Results"; }
-    static QString mockModelLargeWithResults()         { return "Result Mock Debug Model Large With Results"; }
-    static QString mockModelCustomized()               { return "Result Mock Debug Model Customized"; }
-    static QString mockModelBasicInputCase()           { return "Input Mock Debug Model Simple"; }
+    QString mockModelBasic();
+    QString mockModelBasicWithResults();
+    QString mockModelLargeWithResults();
+    QString mockModelCustomized();
+    QString mockModelBasicInputCase();
 
 
     //Units and conversions
@@ -94,7 +92,7 @@ public:
         PLOT_AXIS_RIGHT
     };
 
-    static double minimumDefaultValuePlot()         { return - 10.0; }
-    static double maximumDefaultValuePlot()         { return  100.0; }
+    double minimumDefaultValuePlot();
+    double maximumDefaultValuePlot();
 };
 

@@ -107,7 +107,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
             
             CVF_ASSERT(eclCase && eclCase->eclipseCaseData() );
 
-            timeStepCount = eclCase->eclipseCaseData()->results(RiaPorosityModel::MATRIX_MODEL)->maxTimeStepCount();
+            timeStepCount = eclCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
 
         }
 
@@ -171,7 +171,7 @@ std::map<std::string, std::vector<int> > RimFlowDiagSolution::allTracerActiveCel
     {
         const cvf::Collection<RigSingleWellResultsData>& wellResults = eclCase->eclipseCaseData()->wellResults();
         RigMainGrid* mainGrid = eclCase->eclipseCaseData()->mainGrid();
-        RigActiveCellInfo* activeCellInfo = eclCase->eclipseCaseData()->activeCellInfo(RiaPorosityModel::MATRIX_MODEL); //Todo: Must come from the results definition
+        RigActiveCellInfo* activeCellInfo = eclCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL); //Todo: Must come from the results definition
 
         for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
         {

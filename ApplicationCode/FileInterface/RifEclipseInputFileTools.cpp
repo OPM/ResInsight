@@ -231,7 +231,7 @@ std::map<QString, QString> RifEclipseInputFileTools::readProperties(const QStrin
         ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false, ecl_type_create_from_type(ECL_FLOAT_TYPE));
         if (eclipseKeywordData)
         {
-            QString newResultName = caseData->results(RiaPorosityModel::MATRIX_MODEL)->makeResultNameUnique(fileKeywords[i].keyword);
+            QString newResultName = caseData->results(RiaDefines::MATRIX_MODEL)->makeResultNameUnique(fileKeywords[i].keyword);
             if (readDataFromKeyword(eclipseKeywordData, caseData, newResultName))
             {
                 newResults[newResultName] = fileKeywords[i].keyword;
@@ -290,7 +290,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
         {
             mathingItemCount = true;
         }
-        if (itemCount == caseData->activeCellInfo(RiaPorosityModel::MATRIX_MODEL)->reservoirActiveCellCount())
+        if (itemCount == caseData->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount())
         {
             mathingItemCount = true;
         }
@@ -301,7 +301,7 @@ bool RifEclipseInputFileTools::readDataFromKeyword(ecl_kw_type* eclipseKeywordDa
     size_t resultIndex = RifEclipseInputFileTools::findOrCreateResult(resultName, caseData);
     if (resultIndex == cvf::UNDEFINED_SIZE_T) return false;
 
-    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaPorosityModel::MATRIX_MODEL)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& newPropertyData = caseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclipseKeywordData), HUGE_VAL);
     ecl_kw_get_data_as_double(eclipseKeywordData, newPropertyData[0].data());
@@ -446,7 +446,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 {
     CVF_ASSERT(eclipseCase);
 
-    size_t resultIndex = eclipseCase->results(RiaPorosityModel::MATRIX_MODEL)->findScalarResultIndex(resultName);
+    size_t resultIndex = eclipseCase->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(resultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -458,7 +458,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
         return false;
     }
 
-    std::vector< std::vector<double> >& resultData = eclipseCase->results(RiaPorosityModel::MATRIX_MODEL)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& resultData = eclipseCase->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(resultIndex);
     if (resultData.size() == 0)
     {
         return false;
@@ -717,10 +717,10 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseInputFileTools::findOrCreateResult(const QString& newResultName, RigEclipseCaseData* reservoir)
 {
-    size_t resultIndex = reservoir->results(RiaPorosityModel::MATRIX_MODEL)->findScalarResultIndex(newResultName);
+    size_t resultIndex = reservoir->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(newResultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        resultIndex = reservoir->results(RiaPorosityModel::MATRIX_MODEL)->addEmptyScalarResult(RiaDefines::INPUT_PROPERTY, newResultName, false);
+        resultIndex = reservoir->results(RiaDefines::MATRIX_MODEL)->addEmptyScalarResult(RiaDefines::INPUT_PROPERTY, newResultName, false);
     }
 
     return resultIndex;
