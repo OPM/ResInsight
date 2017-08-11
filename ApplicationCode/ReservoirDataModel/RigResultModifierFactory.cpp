@@ -31,7 +31,7 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
                                                                            size_t gridIndex,
-                                                                           RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                           RiaDefines::PorosityModelType porosityModel,
                                                                            size_t timeStepIndex,
                                                                            QString& uiResultName)
 {
@@ -53,7 +53,7 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEc
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigEclipseCaseData* eclipseCase,
                                                                            size_t gridIndex,
-                                                                           RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                           RiaDefines::PorosityModelType porosityModel,
                                                                            size_t timeStepIndex, size_t scalarResultIndex)
 {
     if ( !eclipseCase ) return NULL;

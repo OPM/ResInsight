@@ -39,8 +39,8 @@ public:
     virtual bool            open( const QString& fileName, RigEclipseCaseData* eclipseCase );
     virtual void            close();
                             
-    virtual bool            staticResult( const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, std::vector<double>* values );
-    virtual bool            dynamicResult( const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
+    virtual bool            staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values );
+    virtual bool            dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
 
 private:
     void                    populateReservoir(RigEclipseCaseData* eclipseCase);

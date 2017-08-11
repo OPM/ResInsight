@@ -28,6 +28,8 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 
+#include <QDateTime>
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 
@@ -58,6 +60,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "");
+    CAF_PDM_InitField(&m_maxPvFraction, "CellPVThreshold", 0.1, "Aquifer Cell Threshold", "", "Exclude Aquifer Effects by adding a Cell Pore Volume Threshold as Fraction of Total Pore Volume.", "");
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
 
@@ -119,7 +122,7 @@ void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
     if (!m_flowDiagSolution()) return;
 
     RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
-    std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+    std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
     
     if (m_currentlyPlottedTimeSteps == calculatedTimesteps) return;
 
@@ -171,7 +174,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         if ( m_flowDiagSolution )
         {
             RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
-            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+            std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
 
             QStringList timeStepDates = m_case->timeStepStrings();
 
@@ -198,6 +201,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
     if (m_timeStepSelectionType == SELECT_AVAILABLE) uiOrdering.add(&m_selectedTimeSteps);
 
     uiOrdering.add(&m_showLegend);
+    uiOrdering.add(&m_maxPvFraction);
 
     uiOrdering.skipRemainingFields();
 }
@@ -262,7 +266,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
     if (m_flowDiagSolution && m_flowCharPlotWidget)
     {
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
-        std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps();
+        std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
         
         if (m_timeStepSelectionType == SELECT_AVAILABLE)
         {
@@ -288,14 +292,14 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
-            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx).m_lorenzCoefficient;
+            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx, m_maxPvFraction()).m_lorenzCoefficient;
         }
         m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
 
-            const auto & flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx);
+            const auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, m_maxPvFraction());
             m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
                                                             flowCharResults.m_flowCapStorageCapCurve.first,
                                                             flowCharResults.m_flowCapStorageCapCurve.second);

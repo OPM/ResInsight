@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "RiaDefines.h"
-
 #include "RivCellSetEnum.h"
 
 #include "cafPdmChildArrayField.h"

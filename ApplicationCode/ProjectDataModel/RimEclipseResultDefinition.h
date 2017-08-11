@@ -21,6 +21,9 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPorosityModel.h"
+
+#include "RigFlowDiagResultAddress.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
@@ -33,7 +36,6 @@ class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
 class RimFlowDiagSolution;
-class RigFlowDiagResultAddress;
 
 
 //==================================================================================================
@@ -124,6 +126,7 @@ protected:
 
     caf::PdmField< caf::AppEnum< FlowTracerSelectionType > >        m_flowTracerSelectionMode;
     caf::PdmPtrField<RimFlowDiagSolution*>                          m_flowSolutionUiField;
+    caf::PdmField< RigFlowDiagResultAddress::PhaseSelectionEnum >   m_phaseSelection;
     
     caf::PdmField<QString>                                          m_selectedTracersUiFieldFilter;
     caf::PdmField<std::vector<QString> >                            m_selectedTracersUiField;

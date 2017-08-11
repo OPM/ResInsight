@@ -41,14 +41,14 @@ public:
     static cvf::ref<RigResultAccessor>
         createFromUiResultName(const RigEclipseCaseData* eclipseCase,
                                size_t gridIndex,
-                               RifReaderInterface::PorosityModelResultType porosityModel,
+                               RiaDefines::PorosityModelType porosityModel,
                                size_t timeStepIndex,
                                const QString& uiResultName);
 
     static cvf::ref<RigResultAccessor>
         createFromNameAndType(const RigEclipseCaseData* eclipseCase,
                               size_t gridIndex,
-                              RifReaderInterface::PorosityModelResultType porosityModel,
+                              RiaDefines::PorosityModelType porosityModel,
                               size_t timeStepIndex,
                               const QString& uiResultName,
                               RiaDefines::ResultCatType resultType);
@@ -56,7 +56,7 @@ public:
     static cvf::ref<RigResultAccessor>
         createFromResultIdx(const RigEclipseCaseData* eclipseCase,
                             size_t gridIndex,
-                            RifReaderInterface::PorosityModelResultType porosityModel,
+                            RiaDefines::PorosityModelType porosityModel,
                             size_t timeStepIndex,
                             size_t resultIndex);
 
@@ -64,7 +64,7 @@ private:
     static cvf::ref<RigResultAccessor>
         createNativeFromUiResultName(const RigEclipseCaseData* eclipseCase,
                                      size_t gridIndex,
-                                     RifReaderInterface::PorosityModelResultType porosityModel,
+                                     RiaDefines::PorosityModelType porosityModel,
                                      size_t timeStepIndex,
                                      const QString& resultName);
 

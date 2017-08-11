@@ -29,14 +29,15 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 
+#include "RimFlowDiagSolution.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimTimeStepFilter.h"
 #include "RimTools.h"
-#include "RimFlowDiagSolution.h"
-#include "RigFlowDiagSolverInterface.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -111,6 +112,11 @@ bool RimEclipseResultCase::openEclipseGridFile()
         readerInterface->setReaderSetting(prefs->readerSettings());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
+        if (!m_timeStepFilter->timeStepIndicesToImport().empty())
+        {
+            readerInterface->setTimeStepFilter(m_timeStepFilter->timeStepIndicesToImport());
+        }
+
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
@@ -122,8 +128,8 @@ bool RimEclipseResultCase::openEclipseGridFile()
         this->setReservoirData( eclipseCase.p() );
     }
 
-    results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-    results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+    results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
     progInfo.incrementProgress();
 
@@ -136,14 +142,11 @@ bool RimEclipseResultCase::openEclipseGridFile()
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile = true;
 
-    if (eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes())
+    m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+
+    if (m_flowDiagSolutions.size() == 0)
     {
-        m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
-        
-        if (m_flowDiagSolutions.size() == 0)
-        {
-            m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
-        }
+        m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
     }
     
     return true;
@@ -185,7 +188,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
 
-        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates();
+        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RiaDefines::MATRIX_MODEL)->timeStepDates();
         if (timeStepDates.size() == 0)
         {
             return false;
@@ -204,8 +207,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         readerInterface = readerEclipseOutput;
     }
 
-    results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-    results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+    results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
     CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
@@ -463,5 +466,8 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     group->add(&flipXAxis);
     group->add(&flipYAxis);
 
+    auto group1 = uiOrdering.addNewGroup("Time Step Filter");
+    group1->setCollapsedByDefault(true);
+    m_timeStepFilter->uiOrdering(uiConfigName, *group1);
 }
 

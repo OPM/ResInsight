@@ -84,7 +84,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 
     const RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
+    RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
     RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
 
     size_t scalarSetIndex;

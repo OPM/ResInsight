@@ -82,6 +82,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_selectedTracers.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
 
     // Ui only fields
 
@@ -131,6 +132,7 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
     this->setFlowSolution(other->m_flowSolution());
     this->setSelectedTracers(other->m_selectedTracers());
     m_flowTracerSelectionMode = other->m_flowTracerSelectionMode();
+    m_phaseSelection = other->m_phaseSelection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,9 +153,7 @@ RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResul
 {
     if (!m_eclipseCase ) return nullptr;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModel());
-
-    return m_eclipseCase->results(porosityModel);
+    return m_eclipseCase->results(m_porosityModel());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,6 +236,11 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             m_selectedTracers = newSelection;
         }
 
+        loadDataAndUpdate();
+    }
+
+    if (&m_phaseSelection == changedField)
+    {
         loadDataAndUpdate();
     }
 
@@ -421,18 +426,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_resultTypeUiField )
     {
-        bool hasFlowDiagFluxes = false;
-        RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
-        if ( eclResCase && eclResCase->eclipseCaseData() )
-        {
-            hasFlowDiagFluxes = eclResCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->hasFlowDiagUsableFluxes();
-        }
-
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
         // Do not include flow diagnostics results if not available or is a time history curve
-        if ( !hasFlowDiagFluxes || timeHistoryCurve != nullptr )
+        if ( timeHistoryCurve != nullptr )
         {
             using ResCatEnum = caf::AppEnum< RiaDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
@@ -720,7 +718,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
         }
     }
 
-    return RigFlowDiagResultAddress(m_resultVariable().toStdString(), selTracerNames);
+    return RigFlowDiagResultAddress(m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -993,8 +991,8 @@ bool RimEclipseResultDefinition::hasDualPorFractureResult()
 {
     if ( m_eclipseCase
         && m_eclipseCase->eclipseCaseData()
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) 
-        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() > 0 )
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL) 
+        && m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->reservoirActiveCellCount() > 0 )
         {
             return true;
         } 
@@ -1026,6 +1024,8 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
             uiOrdering.add(&m_selectedTracersUiFieldFilter);
             uiOrdering.add(&m_selectedTracersUiField);
         }
+
+        uiOrdering.add(&m_phaseSelection);
 
         if ( m_flowSolution() == nullptr )
         {

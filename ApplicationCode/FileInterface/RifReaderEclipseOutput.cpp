@@ -30,6 +30,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSingleWellResultsData.h"
+#include "RigEclipseResultInfo.h"
 
 #include "cafProgressInfo.h"
 
@@ -194,8 +195,6 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
     m_fileName.clear();
     m_filesWithSameBaseName.clear();
 
-    m_timeSteps.clear();
-
     m_eclipseCase = NULL;
 
     m_ecl_init_file = NULL;
@@ -243,8 +242,8 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         return false;
     }
 
-    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
+    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
 
     CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
 
@@ -581,8 +580,8 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
                 return false;
             }
 
-            RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-            RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
+            RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
+            RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL);
 
             activeCellInfo->setReservoirCellCount(reservoirCellCount);
             fractureActiveCellInfo->setReservoirCellCount(reservoirCellCount);
@@ -645,8 +644,10 @@ void RifReaderEclipseOutput::buildMetaData()
 
     progInfo.setNextProgressIncrement(m_filesWithSameBaseName.size());
 
-    RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
-    RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
+    RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RiaDefines::MATRIX_MODEL);
+    RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RiaDefines::FRACTURE_MODEL);
+
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     // Create access object for dynamic results
     m_dynamicResultsAccess = createDynamicResultsAccess();
@@ -656,9 +657,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
         progInfo.incrementProgress();
 
-        // Get time steps 
-        m_dynamicResultsAccess->timeSteps(&m_timeSteps, &m_daysSinceSimulationStart);
-        std::vector<int> reportNumbers = m_dynamicResultsAccess->reportNumbers();
+        timeStepInfos = createFilteredTimeStepInfos();
 
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
@@ -666,27 +665,27 @@ void RifReaderEclipseOutput::buildMetaData()
 
         {
             QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
-                                                                            RifReaderInterface::MATRIX_RESULTS, m_dynamicResultsAccess->timeStepCount());
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL),
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL), 
+                                                                            RiaDefines::MATRIX_MODEL, m_dynamicResultsAccess->timeStepCount());
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
+                matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
             }
         }
 
         {
             QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
-                                                                            RifReaderInterface::FRACTURE_RESULTS, m_dynamicResultsAccess->timeStepCount());
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL),
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL), 
+                                                                            RiaDefines::FRACTURE_MODEL, m_dynamicResultsAccess->timeStepCount());
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps, m_daysSinceSimulationStart, reportNumbers);
+                fractureModelResults->setTimeStepInfos(resIndex, timeStepInfos);
             }
         }
 
@@ -722,36 +721,17 @@ void RifReaderEclipseOutput::buildMetaData()
 
         RifEclipseOutputFileTools::findKeywordsAndItemCount(filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts);
 
-        std::vector<QDateTime> staticDate;
-        std::vector<double> staticDay;
-        std::vector<int> staticReportNumber;
+        std::vector<RigEclipseTimeStepInfo> staticTimeStepInfo;
+        if (!timeStepInfos.empty())
         {
-            if ( m_timeSteps.size() > 0 )
-            {
-                staticDate.push_back(m_timeSteps.front());
-            }
-            if (m_daysSinceSimulationStart.size() > 0)
-            {
-                staticDay.push_back(m_daysSinceSimulationStart.front());
-            }
-
-            std::vector<int> reportNumbers;
-            if (m_dynamicResultsAccess.notNull())
-            {
-                reportNumbers = m_dynamicResultsAccess->reportNumbers();
-            }
-
-            if ( reportNumbers.size() > 0 )
-            {
-                staticReportNumber.push_back(reportNumbers.front());
-            }
+            staticTimeStepInfo.push_back(timeStepInfos.front());
         }
 
         {
             QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
-                                                                            RifReaderInterface::MATRIX_RESULTS, 1);
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL),
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL), 
+                                                                            RiaDefines::MATRIX_MODEL, 1);
           
             // Add ACTNUM
             matrixResultNames += "ACTNUM";
@@ -759,22 +739,22 @@ void RifReaderEclipseOutput::buildMetaData()
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
-                matrixModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
+                matrixModelResults->setTimeStepInfos(resIndex, staticTimeStepInfo);
             }
         }
 
         {
             QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
-                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
-                                                                            RifReaderInterface::FRACTURE_RESULTS, 1);
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL),
+                                                                            m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL), 
+                                                                            RiaDefines::FRACTURE_MODEL, 1);
             // Add ACTNUM
             fractureResultNames += "ACTNUM";
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
                 size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
-                fractureModelResults->setTimeStepDates(resIndex, staticDate, staticDay, staticReportNumber);
+                fractureModelResults->setTimeStepInfos(resIndex, staticTimeStepInfo);
             }
         }
     }
@@ -811,7 +791,7 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess(
 //--------------------------------------------------------------------------------------------------
 /// Get all values of a given static result as doubles
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values)
+bool RifReaderEclipseOutput::staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values)
 {
     CVF_ASSERT(values);
 
@@ -847,7 +827,7 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 //--------------------------------------------------------------------------------------------------
 /// Get dynamic result at given step index. Will concatenate values for the main grid and all sub grids.
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
+bool RifReaderEclipseOutput::dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
     if (m_dynamicResultsAccess.isNull())
     {
@@ -856,8 +836,10 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
 
     if (m_dynamicResultsAccess.notNull())
     {
+        size_t indexOnFile = timeStepIndexOnFile(stepIndex);
+
         std::vector<double> fileValues;
-        if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
+        if (!m_dynamicResultsAccess->results(result, indexOnFile, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
         {
             return false;
         }
@@ -1655,7 +1637,16 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
         }
 
 
-        wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(m_timeSteps);
+        std::vector<QDateTime> filteredTimeSteps;
+        {
+            std::vector<RigEclipseTimeStepInfo> filteredTimeStepInfos = createFilteredTimeStepInfos();
+            for (auto a : filteredTimeStepInfos)
+            {
+                filteredTimeSteps.push_back(a.m_date);
+            }
+        }
+
+        wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(filteredTimeSteps);
 
         wells.push_back(wellResults.p());
 
@@ -1675,7 +1666,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
                                                                   const std::vector<size_t>& keywordDataItemCounts, 
                                                                   const RigActiveCellInfo* matrixActiveCellInfo, 
                                                                   const RigActiveCellInfo* fractureActiveCellInfo, 
-                                                                  PorosityModelResultType porosityModel, 
+                                                                  RiaDefines::PorosityModelType porosityModel, 
                                                                   size_t timeStepCount) const
 {
     CVF_ASSERT(matrixActiveCellInfo);
@@ -1685,7 +1676,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         return QStringList();
     }
 
-    if (porosityModel == RifReaderInterface::FRACTURE_RESULTS)
+    if (porosityModel == RiaDefines::FRACTURE_MODEL)
     {
         if (fractureActiveCellInfo->reservoirActiveCellCount() == 0)
         {
@@ -1721,14 +1712,14 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
             size_t sumFractureMatrixActiveCellCount = matrixActiveCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount();
             size_t timeStepsMatrixAndFractureRest = keywordDataItemCount % sumFractureMatrixActiveCellCount;
 
-            if (porosityModel == RifReaderInterface::MATRIX_RESULTS && timeStepsMatrixRest == 0)
+            if (porosityModel == RiaDefines::MATRIX_MODEL && timeStepsMatrixRest == 0)
             {
                 if (keywordDataItemCount <= timeStepCount * std::max(matrixActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount))
                 {
                     validKeyword = true;
                 }
             }
-            else if (porosityModel == RifReaderInterface::FRACTURE_RESULTS && fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0)
+            else if (porosityModel == RiaDefines::FRACTURE_MODEL && fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0)
             {
                 if (keywordDataItemCount <= timeStepCount * std::max(fractureActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount))
                 {
@@ -1774,19 +1765,47 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* destinationResultValues, const std::vector<double>& sourceResultValues)
+std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeStepInfos()
+{
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+
+    if (m_dynamicResultsAccess.notNull())
+    {
+        std::vector<QDateTime> timeStepsOnFile;
+        std::vector<double> daysSinceSimulationStartOnFile;
+        std::vector<int> reportNumbersOnFile;
+
+        m_dynamicResultsAccess->timeSteps(&timeStepsOnFile, &daysSinceSimulationStartOnFile);
+        reportNumbersOnFile = m_dynamicResultsAccess->reportNumbers();
+
+        for (size_t i = 0; i < timeStepsOnFile.size(); i++)
+        {
+            if (this->isTimeStepIncludedByFilter(i))
+            {
+                timeStepInfos.push_back(RigEclipseTimeStepInfo(timeStepsOnFile[i], reportNumbersOnFile[i], daysSinceSimulationStartOnFile[i]));
+            }
+        }
+    }
+
+    return timeStepInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* destinationResultValues, const std::vector<double>& sourceResultValues)
 {
     if (sourceResultValues.size() == 0) return;
 
-    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
+    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::FRACTURE_MODEL); 
 
-    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->reservoirActiveCellCount() == 0)
+    if (matrixOrFracture == RiaDefines::MATRIX_MODEL && fracActCellInfo->reservoirActiveCellCount() == 0)
     {
         destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end());
     }
     else
     {
-        RigActiveCellInfo* actCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); 
+        RigActiveCellInfo* actCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL); 
 
         size_t sourceStartPosition = 0;
 
@@ -1798,7 +1817,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
             actCellInfo->gridActiveCellCounts(i, matrixActiveCellCount);
             fracActCellInfo->gridActiveCellCounts(i, fractureActiveCellCount);
 
-            if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+            if (matrixOrFracture == RiaDefines::MATRIX_MODEL)
             {
                 destinationResultValues->insert(destinationResultValues->end(), 
                                                 sourceResultValues.begin() + sourceStartPosition, 
@@ -1831,14 +1850,6 @@ void RifReaderEclipseOutput::openInitFile()
     {
         m_ecl_init_file = ecl_file_open(initFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifReaderEclipseOutput::timeSteps()
-{
-    return m_timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------

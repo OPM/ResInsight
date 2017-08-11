@@ -21,9 +21,10 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-#include "RigEclipseCaseData.h"
 #include "RigCell.h"
+#include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigEclipseResultInfo.h"
 
 #include "RimEclipseCase.h"
 #include "RimTools.h"
@@ -90,7 +91,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     if (!m_cellResults) return;
 
-    const std::vector<RigCaseCellResultsData::ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
+    const std::vector<RigEclipseResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
 
     bool hasResultsToStore = false;
     for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 
@@ -139,15 +140,15 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
                 cacheEntry->m_resultType = resInfo[rIdx].m_resultType;
                 cacheEntry->m_resultName = resInfo[rIdx].m_resultName;
-                cacheEntry->m_timeStepDates = resInfo[rIdx].m_timeStepDates;
-                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].m_daysSinceSimulationStart;
+                cacheEntry->m_timeStepDates = resInfo[rIdx].dates();
+                cacheEntry->m_daysSinceSimulationStart = resInfo[rIdx].daysSinceSimulationStarts();
 
                 // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
 
                 // Write all the scalar values for each time step to the stream, 
                 // starting with the number of values 
-                for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].m_timeStepDates.size() ; ++tsIdx)
+                for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].dates().size() ; ++tsIdx)
                 {
                     const std::vector<double>* data = NULL;
                     if (tsIdx < timestepCount)
@@ -380,7 +381,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
     if (m_readerInterface.notNull())
     {
         // Add one more result to result container
-        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
 
         bool resultLoadingSucess = true;
 
@@ -392,7 +393,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
             for (i = 0; i < timeStepCount; i++)
             {
                 std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[i];
-                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, i, &values))
+                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -403,7 +404,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
             m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
 
             std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
+            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -462,7 +463,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
 
     if (m_readerInterface.notNull())
     {
-        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
 
         bool resultLoadingSucess = true;
 
@@ -473,7 +474,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
             std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIndex];
             if (values.size() == 0)
             {
-                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, timeStepIndex, &values))
+                if (!m_readerInterface->dynamicResult(resultName, RiaDefines::MATRIX_MODEL, timeStepIndex, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -484,7 +485,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
             m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
 
             std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
+            if (!m_readerInterface->staticResult(resultName, RiaDefines::MATRIX_MODEL, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -526,7 +527,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         if (swatForTimeStep.size() > 0)
         {
             soilResultValueCount = swatForTimeStep.size();
-            soilTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepDates.size();
+            soilTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepInfos.size();
         }
     }
 
@@ -537,7 +538,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         {
             soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep.size());
 
-            size_t sgasTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSGAS].m_timeStepDates.size();
+            size_t sgasTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSGAS].m_timeStepInfos.size();
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
     }
@@ -1495,7 +1496,11 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
         size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
 
-        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates(), resInfo->m_daysSinceSimulationStart(), std::vector<int>()); // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
+        std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
+        reportNumbers.resize(resInfo->m_timeStepDates().size());
+        std::vector<RigEclipseTimeStepInfo> timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart());
+
+        m_cellResults->setTimeStepInfos(resultIndex, timeStepInfos);
 
         progress.setProgressDescription(resInfo->m_resultName);
 

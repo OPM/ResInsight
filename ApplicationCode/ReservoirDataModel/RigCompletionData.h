@@ -18,10 +18,8 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-
 #include <QString>
+
 #include <vector>
 
 //==================================================================================================
@@ -88,7 +86,7 @@ struct RigCompletionMetaData {
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigCompletionData : public cvf::Object
+class RigCompletionData
 {
 public:
     enum CompletionType {

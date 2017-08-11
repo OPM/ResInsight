@@ -344,8 +344,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
         CVF_ASSERT(eclipseCase);
         if (!eclipseCase) return;
 
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(this->porosityModel());
-        RigCaseCellResultsData* cellResultsData = eclipseCase->results(porosityModel);
+        RigCaseCellResultsData* cellResultsData = eclipseCase->results(this->porosityModel());
         CVF_ASSERT(cellResultsData);
 
         double globalMin, globalMax;

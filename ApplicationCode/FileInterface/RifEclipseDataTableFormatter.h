@@ -46,8 +46,8 @@ enum RifEclipseOutputTableAlignment
 //==================================================================================================
 enum RifEclipseOutputTableDoubleFormat
 {
-    SCIENTIFIC,
-    FLOAT,
+    RIF_SCIENTIFIC,
+    RIF_FLOAT,
 };
 
 //==================================================================================================
@@ -64,7 +64,7 @@ struct RifEclipseOutputTableLine
 //==================================================================================================
 struct RifEclipseOutputTableDoubleFormatting
 {
-    RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat format = FLOAT, int width = 5)
+    RifEclipseOutputTableDoubleFormatting(RifEclipseOutputTableDoubleFormat format = RIF_FLOAT, int width = 5)
         : format(format),
           width(width)
     {}

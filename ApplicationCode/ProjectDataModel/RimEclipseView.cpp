@@ -879,9 +879,7 @@ RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 {
     if (m_eclipseCase)
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
-
-        return m_eclipseCase->results(porosityModel);
+        return m_eclipseCase->results(cellResult->porosityModel());
     }
 
     return NULL;
@@ -896,9 +894,7 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
         m_eclipseCase->eclipseCaseData()
         )
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
-
-        return m_eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
+        return m_eclipseCase->eclipseCaseData()->activeCellInfo(cellResult->porosityModel());
     }
 
     return NULL;
@@ -983,8 +979,7 @@ void RimEclipseView::updateLegends()
     RigEclipseCaseData* eclipseCase = m_eclipseCase->eclipseCaseData();
     CVF_ASSERT(eclipseCase);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-    RigCaseCellResultsData* results = eclipseCase->results(porosityModel);
+    RigCaseCellResultsData* results = eclipseCase->results(cellResult()->porosityModel());
     CVF_ASSERT(results);
 
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);

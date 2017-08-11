@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaPorosityModel.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
@@ -44,13 +46,6 @@ class RifReaderSettings;
 class RifReaderInterface : public cvf::Object
 {
 public:
-    enum PorosityModelResultType
-    {
-        MATRIX_RESULTS,
-        FRACTURE_RESULTS
-    };
-
-public:
     RifReaderInterface()            { }
     virtual ~RifReaderInterface()   { }
 
@@ -64,16 +59,21 @@ public:
     virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
    
-    virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
-    virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
-
-    virtual std::vector<QDateTime>  timeSteps() { std::vector<QDateTime> timeSteps; return timeSteps; }
+    virtual bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) = 0;
+    virtual bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
 
     void                        setFilenamesWithFaults(const std::vector<QString>& filenames)   { m_filenamesWithFaults = filenames; }
     std::vector<QString>        filenamesWithFaults()                                           { return m_filenamesWithFaults; }
 
+    void                        setTimeStepFilter(const std::vector<size_t>& fileTimeStepIndices);
+
+protected:
+    bool                        isTimeStepIncludedByFilter(size_t timeStepIndex) const;
+    size_t                      timeStepIndexOnFile(size_t timeStepIndex) const;
 
 private:
     std::vector<QString>                m_filenamesWithFaults;
     caf::PdmPointer<RifReaderSettings>  m_settings;
+    
+    std::vector<size_t>                 m_fileTimeStepIndices;
 };

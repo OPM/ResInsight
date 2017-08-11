@@ -24,15 +24,13 @@
 
 #include "cvfCollection.h"
 
-#include <QList>
-#include <QDateTime>
-
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
 class RigGridBase;
 class RigMainGrid;
 class RigActiveCellInfo;
 class RigFault;
+class RigEclipseTimeStepInfo;
 
 struct RigWellResultPoint;
 
@@ -56,8 +54,8 @@ public:
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
     void                    close();
 
-    bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
-    bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
+    bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values);
+    bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
@@ -73,28 +71,24 @@ private:
     
     void                    importFaults(const QStringList& fileSet, cvf::Collection<RigFault>* faults);
 
-
     void                    openInitFile();
-    bool                    openDynamicAccess();
 
-    void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
+    void                    extractResultValuesBasedOnPorosityModel(RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
     void                    transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, 
                                              RigMainGrid * mainGrid);
     
     RifEclipseRestartDataAccess*   createDynamicResultsAccess();
 
-    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
+    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, RiaDefines::PorosityModelType matrixOrFracture, size_t timeStepCount) const;
+    
+    std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
-    virtual std::vector<QDateTime> timeSteps();
 private:
-    QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
-    QStringList                             m_filesWithSameBaseName;          // Set of files in filename's path with same base name as filename
+    QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files
+    QStringList                             m_filesWithSameBaseName;    // Set of files in filename's path with same base name as filename
 
-    RigEclipseCaseData*                            m_eclipseCase;
+    RigEclipseCaseData*                     m_eclipseCase;
 
-    std::vector<QDateTime>                  m_timeSteps;
-    std::vector<double>                     m_daysSinceSimulationStart;
-
-    ecl_file_type*                          m_ecl_init_file;    // File access to static results
-    cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
+    ecl_file_type*                          m_ecl_init_file;            // File access to static results
+    cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;     // File access to dynamic results
 };

@@ -87,6 +87,7 @@ private:
     caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
     caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
     caf::PdmField<bool>                             m_showLegend;
+    caf::PdmField<double>                           m_maxPvFraction;
 
     std::vector<int>                                m_currentlyPlottedTimeSteps;
 

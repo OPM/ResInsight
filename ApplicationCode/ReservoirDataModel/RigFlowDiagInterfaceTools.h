@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RigFlowDiagResultAddress.h"
 
 #include <opm/flowdiagnostics/ConnectivityGraph.hpp>
 #include <opm/flowdiagnostics/ConnectionValues.hpp>
@@ -35,14 +36,33 @@
 
 namespace RigFlowDiagInterfaceTools {
 
+    std::vector<Opm::ECLPhaseIndex> getPhases(RigFlowDiagResultAddress::PhaseSelection phaseSelection)
+    {
+        std::vector<Opm::ECLPhaseIndex> phases;
+
+        if (phaseSelection & RigFlowDiagResultAddress::PHASE_GAS)
+        {
+            phases.push_back(Opm::ECLPhaseIndex::Vapour);
+        }
+        if (phaseSelection & RigFlowDiagResultAddress::PHASE_OIL)
+        {
+            phases.push_back(Opm::ECLPhaseIndex::Liquid);
+        }
+        if (phaseSelection & RigFlowDiagResultAddress::PHASE_WAT)
+        {
+            phases.push_back(Opm::ECLPhaseIndex::Aqua);
+        }
+
+        return phases;
+    }
+
     template <class FluxCalc>
     inline Opm::FlowDiagnostics::ConnectionValues
         extractFluxField(const Opm::ECLGraph& G,
-                         FluxCalc&& getFlux)
+                         FluxCalc&& getFlux,
+                         std::vector<Opm::ECLPhaseIndex> actPh)
     {
         using ConnVals = Opm::FlowDiagnostics::ConnectionValues;
-
-        const auto actPh = G.activePhases();
 
         auto flux = ConnVals(ConnVals::NumConnections{ G.numConnections() },
             ConnVals::NumPhases{ actPh.size() });
@@ -70,7 +90,8 @@ namespace RigFlowDiagInterfaceTools {
 
     inline Opm::FlowDiagnostics::ConnectionValues
         extractFluxFieldFromRestartFile(const Opm::ECLGraph& G,
-                                        const Opm::ECLRestartData& rstrt)
+                                        const Opm::ECLRestartData& rstrt,
+                                        RigFlowDiagResultAddress::PhaseSelection phaseSelection)
     {
         auto getFlux = [&G, &rstrt]
         (const Opm::ECLPhaseIndex p)
@@ -78,7 +99,26 @@ namespace RigFlowDiagInterfaceTools {
             return G.flux(rstrt, p);
         };
 
-        return extractFluxField(G, getFlux);
+        return extractFluxField(G, getFlux, getPhases(phaseSelection));
+    }
+
+    inline Opm::FlowDiagnostics::ConnectionValues
+        calculateFluxField(const Opm::ECLGraph& G,
+                           const Opm::ECLInitFileData& init,
+                           const Opm::ECLRestartData& rstrt,
+                           RigFlowDiagResultAddress::PhaseSelection phaseSelection)
+    {
+        auto satfunc = Opm::ECLSaturationFunc(G, init);
+
+        Opm::ECLFluxCalc calc(G, std::move(satfunc));
+
+        auto getFlux = [&calc, &rstrt]
+        (const Opm::ECLPhaseIndex p)
+        {
+            return calc.flux(rstrt, p);
+        };
+
+        return extractFluxField(G, getFlux, getPhases(phaseSelection));
     }
 
     template <class WellFluxes>

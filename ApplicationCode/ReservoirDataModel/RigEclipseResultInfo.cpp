@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
-//  Copyright (C) Ceetron Solutions AS
+//  Copyright (C) 2017  Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,106 +16,95 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifReaderInterface.h"
+#include "RigEclipseResultInfo.h"
 
-#include "RifReaderSettings.h"
+#include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderInterface::setReaderSetting(RifReaderSettings* settings)
+RigEclipseTimeStepInfo::RigEclipseTimeStepInfo(const QDateTime& date, int reportNumber, double daysSinceSimulationStart)
+    : m_date(date),
+    m_reportNumber(reportNumber),
+    m_daysSinceSimulationStart(daysSinceSimulationStart)
 {
-    m_settings = settings;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isFaultImportEnabled()
+std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos(std::vector<QDateTime> dates,
+                                                                  std::vector<int> reportNumbers,
+                                                                  std::vector<double> daysSinceSimulationStarts)
 {
-    if (m_settings.notNull())
+    CVF_ASSERT(dates.size() == reportNumbers.size());
+    CVF_ASSERT(dates.size() == daysSinceSimulationStarts.size());
+
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+
+    for (size_t i = 0; i < dates.size(); i++)
     {
-        return m_settings->importFaults;
+        timeStepInfos.push_back(RigEclipseTimeStepInfo(dates[i], reportNumbers[i], daysSinceSimulationStarts[i]));
     }
 
-    return false;
+    return timeStepInfos;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
+RigEclipseResultInfo::RigEclipseResultInfo(RiaDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated,
+                       QString resultName, size_t gridScalarResultIndex)
+    : m_resultType(resultType),
+    m_needsToBeStored(needsToBeStored),
+    m_mustBeCalculated(mustBeCalculated),
+    m_resultName(resultName),
+    m_gridScalarResultIndex(gridScalarResultIndex)
 {
-    if (m_settings.notNull())
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RigEclipseResultInfo::dates() const
+{
+    std::vector<QDateTime> values;
+
+    for (auto v : m_timeStepInfos)
     {
-        return m_settings->importAdvancedMswData;
+        values.push_back(v.m_date);
     }
 
-    return false;
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isNNCsEnabled()
+std::vector<double> RigEclipseResultInfo::daysSinceSimulationStarts() const
 {
-    if (m_settings.notNull())
+    std::vector<double> values;
+
+    for (auto v : m_timeStepInfos)
     {
-        return m_settings->importNNCs;
+        values.push_back(v.m_daysSinceSimulationStart);
     }
 
-    return false;
+    return values;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
+std::vector<int> RigEclipseResultInfo::reportNumbers() const
 {
-    if (m_settings.notNull())
+    std::vector<int> values;
+
+    for (auto v : m_timeStepInfos)
     {
-        return m_settings->faultIncludeFileAbsolutePathPrefix;
+        values.push_back(v.m_reportNumber);
     }
 
-    return QString();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifReaderInterface::setTimeStepFilter(const std::vector<size_t>& fileTimeStepIndices)
-{
-    m_fileTimeStepIndices = fileTimeStepIndices;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
-{
-    if (m_fileTimeStepIndices.empty()) return true;
-
-    for (auto i : m_fileTimeStepIndices)
-    {
-        if (i == timeStepIndex)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RifReaderInterface::timeStepIndexOnFile(size_t timeStepIndex) const
-{
-    if (timeStepIndex < m_fileTimeStepIndices.size())
-    {
-        return m_fileTimeStepIndices[timeStepIndex];
-    }
-
-    return timeStepIndex;
+    return values;
 }
 

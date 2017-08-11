@@ -92,6 +92,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.h
 ${CEE_CURRENT_LIST_DIR}RimDialogData.h
+${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -182,6 +183,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimDialogData.cpp
+${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

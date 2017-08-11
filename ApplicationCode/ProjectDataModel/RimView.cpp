@@ -51,6 +51,8 @@
 #include "cvfScene.h"
 #include "cvfViewport.h"
 
+#include <QDateTime>
+
 #include <limits.h>
 #include "cvfTransform.h"
 
@@ -738,7 +740,7 @@ void RimView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasic
 
     QDateTime currentTimeStamp;
     std::vector<QDateTime> timeStamps = ownerCase()->timeStepDates();
-    if (currentTimeStep() < timeStamps.size())
+    if (currentTimeStep() < static_cast<int>(timeStamps.size()))
     {
         currentTimeStamp = timeStamps[currentTimeStep()];
     }

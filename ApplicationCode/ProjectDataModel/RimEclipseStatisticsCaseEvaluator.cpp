@@ -24,6 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigEclipseResultInfo.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
@@ -43,20 +44,18 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
-    std::vector<double> sourceDaysSinceSimulationStart = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->daysSinceSimulationStart(0);
-    std::vector<int> sourceReportStepNumbers = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->reportStepNumbers(0);
+    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepInfos(0);
 
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
-    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates, sourceDaysSinceSimulationStart, sourceReportStepNumbers);
+    destinationCellResults->setTimeStepInfos(destinationScalarResultIndex, sourceTimeStepInfos);
     std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
-    dataValues.resize(sourceTimeStepDates.size());
+    dataValues.resize(sourceTimeStepInfos.size());
 
 
     // Initializes the size of the destination dataset to active union cell count
-    for (size_t i = 0; i < sourceTimeStepDates.size(); i++)
+    for (size_t i = 0; i < sourceTimeStepInfos.size(); i++)
     {
         dataValues[i].resize(activeUnionCellCount, HUGE_VAL);
     }
@@ -83,7 +82,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
     for (int i = 0; i < resultSpecification.size(); i++)
     {
-        RifReaderInterface::PorosityModelResultType poroModel = resultSpecification[i].m_poroModel;
+        RiaDefines::PorosityModelType poroModel = resultSpecification[i].m_poroModel;
         RiaDefines::ResultCatType resultType = resultSpecification[i].m_resType;
         QString resultName = resultSpecification[i].m_resVarName;
 
@@ -134,7 +133,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
             for (int resSpecIdx = 0; resSpecIdx < resultSpecification.size(); resSpecIdx++)
             {
-                RifReaderInterface::PorosityModelResultType poroModel = resultSpecification[resSpecIdx].m_poroModel;
+                RiaDefines::PorosityModelType poroModel = resultSpecification[resSpecIdx].m_poroModel;
                 RiaDefines::ResultCatType resultType = resultSpecification[resSpecIdx].m_resType;
                 QString resultName = resultSpecification[resSpecIdx].m_resVarName;
 
@@ -302,13 +301,13 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
             if (!eclipseCase->reservoirViews.size())
             {
-                eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->freeAllocatedResultsData();
-                eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->freeAllocatedResultsData();
+                eclipseCase->results(RiaDefines::MATRIX_MODEL)->cellResults()->freeAllocatedResultsData();
+                eclipseCase->results(RiaDefines::FRACTURE_MODEL)->cellResults()->freeAllocatedResultsData();
             }
 
             // Todo : These calls really do nothing right now the access actually closes automatically in ert i belive ...
-            eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->close();
-            eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->readerInterface()->close();
+            eclipseCase->results(RiaDefines::MATRIX_MODEL)->readerInterface()->close();
+            eclipseCase->results(RiaDefines::FRACTURE_MODEL)->readerInterface()->close();
         }
 
         progressInfo.setProgress(timeIndicesIdx);

@@ -35,24 +35,17 @@ class RigFlowDiagTimeStepResult
 public:
     explicit RigFlowDiagTimeStepResult(size_t activeCellCount);
 
-    void setTracerTOF     (const std::string& tracerName, const std::map<int, double>& cellValues);
-    void setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues);
+    void setTracerTOF     (const std::string& tracerName, RigFlowDiagResultAddress::PhaseSelection phaseSelection, const std::map<int, double>& cellValues);
+    void setTracerFraction(const std::string& tracerName, RigFlowDiagResultAddress::PhaseSelection phaseSelection, const std::map<int, double>& cellValues);
     void setInjProdWellPairFlux(const std::string& injectorTracerName,
                                 const std::string& producerTracerName, 
                                 const std::pair<double, double>& injProdFluxes) ;
 
     using Curve = std::pair< std::vector<double>, std::vector<double> >;
-    void setFlowCapStorageCapCurve(const Curve& flCapStCapCurve) { m_flowCapStorageCapCurve = flCapStCapCurve;}
-    void setSweepEfficiencyCurve(const Curve& sweepEffCurve)     { m_sweepEfficiencyCurve = sweepEffCurve; }
-    void setLorenzCoefficient(double coeff)                      { m_lorenzCoefficient = coeff;}
 
     // Used to "steal" the data from this one using swap
     std::map<RigFlowDiagResultAddress, std::vector<double> >&                    nativeResults() { return m_nativeResults; }
     std::map<std::pair<std::string, std::string>, std::pair<double, double> > &  injProdWellPairFluxes() { return m_injProdWellPairFluxes; }
-
-    Curve& flowCapStorageCapCurve() { return m_flowCapStorageCapCurve; }
-    Curve& sweepEfficiencyCurve()   { return m_sweepEfficiencyCurve; }
-    double lorenzCoefficient()      { return m_lorenzCoefficient;}
 
 private:
 
@@ -60,10 +53,6 @@ private:
 
     std::map<RigFlowDiagResultAddress, std::vector<double> >                  m_nativeResults;
     std::map<std::pair<std::string, std::string>, std::pair<double, double> > m_injProdWellPairFluxes;
-
-    Curve m_flowCapStorageCapCurve;
-    Curve m_sweepEfficiencyCurve;
-    double m_lorenzCoefficient;
 
     size_t m_activeCellCount;
 };
@@ -75,14 +64,33 @@ class RigOpmFlowDiagStaticData;
 class RigFlowDiagSolverInterface : public cvf::Object
 {
 public:
+    struct FlowCharacteristicsResultFrame
+    {
+        FlowCharacteristicsResultFrame();
+
+        using Curve = std::pair< std::vector<double>, std::vector<double> >;
+
+        Curve m_flowCapStorageCapCurve;
+        Curve m_sweepEfficiencyCurve;
+        double m_lorenzCoefficient;
+    };
+
+public:
     explicit RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase);
     virtual ~RigFlowDiagSolverInterface();
 
     RigFlowDiagTimeStepResult calculate(size_t timestep,  
+                                        RigFlowDiagResultAddress::PhaseSelection phaseSelection,
                                         std::map<std::string, std::vector<int> > injectorTracers, 
                                         std::map<std::string, std::vector<int> > producerTracers);
 
+    FlowCharacteristicsResultFrame calculateFlowCharacteristics(const std::vector<double>* injector_tof,
+                                                                const std::vector<double>* producer_tof,
+                                                                double max_pv_fraction);
+
 private:
+    std::string getInitFileName() const;
+
     RimEclipseResultCase * m_eclipseCase;
 
     cvf::ref<RigOpmFlowDiagStaticData> m_opmFlowDiagStaticData;

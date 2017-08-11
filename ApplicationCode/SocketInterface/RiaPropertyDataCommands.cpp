@@ -60,10 +60,10 @@ public:
         QString propertyName = args[2];
         QString porosityModelName = args[3];
 
-        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
         if (porosityModelName == "Fracture")
         {
-            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         // Find the requested data
@@ -233,10 +233,10 @@ public:
             return true;
         }
 
-        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
         if (porosityModelName == "Fracture")
         {
-            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
@@ -383,7 +383,7 @@ public:
         m_bytesPerTimeStepToRead(0),
         m_currentTimeStepNumberToRead(0),
         m_invalidActiveCellCountDetected(false),
-        m_porosityModelEnum(RifReaderInterface::MATRIX_RESULTS)
+        m_porosityModelEnum(RiaDefines::MATRIX_MODEL)
     {}
 
     static QString commandName () { return QString("SetActiveCellProperty"); }
@@ -397,7 +397,7 @@ public:
 
         if (porosityModelName == "Fracture")
         {
-            m_porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            m_porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         // Find the requested data, Or create a set if we are setting data and it is not found
@@ -697,7 +697,7 @@ private:
     size_t                              m_currentScalarIndex;
     QString                             m_currentPropertyName;
     std::vector<size_t>                 m_requestedTimesteps;
-    RifReaderInterface::PorosityModelResultType m_porosityModelEnum;
+    RiaDefines::PorosityModelType m_porosityModelEnum;
 
     quint64                             m_timeStepCountToRead;
     quint64                             m_bytesPerTimeStepToRead;
@@ -724,7 +724,7 @@ public:
           m_bytesPerTimeStepToRead(0),
           m_currentTimeStepNumberToRead(0),
           m_invalidDataDetected(false),
-          m_porosityModelEnum(RifReaderInterface::MATRIX_RESULTS)
+          m_porosityModelEnum(RiaDefines::MATRIX_MODEL)
     {}
 
     static QString commandName () { return QString("SetGridProperty"); }
@@ -746,7 +746,7 @@ public:
 
         if (porosityModelName == "Fracture")
         {
-            m_porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            m_porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         RigGridBase* grid = rimCase->eclipseCaseData()->grid(m_currentGridIndex);
@@ -1061,7 +1061,7 @@ private:
     size_t                              m_currentScalarIndex;
     QString                             m_currentPropertyName;
     std::vector<size_t>                 m_requestedTimesteps;
-    RifReaderInterface::PorosityModelResultType m_porosityModelEnum;
+    RiaDefines::PorosityModelType m_porosityModelEnum;
 
     quint64                             m_timeStepCountToRead;
     quint64                             m_bytesPerTimeStepToRead;
@@ -1092,11 +1092,11 @@ public:
         }
 
         QString porosityModelName = args[2];
-        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
 
         if (porosityModelName == "Fracture")
         {
-            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         std::vector<QString> propNames;

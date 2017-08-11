@@ -8,6 +8,7 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RiaApplication.h
 ${CEE_CURRENT_LIST_DIR}RiaDefines.h
 ${CEE_CURRENT_LIST_DIR}RiaPreferences.h
+${CEE_CURRENT_LIST_DIR}RiaPorosityModel.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -15,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RiaApplication.cpp
 ${CEE_CURRENT_LIST_DIR}RiaDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RiaMain.cpp
 ${CEE_CURRENT_LIST_DIR}RiaPreferences.cpp
+${CEE_CURRENT_LIST_DIR}RiaPorosityModel.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

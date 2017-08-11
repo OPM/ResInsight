@@ -67,6 +67,9 @@ ${CEE_CURRENT_LIST_DIR}RigFractureGrid.h
 ${CEE_CURRENT_LIST_DIR}RigFractureCell.h
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.h
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.h
+${CEE_CURRENT_LIST_DIR}RigEclipseResultInfo.h
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.h
+
 
 )
 
@@ -128,6 +131,8 @@ ${CEE_CURRENT_LIST_DIR}RigFractureGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigFractureCell.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseResultInfo.cpp
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.cpp
 
 )
 

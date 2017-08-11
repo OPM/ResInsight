@@ -55,7 +55,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 
     if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+    RiaDefines::PorosityModelType porosityModel = cellResultColors->porosityModel();
 
     cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");
     cvf::ref<RigResultAccessor> sgas = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SGAS");
@@ -89,7 +89,7 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 
     if (cellResultColors->hasStaticResult()) resTimeStepIdx = 0;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
+    RiaDefines::PorosityModelType porosityModel = cellResultColors->porosityModel();
 
     size_t gridIndex = 0;
     cvf::ref<RigResultAccessor> soil = RigResultAccessorFactory::createFromUiResultName(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, "SOIL");

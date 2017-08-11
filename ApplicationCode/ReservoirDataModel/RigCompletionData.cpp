@@ -20,7 +20,10 @@
 
 #include "RiaLogging.h"
 
+#include "cvfAssert.h"
+
 #include <QString>
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 

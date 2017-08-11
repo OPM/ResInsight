@@ -22,6 +22,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmChildField.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -30,6 +31,7 @@
 
 class RimView;
 class RimFormationNames;
+class RimTimeStepFilter;
 
 namespace cvf {
     class BoundingBox;
@@ -68,6 +70,9 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 private:
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
+
+protected:
+    caf::PdmChildField<RimTimeStepFilter*>      m_timeStepFilter;
 };
 
 

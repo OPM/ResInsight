@@ -18,19 +18,21 @@
 
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
 
-#include "RigEclipseCaseData.h"
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicWellPathExportCompletionDataFeature.h"
-#include "RimWellPath.h"
-#include "RigWellPath.h"
-#include "RimFishboneWellPath.h"
-#include "RimFishbonesCollection.h"
+
 #include "RigActiveCellInfo.h"
-#include "RigMainGrid.h"
-#include "RimFishbonesMultipleSubs.h"
-#include "RimFishboneWellPathCollection.h"
-#include "RimWellPathCompletions.h"
 #include "RigCompletionData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigWellPath.h"
+
+#include "RimFishboneWellPath.h"
+#include "RimFishboneWellPathCollection.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesMultipleSubs.h"
+#include "RimWellPath.h"
+#include "RimWellPathCompletions.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -86,7 +88,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
     std::vector<RigCompletionData> completionData;
 
     RigMainGrid* grid = settings.caseToApply->eclipseCaseData()->mainGrid();
-    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    const RigActiveCellInfo* activeCellInfo = settings.caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
 
     for (auto cellAndWellBoreParts : wellBorePartsInCells)
     {
