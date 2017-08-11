@@ -29,14 +29,15 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 
+#include "RimFlowDiagSolution.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimTimeStepFilter.h"
 #include "RimTools.h"
-#include "RimFlowDiagSolution.h"
-#include "RigFlowDiagSolverInterface.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -110,6 +111,11 @@ bool RimEclipseResultCase::openEclipseGridFile()
         readerInterface = new RifReaderEclipseOutput;
         readerInterface->setReaderSetting(prefs->readerSettings());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
+
+        if (!m_timeStepFilter->timeStepIndicesToImport().empty())
+        {
+            readerInterface->setTimeStepFilter(m_timeStepFilter->timeStepIndicesToImport());
+        }
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
@@ -460,5 +466,8 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     group->add(&flipXAxis);
     group->add(&flipYAxis);
 
+    auto group1 = uiOrdering.addNewGroup("Time Step Filter");
+    group1->setCollapsedByDefault(true);
+    m_timeStepFilter->uiOrdering(uiConfigName, *group1);
 }
 

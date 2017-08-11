@@ -84,9 +84,9 @@ const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderInterface::setTimestepIndicesForImport(const std::vector<size_t>& timeStepIndices)
+void RifReaderInterface::setTimeStepFilter(const std::vector<size_t>& fileTimeStepIndices)
 {
-    m_includedTimeStepIndices = timeStepIndices;
+    m_fileTimeStepIndices = fileTimeStepIndices;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,9 +94,9 @@ void RifReaderInterface::setTimestepIndicesForImport(const std::vector<size_t>& 
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
 {
-    if (m_includedTimeStepIndices.empty()) return true;
+    if (m_fileTimeStepIndices.empty()) return true;
 
-    for (auto i : m_includedTimeStepIndices)
+    for (auto i : m_fileTimeStepIndices)
     {
         if (i == timeStepIndex)
         {
@@ -112,9 +112,9 @@ bool RifReaderInterface::isTimeStepIncludedByFilter(size_t timeStepIndex) const
 //--------------------------------------------------------------------------------------------------
 size_t RifReaderInterface::timeStepIndexOnFile(size_t timeStepIndex) const
 {
-    if (timeStepIndex < m_includedTimeStepIndices.size())
+    if (timeStepIndex < m_fileTimeStepIndices.size())
     {
-        return m_includedTimeStepIndices[timeStepIndex];
+        return m_fileTimeStepIndices[timeStepIndex];
     }
 
     return timeStepIndex;
