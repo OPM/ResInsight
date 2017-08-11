@@ -521,3 +521,17 @@ void RimEclipseResultCase::fieldChangedByUi(const caf::PdmFieldHandle* changedFi
     return RimEclipseCase::fieldChangedByUi(changedField, oldValue, newValue);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_sourSimFileName)
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";
+        }
+    }
+}
