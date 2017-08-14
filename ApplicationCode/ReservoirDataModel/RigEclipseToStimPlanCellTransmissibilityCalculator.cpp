@@ -127,7 +127,11 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
         double dy = dataAccessObjectDy->cellScalarGlobIdx(fracCell);
         double dz = dataAccessObjectDz->cellScalarGlobIdx(fracCell);
 
-        double NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
+        double NTG = 1.0;
+        if (dataAccessObjectNTG.notNull())
+        {
+            NTG = dataAccessObjectNTG->cellScalarGlobIdx(fracCell);
+        }
 
         const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
         std::array<cvf::Vec3d, 8> hexCorners;
