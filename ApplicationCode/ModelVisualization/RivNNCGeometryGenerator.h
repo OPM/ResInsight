@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -49,7 +49,7 @@ public:
     
     void textureCoordinates(cvf::Vec2fArray* textureCoords,  
                             const cvf::ScalarMapper* mapper,
-                            RimDefines::ResultCatType resultType,
+                            RiaDefines::ResultCatType resultType,
                             size_t scalarResultIndex,
                             size_t timeStepIndex) const;
 

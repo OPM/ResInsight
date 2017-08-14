@@ -38,7 +38,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
 #include "RimIntersection.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
@@ -63,13 +63,15 @@
 #include "RivFemPickSourceInfo.h"
 #include "RivIntersectionBoxSourceInfo.h"
 #include "RivIntersectionSourceInfo.h"
+#include "RivObjectSourceInfo.h"
+#include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
 #include "RivTernarySaturationOverlayItem.h"
 #include "RivWellPathSourceInfo.h"
-#include "RivSimWellPipeSourceInfo.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafSelectionManager.h"
 
 #include "cvfDrawableGeo.h"
@@ -163,14 +165,8 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         RimView* activeView = RiaApplication::instance()->activeReservoirView();
         CVF_ASSERT(activeView);
 
-        RimCase* rimCase = NULL;
-        activeView->firstAncestorOrThisOfType(rimCase);
-        if (rimCase)
-        {
-            displayModelOffset = rimCase->displayModelOffset();
-        }
-
-        m_currentPickPositionInDomainCoords = localIntersectionPoint + displayModelOffset;
+        cvf::ref<caf::DisplayCoordTransform> transForm = activeView->displayCoordTransform();
+        m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord(globalIntersectionPoint);
     }
 
     if (firstHitPart && firstPartTriangleIndex != cvf::UNDEFINED_UINT)
@@ -243,7 +239,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                     QAction* propertyAction = new QAction(QIcon(":/CellFilter_Values.png"), QString("Add property filter"), this);
                     connect(propertyAction, SIGNAL(triggered()), SLOT(slotAddEclipsePropertyFilter()));
 
-                    bool isPerCellFaceResult = RimDefines::isPerCellFaceResult(cellColors->resultVariable());
+                    bool isPerCellFaceResult = RiaDefines::isPerCellFaceResult(cellColors->resultVariable());
                     if (isPerCellFaceResult)
                     {
                         propertyAction->setEnabled(false);
@@ -292,12 +288,19 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             RimWellPath* wellPath = wellPathSourceInfo->wellPath();
             if (wellPath)
             {
+                double measuredDepth = wellPathSourceInfo->measuredDepth(firstPartTriangleIndex, m_currentPickPositionInDomainCoords);
+                cvf::Vec3d trueVerticalDepth = wellPathSourceInfo->trueVerticalDepth(firstPartTriangleIndex, globalIntersectionPoint);
+                RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+
                 caf::SelectionManager::instance()->setSelectedItem(wellPath);
 
                 commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicNewWellLogFileCurveFeature";
                 commandIds << "Separator";
                 commandIds << "RicNewWellPathIntersectionFeature";
+                commandIds << "RicNewFishbonesSubsAtMeasuredDepthFeature";
+                commandIds << "RicNewPerforationIntervalAtMeasuredDepthFeature";
             }
         }
 
@@ -520,12 +523,18 @@ void RiuViewerCommands::handlePickAction(int winPosX, int winPosY, Qt::KeyboardM
 
         if (firstHitPart && firstHitPart->sourceInfo())
         {
+            const RivObjectSourceInfo* rivObjectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>(firstHitPart->sourceInfo());
             const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
             const RivFemPickSourceInfo* femSourceInfo = dynamic_cast<const RivFemPickSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionSourceInfo* crossSectionSourceInfo = dynamic_cast<const RivIntersectionSourceInfo*>(firstHitPart->sourceInfo());
             const RivIntersectionBoxSourceInfo* intersectionBoxSourceInfo = dynamic_cast<const RivIntersectionBoxSourceInfo*>(firstHitPart->sourceInfo());
             const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
 
+            if (rivObjectSourceInfo)
+            {
+                RiuMainWindow::instance()->selectAsCurrentItem(rivObjectSourceInfo->object());
+            }
+            
             if (rivSourceInfo)
             {
                 gridIndex = rivSourceInfo->gridIndex();
@@ -832,7 +841,6 @@ void RiuViewerCommands::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(m_reservoirView.p());
     RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>(m_reservoirView.p());
-
 
     if (eclipseView && eclipseView->eclipseCase())
     {

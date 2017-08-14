@@ -40,6 +40,10 @@ public:
     void                        setDatumElevation(double value);
     bool                        hasDatumElevation() const;
     double                      datumElevation() const;
+    cvf::Vec3d                  interpolatedPointAlongWellPath(double measuredDepth) const;
+    double                      wellPathAzimuthAngle(const cvf::Vec3d& position) const;
+    void                        twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, cvf::Vec3d* p2) const;
+    std::vector<cvf::Vec3d>     clippedPointSubset(double startMD, double endMD) const;
 
 private:
     bool    m_hasDatumElevation;

@@ -31,6 +31,7 @@
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
 #include "RimContextCommandBuilder.h"
+#include "RimDialogData.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
@@ -120,6 +121,11 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitField(&m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "");
     m_showPlotWindow.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_dialogData, "DialogData", "DialogData", "", "", "");
+    m_dialogData = new RimDialogData();
+    m_dialogData.uiCapability()->setUiHidden(true);
+    m_dialogData.uiCapability()->setUiTreeChildrenHidden(true);
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
@@ -627,6 +633,17 @@ RimOilField* RimProject::activeOilField()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Currently there will be only one oil field in Resinsight, so return hardcoded first oil field
+/// from the RimOilField collection.
+//--------------------------------------------------------------------------------------------------
+const RimOilField * RimProject::activeOilField() const
+{
+    CVF_ASSERT(oilFields.size() == 1);
+  
+    return oilFields[0];
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimProject::computeUtmAreaOfInterest()
@@ -750,6 +767,33 @@ bool RimProject::show3DWindow() const
 bool RimProject::showPlotWindow() const
 {
     return m_showPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::reloadCompletionTypeResultsInAllViews()
+{
+    removeEclipseResultAndRedrawAllViews(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimDialogData* RimProject::dialogData() const
+{
+    return m_dialogData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::removeEclipseResultAndRedrawAllViews(RiaDefines::ResultCatType type, const QString & resultName)
+{
+    for (RimEclipseCase* eclipseCase : activeOilField()->analysisModels->cases)
+    {
+        eclipseCase->removeEclipseResultAndScheduleRedrawAllViews(type, resultName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

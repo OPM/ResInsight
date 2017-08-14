@@ -105,7 +105,6 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCell
 
     updateNNCColors(timeStepIndex, cellResultColors);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
     RimEclipseView* eclipseView = cellResultColors->reservoirView();
     RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
@@ -664,7 +663,7 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
     if (showNncsWithScalarMappedColor)
     {
         size_t scalarSetIndex = cellResultColors->scalarResultIndex();
-        RimDefines::ResultCatType resultType = cellResultColors->resultType();
+        RiaDefines::ResultCatType resultType = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 

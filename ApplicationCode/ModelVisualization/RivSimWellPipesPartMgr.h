@@ -54,8 +54,6 @@ public:
 
     const std::vector< std::vector <cvf::Vec3d> >&  centerLineOfWellBranches() { return m_pipeBranchesCLCoords;}
 
-    void findGridIndexAndCellIndex(size_t branchIndex, size_t triangleIndex, size_t* gridIndex, size_t* cellIndex);
-
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
     caf::PdmPointer<RimEclipseWell>            m_rimWell;

@@ -165,10 +165,10 @@ public:
         QString porosityModelName;
         porosityModelName = args[2];
 
-        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
         if (porosityModelName.toUpper() == "FRACTURE")
         {
-            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         if (!rimCase || !rimCase->eclipseCaseData())
@@ -336,10 +336,10 @@ public:
         QString porosityModelName;
         porosityModelName = args[2];
 
-        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        RiaDefines::PorosityModelType porosityModelEnum = RiaDefines::MATRIX_MODEL;
         if (porosityModelName.toUpper() == "FRACTURE")
         {
-            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+            porosityModelEnum = RiaDefines::FRACTURE_MODEL;
         }
 
         if (!rimCase || !rimCase->eclipseCaseData() )

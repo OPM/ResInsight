@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -33,12 +35,19 @@
 
 #include <QString>
 
-class RivWellPathCollectionPartMgr;
-class RifWellPathAsciiFileReader;
+class RifWellPathImporter;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
 
+namespace cvf {
+class ModelBasicList;
+class BoundingBox;
+}
+
+namespace caf {
+class DisplayCoordTransform;
+}
 
 //==================================================================================================
 ///  
@@ -74,23 +83,28 @@ public:
     caf::PdmField<int>                  wellPathClipZDistance;
 
     caf::PdmChildArrayField<RimWellPath*> wellPaths;
-    
    
-    RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }
-
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
     
     void                                removeWellPath(RimWellPath* wellPath);
     void                                deleteAllWellPaths();
 
-    RifWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
-    
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellLogs(const QStringList& filePaths);
 
+    void                                scheduleRedrawAffectedViews();
 
-    void                                scheduleGeometryRegenAndRedrawViews();
+    void                                appendStaticGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                         double                            characteristicCellSize, 
+                                                                         const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                         const caf::DisplayCoordTransform* displayCoordTransform);
+
+    void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
+                                                                          const QDateTime&                  timeStamp,
+                                                                          double                            characteristicCellSize, 
+                                                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
+                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 protected:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
@@ -102,33 +116,7 @@ private:
     void                                readAndAddWellPaths(std::vector<RimWellPath*>& wellPathArray);
     void                                sortWellsByName();
 
-    cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
+    RiaEclipseUnitTools::UnitSystemType findUnitSystemForWellPath(const RimWellPath* wellPath);
 
-    RifWellPathAsciiFileReader*         m_asciiFileReader;
-};
-
-
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RifWellPathAsciiFileReader
-{
-public:
-    struct WellData
-    {
-        QString                 m_name;
-        cvf::ref<RigWellPath>   m_wellPathGeometry;
-    };
-
-    WellData readWellData(QString filePath, int indexInFile);
-    size_t   wellDataCount(QString filePath);
-
-    void    clear();
-    void    removeFilePath(const QString& filePath);
-
-private:
-    void readAllWellData(QString filePath);
-
-    std::map<QString, std::vector<WellData> > m_fileNameToWellDataGroupMap;
+    RifWellPathImporter*                m_wellPathImporter;
 };

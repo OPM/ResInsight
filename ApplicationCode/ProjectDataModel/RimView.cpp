@@ -1,3 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
 #include "RimView.h"
 
 #include "RiaApplication.h"
@@ -21,8 +40,6 @@
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 
-#include "RivWellPathCollectionPartMgr.h"
-
 #include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmObjectFactory.h"
@@ -34,7 +51,10 @@
 #include "cvfScene.h"
 #include "cvfViewport.h"
 
+#include <QDateTime>
+
 #include <limits.h>
+#include "cvfTransform.h"
 
 
 namespace caf {
@@ -407,6 +427,18 @@ void RimView::endAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPathCollection* RimView::wellPathsPartManager()
+{
+    RimProject* proj = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(proj);
+    CVF_ASSERT(proj && proj->activeOilField() && proj->activeOilField()->wellPathCollection());
+
+    return proj->activeOilField()->wellPathCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimView::setupBeforeSave()
 {
     if (m_viewer)
@@ -581,8 +613,7 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         // Regenerate well paths
         RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
         RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
-        if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
-
+        
         crossSectionCollection->updateIntersectionBoxGeometry();
 
         if (m_viewer)
@@ -684,23 +715,41 @@ void RimView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, 
-                                  const cvf::Vec3d& displayModelOffset,  
-                                  double characteristicCellSize, 
-                                  const cvf::BoundingBox& wellPathClipBoundingBox, 
-                                  cvf::Transform* scaleTransform)
+                                  const cvf::BoundingBox& wellPathClipBoundingBox)
 {
-    RimOilField* oilFields =                                    RiaApplication::instance()->project()   ? RiaApplication::instance()->project()->activeOilField() : NULL;
-    RimWellPathCollection* wellPathCollection =                 oilFields                               ? oilFields->wellPathCollection() : NULL;
-    RivWellPathCollectionPartMgr* wellPathCollectionPartMgr =   wellPathCollection                      ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
+    if (!this->ownerCase()) return;
 
-    if (wellPathCollectionPartMgr)
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    wellPathsPartManager()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
+        this->ownerCase()->characteristicCellSize(),
+        wellPathClipBoundingBox,
+        transForm.p());
+
+    wellPathModelBasicList->updateBoundingBoxesRecursive();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimView::addDynamicWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox)
+{
+    if (!this->ownerCase()) return;
+
+    cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
+
+    QDateTime currentTimeStamp;
+    std::vector<QDateTime> timeStamps = ownerCase()->timeStepDates();
+    if (currentTimeStep() < static_cast<int>(timeStamps.size()))
     {
-        wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList, 
-                                                                    displayModelOffset,
-                                                                    scaleTransform, 
-                                                                    characteristicCellSize, 
-                                                                    wellPathClipBoundingBox);
+        currentTimeStamp = timeStamps[currentTimeStep()];
     }
+
+    wellPathsPartManager()->appendDynamicGeometryPartsToModel(wellPathModelBasicList,
+        currentTimeStamp,
+        this->ownerCase()->characteristicCellSize(),
+        wellPathClipBoundingBox,
+        transForm.p());
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
 }

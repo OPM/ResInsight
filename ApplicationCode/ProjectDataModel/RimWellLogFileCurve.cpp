@@ -114,7 +114,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate()
             }
         }
 
-        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
         if (wellLogPlot)
         {
             displayUnit = wellLogPlot->depthUnit();

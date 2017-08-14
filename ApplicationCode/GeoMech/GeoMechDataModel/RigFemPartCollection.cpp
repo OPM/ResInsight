@@ -88,7 +88,7 @@ size_t RigFemPartCollection::totalElementCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-float RigFemPartCollection::characteristicElementSize()
+float RigFemPartCollection::characteristicElementSize() const
 {
     if (partCount())
     {

@@ -86,12 +86,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
     std::vector<caf::PdmUiItem*> uiItems;
     caf::SelectionManager::instance()->selectedItems(uiItems);
 
-    if (uiItems.size() == 0)
-    {
-        commandIds << "RicNewWellLogPlotFeature";
-        commandIds << "RicNewSummaryPlotFeature";
-    }
-    else if (uiItems.size() == 1)
+    if (uiItems.size() == 1)
     {
         caf::PdmUiItem* uiItem = uiItems[0];
         CVF_ASSERT(uiItem);
@@ -394,6 +389,17 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicShowTotalAllocationDataFeature";
         
         commandIds << "RicSummaryCurveSwitchAxisFeature";
+        
+        commandIds << "RicNewFishbonesSubsFeature";
+        commandIds << "RicNewPerforationIntervalFeature";
+        commandIds << "RicEditPerforationCollectionFeature";
+        commandIds << "RicExportFishbonesLateralsFeature";
+        commandIds << "RicExportFishbonesWellSegmentsFeature";
+        commandIds << "RicWellPathImportPerforationIntervalsFeature";
+        commandIds << "RicWellPathExportCompletionDataFeature";
+        commandIds << "RicWellPathImportCompletionsFileFeature";
+        commandIds << "RicFlyToObjectFeature";
+        commandIds << "RicExportCarfin";
 
         // Work in progress -- End
 

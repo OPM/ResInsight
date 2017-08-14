@@ -45,7 +45,7 @@ RigEclipseCaseData::RigEclipseCaseData()
     m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
     m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
 
-    m_unitsType = UNITS_METRIC;
+    m_unitsType = RiaEclipseUnitTools::UNITS_METRIC;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,9 +434,9 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel)
+RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelType porosityModel)
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_activeCellInfo.p();
     }
@@ -447,9 +447,9 @@ RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::Porosi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const
+const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RiaDefines::PorosityModelType porosityModel) const
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_activeCellInfo.p();
     }
@@ -460,9 +460,9 @@ const RigActiveCellInfo* RigEclipseCaseData::activeCellInfo(RifReaderInterface::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo)
+void RigEclipseCaseData::setActiveCellInfo(RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo)
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         m_activeCellInfo = activeCellInfo;
         m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
@@ -537,7 +537,7 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
     m_activeFormationNamesData  = activeFormationNames;
 
     size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
-    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RimDefines::FORMATION_NAMES, 
+    size_t resIndex = m_matrixModelResults->addStaticScalarResult(RiaDefines::FORMATION_NAMES, 
                                                                   "Active Formation Names", 
                                                                   false, 
                                                                   totalGlobCellCount);
@@ -604,9 +604,9 @@ RigFormationNames* RigEclipseCaseData::activeFormationNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCaseCellResultsData* RigEclipseCaseData::results(RifReaderInterface::PorosityModelResultType porosityModel)
+RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelType porosityModel)
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_matrixModelResults.p();
     }
@@ -617,9 +617,9 @@ RigCaseCellResultsData* RigEclipseCaseData::results(RifReaderInterface::Porosity
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigCaseCellResultsData* RigEclipseCaseData::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+const RigCaseCellResultsData* RigEclipseCaseData::results(RiaDefines::PorosityModelType porosityModel) const
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_matrixModelResults.p();
     }

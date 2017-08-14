@@ -33,9 +33,7 @@
 #include <QDir>
 #include <QFile>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
+CAF_CMD_SOURCE_INIT(RicWellPathsImportSsihubFeature, "RicWellPathsImportSsihubFeature");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -125,5 +123,3 @@ void RicWellPathsImportSsihubFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Import Well Paths from &SSI-hub");
     actionToSetup->setIcon(QIcon(":/WellCollection.png"));
 }
-
-} // end namespace caf

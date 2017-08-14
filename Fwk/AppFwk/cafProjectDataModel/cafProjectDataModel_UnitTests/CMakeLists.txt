@@ -40,6 +40,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmXml
 	cafProjectDataModel 
     ${QT_LIBRARIES}
+    ${THREAD_LIBRARY}
 )
 
 source_group("" FILES ${PROJECT_FILES})

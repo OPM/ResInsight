@@ -117,8 +117,8 @@ RimSummaryPlot::~RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxes()
 {
-    updateAxis(RimDefines::PLOT_AXIS_LEFT);
-    updateAxis(RimDefines::PLOT_AXIS_RIGHT);
+    updateAxis(RiaDefines::PLOT_AXIS_LEFT);
+    updateAxis(RiaDefines::PLOT_AXIS_RIGHT);
 
     updateZoomInQwt();
 
@@ -128,7 +128,7 @@ void RimSummaryPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const
+bool RimSummaryPlot::isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) const
 {
     return yAxisPropertiesForAxis(plotAxis)->isLogarithmicScaleEnabled();
 }
@@ -431,12 +431,12 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
+void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
 
     QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
-    if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+    if (plotAxis == RiaDefines::PLOT_AXIS_LEFT)
     {
         qwtAxis = QwtPlot::yLeft;
     }
@@ -469,7 +469,7 @@ void RimSummaryPlot::updateAxis(RimDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateZoomForAxis(RimDefines::PlotAxis plotAxis)
+void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
 {
     RimSummaryYAxisProperties* yAxisProps = yAxisPropertiesForAxis(plotAxis);
 
@@ -507,7 +507,7 @@ void RimSummaryPlot::updateZoomForAxis(RimDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RimDefines::PlotAxis plotAxis) const
+std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const
 {
     std::vector<RimSummaryCurve*> curves;
 
@@ -539,7 +539,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RimDef
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlot::hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) const
+bool RimSummaryPlot::hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const
 {
     if (visibleSummaryCurvesForAxis(plotAxis).size() > 0)
     {
@@ -557,11 +557,11 @@ bool RimSummaryPlot::hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryYAxisProperties* RimSummaryPlot::yAxisPropertiesForAxis(RimDefines::PlotAxis plotAxis) const
+RimSummaryYAxisProperties* RimSummaryPlot::yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const
 {
     RimSummaryYAxisProperties* yAxisProps = nullptr;
 
-    if (plotAxis == RimDefines::PLOT_AXIS_LEFT)
+    if (plotAxis == RiaDefines::PLOT_AXIS_LEFT)
     {
         yAxisProps = m_leftYAxisProperties();
     }
@@ -578,7 +578,7 @@ RimSummaryYAxisProperties* RimSummaryPlot::yAxisPropertiesForAxis(RimDefines::Pl
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::visibleTimeHistoryCurvesForAxis(RimDefines::PlotAxis plotAxis) const
+std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::visibleTimeHistoryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const
 {
     std::vector<RimGridTimeHistoryCurve*> curves;
 
@@ -699,8 +699,8 @@ void RimSummaryPlot::zoomAll()
     {
         m_qwtPlot->setAxisAutoScale(QwtPlot::xBottom, true);
 
-        updateZoomForAxis(RimDefines::PLOT_AXIS_LEFT);
-        updateZoomForAxis(RimDefines::PLOT_AXIS_RIGHT);
+        updateZoomForAxis(RiaDefines::PLOT_AXIS_LEFT);
+        updateZoomForAxis(RiaDefines::PLOT_AXIS_RIGHT);
 
         m_qwtPlot->replot();
     }

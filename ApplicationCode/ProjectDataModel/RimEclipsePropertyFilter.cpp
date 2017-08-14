@@ -252,7 +252,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateRangeLabel()
 {
-    if (resultDefinition->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
         m_rangeLabelText = "Current Timestep";
     }
@@ -348,7 +348,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     clearCategories();
 
-    if (resultDefinition->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
         RimView* view;
         this->firstAncestorOrThisOfType(view);
@@ -379,17 +379,26 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
                 if ( resultDefinition->hasCategoryResult() )
                 {
-                    if ( resultDefinition->resultType() != RimDefines::FORMATION_NAMES )
-                    {
-                        setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
-                    }
-                    else
+                    if ( resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
                     {
                         CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData());
                         CVF_ASSERT(parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames());
 
                         const std::vector<QString>& fnVector = parentContainer()->reservoirView()->eclipseCase()->eclipseCaseData()->activeFormationNames()->formationNames();
                         setCategoryNames(fnVector);
+                    }
+                    else if (resultDefinition->resultVariable() == RiaDefines::completionTypeResultName())
+                    {
+                        std::vector<QString> ctNames;
+                        for (QString ctName : caf::AppEnum<RiaDefines::CompletionType>::uiTexts())
+                        {
+                            ctNames.push_back(ctName);
+                        }
+                        setCategoryNames(ctNames);
+                    }
+                    else
+                    {
+                        setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
                     }
                 }
             }
@@ -414,7 +423,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     //
     // If the user manually has set a filter value, this value is left untouched
 
-    if (resultDefinition->resultType() != RimDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() != RiaDefines::FLOW_DIAGNOSTICS)
     {
         return;
     }

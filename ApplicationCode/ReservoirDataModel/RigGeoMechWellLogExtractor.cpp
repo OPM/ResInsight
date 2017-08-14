@@ -28,6 +28,7 @@
 
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
+#include "cvfGeometryTools.h"
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -155,7 +156,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
             hexCorners[7] = cvf::Vec3d(nodeCoords[cornerIndices[7]]);
 
             //int intersectionCount = RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[ccIdx], &intersections);
-            RigHexIntersector::lineHexCellIntersection(p1, p2, hexCorners, closeCells[ccIdx], &intersections);
+            RigHexIntersectionTools::lineHexCellIntersection(p1, p2, hexCorners, closeCells[ccIdx], &intersections);
         }
 
         // Now, with all the intersections of this piece of line, we need to 

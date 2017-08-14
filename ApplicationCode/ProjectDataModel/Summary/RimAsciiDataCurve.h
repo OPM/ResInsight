@@ -26,7 +26,7 @@
 #include "cafPdmChildField.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimPlotCurve.h"
 
 #include "cafAppEnum.h"
@@ -54,8 +54,8 @@ public:
     std::vector<double>                     yValues() const;
     const std::vector<time_t>&              timeSteps() const;
 
-    void                                    setYAxis(RimDefines::PlotAxis plotAxis);
-    RimDefines::PlotAxis                    yAxis() const;
+    void                                    setYAxis(RiaDefines::PlotAxis plotAxis);
+    RiaDefines::PlotAxis                    yAxis() const;
     void                                    updateQwtPlotAxis();
 
     void                                    setTimeSteps(const std::vector<QDateTime>& timeSteps);
@@ -74,7 +74,7 @@ private:
 
 private:
     // Fields
-    caf::PdmField< caf::AppEnum< RimDefines::PlotAxis > > m_plotAxis;
+    caf::PdmField< caf::AppEnum< RiaDefines::PlotAxis > > m_plotAxis;
 
     caf::PdmField< std::vector<QDateTime> > m_timeSteps;
     caf::PdmField< std::vector<double> >    m_values;

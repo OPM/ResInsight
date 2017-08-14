@@ -39,7 +39,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
-    : m_activeCellCount(activeCellCount), m_lorenzCoefficient(HUGE_VAL)
+    : m_activeCellCount(activeCellCount)
 {
 
 }
@@ -49,12 +49,14 @@ RigFlowDiagTimeStepResult::RigFlowDiagTimeStepResult(size_t activeCellCount)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName, const std::map<int, double>& cellValues)
+void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName,
+                                             RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                             const std::map<int, double>& cellValues)
 {
     std::set<std::string> tracers;
     tracers.insert(tracerName);
     
-    RigFlowDiagResultAddress resAddr(RIG_FLD_TOF_RESNAME, tracers);
+    RigFlowDiagResultAddress resAddr(RIG_FLD_TOF_RESNAME, phaseSelection, tracers);
 
     this->addResult(resAddr, cellValues);
 
@@ -68,12 +70,14 @@ void RigFlowDiagTimeStepResult::setTracerTOF(const std::string& tracerName, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagTimeStepResult::setTracerFraction(const std::string& tracerName, const std::map<int, double>& cellValues)
+void RigFlowDiagTimeStepResult::setTracerFraction(const std::string& tracerName,
+                                                  RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                                  const std::map<int, double>& cellValues)
 {
     std::set<std::string> tracers;
     tracers.insert(tracerName);
 
-    this->addResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, tracers), cellValues);
+    this->addResult(RigFlowDiagResultAddress(RIG_FLD_CELL_FRACTION_RESNAME, phaseSelection, tracers), cellValues);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,12 +152,13 @@ RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepIndex,
+                                                                RigFlowDiagResultAddress::PhaseSelection phaseSelection,
                                                                 std::map<std::string, std::vector<int> > injectorTracers,
                                                                 std::map<std::string, std::vector<int> > producerTracers)
 {
     using namespace Opm::FlowDiagnostics;
 
-    RigFlowDiagTimeStepResult result(m_eclipseCase->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount());
+    RigFlowDiagTimeStepResult result(m_eclipseCase->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->reservoirActiveCellCount());
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
 
@@ -164,14 +169,11 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         // Get set of files
         QString gridFileName = m_eclipseCase->gridFileName();
 
-        QStringList m_filesWithSameBaseName;
+        std::string initFileName = getInitFileName();
 
-        if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
+        if (initFileName.empty()) return result;
 
-        QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
-
-        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(),
-                                               initFileName.toStdString());
+        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName);
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Calculating Connectivities");
@@ -189,6 +191,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         m_opmFlowDiagStaticData->m_fldToolbox->assignPoreVolume( m_opmFlowDiagStaticData->m_poreVolume);
 
         // Look for unified restart file
+        QStringList m_filesWithSameBaseName;
+
+        if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
 
         QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
         if ( !restartFileName.isEmpty() )
@@ -201,7 +206,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             QStringList restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
 
             size_t restartFileCount = static_cast<size_t>(restartFileNames.size());
-            size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+            size_t maxTimeStepCount = m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
 
             if (restartFileCount <= timeStepIndex &&  restartFileCount != maxTimeStepCount )
             {
@@ -236,9 +241,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     CVF_ASSERT(currentRestartData);
 
     size_t resultIndexWithMaxTimeSteps = cvf::UNDEFINED_SIZE_T;
-    m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
+    m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount(&resultIndexWithMaxTimeSteps);
 
-    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
+    int reportStepNumber =  m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->reportStepNumber(resultIndexWithMaxTimeSteps, timeStepIndex);
 
     if ( !currentRestartData->selectReportStep(reportStepNumber) )
     {
@@ -251,10 +256,20 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
     Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
 
     {
-        Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
-                                                                                                                            *currentRestartData);
+        if (m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
+        {
+            Opm::FlowDiagnostics::ConnectionValues connectionsVals = RigFlowDiagInterfaceTools::extractFluxFieldFromRestartFile(*(m_opmFlowDiagStaticData->m_eclGraph),
+                                                                                                                                *currentRestartData,
+                                                                                                                                phaseSelection);
+            m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
+        }
+        else
+        {
+            Opm::ECLInitFileData init(getInitFileName());
+            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), init, *currentRestartData, phaseSelection);
+            m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
+        }
 
-        m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionsVals);
 
         progressInfo.incrementProgress();
 
@@ -334,9 +349,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
         {
             CellSetValues tofVals = injectorSolution->fd.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), tofVals);
+            result.setTracerTOF(tracerId.to_string(), phaseSelection, tofVals);
             CellSetValues fracVals = injectorSolution->fd.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), fracVals);
+            result.setTracerFraction(tracerId.to_string(), phaseSelection, fracVals);
         }
 
         progressInfo.incrementProgress();
@@ -364,9 +379,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
         {
             CellSetValues tofVals = producerSolution->fd.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), tofVals);
+            result.setTracerTOF(tracerId.to_string(), phaseSelection, tofVals);
             CellSetValues fracVals = producerSolution->fd.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), fracVals);
+            result.setTracerFraction(tracerId.to_string(), phaseSelection, fracVals);
         }
 
         progressInfo.incrementProgress();
@@ -394,24 +409,67 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
                 }
             }
         }
-
-        try
-        {
-            Graph flowCapStorCapCurve =  flowCapacityStorageCapacityCurve(*(injectorSolution.get()),
-                                                                          *(producerSolution.get()),
-                                                                           m_opmFlowDiagStaticData->m_poreVolume,
-                                                                           0.1);
-
-            result.setFlowCapStorageCapCurve(flowCapStorCapCurve);
-            result.setSweepEfficiencyCurve(sweepEfficiency(flowCapStorCapCurve));
-            result.setLorenzCoefficient(lorenzCoefficient(flowCapStorCapCurve));
-        }
-        catch ( const std::exception& e )
-        {
-            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-        }
     }
 
     return result; // Relying on implicit move constructor
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>* injector_tof,
+                                                                                                                    const std::vector<double>* producer_tof,
+                                                                                                                    double max_pv_fraction)
+{
+    using namespace Opm::FlowDiagnostics;
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame result;
+
+    if (injector_tof == nullptr || producer_tof == nullptr)
+    {
+        return result;
+    }
+
+    try
+    {
+        Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve(*injector_tof,
+                                                                     *producer_tof,
+                                                                     m_opmFlowDiagStaticData->m_poreVolume,
+                                                                     max_pv_fraction);
+
+        result.m_flowCapStorageCapCurve = flowCapStorCapCurve;
+        result.m_lorenzCoefficient = lorenzCoefficient(flowCapStorCapCurve);
+        result.m_sweepEfficiencyCurve = sweepEfficiency(flowCapStorCapCurve);
+    }
+    catch (const std::exception& e)
+    {
+        QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RigFlowDiagSolverInterface::getInitFileName() const
+{
+    QString gridFileName = m_eclipseCase->gridFileName();
+
+    QStringList m_filesWithSameBaseName;
+
+    if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName)) return std::string();
+
+    QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
+
+    return initFileName.toStdString();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame::FlowCharacteristicsResultFrame()
+    : m_lorenzCoefficient(HUGE_VAL)
+{
+
+}

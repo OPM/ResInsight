@@ -65,10 +65,10 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
-#include "RivWellPathCollectionPartMgr.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
+#include "cafDisplayCoordTransform.h"
 #include "cafFrameAnimationControl.h"
 #include "cafPdmUiTreeOrdering.h"
 
@@ -423,18 +423,9 @@ void RimEclipseView::createDisplayModel()
 */
     // Well path model
 
-
     m_wellPathPipeVizModel->removeAllParts();
 
-    RigMainGrid* mainGrid = this->mainGrid();
-    if (mainGrid)
-    {
-        addWellPathsToModel(m_wellPathPipeVizModel.p(),
-            mainGrid->displayModelOffset(),
-            mainGrid->characteristicIJCellSize(),
-            currentActiveCellInfo()->geometryBoundingBox(),
-            m_reservoirGridPartManager->scaleTransform());
-    }
+    addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
 
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
@@ -617,23 +608,40 @@ void RimEclipseView::updateCurrentTimeStep()
         crossSectionCollection->applySingleColorEffect();
     }
 
-    // Simulation Wells
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
-            simWellModelBasicList->setName("SimWellPipeMod");
+            // Simulation Wells
+            {
+                cvf::String name = "SimWellPipeMod";
+                this->removeModelByName(frameScene, name);
 
-            m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
+                cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
+                simWellModelBasicList->setName(name);
 
-            simWellModelBasicList->updateBoundingBoxesRecursive();
+                m_simWellsPartManager->appendDynamicGeometryPartsToModel(simWellModelBasicList.p(), m_currentTimeStep);
 
-            this->removeModelByName(frameScene, simWellModelBasicList->name());
-            frameScene->addModel(simWellModelBasicList.p());
+                simWellModelBasicList->updateBoundingBoxesRecursive();
 
-            m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
+                frameScene->addModel(simWellModelBasicList.p());
+
+                m_simWellsPartManager->updatePipeResultColor(m_currentTimeStep);
+            }
+
+            // Well Paths
+            {
+                cvf::String name = "WellPathMod";
+                this->removeModelByName(frameScene, name);
+                
+                cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+                wellPathModelBasicList->setName(name);
+
+                addDynamicWellPathsToModel(wellPathModelBasicList.p(), currentActiveCellInfo()->geometryBoundingBox());
+
+                frameScene->addModel(wellPathModelBasicList.p());
+            }
         }
     }
 
@@ -815,9 +823,7 @@ RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 {
     if (m_eclipseCase)
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
-
-        return m_eclipseCase->results(porosityModel);
+        return m_eclipseCase->results(cellResult->porosityModel());
     }
 
     return NULL;
@@ -832,9 +838,7 @@ RigActiveCellInfo* RimEclipseView::currentActiveCellInfo()
         m_eclipseCase->eclipseCaseData()
         )
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
-
-        return m_eclipseCase->eclipseCaseData()->activeCellInfo(porosityModel);
+        return m_eclipseCase->eclipseCaseData()->activeCellInfo(cellResult->porosityModel());
     }
 
     return NULL;
@@ -919,8 +923,7 @@ void RimEclipseView::updateLegends()
     RigEclipseCaseData* eclipseCase = m_eclipseCase->eclipseCaseData();
     CVF_ASSERT(eclipseCase);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-    RigCaseCellResultsData* results = eclipseCase->results(porosityModel);
+    RigCaseCellResultsData* results = eclipseCase->results(cellResult()->porosityModel());
     CVF_ASSERT(results);
 
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
@@ -948,7 +951,7 @@ void RimEclipseView::updateLegends()
 
             if (this->cellEdgeResult()->hasCategoryResult())
             {
-                if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RimDefines::FORMATION_NAMES)
+                if(cellEdgeResult()->singleVarEdgeResultColors()->resultType() != RiaDefines::FORMATION_NAMES)
                 {
                     cellEdgeResult()->legendConfig()->setIntegerCategories(results->uniqueCellScalarValues(cellEdgeResult()->singleVarEdgeResultColors()->scalarResultIndex()));
                 }
@@ -988,7 +991,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
     {
         RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
         {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
                 double globalMin = 0.0;
@@ -1004,7 +1007,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         }
 
         {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
                 double globalMin = 0.0;
@@ -1020,7 +1023,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
         }
 
         {
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
             {
                 double globalMin = 0.0;
@@ -1589,7 +1592,7 @@ void RimEclipseView::axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::S
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseView::isUsingFormationNames() const
 {
-    if ((cellResult()->resultType() == RimDefines::FORMATION_NAMES)) return true;
+    if ((cellResult()->resultType() == RiaDefines::FORMATION_NAMES)) return true;
     
     return eclipsePropertyFilterCollection()->isUsingFormationNames();
 }

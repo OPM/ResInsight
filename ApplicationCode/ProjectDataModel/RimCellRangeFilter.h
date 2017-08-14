@@ -44,9 +44,6 @@ public:
     RimCellRangeFilter();
     virtual ~RimCellRangeFilter();
 
-    RimCellRangeFilterCollection* parentContainer();
-    void setDefaultValues();
-
     caf::PdmField<int>      gridIndex;      // The index of the grid that this filter applies to
     caf::PdmField<bool>     propagateToSubGrids; // Do propagate the effects to the sub-grids
 
@@ -57,9 +54,8 @@ public:
     caf::PdmField<int>      cellCountJ;
     caf::PdmField<int>      cellCountK;
 
-    void computeAndSetValidValues();
-
-    void updateActiveState();
+    void                    setDefaultValues();
+    void                    updateActiveState();
 
 protected:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -70,10 +66,10 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 
 private:
-    bool isRangeFilterControlled();
-
-private:
-    const cvf::StructGridInterface*            selectedGrid();
+    RimCellRangeFilterCollection*   parentContainer();
+    bool                            isRangeFilterControlled() const;
+    void                            computeAndSetValidValues();
+    const cvf::StructGridInterface* selectedGrid();
 };
 
 

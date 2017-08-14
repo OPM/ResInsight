@@ -147,7 +147,7 @@ void RivNNCGeometryGenerator::computeArrays()
 //--------------------------------------------------------------------------------------------------
 void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
                                                  const cvf::ScalarMapper* mapper,
-                                                 RimDefines::ResultCatType resultType,
+                                                 RiaDefines::ResultCatType resultType,
                                                  size_t scalarResultIndex,
                                                  size_t timeStepIndex) const
 {
@@ -156,15 +156,15 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
     const std::vector<double>* nncResultVals;
-    if (resultType == RimDefines::STATIC_NATIVE)
+    if (resultType == RiaDefines::STATIC_NATIVE)
     {
         nncResultVals = m_nncData->staticConnectionScalarResult(scalarResultIndex);
     }
-    else if (resultType == RimDefines::DYNAMIC_NATIVE)
+    else if (resultType == RiaDefines::DYNAMIC_NATIVE)
     {
         nncResultVals = m_nncData->dynamicConnectionScalarResult(scalarResultIndex, timeStepIndex);
     }
-    else if (resultType == RimDefines::GENERATED)
+    else if (resultType == RiaDefines::GENERATED)
     {
         nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, timeStepIndex);
     }

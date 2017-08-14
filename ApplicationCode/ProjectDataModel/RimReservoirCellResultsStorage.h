@@ -20,7 +20,7 @@
 #pragma once
 
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -59,9 +59,11 @@ public:
     void                            computeDepthRelatedResults();
     bool                            isDataPresent(size_t scalarResultIndex) const;
 
-    size_t                          findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t                          findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    size_t                          findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                          findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
     size_t                          findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+
+    void                            clearScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
 
 protected:
     // Overridden methods from PdmObject
@@ -76,6 +78,8 @@ private:
     void                            computeNncCombRiMULT();
     void                            computeRiTRANSbyAreaComponent(const QString& riTransByAreaCompResultName);
     void                            computeNncCombRiTRANSbyArea();
+
+    void                            computeCompletionTypeForTimeStep(size_t timeStep);
 
     double                          darchysValue();
 
@@ -98,7 +102,7 @@ public:
     RimReservoirCellResultsStorageEntryInfo();
     virtual ~RimReservoirCellResultsStorageEntryInfo();
 
-    caf::PdmField<caf::AppEnum< RimDefines::ResultCatType> > m_resultType;
+    caf::PdmField<caf::AppEnum< RiaDefines::ResultCatType> > m_resultType;
     caf::PdmField<QString>                                   m_resultName;
     caf::PdmField< std::vector <QDateTime> >                 m_timeStepDates;
     caf::PdmField< std::vector <double> >                    m_daysSinceSimulationStart;

@@ -25,7 +25,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimViewWindow.h"
 
 #include <QPointer>
@@ -82,7 +82,7 @@ public:
     void                                            updateZoomWindowFromQwt();
     void                                            disableAutoZoom();
     
-    bool                                            isLogarithmicScaleEnabled(RimDefines::PlotAxis plotAxis) const;
+    bool                                            isLogarithmicScaleEnabled(RiaDefines::PlotAxis plotAxis) const;
 
     RimSummaryTimeAxisProperties*                   timeAxisProperties();
     time_t                                          firstTimeStepOfFirstCurve();
@@ -103,13 +103,13 @@ protected:
     virtual QImage                                  snapshotWindowContent() override;
 
 private:
-    std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
-    std::vector<RimGridTimeHistoryCurve*>           visibleTimeHistoryCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
-    bool                                            hasVisibleCurvesForAxis(RimDefines::PlotAxis plotAxis) const;
+    std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
+    std::vector<RimGridTimeHistoryCurve*>           visibleTimeHistoryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
+    bool                                            hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
 
-    RimSummaryYAxisProperties*                      yAxisPropertiesForAxis(RimDefines::PlotAxis plotAxis) const;
-    void                                            updateAxis(RimDefines::PlotAxis plotAxis);
-    void                                            updateZoomForAxis(RimDefines::PlotAxis plotAxis);
+    RimSummaryYAxisProperties*                      yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const;
+    void                                            updateAxis(RiaDefines::PlotAxis plotAxis);
+    void                                            updateZoomForAxis(RiaDefines::PlotAxis plotAxis);
 
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();

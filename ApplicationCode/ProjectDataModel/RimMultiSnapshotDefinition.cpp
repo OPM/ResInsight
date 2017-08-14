@@ -22,9 +22,9 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigReservoirGridTools.h"
 
 #include "RimCase.h"
-#include "RimCellRangeFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -114,12 +114,12 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
     }
     else if (fieldNeedingOptions == &eclipseResultType)
     {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RimDefines::ResultCatType>(RimDefines::DYNAMIC_NATIVE).uiText(), RimDefines::DYNAMIC_NATIVE));
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RimDefines::ResultCatType>(RimDefines::STATIC_NATIVE).uiText(), RimDefines::STATIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::DYNAMIC_NATIVE).uiText(), RiaDefines::DYNAMIC_NATIVE));
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RiaDefines::ResultCatType>(RiaDefines::STATIC_NATIVE).uiText(), RiaDefines::STATIC_NATIVE));
     }
     else if (fieldNeedingOptions == &selectedEclipseResults)
     {
-        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view().p());
+        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(view());
         if (rimEclipseView)
         {
             QStringList varList;
@@ -179,8 +179,12 @@ void RimMultiSnapshotDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
        
         if (view())
         {
-            mainGrid = view()->rangeFilterCollection()->gridByIndex(0);
-            actCellInfo = view()->rangeFilterCollection()->activeCellInfo();
+            actCellInfo = RigReservoirGridTools::activeCellInfo(view());
+
+            RimCase* rimCase = nullptr;
+            view()->firstAncestorOrThisOfTypeAsserted(rimCase);
+            
+            mainGrid = RigReservoirGridTools::mainGrid(rimCase);
         }
 
         if (mainGrid && actCellInfo)

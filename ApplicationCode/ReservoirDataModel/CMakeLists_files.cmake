@@ -15,8 +15,10 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessorFactory.h
 ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RigCompletionData.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifier.h
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.h
 ${CEE_CURRENT_LIST_DIR}RigFormationNames.h
@@ -46,11 +48,20 @@ ${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.h
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.h
+${CEE_CURRENT_LIST_DIR}RigWellLogExtractionTools.h
+${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools.h
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.h
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.h
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.h
+${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.h
+${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.h
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.h
+${CEE_CURRENT_LIST_DIR}RigEclipseResultInfo.h
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.h
+
+
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -64,8 +75,10 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessorFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.cpp
+${CEE_CURRENT_LIST_DIR}RigCellGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCombMultResultAccessor.cpp
+${CEE_CURRENT_LIST_DIR}RigCompletionData.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultModifierFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RigFlowDiagResultAddress.cpp
@@ -91,11 +104,18 @@ ${CEE_CURRENT_LIST_DIR}RigEclipseNativeStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseNativeVisibleCellsStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseMultiPropertyStatCalc.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellLogCurveData.cpp
+${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RigCurveDataTools.cpp    
 ${CEE_CURRENT_LIST_DIR}RigSummaryCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigLasFileExporter.cpp
 ${CEE_CURRENT_LIST_DIR}RigSimulationWellCoordsAndMD.cpp
+${CEE_CURRENT_LIST_DIR}RigFishbonesGeometry.cpp
+${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.cpp
+${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.cpp
+${CEE_CURRENT_LIST_DIR}RigEclipseResultInfo.cpp
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.cpp
+
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -21,7 +21,7 @@
 #include "cafCmdFeature.h"
 
 #include "RimFlowDiagSolution.h"
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 class RimGridSummaryCase;
 class RimEclipseWell;
@@ -46,7 +46,7 @@ private:
     static bool                 isInjector(RimEclipseWell* well);
     static RimSummaryCurve*     addSummaryCurve(RimSummaryPlot* plot, const RimEclipseWell* well,
                                 RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
-                                RimDefines::PlotAxis plotAxis, const cvf::Color3f& color);
+                                RiaDefines::PlotAxis plotAxis, const cvf::Color3f& color);
 };
 
 

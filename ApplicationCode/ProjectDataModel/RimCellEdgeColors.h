@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "RimDefines.h"
-
 #include "cafAppEnum.h"
 #include "cafFixedArray.h"
 #include "cafPdmChildField.h"

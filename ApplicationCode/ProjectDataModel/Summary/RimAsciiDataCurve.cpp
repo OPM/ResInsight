@@ -24,7 +24,7 @@
 
 #include "RigSummaryCaseData.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -95,7 +95,7 @@ const std::vector<time_t>& RimAsciiDataCurve::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAsciiDataCurve::setYAxis(RimDefines::PlotAxis plotAxis)
+void RimAsciiDataCurve::setYAxis(RiaDefines::PlotAxis plotAxis)
 {
     m_plotAxis = plotAxis;
 }
@@ -103,7 +103,7 @@ void RimAsciiDataCurve::setYAxis(RimDefines::PlotAxis plotAxis)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimDefines::PlotAxis RimAsciiDataCurve::yAxis() const
+RiaDefines::PlotAxis RimAsciiDataCurve::yAxis() const
 {
     return m_plotAxis();
 }
@@ -187,7 +187,7 @@ void RimAsciiDataCurve::updateQwtPlotAxis()
 {
     if (m_qwtPlotCurve)
     {
-        if (this->yAxis() == RimDefines::PLOT_AXIS_LEFT)
+        if (this->yAxis() == RiaDefines::PLOT_AXIS_LEFT)
         {
             m_qwtPlotCurve->setYAxis(QwtPlot::yLeft);
         }

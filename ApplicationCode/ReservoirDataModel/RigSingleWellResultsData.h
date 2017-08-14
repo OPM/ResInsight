@@ -21,11 +21,11 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfMath.h"
-
-#include "RimDefines.h"
-#include <QDateTime>
-#include <vector>
 #include "cvfVector3.h"
+
+#include <QDateTime>
+
+#include <vector>
 
 //==================================================================================================
 /// Stores the info on a significant point in the well. Either a well-to-grid connection, or the 

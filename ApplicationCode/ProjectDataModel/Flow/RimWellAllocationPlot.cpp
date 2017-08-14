@@ -89,7 +89,7 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
     m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
-    m_accumulatedWellFlowPlot->setDepthUnit(RimDefines::UNIT_NONE);
+    m_accumulatedWellFlowPlot->setDepthUnit(RiaDefines::UNIT_NONE);
     m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
     m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
     m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));
@@ -209,7 +209,7 @@ void RimWellAllocationPlot::updateFromWell()
     {
         bool isProducer = (    wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::PRODUCER 
                             || wellResults->wellProductionType(m_timeStep) == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE );
-        RigEclCellIndexCalculator cellIdxCalc(m_case->eclipseCaseData()->mainGrid(), m_case->eclipseCaseData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        RigEclCellIndexCalculator cellIdxCalc(m_case->eclipseCaseData()->mainGrid(), m_case->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL));
         wfCalculator.reset(new RigAccWellFlowCalculator(pipeBranchesCLCoords,
                                                         pipeBranchesCellIds,
                                                         tracerFractionCellValues,
@@ -341,7 +341,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
         {
             if ( m_flowDiagSolution->tracerStatusInTimeStep(tracerName, m_timeStep) == requestedTracerType )
             {
-                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, tracerName.toStdString());
+                RigFlowDiagResultAddress resAddr(RIG_FLD_CELL_FRACTION_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, tracerName.toStdString());
                 const std::vector<double>* tracerCellFractions = m_flowDiagSolution->flowDiagResults()->resultValues(resAddr, m_timeStep);
                 if (tracerCellFractions) tracerCellFractionValues[tracerName] = tracerCellFractions;
             }
@@ -356,7 +356,7 @@ std::map<QString, const std::vector<double> *> RimWellAllocationPlot::findReleva
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack)
 {
-    RigEclipseCaseData::UnitsType unitSet = m_case->eclipseCaseData()->unitsType();
+    RiaEclipseUnitTools::UnitSystem unitSet = m_case->eclipseCaseData()->unitsType();
 
 
     if (m_flowDiagSolution) 
@@ -364,13 +364,13 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         QString unitText;
         switch ( unitSet )
         {
-            case RigEclipseCaseData::UNITS_METRIC:
+            case RiaEclipseUnitTools::UNITS_METRIC:
             unitText = "[m<sup>3</sup>/day]";
             break;
-            case RigEclipseCaseData::UNITS_FIELD:
+            case RiaEclipseUnitTools::UNITS_FIELD:
             unitText = "[Brl/day]";
             break;
-            case RigEclipseCaseData::UNITS_LAB:
+            case RiaEclipseUnitTools::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
             default:
@@ -384,13 +384,13 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTr
         QString unitText;
         switch ( unitSet )
         {
-            case RigEclipseCaseData::UNITS_METRIC:
+            case RiaEclipseUnitTools::UNITS_METRIC:
             unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
             break;
-            case RigEclipseCaseData::UNITS_FIELD:
+            case RiaEclipseUnitTools::UNITS_FIELD:
             unitText = "[Liquid BBL/day], [Gas BOE/day]";
             break;
-            case RigEclipseCaseData::UNITS_LAB:
+            case RiaEclipseUnitTools::UNITS_LAB:
             unitText = "[cm<sup>3</sup>/hr]";
             break;
             default:

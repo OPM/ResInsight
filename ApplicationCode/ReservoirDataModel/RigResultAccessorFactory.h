@@ -22,7 +22,7 @@
 #include "RifReaderInterface.h"
 #include "RigResultAccessor.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
@@ -41,22 +41,22 @@ public:
     static cvf::ref<RigResultAccessor>
         createFromUiResultName(RigEclipseCaseData* eclipseCase,
                                size_t gridIndex,
-                               RifReaderInterface::PorosityModelResultType porosityModel,
+                               RiaDefines::PorosityModelType porosityModel,
                                size_t timeStepIndex,
                                const QString& uiResultName);
 
     static cvf::ref<RigResultAccessor>
         createFromNameAndType(RigEclipseCaseData* eclipseCase,
                               size_t gridIndex,
-                              RifReaderInterface::PorosityModelResultType porosityModel,
+                              RiaDefines::PorosityModelType porosityModel,
                               size_t timeStepIndex,
                               const QString& uiResultName,
-                              RimDefines::ResultCatType resultType);
+                              RiaDefines::ResultCatType resultType);
 
     static cvf::ref<RigResultAccessor>
         createFromResultIdx(RigEclipseCaseData* eclipseCase,
                             size_t gridIndex,
-                            RifReaderInterface::PorosityModelResultType porosityModel,
+                            RiaDefines::PorosityModelType porosityModel,
                             size_t timeStepIndex,
                             size_t resultIndex);
 
@@ -64,7 +64,7 @@ private:
     static cvf::ref<RigResultAccessor>
         createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
                                      size_t gridIndex,
-                                     RifReaderInterface::PorosityModelResultType porosityModel,
+                                     RiaDefines::PorosityModelType porosityModel,
                                      size_t timeStepIndex,
                                      const QString& resultName);
 

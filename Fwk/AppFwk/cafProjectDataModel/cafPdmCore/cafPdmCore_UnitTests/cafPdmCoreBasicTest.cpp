@@ -509,11 +509,10 @@ TEST(BaseTest, PdmPtrField)
     EXPECT_EQ(ihd2, accessedIhd);
     accessedIhd = ihd1->m_ptrField.value(); 
     EXPECT_EQ(ihd2, accessedIhd);
-    accessedIhd = ihd1->m_ptrField.v();
 
     caf::PdmPointer<InheritedDemoObj> accessedPdmPtr;
     EXPECT_EQ(ihd2, accessedIhd);
-    accessedPdmPtr = ihd1->m_ptrField.v();
+    accessedPdmPtr = ihd1->m_ptrField();
     EXPECT_EQ(ihd2, accessedPdmPtr.p());
     accessedPdmPtr = ihd1->m_ptrField();
     EXPECT_EQ(ihd2, accessedPdmPtr.p());

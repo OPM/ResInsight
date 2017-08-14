@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaEclipseUnitTools.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -29,13 +31,19 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
+#include "cafPdmChildArrayField.h"
 #include "cvfObject.h"    
 
-class RifWellPathAsciiFileReader;
+class RifWellPathImporter;
 class RigWellPath;
 class RimProject;
 class RimWellLogFile;
+class RimFishboneWellPathCollection;
 class RivWellPathPartMgr;
+
+class RimFishbonesCollection;
+class RimPerforationCollection;
+class RimWellPathCompletions;
 
 //==================================================================================================
 ///  
@@ -56,7 +64,8 @@ public:
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
     
-    caf::PdmField<QString>              name;
+    QString                             name() const;
+    void                                setName(const QString& name);
   
     caf::PdmField<QString>              filepath;
     caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
@@ -69,23 +78,32 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
+    RimFishbonesCollection*             fishbonesCollection();
+    const RimFishbonesCollection*       fishbonesCollection() const;
+    RimPerforationCollection*           perforationIntervalCollection();
+    const RimPerforationCollection*     perforationIntervalCollection() const;
+    const RimWellPathCompletions*       completions() const;
+
     RigWellPath*                        wellPathGeometry();
+    const RigWellPath*                  wellPathGeometry() const;
     RivWellPathPartMgr*                 partMgr();
 
-    bool                                readWellPathFile(QString * errorMessage, RifWellPathAsciiFileReader* asciiReader);
+    bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);
     void                                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
+    double                              combinedScaleFactor() const;
 
+    void                                setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
+    RiaEclipseUnitTools::UnitSystem     unitSystem() const;
 
 private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
-    void                                readJsonWellPathFile();
-    void                                readAsciiWellPathFile(RifWellPathAsciiFileReader* asciiReader);
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual void                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName) override;
 
     bool                                isStoredInCache();
     QString                             getCacheFileName();
@@ -101,6 +119,11 @@ private:
     caf::PdmField<QString>              m_surveyType;
     caf::PdmField<double>               m_datumElevation;
 
+    caf::PdmField<RiaEclipseUnitTools::UnitSystemType> m_unitSystem;
+    
+    caf::PdmChildField<RimWellPathCompletions*> m_completions;
+
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
+    caf::PdmField<QString>              m_name;
 };

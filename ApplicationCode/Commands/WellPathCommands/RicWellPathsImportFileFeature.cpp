@@ -26,9 +26,7 @@
 #include <QAction>
 #include <QFileDialog>
 
-namespace caf
-{
-    CAF_CMD_SOURCE_INIT(RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature");
+CAF_CMD_SOURCE_INIT(RicWellPathsImportFileFeature, "RicWellPathsImportFileFeature");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -69,5 +67,3 @@ void RicWellPathsImportFileFeature::setupActionLook(QAction* actionToSetup)
     actionToSetup->setText("Import &Well Paths from File");
     actionToSetup->setIcon(QIcon(":/Well.png"));
 }
-
-} // end namespace caf

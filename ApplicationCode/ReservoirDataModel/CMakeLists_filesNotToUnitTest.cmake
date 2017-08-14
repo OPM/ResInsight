@@ -11,6 +11,7 @@ set (SOURCE_GROUP_HEADER_FILES
     ${CEE_CURRENT_LIST_DIR}RigCaseToCaseRangeFilterMapper.h
     ${CEE_CURRENT_LIST_DIR}RigSimulationWellCenterLineCalculator.h
     ${CEE_CURRENT_LIST_DIR}RigWellLogFile.h
+    ${CEE_CURRENT_LIST_DIR}RigReservoirGridTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -20,6 +21,7 @@ set (SOURCE_GROUP_SOURCE_FILES
     ${CEE_CURRENT_LIST_DIR}RigCaseToCaseRangeFilterMapper.cpp
     ${CEE_CURRENT_LIST_DIR}RigSimulationWellCenterLineCalculator.cpp
     ${CEE_CURRENT_LIST_DIR}RigWellLogFile.cpp
+    ${CEE_CURRENT_LIST_DIR}RigReservoirGridTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

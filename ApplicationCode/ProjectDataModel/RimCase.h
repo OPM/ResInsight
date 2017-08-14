@@ -22,6 +22,7 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmChildField.h"
 
 #include "cvfBase.h"
 #include "cvfVector3.h"
@@ -30,6 +31,7 @@
 
 class RimView;
 class RimFormationNames;
+class RimTimeStepFilter;
 
 namespace cvf {
     class BoundingBox;
@@ -51,8 +53,9 @@ public:
 
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) = 0;
 
-    virtual QStringList                         timeStepStrings() = 0;
-    virtual QString                             timeStepName(int frameIdx) = 0;
+    virtual std::vector<QDateTime>              timeStepDates() const = 0;
+    virtual QStringList                         timeStepStrings() const = 0;
+    virtual QString                             timeStepName(int frameIdx) const = 0;
 
     virtual cvf::BoundingBox                    activeCellsBoundingBox() const = 0;
     virtual cvf::BoundingBox                    allCellsBoundingBox() const = 0;
@@ -61,10 +64,15 @@ public:
 
     virtual void                                updateFormationNamesData() = 0;
 
+    virtual double                              characteristicCellSize() const = 0;
+
 protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 private:
     virtual caf::PdmFieldHandle*                userDescriptionField() override { return &caseUserDescription; }
+
+protected:
+    caf::PdmChildField<RimTimeStepFilter*>      m_timeStepFilter;
 };
 
 

@@ -13,7 +13,6 @@ ${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.h
-${CEE_CURRENT_LIST_DIR}RimDefines.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
 ${CEE_CURRENT_LIST_DIR}RimOilField.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
@@ -90,6 +89,8 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
+${CEE_CURRENT_LIST_DIR}RimDialogData.h
+${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -101,7 +102,6 @@ ${CEE_CURRENT_LIST_DIR}RimPropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipsePropertyFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimOilField.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
@@ -178,6 +178,8 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
+${CEE_CURRENT_LIST_DIR}RimDialogData.cpp
+${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -187,5 +189,6 @@ ${SOURCE_GROUP_HEADER_FILES}
 list(APPEND CODE_SOURCE_FILES
 ${SOURCE_GROUP_SOURCE_FILES}
 )
+
 
 source_group( "ProjectDataModel" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES} ${CEE_CURRENT_LIST_DIR}CMakeLists_files.cmake )

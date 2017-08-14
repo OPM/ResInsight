@@ -82,6 +82,12 @@ public:
         NAVIGATION_POLICY_RMS
     };
 
+    enum ProjectLoadAction
+    {
+        PLA_NONE = 0,
+        PLA_CALCULATE_STATISTICS = 1
+    };
+
 public:
     RiaApplication(int& argc, char** argv);
     ~RiaApplication();
@@ -123,6 +129,7 @@ public:
     QString             currentProjectPath() const;
     QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
     bool                loadProject(const QString& projectFileName);
+    bool                loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
@@ -134,7 +141,6 @@ public:
     void                addWellPathsToModel(QList<QString> wellPathFilePaths);
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
-    void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
 
@@ -158,6 +164,7 @@ public:
     bool                launchProcess(const QString& program, const QStringList& arguments);
     bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
     void                terminateProcess();
+    void                waitForProcess() const;
     
     RiaPreferences*     preferences();
     void                applyPreferences();
@@ -194,20 +201,16 @@ public:
     void                  addToRecentFiles(const QString& fileName);
     std::vector<QAction*> recentFileActions() const;
 
-private:
-    enum ProjectLoadAction
-    {
-        PLA_NONE = 0,
-        PLA_CALCULATE_STATISTICS = 1
-    };
+    void                setStartDir(const QString& startDir);
 
-    bool                    loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+    static std::vector<QString> readFileListFromTextFile(QString listFileName);
+
+    void                    clearViewsScheduledForUpdate();
+
+private:
 
     void                    onProjectOpenedOrClosed();
-    std::vector<QString>    readFileListFromTextFile(QString listFileName);
     void                    setWindowCaptionFromAppState();
-    
-    void                    clearViewsScheduledForUpdate();
 
     void                    createMainPlotWindow();
     void                    deleteMainPlotWindow();
@@ -263,6 +266,8 @@ private:
 
     QString                             m_helpText;
     bool                                m_runningRegressionTests;
+
+    bool                                m_runningWorkerProcess;
 
     RiuMainPlotWindow*                  m_mainPlotWindow;
     

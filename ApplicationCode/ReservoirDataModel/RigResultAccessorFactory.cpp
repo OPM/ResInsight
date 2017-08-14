@@ -41,7 +41,7 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(RigEclipseCaseData* eclipseCase,
                                                                              size_t gridIndex,
-                                                                             RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                             RiaDefines::PorosityModelType porosityModel,
                                                                              size_t timeStepIndex,
                                                                              const QString& uiResultName)
 {
@@ -52,7 +52,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
     RigGridBase* grid = eclipseCase->grid(gridIndex);
 
-    if (uiResultName == RimDefines::combinedTransmissibilityResultName())
+    if (uiResultName == RiaDefines::combinedTransmissibilityResultName())
     {
         CVF_ASSERT(timeStepIndex == 0); // Static result, only data for first time step
 
@@ -66,7 +66,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedMultResultName())
+    else if (uiResultName == RiaDefines::combinedMultResultName())
     {
         CVF_ASSERT(timeStepIndex == 0); // Static result, only data for first time step
 
@@ -83,49 +83,49 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedRiTranResultName())
+    else if (uiResultName == RiaDefines::combinedRiTranResultName())
     {
         CVF_ASSERT(timeStepIndex == 0); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranXResultName());
-        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranYResultName());
-        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTranZResultName());
+        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riTranXResultName());
+        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riTranYResultName());
+        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riTranZResultName());
 
         cellFaceAccessObject->setTransResultAccessors(xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p());
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedRiMultResultName())
+    else if (uiResultName == RiaDefines::combinedRiMultResultName())
     {
         CVF_ASSERT(timeStepIndex == 0); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultXResultName());
-        cvf::ref<RigResultAccessor> yRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultYResultName());
-        cvf::ref<RigResultAccessor> zRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultZResultName());
+        cvf::ref<RigResultAccessor> xRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riMultXResultName());
+        cvf::ref<RigResultAccessor> yRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riMultYResultName());
+        cvf::ref<RigResultAccessor> zRiMultAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riMultZResultName());
 
         cellFaceAccessObject->setTransResultAccessors(xRiMultAccessor.p(), yRiMultAccessor.p(), zRiMultAccessor.p());
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedRiAreaNormTranResultName())
+    else if (uiResultName == RiaDefines::combinedRiAreaNormTranResultName())
     {
         CVF_ASSERT(timeStepIndex == 0); // Static result, only data for first time step
 
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
-        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranXResultName());
-        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranYResultName());
-        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riAreaNormTranZResultName());
+        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riAreaNormTranXResultName());
+        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riAreaNormTranYResultName());
+        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, RiaDefines::riAreaNormTranZResultName());
 
         cellFaceAccessObject->setTransResultAccessors(xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p());
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedWaterFluxResultName())
+    else if (uiResultName == RiaDefines::combinedWaterFluxResultName())
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
@@ -137,7 +137,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedOilFluxResultName())
+    else if (uiResultName == RiaDefines::combinedOilFluxResultName())
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
@@ -149,7 +149,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
         return cellFaceAccessObject;
     }
-    else if (uiResultName == RimDefines::combinedGasFluxResultName())
+    else if (uiResultName == RiaDefines::combinedGasFluxResultName())
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
@@ -183,10 +183,10 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigEclipseCaseData* eclipseCase,
                                                                             size_t gridIndex,
-                                                                            RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                            RiaDefines::PorosityModelType porosityModel,
                                                                             size_t timeStepIndex,
                                                                             const QString& uiResultName,
-                                                                            RimDefines::ResultCatType resultType)
+                                                                            RiaDefines::ResultCatType resultType)
 {
     CVF_ASSERT(gridIndex < eclipseCase->gridCount());
     CVF_ASSERT(eclipseCase);
@@ -205,7 +205,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigE
     }
 
     size_t adjustedTimeStepIndex = timeStepIndex;
-    if (resultType == RimDefines::STATIC_NATIVE)
+    if (resultType == RiaDefines::STATIC_NATIVE)
     {
         adjustedTimeStepIndex = 0;
     }
@@ -221,9 +221,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
                                                                                  size_t timeStepIndex,
                                                                                  RimEclipseResultDefinition* resultDefinition)
 {
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultDefinition->porosityModel());
-
-    if (resultDefinition->resultType() != RimDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() != RiaDefines::FLOW_DIAGNOSTICS)
     {
 
         size_t adjustedTimeStepIndex = timeStepIndex;
@@ -234,7 +232,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 
         return RigResultAccessorFactory::createFromUiResultName(eclipseCase,
                                                                 gridIndex,
-                                                                porosityModel,
+                                                                resultDefinition->porosityModel(),
                                                                 adjustedTimeStepIndex,
                                                                 resultDefinition->resultVariable());
     }
@@ -249,7 +247,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
         RigGridBase* grid = eclipseCase->grid(gridIndex);
         if ( !grid ) return new RigHugeValResultAccessor;
 
-        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));
+        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(resultDefinition->porosityModel()));
 
         return object;
     }
@@ -260,7 +258,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
                                                                                    size_t gridIndex,
-                                                                                   RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                                   RiaDefines::PorosityModelType porosityModel,
                                                                                    size_t timeStepIndex,
                                                                                    const QString& uiResultName)
 {
@@ -288,7 +286,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigEclipseCaseData* eclipseCase,
                                                                           size_t gridIndex,
-                                                                          RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                          RiaDefines::PorosityModelType porosityModel,
                                                                           size_t timeStepIndex,
                                                                           size_t resultIndex)
 {

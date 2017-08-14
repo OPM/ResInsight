@@ -92,6 +92,38 @@ RimGeoMechCase::~RimGeoMechCase(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimGeoMechCase::setFileName(const QString& fileName)
+{
+    m_caseFileName = fileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechCase::caseFileName() const
+{
+    return m_caseFileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGeoMechCaseData* RimGeoMechCase::geoMechData()
+{
+    return m_geoMechCaseData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigGeoMechCaseData* RimGeoMechCase::geoMechData() const
+{
+    return m_geoMechCaseData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimGeoMechCase::createAndAddReservoirView()
 {
     RimGeoMechView* gmv = new RimGeoMechView();
@@ -175,6 +207,16 @@ std::vector<RimView*> RimGeoMechCase::views()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimGeoMechCase::timeStepDates() const
+{
+    QStringList timeStrings = timeStepStrings();
+
+    return RimGeoMechCase::dateTimeVectorFromTimeStepStrings(timeStrings);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::initAfterRead()
 {
     size_t j;
@@ -191,11 +233,11 @@ void RimGeoMechCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RimGeoMechCase::timeStepStrings()
+QStringList RimGeoMechCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    RigGeoMechCaseData* rigCaseData = geoMechData();
+    const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
         std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
@@ -211,9 +253,9 @@ QStringList RimGeoMechCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechCase::timeStepName(int frameIdx)
+QString RimGeoMechCase::timeStepName(int frameIdx) const
 {
-    RigGeoMechCaseData* rigCaseData = geoMechData();
+    const RigGeoMechCaseData* rigCaseData = geoMechData();
     if (rigCaseData && rigCaseData->femPartResults())
     {
        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
@@ -245,6 +287,21 @@ cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
     {
         return cvf::BoundingBox();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimGeoMechCase::characteristicCellSize() const
+{
+    if (geoMechData() && geoMechData()->femParts())
+    {
+        double cellSize = geoMechData()->femParts()->characteristicElementSize();
+
+        return cellSize;
+    }
+    
+    return 10.0;
 }
 
 //--------------------------------------------------------------------------------------------------

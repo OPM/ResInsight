@@ -23,14 +23,10 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
-namespace caf 
-{
-
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicDeleteItemExecData : public PdmObject
+class RicDeleteItemExecData : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
@@ -44,13 +40,9 @@ public:
         CAF_PDM_InitField(&m_deletedObjectAsXml, "deletedObjectAsXml", QString(), "deletedObjectAsXml", "", "deletedObjectAsXml tooltip", "deletedObjectAsXml whatsthis");
     }
 
-    caf::PdmPointer<PdmObjectHandle> m_rootObject;
+    caf::PdmPointer<caf::PdmObjectHandle> m_rootObject;
 
     caf::PdmField<QString>  m_pathToField;
     caf::PdmField<int>      m_indexToObject;
     caf::PdmField<QString>  m_deletedObjectAsXml;
 };
-
-
-
-} // end namespace caf

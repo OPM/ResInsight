@@ -299,8 +299,6 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
 {
     cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
     
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
-
     if (cellEdgeResultColors->propertyType() == RimCellEdgeColors::ANY_SINGLE_PROPERTY)
     {
         cvf::ref<RigResultAccessor> daObj = RivCellEdgeGeometryUtils::createCellCenterResultAccessor(cellEdgeResultColors->singleVarEdgeResultColors(), timeStepIndex, eclipseCase, grid);
@@ -327,6 +325,7 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryUtils::createCellEdgeResultAccess
                 adjustedTimeStep = 0;
             }
 
+            RiaDefines::PorosityModelType porosityModel = cellResultColors->porosityModel();
             cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createFromResultIdx(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStep, resultIndices[cubeFaceIdx]);
             cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
         }

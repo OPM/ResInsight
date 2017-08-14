@@ -94,7 +94,6 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
         RimEclipseCellColors* cellResultColors = eclipseView->cellResult();
         CVF_ASSERT(cellResultColors);
 
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultColors->porosityModel());
         RigEclipseCaseData* eclipseCase = eclipseView->eclipseCase()->eclipseCaseData();
 
         // CrossSections
@@ -121,7 +120,7 @@ void RivIntersectionBoxPartMgr::updateCellResultColor(size_t timeStepIndex)
                 const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
                 cvf::ref<RigResultAccessor> resultAccessor;
 
-                if (RimDefines::isPerCellFaceResult(cellResultColors->resultVariable()))
+                if (RiaDefines::isPerCellFaceResult(cellResultColors->resultVariable()))
                 {
                     resultAccessor = new RigHugeValResultAccessor;
                 }

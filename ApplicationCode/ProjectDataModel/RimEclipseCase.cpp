@@ -255,50 +255,13 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::removeResult(const QString& resultName)
+void RimEclipseCase::removeEclipseResultAndScheduleRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName)
 {
-    size_t i;
-    for (i = 0; i < reservoirViews().size(); i++)
+    m_matrixModelResults->clearScalarResult(type, resultName);
+
+    for (RimView* view : views())
     {
-        RimEclipseView* reservoirView = reservoirViews()[i];
-        CVF_ASSERT(reservoirView);
-
-        RimEclipseCellColors* result = reservoirView->cellResult;
-        CVF_ASSERT(result);
-
-        bool rebuildDisplayModel = false;
-
-        // Set cell result variable to none if displaying 
-        if (result->resultVariable() == resultName)
-        {
-            result->setResultVariable(RimDefines::undefinedResultName());
-            result->loadResult();
-
-            rebuildDisplayModel = true;
-        }
-
-        RimEclipsePropertyFilterCollection* propFilterCollection = reservoirView->eclipsePropertyFilterCollection();
-        for (size_t filter = 0; filter < propFilterCollection->propertyFilters().size(); filter++)
-        {
-            RimEclipsePropertyFilter* propertyFilter = propFilterCollection->propertyFilters()[filter];
-            if (propertyFilter->resultDefinition->resultVariable() == resultName)
-            {
-                propertyFilter->resultDefinition->setResultVariable(RimDefines::undefinedResultName());
-                propertyFilter->resultDefinition->loadResult();
-                propertyFilter->setToDefaultValues();
-
-                rebuildDisplayModel = true;
-            }
-        }
-
-        if (rebuildDisplayModel)
-        {
-            reservoirViews()[i]->createDisplayModelAndRedraw();
-        }
-
-
-        // TODO
-        // CellEdgeResults are not considered, as they do not support display of input properties yet
+        view->loadDataAndUpdate();
     }
 }
 
@@ -364,18 +327,18 @@ void RimEclipseCase::updateFormationNamesData()
             {
                 if (!activeFormationNames())
                 {
-                    if (eclView->cellResult()->resultType() == RimDefines::FORMATION_NAMES) 
+                    if (eclView->cellResult()->resultType() == RiaDefines::FORMATION_NAMES) 
                     {
-                        eclView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+                        eclView->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
                         eclView->cellResult()->updateConnectedEditors();
                     }
 
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                     for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                     {
-                        if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES ) 
+                        if ( propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES ) 
                         {
-                            propFilter->resultDefinition()->setResultVariable(RimDefines::undefinedResultName());
+                            propFilter->resultDefinition()->setResultVariable(RiaDefines::undefinedResultName());
                         }
                     }
                 }
@@ -383,7 +346,7 @@ void RimEclipseCase::updateFormationNamesData()
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
                 for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
                 {
-                    if ( propFilter->resultDefinition->resultType() == RimDefines::FORMATION_NAMES )
+                    if ( propFilter->resultDefinition->resultType() == RiaDefines::FORMATION_NAMES )
                     {
                         propFilter->setToDefaultValues();
                         propFilter->updateConnectedEditors();
@@ -417,7 +380,7 @@ void RimEclipseCase::computeCachedData()
 
         pInf.setNextProgressIncrement(17);
         pInf.setProgressDescription("Calculating faults");
-        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS));
+        rigEclipseCase->mainGrid()->calculateFaults(rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL));
         pInf.incrementProgress();
         
         pInf.setProgressDescription("Calculating Formation Names Result");
@@ -451,8 +414,8 @@ void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
     m_rigEclipseCase  = eclipseCase;
     if (this->eclipseCaseData())
     {
-        m_fractureModelResults()->setCellResults(eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS));
-        m_matrixModelResults()->setCellResults(eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS));
+        m_fractureModelResults()->setCellResults(eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL));
+        m_matrixModelResults()->setCellResults(eclipseCaseData()->results(RiaDefines::MATRIX_MODEL));
         m_fractureModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
         m_matrixModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
     }
@@ -468,11 +431,56 @@ void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseCase::createTimeStepFormatString()
+{
+    std::vector<QDateTime> timeStepDates = this->timeStepDates();
+
+    bool hasHoursAndMinutesInTimesteps = false;
+    bool hasSecondsInTimesteps = false;
+    bool hasMillisecondsInTimesteps = false;
+    for (size_t i = 0; i < timeStepDates.size(); i++)
+    {
+        if (timeStepDates[i].time().msec() != 0.0)
+        {
+            hasMillisecondsInTimesteps = true;
+            hasSecondsInTimesteps = true;
+            hasHoursAndMinutesInTimesteps = true;
+            break;
+        }
+        else if (timeStepDates[i].time().second() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+            hasSecondsInTimesteps = true;
+        }
+        else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+        }
+    }
+
+    m_timeStepFormatString = "dd.MMM yyyy";
+    if (hasHoursAndMinutesInTimesteps)
+    {
+        m_timeStepFormatString += " - hh:mm";
+        if (hasSecondsInTimesteps)
+        {
+            m_timeStepFormatString += ":ss";
+            if (hasMillisecondsInTimesteps)
+            {
+                m_timeStepFormatString += ".zzz";
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
 {
-    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS))
+    if (m_rigEclipseCase.notNull() && m_rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL))
     {
-        return m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->geometryBoundingBox();
+        return m_rigEclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL)->geometryBoundingBox();
     }
     else
     {
@@ -513,9 +521,9 @@ cvf::Vec3d RimEclipseCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel)
+RimReservoirCellResultsStorage* RimEclipseCase::results(RiaDefines::PorosityModelType porosityModel)
 {
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
         return m_matrixModelResults();
     }
@@ -523,7 +531,18 @@ RimReservoirCellResultsStorage* RimEclipseCase::results(RifReaderInterface::Poro
     return m_fractureModelResults();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RimReservoirCellResultsStorage* RimEclipseCase::results(RiaDefines::PorosityModelType porosityModel) const
+{
+    if (porosityModel == RiaDefines::MATRIX_MODEL)
+    {
+        return m_matrixModelResults();
+    }
 
+    return m_fractureModelResults();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -573,28 +592,28 @@ bool RimEclipseCase::openReserviorCase()
     }
 
     {
-        RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::MATRIX_RESULTS);
+        RimReservoirCellResultsStorage* results = this->results(RiaDefines::MATRIX_MODEL);
         if (results->cellResults())
         {
             results->cellResults()->createPlaceholderResultEntries();
             // After the placeholder result for combined transmissibility is created, 
             // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
-            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
+            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(), combinedTransResIdx);
             }
-            size_t combinedWatFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedWaterFluxResultName());
+            size_t combinedWatFluxResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
             if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(), combinedWatFluxResIdx);
             }
-            size_t combinedOilFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedOilFluxResultName());
+            size_t combinedOilFluxResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
             if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(), combinedOilFluxResIdx);
             }
-            size_t combinedGasFluxResIdx = results->cellResults()->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, RimDefines::combinedGasFluxResultName());
+            size_t combinedGasFluxResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
             if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(), combinedGasFluxResIdx);
@@ -603,9 +622,11 @@ bool RimEclipseCase::openReserviorCase()
 
     }
     {
-        RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::FRACTURE_RESULTS);
+        RimReservoirCellResultsStorage* results = this->results(RiaDefines::FRACTURE_MODEL);
         if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
     }
+
+    createTimeStepFormatString();
 
     return true;
 }
@@ -626,11 +647,11 @@ std::vector<RimView*> RimEclipseCase::views()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RimEclipseCase::timeStepStrings()
+QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    int timeStepCount = static_cast<int>(results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->maxTimeStepCount());
+    int timeStepCount = static_cast<int>(results(RiaDefines::MATRIX_MODEL)->cellResults()->maxTimeStepCount());
     for (int i = 0; i < timeStepCount; i++)
     {
         stringList += this->timeStepName(i);
@@ -642,49 +663,10 @@ QStringList RimEclipseCase::timeStepStrings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseCase::timeStepName(int frameIdx)
+QString RimEclipseCase::timeStepName(int frameIdx) const
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
     CVF_ASSERT(frameIdx < static_cast<int>(timeStepDates.size()));
-
-    if (m_timeStepFormatString.isEmpty())
-    {
-        bool hasHoursAndMinutesInTimesteps = false;
-        bool hasSecondsInTimesteps = false;
-        bool hasMillisecondsInTimesteps = false;
-        for (size_t i = 0; i < timeStepDates.size(); i++)
-        {
-            if (timeStepDates[i].time().msec() != 0.0)
-            {
-                hasMillisecondsInTimesteps = true;
-                hasSecondsInTimesteps = true;
-                hasHoursAndMinutesInTimesteps = true;
-                break;
-            }
-            else if (timeStepDates[i].time().second() != 0.0) {
-                hasHoursAndMinutesInTimesteps = true;
-                hasSecondsInTimesteps = true;
-            }
-            else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-            {
-                hasHoursAndMinutesInTimesteps = true;
-            }
-        }
-
-        m_timeStepFormatString = "dd.MMM yyyy";
-        if (hasHoursAndMinutesInTimesteps)
-        {
-            m_timeStepFormatString += " - hh:mm";
-            if (hasSecondsInTimesteps)
-            {
-                m_timeStepFormatString += ":ss";
-                if (hasMillisecondsInTimesteps)
-                {
-                    m_timeStepFormatString += ".zzz";
-                }
-            }
-        }
-    }
 
     QDateTime date = timeStepDates.at(frameIdx);
 
@@ -698,13 +680,13 @@ void RimEclipseCase::reloadDataAndUpdate()
 {
     if (this->eclipseCaseData())
     {
-        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
+        RigCaseCellResultsData* matrixModelResults = eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
         if (matrixModelResults)
         {
             matrixModelResults->clearAllResults();
         }
 
-        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
+        RigCaseCellResultsData* fractureModelResults = eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL);
         if (fractureModelResults)
         {
             fractureModelResults->clearAllResults();
@@ -755,7 +737,21 @@ void RimEclipseCase::reloadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimEclipseCase::timeStepDates()
+double RimEclipseCase::characteristicCellSize() const
 {
-    return results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates();
+    const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
+    if (rigEclipseCase)
+    {
+        return rigEclipseCase->mainGrid()->characteristicIJCellSize();
+    }
+
+    return 10.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimEclipseCase::timeStepDates() const
+{
+    return results(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepDates();
 }

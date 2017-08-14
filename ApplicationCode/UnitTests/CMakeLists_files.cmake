@@ -10,18 +10,21 @@ set (SOURCE_GROUP_HEADER_FILES
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}Ert-Test.cpp
+${CEE_CURRENT_LIST_DIR}RifcCommandCore-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseInputFileTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigActiveCellInfo-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoir-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurveImpl-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper-Test.cpp
 ${CEE_CURRENT_LIST_DIR}ScalarMapper-Test.cpp
 ${CEE_CURRENT_LIST_DIR}WellPathAsciiFileReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}opm-flowdiagnostics-Test.cpp
+${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator-Test.cpp
 ${CEE_CURRENT_LIST_DIR}HDF5FileReader-Test.cpp
 )
 

@@ -175,7 +175,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
 
     bool isFirstTrack =  (wellLogTrack == wellLogPlot->trackByIndex(0));
 
-    RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_NONE;
+    RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_NONE;
 
     std::vector<double> depthValues = m_curveData->measuredDepthPlotValues(displayUnit);
     std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
@@ -276,7 +276,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue(const QString& tracerName, 
 {
     m_curveData = new RigWellLogCurveData;
 
-    m_curveData->setValuesAndMD(flowRates, depthValues, RimDefines::UNIT_NONE, false);
+    m_curveData->setValuesAndMD(flowRates, depthValues, RiaDefines::UNIT_NONE, false);
 
     m_tracerName = tracerName;
 }

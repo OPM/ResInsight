@@ -303,7 +303,7 @@ public:
         m_bytesPerTimeStepToRead(0),
         m_currentTimeStepNumberToRead(0),
         m_invalidConnectionCountDetected(false),
-        m_porosityModelEnum(RifReaderInterface::MATRIX_RESULTS)
+        m_porosityModelEnum(RiaDefines::MATRIX_MODEL)
     {}
 
     static QString commandName () { return QString("SetNNCProperty"); }
@@ -427,7 +427,7 @@ public:
         size_t scalarResultIndex = results->findOrLoadScalarResult(propertyName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            scalarResultIndex = results->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
+            scalarResultIndex = results->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
         }
         
         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
@@ -567,7 +567,7 @@ private:
     size_t                              m_currentScalarIndex;
     QString                             m_currentPropertyName;
     std::vector<size_t>                 m_requestedTimesteps;
-    RifReaderInterface::PorosityModelResultType m_porosityModelEnum;
+    RiaDefines::PorosityModelType       m_porosityModelEnum;
 
     quint64                             m_timeStepCountToRead;
     quint64                             m_bytesPerTimeStepToRead;

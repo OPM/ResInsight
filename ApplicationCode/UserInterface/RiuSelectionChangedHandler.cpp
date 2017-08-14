@@ -103,18 +103,18 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
 {
     RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
-    if (eclipseView->cellResult()->resultType() == RimDefines::FLOW_DIAGNOSTICS)
+    if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     { 
         // NB! Do not read out data for flow results, as this can be a time consuming operation
 
         return;
     }
     else if (eclipseView->cellResult()->hasDynamicResult() 
-             && !RimDefines::isPerCellFaceResult(eclipseView->cellResult()->resultVariable())
+             && !RiaDefines::isPerCellFaceResult(eclipseView->cellResult()->resultVariable())
              && eclipseView->eclipseCase() 
              && eclipseView->eclipseCase()->eclipseCaseData())
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(eclipseView->cellResult()->porosityModel());
+        RiaDefines::PorosityModelType porosityModel = eclipseView->cellResult()->porosityModel();
 
         std::vector<QDateTime> timeStepDates = eclipseView->eclipseCase()->eclipseCaseData()->results(porosityModel)->timeStepDates();
 
@@ -196,8 +196,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuGeoMechSelec
 
         std::vector<double> timeHistoryValues = timeHistResultAccessor->timeHistoryValues();
 
-        QStringList stepNames = geoMechView->geoMechCase()->timeStepStrings();
-        std::vector<QDateTime> dates = RimGeoMechCase::dateTimeVectorFromTimeStepStrings(stepNames);
+        std::vector<QDateTime> dates = geoMechView->geoMechCase()->timeStepDates();
         if (dates.size() == timeHistoryValues.size())
         {
             RiuMainWindow::instance()->resultPlot()->addCurve(curveName, geomSelectionItem->m_color, dates, timeHistoryValues);

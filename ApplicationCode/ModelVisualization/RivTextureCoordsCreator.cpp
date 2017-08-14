@@ -31,6 +31,7 @@
 #include "RimLegendConfig.h"
 
 #include "RivResultToTextureMapper.h"
+#include "RivDefaultResultToTextureMapper.h"
 
 #include "cvfStructGridGeometryGenerator.h"
 
@@ -47,13 +48,11 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimEclipseCellColors* cellResul
 
     m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition(eclipseCase, gridIndex, timeStepIndex, cellResultColors);
 
-    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = 
-        new RigPipeInCellEvaluator(cellResultColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(timeStepIndex),
-                                   eclipseCase->gridCellToResultWellIndex(gridIndex));
+    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = createPipeInCellEvaluator(cellResultColors, timeStepIndex, gridIndex);
 
     const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-    m_texMapper = new RivResultToTextureMapper(mapper, pipeInCellEval.p());
+    m_texMapper = new RivDefaultResultToTextureMapper(mapper, pipeInCellEval.p());
     CVF_ASSERT(m_texMapper.notNull());
 }
 
@@ -76,6 +75,23 @@ bool RivTextureCoordsCreator::isValid()
 void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
 {
     createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivTextureCoordsCreator::setResultToTextureMapper(RivResultToTextureMapper* textureMapper)
+{
+    m_texMapper = textureMapper;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigPipeInCellEvaluator * RivTextureCoordsCreator::createPipeInCellEvaluator(RimEclipseCellColors* cellColors, size_t timeStep, size_t gridIndex)
+{
+    return new RigPipeInCellEvaluator(cellColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(timeStep),
+                                      cellColors->reservoirView()->eclipseCase()->eclipseCaseData()->gridCellToResultWellIndex(gridIndex));
 }
 
 //--------------------------------------------------------------------------------------------------

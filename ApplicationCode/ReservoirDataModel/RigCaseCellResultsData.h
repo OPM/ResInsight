@@ -22,7 +22,7 @@
 
 #include "RifReaderInterface.h"
 
-#include "RimDefines.h"
+#include "RiaDefines.h"
 
 #include "cvfCollection.h"
 
@@ -32,9 +32,11 @@
 #include <cmath>
 
 class RifReaderInterface;
-class RigMainGrid;
 class RigActiveCellInfo;
+class RigMainGrid;
+class RigEclipseResultInfo;
 class RigStatisticsDataCache;
+class RigEclipseTimeStepInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -69,7 +71,7 @@ public:
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(size_t scalarResultIndex) const; 
     size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
-    QStringList                                        resultNames(RimDefines::ResultCatType type) const;
+    QStringList                                        resultNames(RiaDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
@@ -80,14 +82,16 @@ public:
     std::vector<double>                                daysSinceSimulationStart(size_t scalarResultIndex) const;
     int                                                reportStepNumber(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<int>                                   reportStepNumbers(size_t scalarResultIndex) const;
-    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates, const std::vector<double>& daysSinceSimulationStart, const std::vector<int>& reportStepNumbers);
+    
+    std::vector<RigEclipseTimeStepInfo>                       timeStepInfos(size_t scalarResultIndex) const;
+    void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
 
     // Find or create a slot for the results
 
-    size_t                                             findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
+    size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
+    size_t                                             addEmptyScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               createPlaceholderResultEntries();
@@ -102,36 +106,10 @@ public:
     std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
     std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
 
-    static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
-
-    bool                                               updateResultName(RimDefines::ResultCatType resultType, QString& oldName, const QString& newName);
+    bool                                               updateResultName(RiaDefines::ResultCatType resultType, QString& oldName, const QString& newName);
 
 public:
-    class ResultInfo
-    {
-    public:
-        ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
-            : m_resultType(resultType),
-            m_needsToBeStored(needsToBeStored), 
-            m_resultName(resultName), 
-            m_gridScalarResultIndex(gridScalarResultIndex), 
-            m_mustBeCalculated(mustBeCalculated),
-            m_isSourSimData(false)
-        { }
-
-    public:
-        RimDefines::ResultCatType   m_resultType;
-        bool                        m_needsToBeStored;
-        bool                        m_mustBeCalculated;
-        QString                     m_resultName;
-        size_t                      m_gridScalarResultIndex;
-        std::vector<QDateTime>      m_timeStepDates;
-        std::vector<int>            m_timeStepReportNumbers;
-        bool                        m_isSourSimData;
-        std::vector<double>         m_daysSinceSimulationStart;
-    };
-
-    const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
+    const std::vector<RigEclipseResultInfo>&                       infoForEachResultIndex() { return m_resultInfos;}
 
     bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
     void                                                    setMustBeCalculated(size_t scalarResultIndex);
@@ -139,7 +117,7 @@ public:
 
     
 public:
-    size_t                                                  addStaticScalarResult(RimDefines::ResultCatType type, 
+    size_t                                                  addStaticScalarResult(RiaDefines::ResultCatType type, 
                                                                                   const QString& resultName, 
                                                                                   bool needsToBeStored,
                                                                                   size_t resultValueCount);
@@ -151,9 +129,8 @@ private:
     cvf::Collection<RigStatisticsDataCache>                 m_statisticsDataCache;
 
 private:
-    std::vector<ResultInfo>                                 m_resultInfos;
+    std::vector<RigEclipseResultInfo>                              m_resultInfos;
 
     RigMainGrid*                                            m_ownerMainGrid;
     RigActiveCellInfo*                                      m_activeCellInfo;
-
 };

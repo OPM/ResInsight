@@ -91,19 +91,19 @@ void RimEclipseInputProperty::fieldChangedByUi(const caf::PdmFieldHandle* change
             QString oldName = oldValue.toString();
             QString newName = newValue.toString();
 
-            RigCaseCellResultsData* matrixResults = rimCase->eclipseCaseData()->results(RifReaderInterface::MATRIX_RESULTS);
+            RigCaseCellResultsData* matrixResults = rimCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL);
             if (matrixResults)
             {
-                if (matrixResults->updateResultName(RimDefines::INPUT_PROPERTY, oldName, newName))
+                if (matrixResults->updateResultName(RiaDefines::INPUT_PROPERTY, oldName, newName))
                 {
                     anyNameUpdated = true;
                 }
             }
 
-            RigCaseCellResultsData* fracResults = rimCase->eclipseCaseData()->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigCaseCellResultsData* fracResults = rimCase->eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL);
             if (fracResults)
             {
-                if (fracResults->updateResultName(RimDefines::INPUT_PROPERTY, oldName, newName))
+                if (fracResults->updateResultName(RiaDefines::INPUT_PROPERTY, oldName, newName))
                 {
                     anyNameUpdated = true;
                 }

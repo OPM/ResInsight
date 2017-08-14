@@ -36,6 +36,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
     ${CMAKE_CURRENT_SOURCE_DIR}/Application
+    ${CMAKE_CURRENT_SOURCE_DIR}/Application/Tools
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands
     ${CMAKE_CURRENT_SOURCE_DIR}/Commands/EclipseCommands
     ${CMAKE_CURRENT_SOURCE_DIR}/FileInterface
@@ -44,10 +45,13 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
     ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
+    ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface
+    ${CMAKE_CURRENT_SOURCE_DIR}/CommandFileInterface/Core
 
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
-    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Completions
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Flow
+    ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Summary
     
     ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
@@ -67,20 +71,6 @@ include_directories(
 # Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
 
-set( APPLICATION_FILES 
-    RiaMain.cpp
-        
-    Application/RiaApplication.cpp
-    Application/RiaPreferences.cpp
-    Application/RiaImageFileCompare.cpp
-    Application/RiaImageCompareReporter.cpp
-    Application/RiaProjectModifier.cpp
-    Application/RiaRegressionTest.cpp
-    Application/RiaColorTables.cpp
-    Application/RiaLogging.h
-    Application/RiaLogging.cpp
-)
-
 set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketServer.cpp
     SocketInterface/RiaProjectInfoCommands.cpp
@@ -94,12 +84,14 @@ set( SOCKET_INTERFACE_FILES
 )
 
 list( APPEND CPP_SOURCES
-     ${APPLICATION_FILES}
      ${SOCKET_INTERFACE_FILES}
      ${UNIT_TEST_FILES}
 )
 
 list( APPEND REFERENCED_CMAKE_FILES
+    Application/CMakeLists_files.cmake
+    Application/Tools/CMakeLists_files.cmake
+
     ReservoirDataModel/CMakeLists_files.cmake
     ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
     FileInterface/CMakeLists_files.cmake
@@ -107,6 +99,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ProjectDataModel/CMakeLists_files.cmake
     ProjectDataModel/Summary/CMakeLists_files.cmake
     ProjectDataModel/Flow/CMakeLists_files.cmake
+    ProjectDataModel/Completions/CMakeLists_files.cmake
     
     GeoMech/GeoMechVisualization/CMakeLists_files.cmake
     
@@ -118,18 +111,23 @@ list( APPEND REFERENCED_CMAKE_FILES
 	
     Commands/CMakeLists_files.cmake
     Commands/ApplicationCommands/CMakeLists_files.cmake
+    Commands/CompletionCommands/CMakeLists_files.cmake
     Commands/CrossSectionCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/CMakeLists_files.cmake
     Commands/EclipseCommands/EclipseWell/CMakeLists_files.cmake
+    Commands/ExportCommands/CMakeLists_files.cmake
     Commands/FlowCommands/CMakeLists_files.cmake
     Commands/IntersectionBoxCommands/CMakeLists_files.cmake
     Commands/OctaveScriptCommands/CMakeLists_files.cmake
-	Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
+    Commands/OperationsUsingObjReferences/CMakeLists_files.cmake
     Commands/SummaryPlotCommands/CMakeLists_files.cmake
     Commands/ToggleCommands/CMakeLists_files.cmake
     Commands/ViewLink/CMakeLists_files.cmake
     Commands/WellLogCommands/CMakeLists_files.cmake
     Commands/WellPathCommands/CMakeLists_files.cmake
+
+    CommandFileInterface/CMakeLists_files.cmake
+    CommandFileInterface/Core/CMakeLists_files.cmake
 )
 
 option (RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
@@ -235,7 +233,6 @@ set(RESINSIGHT_USE_HDF5 ${RESINSIGHT_USE_HDF5} PARENT_SCOPE)
 
 set ( QT_MOC_HEADERS
     ${QT_MOC_HEADERS}
-    Application/RiaApplication.h
     
     ProjectDataModel/RimMimeData.h
     ProjectDataModel/RimIntersectionBox.h
@@ -271,7 +268,6 @@ endif()
 ################################################################################
 # Create source groups - see also included CMakeLists_files.cmake
 ################################################################################
-source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 source_group( "UnitTests"           FILES ${UNIT_TEST_FILES} )

@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDocument.h"
@@ -32,6 +34,7 @@ class RigMainGrid;
 
 class RimCase;
 class RimCommandObject;
+class RimDialogData;
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
@@ -98,12 +101,17 @@ public:
 
     void            computeUtmAreaOfInterest();
 
-    RimOilField*    activeOilField();
+    RimOilField*       activeOilField();
+    const RimOilField* activeOilField() const;
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
 
     bool            show3DWindow() const;
     bool            showPlotWindow() const;
+
+    void            reloadCompletionTypeResultsInAllViews();
+
+    RimDialogData*  dialogData() const;
 
 protected:
     // Overridden methods
@@ -115,9 +123,13 @@ protected:
 
 private:
     void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
+    void            removeEclipseResultAndRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;
+
+    caf::PdmChildField<RimDialogData*>  m_dialogData;
+
 
     caf::PdmField<bool>     m_show3DWindow;
     caf::PdmField<bool>     m_showPlotWindow;

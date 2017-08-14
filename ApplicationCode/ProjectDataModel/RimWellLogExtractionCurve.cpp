@@ -330,7 +330,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
         std::vector<double> measuredDepthValues;
         std::vector<double> tvDepthValues;
 
-        RimDefines::DepthUnitType depthUnit = RimDefines::UNIT_METER;
+        RiaDefines::DepthUnitType depthUnit = RiaDefines::UNIT_METER;
 
         if (eclExtractor.notNull())
         {
@@ -349,12 +349,12 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
                 eclExtractor->curveData(resAcc.p(), &values);
             }
 
-            RigEclipseCaseData::UnitsType eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
-            if (eclipseUnitsType == RigEclipseCaseData::UNITS_FIELD)
+            RiaEclipseUnitTools::UnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
+            if (eclipseUnitsType == RiaEclipseUnitTools::UNITS_FIELD)
             {
                 // See https://github.com/OPM/ResInsight/issues/538
                 
-                depthUnit = RimDefines::UNIT_FEET;
+                depthUnit = RiaDefines::UNIT_FEET;
             }
         }
         else if (geomExtractor.notNull()) // geomExtractor
@@ -381,7 +381,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate()
             }
         }
 
-        RimDefines::DepthUnitType displayUnit = RimDefines::UNIT_METER;
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
 
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType(wellLogPlot);
@@ -721,10 +721,9 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         
         if (eclipseCase)
         {
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
             if (eclipseCase->eclipseCaseData())
             {
-                maxTimeStep = eclipseCase->eclipseCaseData()->results(porosityModel)->maxTimeStepCount();
+                maxTimeStep = eclipseCase->eclipseCaseData()->results(m_eclipseResultDefinition->porosityModel())->maxTimeStepCount();
             }
         }
         else if (geomCase)
@@ -826,7 +825,6 @@ QString RimWellLogExtractionCurve::wellDate() const
 
     if (eclipseCase)
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_eclipseResultDefinition->porosityModel());
         if (eclipseCase->eclipseCaseData())
         {
             timeStepNames = eclipseCase->timeStepStrings();

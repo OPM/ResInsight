@@ -44,6 +44,7 @@
 #include "RivTernaryScalarMapperEffectGenerator.h"
 #include "RivTernaryTextureCoordsCreator.h"
 #include "RivTextureCoordsCreator.h"
+#include "RivCompletionTypeResultToTextureMapper.h"
 
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfColor.h"
@@ -258,6 +259,15 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimEclipseCellC
             if (!texturer.isValid())
             {
                 return;
+            }
+
+            if (cellResultColors->isCompletionTypeSelected())
+            {
+                cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = RivTextureCoordsCreator::createPipeInCellEvaluator(cellResultColors, timeStepIndex, m_grid->gridIndex());
+                const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
+
+                texturer.setResultToTextureMapper(new RivCompletionTypeResultToTextureMapper(mapper, pipeInCellEval.p()));
+                m_opacityLevel = 0.5;
             }
 
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
