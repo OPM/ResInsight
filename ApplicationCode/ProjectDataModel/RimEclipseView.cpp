@@ -53,6 +53,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellFracture.h"
 #include "RimStimPlanColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -86,7 +87,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-
 
 
 
@@ -746,9 +746,19 @@ void RimEclipseView::loadDataAndUpdate()
     m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
+    
+    {
+        // Update simulation well fractures after well cell results are imported
+        
+        std::vector<RimSimWellFracture*> simFractures;
+        this->descendantsIncludingThisOfType(simFractures);
+        for (auto fracture : simFractures)
+        {
+            fracture->loadDataAndUpdate();
+        }
+    }
 
     this->scheduleCreateDisplayModelAndRedraw();
-
 }
 
 

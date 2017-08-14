@@ -121,6 +121,15 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::loadDataAndUpdate()
+{
+    updatePositionFromMeasuredDepth();
+    updateAzimuthBasedOnWellAzimuthAngle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::updatePositionFromMeasuredDepth()
 {
     cvf::Vec3d positionAlongWellpath = cvf::Vec3d::ZERO;

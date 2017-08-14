@@ -76,6 +76,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -483,6 +484,17 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         oilField->summaryCaseCollection()->loadAllSummaryCaseData();
 
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
+
+        {
+            std::vector<RimWellPathFracture*> wellPathFractures;
+            oilField->wellPathCollection->descendantsIncludingThisOfType(wellPathFractures);
+
+            for (auto fracture : wellPathFractures)
+            {
+                fracture->loadDataAndUpdate();
+            }
+        }
+
     }
 
     // If load action is specified to recalculate statistics, do it now.

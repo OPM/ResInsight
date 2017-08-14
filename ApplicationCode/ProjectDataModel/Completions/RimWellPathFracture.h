@@ -45,6 +45,8 @@ public:
 
     double                          wellAzimuthAtFracturePosition() const override;
 
+    virtual void                    loadDataAndUpdate() override;
+
 protected:
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute) override;

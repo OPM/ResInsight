@@ -97,6 +97,8 @@ public:
     virtual double                  wellAzimuthAtFracturePosition() const = 0;
     virtual double                  fractureMD() const = 0;
     
+    virtual void                    loadDataAndUpdate() = 0;
+    
 protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

@@ -97,7 +97,6 @@ void RimSimWellFracture::updateAzimuthBasedOnWellAzimuthAngle()
             else azimuth = simWellAzimuth - 90;
         }
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,6 +119,17 @@ double RimSimWellFracture::wellDipAtFracturePosition()
     double simWellDip = m_branchCenterLines[m_branchIndex].simWellDipAngle(fracturePosition());
     return simWellDip;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSimWellFracture::loadDataAndUpdate()
+{
+    setBranchGeometry();
+    updateFracturePositionFromLocation();
+    updateAzimuthBasedOnWellAzimuthAngle();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

@@ -48,8 +48,9 @@ public:
     double                                          wellDipAtFracturePosition();
     double                                          fractureMD() const override { return m_location; }
 
-
     int                                             branchIndex() const { return m_branchIndex(); }
+
+    virtual void                                    loadDataAndUpdate() override;
 
 protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
