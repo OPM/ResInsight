@@ -18,6 +18,10 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    
+    # libecl : Disable some annoying warnings 
+    # TODO: Remove when fixed in libecl
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4190")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
