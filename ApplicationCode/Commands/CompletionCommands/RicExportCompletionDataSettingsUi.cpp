@@ -98,6 +98,26 @@ void RicExportCompletionDataSettingsUi::showForWellPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &compdatExport)
+    {
+        if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        {
+            includeFractures = false;
+            includeFractures.uiCapability()->setUiReadOnly(true);
+        }
+        else if (compdatExport == TRANSMISSIBILITIES)
+        {
+            includeFractures = true;
+            includeFractures.uiCapability()->setUiReadOnly(false);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -139,7 +159,6 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-
     caf::PdmUiGroup* generalExportSettings = uiOrdering.addNewGroup("General Export Settings");
     generalExportSettings->add(&folder);
     generalExportSettings->add(&caseToApply);
@@ -152,7 +171,6 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 
     if (!m_displayForSimWell)
     {
-
         caf::PdmUiGroup* fishboneGroup = uiOrdering.addNewGroup("Export of Fishbone Completions");
         fishboneGroup->add(&includeFishbones);
         fishboneGroup->add(&excludeMainBoreForFishbones);
@@ -170,15 +188,13 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
         
         if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
         {
-            includeFractures = false;
             includeFractures.uiCapability()->setUiReadOnly(true);
         }
         else if (compdatExport == TRANSMISSIBILITIES)
         {
-            includeFractures = true;
             includeFractures.uiCapability()->setUiReadOnly(false);
         }
-
     }
+
     uiOrdering.skipRemainingFields();
 }
