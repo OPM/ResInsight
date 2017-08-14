@@ -85,24 +85,14 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     const RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
-    RimReservoirCellResultsStorage* gridCellResults = m_case->results(porosityModel);
 
-    size_t scalarSetIndex;
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DX");
-    cvf::ref<RigResultAccessor> dataAccessObjectDx = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DX"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DY");
-    cvf::ref<RigResultAccessor> dataAccessObjectDy = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DY"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "DZ");
-    cvf::ref<RigResultAccessor> dataAccessObjectDz = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "DZ"); //assuming 0 time step and main grid (so grid index =0) 
-
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMX");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermX = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMX"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMY");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermY = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMY"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
-    cvf::ref<RigResultAccessor> dataAccessObjectPermZ = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "PERMZ"); //assuming 0 time step and main grid (so grid index =0) 
-    scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
-    cvf::ref<RigResultAccessor> dataAccessObjectNTG = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, "NTG"); //assuming 0 time step and main grid (so grid index =0) 
+    cvf::ref<RigResultAccessor> dataAccessObjectDx      = loadResultAndCreateResultAccessor(m_case, porosityModel, "DX");
+    cvf::ref<RigResultAccessor> dataAccessObjectDy      = loadResultAndCreateResultAccessor(m_case, porosityModel, "DY");
+    cvf::ref<RigResultAccessor> dataAccessObjectDz      = loadResultAndCreateResultAccessor(m_case, porosityModel, "DZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermX   = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMX");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermY   = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMY");
+    cvf::ref<RigResultAccessor> dataAccessObjectPermZ   = loadResultAndCreateResultAccessor(m_case, porosityModel, "PERMZ");
+    cvf::ref<RigResultAccessor> dataAccessObjectNTG     = loadResultAndCreateResultAccessor(m_case, porosityModel, "NTG");
 
     const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(porosityModel);
 
@@ -247,4 +237,25 @@ std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPoten
     mainGrid->findIntersectingCells(polygonBBox, &cellIndices);
 
     return cellIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RigEclipseToStimPlanCellTransmissibilityCalculator::loadResultAndCreateResultAccessor(
+    RimEclipseCase* eclipseCase,
+    RiaDefines::PorosityModelType porosityModel,
+    const QString& uiResultName)
+{
+    CVF_ASSERT(eclipseCase);
+
+    RimReservoirCellResultsStorage* gridCellResults = eclipseCase->results(porosityModel);
+
+    // Calling this function will force loading of result from file
+    gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, uiResultName);
+
+    const RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
+
+    // Create result accessor object for main grid at time step zero (static result date is always at first time step
+    return RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, porosityModel, 0, uiResultName);
 }

@@ -18,13 +18,20 @@
 
 #pragma once
 
-#include <vector>
+#include "RiaPorosityModel.h"
 
 #include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfMatrix4.h"
+
+#include <vector>
+
+class QString;
 
 class RimEclipseCase;
 class RigFractureCell;
+class RigEclipseCaseData;
+class RigResultAccessor;
 
 //==================================================================================================
 ///
@@ -46,6 +53,10 @@ private:
     void                        calculateStimPlanCellsMatrixTransmissibility();
     std::vector<size_t>         getPotentiallyFracturedCellsForPolygon(std::vector<cvf::Vec3d> polygon);
 
+    static cvf::ref<RigResultAccessor>
+        loadResultAndCreateResultAccessor(RimEclipseCase* eclipseCase,
+                                          RiaDefines::PorosityModelType porosityModel,
+                                          const QString& uiResultName);
 
 private:
     RimEclipseCase*                     m_case;
