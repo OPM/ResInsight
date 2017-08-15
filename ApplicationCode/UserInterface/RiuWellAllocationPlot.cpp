@@ -25,6 +25,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuNightchartsWidget.h"
@@ -89,7 +90,8 @@ RiuWellAllocationPlot::RiuWellAllocationPlot(RimWellAllocationPlot* plotDefiniti
     new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
     new RiuContextMenuLauncher(totalFlowAllocationWidget, commandIds);
 
-    rightColumnLayout->addWidget(totalFlowAllocationWidget);
+    rightColumnLayout->addWidget(totalFlowAllocationWidget, Qt::AlignTop);
+    rightColumnLayout->addWidget(m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget(this), Qt::AlignTop);
     rightColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
