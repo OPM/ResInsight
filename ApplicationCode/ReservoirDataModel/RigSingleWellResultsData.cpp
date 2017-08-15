@@ -60,17 +60,24 @@ void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndi
         }
     }
 
-    for (size_t resultTimeStepIndex = 0; resultTimeStepIndex< simulationTimeSteps.size(); resultTimeStepIndex++)
+    size_t wellTimeStepIndex = 0;
+    for (size_t resultTimeStepIndex = 0; resultTimeStepIndex < simulationTimeSteps.size(); resultTimeStepIndex++)
     {
-        size_t wellTimeStepIndex = 0;
-
-        while (wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
-               m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp < simulationTimeSteps[resultTimeStepIndex])
+        while ( wellTimeStepIndex < m_wellCellsTimeSteps.size() &&
+                m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp < simulationTimeSteps[resultTimeStepIndex])
         {
             wellTimeStepIndex++;
         }
 
-        m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
+        if (   wellTimeStepIndex < m_wellCellsTimeSteps.size() 
+            && m_wellCellsTimeSteps[wellTimeStepIndex].m_timestamp == simulationTimeSteps[resultTimeStepIndex])
+        {
+            m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = wellTimeStepIndex;
+        }
+        else
+        {
+            m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex] = cvf::UNDEFINED_SIZE_T;
+        }
     }
 }
 
