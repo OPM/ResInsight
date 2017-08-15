@@ -372,7 +372,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
 
     // Read geometry
     // Todo: Needs to check existence of file before calling ert, else it will abort
-    ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
+    ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toLatin1().data() );
 
     progInfo.incrementProgress();
 
@@ -557,7 +557,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
     QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
     if (egridFileName.size() > 0)
     {
-        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toLatin1().data(), ECL_FILE_CLOSE_STREAM);
         if (!ecl_file) return false;
 
         int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
@@ -809,7 +809,7 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, RiaDefines::Por
     {
         std::vector<double> fileValues;
 
-        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
+        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toLatin1().data());
         size_t i;
         for (i = 0; i < numOccurrences; i++)
         {
@@ -1848,7 +1848,7 @@ void RifReaderEclipseOutput::openInitFile()
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
-        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+        m_ecl_init_file = ecl_file_open(initFileName.toLatin1().data(), ECL_FILE_CLOSE_STREAM);
     }
 }
 

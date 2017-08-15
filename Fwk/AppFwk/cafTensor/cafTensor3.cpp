@@ -21,6 +21,7 @@
 #include "cvfVector3.h"
 
 #include "cvfMatrix3.h"
+#include <cstdlib>  // std::abs
 
 namespace caf {
 
@@ -51,7 +52,7 @@ cvf::Mat3d cofactor3(const cvf::Mat3d& mx)
         {
             detIdxj[0] = (j == 0) ? 1 : 0;
             detIdxj[1] = (j == 2) ? 1 : 2;
-            sign = (abs(j - i) == 1) ? -1 : 1;
+            sign = (std::abs(j - i) == 1) ? -1 : 1;
 
             cof(i, j) = sign * (  mx(detIdxi[0], detIdxj[0]) * mx(detIdxi[1], detIdxj[1])
                                 - mx(detIdxi[0], detIdxj[1]) * mx(detIdxi[1], detIdxj[0]));

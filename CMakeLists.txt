@@ -24,13 +24,24 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -std=c++0x")
     set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    # Apple Clang doesn't like TR headers
+    set(CMAKE_CXX_FLAGS "-DGTEST_USE_OWN_TR1_TUPLE=1 -std=c++11 ${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf-2 -O0 -DDEBUG -D_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG ${CMAKE_CXX_FLAGS_RELEASE}")
 endif() 
 
 
 ################################################################################
 # OpenMP
 ################################################################################
-option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
+# Apple Clang currently doesn't do OpenMP
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(OMP_DEFAULT "OFF")
+else()
+    set(OMP_DEFAULT "ON")
+endif()
+option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ${OMP_DEFAULT})
 if (RESINSIGHT_USE_OPENMP)
     find_package(OpenMP)
     if(OPENMP_FOUND)
@@ -201,17 +212,23 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Qt
 ################################################################################
-set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
-find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED})
-if ( NOT QT4_FOUND )
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  set(QT_COMPONENTS_REQUIRED Core Gui OpenGL Network Script ScriptTools REQUIRED)
+  find_package(Qt5 COMPONENTS ${QT_COMPONENTS_REQUIRED})
+else()
+  set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
+  find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED})
+  if ( NOT QT4_FOUND )
     message(FATAL_ERROR "Package Qt4 is required, but not found. Please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif ( NOT QT4_FOUND )
+  endif ( NOT QT4_FOUND )
 
-if (QT_VERSION_MINOR LESS 6)
+  if (QT_VERSION_MINOR LESS 6)
     message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif()
+  endif()
 
-include (${QT_USE_FILE})
+  include (${QT_USE_FILE})
+endif()
 
 # Open GL
 find_package( OpenGL )

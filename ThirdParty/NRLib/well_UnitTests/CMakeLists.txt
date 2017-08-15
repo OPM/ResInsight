@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
 project ( well_UnitTests )
-
+find_package (Boost COMPONENTS filesystem REQUIRED)
 
 include_directories (
 	${CMAKE_CURRENT_SOURCE_DIR}
@@ -29,5 +29,6 @@ source_group("" FILES ${PROJECT_FILES})
 target_link_libraries ( ${PROJECT_NAME}
     NRLib
     boost-Subset
+    ${Boost_FILESYSTEM_LIBRARY}
 )
 

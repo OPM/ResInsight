@@ -198,10 +198,15 @@ void caf::UiListViewModelPdm::setPdmData(PdmObjectCollection* objectGroup, const
             uiObject->objectEditorAttribute(m_configName, &m_editorAttribute);
         }
     }
-
+#if QT_VERSION >= 0x050000
+    beginResetModel();
+#endif
     computeColumnCount();
-
+#if QT_VERSION >= 0x050000
+    endResetModel();
+#else
     reset();
+#endif
 }
 
 

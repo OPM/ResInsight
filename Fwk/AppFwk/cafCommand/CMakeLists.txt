@@ -1,8 +1,13 @@
 cmake_minimum_required (VERSION 2.8)
 
 # Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
-include (${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core Gui Widgets)
+else()
+  find_package ( Qt4 COMPONENTS QtCore QtGui QtMain )
+  include (${QT_USE_FILE})
+endif()
 
 project (cafCommand)
 
@@ -23,8 +28,12 @@ set( QOBJECT_HEADERS
 	cafCmdFeatureManager.h
 )
 
-if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
+if(USE_QT5)
+  qt5_wrap_cpp(MOC_FILES_CPP ${QOBJECT_HEADERS})
+else()
+  if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
     qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+  endif()
 endif()
 
 set( PROJECT_FILES
@@ -68,5 +77,7 @@ add_library( ${PROJECT_NAME}
  	${PROJECT_FILES}
     ${MOC_FILES_CPP}
 )
-
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core Gui Widgets)
+endif()
 source_group("" FILES ${PROJECT_FILES})

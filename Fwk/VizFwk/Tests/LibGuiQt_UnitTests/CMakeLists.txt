@@ -7,8 +7,13 @@ project(LibGuiQt_UnitTests)
 
 find_package(OpenGL)
 
-find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
-include(${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core Gui OpenGL REQUIRED)
+else()
+  find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED)
+  include(${QT_USE_FILE})
+endif()
 
 include_directories(${LibCore_SOURCE_DIR})
 include_directories(${LibIo_SOURCE_DIR})
@@ -29,4 +34,6 @@ LibGuiQt_UnitTests.cpp
 
 add_executable(${PROJECT_NAME} ${CEE_SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${CEE_LIBS} ${OPENGL_LIBRARIES} ${QT_LIBRARIES} ${CEE_PLATFORM_LIBS})
-
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core Gui OpenGL)
+endif()

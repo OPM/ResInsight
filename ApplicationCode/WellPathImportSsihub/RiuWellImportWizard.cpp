@@ -36,6 +36,10 @@
 
 #include <QObject>
 #include <QtGui>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QtWidgets>
+#endif
 #include <QtNetwork>
 
 #include <algorithm>
@@ -64,10 +68,8 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
 
     connect(&m_networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
         this, SLOT(slotAuthenticationRequired(QNetworkReply*,QAuthenticator*)));
-#ifndef QT_NO_OPENSSL
     connect(&m_networkAccessManager, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
         this, SLOT(sslErrors(QNetworkReply*,QList<QSslError>)));
-#endif
 
 }
 
@@ -282,7 +284,6 @@ void RiuWellImportWizard::slotAuthenticationRequired(QNetworkReply* networkReply
     }
 }
 
-#ifndef QT_NO_OPENSSL
 void RiuWellImportWizard::sslErrors(QNetworkReply*,const QList<QSslError> &errors)
 {
     QString errorString;
@@ -299,7 +300,6 @@ void RiuWellImportWizard::sslErrors(QNetworkReply*,const QList<QSslError> &error
     }
 
 }
-#endif
 
 
 

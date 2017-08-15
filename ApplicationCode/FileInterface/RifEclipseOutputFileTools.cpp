@@ -178,7 +178,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
 {
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toLatin1().data(), static_cast<int>(fileKeywordOccurrence));
     if (kwData)
     {
         size_t numValues = ecl_kw_get_size(kwData);
@@ -200,7 +200,7 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
 {
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toLatin1().data(), static_cast<int>(fileKeywordOccurrence));
     if (kwData)
     {
         size_t numValues = ecl_kw_get_size(kwData);
@@ -227,7 +227,7 @@ QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSe
     {
         bool formatted = false;
         int reportNumber = -1;
-        if (ecl_util_get_file_type(fileSet.at(i).toAscii().data(), &formatted, &reportNumber) == fileType)
+        if (ecl_util_get_file_type(fileSet.at(i).toLatin1().data(), &formatted, &reportNumber) == fileType)
         {
             return fileSet.at(i);
         }
@@ -248,7 +248,7 @@ QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& 
     {
         bool formatted = false;
         int reportNumber = -1;
-        if (ecl_util_get_file_type(fileSet.at(i).toAscii().data(), &formatted, &reportNumber) == fileType)
+        if (ecl_util_get_file_type(fileSet.at(i).toLatin1().data(), &formatted, &reportNumber) == fileType)
         {
             fileNames.append(fileSet.at(i));
         }
@@ -271,7 +271,7 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
     QString fileNameBase = QFileInfo(fullPathFileName).baseName();
 
     stringlist_type* eclipseFiles = stringlist_alloc_new();
-    ecl_util_select_filelist(filePath.toAscii().data(), fileNameBase.toAscii().data(), ECL_OTHER_FILE, false, eclipseFiles);
+    ecl_util_select_filelist(filePath.toLatin1().data(), fileNameBase.toLatin1().data(), ECL_OTHER_FILE, false, eclipseFiles);
 
     int i;
     for (i = 0; i < stringlist_get_size(eclipseFiles); i++)
@@ -289,7 +289,7 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& 
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions)
 {
-    ecl_grid_type * grid         = ecl_grid_alloc(gridFileName.toAscii().data());                               // bootstrap ecl_grid instance
+    ecl_grid_type * grid         = ecl_grid_alloc(gridFileName.toLatin1().data());                               // bootstrap ecl_grid instance
     stringlist_type * lgr_names  = ecl_grid_alloc_lgr_name_list( grid );                                   // get a list of all the lgr names.
 
     //printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));

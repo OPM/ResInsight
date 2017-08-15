@@ -1,8 +1,13 @@
 cmake_minimum_required (VERSION 2.8)
 
 # Qt
-find_package ( Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl )
-include (${QT_USE_FILE})
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt5 COMPONENTS Core Gui OpenGL)
+else()
+  find_package ( Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl )
+  include (${QT_USE_FILE})
+endif()
 
 project ( cafTestApplication )
 
@@ -15,19 +20,22 @@ set ( QT_MOC_HEADERS
     WidgetLayoutTest.h
 )
 
-qt4_wrap_cpp( MOC_FILES_CPP
-    ${QT_MOC_HEADERS}
-)
+if(USE_QT5)
+  qt5_wrap_cpp(MOC_FILES_CPP ${QT_MOC_HEADERS})
+else()
+  qt4_wrap_cpp(MOC_FILES_CPP ${QT_MOC_HEADERS})
+endif()
 
-# Resource file
 set( QRC_FILES  
     textedit.qrc
 )
 
 # Runs RCC on specified files
-qt4_add_resources( QRC_FILES_CPP
-    ${QRC_FILES}
-)
+if(USE_QT5)
+  qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
+else()
+  qt4_add_resources(QRC_FILES_CPP ${QRC_FILES})
+endif()
 
 include_directories (
     ${cafProjectDataModel_SOURCE_DIR}
@@ -61,6 +69,9 @@ add_executable ( ${PROJECT_NAME}
     ${MOC_FILES_CPP}
     ${QRC_FILES_CPP}
 )
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core Gui OpenGL)
+endif()
 
 set (TAP_LINK_LIBRARIES
     cafUserInterface

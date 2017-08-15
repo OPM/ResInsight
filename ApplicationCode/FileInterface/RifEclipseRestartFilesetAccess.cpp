@@ -184,7 +184,7 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
         return false;
     }
 
-    size_t fileGridCount = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toAscii().data());
+    size_t fileGridCount = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toLatin1().data());
 
     // No results for this result variable for current time step found
     if (fileGridCount == 0) return true;
@@ -244,7 +244,7 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
     if (m_ecl_files[timeStep] == NULL)
     {
         int index = static_cast<int>(timeStep);
-        ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toAscii().data(), ECL_FILE_CLOSE_STREAM);
+        ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toLatin1().data(), ECL_FILE_CLOSE_STREAM);
 
         m_ecl_files[timeStep] = ecl_file;
     }

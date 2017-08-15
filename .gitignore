@@ -15,6 +15,10 @@
 # Qt preprocessor
 moc_*.cxx
 qrc_*.cxx
+moc_*.cpp_parameters
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
 
 # CMake
 Makefile
@@ -32,6 +36,9 @@ CTest*.cmake
 
 # Target program
 /ApplicationCode/ResInsight
+/ApplicationCode/ResInsight.app
+/ApplicationCode/Resources/ResInsight.icns
+/ApplicationCode/resinsight.desktop
 /.project
 
 #Visual Studio files

@@ -35,6 +35,11 @@
 
 #include <QtGui>
 #include <QtNetwork>
+#include <QtGlobal>
+#if QT_VERSION >= 0x050000
+#include <QErrorMessage>
+#include <QMdiSubWindow>
+#endif
 
 #include <stdlib.h>
 

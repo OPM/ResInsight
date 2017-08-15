@@ -1,15 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(Qwt)
+option(USE_QT5 "Use version 5.x of the Qt library" OFF)
+if(USE_QT5)
+  find_package(Qt4 COMPONENTS Core Concurrent Gui Widgets OpenGL PrintSupport)
+else()
+  find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL)
+  include(${QT_USE_FILE})
+endif()
 
 if (MSVC)
     # Disable some annoying warnings (relative to warning level 3)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267")
 endif()
-
-find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL qtmain REQUIRED)
-include(${QT_USE_FILE})
-
 
 # Adapted from src.pri file in Qwt's source catalog for Qwt 6.1.0
 # Compiles static library
@@ -275,8 +278,13 @@ qwt_wheel.h
     
 
 set(MOC_SOURCE_FILES)
-qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
-    
+if(USE_QT5)
+  qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+else()
+  qt4_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES} )
+endif()
 
 add_library(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${MOC_SOURCE_FILES})
-
+if(USE_QT5)
+  qt5_use_modules(${PROJECT_NAME} Core Concurrent Gui Widgets OpenGL PrintSupport)
+endif()

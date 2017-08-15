@@ -29,6 +29,8 @@
 #include "cvfStructGrid.h"
 #include "RiuInterfaceToViewWindow.h"
 
+#include <QtGlobal>
+
 class RicCommandFeature;
 class RimView;
 class RiuSimpleHistogramWidget;
@@ -135,7 +137,9 @@ private:
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool            m_showHistogram;
 
+#if QT_VERSION < 0x050000
     QCDEStyle*      m_progressBarStyle;
+#endif
 
     cvf::ref<cvf::OverlayAxisCross> m_axisCross;
     cvf::Collection<cvf::OverlayItem> m_visibleLegends;
