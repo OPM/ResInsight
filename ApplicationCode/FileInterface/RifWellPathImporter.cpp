@@ -166,6 +166,7 @@ RifWellPathImporter::WellData RifWellPathImporter::readJsonWellData(const QStrin
     double datumElevation = jsonMap["datumElevation"].toDouble();
     QList<QVariant> pathList = jsonMap["path"].toList();
     WellData wellData;
+    wellData.m_wellPathGeometry = new RigWellPath;
     wellData.m_wellPathGeometry->setDatumElevation(datumElevation);
     wellData.m_name = jsonMap["name"].toString();
 
