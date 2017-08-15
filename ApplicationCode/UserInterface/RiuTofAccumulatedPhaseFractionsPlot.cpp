@@ -53,22 +53,26 @@ RiuTofAccumulatedPhaseFractionsPlot::RiuTofAccumulatedPhaseFractionsPlot(RimTofA
 
     setAutoFillBackground(true);
     setDefaults();
-    setTitle("Cumulative Saturation by Time of Flight");
+    QwtText title("Cumulative Saturation by Time of Flight");
+    QFont titleFont = title.font();
+    titleFont.setPixelSize(12);
+    title.setFont(titleFont);
+    setTitle(title);
 
     m_watCurve = new QwtPlotCurve;
-    setCurveColor(m_watCurve, QColor(0, 83, 138));
+    setCurveColor(m_watCurve, QColor(0, 0, 169));
     m_watCurve->setZ(0.9);
     m_watCurve->setTitle("Water");
     m_watCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
     m_oilCurve = new QwtPlotCurve;
-    setCurveColor(m_oilCurve, QColor(127, 24, 13));
+    setCurveColor(m_oilCurve, QColor(169, 0, 0));
     m_oilCurve->setZ(0.8);
     m_oilCurve->setTitle("Oil");
     m_oilCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
 
     m_gasCurve = new QwtPlotCurve;
-    setCurveColor(m_gasCurve, QColor(59, 84, 23));
+    setCurveColor(m_gasCurve, QColor(0, 100, 0));
     m_gasCurve->setZ(0.7);
     m_gasCurve->setTitle("Gas");
     m_gasCurve->setRenderHint(QwtPlotItem::RenderAntialiased, true);
@@ -166,11 +170,15 @@ void RiuTofAccumulatedPhaseFractionsPlot::setSamples(std::vector<double> xSample
     m_oilCurve->setSamples(m_xValues.data(), m_oilValues.data(), static_cast<int>(m_xValues.size()));
     m_gasCurve->setSamples(m_xValues.data(), m_gasValues.data(), static_cast<int>(m_xValues.size()));
 
-    auto maxXVal = std::max_element(m_xValues.begin(), m_xValues.end());
 
-    if (maxXVal != m_xValues.end())
+    if (!m_xValues.empty())
     {
-        setAxisScale(QwtPlot::xBottom, 0, *maxXVal);
+        double maxVal = 0;
+        for (double val : m_xValues)
+        {
+            maxVal = std::max(val, maxVal);
+        }
+        setAxisScale(QwtPlot::xBottom, 0, maxVal);
     }
 }
 
