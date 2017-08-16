@@ -187,9 +187,8 @@ void RimTofAccumulatedPhaseFractionsPlot::loadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    if (m_tofAccumulatedPhaseFractionsPlotWidget)
+    if (m_tofAccumulatedPhaseFractionsPlotWidget && m_showWindow())
     {
-
         RigTofAccumulatedPhaseFractionsCalculator calc(resultCase(), tracerName(), timeStep());
 
         const std::vector<double>& xValues = calc.sortedUniqueTOFValues();
