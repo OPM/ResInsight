@@ -1,16 +1,4 @@
 
-#### Matrix[numNNCConnections][2] riGetNNCConnections([CaseId])
-
-This function returns a two dimensional matrix containing grid and IJK information about each NNC connection.
-Each row contains a from and to cell for the connection.
-The cells are specified in a structure defined as:
-
-    CellInfo = {
-      GridIndex = int # Index of the grid the cell resides in.
-                      # Main grid has index 0.
-      I, J, K   = int # 1-based index address of the cell in the grid.
-    }
-
 #### Matrix[numSelectedCells][5] riGetSelectedCells([CaseId])
 
 This function returns a two dimensional matrix containing the cell info for each selected cell in the case with `CaseId`.
@@ -24,6 +12,15 @@ The columns contain the following information:
 
 
 If the CaseId is not defined, ResInsight's Current Case is used.
+
+
+#### Matrix[numSelectedCells][numTimestepsRequested] riGetGridPropertyForSelectedCells([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"] )
+
+This function returns a two dimensional matrix: [numSelectedCells][numTimestepsRequested] containing the requested property data from the case with CaseId.
+
+If the CaseId is not defined, ResInsight's Current Case is used.
+The RequestedTimeSteps must contain a list of 1-based indices to the requested time steps. If not defined, all the time steps are returned.
+
 
 #### Vector[PropertyInfo] riGetNNCPropertyNames([CaseId])
 
@@ -39,6 +36,19 @@ The structure is defined as:
     }
 
 If the CaseId is not defined, ResInsight's Current Case is used.
+
+
+#### Matrix[numNNCConnections][2] riGetNNCConnections([CaseId])
+
+This function returns a two dimensional matrix containing grid and IJK information about each NNC connection.
+Each row contains a from and to cell for the connection.
+The cells are specified in a structure defined as:
+
+    CellInfo = {
+      GridIndex = int # Index of the grid the cell resides in.
+                      # Main grid has index 0.
+      I, J, K   = int # 1-based index address of the cell in the grid.
+    }
 
 #### Matrix[numConnections][numTimestepsRequested] riGetDynamicNNCValues([CaseId], PropertyName, [RequestedTimeSteps])
 
@@ -60,3 +70,4 @@ The "TimeStepIndices" argument is used to "label" all the steps present in the s
 The time step data will then be put into ResInsight at the time steps requested.
 
 If the CaseId is not defined, ResInsight's Current Case is used.
+
