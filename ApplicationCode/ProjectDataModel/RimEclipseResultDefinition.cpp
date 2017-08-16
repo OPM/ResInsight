@@ -460,10 +460,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            options.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)",   RIG_FLD_TOF_RESNAME));
-            options.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)",      RIG_FLD_CELL_FRACTION_RESNAME));
-            options.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer",             RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
-            options.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
+            options.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)", RIG_FLD_TOF_RESNAME));
+            if (m_phaseSelection() == RigFlowDiagResultAddress::PHASE_ALL)
+            {
+                options.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)", RIG_FLD_CELL_FRACTION_RESNAME));
+                options.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer", RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
+                options.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
+            }
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
