@@ -72,6 +72,8 @@ protected:
 private:
     bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
 
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
 private:
     // Fields
     caf::PdmField< caf::AppEnum< RiaDefines::PlotAxis > > m_plotAxis;

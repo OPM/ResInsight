@@ -457,7 +457,10 @@ void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
             timeHistoryQuantities.insert(c->quantityName());
         }
 
-        RimSummaryPlotYAxisFormatter calc(yAxisProperties, visibleSummaryCurvesForAxis(plotAxis), timeHistoryQuantities);
+        RimSummaryPlotYAxisFormatter calc(yAxisProperties,
+                                          visibleSummaryCurvesForAxis(plotAxis),
+                                          visibleAsciiDataCurvesForAxis(plotAxis),
+                                          timeHistoryQuantities);
         calc.applyYAxisPropertiesToPlot(m_qwtPlot);
     }
     else
@@ -486,6 +489,13 @@ void RimSummaryPlot::updateZoomForAxis(RiaDefines::PlotAxis plotAxis)
         }
 
         for (RimGridTimeHistoryCurve* c : visibleTimeHistoryCurvesForAxis(plotAxis))
+        {
+            std::vector<double> curveValues = c->yValues();
+            yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
+            plotCurves.push_back(c->qwtPlotCurve());
+        }
+
+        for (RimAsciiDataCurve* c : visibleAsciiDataCurvesForAxis(plotAxis))
         {
             std::vector<double> curveValues = c->yValues();
             yValues.insert(yValues.end(), curveValues.begin(), curveValues.end());
@@ -551,6 +561,11 @@ bool RimSummaryPlot::hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) cons
         return true;
     }
 
+    if (visibleAsciiDataCurvesForAxis(plotAxis).size() > 0)
+    {
+        return true;
+    }
+
     return false;
 }
 
@@ -583,6 +598,24 @@ std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::visibleTimeHistoryCurvesFo
     std::vector<RimGridTimeHistoryCurve*> curves;
 
     for (auto c : m_gridTimeHistoryCurves)
+    {
+        if (c->isCurveVisible() && c->yAxis() == plotAxis)
+        {
+            curves.push_back(c);
+        }
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimAsciiDataCurve*> RimSummaryPlot::visibleAsciiDataCurvesForAxis(RiaDefines::PlotAxis plotAxis) const
+{
+    std::vector<RimAsciiDataCurve*> curves;
+
+    for (auto c : m_asciiDataCurves)
     {
         if (c->isCurveVisible() && c->yAxis() == plotAxis)
         {

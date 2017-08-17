@@ -235,3 +235,24 @@ bool RimAsciiDataCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimAsciiDataCurve::fieldChangedByUi(const caf::PdmFieldHandle * changedField, const QVariant & oldValue, const QVariant & newValue)
+{
+    RimPlotCurve::fieldChangedByUi(changedField, oldValue, newValue);
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted(plot);
+
+    if (changedField == &m_plotAxis)
+    {
+        updateQwtPlotAxis();
+        plot->updateAxes();
+    }
+    if (changedField == &m_showCurve)
+    {
+        plot->updateAxes();
+    }
+}
+

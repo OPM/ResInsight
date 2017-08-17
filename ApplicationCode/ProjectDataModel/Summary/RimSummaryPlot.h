@@ -105,6 +105,7 @@ protected:
 private:
     std::vector<RimSummaryCurve*>                   visibleSummaryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     std::vector<RimGridTimeHistoryCurve*>           visibleTimeHistoryCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
+    std::vector<RimAsciiDataCurve*>                 visibleAsciiDataCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
     bool                                            hasVisibleCurvesForAxis(RiaDefines::PlotAxis plotAxis) const;
 
     RimSummaryYAxisProperties*                      yAxisPropertiesForAxis(RiaDefines::PlotAxis plotAxis) const;
