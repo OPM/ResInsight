@@ -45,6 +45,7 @@
 #include "RimWellLogTrack.h"
 #include "RimFishboneWellPath.h"
 #include "RimPerforationInterval.h"
+#include "RimFlowCharacteristicsPlot.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
@@ -61,6 +62,7 @@ bool isDeletable(caf::PdmUiItem* uiItem)
 {
     // Enable delete of well allocation plots
     if (dynamic_cast<RimWellAllocationPlot*>(uiItem)) return true;
+    if (dynamic_cast<RimFlowCharacteristicsPlot*>(uiItem)) return true;
 
     // Disable delete of all sub objects of a well allocation plot
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(uiItem);

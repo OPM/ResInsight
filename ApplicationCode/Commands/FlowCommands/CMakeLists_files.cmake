@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RicAddStoredFlowCharacteristicsPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowWellAllocationPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicShowFlowCharacteristicsPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicAddStoredWellAllocationPlotFeature.h
@@ -17,6 +18,7 @@ ${CEE_CURRENT_LIST_DIR}RicShowTotalAllocationDataFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RicAddStoredFlowCharacteristicsPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowWellAllocationPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowFlowCharacteristicsPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicAddStoredWellAllocationPlotFeature.cpp

@@ -36,6 +36,7 @@
 #include "RimFault.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
@@ -350,6 +351,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellAllocationPlot*>(uiItem))
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
+        }
+        else if (dynamic_cast<RimFlowCharacteristicsPlot*>(uiItem))
+        {
+            commandIds << "RicAddStoredFlowCharacteristicsPlotFeature";
         }
         else if (dynamic_cast<RimFlowDiagSolution*>(uiItem))
         {

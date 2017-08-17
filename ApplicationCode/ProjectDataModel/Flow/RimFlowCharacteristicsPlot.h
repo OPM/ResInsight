@@ -64,16 +64,17 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+    virtual void                                    loadDataAndUpdate() override;
 
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,
         SELECT_AVAILABLE
     };
+
 protected:
     // RimViewWindow overrides
 
-    virtual void                                    loadDataAndUpdate() override;
     virtual QImage                                  snapshotWindowContent() override;
 
     // Overridden PDM methods
