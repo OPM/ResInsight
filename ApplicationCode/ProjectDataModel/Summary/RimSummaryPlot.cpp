@@ -28,6 +28,7 @@
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimSummaryYAxisProperties.h"
+#include "RimAsciiDataCurve.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSummaryQwtPlot.h"
@@ -71,6 +72,9 @@ RimSummaryPlot::RimSummaryPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "");
     m_gridTimeHistoryCurves.uiCapability()->setUiTreeHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_asciiDataCurves, "AsciiDataCurves", "", "", "", "");
+    m_asciiDataCurves.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis", "", "", "");
     m_leftYAxisProperties.uiCapability()->setUiTreeHidden(true);
@@ -337,6 +341,68 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
             out += "\n\n";
             out += "Case: " + caseNames[i];
             out += "\n";
+
+            for (size_t j = 0; j < timeSteps[i].size(); j++) //time steps & data points
+            {
+                if (j == 0)
+                {
+                    out += "Date and time";
+                    for (size_t k = 0; k < allCurveNames[i].size(); k++) // curves
+                    {
+                        out += "\t" + (allCurveNames[i][k]);
+                    }
+                }
+                out += "\n";
+                out += QDateTime::fromTime_t(timeSteps[i][j]).toUTC().toString("yyyy-MM-dd hh:mm:ss ");
+
+                for (size_t k = 0; k < allCurveData[i].size(); k++) // curves
+                {
+                    out += "\t" + QString::number(allCurveData[i][k][j], 'g', 6);
+                }
+            }
+        }
+    }
+
+    {
+        std::vector<std::vector<time_t> > timeSteps;
+
+        std::vector<std::vector<std::vector<double> > > allCurveData;
+        std::vector<std::vector<QString > > allCurveNames;
+        //Vectors containing cases - curves - data points/curve name
+
+        for (RimAsciiDataCurve* curve : m_asciiDataCurves)
+        {
+            if (!curve->isCurveVisible()) continue;
+
+            size_t casePosInList = cvf::UNDEFINED_SIZE_T;
+
+            if (casePosInList == cvf::UNDEFINED_SIZE_T)
+            {
+                std::vector<time_t> curveTimeSteps = curve->timeSteps();
+                timeSteps.push_back(curveTimeSteps);
+
+                std::vector<std::vector<double> > curveDataForCase;
+                std::vector<double> curveYData = curve->yValues();
+                curveDataForCase.push_back(curveYData);
+                allCurveData.push_back(curveDataForCase);
+
+                std::vector<QString> curveNamesForCase;
+                curveNamesForCase.push_back(curve->curveName());
+                allCurveNames.push_back(curveNamesForCase);
+            }
+            else
+            {
+                std::vector<double> curveYData = curve->yValues();
+                allCurveData[casePosInList].push_back(curveYData);
+
+                QString curveName = curve->curveName();
+                allCurveNames[casePosInList].push_back(curveName);
+            }
+        }
+
+        for (size_t i = 0; i < timeSteps.size(); i++) //cases
+        {
+            out += "\n\n";
 
             for (size_t j = 0; j < timeSteps[i].size(); j++) //time steps & data points
             {
@@ -694,6 +760,21 @@ void RimSummaryPlot::addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addAsciiDataCruve(RimAsciiDataCurve* curve)
+{
+    CVF_ASSERT(curve);
+
+    m_asciiDataCurves.push_back(curve);
+    if (m_qwtPlot)
+    {
+        curve->setParentQwtPlot(m_qwtPlot);
+        this->updateAxes();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
@@ -742,6 +823,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(&m_curveFilters);
     uiTreeOrdering.add(&m_summaryCurves);
     uiTreeOrdering.add(&m_gridTimeHistoryCurves);
+    uiTreeOrdering.add(&m_asciiDataCurves);
 
     uiTreeOrdering.skipRemainingChildren(true);
 }
@@ -764,6 +846,11 @@ void RimSummaryPlot::loadDataAndUpdate()
     }
  
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
+    {
+        curve->loadDataAndUpdate();
+    }
+
+    for (RimAsciiDataCurve* curve : m_asciiDataCurves)
     {
         curve->loadDataAndUpdate();
     }
@@ -867,6 +954,11 @@ QWidget* RimSummaryPlot::createViewWidget(QWidget* mainWindowParent)
         {
             curve->setParentQwtPlot(m_qwtPlot);
         }
+
+        for (RimAsciiDataCurve* curve : m_asciiDataCurves)
+        {
+            curve->setParentQwtPlot(m_qwtPlot);
+        }
     }
 
     return m_qwtPlot;
@@ -937,6 +1029,11 @@ void RimSummaryPlot::detachAllCurves()
     {
         curve->detachQwtCurve();
     }
+
+    for (RimAsciiDataCurve* curve : m_asciiDataCurves)
+    {
+        curve->detachQwtCurve();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -960,6 +1057,14 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
         }
     }
 
+    for (RimAsciiDataCurve* curve : m_asciiDataCurves)
+    {
+        if (curve->qwtPlotCurve() == qwtCurve)
+        {
+            return curve;
+        }
+    }
+
     for (RimSummaryCurveFilter* curveFilter: m_curveFilters)
     {
         RimSummaryCurve* foundCurve = curveFilter->findRimCurveFromQwtCurve(qwtCurve);
@@ -974,7 +1079,7 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
 //--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::curveCount() const
 {
-    return m_summaryCurves.size() + m_gridTimeHistoryCurves.size();
+    return m_summaryCurves.size() + m_gridTimeHistoryCurves.size() + m_asciiDataCurves.size();
 }
 
 //--------------------------------------------------------------------------------------------------

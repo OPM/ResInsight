@@ -52,6 +52,8 @@ public:
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
     bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
+    bool                        dynamicNNCResults(const ecl_grid_type* grid, size_t timeStep, std::vector<double>* waterFlux, std::vector<double>* oilFlux, std::vector<double>* gasFlux) override;
+
     virtual void                readWellData(well_info_type * well_info, bool importCompleteMswData);
     virtual int                 readUnitsType();
 

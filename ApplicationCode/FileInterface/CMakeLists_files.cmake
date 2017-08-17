@@ -22,6 +22,10 @@ ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
+${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
+
+# HDF5 file reader is directly included in ResInsight main CmakeList.txt
+#${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -42,6 +46,10 @@ ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
+${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.cpp
+
+# HDF5 file reader is directly included in ResInsight main CmakeList.txt
+#${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

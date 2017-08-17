@@ -41,6 +41,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QUuid>
+#include "RifReaderEclipseOutput.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
@@ -245,6 +246,11 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
+        scalarResultIndex = this->findOrLoadScalarResult(RiaDefines::SOURSIMRL, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
         scalarResultIndex = m_cellResults->findScalarResultIndex(RiaDefines::GENERATED, resultName);
     }
 
@@ -335,6 +341,27 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
             computeRiTRANSbyAreaComponent(resultName);
         }
     }
+    else if (type == RiaDefines::DYNAMIC_NATIVE)
+    {
+        if (resultName == RiaDefines::combinedWaterFluxResultName())
+        {
+            this->findOrLoadScalarResult(type, "FLRWATI+");
+            this->findOrLoadScalarResult(type, "FLRWATJ+");
+            this->findOrLoadScalarResult(type, "FLRWATK+");
+        }
+        else if (resultName == RiaDefines::combinedOilFluxResultName())
+        {
+            this->findOrLoadScalarResult(type, "FLROILI+");
+            this->findOrLoadScalarResult(type, "FLROILJ+");
+            this->findOrLoadScalarResult(type, "FLROILK+");
+        }
+        else if (resultName == RiaDefines::combinedGasFluxResultName())
+        {
+            this->findOrLoadScalarResult(type, "FLRGASI+");
+            this->findOrLoadScalarResult(type, "FLRGASJ+");
+            this->findOrLoadScalarResult(type, "FLRGASK+");
+        }
+    }
 
     if (isDataPresent(scalarResultIndex))
     {
@@ -413,6 +440,26 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
             // Remove last scalar result because loading of result failed
             m_cellResults->cellScalarResults(scalarResultIndex).clear();
         }
+    }
+
+    // Handle SourSimRL reading
+
+    if (type == RiaDefines::SOURSIMRL)
+    {
+        RifReaderEclipseOutput* eclReader = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
+        if (eclReader)
+        {
+            size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
+
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+
+            size_t i;
+            for ( i = 0; i < timeStepCount; i++ )
+            {
+                std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[i];
+                eclReader->sourSimRlResult(resultName, i, &values);
+            }
+        } 
     }
 
     return scalarResultIndex;
@@ -494,6 +541,26 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefi
             // Error logging
             CVF_ASSERT(false);
         }
+    }
+
+    // Handle SourSimRL reading
+
+    if (type == RiaDefines::SOURSIMRL)
+    {
+        RifReaderEclipseOutput* eclReader = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
+        if (eclReader)
+        {
+            size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepInfos.size();
+
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+
+            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIndex];
+
+            if ( values.size() == 0)
+            {
+                eclReader->sourSimRlResult(resultName, timeStepIndex, &values);
+            }
+        } 
     }
 
     return scalarResultIndex;
@@ -990,7 +1057,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
     if (!m_cellResults) return;
 
     size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
-    if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransScalarResultIndex)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex)) return;
 
     double cdarchy = darchysValue();
 
@@ -1009,7 +1076,8 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
     std::vector<double> & permXResults = m_cellResults->cellScalarResults(permXResultIdx)[0];
     std::vector<double> & permYResults = m_cellResults->cellScalarResults(permYResultIdx)[0];
     std::vector<double> & permZResults = m_cellResults->cellScalarResults(permZResultIdx)[0];
-    std::vector<double> & riCombTransResults = m_ownerMainGrid->nncData()->makeConnectionScalarResult(riCombTransScalarResultIndex);
+    std::vector<double> & riCombTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTrans());
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTrans(), riCombTransScalarResultIndex);
 
     std::vector<double> * ntgResults     = NULL;
     if (hasNTGResults)
@@ -1250,11 +1318,12 @@ void RimReservoirCellResultsStorage::computeNncCombRiMULT()
     size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiTranResultName());
     size_t combTransScalarResultIndex = m_cellResults->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
 
-    if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombMultScalarResultIndex)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombMultScalarResultIndex)) return;
 
-    std::vector<double> & riMultResults = m_ownerMainGrid->nncData()->makeConnectionScalarResult(riCombMultScalarResultIndex);
-    const std::vector<double> * riTransResults = m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransScalarResultIndex);
-    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->connectionScalarResult(combTransScalarResultIndex);
+    std::vector<double> & riMultResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombMult());
+    const std::vector<double> * riTransResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransScalarResultIndex);
+    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombMult(), riCombMultScalarResultIndex);
 
     for (size_t nncConIdx = 0; nncConIdx < riMultResults.size(); ++nncConIdx)
     {
@@ -1383,10 +1452,11 @@ void RimReservoirCellResultsStorage::computeNncCombRiTRANSbyArea()
     size_t riCombTransByAreaScResIdx = m_cellResults->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedRiAreaNormTranResultName());
     size_t combTransScalarResultIndex = m_cellResults->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
 
-    if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransByAreaScResIdx)) return;
+    if (m_ownerMainGrid->nncData()->staticConnectionScalarResult(riCombTransByAreaScResIdx)) return;
 
-    std::vector<double> & riAreaNormTransResults = m_ownerMainGrid->nncData()->makeConnectionScalarResult(riCombTransByAreaScResIdx);
-    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->connectionScalarResult(combTransScalarResultIndex);
+    std::vector<double> & riAreaNormTransResults = m_ownerMainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameRiCombTransByArea());
+    m_ownerMainGrid->nncData()->setScalarResultIndex(RigNNCData::propertyNameRiCombTransByArea(), riCombTransByAreaScResIdx);
+    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->staticConnectionScalarResult(combTransScalarResultIndex);
 
     const std::vector<RigConnection>& connections = m_ownerMainGrid->nncData()->connections();
 

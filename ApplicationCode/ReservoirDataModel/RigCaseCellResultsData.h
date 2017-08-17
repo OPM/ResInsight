@@ -113,6 +113,7 @@ public:
 
     bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
     void                                                    setMustBeCalculated(size_t scalarResultIndex);
+    void                                                    eraseAllSourSimData();
 
     
 public:

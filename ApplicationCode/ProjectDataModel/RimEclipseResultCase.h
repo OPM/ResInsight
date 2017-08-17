@@ -42,6 +42,8 @@ public:
 
     void                        setGridFileName(const QString& caseFileName);
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
+    void                        setSourSimFileName(const QString& fileName);
+    bool                        hasSourSimFile();
 
     virtual bool                openEclipseGridFile();
     virtual void                reloadEclipseGridFile();
@@ -57,6 +59,13 @@ public:
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
+protected:
+    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+private:
+    void                        loadAndUpdateSourSimData();
+
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
@@ -69,6 +78,7 @@ private:
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
     caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
+    caf::PdmField<QString>      m_sourSimFileName;
 
 
     // Obsolete field
@@ -76,4 +86,5 @@ private:
 
     bool                        m_gridAndWellDataIsReadFromFile;
     bool                        m_activeCellInfoIsReadFromFile;
+
 };

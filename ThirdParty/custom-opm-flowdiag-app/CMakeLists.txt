@@ -6,7 +6,6 @@ include_directories(
     ../custom-opm-flowdiagnostics/opm-flowdiagnostics
     opm-flowdiagnostics-applications
 	opmCore
-    ${ERT_INCLUDE_DIRS}
     ${boost-Subset_SOURCE_DIR}
 )
 
@@ -27,3 +26,4 @@ add_library(custom-opm-flowdiag-app
     ${project_source_files_complete_path1} 
 )
 
+target_link_libraries(custom-opm-flowdiag-app ecl)

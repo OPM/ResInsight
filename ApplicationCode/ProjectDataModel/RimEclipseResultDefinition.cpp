@@ -426,26 +426,45 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_resultTypeUiField )
     {
+        bool hasSourSimRLFile = false;
+        RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
+        if ( eclResCase && eclResCase->eclipseCaseData() )
+        {
+            hasSourSimRLFile = eclResCase->hasSourSimFile();
+        }
+
+#ifndef USE_HDF5
+        // If using ResInsight without HDF5 support, ignore SourSim files and
+        // do not show it as a result category.
+        hasSourSimRLFile = false;
+#endif
+
+
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
-        // Do not include flow diagnostics results if not available or is a time history curve
+        // Do not include flow diagnostics results if it is a time history curve
         if ( timeHistoryCurve != nullptr )
         {
             using ResCatEnum = caf::AppEnum< RiaDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
             {
                 RiaDefines::ResultCatType resType = ResCatEnum::fromIndex(i);
-                if ( resType != RiaDefines::FLOW_DIAGNOSTICS )
+                if ( resType == RiaDefines::FLOW_DIAGNOSTICS 
+                    && (timeHistoryCurve) )
                 {
-                    QString uiString = ResCatEnum::uiTextFromIndex(i);
-                    options.push_back(caf::PdmOptionItemInfo(uiString, resType));
+                        continue;
                 }
+
+                if ( resType == RiaDefines::SOURSIMRL 
+                    && (!hasSourSimRLFile ) )
+                {
+                    continue;
+                }
+
+                QString uiString = ResCatEnum::uiTextFromIndex(i);
+                options.push_back(caf::PdmOptionItemInfo(uiString, resType));
             }
-        }
-        else
-        {
-            // Do nothing, and thereby use the defaults of the AppEnum field
         }
     }
 
@@ -855,6 +874,10 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
     if (hasResult())
     {
         if (m_resultType() == RiaDefines::DYNAMIC_NATIVE)
+        {
+            return true;
+        }
+        else if (m_resultType() == RiaDefines::SOURSIMRL)
         {
             return true;
         }

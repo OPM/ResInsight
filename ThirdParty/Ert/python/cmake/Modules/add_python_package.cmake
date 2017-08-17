@@ -30,7 +30,9 @@ function(add_python_package target package_path source_files install_package)
      list(APPEND build_files ${build_file} )
 
      if (install_package)
-        install(FILES ${build_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/${package_path})
+        # For cmake versions >= 2.8.12 the preferred keyword is DIRECTORY.
+        get_filename_component( src_path ${file} PATH )
+        install(FILES ${build_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/${package_path}/${src_path})
         install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${PROJECT_BINARY_DIR}/bin/cmake_pyc_file ${install_file})")
      endif()
      

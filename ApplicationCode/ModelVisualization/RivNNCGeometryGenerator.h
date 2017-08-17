@@ -18,6 +18,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+#include "RiaDefines.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
@@ -45,7 +48,10 @@ public:
     void setCellVisibility( const cvf::UByteArray* cellVisibilities, const RigGridBase * grid);
     
     void textureCoordinates(cvf::Vec2fArray* textureCoords,  
-        const cvf::ScalarMapper* mapper, size_t scalarResultIndex) const;
+                            const cvf::ScalarMapper* mapper,
+                            RiaDefines::ResultCatType resultType,
+                            size_t scalarResultIndex,
+                            size_t timeStepIndex) const;
 
     // Mapping between cells and geometry
     cvf::ref<cvf::Array<size_t> >   triangleToNNCIndex() const;

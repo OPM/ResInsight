@@ -28,6 +28,7 @@ namespace RiaDefines
     {
         DYNAMIC_NATIVE,
         STATIC_NATIVE,
+        SOURSIMRL,
         GENERATED,
         INPUT_PROPERTY,
         FORMATION_NAMES,
@@ -47,6 +48,10 @@ namespace RiaDefines
     QString undefinedGridFaultName();
     QString undefinedGridFaultWithInactiveName();
     QString combinedTransmissibilityResultName();
+    QString combinedWaterFluxResultName();
+    QString combinedOilFluxResultName();
+    QString combinedGasFluxResultName();
+
     QString ternarySaturationResultName();
     QString combinedMultResultName();
 

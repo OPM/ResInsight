@@ -65,5 +65,5 @@ class UIReturnTest(ExtendedTestCase):
         self.assertEqual(errorList, [])
 
     def test_status_enum(self):
-        source_file_path = "libert_util/include/ert/util/ui_return.h"
+        source_file_path = "lib/include/ert/util/ui_return.h"
         self.assertEnumIsFullyDefined(UIReturnStatusEnum, "ui_return_status_enum", source_file_path)

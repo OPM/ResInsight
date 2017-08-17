@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export PYTHONPATH=@CMAKE_INSTALL_PREFIX@/@PYTHON_INSTALL_PREFIX@:@CTEST_PYTHONPATH@:$PYTHONPATH
+
+@PROJECT_SOURCE_DIR@/python/tests/install/test_install.py $@
+

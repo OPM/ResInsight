@@ -40,6 +40,7 @@
 #include "RimTools.h"
 
 #include "cafPdmSettings.h"
+#include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafProgressInfo.h"
 #include "cafUtils.h"
@@ -75,7 +76,11 @@ RimEclipseResultCase::RimEclipseResultCase()
     flipYAxis.xmlCapability()->setIOWritable(true);
     //flipYAxis.uiCapability()->setUiHidden(true);
 
-
+    CAF_PDM_InitField(&m_sourSimFileName, "SourSimFileName", QString(), "SourSim File Name", "", "", "");
+    m_sourSimFileName.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+#ifndef USE_HDF5
+    m_sourSimFileName.uiCapability()->setUiHidden(true);
+#endif
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -148,6 +153,12 @@ bool RimEclipseResultCase::openEclipseGridFile()
     {
         m_flowDiagSolutions.push_back(new RimFlowDiagSolution());
     }
+
+    if (!m_sourSimFileName().isEmpty())
+    {
+        RifReaderEclipseOutput* outReader = dynamic_cast<RifReaderEclipseOutput*>(readerInterface.p());
+        outReader->setHdf5FileName(m_sourSimFileName());
+    }
     
     return true;
  }
@@ -218,6 +229,20 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
     m_activeCellInfoIsReadFromFile = true;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::loadAndUpdateSourSimData()
+{
+    if (!results(RiaDefines::MATRIX_MODEL)) return;
+
+    RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(results(RiaDefines::MATRIX_MODEL)->readerInterface());
+    if (rifReaderOutput)
+    {
+        rifReaderOutput->setHdf5FileName(m_sourSimFileName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -438,6 +463,24 @@ void RimEclipseResultCase::setCaseInfo(const QString& userDescription, const QSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::setSourSimFileName(const QString& fileName)
+{
+    m_sourSimFileName = fileName;
+
+    loadAndUpdateSourSimData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultCase::hasSourSimFile()
+{
+   return !m_sourSimFileName().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::initAfterRead()
 {
     RimEclipseCase::initAfterRead();
@@ -471,3 +514,31 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     m_timeStepFilter->uiOrdering(uiConfigName, *group1);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_sourSimFileName)
+    {
+        loadAndUpdateSourSimData();
+    }
+
+    return RimEclipseCase::fieldChangedByUi(changedField, oldValue, newValue);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_sourSimFileName)
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";
+            myAttr->m_defaultPath = QFileInfo(caseFileName()).absolutePath();
+        }
+    }
+}

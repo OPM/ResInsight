@@ -22,6 +22,7 @@
 
 class RimSummaryCase;
 class RimSummaryPlotCollection;
+class RimSummaryPlot;
 
 //==================================================================================================
 /// 
@@ -31,7 +32,7 @@ class RicNewSummaryPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase);
+    static RimSummaryPlot* createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase);
 
 protected:
     // Overrides

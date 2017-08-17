@@ -24,13 +24,16 @@
 
 #include "cvfCollection.h"
 
+#include <memory>
+
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
-class RigGridBase;
-class RigMainGrid;
+class RifHdf5ReaderInterface;
 class RigActiveCellInfo;
 class RigFault;
 class RigEclipseTimeStepInfo;
+class RigGridBase;
+class RigMainGrid;
 
 struct RigWellResultPoint;
 
@@ -50,12 +53,14 @@ public:
     virtual ~RifReaderEclipseOutput();
 
     bool                    open(const QString& fileName, RigEclipseCaseData* eclipseCase);
+    void                    setHdf5FileName(const QString& fileName);
 
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
     void                    close();
 
     bool                    staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values);
     bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
+    void                    sourSimRlResult(const QString& result, size_t stepIndex, std::vector<double>* values);
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
@@ -74,8 +79,8 @@ private:
     void                    openInitFile();
 
     void                    extractResultValuesBasedOnPorosityModel(RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
-    void                    transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, 
-                                             RigMainGrid * mainGrid);
+    void                    transferStaticNNCData(const ecl_grid_type* mainEclGrid , ecl_file_type* init_file, RigMainGrid* mainGrid);
+    void                    transferDynamicNNCData(const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid);
     
     RifEclipseRestartDataAccess*   createDynamicResultsAccess();
 
@@ -91,4 +96,6 @@ private:
 
     ecl_file_type*                          m_ecl_init_file;            // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;     // File access to dynamic results
+
+    std::unique_ptr<RifHdf5ReaderInterface> m_hdfReaderInterface;
 };

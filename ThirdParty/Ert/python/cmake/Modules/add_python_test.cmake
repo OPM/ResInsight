@@ -34,5 +34,5 @@ macro( addPythonTest TEST_CLASS )
         set_property(TEST ${TEST_NAME} PROPERTY LABELS "Python")
     endif()
 
-    set_property(TEST ${TEST_NAME} PROPERTY ENVIRONMENT "CTEST_PYTHONPATH=${CTEST_PYTHONPATH}")
+    set_property(TEST ${TEST_NAME} PROPERTY ENVIRONMENT "CTEST_PYTHONPATH=${CTEST_PYTHONPATH};ERT_ROOT=${ERT_ROOT}")
 endmacro( )

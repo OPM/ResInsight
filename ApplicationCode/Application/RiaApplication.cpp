@@ -1146,7 +1146,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 
     //if (!riv->cellResult()->hasResult())
     //{
-    //    riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
+    //    riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
     //}
     progress.incrementProgress();
     progress.setProgressDescription("Loading results information");

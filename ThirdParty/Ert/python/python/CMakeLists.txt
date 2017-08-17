@@ -2,4 +2,7 @@ configure_file(test_env.py.in   ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}/t
 
 add_subdirectory(cwrap)
 add_subdirectory( ecl )
-add_subdirectory( bin )
+
+if (INSTALL_ERT_LEGACY)
+   add_subdirectory( legacy/ert )
+endif()

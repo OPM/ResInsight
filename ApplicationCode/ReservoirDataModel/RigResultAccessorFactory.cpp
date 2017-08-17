@@ -125,6 +125,55 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 
         return cellFaceAccessObject;
     }
+    else if (uiResultName == RiaDefines::combinedWaterFluxResultName())
+    {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+
+        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLRWATI+");
+        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLRWATJ+");
+        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLRWATK+");
+
+        cellFaceAccessObject->setTransResultAccessors(xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p());
+
+        return cellFaceAccessObject;
+    }
+    else if (uiResultName == RiaDefines::combinedOilFluxResultName())
+    {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+
+        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLROILI+");
+        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLROILJ+");
+        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLROILK+");
+
+        cellFaceAccessObject->setTransResultAccessors(xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p());
+
+        return cellFaceAccessObject;
+    }
+    else if (uiResultName == RiaDefines::combinedGasFluxResultName())
+    {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+
+        cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLRGASI+");
+        cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLRGASJ+");
+        cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, "FLRGASK+");
+
+        cellFaceAccessObject->setTransResultAccessors(xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p());
+
+        return cellFaceAccessObject;
+    }
+    else if (uiResultName.endsWith("IJK"))
+    {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+        QString baseName = uiResultName.left(uiResultName.size() - 3);
+
+        cvf::ref<RigResultAccessor> iAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("%1I").arg(baseName));
+        cvf::ref<RigResultAccessor> jAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("%1J").arg(baseName));
+        cvf::ref<RigResultAccessor> kAccessor = RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("%1K").arg(baseName));
+
+        cellFaceAccessObject->setTransResultAccessors(iAccessor.p(), jAccessor.p(), kAccessor.p());
+
+        return cellFaceAccessObject;
+    }
 
     return RigResultAccessorFactory::createNativeFromUiResultName(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
 }

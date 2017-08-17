@@ -93,7 +93,7 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
+RimSummaryPlot* RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
 {
     RimSummaryPlot* plot = new RimSummaryPlot();
     summaryPlotColl->summaryPlots().push_back(plot);
@@ -118,4 +118,6 @@ void RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* su
         mainPlotWindow->selectAsCurrentItem(newCurveFilter);
         mainPlotWindow->setExpanded(newCurveFilter, true);
     }
+
+    return plot;
 }
