@@ -306,8 +306,7 @@ set( LINK_LIBRARIES
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( EXTERNAL_LINK_LIBRARIES
-        ${EXTERNAL_LINK_LIBRARIES}
+    list(APPEND EXTERNAL_LINK_LIBRARIES
         rt
     )
 endif()

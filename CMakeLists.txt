@@ -168,7 +168,7 @@ if (RESINSIGHT_USE_HDF5)
 		    add_definitions(${HDF5_DEFINITIONS})
 		    include_directories(${HDF5_INCLUDE_DIRS})
 
-		    list(APPEND THIRD_PARTY_LIBRARIES
+		    list(APPEND EXTERNAL_LINK_LIBRARIES
 		        ${HDF5_LIBRARIES}
 		    )
 
