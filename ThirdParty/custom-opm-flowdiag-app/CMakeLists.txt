@@ -27,3 +27,7 @@ add_library(custom-opm-flowdiag-app
 )
 
 target_link_libraries(custom-opm-flowdiag-app ecl)
+
+if (MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4190 /wd4267")
+endif()
