@@ -18,10 +18,6 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     add_definitions(-DCVF_OSX)
 elseif(MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-    
-    # libecl : Disable some annoying warnings 
-    # TODO: Remove when fixed in libecl
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4190")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -119,6 +115,11 @@ else()
     else()
         add_subdirectory(ThirdParty/Ert)
     endif ()
+
+    if (MSVC)
+         # libecl : Disable some warnings  
+         set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
+    endif()
 
     list(APPEND THIRD_PARTY_LIBRARIES
         ecl 
