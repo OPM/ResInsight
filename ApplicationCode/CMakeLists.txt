@@ -266,6 +266,9 @@ set( EXE_FILES
 
 add_executable( ResInsight ${EXE_FILES} )
 
+if (MSVC) 
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4190") 
+endif() 
 
 #############################################################################
 # Application icon for MacOS X bundle
