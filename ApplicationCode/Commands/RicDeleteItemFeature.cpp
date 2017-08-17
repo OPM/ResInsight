@@ -46,6 +46,7 @@
 #include "RimFishboneWellPath.h"
 #include "RimPerforationInterval.h"
 #include "RimFlowCharacteristicsPlot.h"
+#include "RimAsciiDataCurve.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
@@ -95,9 +96,10 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
-    if (dynamic_cast<RimFishboneWellPath*>(uiItem))        return true;
+    if (dynamic_cast<RimFishboneWellPath*>(uiItem))          return true;
     if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))     return true;
     if (dynamic_cast<RimPerforationInterval*>(uiItem))       return true;
+    if (dynamic_cast<RimAsciiDataCurve*>(uiItem))            return true;
 
     return false;    
 }
