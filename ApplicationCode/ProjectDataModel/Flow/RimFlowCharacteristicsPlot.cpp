@@ -25,8 +25,11 @@
 #include "RimProject.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
+#include "RimEclipsePropertyFilter.h"
+#include "RimEclipsePropertyFilterCollection.h"
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
+#include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RiuFlowCharacteristicsPlot.h"
 #include "RiuMainWindow.h"
@@ -368,7 +371,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
         {
             if (m_cellSelection() != RigFlowDiagResults::CELLS_ACTIVE)
             {
-                RimEclipseView* view = m_case->createAndAddReservoirView();
+                RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection(m_case, "FlowCharacteristicsLastUsedView", "Show Region in View");
 
                 view->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
                 view->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_BY_SELECTION);
@@ -407,13 +410,17 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(timeStep);
 
                 view->setCurrentTimeStep(timeStep);
+
+                for (RimEclipsePropertyFilter* f : view->eclipsePropertyFilterCollection()->propertyFilters())
+                {
+                    f->isActive = false;
+                }
                 RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(view->eclipsePropertyFilterCollection());
 
                 view->loadDataAndUpdate();
                 m_case->updateConnectedEditors();
 
-                RiuMainWindow::instance()->raise();
-                RiuMainWindow::instance()->selectAsCurrentItem(view);
+                RicSelectOrCreateViewFeatureImpl::focusView(view);
             }
         }
     }
