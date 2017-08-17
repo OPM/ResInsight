@@ -251,4 +251,20 @@ QString Utils::fileExtension(const QString & fileName)
     return fi.suffix();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Utils::isStringMatch(const QString& filterString, const QString& value)
+{
+    if (filterString.isEmpty()) return true;
+    if (filterString.trimmed() == "*")
+    {
+        if (!value.isEmpty()) return true;
+        else return false;
+    }
+
+    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
+    return searcher.exactMatch(value);
+}
+
 } // namespace caf

@@ -41,6 +41,7 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafUtils.h"
 
 namespace caf
 {
@@ -402,19 +403,6 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     {
         curve->loadDataAndUpdate();
     }
-}
-
-bool isStringMatch(const QString& filterString, const QString& value)
-{
-    if (filterString.isEmpty()) return true;
-    if (filterString.trimmed() == "*")
-    {
-        if (!value.isEmpty()) return true;
-        else return false;
-    }
-
-    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
-    return searcher.exactMatch(value);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1123,7 +1111,7 @@ std::vector<QString> RimEclipseResultDefinition::tracerNamesMatchingFilter() con
         {
             for (const QString& tracerName : tracerNames)
             {
-                if (isStringMatch(m_selectedTracersUiFieldFilter, tracerName))
+                if (caf::Utils::isStringMatch(m_selectedTracersUiFieldFilter, tracerName))
                 {
                     matchingNames.push_back(tracerName);
                 }

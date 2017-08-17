@@ -24,6 +24,7 @@
 #include "RimFlowDiagSolution.h"
 
 #include "cafPdmPointer.h"
+#include "cafAppEnum.h"
 
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -38,6 +39,17 @@ class RigActiveCellInfo;
 
 class RigFlowDiagResults: public cvf::Object
 {
+
+public:
+    enum CellSelection
+    {
+        CELLS_ACTIVE,
+        CELLS_COMMUNICATION,
+        CELLS_FLOODED,
+        CELLS_DRAINED
+    };
+    
+    typedef caf::AppEnum<CellSelection> CellSelectionEnum;
 public:
     RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t timeStepCount);
     virtual ~RigFlowDiagResults();
@@ -67,7 +79,10 @@ public:
     std::vector<int>                         calculatedTimeSteps(RigFlowDiagResultAddress::PhaseSelection phaseSelection);
         
 
-    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex, double max_pv_fraction);
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex,
+                                                                                           CellSelection cellSelection,
+                                                                                           const std::vector<QString>& tracerNames,
+                                                                                           double max_pv_fraction);
 
 private:
     const std::vector<double>*               findOrCalculateResult (const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);

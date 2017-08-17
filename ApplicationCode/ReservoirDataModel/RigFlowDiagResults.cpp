@@ -31,6 +31,19 @@
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
+namespace caf
+{
+    template<>
+    void RigFlowDiagResults::CellSelectionEnum::setUp()
+    {
+        addItem(RigFlowDiagResults::CELLS_ACTIVE,        "CELLS_ACTIVE",        "Active cells");
+        addItem(RigFlowDiagResults::CELLS_COMMUNICATION, "CELLS_COMMUNICATION", "Communication cells");
+        addItem(RigFlowDiagResults::CELLS_FLOODED,       "CELLS_FLOODED",       "Flooded cells");
+        addItem(RigFlowDiagResults::CELLS_DRAINED,       "CELLS_DRAINED",       "Drained cells");
+        setDefault(RigFlowDiagResults::CELLS_ACTIVE);
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -678,10 +691,11 @@ std::vector<int> RigFlowDiagResults::calculatedTimeSteps(RigFlowDiagResultAddres
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(int frameIndex, double max_pv_fraction)
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(int frameIndex,
+                                                                                                          CellSelection cellSelection,
+                                                                                                          const std::vector<QString>& tracerNames,
+                                                                                                          double max_pv_fraction)
 {
-    std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
-    
     std::set<std::string> injectorNames;
     std::set<std::string> producerNames;
 
@@ -701,8 +715,86 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
     RigFlowDiagResultAddress injectorAddress(RIG_FLD_TOF_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, injectorNames);
     RigFlowDiagResultAddress producerAddress(RIG_FLD_TOF_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, producerNames);
 
-    const std::vector<double>* injectorResults = resultValues(injectorAddress, frameIndex);
-    const std::vector<double>* producerResults = resultValues(producerAddress, frameIndex);
+    const std::vector<double>* allInjectorResults = resultValues(injectorAddress, frameIndex);
+    const std::vector<double>* allProducerResults = resultValues(producerAddress, frameIndex);
 
-    return solverInterface()->calculateFlowCharacteristics(injectorResults, producerResults, max_pv_fraction);
+    std::vector<double> injectorResults;
+    std::vector<double> producerResults;
+    std::vector<size_t> selectedCellIndices;
+
+    if (cellSelection == CELLS_COMMUNICATION)
+    {
+        std::set<std::string> allTracers;
+        allTracers.insert(injectorNames.begin(), injectorNames.end());
+        allTracers.insert(producerNames.begin(), producerNames.end());
+
+        RigFlowDiagResultAddress communicationAddress(RIG_FLD_COMMUNICATION_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, allTracers);
+        const std::vector<double>* communicationResult = resultValues(communicationAddress, frameIndex);
+
+        for (size_t i = 0; i < communicationResult->size(); ++i)
+        {
+            if (communicationResult->at(i) != HUGE_VAL && communicationResult->at(i) > 0)
+            {
+                selectedCellIndices.push_back(i);
+                if (allInjectorResults != nullptr) injectorResults.push_back(allInjectorResults->at(i));
+                if (allProducerResults != nullptr) producerResults.push_back(allProducerResults->at(i));
+            }
+        }
+    }
+    else if (cellSelection == CELLS_FLOODED)
+    {
+        if (allInjectorResults != nullptr)
+        {
+            for (size_t i = 0; i < allInjectorResults->size(); ++i)
+            {
+                if (allInjectorResults->at(i) != HUGE_VAL)
+                {
+                    selectedCellIndices.push_back(i);
+                    injectorResults.push_back(allInjectorResults->at(i));
+                    if (allProducerResults != nullptr)
+                    {
+                        producerResults.push_back(allProducerResults->at(i));
+                    }
+                    else
+                    {
+                        producerResults.push_back(0);
+                    }
+                }
+            }
+        }
+    }
+    else if (cellSelection == CELLS_DRAINED)
+    {
+        if (allProducerResults != nullptr)
+        {
+            for (size_t i = 0; i < allProducerResults->size(); ++i)
+            {
+                if (allProducerResults->at(i) != HUGE_VAL)
+                {
+                    selectedCellIndices.push_back(i);
+                    producerResults.push_back(allProducerResults->at(i));
+                    if (allInjectorResults != nullptr)
+                    {
+                        injectorResults.push_back(allInjectorResults->at(i));
+                    }
+                    else
+                    {
+                        injectorResults.push_back(0);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (allInjectorResults != nullptr) injectorResults = *allInjectorResults;
+        if (allProducerResults != nullptr) producerResults = *allProducerResults;
+
+        for (size_t i = 0; i < injectorResults.size(); ++i)
+        {
+            selectedCellIndices.push_back(i);
+        }
+    }
+
+    return solverInterface()->calculateFlowCharacteristics(&injectorResults, &producerResults, selectedCellIndices, max_pv_fraction);
 }

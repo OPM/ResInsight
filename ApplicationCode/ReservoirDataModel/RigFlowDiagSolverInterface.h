@@ -86,6 +86,7 @@ public:
 
     FlowCharacteristicsResultFrame calculateFlowCharacteristics(const std::vector<double>* injector_tof,
                                                                 const std::vector<double>* producer_tof,
+                                                                const std::vector<size_t>& selected_cell_indices,
                                                                 double max_pv_fraction);
 
 private:

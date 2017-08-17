@@ -95,6 +95,7 @@ public:
     void                            updateAnyFieldHasChanged();
 
     void                            setTofAndSelectTracer(const QString& tracerName);
+    void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
 
 
 protected:
@@ -135,7 +136,6 @@ protected:
     caf::PdmPointer<RimEclipseCase>                                 m_eclipseCase;
 
 private:
-    void                            setSelectedTracers(const std::vector<QString>& selectedTracers);
     void                            assignFlowSolutionFromCase();
 
     bool                            hasDualPorFractureResult();
