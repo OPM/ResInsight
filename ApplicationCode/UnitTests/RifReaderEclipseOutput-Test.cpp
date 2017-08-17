@@ -464,7 +464,7 @@ TEST(RigReservoirTest, WellTest)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RigReservoirTest, WellTest)
+TEST(DISABLED_RigReservoirTest, WellTest)
 {
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
     cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;

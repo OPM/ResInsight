@@ -10,7 +10,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(HDFTests, BasicFileRead)
+TEST(DISABLED_HDFTests, BasicFileRead)
 {
 	std::string file_path = "D:/ResInsight/SourSim/PKMUNK_NOV_TEST_SS.sourpre.00001";
 
