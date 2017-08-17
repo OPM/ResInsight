@@ -432,7 +432,8 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
         // Do not include flow diagnostics results if it is a time history curve
-        if ( timeHistoryCurve != nullptr )
+        // Do not include SourSimRL if no SourSim file is loaded
+        if ( timeHistoryCurve != nullptr || !hasSourSimRLFile )
         {
             using ResCatEnum = caf::AppEnum< RiaDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
