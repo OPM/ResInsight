@@ -45,6 +45,7 @@ void RicCloseSourSimDataFeature::onActionTriggered(bool isChecked)
     if (eclipseCase == nullptr) return;
 
     eclipseCase->setSourSimFileName(QString());
+    eclipseCase->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

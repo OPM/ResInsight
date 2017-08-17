@@ -38,6 +38,8 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
+#include "RimEclipseView.h"
+#include "RimEclipseCellColors.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -242,6 +244,25 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
     if (rifReaderOutput)
     {
         rifReaderOutput->setHdf5FileName(m_sourSimFileName);
+    }
+
+    if (!hasSourSimFile())
+    {
+        // Deselect SourSimRL cell results
+        for (RimView* view : views())
+        {
+            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>(view);
+            if (eclipseView != nullptr)
+            {
+                if (eclipseView->cellResult()->resultType() == RiaDefines::SOURSIMRL)
+                {
+                    eclipseView->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
+                    eclipseView->cellResult()->setResultVariable("SOIL");
+                    eclipseView->loadDataAndUpdate();
+                }
+            }
+        }
+
     }
 }
 
