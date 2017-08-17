@@ -133,6 +133,54 @@ else()
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 
+################################################################################
+# HDF5
+################################################################################
+option (RESINSIGHT_USE_HDF5 "Use HDF5 library" OFF)
+if (RESINSIGHT_USE_HDF5)
+    if(MSVC)
+        # Must specyfy libraries manually
+        # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
+
+        set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
+        if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+        
+            include_directories(${RESINSIGHT_HDF5_DIR}/include)
+        
+	        list(APPEND EXTERNAL_LINK_LIBRARIES
+                # libzlib.lib is not included here, as it is linked implicitly by Qt
+		    
+                ${RESINSIGHT_HDF5_DIR}/lib/libhdf5.lib
+		        ${RESINSIGHT_HDF5_DIR}/lib/libhdf5_cpp.lib
+		        ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
+	        )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
+        else()
+	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+        endif()
+
+    else()
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+        find_package(HDF5 REQUIRED COMPONENTS CXX)
+        if (HDF5_FOUND)
+		    add_definitions(${HDF5_DEFINITIONS})
+		    include_directories(${HDF5_INCLUDE_DIRS})
+
+		    list(APPEND THIRD_PARTY_LIBRARIES
+		        ${HDF5_LIBRARIES}
+		    )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+        else()
+            message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
+        endif() # HDF5_FOUND
+    endif() # MSVC
+endif() # RESINSIGHT_USE_HDF5
+
+
 ################################################################################ 
 # Subset of Boost, used by NRLib and flow diagnostics application 
 ################################################################################ 
@@ -422,7 +470,7 @@ if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
 endif()
 
-if(RESINSIGHT_USE_HDF5)
+if(RESINSIGHT_FOUND_HDF5)
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_hdf5")
 endif()
 

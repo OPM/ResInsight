@@ -177,43 +177,7 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 # 
 # HDF5  
 #
-if(MSVC)
-    # Must specyfy libraries manually
-    # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
-
-    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
-    if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
-        
-        include_directories(${RESINSIGHT_HDF5_DIR}/include)
-        
-	    list(APPEND THIRD_PARTY_LIBRARIES
-            # libzlib.lib is not included here, as it is linked implicitly by Qt
-		    
-            ${RESINSIGHT_HDF5_DIR}/lib/libhdf5.lib
-		    ${RESINSIGHT_HDF5_DIR}/lib/libhdf5_cpp.lib
-		    ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
-	    )
-
-	    set(RESINSIGHT_USE_HDF5 1)
-	    message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
-    endif()
-else()
-	add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
-    find_package(HDF5 REQUIRED COMPONENTS CXX)
-    if (HDF5_FOUND)
-		add_definitions(${HDF5_DEFINITIONS})
-		include_directories(${HDF5_INCLUDE_DIRS})
-
-		list(APPEND THIRD_PARTY_LIBRARIES
-		    ${HDF5_LIBRARIES}
-		)
-
-	    set(RESINSIGHT_USE_HDF5 1)
-	    message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
-    endif()
-endif()
-
-if (${RESINSIGHT_USE_HDF5})
+if (${RESINSIGHT_FOUND_HDF5})
     list( APPEND CPP_SOURCES
         FileInterface/RifHdf5Reader.h
         FileInterface/RifHdf5Reader.cpp
@@ -224,8 +188,6 @@ if (${RESINSIGHT_USE_HDF5})
 	add_definitions(-DUSE_HDF5)
 endif()
 
-# make variable available to parent scope
-set(RESINSIGHT_USE_HDF5 ${RESINSIGHT_USE_HDF5} PARENT_SCOPE)
 
 #############################################################################
 # Qt specifics: Moc, ui, resources
@@ -341,8 +303,6 @@ set( LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )
-
-set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
