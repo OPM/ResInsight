@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicDeleteSourSimDataFeature.h"
+#include "RicCloseSourSimDataFeature.h"
 
 #include "RimEclipseResultCase.h"
 
@@ -25,12 +25,12 @@
 #include <QAction>
 
 
-CAF_CMD_SOURCE_INIT(RicDeleteSourSimDataFeature, "RicDeleteSourSimDataFeature");
+CAF_CMD_SOURCE_INIT(RicCloseSourSimDataFeature, "RicCloseSourSimDataFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSourSimDataFeature::isCommandEnabled() 
+bool RicCloseSourSimDataFeature::isCommandEnabled() 
 {
     return getSelectedEclipseCase() != nullptr;
 }
@@ -38,7 +38,7 @@ bool RicDeleteSourSimDataFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSourSimDataFeature::onActionTriggered(bool isChecked)
+void RicCloseSourSimDataFeature::onActionTriggered(bool isChecked)
 {
     RimEclipseResultCase* eclipseCase = getSelectedEclipseCase();
 
@@ -50,16 +50,16 @@ void RicDeleteSourSimDataFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicDeleteSourSimDataFeature::setupActionLook(QAction* actionToSetup)
+void RicCloseSourSimDataFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Delete SourSim Data");
+    actionToSetup->setText("Close SourSim Data");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RicDeleteSourSimDataFeature::getSelectedEclipseCase()
+RimEclipseResultCase* RicCloseSourSimDataFeature::getSelectedEclipseCase()
 {
     caf::PdmUiItem* selectedItem = caf::SelectionManager::instance()->selectedItem();
     RimEclipseResultCase* eclipseCase = dynamic_cast<RimEclipseResultCase*>(selectedItem);

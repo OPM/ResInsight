@@ -25,7 +25,7 @@ class RimEclipseResultCase;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicDeleteSourSimDataFeature : public caf::CmdFeature 
+class RicCloseSourSimDataFeature : public caf::CmdFeature 
 {
     CAF_CMD_HEADER_INIT;
 protected:
