@@ -72,15 +72,21 @@ public:
     QString dateFormat()    const;
     QLocale decimalLocale() const;
     QString cellSeparator() const;
+    QString plotTitle()     const;
+
+    void    createNewPlot();
 
 protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    caf::PdmField<QString>              m_plotTitle;
     caf::PdmField<DecimalSeparatorEnum> m_decimalSeparator;
     caf::PdmField<DateFormatEnum>       m_dateFormat;
     caf::PdmField<TimeFormatEnum>       m_timeFormat;
     caf::PdmField<bool>                 m_useCustomDateFormat;
     caf::PdmField<QString>              m_customDateFormat;
     caf::PdmField<CellSeparatorEnum>    m_cellSeparator;
+
+    bool                                m_createNewPlot;
 };

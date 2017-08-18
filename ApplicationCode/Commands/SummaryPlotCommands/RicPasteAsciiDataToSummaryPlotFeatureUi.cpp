@@ -60,9 +60,11 @@ CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteExcelToSum
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi()
+RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi() : m_createNewPlot(false)
 {
     CAF_PDM_InitObject("RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "");
+
+    CAF_PDM_InitField(&m_plotTitle, "PlotTitle", QString(), "Plot Title", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_decimalSeparator, "DecimalSeparator", "Decimal Separator", "", "", "");
 
@@ -127,8 +129,29 @@ QString RicPasteAsciiDataToSummaryPlotFeatureUi::cellSeparator() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RicPasteAsciiDataToSummaryPlotFeatureUi::plotTitle() const
+{
+    return m_plotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
+{
+    m_createNewPlot = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if (m_createNewPlot)
+    {
+        uiOrdering.add(&m_plotTitle);
+    }
+
     {
         caf::PdmUiGroup* valuesGroup = uiOrdering.addNewGroup("Values");
         valuesGroup->add(&m_decimalSeparator);

@@ -74,10 +74,18 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
     RimSummaryPlot* summaryPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(summaryPlot);
+
+    RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
+    if (!summaryPlot) pasteOptions.createNewPlot();
+    caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
+
+    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
+    if (propertyDialog.exec() != QDialog::Accepted) return;
+
     if (!summaryPlot)
     {
         RimSummaryPlotCollection* summaryPlotCollection = nullptr;
@@ -91,13 +99,8 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
         {
             return;
         }
+        summaryPlot->setDescription(pasteOptions.plotTitle());
     }
-
-    RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
-    caf::PdmSettings::readFieldsFromApplicationStore(&pasteOptions);
-
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &pasteOptions, "Set Paste Options", "");
-    if (propertyDialog.exec() != QDialog::Accepted) return;
 
     caf::PdmSettings::writeFieldsToApplicationStore(&pasteOptions);
 
