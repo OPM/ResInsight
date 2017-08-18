@@ -327,12 +327,22 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 #############################################################################
 if(RESINSIGHT_ENABLE_COTIRE)
 
-    # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
-    set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES COTIRE_EXCLUDED TRUE)
-  
-    # multiple QRC files are not supported
-    set_source_files_properties (qrc_cafAnimControl.cxx PROPERTIES COTIRE_EXCLUDED TRUE)
- 
+    set( COTIRE_EXCLUDE_FILES
+        # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
+    
+        # multiple QRC files are not supported
+        qrc_cafAnimControl.cxx
+
+        # mix of cvf and Qt namespaces
+        ModelVisualization/GridBox/RivGridBoxGenerator.cpp
+        ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
+    )
+
+	foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
+        set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
+	endforeach(fileToExclude)
+
     # disable precompiled headers
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    
