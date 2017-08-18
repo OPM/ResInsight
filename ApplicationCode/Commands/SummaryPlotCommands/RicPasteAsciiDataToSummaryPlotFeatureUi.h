@@ -73,6 +73,7 @@ public:
     QLocale decimalLocale() const;
     QString cellSeparator() const;
     QString plotTitle()     const;
+    QString curvePrefix()   const;
 
     void    createNewPlot();
 
@@ -81,6 +82,7 @@ protected:
 
 private:
     caf::PdmField<QString>              m_plotTitle;
+    caf::PdmField<QString>              m_curvePrefix;
     caf::PdmField<DecimalSeparatorEnum> m_decimalSeparator;
     caf::PdmField<DateFormatEnum>       m_dateFormat;
     caf::PdmField<TimeFormatEnum>       m_timeFormat;

@@ -65,6 +65,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitObject("RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "");
 
     CAF_PDM_InitField(&m_plotTitle, "PlotTitle", QString(), "Plot Title", "", "", "");
+    CAF_PDM_InitField(&m_curvePrefix, "CurvePrefix", QString(), "Curve Prefix", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_decimalSeparator, "DecimalSeparator", "Decimal Separator", "", "", "");
 
@@ -137,6 +138,14 @@ QString RicPasteAsciiDataToSummaryPlotFeatureUi::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RicPasteAsciiDataToSummaryPlotFeatureUi::curvePrefix() const
+{
+    return m_curvePrefix();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 {
     m_createNewPlot = true;
@@ -147,9 +156,13 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (m_createNewPlot)
     {
-        uiOrdering.add(&m_plotTitle);
+        caf::PdmUiGroup* namingGroup = uiOrdering.addNewGroup("Naming");
+        if (m_createNewPlot)
+        {
+            namingGroup->add(&m_plotTitle);
+        }
+        namingGroup->add(&m_curvePrefix);
     }
 
     {

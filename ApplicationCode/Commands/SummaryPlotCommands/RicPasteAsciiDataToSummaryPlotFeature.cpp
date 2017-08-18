@@ -224,12 +224,21 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 
     std::map< CurveType, std::vector<RimAsciiDataCurve*> > curveToTypeMap;
 
+    QString curvePrefix = settings.curvePrefix();
+
     for (size_t i = 0; i < values.size(); ++i)
     {
         RimAsciiDataCurve* curve = new RimAsciiDataCurve();
         curve->setTimeSteps(timeSteps);
         curve->setValues(values[i]);
-        curve->setTitle(headers[i]);
+        if (curvePrefix.isEmpty())
+        {
+            curve->setTitle(headers[i]);
+        }
+        else
+        {
+            curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(headers[i]));
+        }
         curveToTypeMap[guessCurveType(headers[i])].push_back(curve);
         curves.push_back(curve);
     }
