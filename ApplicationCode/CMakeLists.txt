@@ -362,8 +362,19 @@ endif()
 # Copy Dlls on MSVC
 #############################################################################
 
-# Copy Odb Dlls
 
+# Qt DLLs
+if (MSVC)
+
+    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
+    foreach (qtlib ${QTLIBLIST})
+        list(APPEND FILES_TO_COPY ${QT_BINARY_DIR}/${qtlib}4.dll)
+    endforeach( qtlib )
+
+endif(MSVC)
+
+
+# Odb Dlls
 if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
 	# Find all the dlls
 	file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
@@ -374,41 +385,26 @@ if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
 		 list(APPEND RI_ODB_DLLS ${filenameWithExt} )
 	endforeach(aDLL)
 
-	# Copy to target directory
 	foreach (aDLL ${RI_ODB_DLLS})
-        add_custom_command(TARGET ResInsight POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-						   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
-						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        if (_unityTargetName)
-            add_custom_command(TARGET ${_unityTargetName} POST_BUILD
-                               COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-		    				   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
-		    				   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        endif()
+        list(APPEND FILES_TO_COPY ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
     endforeach()
 
 endif()
 
-    # Qt DLLs
+# Copy to target directory
+foreach (FILE_TO_COPY ${FILES_TO_COPY})
+    add_custom_command(TARGET ResInsight POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+						"${FILE_TO_COPY}"  
+						"${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+    if (_unityTargetName)
+        add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+                            COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+		    				"${FILE_TO_COPY}"  
+		    				"${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+    endif()
+endforeach()
 
-if (MSVC)
-
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
-    foreach (qtlib ${QTLIBLIST})
-        add_custom_command(TARGET ResInsight POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${QT_BINARY_DIR}/${qtlib}4.dll"
-                "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        if (_unityTargetName)
-           add_custom_command(TARGET ResInsight POST_BUILD
-               COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                   "${QT_BINARY_DIR}/${qtlib}4.dll"
-                   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        endif()
-    endforeach( qtlib )
-
-endif(MSVC)
 
 #############################################################################
 # Install 
