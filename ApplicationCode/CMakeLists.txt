@@ -328,26 +328,12 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 if(RESINSIGHT_ENABLE_COTIRE)
 
     # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
-    set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc     PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES COTIRE_EXCLUDED TRUE)
   
     # multiple QRC files are not supported
-    set_source_files_properties (qrc_cafAnimControl.cxx                                     PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (qrc_cafAnimControl.cxx PROPERTIES COTIRE_EXCLUDED TRUE)
  
-    # variables at global file scope
-    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionBoxPartMgr.cpp           PROPERTIES COTIRE_EXCLUDED TRUE)
-    
-    set_source_files_properties (ModelVisualization/GridBox/RivGridBoxGenerator.cpp         PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (Commands/WellLogCommands/RicWellLogPlotCurveFeatureImpl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
-
-    # using namespace cvf
-    set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
-
-    # opm parser
-    set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
-    
+    # disable precompiled headers
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    
     cotire(ResInsight)
