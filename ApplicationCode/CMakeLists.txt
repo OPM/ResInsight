@@ -333,6 +333,7 @@ if(RESINSIGHT_ENABLE_COTIRE)
     
         # multiple QRC files are not supported
         qrc_cafAnimControl.cxx
+        qrc_ResInsight.cxx
 
         # mix of cvf and Qt namespaces
         ModelVisualization/GridBox/RivGridBoxGenerator.cpp
