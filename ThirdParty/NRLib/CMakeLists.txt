@@ -26,5 +26,9 @@ add_library( ${PROJECT_NAME}
        ${NRLIB_WELL_SRC}
 )
 
+if (MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4996")
+endif()
+
 add_subdirectory(well_UnitTests)
 
