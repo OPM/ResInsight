@@ -228,18 +228,6 @@ list(APPEND THIRD_PARTY_LIBRARIES
     NRLib
 )
 
-
-################################################################################
-# clipper
-################################################################################
-
-add_subdirectory(ThirdParty/clipper)
-
-list(APPEND THIRD_PARTY_LIBRARIES
-    clipper
-)
-
-
 ################################################################################
 # Qt
 ################################################################################
@@ -290,6 +278,16 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
     # Eigen
     ################################################################################
     include_directories(SYSTEM ThirdParty/Eigen-Subset)
+
+    ################################################################################
+    # clipper
+    ################################################################################
+
+    add_subdirectory(ThirdParty/clipper)
+
+    list(APPEND THIRD_PARTY_LIBRARIES
+        clipper
+    )
 
 endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES
 
