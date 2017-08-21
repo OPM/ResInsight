@@ -34,12 +34,12 @@
 namespace caf
 {
     template<>
-    void RigFlowDiagResults::CellSelectionEnum::setUp()
+    void RigFlowDiagResults::CellFilterEnum::setUp()
     {
-        addItem(RigFlowDiagResults::CELLS_ACTIVE,        "CELLS_ACTIVE",        "Active cells");
-        addItem(RigFlowDiagResults::CELLS_COMMUNICATION, "CELLS_COMMUNICATION", "Communication cells");
-        addItem(RigFlowDiagResults::CELLS_FLOODED,       "CELLS_FLOODED",       "Flooded cells");
-        addItem(RigFlowDiagResults::CELLS_DRAINED,       "CELLS_DRAINED",       "Drained cells");
+        addItem(RigFlowDiagResults::CELLS_ACTIVE,        "CELLS_ACTIVE",        "All Active cells");
+        addItem(RigFlowDiagResults::CELLS_COMMUNICATION, "CELLS_COMMUNICATION", "Injector Producer Communication");
+        addItem(RigFlowDiagResults::CELLS_FLOODED,       "CELLS_FLOODED",       "Flooded by Injector");
+        addItem(RigFlowDiagResults::CELLS_DRAINED,       "CELLS_DRAINED",       "Drained by Producer");
         setDefault(RigFlowDiagResults::CELLS_ACTIVE);
     }
 }
@@ -692,7 +692,7 @@ std::vector<int> RigFlowDiagResults::calculatedTimeSteps(RigFlowDiagResultAddres
 /// 
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(int frameIndex,
-                                                                                                          CellSelection cellSelection,
+                                                                                                          CellFilter cellSelection,
                                                                                                           const std::vector<QString>& tracerNames,
                                                                                                           double max_pv_fraction)
 {
