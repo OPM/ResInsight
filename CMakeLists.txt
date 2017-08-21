@@ -141,8 +141,8 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 ################################################################################
 # HDF5
 ################################################################################
-option (RESINSIGHT_USE_HDF5 "Use HDF5 library" OFF)
-if (RESINSIGHT_USE_HDF5)
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" OFF)
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
         # Must specyfy libraries manually
         # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
@@ -183,7 +183,7 @@ if (RESINSIGHT_USE_HDF5)
             message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
         endif() # HDF5_FOUND
     endif() # MSVC
-endif() # RESINSIGHT_USE_HDF5
+endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING
 
 
 ################################################################################ 
@@ -492,7 +492,7 @@ if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
 endif()
 
 if(RESINSIGHT_FOUND_HDF5)
-    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_hdf5")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_souring")
 endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
