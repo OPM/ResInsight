@@ -55,13 +55,8 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
         ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.h
         ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.h
         ${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.h
-
         ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.h
         ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicFracturesDeleteAllFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.h
-        ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.h
         ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.h
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.h
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.h
@@ -118,12 +113,8 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
         ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.cpp
-
         ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicFractureDefinitionsDeleteAllFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicWellPathFracturesDeleteAllFeature.cpp
-        ${CEE_CURRENT_LIST_DIR}RicSimWellFracturesDeleteAllFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
         ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
