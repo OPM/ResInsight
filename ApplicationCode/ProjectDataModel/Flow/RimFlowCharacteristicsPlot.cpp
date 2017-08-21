@@ -75,7 +75,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     m_applyTimeSteps.xmlCapability()->setIOWritable(false);
     m_applyTimeSteps.xmlCapability()->setIOReadable(false);
     m_applyTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applyTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_applyTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
     CAF_PDM_InitField(&m_maxPvFraction, "CellPVThreshold", 0.1, "Aquifer Cell Threshold", "", "Exclude Aquifer Effects by adding a Cell Pore Volume Threshold as Fraction of Total Pore Volume.", "");
 
 
@@ -90,7 +90,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     m_showRegion.xmlCapability()->setIOWritable(false);
     m_showRegion.xmlCapability()->setIOReadable(false);
     m_showRegion.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_showRegion.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_showRegion.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
 
 
     this->m_showWindow = false;
