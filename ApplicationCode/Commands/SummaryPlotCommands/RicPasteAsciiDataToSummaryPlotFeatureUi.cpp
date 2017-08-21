@@ -74,6 +74,10 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitField(&m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Format", "", "", "");
     CAF_PDM_InitField(&m_customDateFormat,    "CustomDateFormat",    QString(), "Custom Date Format", "", "", "");
 
+    CAF_PDM_InitField(&m_curveLineStyle, "LineStyle",                    caf::AppEnum<RimPlotCurve::LineStyleEnum>(RimPlotCurve::STYLE_NONE),       "Line Style", "", "", "");
+    CAF_PDM_InitField(&m_curveSymbol,    "Symbol",                       caf::AppEnum<RimPlotCurve::PointSymbolEnum>(RimPlotCurve::SYMBOL_ELLIPSE), "Symbol", "", "", "");
+    CAF_PDM_InitField(&m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f,                                                                      "Symbol Skip Distance", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "");
 }
 
@@ -146,6 +150,30 @@ QString RicPasteAsciiDataToSummaryPlotFeatureUi::curvePrefix() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimPlotCurve::LineStyleEnum RicPasteAsciiDataToSummaryPlotFeatureUi::lineStyle() const
+{
+    return m_curveLineStyle();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve::PointSymbolEnum RicPasteAsciiDataToSummaryPlotFeatureUi::pointSymbol() const
+{
+    return m_curveSymbol();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float RicPasteAsciiDataToSummaryPlotFeatureUi::symbolSkipDinstance() const
+{
+    return m_curveSymbolSkipDistance();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
 {
     m_createNewPlot = true;
@@ -188,6 +216,14 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering(QString uiConfigN
         caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cells");
 
         cellGroup->add(&m_cellSeparator);
+    }
+
+    {
+        caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+
+        appearanceGroup->add(&m_curveLineStyle);
+        appearanceGroup->add(&m_curveSymbol);
+        appearanceGroup->add(&m_curveSymbolSkipDistance);
     }
 
     uiOrdering.skipRemainingFields();

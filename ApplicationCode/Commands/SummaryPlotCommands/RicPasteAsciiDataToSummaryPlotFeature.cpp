@@ -239,6 +239,10 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         {
             curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(headers[i]));
         }
+        // Appearance
+        curve->setSymbol(settings.pointSymbol());
+        curve->setLineStyle(settings.lineStyle());
+        curve->setSymbolSkipDinstance(settings.symbolSkipDinstance());
         curveToTypeMap[guessCurveType(headers[i])].push_back(curve);
         curves.push_back(curve);
     }
