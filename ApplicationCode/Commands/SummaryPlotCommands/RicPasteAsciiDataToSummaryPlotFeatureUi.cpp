@@ -55,7 +55,7 @@ namespace caf {
 }
 
 
-CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteExcelToSummaryPlotFeatureUi");
+CAF_PDM_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeatureUi, "RicPasteAsciiDataToSummaryPlotFeatureUi");
 
 //--------------------------------------------------------------------------------------------------
 /// 

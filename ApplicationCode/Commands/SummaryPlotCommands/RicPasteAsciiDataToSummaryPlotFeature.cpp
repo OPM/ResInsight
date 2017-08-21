@@ -45,7 +45,7 @@
 #include <QMimeData>
 
 
-CAF_CMD_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeature, "RicPasteExcelToSummaryPlotFeature");
+CAF_CMD_SOURCE_INIT(RicPasteAsciiDataToSummaryPlotFeature, "RicPasteAsciiDataToSummaryPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
