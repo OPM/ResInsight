@@ -223,6 +223,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         if (m_flowDiagSolution)
         {
             std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+            std::vector<std::pair<QString, QString>> sortedTracerNames;
             for (QString tracerName : tracerNames)
             {
                 if (!caf::Utils::isStringMatch(m_tracerFilter, tracerName)) continue;
@@ -234,14 +235,14 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
                 {
                     if (tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::VARYING)
                     {
-                        options.push_back(caf::PdmOptionItemInfo(tracerName, tracerName));
+                        sortedTracerNames.push_back(std::make_pair(tracerName, tracerName));
                     }
                 }
                 else if (m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED)
                 {
                     if (tracerStatus == RimFlowDiagSolution::PRODUCER || tracerStatus == RimFlowDiagSolution::VARYING)
                     {
-                        options.push_back(caf::PdmOptionItemInfo(tracerName, tracerName));
+                        sortedTracerNames.push_back(std::make_pair(tracerName, tracerName));
                     }
                 }
                 else if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION)
@@ -262,8 +263,20 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
                         prefix = "U  : ";
                         break;
                     }
-                    options.push_back(caf::PdmOptionItemInfo(prefix + tracerName, tracerName));
+                    sortedTracerNames.push_back(std::make_pair(prefix + tracerName, tracerName));
                 }
+            }
+
+            std::sort(sortedTracerNames.begin(),
+                      sortedTracerNames.end(),
+                      [](const std::pair<QString, QString>& a, const std::pair<QString, QString>& b) -> bool
+            {
+                return a.first < b.first;
+            });
+
+            for (auto& tracer : sortedTracerNames)
+            {
+                options.push_back(caf::PdmOptionItemInfo(tracer.first, tracer.second));
             }
         }
     }
