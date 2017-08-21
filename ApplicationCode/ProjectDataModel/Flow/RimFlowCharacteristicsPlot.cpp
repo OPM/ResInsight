@@ -275,11 +275,6 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_case);
-    uiOrdering.add(&m_flowDiagSolution);
-
-    uiOrdering.add(&m_showLegend);
-    uiOrdering.add(&m_maxPvFraction);
 
     {
         caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroup("Time Steps");
@@ -302,6 +297,15 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
             regionGroup->add(&m_selectedTracerNames);
             regionGroup->add(&m_showRegion);
         }
+    }
+
+    {
+        caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
+        optionsGroup->add(&m_case);
+        optionsGroup->add(&m_flowDiagSolution);
+
+        optionsGroup->add(&m_showLegend);
+        optionsGroup->add(&m_maxPvFraction);
     }
 
     uiOrdering.skipRemainingFields();
