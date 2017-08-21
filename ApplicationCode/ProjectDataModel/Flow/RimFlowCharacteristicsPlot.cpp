@@ -50,8 +50,8 @@ namespace caf
     void AppEnum< RimFlowCharacteristicsPlot::TimeSelectionType >::setUp()
     {
         addItem(RimFlowCharacteristicsPlot::ALL_AVAILABLE, "ALL_AVAILABLE", "All available");
-        addItem(RimFlowCharacteristicsPlot::SELECT_AVAILABLE, "SELECT_AVAILABLE", "Select");
-        setDefault(RimFlowCharacteristicsPlot::ALL_AVAILABLE);
+        addItem(RimFlowCharacteristicsPlot::SELECTED, "SELECTED", "Selected");
+        setDefault(RimFlowCharacteristicsPlot::SELECTED);
     }
 }
 
@@ -279,7 +279,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
     uiOrdering.add(&m_flowDiagSolution);
     uiOrdering.add(&m_timeStepSelectionType);
 
-    if (m_timeStepSelectionType == SELECT_AVAILABLE)
+    if (m_timeStepSelectionType == SELECTED)
     {
         uiOrdering.add(&m_selectedTimeSteps);
         uiOrdering.add(&m_applyTimeSteps);
@@ -462,7 +462,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
         std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
         
-        if (m_timeStepSelectionType == SELECT_AVAILABLE)
+        if (m_timeStepSelectionType == SELECTED)
         {
             // Find set intersection of selected and available time steps
             std::set<int> calculatedTimeStepsSet;

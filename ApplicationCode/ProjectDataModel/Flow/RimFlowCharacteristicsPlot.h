@@ -69,7 +69,7 @@ public:
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,
-        SELECT_AVAILABLE
+        SELECTED,
     };
 
 protected:
