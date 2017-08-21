@@ -277,16 +277,21 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
 {
     uiOrdering.add(&m_case);
     uiOrdering.add(&m_flowDiagSolution);
-    uiOrdering.add(&m_timeStepSelectionType);
-
-    if (m_timeStepSelectionType == SELECTED)
-    {
-        uiOrdering.add(&m_selectedTimeSteps);
-        uiOrdering.add(&m_applyTimeSteps);
-    }
 
     uiOrdering.add(&m_showLegend);
     uiOrdering.add(&m_maxPvFraction);
+
+    {
+        caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroup("Time Steps");
+
+        timeStepsGroup->add(&m_timeStepSelectionType);
+
+        if (m_timeStepSelectionType == SELECTED)
+        {
+            timeStepsGroup->add(&m_selectedTimeSteps);
+            timeStepsGroup->add(&m_applyTimeSteps);
+        }
+    }
 
     {
         caf::PdmUiGroup* regionGroup = uiOrdering.addNewGroup("Region");
