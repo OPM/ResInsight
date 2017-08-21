@@ -300,8 +300,8 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
         {
             regionGroup->add(&m_tracerFilter);
             regionGroup->add(&m_selectedTracerNames);
+            regionGroup->add(&m_showRegion);
         }
-        regionGroup->add(&m_showRegion);
     }
 
     uiOrdering.skipRemainingFields();
