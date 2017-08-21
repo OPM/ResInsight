@@ -41,6 +41,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellAllocationPlotLegend.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
@@ -102,6 +103,10 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_wellAllocationPlotLegend.uiCapability()->setUiHidden(true);
     m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
 
+    CAF_PDM_InitFieldNoDefault(&m_tofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot", "TOF Accumulated Phase Fractions", "", "", "");
+    m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiHidden(true);
+    m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
+
     this->setAsPlotMdiWindow();
 }
 
@@ -114,6 +119,7 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
     
     delete m_accumulatedWellFlowPlot();
     delete m_totalWellAllocationPlot();
+    delete m_tofAccumulatedPhaseFractionsPlot();
 
     deleteViewWidget();
 }
@@ -311,6 +317,10 @@ void RimWellAllocationPlot::updateFromWell()
     m_totalWellAllocationPlot->updateConnectedEditors();
 
     accumulatedWellFlowPlot()->updateConnectedEditors();
+
+    m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
+    m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
+
     if (m_wellAllocationPlotWidget) m_wellAllocationPlotWidget->updateGeometry();
 }
 
@@ -521,6 +531,14 @@ RimWellLogPlot* RimWellAllocationPlot::accumulatedWellFlowPlot()
 RimTotalWellAllocationPlot* RimWellAllocationPlot::totalWellFlowPlot()
 {
     return m_totalWellAllocationPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimTofAccumulatedPhaseFractionsPlot * RimWellAllocationPlot::tofAccumulatedPhaseFractionsPlot()
+{
+    return m_tofAccumulatedPhaseFractionsPlot();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -348,7 +348,16 @@ QString RiuResultTextBuilder::nncResultText()
                 if (m_reservoirView->currentFaultResultColors())
                 {
                     size_t scalarResultIdx = m_reservoirView->currentFaultResultColors()->scalarResultIndex();
-                    const std::vector<double>* nncValues = nncData->connectionScalarResult(scalarResultIdx);
+                    RiaDefines::ResultCatType resultType = m_reservoirView->currentFaultResultColors()->resultType();
+                    const std::vector<double>* nncValues;
+                    if (resultType == RiaDefines::STATIC_NATIVE)
+                    {
+                        nncValues = nncData->staticConnectionScalarResult(scalarResultIdx);
+                    }
+                    else if (resultType == RiaDefines::DYNAMIC_NATIVE)
+                    {
+                        nncValues = nncData->dynamicConnectionScalarResult(scalarResultIdx, m_timeStepIndex);
+                    }
                     if (nncValues)
                     {
                         QString resultVar = m_reservoirView->currentFaultResultColors()->resultVariableUiName();

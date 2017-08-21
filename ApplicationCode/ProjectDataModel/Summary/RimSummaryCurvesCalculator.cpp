@@ -24,6 +24,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryYAxisProperties.h"
+#include "RimAsciiDataCurve.h"
 
 #include "RiuSummaryQwtPlot.h"
 
@@ -98,10 +99,12 @@ public:
 /// 
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotYAxisFormatter::RimSummaryPlotYAxisFormatter(RimSummaryYAxisProperties* axisProperties,
-    const std::vector<RimSummaryCurve*>& curves,
+    const std::vector<RimSummaryCurve*>& summaryCurves,
+    const std::vector<RimAsciiDataCurve*>& asciiCurves,
     const std::set<QString>& timeHistoryCurveQuantities)
 :   m_axisProperties(axisProperties),
-    m_singleCurves(curves),
+    m_summaryCurves(summaryCurves),
+    m_asciiDataCurves(asciiCurves),
     m_timeHistoryCurveQuantities(timeHistoryCurveQuantities)
 {
 }
@@ -193,7 +196,7 @@ QString RimSummaryPlotYAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string> > unitToQuantityNameMap;
 
-    for ( RimSummaryCurve* rimCurve : m_singleCurves )
+    for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {
         if ( rimCurve->yAxis() == this->m_axisProperties->plotAxisType() )
         {

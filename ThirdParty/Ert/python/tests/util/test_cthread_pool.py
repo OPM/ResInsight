@@ -3,7 +3,7 @@ import ecl
 from ecl.test import ExtendedTestCase
 from ecl.util import CThreadPool, startCThreadPool
 
-TEST_LIB = ecl.load("libert_util")
+TEST_LIB = ecl.load("libecl")
 
 
 class CThreadPoolTest(ExtendedTestCase):

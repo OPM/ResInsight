@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "RicSelectViewUI.h"
+#include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RigFlowDiagResultAddress.h"
 #include "RigSingleWellResultsData.h"
@@ -41,84 +41,13 @@
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
-#include "cafPdmUiPropertyViewDialog.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep)
 {
-    const QString lastUsedViewKey("lastUsedViewKey");
-
-    RimEclipseView* defaultSelectedView = nullptr;
-    {
-        QString lastUsedViewRef = RiaApplication::instance()->cacheDataObject(lastUsedViewKey).toString();
-        RimEclipseView* lastUsedView = dynamic_cast<RimEclipseView*>(caf::PdmReferenceHelper::objectFromReference(RiaApplication::instance()->project(), lastUsedViewRef));
-        if (lastUsedView)
-        {
-            RimEclipseResultCase* lastUsedViewResultCase = nullptr;
-            lastUsedView->firstAncestorOrThisOfTypeAsserted(lastUsedViewResultCase);
-
-            if (lastUsedViewResultCase == eclipseResultCase)
-            {
-                defaultSelectedView = lastUsedView;
-            }
-        }
-
-        if (!defaultSelectedView)
-        {
-            RimEclipseView* activeView = dynamic_cast<RimEclipseView*>(RiaApplication::instance()->activeReservoirView());
-            if (activeView)
-            {
-                RimEclipseResultCase* activeViewResultCase = nullptr;
-                activeView->firstAncestorOrThisOfTypeAsserted(activeViewResultCase);
-
-                if (activeViewResultCase == eclipseResultCase)
-                {
-                    defaultSelectedView = activeView;
-                }
-                else
-                {
-                    if (eclipseResultCase->views().size() > 0)
-                    {
-                        defaultSelectedView = dynamic_cast<RimEclipseView*>(eclipseResultCase->views()[0]);
-                    }
-                }
-            }
-        }
-    }
-
-    RicSelectViewUI featureUi;
-    if (defaultSelectedView)
-    {
-        featureUi.setView(defaultSelectedView);
-    }
-    else
-    {
-        featureUi.setCase(eclipseResultCase);
-    }
-
-    caf::PdmUiPropertyViewDialog propertyDialog(NULL, &featureUi, "Show Contributing Wells in View", "");
-    propertyDialog.resize(QSize(400, 200));
-
-    if (propertyDialog.exec() != QDialog::Accepted) return nullptr;
-
-    RimEclipseView* viewToManipulate = nullptr;
-    if (featureUi.createNewView())
-    {
-        RimEclipseView* createdView = eclipseResultCase->createAndAddReservoirView();
-        createdView->name = featureUi.newViewName();
-
-        // Must be run before buildViewItems, as wells are created in this function
-        createdView->loadDataAndUpdate();
-        eclipseResultCase->updateConnectedEditors();
-
-        viewToManipulate = createdView;
-    }
-    else
-    {
-        viewToManipulate = featureUi.selectedView();
-    }
+    RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection(eclipseResultCase, "lastUsedWellAllocationView", "Show Contributing Wells in View");
 
     CVF_ASSERT(viewToManipulate);
 
@@ -128,11 +57,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::maniuplateSelectedView(RimE
     auto* feature = caf::CmdFeatureManager::instance()->getCommandFeature("RicShowMainWindowFeature");
     feature->actionTriggered(false);
 
-    RiuMainWindow::instance()->setExpanded(viewToManipulate, true);
-    RiuMainWindow::instance()->selectAsCurrentItem(viewToManipulate);
-
-    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject(RiaApplication::instance()->project(), viewToManipulate);
-    RiaApplication::instance()->setCacheDataObject(lastUsedViewKey, refFromProjectToView);
+    RicSelectOrCreateViewFeatureImpl::focusView(viewToManipulate);
 
     return viewToManipulate;
 }

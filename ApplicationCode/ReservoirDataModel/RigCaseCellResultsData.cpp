@@ -233,6 +233,11 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
+        scalarResultIndex = this->findScalarResultIndex(RiaDefines::SOURSIMRL, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
         scalarResultIndex = this->findScalarResultIndex(RiaDefines::GENERATED, resultName);
     }
 
@@ -321,6 +326,39 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType ty
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranXResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranYResultName()));
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::riAreaNormTranZResultName()));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RiaDefines::combinedWaterFluxResultName())
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+"));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RiaDefines::combinedOilFluxResultName())
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILI+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILK+"));
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RiaDefines::combinedGasFluxResultName())
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASI+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+"));
+        statisticsCalculator = calc;
+    }
+    else if (resultName.endsWith("IJK"))
+    {
+        cvf::ref<RigEclipseMultiPropertyStatCalc> calc = new RigEclipseMultiPropertyStatCalc();
+        QString baseName = resultName.left(resultName.size() - 3);
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::GENERATED, QString("%1I").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::GENERATED, QString("%1J").arg(baseName)));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RiaDefines::GENERATED, QString("%1K").arg(baseName)));
         statisticsCalculator = calc;
     }
     else
@@ -651,6 +689,23 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::eraseAllSourSimData()
+{
+    std::vector<size_t> sourSimIndices;
+
+    for (size_t i = 0; i < m_resultInfos.size(); i++)
+    {
+        RigEclipseResultInfo& ri = m_resultInfos[i];
+        if (ri.m_resultType == RiaDefines::SOURSIMRL)
+        {
+            ri.m_resultType = RiaDefines::REMOVED;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
     // SOIL
@@ -675,6 +730,34 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         if (completionTypeIndex == cvf::UNDEFINED_SIZE_T)
         {
             addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName(), false);
+        }
+    }
+
+    // FLUX
+    {
+        size_t waterIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
+        if (waterIndex == cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+") != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName(), false);
+        }
+        size_t oilIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
+        if (oilIndex == cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILI+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILK+") != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName(), false);
+        }
+        size_t gasIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
+        if (gasIndex == cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASI+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+") != cvf::UNDEFINED_SIZE_T &&
+            findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+") != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName(), false);
         }
     }
 

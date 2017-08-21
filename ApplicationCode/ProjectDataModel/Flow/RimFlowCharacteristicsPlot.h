@@ -21,6 +21,8 @@
 
 #include "RimViewWindow.h"
 
+#include "RigFlowDiagResults.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -62,22 +64,24 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+    virtual void                                    loadDataAndUpdate() override;
 
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,
         SELECT_AVAILABLE
     };
+
 protected:
     // RimViewWindow overrides
 
-    virtual void                                    loadDataAndUpdate() override;
     virtual QImage                                  snapshotWindowContent() override;
 
     // Overridden PDM methods
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
 
 private:
 
@@ -86,8 +90,14 @@ private:
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
     caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+    caf::PdmField<bool>                             m_applyTimeSteps;
     caf::PdmField<bool>                             m_showLegend;
     caf::PdmField<double>                           m_maxPvFraction;
+
+    caf::PdmField<RigFlowDiagResults::CellSelectionEnum> m_cellSelection;
+    caf::PdmField<QString>                          m_tracerFilter;
+    caf::PdmField< std::vector<QString> >           m_selectedTracerNames;
+    caf::PdmField<bool>                             m_showRegion;
 
     std::vector<int>                                m_currentlyPlottedTimeSteps;
 

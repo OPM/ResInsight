@@ -21,3 +21,6 @@ add_library(${PROJECT_NAME}
     ${project_source_files_complete_path} 
 )
 
+if (MSVC)
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/wd4267")
+endif()

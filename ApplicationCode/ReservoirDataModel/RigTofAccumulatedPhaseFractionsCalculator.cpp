@@ -55,7 +55,7 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
     const std::vector<double>* swatResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSwat, timestep));
     const std::vector<double>* soilResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSoil, timestep));
     const std::vector<double>* sgasResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSgas, timestep));
-    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, timestep));
+    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));
         
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
@@ -77,10 +77,10 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                         swatResults,
                                         soilResults,
                                         sgasResults,
+                                        m_tofInIncreasingOrder,
                                         m_accumulatedPhaseFractionSwat,
                                         m_accumulatedPhaseFractionSoil,
-                                        m_accumulatedPhaseFractionSgas,
-                                        m_tofInIncreasingOrder);
+                                        m_accumulatedPhaseFractionSgas);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,10 +98,16 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
                                                                                     std::vector<double>& accumulatedPhaseFractionSgas)
 
 {
+    if (tofData == nullptr || fractionData == nullptr)
+    {
+        return;
+    }
+
     std::map<double, std::vector<int> > tofAndIndexMap;
 
     for (int i = 0; i < static_cast<int>(tofData->size()); i++)
     {
+        if ((*tofData)[i] == HUGE_VAL) continue;
         std::vector<int> vectorOfIndexes;
         vectorOfIndexes.push_back(i);
 

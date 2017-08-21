@@ -77,12 +77,15 @@ class ExtendedTestCase(TestCase):
                       (first, type(first), second, type(second)))
 
 
-    def assertAlmostEqualList(self, first, second, msg=None):
+    def assertAlmostEqualList(self, first, second, msg=None, tolerance=1e-6):
         if len(first) != len(second):
             self.fail("Lists are not of same length!")
 
         for index in range(len(first)):
-            self.assertFloatEqual(first[index], second[index], msg=msg)
+            self.assertFloatEqual(
+                    first[index], second[index],
+                    msg=msg, tolerance=tolerance
+                    )
 
 
     def assertImportable(self, module_name):

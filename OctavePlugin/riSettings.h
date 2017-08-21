@@ -60,5 +60,11 @@ namespace riOctavePlugin
     char timeStepDate_Hour[]     = "Hour";
     char timeStepDate_Minute[]   = "Minute";
     char timeStepDate_Second[]   = "Second";
+
+    // Octave data structure : CellIndex
+    char cellIndex_gridIndex[]   = "GridIndex";
+    char cellIndex_I[]           = "I";
+    char cellIndex_J[]           = "J";
+    char cellIndex_K[]           = "K";
 }
 

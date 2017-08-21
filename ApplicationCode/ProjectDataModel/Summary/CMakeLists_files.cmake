@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RimAsciiDataCurve.h
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCase.h
@@ -22,6 +23,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RimAsciiDataCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCase.cpp

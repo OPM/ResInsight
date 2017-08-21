@@ -70,7 +70,7 @@ private:
     void generatePartGeometry();
     void updatePartEffect();
 
-    void updateNNCColors(RimEclipseCellColors* cellResultColors);
+    void updateNNCColors(size_t timeStepIndex, RimEclipseCellColors* cellResultColors);
 
     caf::FaceCulling faceCullingMode() const;
     

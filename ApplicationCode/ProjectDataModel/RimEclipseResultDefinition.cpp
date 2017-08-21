@@ -41,6 +41,7 @@
 #include "RimWellLogExtractionCurve.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafUtils.h"
 
 namespace caf
 {
@@ -404,19 +405,6 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     }
 }
 
-bool isStringMatch(const QString& filterString, const QString& value)
-{
-    if (filterString.isEmpty()) return true;
-    if (filterString.trimmed() == "*")
-    {
-        if (!value.isEmpty()) return true;
-        else return false;
-    }
-
-    QRegExp searcher(filterString, Qt::CaseInsensitive, QRegExp::WildcardUnix);
-    return searcher.exactMatch(value);
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -426,26 +414,46 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 
     if ( fieldNeedingOptions == &m_resultTypeUiField )
     {
+        bool hasSourSimRLFile = false;
+        RimEclipseResultCase* eclResCase = dynamic_cast<RimEclipseResultCase*>(m_eclipseCase.p());
+        if ( eclResCase && eclResCase->eclipseCaseData() )
+        {
+            hasSourSimRLFile = eclResCase->hasSourSimFile();
+        }
+
+#ifndef USE_HDF5
+        // If using ResInsight without HDF5 support, ignore SourSim files and
+        // do not show it as a result category.
+        hasSourSimRLFile = false;
+#endif
+
+
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
-        // Do not include flow diagnostics results if not available or is a time history curve
-        if ( timeHistoryCurve != nullptr )
+        // Do not include flow diagnostics results if it is a time history curve
+        // Do not include SourSimRL if no SourSim file is loaded
+        if ( timeHistoryCurve != nullptr || !hasSourSimRLFile )
         {
             using ResCatEnum = caf::AppEnum< RiaDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
             {
                 RiaDefines::ResultCatType resType = ResCatEnum::fromIndex(i);
-                if ( resType != RiaDefines::FLOW_DIAGNOSTICS )
+                if ( resType == RiaDefines::FLOW_DIAGNOSTICS 
+                    && (timeHistoryCurve) )
                 {
-                    QString uiString = ResCatEnum::uiTextFromIndex(i);
-                    options.push_back(caf::PdmOptionItemInfo(uiString, resType));
+                        continue;
                 }
+
+                if ( resType == RiaDefines::SOURSIMRL 
+                    && (!hasSourSimRLFile ) )
+                {
+                    continue;
+                }
+
+                QString uiString = ResCatEnum::uiTextFromIndex(i);
+                options.push_back(caf::PdmOptionItemInfo(uiString, resType));
             }
-        }
-        else
-        {
-            // Do nothing, and thereby use the defaults of the AppEnum field
         }
     }
 
@@ -460,10 +468,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            options.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)",   RIG_FLD_TOF_RESNAME));
-            options.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)",      RIG_FLD_CELL_FRACTION_RESNAME));
-            options.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer",             RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
-            options.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
+            options.push_back(caf::PdmOptionItemInfo("Time Of Flight (Average)", RIG_FLD_TOF_RESNAME));
+            if (m_phaseSelection() == RigFlowDiagResultAddress::PHASE_ALL)
+            {
+                options.push_back(caf::PdmOptionItemInfo("Tracer Cell Fraction (Sum)", RIG_FLD_CELL_FRACTION_RESNAME));
+                options.push_back(caf::PdmOptionItemInfo("Max Fraction Tracer", RIG_FLD_MAX_FRACTION_TRACER_RESNAME));
+                options.push_back(caf::PdmOptionItemInfo("Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME));
+            }
         }
         else if (fieldNeedingOptions == &m_flowSolutionUiField)
         {
@@ -855,6 +866,10 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         {
             return true;
         }
+        else if (m_resultType() == RiaDefines::SOURSIMRL)
+        {
+            return true;
+        }
         else if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS)
         {
             return true;
@@ -1097,7 +1112,7 @@ std::vector<QString> RimEclipseResultDefinition::tracerNamesMatchingFilter() con
         {
             for (const QString& tracerName : tracerNames)
             {
-                if (isStringMatch(m_selectedTracersUiFieldFilter, tracerName))
+                if (caf::Utils::isStringMatch(m_selectedTracersUiFieldFilter, tracerName))
                 {
                     matchingNames.push_back(tracerName);
                 }

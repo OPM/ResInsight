@@ -4,7 +4,7 @@ from cwrap import BaseCValue, Prototype
 from ecl.test import ExtendedTestCase
 
 class TestPrototype(Prototype):
-    lib = ecl.load("libert_util")
+    lib = ecl.load("libecl")
 
     def __init__(self, prototype):
         super(TestPrototype, self).__init__(self.lib, prototype)

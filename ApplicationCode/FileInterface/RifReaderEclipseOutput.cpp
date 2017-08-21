@@ -20,10 +20,17 @@
 
 #include "RifReaderEclipseOutput.h"
 
+#include "RiaLogging.h"
+
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
+#include "RifHdf5ReaderInterface.h"
+
+#ifdef USE_HDF5
+#include "RifHdf5Reader.h"
+#endif
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
@@ -38,6 +45,8 @@
 
 #include "ert/ecl/ecl_kw_magic.h"
 #include "ert/ecl/ecl_nnc_export.h"
+#include "ert/ecl/ecl_nnc_geometry.h"
+#include "ert/ecl/ecl_nnc_data.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
@@ -409,7 +418,10 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     {
         progInfo.setProgressDescription("Reading NNC data");
         progInfo.setNextProgressIncrement(5);
-        transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+        transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+        progInfo.incrementProgress();
+
+        transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
         progInfo.incrementProgress();
 
         progInfo.setProgressDescription("Processing NNC data");
@@ -433,6 +445,120 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     progInfo.incrementProgress();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
+{
+    CVF_ASSERT(m_eclipseCase);
+
+    RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RiaDefines::MATRIX_MODEL);
+    CVF_ASSERT(matrixModelResults);
+
+    if (fileName.isEmpty())
+    {
+        RiaLogging::info("HDF: Removing all existing Sour Sim data ...");
+        matrixModelResults->eraseAllSourSimData();
+
+        return;
+    }
+
+    RiaLogging::info(QString("HDF: Start import of data from : ").arg(fileName));
+
+    RiaLogging::info("HDF: Removing all existing Sour Sim data ...");
+    matrixModelResults->eraseAllSourSimData();
+
+    std::vector<QDateTime> dateTimes;
+    std::vector<double> daysSinceSimulationStart;
+    if (m_dynamicResultsAccess.notNull())
+    {
+        m_dynamicResultsAccess->timeSteps(&dateTimes, &daysSinceSimulationStart);
+    }
+
+    std::unique_ptr<RifHdf5ReaderInterface> myReader;
+#ifdef USE_HDF5
+    myReader = std::unique_ptr<RifHdf5ReaderInterface>(new RifHdf5Reader(fileName));
+#endif // USE_HDF5
+
+    if (!myReader)
+    {
+        RiaLogging::error("HDF: Failed to import Sour Sim data ");
+
+        return;
+    }
+
+    std::vector<QDateTime> hdfTimeSteps = myReader->timeSteps();
+    if (dateTimes.size() > 0)
+    {
+        if (hdfTimeSteps.size() != dateTimes.size())
+        {
+            RiaLogging::error("HDF: Time step count does not match");
+            RiaLogging::error(QString("HDF: Eclipse count %1").arg(dateTimes.size()));
+            RiaLogging::error(QString("HDF:     HDF count %1").arg(hdfTimeSteps.size()));
+
+            return;
+        }
+    
+        bool isTimeStampsEqual = true;
+        for (size_t i = 0; i < dateTimes.size(); i++)
+        {
+            if (hdfTimeSteps[i].date() != dateTimes[i].date())
+            {
+                RiaLogging::error("HDF: Time steps does not match");
+
+                QString dateStr("yyyy.MMM.ddd hh:mm");
+
+                RiaLogging::error(QString("HDF: Eclipse date %1").arg(dateTimes[i].toString(dateStr)));
+                RiaLogging::error(QString("HDF:     HDF date %1").arg(hdfTimeSteps[i].toString(dateStr)));
+
+                isTimeStampsEqual = false;
+            }
+        }
+
+        if (!isTimeStampsEqual) return;
+    }
+    else
+    {
+        // Use time steps from HDF to define the time steps
+        dateTimes = hdfTimeSteps;
+
+        QDateTime firstDate = hdfTimeSteps[0];
+
+        for (auto d : hdfTimeSteps)
+        {
+            daysSinceSimulationStart.push_back(firstDate.daysTo(d));
+        }
+
+    }
+
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
+    {
+        std::vector<int> reportNumbers;
+        if (m_dynamicResultsAccess.notNull())
+        {
+            reportNumbers = m_dynamicResultsAccess->reportNumbers();
+        }
+        else
+        {
+            for (size_t i = 0; i < dateTimes.size(); i++)
+            {
+                reportNumbers.push_back(static_cast<int>(i));
+            }
+        }
+
+        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(dateTimes, reportNumbers, daysSinceSimulationStart);
+    }
+
+    QStringList resultNames = myReader->propertyNames();
+    for (int i = 0; i < resultNames.size(); ++i)
+    {
+        size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::SOURSIMRL, resultNames[i], false);
+        matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
+    }
+
+    m_hdfReaderInterface = std::move(myReader);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,37 +597,62 @@ void RifReaderEclipseOutput::importFaults(const QStringList& fileSet, cvf::Colle
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)
+void RifReaderEclipseOutput::transferStaticNNCData(const ecl_grid_type* mainEclGrid , ecl_file_type* init_file, RigMainGrid* mainGrid)
 {
     if (!m_ecl_init_file ) return;
 
     CVF_ASSERT(mainEclGrid && mainGrid);
 
     // Get the data from ERT
+    ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(mainEclGrid);
+    ecl_nnc_data_type* tran_data = ecl_nnc_data_alloc_tran(mainEclGrid, nnc_geo, ecl_file_get_global_view(init_file));
 
-    int numNNC = ecl_nnc_export_get_size( mainEclGrid );
+    int numNNC = ecl_nnc_data_get_size(tran_data);
+    int geometrySize = ecl_nnc_geometry_size(nnc_geo);
+    CVF_ASSERT(numNNC == geometrySize);
+
     if (numNNC > 0)
     {
-        ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
-
-        ecl_nnc_export(mainEclGrid, init_file, eclNNCData);
-
-        // Transform to our own datastructures
-        //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
+        // Transform to our own data structures
 
         mainGrid->nncData()->connections().resize(numNNC);
-        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
+        std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeStaticConnectionScalarResult(RigNNCData::propertyNameCombTrans());
+        const double* transValues = ecl_nnc_data_get_values(tran_data);
+
         for (int nIdx = 0; nIdx < numNNC; ++nIdx)
         {
-            RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
-            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
-            RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
-            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
-            transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
+            const ecl_nnc_pair_type* geometry_pair = ecl_nnc_geometry_iget(nnc_geo, nIdx);
+            RigGridBase* grid1 =  mainGrid->gridByIndex(geometry_pair->grid_nr1);
+            mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(geometry_pair->global_index1);
+            RigGridBase* grid2 =  mainGrid->gridByIndex(geometry_pair->grid_nr2);
+            mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(geometry_pair->global_index2);
+
+            transmissibilityValues[nIdx] = transValues[nIdx];
         }
+    }
 
+    ecl_nnc_geometry_free(nnc_geo);
+    ecl_nnc_data_free(tran_data);
+}
 
-        delete[] eclNNCData;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::transferDynamicNNCData(const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid)
+{
+    CVF_ASSERT(mainEclGrid && mainGrid);
+
+    if (m_dynamicResultsAccess.isNull()) return;
+
+    size_t timeStepCount = m_dynamicResultsAccess->timeStepCount();
+
+    std::vector< std::vector<double> >& waterFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::propertyNameFluxWat(), timeStepCount);
+    std::vector< std::vector<double> >& oilFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::propertyNameFluxOil(), timeStepCount);
+    std::vector< std::vector<double> >& gasFluxData = mainGrid->nncData()->makeDynamicConnectionScalarResult(RigNNCData::propertyNameFluxGas(), timeStepCount);
+
+    for (size_t timeStep = 0; timeStep < timeStepCount; ++timeStep)
+    {
+        m_dynamicResultsAccess->dynamicNNCResults(mainEclGrid, timeStep, &waterFluxData[timeStep], &oilFluxData[timeStep], &gasFluxData[timeStep]);
     }
 }
 
@@ -825,10 +976,45 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, RiaDefines::Por
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::sourSimRlResult(const QString& result, size_t stepIndex, std::vector<double>* values)
+{
+    values->clear();
+
+    if ( !m_hdfReaderInterface ) return;
+
+    if ( m_eclipseCase->mainGrid()->gridCount() == 0 )
+    {
+        RiaLogging::error("No grids available");
+
+        return ;
+    }
+
+    size_t activeCellCount = cvf::UNDEFINED_SIZE_T;
+    {
+        RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RiaDefines::MATRIX_MODEL);
+        fracActCellInfo->gridActiveCellCounts(0, activeCellCount);
+    }
+
+    bool readCellResultOk = m_hdfReaderInterface->dynamicResult(result, stepIndex, values);
+
+    if (activeCellCount != values->size())
+    {
+        values->clear();
+
+        RiaLogging::error("SourSimRL results does not match the number of active cells in the grid");
+        return;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Get dynamic result at given step index. Will concatenate values for the main grid and all sub grids.
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
+ 
+
     if (m_dynamicResultsAccess.isNull())
     {
         m_dynamicResultsAccess = createDynamicResultsAccess();

@@ -419,6 +419,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>* injector_tof,
                                                                                                                     const std::vector<double>* producer_tof,
+                                                                                                                    const std::vector<size_t>& selected_cell_indices,
                                                                                                                     double max_pv_fraction)
 {
     using namespace Opm::FlowDiagnostics;
@@ -428,12 +429,18 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInte
     {
         return result;
     }
+    
+    std::vector<double> poreVolume;
+    for (size_t cellIndex : selected_cell_indices)
+    {
+        poreVolume.push_back(m_opmFlowDiagStaticData->m_poreVolume[cellIndex]);
+    }
 
     try
     {
         Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve(*injector_tof,
                                                                      *producer_tof,
-                                                                     m_opmFlowDiagStaticData->m_poreVolume,
+                                                                     poreVolume,
                                                                      max_pv_fraction);
 
         result.m_flowCapStorageCapCurve = flowCapStorCapCurve;

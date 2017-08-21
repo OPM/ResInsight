@@ -18,8 +18,10 @@ class PathContextTest(ExtendedTestCase):
             
     def test_chdir(self):
         with PathContext("/tmp/pc"):
-            self.assertEqual( os.getcwd() , "/tmp/pc")
-
+            self.assertEqual(
+                    os.path.realpath(os.getcwd()),
+                    os.path.realpath("/tmp/pc")
+                    )
 
     def test_cleanup(self):
         with TestAreaContext("pathcontext"):

@@ -49,21 +49,21 @@ CORNER_HOME = {
 
 def createVolumeTestGridBase(dim, dV, offset=1):
     return [
-            GridGen.createGrid(dim, dV, offset=0),
-            GridGen.createGrid(dim, dV, offset=offset),
-            GridGen.createGrid(dim, dV, offset=offset, irregular_offset=True),
-            GridGen.createGrid(dim, dV, offset=offset, concave=True),
-            GridGen.createGrid(dim, dV, offset=offset, irregular=True),
-            GridGen.createGrid(dim, dV, offset=offset, concave=True, irregular=True),
-            GridGen.createGrid(dim, dV, offset=offset, irregular_offset=True, concave=True),
-            GridGen.createGrid(dim, dV, offset=0, faults=True),
-            GridGen.createGrid(dim, dV, offset=offset, faults=True),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), scale=2),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), scale=0.5),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), translation=(50,50,0)),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), rotate=True),
-            GridGen.createGrid(dim, dV, escape_origo_shift=(100, 100, 0), misalign=True),
-            GridGen.createGrid(dim, dV, offset=offset, escape_origo_shift=(100, 100, 0),
+            GridGen.create_grid(dim, dV, offset=0),
+            GridGen.create_grid(dim, dV, offset=offset),
+            GridGen.create_grid(dim, dV, offset=offset, irregular_offset=True),
+            GridGen.create_grid(dim, dV, offset=offset, concave=True),
+            GridGen.create_grid(dim, dV, offset=offset, irregular=True),
+            GridGen.create_grid(dim, dV, offset=offset, concave=True, irregular=True),
+            GridGen.create_grid(dim, dV, offset=offset, irregular_offset=True, concave=True),
+            GridGen.create_grid(dim, dV, offset=0, faults=True),
+            GridGen.create_grid(dim, dV, offset=offset, faults=True),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), scale=2),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), scale=0.5),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), translation=(50,50,0)),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), rotate=True),
+            GridGen.create_grid(dim, dV, escape_origo_shift=(100, 100, 0), misalign=True),
+            GridGen.create_grid(dim, dV, offset=offset, escape_origo_shift=(100, 100, 0),
                 irregular_offset=True, concave=True, irregular=True,
                 scale=1.5, translation=(5,5,0), rotate=True,
                 misalign=True)
@@ -71,11 +71,11 @@ def createVolumeTestGridBase(dim, dV, offset=1):
 
 def createContainmentTestBase():
     return [
-            (3,  GridGen.createGrid((6,6,6), (1,1,1), offset=1)),
-            (10, GridGen.createGrid((3,3,3), (1,1,1), offset=1, concave=True)),
-            (4,  GridGen.createGrid((10,10,1), (1,1,1), offset=0., misalign=True)),
+            (3,  GridGen.create_grid((6,6,6), (1,1,1), offset=1)),
+            (10, GridGen.create_grid((3,3,3), (1,1,1), offset=1, concave=True)),
+            (4,  GridGen.create_grid((10,10,1), (1,1,1), offset=0., misalign=True)),
             (3,
-                GridGen.createGrid((6,6,6), (1,1,1), offset=0.,
+                GridGen.create_grid((6,6,6), (1,1,1), offset=0.,
                     escape_origo_shift=(100, 100, 0),
                     irregular_offset=True, concave=True, irregular=True,
                     scale=1.5, translation=(5,5,0),
@@ -110,7 +110,7 @@ def createWrapperGrid(grid):
                 for i, pos in enumerate(corner_pos)
               ]
 
-    return GridGen.createSingleCellGrid(corners)
+    return GridGen.create_single_cell_grid(corners)
 
 def average(points):
     p = reduce(lambda a,b: (a[0]+b[0], a[1]+b[1], a[2]+b[2]), points)
@@ -334,6 +334,15 @@ class GridTest(ExtendedTestCase):
         self.assertEqual( len(grid) , nx*ny*nz )
         self.assertEqual( grid.getNumActive( ) , 4 )
 
+    def test_export(self):
+        dims = (3, 3, 3)
+        coord = GridGen.create_coord(dims, (1,1,1))
+        zcorn = GridGen.create_zcorn(dims, (1,1,1), offset=0)
+
+        grid = EclGrid.create(dims, zcorn, coord, None)
+
+        self.assertEqual(zcorn, grid.export_zcorn())
+        self.assertEqual(coord, grid.export_coord())
 
     def test_output_units(self):
         n = 10
@@ -389,11 +398,13 @@ class GridTest(ExtendedTestCase):
                             for i in range(grid.getGlobalSize())
                         ].count(True)
 
-                self.assertTrue(hits in [0, 1])
+                self.assertIn(hits, [0, 1])
 
+                expected = 1 if wgrid.cell_contains(x, y, z, 0) else 0
                 self.assertEqual(
-                        1 if wgrid.cell_contains(x, y, z, 0) else 0,
-                        hits
+                        expected,
+                        hits,
+                        'Expected %d for (%g,%g,%g), got %d' % (expected, x, y, z, hits)
                         )
 
     def test_cell_corner_containment(self):
@@ -445,7 +456,7 @@ class GridTest(ExtendedTestCase):
             (20, 20, 20)
             ]
 
-        grid = GridGen.createSingleCellGrid(points)
+        grid = GridGen.create_single_cell_grid(points)
 
         assertPoint = lambda p : self.assertTrue(
                 grid.cell_contains(p[0], p[1], p[2], 0)
@@ -505,7 +516,7 @@ class GridTest(ExtendedTestCase):
             (25, 25, 25)
             ]
 
-        grid = GridGen.createSingleCellGrid(points)
+        grid = GridGen.create_single_cell_grid(points)
 
         assertPoint = lambda p : self.assertTrue(
                 grid.cell_contains(p[0], p[1], p[2], 0)

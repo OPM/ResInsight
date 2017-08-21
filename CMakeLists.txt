@@ -79,25 +79,21 @@ if (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
     message(FATAL_ERROR "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined")
   endif()
 
+    message(FATAL_ERROR "TODO: Building using and external system installed ERT is broken.")
+
   list(APPEND ERT_INCLUDE_DIRS
     ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT}
   )
 
   list(APPEND ERT_LIBRARIES
 	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libeclxx.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libecl_well.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_geometry.so
-	${RESINSIGHT_ERT_EXTERNAL_LIB_ROOT}/libert_util.so
   )
   
 else()
 
     # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
     SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
-    SET(BUILD_PYTHON OFF CACHE BOOL "ERT: Run py_compile on the python wrappers")
     SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
-    SET(ERT_BUILD_CXX ON CACHE BOOL "ERT: Enable build of CXX wrappers" FORCE)
 
     # Remember original state
     set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
@@ -115,36 +111,23 @@ else()
     endif()
 
     if (RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
-        set(ERT_INCLUDE_ROOT "${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT}")
-        add_subdirectory(${ERT_SOURCE_PATH} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
+        add_subdirectory(${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
     else()
-        set(ERT_INCLUDE_ROOT ${CMAKE_SOURCE_DIR}/ThirdParty/Ert)
         add_subdirectory(ThirdParty/Ert)
     endif ()
 
-    list(APPEND ERT_INCLUDE_DIRS
-        ${ERT_INCLUDE_ROOT}/libecl/include/
-        ${ERT_INCLUDE_ROOT}/libert_util/include/
-        ${ERT_INCLUDE_ROOT}/libgeometry/include/
-        ${ERT_INCLUDE_ROOT}/libecl_well/include/
-        ${ERT_INCLUDE_ROOT}/libeclxx/include
-        ${ERT_INCLUDE_ROOT}/libert_utilxx/include
+    if (MSVC)
+         # libecl : Disable some warnings  
+         set_target_properties(ecl PROPERTIES COMPILE_FLAGS "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715")
+    endif()
 
-        ${CMAKE_BINARY_DIR}/ThirdParty/Ert/libert_util/include
-    )
-
-    list(APPEND ERT_LIBRARIES
-	        ecl 
-	        eclxx
-	        ecl_well 
-	        ert_geometry 
-	        ert_util  
+    list(APPEND THIRD_PARTY_LIBRARIES
+        ecl 
     )
 
     if (MSVC)
       set_property(TARGET  
-          ${ERT_LIBRARIES}
-          ecl_lfs
+          ecl
 	      PROPERTY FOLDER "Thirdparty/ERT"
       )
     endif()
@@ -153,6 +136,54 @@ else()
     set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
     
 endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+
+
+################################################################################
+# HDF5
+################################################################################
+option (RESINSIGHT_USE_HDF5 "Use HDF5 library" OFF)
+if (RESINSIGHT_USE_HDF5)
+    if(MSVC)
+        # Must specyfy libraries manually
+        # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
+
+        set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
+        if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+        
+            include_directories(${RESINSIGHT_HDF5_DIR}/include)
+        
+	        list(APPEND EXTERNAL_LINK_LIBRARIES
+                # libzlib.lib is not included here, as it is linked implicitly by Qt
+		    
+                ${RESINSIGHT_HDF5_DIR}/lib/libhdf5.lib
+		        ${RESINSIGHT_HDF5_DIR}/lib/libhdf5_cpp.lib
+		        ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
+	        )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}" )
+        else()
+	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
+        endif()
+
+    else()
+	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
+        find_package(HDF5 REQUIRED COMPONENTS CXX)
+        if (HDF5_FOUND)
+		    add_definitions(${HDF5_DEFINITIONS})
+		    include_directories(${HDF5_INCLUDE_DIRS})
+
+		    list(APPEND EXTERNAL_LINK_LIBRARIES
+		        ${HDF5_LIBRARIES}
+		    )
+
+	        set(RESINSIGHT_FOUND_HDF5 1)
+	        message( STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}" )
+        else()
+            message( WARNING "Use of HDF5 is enabled, but no HDF5 is found." )
+        endif() # HDF5_FOUND
+    endif() # MSVC
+endif() # RESINSIGHT_USE_HDF5
 
 
 ################################################################################ 
@@ -381,18 +412,6 @@ if (RESINSIGHT_PRIVATE_INSTALL)
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
             ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libeclxx.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl_well.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_geometry.so.2.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2
-            ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libert_util.so.2.2
         )
       
       install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER} )
@@ -472,6 +491,9 @@ if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
     set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
 endif()
 
+if(RESINSIGHT_FOUND_HDF5)
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_hdf5")
+endif()
 
 # Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
 if (NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")

@@ -44,7 +44,7 @@ from cwrap import Prototype
 
 
 class UtilPrototype(Prototype):
-    lib = ecl.load("libert_util")
+    lib = ecl.load("libecl")
 
     def __init__(self, prototype, bind=True):
         super(UtilPrototype, self).__init__(UtilPrototype.lib, prototype, bind=bind)

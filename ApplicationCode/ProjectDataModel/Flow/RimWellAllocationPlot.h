@@ -35,6 +35,7 @@ class RimWellAllocationPlotLegend;
 class RimWellLogPlot;
 class RiuWellAllocationPlot;
 class RimWellLogTrack;
+class RimTofAccumulatedPhaseFractionsPlot;
 class RigSingleWellResultsData;
 
 namespace cvf {
@@ -72,6 +73,7 @@ public:
 
     RimWellLogPlot*                                 accumulatedWellFlowPlot();
     RimTotalWellAllocationPlot*                     totalWellFlowPlot();
+    RimTofAccumulatedPhaseFractionsPlot*            tofAccumulatedPhaseFractionsPlot();
     caf::PdmObject*                                 plotLegend();
     RimEclipseResultCase*                           rimCase();
     int                                             timeStep();
@@ -134,4 +136,5 @@ private:
     caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
     caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
     caf::PdmChildField<RimWellAllocationPlotLegend*> m_wellAllocationPlotLegend;
+    caf::PdmChildField<RimTofAccumulatedPhaseFractionsPlot*> m_tofAccumulatedPhaseFractionsPlot;
 };

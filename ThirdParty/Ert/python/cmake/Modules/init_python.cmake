@@ -105,15 +105,34 @@ def runTestCase(tests, verbosity=0):
         sys.exit(1)
 
 
+# This will update both the internal sys.path load order and the
+# environment variable PYTHONPATH with the following list:
+#
+#      cwd:CTEST_PYTHONPATH:PYTHONPATH
+
 def update_path():
-    for path in os.environ['CTEST_PYTHONPATH'].split(':'):
-        sys.path.insert(0 , path)
-        
+     path_list = [os.getcwd()]
+
+     if 'CTEST_PYTHONPATH' in os.environ:
+        ctest_pythonpath = os.environ['CTEST_PYTHONPATH']
+        for path in ctest_pythonpath.split(':'):
+            path_list.append( path )
+   
+     for path in reversed(path_list):
+         sys.path.insert(0 , path)     
+
+     if 'PYTHONPATH' in os.environ:
+        pythonpath = os.environ['PYTHONPATH']
+        for path in pythonpath.split(':'):
+            path_list.append( path )
+
+     os.environ['PYTHONPATH'] = ':'.join( path_list )
+
+
     
 if __name__ == '__main__':
     update_path( )
     from ecl.test import ErtTestRunner
-
     for test_class in sys.argv[1:]:
         tests = ErtTestRunner.getTestsFromTestClass(test_class)
         

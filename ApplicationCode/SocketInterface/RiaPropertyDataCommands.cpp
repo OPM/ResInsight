@@ -30,6 +30,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
+#include "RigEclipseResultInfo.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -38,9 +39,12 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipseView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimGeoMechView.h"
+#include "RimGeoMechCase.h"
 
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
+#include "RiuSelectionManager.h"
 
 #include <QErrorMessage>
 
@@ -412,6 +416,11 @@ public:
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
                 scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
+
+                size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+                rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount(&scalarResWithMostTimeSteps);
+                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->results(m_porosityModelEnum)->cellResults()->timeStepInfos(scalarResWithMostTimeSteps);
+                rimCase->results(m_porosityModelEnum)->cellResults()->setTimeStepInfos(scalarResultIndex, timeStepInfos);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
@@ -1108,6 +1117,8 @@ public:
         std::vector<QString> resTypeNames;
         resTypes.push_back(RiaDefines::DYNAMIC_NATIVE);
         resTypeNames.push_back("DynamicNative");
+        resTypes.push_back(RiaDefines::SOURSIMRL);
+        resTypeNames.push_back("SourSimRL");
         resTypes.push_back(RiaDefines::STATIC_NATIVE );
         resTypeNames.push_back("StaticNative");
         resTypes.push_back(RiaDefines::GENERATED     );
@@ -1150,3 +1161,163 @@ public:
 };
 
 static bool RiaGetPropertyNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetPropertyNames>(RiaGetPropertyNames::commandName());
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetGridPropertyForSelectedCells: public RiaSocketCommand
+{
+public:
+    static QString commandName() { return QString("GetGridPropertyForSelectedCells"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    {
+        RimEclipseCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        if (!rimCase) return true;
+
+        QString propertyName = args[2];
+
+        RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
+
+        if (args.size() > 1)
+        {
+            QString prorosityModelString = args[3];
+            if (prorosityModelString.toUpper() == "FRACTURE")
+            {
+                porosityModel = RiaDefines::FRACTURE_MODEL;
+            }
+        }
+
+        size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+        if (rimCase && rimCase->results(porosityModel))
+        {
+            scalarResultIndex = rimCase->results(porosityModel)->findOrLoadScalarResult(propertyName);
+        }
+
+        std::vector<size_t> requestedTimesteps;
+        if (args.size() < 5)
+        {
+            // Select all
+            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModel)->cellResults()->timeStepCount(scalarResultIndex); ++tsIdx)
+            {
+                requestedTimesteps.push_back(tsIdx);
+            }
+        }
+        else
+        {
+            bool timeStepReadError = false;
+            for (int argIdx = 4; argIdx < args.size(); ++argIdx)
+            {
+                bool conversionOk = false;
+                int tsIdx = args[argIdx].toInt(&conversionOk);
+
+                if (conversionOk)
+                {
+                    requestedTimesteps.push_back(tsIdx);
+                }
+                else
+                {
+                    timeStepReadError = true;
+                }
+            }
+
+            if (timeStepReadError)
+            {
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
+                                                          + RiaSocketServer::tr("An error occurred while interpreting the requested time steps."));
+            }
+
+        }
+        if (!(rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid()) )
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 ;
+            return true;
+        }
+
+        std::vector< std::pair<size_t, size_t> > selectedCells = getSelectedCellsForCase(rimCase);
+
+        // First write column count
+        quint64 timestepCount = (quint64)requestedTimesteps.size();
+        socketStream << timestepCount;
+
+        // then the byte-size of the size of one column
+        quint64 timestepByteCount = (quint64)(selectedCells.size()*sizeof(double));
+        socketStream << timestepByteCount;
+
+        size_t valueCount = RiaSocketDataTransfer::maximumValueCountInBlock();
+        std::vector<double> values(valueCount);
+        size_t valueIndex = 0;
+
+        for (size_t timeStep : requestedTimesteps)
+        {
+            const std::vector<double>& scalarResults = rimCase->results(porosityModel)->cellResults()->cellScalarResults(scalarResultIndex, timeStep);
+
+
+            for (const std::pair<size_t, size_t> selectedCell : selectedCells)
+            {
+                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromUiResultName(rimCase->eclipseCaseData(), selectedCell.first, porosityModel, timeStep, propertyName);
+                if (resultAccessor.isNull())
+                {
+                    return false;
+                }
+
+                values[valueIndex] = resultAccessor->cellScalar(selectedCell.second);
+
+                valueIndex++;
+                if (valueIndex >= valueCount)
+                {
+                    if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
+                    {
+                        return false;
+                    }
+
+                    valueIndex = 0;
+                }
+            }
+        }
+
+        // Write remaining data
+        if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    static std::vector< std::pair<size_t, size_t> > getSelectedCellsForCase(const RimCase* reservoirCase)
+    {
+        std::vector<RiuSelectionItem*> items;
+        RiuSelectionManager::instance()->selectedItems(items);
+
+        std::vector< std::pair<size_t, size_t> > selectedCells;
+
+        for (const RiuSelectionItem* item : items)
+        {
+            if (item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+            {
+                const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);
+
+                if (eclipseItem->m_view->eclipseCase()->caseId == reservoirCase->caseId)
+                {
+                    selectedCells.push_back(std::make_pair(eclipseItem->m_gridIndex, eclipseItem->m_cellIndex));
+                }
+            }
+            else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)
+            {
+                const RiuGeoMechSelectionItem* geomechItem = static_cast<const RiuGeoMechSelectionItem*>(item);
+
+                if (geomechItem->m_view->geoMechCase()->caseId == reservoirCase->caseId)
+                {
+                    selectedCells.push_back(std::make_pair(geomechItem->m_gridIndex, geomechItem->m_cellIndex));
+                }
+            }
+        }
+
+        return selectedCells;
+    }
+};
+
+static bool RiaGetGridPropertyForSelectedCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridPropertyForSelectedCells>(RiaGetGridPropertyForSelectedCells::commandName());

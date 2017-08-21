@@ -30,6 +30,7 @@ namespace caf
     {
         addItem(RiaDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE",   "Dynamic");
         addItem(RiaDefines::STATIC_NATIVE,  "STATIC_NATIVE",    "Static");
+        addItem(RiaDefines::SOURSIMRL,      "SOURSIMRL",        "SourSimRL");
         addItem(RiaDefines::GENERATED,      "GENERATED",        "Generated");
         addItem(RiaDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
         addItem(RiaDefines::FORMATION_NAMES, "FORMATION_NAMES", "Formation Names");
@@ -99,6 +100,22 @@ bool RiaDefines::isPerCellFaceResult(const QString& resultName)
     {
         return true;
     }
+    else if (resultName.compare(RiaDefines::combinedWaterFluxResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RiaDefines::combinedOilFluxResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RiaDefines::combinedGasFluxResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.endsWith("IJK"))
+    {
+        return true;
+    }
 
     return false;
 }
@@ -133,6 +150,30 @@ QString RiaDefines::undefinedGridFaultWithInactiveName()
 QString RiaDefines::combinedTransmissibilityResultName()
 {
     return "TRANXYZ";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::combinedWaterFluxResultName()
+{
+    return "FLRWATIJK";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::combinedOilFluxResultName()
+{
+    return "FLROILIJK";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::combinedGasFluxResultName()
+{
+    return "FLRGASIJK";
 }
 
 //--------------------------------------------------------------------------------------------------

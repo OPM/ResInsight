@@ -41,6 +41,7 @@ public:
     size_t plotCount() const;
     
     void addWellAllocPlotToStoredPlots(RimWellAllocationPlot* plot);
+    void addFlowCharacteristicsPlotToStoredPlots(RimFlowCharacteristicsPlot* plot);
     RimWellAllocationPlot* defaultWellAllocPlot();
     RimFlowCharacteristicsPlot* defaultFlowCharacteristicsPlot();
 
@@ -48,4 +49,5 @@ private:
     caf::PdmChildField<RimFlowCharacteristicsPlot*> m_flowCharacteristicsPlot;
     caf::PdmChildField<RimWellAllocationPlot*>      m_defaultWellAllocPlot;
     caf::PdmChildArrayField<RimWellAllocationPlot*> m_storedWellAllocPlots;
+    caf::PdmChildArrayField<RimFlowCharacteristicsPlot*> m_storedFlowCharacteristicsPlots;
 };

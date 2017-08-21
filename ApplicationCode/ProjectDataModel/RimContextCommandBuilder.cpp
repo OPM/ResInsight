@@ -37,6 +37,7 @@
 #include "RimFault.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimEllipseFractureTemplate.h"
@@ -359,6 +360,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicAddStoredWellAllocationPlotFeature";
         }
+        else if (dynamic_cast<RimFlowCharacteristicsPlot*>(uiItem))
+        {
+            commandIds << "RicAddStoredFlowCharacteristicsPlotFeature";
+        }
         else if (dynamic_cast<RimFlowDiagSolution*>(uiItem))
         {
             commandIds << "RicShowFlowCharacteristicsPlotFeature";
@@ -447,6 +452,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicReloadCaseFeature";
             commandIds << "RicExecuteScriptForCasesFeature";
+            commandIds << "RicCloseSourSimDataFeature";
         }
         else if (dynamic_cast<RimSummaryPlot*>(uiItem))
         {

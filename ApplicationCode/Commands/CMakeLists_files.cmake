@@ -32,6 +32,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.h
 
+${CEE_CURRENT_LIST_DIR}RicSelectOrCreateViewFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.h
@@ -56,6 +57,8 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.h
+
+${CEE_CURRENT_LIST_DIR}RicCloseSourSimDataFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
 
@@ -88,6 +91,7 @@ ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.cpp
 
+${CEE_CURRENT_LIST_DIR}RicSelectOrCreateViewFeatureImpl.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.cpp
@@ -115,6 +119,8 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.cpp
+
+${CEE_CURRENT_LIST_DIR}RicCloseSourSimDataFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.cpp

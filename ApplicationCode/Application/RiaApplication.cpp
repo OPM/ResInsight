@@ -1173,7 +1173,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 
     //if (!riv->cellResult()->hasResult())
     //{
-    //    riv->cellResult()->setResultVariable(RiaEclipseUnitTools::undefinedResultName());
+    //    riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
     //}
     progress.incrementProgress();
     progress.setProgressDescription("Loading results information");

@@ -49,6 +49,8 @@
 #include "RimWellLogTrack.h"
 #include "RimFishboneWellPath.h"
 #include "RimPerforationInterval.h"
+#include "RimFlowCharacteristicsPlot.h"
+#include "RimAsciiDataCurve.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -67,6 +69,7 @@ bool isDeletable(caf::PdmUiItem* uiItem)
 {
     // Enable delete of well allocation plots
     if (dynamic_cast<RimWellAllocationPlot*>(uiItem)) return true;
+    if (dynamic_cast<RimFlowCharacteristicsPlot*>(uiItem)) return true;
 
     // Disable delete of all sub objects of a well allocation plot
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(uiItem);
@@ -99,9 +102,10 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimIntersectionBox*>(uiItem))           return true;
     if (dynamic_cast<RimFormationNames*>(uiItem))            return true;
     if (dynamic_cast<RimFormationNamesCollection*>(uiItem))  return true;
-    if (dynamic_cast<RimFishboneWellPath*>(uiItem))        return true;
+    if (dynamic_cast<RimFishboneWellPath*>(uiItem))          return true;
     if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))     return true;
     if (dynamic_cast<RimPerforationInterval*>(uiItem))       return true;
+    if (dynamic_cast<RimAsciiDataCurve*>(uiItem))            return true;
     if (dynamic_cast<RimWellPathFractureCollection*>(uiItem))        return true;
     if (dynamic_cast<RimWellPathFracture*>(uiItem))                  return true;
     if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))        return true;

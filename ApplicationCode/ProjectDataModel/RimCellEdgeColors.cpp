@@ -189,7 +189,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions(const caf
             varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RiaDefines::STATIC_NATIVE);
 
             //TODO: Must also handle input properties
-            //varList += m_reservoirView->gridCellResults()->resultNames(RiaEclipseUnitTools::INPUT_PROPERTY);
+            //varList += m_reservoirView->gridCellResults()->resultNames(RiaDefines::INPUT_PROPERTY);
 
             QList<caf::PdmOptionItemInfo> options;
 

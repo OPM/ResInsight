@@ -27,7 +27,6 @@ include_directories(
 	${ResInsight_SOURCE_DIR}/ThirdParty
     ${ResInsight_SOURCE_DIR}/ThirdParty/NRLib/nrlib/well
     ${ResInsight_SOURCE_DIR}/ThirdParty/Qwt/src
-	${ERT_INCLUDE_DIRS}
 
     ${boost-Subset_SOURCE_DIR}
     ${custom-opm-flowdiagnostics_SOURCE_DIR}/opm-flowdiagnostics/
@@ -77,6 +76,7 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaProjectInfoCommands.cpp
     SocketInterface/RiaCaseInfoCommands.cpp
     SocketInterface/RiaGeometryCommands.cpp
+    SocketInterface/RiaNNCCommands.cpp
     SocketInterface/RiaPropertyDataCommands.cpp
     SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
@@ -174,6 +174,21 @@ endif()
 
 add_subdirectory(GeoMech/GeoMechDataModel)
 
+# 
+# HDF5  
+#
+if (${RESINSIGHT_FOUND_HDF5})
+    list( APPEND CPP_SOURCES
+        FileInterface/RifHdf5Reader.h
+        FileInterface/RifHdf5Reader.cpp
+    )
+
+    source_group( "FileInterface" FILES FileInterface/RifHdf5Reader.h FileInterface/RifHdf5Reader.cpp )
+
+	add_definitions(-DUSE_HDF5)
+endif()
+
+
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
@@ -251,6 +266,9 @@ set( EXE_FILES
 
 add_executable( ResInsight ${EXE_FILES} )
 
+if (MSVC) 
+    set_target_properties(ResInsight PROPERTIES COMPILE_FLAGS "/wd4190") 
+endif() 
 
 #############################################################################
 # Application icon for MacOS X bundle
@@ -283,20 +301,15 @@ set( LINK_LIBRARIES
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
     
-    ${ERT_LIBRARIES}
-    
     ${THIRD_PARTY_LIBRARIES}
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )
 
-set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
-
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( EXTERNAL_LINK_LIBRARIES
-        ${EXTERNAL_LINK_LIBRARIES}
+    list(APPEND EXTERNAL_LINK_LIBRARIES
         rt
     )
 endif()
@@ -314,32 +327,29 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 #############################################################################
 if(RESINSIGHT_ENABLE_COTIRE)
 
-    # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
-    set_source_files_properties (${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc     PROPERTIES COTIRE_EXCLUDED TRUE)
-  
-    # multiple QRC files are not supported
-    set_source_files_properties (qrc_cafAnimControl.cxx                                     PROPERTIES COTIRE_EXCLUDED TRUE)
- 
-    # variables at global file scope
-    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionPartMgr.cpp              PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ModelVisualization/Intersections/RivIntersectionBoxPartMgr.cpp           PROPERTIES COTIRE_EXCLUDED TRUE)
+    set( COTIRE_EXCLUDE_FILES
+        # forever is used as variable name, and this symbol is defined by Qt and used in precompiled headers
+        ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
     
-    set_source_files_properties (ModelVisualization/GridBox/RivGridBoxGenerator.cpp         PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (Commands/WellLogCommands/RicWellLogPlotCurveFeatureImpl.cpp PROPERTIES COTIRE_EXCLUDED TRUE)
+        # multiple QRC files are not supported
+        qrc_cafAnimControl.cxx
+        qrc_ResInsight.cxx
 
-    # using namespace cvf
-    set_source_files_properties (GeoMech/GeoMechVisualization/RivFemPartGeometryGenerator.cpp  PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (UnitTests/cvfGeometryTools-Test.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+        # mix of cvf and Qt namespaces
+        ModelVisualization/GridBox/RivGridBoxGenerator.cpp
+        ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
 
-    # opm parser
-    set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+        # exclude file using Eigen
+        ReservoirDataModel/RigTransmissibilityCondenser.cpp
+        ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+        ReservoirDataModel/RigCellGeometryTools.cpp
+    )
 
-    # exclude file using Eigen
-    set_source_files_properties (ReservoirDataModel/RigTransmissibilityCondenser.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    set_source_files_properties (ReservoirDataModel/RigCellGeometryTools.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
-    
+	foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})
+        set_source_files_properties (${fileToExclude} PROPERTIES COTIRE_EXCLUDED TRUE)
+	endforeach(fileToExclude)
+
+    # disable precompiled headers
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    
     cotire(ResInsight)
@@ -357,8 +367,19 @@ endif()
 # Copy Dlls on MSVC
 #############################################################################
 
-# Copy Odb Dlls
 
+# Qt DLLs
+if (MSVC)
+
+    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
+    foreach (qtlib ${QTLIBLIST})
+        list(APPEND FILES_TO_COPY ${QT_BINARY_DIR}/${qtlib}4.dll)
+    endforeach( qtlib )
+
+endif(MSVC)
+
+
+# Odb Dlls
 if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
 	# Find all the dlls
 	file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
@@ -369,41 +390,26 @@ if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
 		 list(APPEND RI_ODB_DLLS ${filenameWithExt} )
 	endforeach(aDLL)
 
-	# Copy to target directory
 	foreach (aDLL ${RI_ODB_DLLS})
-        add_custom_command(TARGET ResInsight POST_BUILD
-                           COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-						   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
-						   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        if (_unityTargetName)
-            add_custom_command(TARGET ${_unityTargetName} POST_BUILD
-                               COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-		    				   "${RESINSIGHT_ODB_API_DIR}/lib/${aDLL}"  
-		    				   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        endif()
+        list(APPEND FILES_TO_COPY ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
     endforeach()
 
 endif()
 
-    # Qt DLLs
+# Copy to target directory
+foreach (FILE_TO_COPY ${FILES_TO_COPY})
+    add_custom_command(TARGET ResInsight POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+						"${FILE_TO_COPY}"  
+						"${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+    if (_unityTargetName)
+        add_custom_command(TARGET ${_unityTargetName} POST_BUILD
+                            COMMAND ${CMAKE_COMMAND} -E copy_if_different  
+		    				"${FILE_TO_COPY}"  
+		    				"${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
+    endif()
+endforeach()
 
-if (MSVC)
-
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
-    foreach (qtlib ${QTLIBLIST})
-        add_custom_command(TARGET ResInsight POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${QT_BINARY_DIR}/${qtlib}4.dll"
-                "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        if (_unityTargetName)
-           add_custom_command(TARGET ResInsight POST_BUILD
-               COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                   "${QT_BINARY_DIR}/${qtlib}4.dll"
-                   "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>")
-        endif()
-    endforeach( qtlib )
-
-endif(MSVC)
 
 #############################################################################
 # Install 

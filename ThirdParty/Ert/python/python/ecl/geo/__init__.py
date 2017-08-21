@@ -21,7 +21,7 @@ import ecl
 from cwrap import Prototype
 
 class GeoPrototype(Prototype):
-    lib = ecl.load("libert_geometry")
+    lib = ecl.load("libecl")
 
     def __init__(self, prototype, bind=True):
         super(GeoPrototype, self).__init__(GeoPrototype.lib, prototype, bind=bind)
