@@ -208,7 +208,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             {
                 auto it = std::find(calculatedTimeSteps.begin(), calculatedTimeSteps.end(), tsIdx);
                 QString itemText = timeStepDates[tsIdx];
-                if (it == calculatedTimeSteps.end())
+                if (it != calculatedTimeSteps.end())
                 {
                     itemText = itemText + " *";
                 }
