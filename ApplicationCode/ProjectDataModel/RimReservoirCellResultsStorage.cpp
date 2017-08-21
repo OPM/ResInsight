@@ -1576,7 +1576,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         {
             std::vector<double>* data = NULL;
 
-            data = &(m_cellResults->cellScalarResults(rIdx, tsIdx));
+            data = &(m_cellResults->cellScalarResults(resultIndex, tsIdx));
 
             quint64 cellCount = 0;
             stream >> cellCount;

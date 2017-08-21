@@ -30,6 +30,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
+#include "RigEclipseResultInfo.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -415,6 +416,11 @@ public:
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
                 scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
+
+                size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
+                rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount(&scalarResWithMostTimeSteps);
+                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->results(m_porosityModelEnum)->cellResults()->timeStepInfos(scalarResWithMostTimeSteps);
+                rimCase->results(m_porosityModelEnum)->cellResults()->setTimeStepInfos(scalarResultIndex, timeStepInfos);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
