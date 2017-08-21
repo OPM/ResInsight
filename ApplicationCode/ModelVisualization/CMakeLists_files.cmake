@@ -39,9 +39,14 @@ ${CEE_CURRENT_LIST_DIR}RivPartPriority.h
 ${CEE_CURRENT_LIST_DIR}RivObjectSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivFishbonesSubsPartMgr.h
-
-${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.h
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
+    list (APPEND SOURCE_GROUP_HEADER_FILES 
+        ${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.h
+    ) 
+endif() 
+
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.cpp
@@ -73,8 +78,13 @@ ${CEE_CURRENT_LIST_DIR}RivWellSpheresPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivObjectSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellConnectionsPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivFishbonesSubsPartMgr.cpp
-${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.cpp
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CEE_CURRENT_LIST_DIR}RivWellFracturePartMgr.cpp
+    )
+endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

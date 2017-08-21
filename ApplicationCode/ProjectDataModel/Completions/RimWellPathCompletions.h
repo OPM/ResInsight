@@ -24,7 +24,9 @@
 
 class RimFishbonesCollection;
 class RimPerforationCollection;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimWellPathFractureCollection;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //==================================================================================================
 ///  
@@ -39,7 +41,9 @@ public:
 
     RimFishbonesCollection*        fishbonesCollection() const;
     RimPerforationCollection*      perforationCollection() const;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     RimWellPathFractureCollection* fractureCollection() const;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                        setWellNameForExport(const QString& name);
     QString                     wellNameForExport() const;
@@ -53,7 +57,9 @@ protected:
 private:
     caf::PdmChildField<RimFishbonesCollection*>         m_fishbonesCollection;
     caf::PdmChildField<RimPerforationCollection*>       m_perforationCollection;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     caf::PdmChildField<RimWellPathFractureCollection*>  m_fractureCollection;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     
     caf::PdmField<QString>                              m_wellNameForExport;
 };

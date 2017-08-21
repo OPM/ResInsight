@@ -27,8 +27,11 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 #include "RimIntersectionCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellFracture.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RiuMainWindow.h"
 
@@ -67,14 +70,19 @@ RimEclipseWell::RimEclipseWell()
 
     CAF_PDM_InitField(&showWellCells,           "ShowWellCells",        false,  "Well Cells", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,       "ShowWellCellFence",    false,  "Well Cell Fence", "", "", "");
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     CAF_PDM_InitFieldNoDefault(&simwellFractureCollection, "FractureCollection", "Fractures", "", "", "");
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     name.uiCapability()->setUiHidden(true);
     name.uiCapability()->setUiReadOnly(true);
 
     m_resultWellIndex = cvf::UNDEFINED_SIZE_T;
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     simwellFractureCollection= new RimSimWellFractureCollection();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,7 +90,9 @@ RimEclipseWell::RimEclipseWell()
 //--------------------------------------------------------------------------------------------------
 RimEclipseWell::~RimEclipseWell()
 {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (simwellFractureCollection()) delete simwellFractureCollection();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -373,11 +383,13 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (RimSimWellFracture* fracture : simwellFractureCollection()->simwellFractures())
     {
         uiTreeOrdering.add(fracture);
     }
     uiTreeOrdering.skipRemainingChildren(true);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);

@@ -63,7 +63,10 @@ public:
 
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     caf::PdmField<bool>                     includeFractures;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     caf::PdmField<bool>                     excludeMainBoreForFishbones;
 

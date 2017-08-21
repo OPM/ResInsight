@@ -51,7 +51,11 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -483,6 +487,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
         oilField->summaryCaseCollection()->loadAllSummaryCaseData();
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
 
         {
@@ -494,6 +499,7 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
                 fracture->loadDataAndUpdate();
             }
         }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     }
 
@@ -1003,7 +1009,9 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     {
         if (rimResultReservoir->eclipseCaseData())
         {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
             project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = rimResultReservoir->eclipseCaseData()->unitsType();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
     }
 

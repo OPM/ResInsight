@@ -45,7 +45,9 @@ class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathCompletions;
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimWellPathFractureCollection;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //==================================================================================================
 ///  
@@ -85,8 +87,10 @@ public:
     RimPerforationCollection*            perforationIntervalCollection();
     const RimPerforationCollection*      perforationIntervalCollection() const;
     const RimWellPathCompletions*        completions() const;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     RimWellPathFractureCollection*       fractureCollection();
     const RimWellPathFractureCollection* fractureCollection() const;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;

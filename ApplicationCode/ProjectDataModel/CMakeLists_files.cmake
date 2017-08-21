@@ -89,11 +89,16 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.h
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.h
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
-${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.h
-${CEE_CURRENT_LIST_DIR}RimStimPlanColors.h
 ${CEE_CURRENT_LIST_DIR}RimDialogData.h
 ${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.h
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
+    list (APPEND SOURCE_GROUP_HEADER_FILES 
+        ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.h
+        ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.h
+    ) 
+endif() 
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RimEclipseCaseCollection.cpp
@@ -180,11 +185,16 @@ ${CEE_CURRENT_LIST_DIR}RimCheckableNamedObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridTimeHistoryCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
-${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.cpp
-${CEE_CURRENT_LIST_DIR}RimStimPlanColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimDialogData.cpp
 ${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.cpp
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CEE_CURRENT_LIST_DIR}RimStimPlanLegendConfig.cpp
+        ${CEE_CURRENT_LIST_DIR}RimStimPlanColors.cpp
+    )
+endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

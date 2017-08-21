@@ -10,7 +10,6 @@ ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportCompletionDataSettingsUi.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.h
-${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.h
@@ -21,13 +20,19 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathImportPerforationIntervalsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFishbonesTransmissibilityCalculationFeatureImp.h
 )
 
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_HEADER_FILES
+        ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.h
+    )
+endif()
+
+
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCaseAndFileExportSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportCompletionDataSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesLateralsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFishbonesWellSegmentsFeature.cpp
-${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsAtMeasuredDepthFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewFishbonesSubsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewPerforationIntervalFeature.cpp
@@ -37,6 +42,13 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathImportCompletionsFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathImportPerforationIntervalsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFishbonesTransmissibilityCalculationFeatureImp.cpp
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.cpp
+    )
+endif()
+
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

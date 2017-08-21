@@ -36,7 +36,11 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
@@ -439,8 +443,10 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
             oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         CVF_ASSERT(oilField->fractureDefinitionCollection());
         oilField->fractureDefinitionCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
 
@@ -885,7 +891,11 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
             if (oilField->analysisModels())                 uiTreeOrdering.add(oilField->analysisModels());
             if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
             if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
             if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
             if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
         }
 

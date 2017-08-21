@@ -36,8 +36,6 @@ class RimCase;
 class RimCommandObject;
 class RimDialogData;
 class RimEclipseCase;
-class RimEllipseFractureTemplate;
-class RimWellPathFractureCollection;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
 class RimMultiSnapshotDefinition;

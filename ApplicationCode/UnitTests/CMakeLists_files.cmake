@@ -27,10 +27,14 @@ ${CEE_CURRENT_LIST_DIR}opm-flowdiagnostics-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator-Test.cpp
 ${CEE_CURRENT_LIST_DIR}HDF5FileReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools-Test.cpp
-${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools-Test.cpp
-
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser-Test.cpp
+    )
+endif()
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

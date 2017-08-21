@@ -279,11 +279,20 @@ list(APPEND THIRD_PARTY_LIBRARIES
     nightcharts
 )
 
-################################################################################
-# Eigen
-################################################################################
 
-include_directories(SYSTEM ThirdParty/Eigen-Subset)
+################################################################################
+# Prototype feature Fractures
+################################################################################
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures (requires third party library Eigen)" OFF)
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+
+    ################################################################################
+    # Eigen
+    ################################################################################
+    include_directories(SYSTEM ThirdParty/Eigen-Subset)
+
+endif() # RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES
+
 
 ################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder

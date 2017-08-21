@@ -30,7 +30,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+
 #include "RigTransmissibilityEquations.h"
+
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
@@ -304,14 +306,17 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             appendCompletionData(&completionsPerEclipseCell, fishbonesCompletionData);
         }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         if (exportSettings.includeFractures())
         {
             std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, &fractureTransmissibilityExportInformationStream);
             appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
         }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (auto simWell : simWells)
     {
         std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(), 
@@ -319,6 +324,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                                                                                                                                   &fractureTransmissibilityExportInformationStream);
         appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
     }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 

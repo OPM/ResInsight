@@ -353,6 +353,7 @@ void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
                                                              const RimEclipseView* eclView)
 {
@@ -365,6 +366,7 @@ void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList
         partMgr->appendStaticFracturePartsToModel(model, eclView);
     }
 }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 

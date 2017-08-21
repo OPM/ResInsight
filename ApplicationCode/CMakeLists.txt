@@ -189,6 +189,11 @@ if (${RESINSIGHT_FOUND_HDF5})
 endif()
 
 
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+	add_definitions(-DUSE_PROTOTYPE_FEATURE_FRACTURES)
+endif()
+
+
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
