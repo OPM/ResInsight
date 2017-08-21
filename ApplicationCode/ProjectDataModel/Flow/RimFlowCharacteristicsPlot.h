@@ -90,6 +90,7 @@ private:
     caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<TimeSelectionType> > m_timeStepSelectionType;
     caf::PdmField<std::vector<int> >                m_selectedTimeSteps;
+    caf::PdmField<std::vector<int> >                m_selectedTimeStepsUi;
     caf::PdmField<bool>                             m_applyTimeSteps;
     caf::PdmField<bool>                             m_showLegend;
     caf::PdmField<double>                           m_maxPvFraction;

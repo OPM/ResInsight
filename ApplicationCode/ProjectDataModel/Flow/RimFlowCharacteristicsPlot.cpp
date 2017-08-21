@@ -71,6 +71,8 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "");
+    m_selectedTimeSteps.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_selectedTimeStepsUi, "SelectedTimeStepsUi", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_applyTimeSteps, "ApplyTimeSteps", "", "", "", "");
     m_applyTimeSteps.xmlCapability()->setIOWritable(false);
     m_applyTimeSteps.xmlCapability()->setIOReadable(false);
@@ -198,9 +200,9 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             }
         }
     }
-    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    else if ( fieldNeedingOptions == &m_selectedTimeStepsUi )
     {
-        if ( m_flowDiagSolution )
+        if ( m_flowDiagSolution && m_case )
         {
             QStringList timeStepDates = m_case->timeStepStrings();
             std::vector<int> calculatedTimeSteps = m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
@@ -283,7 +285,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
 
         if (m_timeStepSelectionType == SELECTED)
         {
-            timeStepsGroup->add(&m_selectedTimeSteps);
+            timeStepsGroup->add(&m_selectedTimeStepsUi);
             timeStepsGroup->add(&m_applyTimeSteps);
         }
     }
@@ -367,10 +369,11 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (m_flowDiagSolution)
         {
             // Compute any missing time steps from selected
-            for (int tsIdx : m_selectedTimeSteps())
+            for (int tsIdx : m_selectedTimeStepsUi())
             {
                 m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
             }
+            m_selectedTimeSteps = m_selectedTimeStepsUi;
         }
         m_applyTimeSteps = false;
     }
@@ -409,9 +412,9 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 }
                 else
                 {
-                    if (!m_selectedTimeSteps().empty())
+                    if (!m_selectedTimeStepsUi().empty())
                     {
-                        timeStep = m_selectedTimeSteps()[0];
+                        timeStep = m_selectedTimeStepsUi()[0];
                     }
                 }
 
@@ -473,16 +476,11 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         
         if (m_timeStepSelectionType == SELECTED)
         {
-            // Find set intersection of selected and available time steps
-            std::set<int> calculatedTimeStepsSet;
-            calculatedTimeStepsSet.insert(calculatedTimesteps.begin(), calculatedTimesteps.end());
-            calculatedTimesteps.clear();
-
-            auto selectedTimeSteps = m_selectedTimeSteps();
-            for (int tsIdx : selectedTimeSteps)
+            for (int tsIdx : m_selectedTimeSteps())
             { 
-                 if (calculatedTimeStepsSet.count(tsIdx)) calculatedTimesteps.push_back(tsIdx);
+                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
             }
+            calculatedTimesteps = m_selectedTimeSteps();
         }
         
         m_currentlyPlottedTimeSteps = calculatedTimesteps;

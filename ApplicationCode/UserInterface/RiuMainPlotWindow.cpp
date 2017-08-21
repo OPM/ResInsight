@@ -85,8 +85,6 @@ RiuMainPlotWindow::RiuMainPlotWindow()
 
     m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>(new RiuDragDrop());
 
-    initializeGuiNewProjectLoaded();
-
     // Enabling the line below will activate the undo stack
     // When enableUndoCommandSystem is set false, all commands are executed and deleted immediately
     //caf::CmdExecCommandManager::instance()->enableUndoCommandSystem(true);
