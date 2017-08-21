@@ -296,7 +296,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RiuSelectionItem* selItem = new RiuWellPathSelectionItem(wellPathSourceInfo, trueVerticalDepth, measuredDepth);
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                  
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 commandIds << "RicNewWellPathFractureAtPosFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
                 //TODO: Update so these also use RiuWellPathSelectionItem 
@@ -331,7 +333,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 commandIds << "RicPlotProductionRateFeature";
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 commandIds << "RicNewSimWellFractureAtPosFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
             }
         }
 

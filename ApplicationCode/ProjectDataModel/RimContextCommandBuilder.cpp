@@ -40,10 +40,6 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
-#include "RimEllipseFractureTemplate.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RimFractureTemplateCollection.h"
-#include "RimFractureTemplate.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechPropertyFilter.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -53,7 +49,6 @@
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
 #include "RimScriptCollection.h"
-#include "RimSimWellFracture.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
@@ -69,8 +64,16 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimEllipseFractureTemplate.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RimFractureTemplateCollection.h"
+#include "RimFractureTemplate.h"
+#include "RimSimWellFracture.h"
 #include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
@@ -372,6 +375,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicShowFlowCharacteristicsPlotFeature";
         }
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         else if (dynamic_cast<RimSimWellFracture*>(uiItem))
         {
             commandIds << "RicNewSimWellFractureFeature";
@@ -392,6 +396,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
             commandIds << "RicConvertFractureTemplateUnitFeature";
         }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
         if (dynamic_cast<RimView*>(uiItem))
@@ -435,7 +440,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicExportCarfin";
 
         // Fracture commands
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         commandIds << "RicNewWellPathFractureFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
         // Work in progress -- End
 
@@ -488,8 +495,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEclipseWellShowSpheresFeature";
             commandIds << "RicEclipseWellShowWellCellsFeature";
             commandIds << "RicEclipseWellShowWellCellFenceFeature";
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
             commandIds << "Separator";
             commandIds << "RicNewSimWellFractureFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
     }
 
