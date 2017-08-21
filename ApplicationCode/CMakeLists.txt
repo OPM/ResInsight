@@ -334,6 +334,11 @@ if(RESINSIGHT_ENABLE_COTIRE)
 
     # opm parser
     set_source_files_properties (ProjectDataModel/RimProject.cpp                        PROPERTIES COTIRE_EXCLUDED TRUE)
+
+    # exclude file using Eigen
+    set_source_files_properties (ReservoirDataModel/RigTransmissibilityCondenser.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
+    set_source_files_properties (ReservoirDataModel/RigCellGeometryTools.cpp    PROPERTIES COTIRE_EXCLUDED TRUE)
     
     set_target_properties(ResInsight PROPERTIES COTIRE_ENABLE_PRECOMPILED_HEADER FALSE)
    
