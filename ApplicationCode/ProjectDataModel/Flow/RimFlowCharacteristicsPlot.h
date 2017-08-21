@@ -94,7 +94,7 @@ private:
     caf::PdmField<bool>                             m_showLegend;
     caf::PdmField<double>                           m_maxPvFraction;
 
-    caf::PdmField<RigFlowDiagResults::CellSelectionEnum> m_cellSelection;
+    caf::PdmField<RigFlowDiagResults::CellSelectionEnum> m_cellFilter;
     caf::PdmField<QString>                          m_tracerFilter;
     caf::PdmField< std::vector<QString> >           m_selectedTracerNames;
     caf::PdmField<bool>                             m_showRegion;
