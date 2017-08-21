@@ -110,7 +110,7 @@ RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() cons
 bool RimWellPathCompletions::hasCompletions() const
 {
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-    if !fractureCollection()->fractures().empty()
+    if (!fractureCollection()->fractures().empty())
     {
         return true;
     }

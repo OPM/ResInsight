@@ -133,7 +133,7 @@ ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
-    list (APPEND SOURCE_GROUP_HEADER_FILES
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
         ${CEE_CURRENT_LIST_DIR}RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
         ${CEE_CURRENT_LIST_DIR}RigTransmissibilityCondenser.cpp
         ${CEE_CURRENT_LIST_DIR}RigFractureTransmissibilityEquations.cpp
