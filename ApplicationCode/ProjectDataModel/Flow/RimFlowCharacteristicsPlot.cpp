@@ -49,7 +49,7 @@ namespace caf
     template<>
     void AppEnum< RimFlowCharacteristicsPlot::TimeSelectionType >::setUp()
     {
-        addItem(RimFlowCharacteristicsPlot::ALL_AVAILABLE, "ALL_AVAILABLE", "All available");
+        addItem(RimFlowCharacteristicsPlot::ALL_AVAILABLE, "ALL_AVAILABLE", "All With Calculated Flow Diagnostics");
         addItem(RimFlowCharacteristicsPlot::SELECTED, "SELECTED", "Selected");
         setDefault(RimFlowCharacteristicsPlot::SELECTED);
     }
