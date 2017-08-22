@@ -144,22 +144,18 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 if(MSVC)
     set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
 endif()
+
 option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" OFF)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
-        # Must specyfy libraries manually
-        # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
-
         if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
+	        add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
         
             include_directories(${RESINSIGHT_HDF5_DIR}/include)
         
 	        list(APPEND EXTERNAL_LINK_LIBRARIES
-                # libzlib.lib is not included here, as it is linked implicitly by Qt
-		    
-                ${RESINSIGHT_HDF5_DIR}/lib/libhdf5.lib
-		        ${RESINSIGHT_HDF5_DIR}/lib/libhdf5_cpp.lib
-		        ${RESINSIGHT_HDF5_DIR}/lib/libszip.lib
+                ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
+                ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
 	        )
 
 	        set(RESINSIGHT_FOUND_HDF5 1)
@@ -167,7 +163,6 @@ if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
         else()
 	        message( WARNING "Use of HDF5 is enabled, but RESINSIGHT_HDF5_DIR is empty. Specify RESINSIGHT_HDF5_DIR to be able to use HDF5" )
         endif()
-
     else()
 	    add_definitions(-DH5_BUILT_AS_DYNAMIC_LIB)
         find_package(HDF5 REQUIRED COMPONENTS CXX)
