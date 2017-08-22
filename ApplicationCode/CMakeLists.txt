@@ -177,7 +177,7 @@ add_subdirectory(GeoMech/GeoMechDataModel)
 # 
 # HDF5  
 #
-if (${RESINSIGHT_FOUND_HDF5})
+if (RESINSIGHT_FOUND_HDF5)
     list( APPEND CPP_SOURCES
         FileInterface/RifHdf5Reader.h
         FileInterface/RifHdf5Reader.cpp
@@ -373,36 +373,42 @@ endif()
 #############################################################################
 
 
-# Qt DLLs
 if (MSVC)
 
+    # Qt DLLs
     set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
     foreach (qtlib ${QTLIBLIST})
-        list(APPEND FILES_TO_COPY ${QT_BINARY_DIR}/${qtlib}4.dll)
+        list(APPEND RI_DLL_FILENAMES ${QT_BINARY_DIR}/${qtlib}4.dll)
     endforeach( qtlib )
+
+    # Odb Dlls
+    if (RESINSIGHT_USE_ODB_API)
+	    # Find all the dlls
+	    file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
+	
+	    # Strip off the path
+	    foreach (aDLL  ${RI_ALL_ODB_DLLS})
+		     get_filename_component(filenameWithExt ${aDLL} NAME)
+		     list(APPEND RI_ODB_DLLS ${filenameWithExt} )
+	    endforeach(aDLL)
+
+	    foreach (aDLL ${RI_ODB_DLLS})
+            list(APPEND RI_DLL_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
+        endforeach()
+    endif()
+
+    # HDF5 Dlls
+    if (RESINSIGHT_FOUND_HDF5)
+        set (HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
+        foreach (HDF5_DLL_NAME ${HDF5_DLL_NAMES})
+            list(APPEND RI_DLL_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
+        endforeach( HDF5_DLL_NAME )
+    endif()
 
 endif(MSVC)
 
-
-# Odb Dlls
-if ((MSVC) AND (${RESINSIGHT_USE_ODB_API}))
-	# Find all the dlls
-	file (GLOB  RI_ALL_ODB_DLLS  ${RESINSIGHT_ODB_API_DIR}/lib/*.dll)
-	
-	# Strip off the path
-	foreach (aDLL  ${RI_ALL_ODB_DLLS})
-		 get_filename_component(filenameWithExt ${aDLL} NAME)
-		 list(APPEND RI_ODB_DLLS ${filenameWithExt} )
-	endforeach(aDLL)
-
-	foreach (aDLL ${RI_ODB_DLLS})
-        list(APPEND FILES_TO_COPY ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
-    endforeach()
-
-endif()
-
 # Copy to target directory
-foreach (FILE_TO_COPY ${FILES_TO_COPY})
+foreach (FILE_TO_COPY ${RI_DLL_FILENAMES})
     add_custom_command(TARGET ResInsight POST_BUILD
                         COMMAND ${CMAKE_COMMAND} -E copy_if_different  
 						"${FILE_TO_COPY}"  
@@ -451,21 +457,10 @@ if (RESINSIGHT_PRIVATE_INSTALL)
     endif()
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-      # put a .exe.local file in the target directory to pick up DLLs from there
-      install (CODE "exec_program (\"${CMAKE_COMMAND}\" ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+        # put a .exe.local file in the target directory to pick up DLLs from there
+        install (CODE "exec_program (\"${CMAKE_COMMAND}\" ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
 
-        set (RESINSIGHT_FILES
-                ${QT_BINARY_DIR}/QtCore4.dll
-                ${QT_BINARY_DIR}/QtGui4.dll
-                ${QT_BINARY_DIR}/QtOpenGL4.dll
-                ${QT_BINARY_DIR}/QtNetwork4.dll
-                ${QT_BINARY_DIR}/QtScript4.dll
-                ${QT_BINARY_DIR}/QtScriptTools4.dll
-            )
-
-		if (${RESINSIGHT_USE_ODB_API})
-			set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RI_ALL_ODB_DLLS})
-		endif()
+        set (RESINSIGHT_FILES ${RI_DLL_FILENAMES})
 
         # CRT
         set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP ON)
