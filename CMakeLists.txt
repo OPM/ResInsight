@@ -271,7 +271,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Prototype feature Fractures
 ################################################################################
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures (requires third party library Eigen)" OFF)
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures" ON)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
 
     ################################################################################
