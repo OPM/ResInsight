@@ -23,6 +23,7 @@
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
 
 #include "RiuMainWindow.h"
+#include "RiuQwtCurvePointTracker.h"
 
 #include "cafSelectionManager.h"
 
@@ -30,6 +31,7 @@
 
 #include "qwt_legend.h"
 #include "qwt_plot_grid.h"
+#include "qwt_plot_layout.h"
 
 #include <QFocusEvent>
 #include <QHBoxLayout>
@@ -266,9 +268,9 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour(QwtPlot* plot)
 
     plot->canvas()->setMouseTracking(true);
     plot->canvas()->installEventFilter(plot);
-//    plot->plotLayout()->setAlignCanvasToScales(true);
+    plot->plotLayout()->setAlignCanvasToScales(true);
 
-//    new RiuQwtCurvePointTracker(plot, true);
+    new RiuQwtCurvePointTracker(plot, true);
 }
 
 //--------------------------------------------------------------------------------------------------
