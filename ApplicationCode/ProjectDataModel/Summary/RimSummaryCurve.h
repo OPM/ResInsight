@@ -104,6 +104,8 @@ private:
     RifReaderEclipseSummary*                summaryReader() const;
     bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
 
+    void                                    calculateCurveInterpolationFromAddress();
+
     // Overridden PDM methods
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                            defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");

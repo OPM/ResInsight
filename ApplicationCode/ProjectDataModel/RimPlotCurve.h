@@ -56,6 +56,14 @@ public:
         SYMBOL_XCROSS
     };
 
+    enum CurveInterpolationEnum
+    {
+        INTERPOLATION_POINT_TO_POINT,
+        INTERPOLATION_STEP_LEFT,
+    };
+
+    typedef caf::AppEnum<CurveInterpolationEnum> CurveInterpolation;
+
 public:
     RimPlotCurve();
     virtual ~RimPlotCurve();
@@ -121,6 +129,7 @@ protected:
 
     caf::PdmField< caf::AppEnum< PointSymbolEnum > > m_pointSymbol;
     caf::PdmField< caf::AppEnum< LineStyleEnum > >   m_lineStyle;
+    caf::PdmField< CurveInterpolation >              m_curveInterpolation;
 };
 
 

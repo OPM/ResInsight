@@ -58,6 +58,15 @@ void caf::AppEnum< RimPlotCurve::PointSymbolEnum >::setUp()
 
     setDefault(RimPlotCurve::SYMBOL_NONE);
 }
+
+template<>
+void RimPlotCurve::CurveInterpolation::setUp()
+{
+    addItem(RimPlotCurve::INTERPOLATION_POINT_TO_POINT, "INTERPOLATION_POINT_TO_POINT", "Point to Point");
+    addItem(RimPlotCurve::INTERPOLATION_STEP_LEFT,      "INTERPOLATION_STEP_LEFT",      "Step Left");
+
+    setDefault(RimPlotCurve::INTERPOLATION_POINT_TO_POINT);
+}
 }
 
 
@@ -84,6 +93,8 @@ RimPlotCurve::RimPlotCurve()
 
     caf::AppEnum< RimPlotCurve::LineStyleEnum > lineStyle = STYLE_SOLID;
     CAF_PDM_InitField(&m_lineStyle, "LineStyle", lineStyle, "Line Style", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_curveInterpolation, "CurveInterpolation", "Interpolation", "", "", "");
 
     caf::AppEnum< RimPlotCurve::PointSymbolEnum > pointSymbol = SYMBOL_NONE;
     CAF_PDM_InitField(&m_pointSymbol, "PointSymbol", pointSymbol, "Symbol", "", "", "");
@@ -128,7 +139,8 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
              || &m_curveThickness == changedField
              || &m_pointSymbol == changedField
              || &m_lineStyle == changedField
-             || &m_symbolSkipPixelDistance == changedField)
+             || &m_symbolSkipPixelDistance == changedField
+             || &m_curveInterpolation == changedField)
     {
         updateCurveAppearance();
     }
@@ -283,6 +295,7 @@ void RimPlotCurve::appearanceUiOrdering(caf::PdmUiOrdering& uiOrdering)
     uiOrdering.add(&m_symbolSkipPixelDistance);
     uiOrdering.add(&m_curveThickness);
     uiOrdering.add(&m_lineStyle);
+    uiOrdering.add(&m_curveInterpolation);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,7 +359,17 @@ void RimPlotCurve::updateCurveAppearance()
 
     if (m_lineStyle() != STYLE_NONE)
     {
-        curveStyle = QwtPlotCurve::Lines;
+        switch (m_curveInterpolation())
+        {
+        case INTERPOLATION_STEP_LEFT:
+            curveStyle = QwtPlotCurve::Steps;
+            m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, false);
+            break;
+        case INTERPOLATION_POINT_TO_POINT: // Fall through
+        default:
+            curveStyle = QwtPlotCurve::Lines;
+            break;
+        }
 
         switch (m_lineStyle())
         {

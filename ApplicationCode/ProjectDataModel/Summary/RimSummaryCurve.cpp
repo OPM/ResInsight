@@ -222,6 +222,8 @@ void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
     m_curveVariable->setAddress(address);
 
     m_summaryFilter->updateFromAddress(address);
+
+    calculateCurveInterpolationFromAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -511,6 +513,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
             m_curveVariable->setAddress(RifEclipseSummaryAddress());
         }
 
+        this->calculateCurveInterpolationFromAddress();
         this->loadDataAndUpdate();
 
         plot->updateAxes();
@@ -565,5 +568,24 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
 
     RifEclipseSummaryAddress addr = m_curveVariable()->address();
     return reader->values(addr, values);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::calculateCurveInterpolationFromAddress()
+{
+    if (m_curveVariable())
+    {
+        QString quantityName = QString::fromUtf8(m_curveVariable()->address().quantityName().c_str());
+        if (quantityName.endsWith("T"))
+        {
+            m_curveInterpolation = INTERPOLATION_POINT_TO_POINT;
+        }
+        else
+        {
+            m_curveInterpolation = INTERPOLATION_STEP_LEFT;
+        }
+    }
 }
 
