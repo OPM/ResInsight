@@ -1170,7 +1170,17 @@ QDateTime QwtDateScaleEngine::alignDate(
             const QDate date = QwtDate::dateOfWeek0(
                 dt.date().year(), d_data->week0Type );
 
-            const int numWeeks = date.daysTo( dt.date() ) / 7;
+            // Manually patched from QWT trunk
+            int numWeeks = date.daysTo( dt.date() ) / 7;
+            if (up)
+            {
+                if (dt.time() > QTime(0, 0) ||
+                    date.daysTo(dt.date()) % 7)
+                {
+                    numWeeks++;
+                }
+            }
+
             const int d = qwtAlignValue( numWeeks, stepSize, up ) * 7;
 
             dt = QwtDate::floor( dt, QwtDate::Day );
