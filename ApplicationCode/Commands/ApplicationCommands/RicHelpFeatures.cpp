@@ -63,6 +63,26 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", "ResInsight is made available under the GNU General Public License v. 3");
     dlg.addVersionEntry(" ", "See http://www.gnu.org/licenses/gpl.html");
     dlg.addVersionEntry(" ", " ");
+
+    QStringList activeFeatures;
+#ifdef USE_HDF5
+    activeFeatures += "  Souring";
+#endif
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    activeFeatures += "  Fractures";
+#endif
+
+    if (!activeFeatures.isEmpty())
+    {
+        dlg.addVersionEntry(" ", "Features");
+
+        for (auto feature : activeFeatures)
+        {
+            dlg.addVersionEntry(" ", feature);
+        }
+    }
+
     dlg.addVersionEntry(" ", " ");
     dlg.addVersionEntry(" ", "Technical Information");
     dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
