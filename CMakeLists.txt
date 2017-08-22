@@ -271,7 +271,7 @@ list(APPEND THIRD_PARTY_LIBRARIES
 ################################################################################
 # Prototype feature Fractures
 ################################################################################
-option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures" ON)
+option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES "Enable prototype feature Fractures" OFF)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
 
     ################################################################################
