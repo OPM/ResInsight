@@ -419,54 +419,58 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
             {
                 RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection(m_case, "FlowCharacteristicsLastUsedView", "Show Region in View");
 
-                view->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
-                view->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_BY_SELECTION);
-                view->cellResult()->setSelectedTracers(m_selectedTracerNames);
+                if (view != nullptr)
+                {
 
-                if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION)
-                {
-                    view->cellResult()->setResultVariable(RIG_FLD_COMMUNICATION_RESNAME);
-                }
-                else
-                {
-                    view->cellResult()->setResultVariable(RIG_FLD_TOF_RESNAME);
-                }
+                    view->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
+                    view->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_BY_SELECTION);
+                    view->cellResult()->setSelectedTracers(m_selectedTracerNames);
 
-                int timeStep = 0;
-                if (m_timeStepSelectionType() == ALL_AVAILABLE)
-                {
-                    if (m_flowDiagSolution)
+                    if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION)
                     {
-                        std::vector<int> timeSteps = m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
-                        if (!timeSteps.empty())
+                        view->cellResult()->setResultVariable(RIG_FLD_COMMUNICATION_RESNAME);
+                    }
+                    else
+                    {
+                        view->cellResult()->setResultVariable(RIG_FLD_TOF_RESNAME);
+                    }
+
+                    int timeStep = 0;
+                    if (m_timeStepSelectionType() == ALL_AVAILABLE)
+                    {
+                        if (m_flowDiagSolution)
                         {
-                            timeStep = timeSteps[0];
+                            std::vector<int> timeSteps = m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
+                            if (!timeSteps.empty())
+                            {
+                                timeStep = timeSteps[0];
+                            }
                         }
                     }
-                }
-                else
-                {
-                    if (!m_selectedTimeStepsUi().empty())
+                    else
                     {
-                        timeStep = m_selectedTimeStepsUi()[0];
+                        if (!m_selectedTimeStepsUi().empty())
+                        {
+                            timeStep = m_selectedTimeStepsUi()[0];
+                        }
                     }
+
+                    // Ensure selected time step has computed results
+                    m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(timeStep);
+
+                    view->setCurrentTimeStep(timeStep);
+
+                    for (RimEclipsePropertyFilter* f : view->eclipsePropertyFilterCollection()->propertyFilters())
+                    {
+                        f->isActive = false;
+                    }
+                    RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(view->eclipsePropertyFilterCollection());
+
+                    view->loadDataAndUpdate();
+                    m_case->updateConnectedEditors();
+
+                    RicSelectOrCreateViewFeatureImpl::focusView(view);
                 }
-
-                // Ensure selected time step has computed results
-                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(timeStep);
-
-                view->setCurrentTimeStep(timeStep);
-
-                for (RimEclipsePropertyFilter* f : view->eclipsePropertyFilterCollection()->propertyFilters())
-                {
-                    f->isActive = false;
-                }
-                RicEclipsePropertyFilterFeatureImpl::addPropertyFilter(view->eclipsePropertyFilterCollection());
-
-                view->loadDataAndUpdate();
-                m_case->updateConnectedEditors();
-
-                RicSelectOrCreateViewFeatureImpl::focusView(view);
             }
         }
     }
