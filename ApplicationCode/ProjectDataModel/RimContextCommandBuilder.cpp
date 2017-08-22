@@ -423,6 +423,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         // without using dyncamic_cast.
 
         commandIds << "RicPasteTimeHistoryCurveFeature";
+        commandIds << "RicPasteAsciiDataCurveFeature";
         commandIds << "RicCopyReferencesToClipboardFeature";
         
         commandIds << "RicShowPlotDataFeature";

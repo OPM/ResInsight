@@ -19,6 +19,7 @@ ${CEE_CURRENT_LIST_DIR}RicAsciiExportSummaryPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewGridTimeHistoryCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSelectSummaryPlotUI.h
 ${CEE_CURRENT_LIST_DIR}RicPasteTimeHistoryCurveFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteAsciiDataCurveFeature.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -35,6 +36,7 @@ ${CEE_CURRENT_LIST_DIR}RicAsciiExportSummaryPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewGridTimeHistoryCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSelectSummaryPlotUI.cpp
 ${CEE_CURRENT_LIST_DIR}RicPasteTimeHistoryCurveFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteAsciiDataCurveFeature.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
