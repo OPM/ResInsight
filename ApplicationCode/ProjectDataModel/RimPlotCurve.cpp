@@ -422,6 +422,14 @@ void RimPlotCurve::setSymbol(PointSymbolEnum symbolStyle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setSymbolSkipDinstance(float distance)
+{
+    m_symbolSkipPixelDistance = distance;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setLineThickness(int thickness)
 {
     m_curveThickness = thickness;

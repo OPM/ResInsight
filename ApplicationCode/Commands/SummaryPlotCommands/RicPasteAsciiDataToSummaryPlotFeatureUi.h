@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimPlotCurve.h"
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
@@ -69,11 +71,14 @@ public:
 public:
     RicPasteAsciiDataToSummaryPlotFeatureUi();
 
-    QString dateFormat()    const;
-    QLocale decimalLocale() const;
-    QString cellSeparator() const;
-    QString plotTitle()     const;
-    QString curvePrefix()   const;
+    QString                       dateFormat()          const;
+    QLocale                       decimalLocale()       const;
+    QString                       cellSeparator()       const;
+    QString                       plotTitle()           const;
+    QString                       curvePrefix()         const;
+    RimPlotCurve::LineStyleEnum   lineStyle()           const;
+    RimPlotCurve::PointSymbolEnum pointSymbol()         const;
+    float                         symbolSkipDinstance() const;
 
     void    createNewPlot();
 
@@ -89,6 +94,10 @@ private:
     caf::PdmField<bool>                 m_useCustomDateFormat;
     caf::PdmField<QString>              m_customDateFormat;
     caf::PdmField<CellSeparatorEnum>    m_cellSeparator;
+
+    caf::PdmField<caf::AppEnum<RimPlotCurve::LineStyleEnum>>   m_curveLineStyle;
+    caf::PdmField<caf::AppEnum<RimPlotCurve::PointSymbolEnum>> m_curveSymbol;
+    caf::PdmField<float>                                       m_curveSymbolSkipDistance;
 
     bool                                m_createNewPlot;
 };

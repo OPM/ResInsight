@@ -49,9 +49,9 @@ namespace caf
     template<>
     void AppEnum< RimFlowCharacteristicsPlot::TimeSelectionType >::setUp()
     {
-        addItem(RimFlowCharacteristicsPlot::ALL_AVAILABLE, "ALL_AVAILABLE", "All available");
-        addItem(RimFlowCharacteristicsPlot::SELECT_AVAILABLE, "SELECT_AVAILABLE", "Select");
-        setDefault(RimFlowCharacteristicsPlot::ALL_AVAILABLE);
+        addItem(RimFlowCharacteristicsPlot::ALL_AVAILABLE, "ALL_AVAILABLE", "All With Calculated Flow Diagnostics");
+        addItem(RimFlowCharacteristicsPlot::SELECTED, "SELECTED", "Selected");
+        setDefault(RimFlowCharacteristicsPlot::SELECTED);
     }
 }
 
@@ -71,18 +71,20 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "");
+    m_selectedTimeSteps.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_selectedTimeStepsUi, "SelectedTimeStepsUi", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_applyTimeSteps, "ApplyTimeSteps", "", "", "", "");
     m_applyTimeSteps.xmlCapability()->setIOWritable(false);
     m_applyTimeSteps.xmlCapability()->setIOReadable(false);
     m_applyTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_applyTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_applyTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
     CAF_PDM_InitField(&m_maxPvFraction, "CellPVThreshold", 0.1, "Aquifer Cell Threshold", "", "Exclude Aquifer Effects by adding a Cell Pore Volume Threshold as Fraction of Total Pore Volume.", "");
 
 
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
 
     // Region group
-    CAF_PDM_InitFieldNoDefault(&m_cellSelection, "CellSelection", "Cell Selection", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellFilter, "CellFilter", "Cell Filter", "", "", "");
     CAF_PDM_InitField(&m_tracerFilter, "TracerFilter", QString(), "Filter", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "");
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -90,7 +92,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     m_showRegion.xmlCapability()->setIOWritable(false);
     m_showRegion.xmlCapability()->setIOReadable(false);
     m_showRegion.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_showRegion.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_showRegion.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
 
 
     this->m_showWindow = false;
@@ -198,9 +200,9 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             }
         }
     }
-    else if ( fieldNeedingOptions == &m_selectedTimeSteps )
+    else if ( fieldNeedingOptions == &m_selectedTimeStepsUi )
     {
-        if ( m_flowDiagSolution )
+        if ( m_flowDiagSolution && m_case )
         {
             QStringList timeStepDates = m_case->timeStepStrings();
             std::vector<int> calculatedTimeSteps = m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
@@ -208,7 +210,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
             {
                 auto it = std::find(calculatedTimeSteps.begin(), calculatedTimeSteps.end(), tsIdx);
                 QString itemText = timeStepDates[tsIdx];
-                if (it == calculatedTimeSteps.end())
+                if (it != calculatedTimeSteps.end())
                 {
                     itemText = itemText + " *";
                 }
@@ -221,6 +223,7 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         if (m_flowDiagSolution)
         {
             std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+            std::vector<std::pair<QString, QString>> sortedTracerNames;
             for (QString tracerName : tracerNames)
             {
                 if (!caf::Utils::isStringMatch(m_tracerFilter, tracerName)) continue;
@@ -228,21 +231,21 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
                 RimFlowDiagSolution::TracerStatusType tracerStatus = m_flowDiagSolution->tracerStatusOverall(tracerName);
                 if (tracerStatus == RimFlowDiagSolution::CLOSED) continue;
 
-                if (m_cellSelection() == RigFlowDiagResults::CELLS_FLOODED)
+                if (m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED)
                 {
                     if (tracerStatus == RimFlowDiagSolution::INJECTOR || tracerStatus == RimFlowDiagSolution::VARYING)
                     {
-                        options.push_back(caf::PdmOptionItemInfo(tracerName, tracerName));
+                        sortedTracerNames.push_back(std::make_pair(tracerName, tracerName));
                     }
                 }
-                else if (m_cellSelection() == RigFlowDiagResults::CELLS_DRAINED)
+                else if (m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED)
                 {
                     if (tracerStatus == RimFlowDiagSolution::PRODUCER || tracerStatus == RimFlowDiagSolution::VARYING)
                     {
-                        options.push_back(caf::PdmOptionItemInfo(tracerName, tracerName));
+                        sortedTracerNames.push_back(std::make_pair(tracerName, tracerName));
                     }
                 }
-                else if (m_cellSelection() == RigFlowDiagResults::CELLS_COMMUNICATION)
+                else if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION)
                 {
                     QString prefix;
                     switch (tracerStatus)
@@ -260,8 +263,20 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
                         prefix = "U  : ";
                         break;
                     }
-                    options.push_back(caf::PdmOptionItemInfo(prefix + tracerName, tracerName));
+                    sortedTracerNames.push_back(std::make_pair(prefix + tracerName, tracerName));
                 }
+            }
+
+            std::sort(sortedTracerNames.begin(),
+                      sortedTracerNames.end(),
+                      [](const std::pair<QString, QString>& a, const std::pair<QString, QString>& b) -> bool
+            {
+                return a.first < b.first;
+            });
+
+            for (auto& tracer : sortedTracerNames)
+            {
+                options.push_back(caf::PdmOptionItemInfo(tracer.first, tracer.second));
             }
         }
     }
@@ -275,28 +290,37 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&m_case);
-    uiOrdering.add(&m_flowDiagSolution);
-    uiOrdering.add(&m_timeStepSelectionType);
 
-    if (m_timeStepSelectionType == SELECT_AVAILABLE)
     {
-        uiOrdering.add(&m_selectedTimeSteps);
-        uiOrdering.add(&m_applyTimeSteps);
-    }
+        caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroup("Time Steps");
 
-    uiOrdering.add(&m_showLegend);
-    uiOrdering.add(&m_maxPvFraction);
+        timeStepsGroup->add(&m_timeStepSelectionType);
+
+        if (m_timeStepSelectionType == SELECTED)
+        {
+            timeStepsGroup->add(&m_selectedTimeStepsUi);
+            timeStepsGroup->add(&m_applyTimeSteps);
+        }
+    }
 
     {
         caf::PdmUiGroup* regionGroup = uiOrdering.addNewGroup("Region");
-        regionGroup->add(&m_cellSelection);
-        if (m_cellSelection() != RigFlowDiagResults::CELLS_ACTIVE)
+        regionGroup->add(&m_cellFilter);
+        if (m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE)
         {
             regionGroup->add(&m_tracerFilter);
             regionGroup->add(&m_selectedTracerNames);
+            regionGroup->add(&m_showRegion);
         }
-        regionGroup->add(&m_showRegion);
+    }
+
+    {
+        caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
+        optionsGroup->add(&m_case);
+        optionsGroup->add(&m_flowDiagSolution);
+
+        optionsGroup->add(&m_showLegend);
+        optionsGroup->add(&m_maxPvFraction);
     }
 
     uiOrdering.skipRemainingFields();
@@ -358,10 +382,11 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
         if (m_flowDiagSolution)
         {
             // Compute any missing time steps from selected
-            for (int tsIdx : m_selectedTimeSteps())
+            for (int tsIdx : m_selectedTimeStepsUi())
             {
                 m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
             }
+            m_selectedTimeSteps = m_selectedTimeStepsUi;
         }
         m_applyTimeSteps = false;
     }
@@ -369,7 +394,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         if (m_case)
         {
-            if (m_cellSelection() != RigFlowDiagResults::CELLS_ACTIVE)
+            if (m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE)
             {
                 RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection(m_case, "FlowCharacteristicsLastUsedView", "Show Region in View");
 
@@ -377,7 +402,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 view->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_BY_SELECTION);
                 view->cellResult()->setSelectedTracers(m_selectedTracerNames);
 
-                if (m_cellSelection() == RigFlowDiagResults::CELLS_COMMUNICATION)
+                if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION)
                 {
                     view->cellResult()->setResultVariable(RIG_FLD_COMMUNICATION_RESNAME);
                 }
@@ -400,9 +425,9 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
                 }
                 else
                 {
-                    if (!m_selectedTimeSteps().empty())
+                    if (!m_selectedTimeStepsUi().empty())
                     {
-                        timeStep = m_selectedTimeSteps()[0];
+                        timeStep = m_selectedTimeStepsUi()[0];
                     }
                 }
 
@@ -424,7 +449,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
             }
         }
     }
-    else if (changedField == &m_cellSelection)
+    else if (changedField == &m_cellFilter)
     {
         m_selectedTracerNames = std::vector<QString>();
     }
@@ -462,18 +487,13 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         RigFlowDiagResults* flowResult = m_flowDiagSolution->flowDiagResults();
         std::vector<int> calculatedTimesteps = flowResult->calculatedTimeSteps(RigFlowDiagResultAddress::PHASE_ALL);
         
-        if (m_timeStepSelectionType == SELECT_AVAILABLE)
+        if (m_timeStepSelectionType == SELECTED)
         {
-            // Find set intersection of selected and available time steps
-            std::set<int> calculatedTimeStepsSet;
-            calculatedTimeStepsSet.insert(calculatedTimesteps.begin(), calculatedTimesteps.end());
-            calculatedTimesteps.clear();
-
-            auto selectedTimeSteps = m_selectedTimeSteps();
-            for (int tsIdx : selectedTimeSteps)
+            for (int tsIdx : m_selectedTimeSteps())
             { 
-                 if (calculatedTimeStepsSet.count(tsIdx)) calculatedTimesteps.push_back(tsIdx);
+                m_flowDiagSolution()->flowDiagResults()->maxAbsPairFlux(tsIdx);
             }
+            calculatedTimesteps = m_selectedTimeSteps();
         }
         
         m_currentlyPlottedTimeSteps = calculatedTimesteps;
@@ -485,7 +505,7 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
         m_flowCharPlotWidget->removeAllCurves();
 
         std::vector<QString> selectedTracerNames = m_selectedTracerNames();
-        if (m_cellSelection() == RigFlowDiagResults::CELLS_ACTIVE)
+        if (m_cellFilter() == RigFlowDiagResults::CELLS_ACTIVE)
         {
             if (m_flowDiagSolution)
             {
@@ -495,14 +515,14 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
-            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellSelection(), selectedTracerNames, m_maxPvFraction()).m_lorenzCoefficient;
+            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellFilter(), selectedTracerNames, m_maxPvFraction()).m_lorenzCoefficient;
         }
         m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
 
-            const auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellSelection(), selectedTracerNames, m_maxPvFraction());
+            const auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellFilter(), selectedTracerNames, m_maxPvFraction());
             m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
                                                             flowCharResults.m_flowCapStorageCapCurve.first,
                                                             flowCharResults.m_flowCapStorageCapCurve.second);

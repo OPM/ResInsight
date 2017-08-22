@@ -257,6 +257,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
         {
             commandIds << "RicPasteSummaryPlotFeature";
+            commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicNewSummaryPlotFeature";
         }
@@ -287,6 +288,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteSummaryCurveFeature";
             commandIds << "RicPasteSummaryCurveFilterFeature";
             commandIds << "RicPasteSummaryPlotFeature";
+            commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFilterFeature";

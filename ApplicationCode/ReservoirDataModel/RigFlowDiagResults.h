@@ -41,7 +41,7 @@ class RigFlowDiagResults: public cvf::Object
 {
 
 public:
-    enum CellSelection
+    enum CellFilter
     {
         CELLS_ACTIVE,
         CELLS_COMMUNICATION,
@@ -49,7 +49,7 @@ public:
         CELLS_DRAINED
     };
     
-    typedef caf::AppEnum<CellSelection> CellSelectionEnum;
+    typedef caf::AppEnum<CellFilter> CellFilterEnum;
 public:
     RigFlowDiagResults(RimFlowDiagSolution* flowSolution, size_t timeStepCount);
     virtual ~RigFlowDiagResults();
@@ -80,7 +80,7 @@ public:
         
 
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex,
-                                                                                           CellSelection cellSelection,
+                                                                                           CellFilter cellSelection,
                                                                                            const std::vector<QString>& tracerNames,
                                                                                            double max_pv_fraction);
 

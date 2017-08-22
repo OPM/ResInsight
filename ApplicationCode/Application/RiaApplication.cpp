@@ -1740,6 +1740,7 @@ RiuMainPlotWindow* RiaApplication::getOrCreateAndShowMainPlotWindow()
     if (!m_mainPlotWindow)
     {
         createMainPlotWindow();
+        m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
     }
 
