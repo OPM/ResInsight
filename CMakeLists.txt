@@ -141,13 +141,15 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 ################################################################################
 # HDF5
 ################################################################################
+if(MSVC)
+    set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
+endif()
 option (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING "Enable prototype feature Souring (requires third party library HDF5)" OFF)
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_SOURING)
     if(MSVC)
         # Must specyfy libraries manually
         # Using find_package causes linking of zlib, and crashes with linking of zlib defined by Qt
 
-        set(RESINSIGHT_HDF5_DIR "" CACHE PATH "Path to HDF5")
         if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
         
             include_directories(${RESINSIGHT_HDF5_DIR}/include)
