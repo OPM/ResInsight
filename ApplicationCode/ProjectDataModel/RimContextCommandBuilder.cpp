@@ -33,6 +33,7 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimFault.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
@@ -64,17 +65,26 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimEllipseFractureTemplate.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RimFractureTemplateCollection.h"
+#include "RimFractureTemplate.h"
+#include "RimSimWellFracture.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "ToggleCommands/RicToggleItemsFeatureImpl.h"
 
+#include "cafCmdFeature.h"
+#include "cafCmdFeatureManager.h"
 #include "cafPdmUiItem.h"
 #include "cafSelectionManager.h"
+
 #include "cvfAssert.h"
 
-#include "cafCmdFeatureManager.h"
-#include "cafCmdFeature.h"
-
 #include <vector>
-
 #include <QMenu>
 
 //--------------------------------------------------------------------------------------------------
@@ -203,6 +213,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicWellPathsImportFileFeature";
             commandIds << "RicWellPathsImportSsihubFeature";
             commandIds << "RicWellLogsImportFileFeature";
+            commandIds << "Separator";
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
@@ -366,6 +377,28 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicShowFlowCharacteristicsPlotFeature";
         }
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        else if (dynamic_cast<RimSimWellFracture*>(uiItem))
+        {
+            commandIds << "RicNewSimWellFractureFeature";
+        }
+        else if (dynamic_cast<RimFractureTemplateCollection*>(uiItem) ||
+            dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))
+        {
+            commandIds << "RicNewEllipseFractureTemplateFeature";
+            commandIds << "RicNewStimPlanFractureTemplateFeature";
+            commandIds << "Separator";
+            commandIds << "RicConvertAllFractureTemplatesToMetricFeature";
+            commandIds << "RicConvertAllFractureTemplatesToFieldFeature";
+        }
+        else if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))
+        {
+            commandIds << "RicNewEllipseFractureTemplateFeature";
+            commandIds << "RicNewStimPlanFractureTemplateFeature";
+            commandIds << "Separator";
+            commandIds << "RicConvertFractureTemplateUnitFeature";
+        }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
         if (dynamic_cast<RimView*>(uiItem))
@@ -407,6 +440,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicWellPathImportCompletionsFileFeature";
         commandIds << "RicFlyToObjectFeature";
         commandIds << "RicExportCarfin";
+
+        // Fracture commands
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        commandIds << "RicNewWellPathFractureFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
         // Work in progress -- End
 
@@ -459,6 +497,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicEclipseWellShowSpheresFeature";
             commandIds << "RicEclipseWellShowWellCellsFeature";
             commandIds << "RicEclipseWellShowWellCellFenceFeature";
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+            commandIds << "Separator";
+            commandIds << "RicNewSimWellFractureFeature";
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
     }
 

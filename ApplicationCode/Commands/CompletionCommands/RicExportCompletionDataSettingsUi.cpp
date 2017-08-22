@@ -42,7 +42,7 @@ namespace caf
     void RicExportCompletionDataSettingsUi::CompdatExportType::setUp()
     {
         addItem(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES, "TRANSMISSIBILITIES", "Calculated Transmissibilities");
-        addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT");
+        addItem(RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS, "WPIMULT_AND_DEFAULT_CONNECTION_FACTORS", "Default Connection Factors and WPIMULT (Fractures Not Supported)");
         setDefault(RicExportCompletionDataSettingsUi::TRANSMISSIBILITIES);
     }
 }
@@ -72,10 +72,51 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    CAF_PDM_InitField(&includeFractures, "IncludeFractures", true, "Include Fractures", "", "", "");
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
     m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::showForSimWells()
+{
+    m_displayForSimWell = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::showForWellPath()
+{
+    m_displayForSimWell = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicExportCompletionDataSettingsUi::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    if (changedField == &compdatExport)
+    {
+        if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        {
+            includeFractures = false;
+            includeFractures.uiCapability()->setUiReadOnly(true);
+        }
+        else if (compdatExport == TRANSMISSIBILITIES)
+        {
+            includeFractures = true;
+            includeFractures.uiCapability()->setUiReadOnly(false);
+        }
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,7 +163,6 @@ QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueO
 //--------------------------------------------------------------------------------------------------
 void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-
     caf::PdmUiGroup* generalExportSettings = uiOrdering.addNewGroup("General Export Settings");
     generalExportSettings->add(&folder);
     generalExportSettings->add(&caseToApply);
@@ -133,12 +173,34 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
 
     generalExportSettings->add(&fileSplit);
 
+    if (!m_displayForSimWell)
+    {
+        caf::PdmUiGroup* fishboneGroup = uiOrdering.addNewGroup("Export of Fishbone Completions");
+        fishboneGroup->add(&includeFishbones);
+        fishboneGroup->add(&excludeMainBoreForFishbones);
+        if (!includeFishbones) excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(true);
+        else excludeMainBoreForFishbones.uiCapability()->setUiReadOnly(false);
 
-    caf::PdmUiGroup* fishboneGroup = uiOrdering.addNewGroup("Export of Fishbone Completions");
-    fishboneGroup->add(&includeFishbones);
-    fishboneGroup->add(&excludeMainBoreForFishbones);
+        caf::PdmUiGroup* perfIntervalGroup = uiOrdering.addNewGroup("Export of Perforation Completions");
+        perfIntervalGroup->add(&includePerforations);
+        perfIntervalGroup->add(&timeStep);
+        if (!includePerforations) timeStep.uiCapability()->setUiReadOnly(true);
+        else  timeStep.uiCapability()->setUiReadOnly(false);
+        
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        caf::PdmUiGroup* fractureGroup = uiOrdering.addNewGroup("Export of Fracture Completions");
+        fractureGroup->add(&includeFractures);
+        
+        if (compdatExport == WPIMULT_AND_DEFAULT_CONNECTION_FACTORS)
+        {
+            includeFractures.uiCapability()->setUiReadOnly(true);
+        }
+        else if (compdatExport == TRANSMISSIBILITIES)
+        {
+            includeFractures.uiCapability()->setUiReadOnly(false);
+        }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+    }
 
-    caf::PdmUiGroup* perfIntervalGroup = uiOrdering.addNewGroup("Export of Perforation Completions");
-    perfIntervalGroup->add(&includePerforations);
-    perfIntervalGroup->add(&timeStep);
+    uiOrdering.skipRemainingFields();
 }

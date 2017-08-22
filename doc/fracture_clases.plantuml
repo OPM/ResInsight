@@ -1,0 +1,88 @@
+@startuml
+
+Title Classes related to fractures
+
+note as N1
+ Updated 2017-06-09
+end note
+
+class RimFracture {
+RimDefines::UnitSystemType fractureUnit;
+}
+
+class RimSimWellFracture {
+}
+class RimWellPathFracture {
+}
+
+
+RimFracture <|-- RimSimWellFracture
+RimFracture <|-- RimWellPathFracture
+
+
+class RimFractureTemplate {
+RimDefines::UnitSystemType fractureTemplateUnit;
+}
+
+class RimEllipseFractureTemplate {
+}
+class RimStimPlanFractureTemplate {
+}
+
+
+RimFractureTemplate <|-- RimEllipseFractureTemplate
+RimFractureTemplate <|-- RimStimPlanFractureTemplate
+
+class RigStimPlanFractureDefinition{
+    std::vector<double>          gridXs;
+    std::vector<double>          gridYs;
+    std::vector<double>          timeSteps;
+    std::vector<double>          depths;
+    std::vector<RigStimPlanResultFrames> stimPlanData;
+
+}
+
+class RigFractureCell{
+    std::vector<cvf::Vec3d> m_polygon;
+    double   m_displayValue;
+    double   m_conductivityValue;
+    size_t     m_i;
+    size_t     m_j;
+
+
+}
+
+class RigFractureGrid{
+}
+
+
+RimStimPlanFractureTemplate "1" *-- "1" RigStimPlanFractureDefinition
+RimStimPlanFractureTemplate "1" *-- "1" RigFractureGrid
+RimEllipseFractureTemplate "1" *-- "1" RigFractureGrid
+RigFractureGrid "1" *-- "many" RigFractureCell
+
+class RigStimPlanResultFrames{
+    QString resultName;
+    QString unit;
+    std::vector<std::vector<std::vector<double>>> parameterValues;
+    //Vector for each time step, for each depth and for each x-value
+
+}
+
+RigStimPlanFractureDefinition "1" *-- "1 for each property in StimPlan File" RigStimPlanResultFrames
+
+RicExportFractureCompletionsImpl --> RimFracture 
+RicExportFractureCompletionsImpl ..> RigFractureGrid
+RicExportFractureCompletionsImpl ..> RigFractureCell
+
+
+class RicExportFractureCompletionsImpl{
+generateFracturesCompdatValues()
+}
+
+
+
+
+
+
+@enduml

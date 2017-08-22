@@ -34,6 +34,7 @@ ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.h
 
 ${CEE_CURRENT_LIST_DIR}RicSelectOrCreateViewFeatureImpl.h
 
+
 # General delete of any object in a child array field
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExec.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteItemExecData.h
@@ -47,6 +48,23 @@ ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.h
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_HEADER_FILES
+        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.h
+        ${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.h
+    )
+endif()
+
+
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
@@ -87,6 +105,23 @@ ${CEE_CURRENT_LIST_DIR}RicCloseSourSimDataFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.cpp
 )
+
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicNewSimWellFractureAtPosFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicNewEllipseFractureTemplateFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicNewStimPlanFractureTemplateFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicNewWellPathFractureAtPosFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicConvertFractureTemplateUnitFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToMetricFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicConvertAllFractureTemplatesToFieldFeature.cpp
+        ${CEE_CURRENT_LIST_DIR}RicFractureNameGenerator.cpp
+    )
+endif()
+
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

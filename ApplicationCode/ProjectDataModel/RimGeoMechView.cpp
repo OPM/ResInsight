@@ -507,7 +507,7 @@ void RimGeoMechView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimGeoMechView::ownerCase()
+RimCase* RimGeoMechView::ownerCase() const
 {
     return m_geomechCase;
 }

@@ -19,7 +19,9 @@
 
 #include "RivSimWellPipeSourceInfo.h"
 
+#include "RimEclipseView.h"
 #include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -46,3 +48,4 @@ size_t RivSimWellPipeSourceInfo::branchIndex() const
 {
     return m_branchIndex;
 }
+

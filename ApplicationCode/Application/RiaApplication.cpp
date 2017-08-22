@@ -30,6 +30,7 @@
 #include "RiaVersionInfo.h"
 
 #include "RigGridManager.h"
+#include "RigEclipseCaseData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
@@ -50,6 +51,11 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -74,6 +80,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -214,13 +221,14 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // instead of using the application font
     m_standardFont = new caf::FixedAtlasFont(caf::FixedAtlasFont::POINT_SIZE_8);
 
-    m_resViewUpdateTimer = NULL;
+    m_resViewUpdateTimer = nullptr;
+    m_recalculateCompletionTypeTimer = nullptr;
 
     m_runningRegressionTests = false;
 
     m_runningWorkerProcess = false;
 
-    m_mainPlotWindow = NULL;
+    m_mainPlotWindow = nullptr;
 
     m_recentFileActionProvider = std::unique_ptr<RiuRecentFileActionProvider>(new RiuRecentFileActionProvider);
 }
@@ -478,6 +486,21 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
         oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
         oilField->summaryCaseCollection()->loadAllSummaryCaseData();
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        oilField->fractureDefinitionCollection()->loadAndUpdateData();
+
+        {
+            std::vector<RimWellPathFracture*> wellPathFractures;
+            oilField->wellPathCollection->descendantsIncludingThisOfType(wellPathFractures);
+
+            for (auto fracture : wellPathFractures)
+            {
+                fracture->loadDataAndUpdate();
+            }
+        }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     }
 
     // If load action is specified to recalculate statistics, do it now.
@@ -981,6 +1004,18 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     riv->hasUserRequestedAnimation = true;
 
     riv->loadDataAndUpdate();
+
+    if (analysisModels->cases.size() > 0)
+    {
+        if (rimResultReservoir->eclipseCaseData())
+        {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+            project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = rimResultReservoir->eclipseCaseData()->unitsType();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+        }
+    }
+
+
 
     // Add a corresponding summary case if it exists
     {
@@ -2766,6 +2801,44 @@ void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimView* resViewToUpdat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawAllViews()
+{
+    for (RimEclipseCase* eclipseCase : project()->activeOilField()->analysisModels->cases())
+    {
+        m_eclipseCasesToRecalculate.push_back(eclipseCase);
+    }
+
+    if (!m_recalculateCompletionTypeTimer)
+    {
+        m_recalculateCompletionTypeTimer = new QTimer(this);
+        m_recalculateCompletionTypeTimer->setSingleShot(true);
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecaulculateCompletionType()));
+    }
+
+    m_recalculateCompletionTypeTimer->start(500);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::scheduleRecalculateCompletionTypeAndRedrawEclipseCase(RimEclipseCase* eclipseCase)
+{
+    m_eclipseCasesToRecalculate.push_back(eclipseCase);
+
+
+    if (!m_recalculateCompletionTypeTimer)
+    {
+        m_recalculateCompletionTypeTimer = new QTimer(this);
+        m_recalculateCompletionTypeTimer->setSingleShot(true);
+        connect(m_recalculateCompletionTypeTimer, SIGNAL(timeout()), this, SLOT(slotRecaulculateCompletionType()));
+    }
+
+    m_recalculateCompletionTypeTimer->start(500);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::slotUpdateScheduledDisplayModels()
 {
     // Compress to remove duplicates
@@ -2801,6 +2874,21 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
     }
 
     m_resViewsToUpdate.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::slotRecaulculateCompletionType()
+{
+    std::set<RimEclipseCase*> uniqueCases(m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end());
+
+    for (RimEclipseCase* eclipseCase : uniqueCases)
+    {
+        eclipseCase->recalculateCompletionTypeAndRedrawAllViews();
+    }
+
+    m_eclipseCasesToRecalculate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -167,6 +167,7 @@ RivSimWellPipesPartMgr::RivPipeBranchData* RivSimWellPipesPartMgr::pipeBranchDat
         while (i < branchIndex)
         {
             brIt++;
+            i++;
         }
 
         return &(*brIt);

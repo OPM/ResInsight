@@ -45,14 +45,14 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(RimEclipseWell* rimWell, 
+void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(const RimEclipseWell* rimWell, 
                                                                                size_t timeStepIndex, 
                                                                                std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                                std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
 {
     CVF_ASSERT(rimWell);
 
-    RigSingleWellResultsData*  wellResults = rimWell->wellResults();
+    const RigSingleWellResultsData*  wellResults = rimWell->wellResults();
 
     RimEclipseView* eclipseView;
     rimWell->firstAncestorOrThisOfType(eclipseView);

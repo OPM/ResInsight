@@ -36,6 +36,11 @@
 #include "RimEclipseCaseCollection.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
 #include "RimGridSummaryCase.h"
@@ -437,6 +442,11 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
         if (oilField->summaryCaseCollection() != NULL) {
             oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        CVF_ASSERT(oilField->fractureDefinitionCollection());
+        oilField->fractureDefinitionCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
     }
 
 
@@ -774,7 +784,8 @@ bool RimProject::showPlotWindow() const
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsInAllViews()
 {
-    removeEclipseResultAndRedrawAllViews(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+    createDisplayModelAndRedrawAllViews();
+    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -788,12 +799,16 @@ RimDialogData* RimProject::dialogData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::removeEclipseResultAndRedrawAllViews(RiaDefines::ResultCatType type, const QString & resultName)
+void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
 {
-    for (RimEclipseCase* eclipseCase : activeOilField()->analysisModels->cases)
+    std::vector<RimView*> views = eclipseCase->views();
+
+    for (size_t viewIdx = 0; viewIdx < views.size(); viewIdx++)
     {
-        eclipseCase->removeEclipseResultAndScheduleRedrawAllViews(type, resultName);
+        views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
     }
+
+    RiaApplication::instance()->scheduleRecalculateCompletionTypeAndRedrawEclipseCase(eclipseCase);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -873,10 +888,15 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->analysisModels())     uiTreeOrdering.add(oilField->analysisModels());
-            if (oilField->geoMechModels())      uiTreeOrdering.add(oilField->geoMechModels());
-            if (oilField->wellPathCollection()) uiTreeOrdering.add(oilField->wellPathCollection());
-            if (oilField->formationNamesCollection()) uiTreeOrdering.add(oilField->formationNamesCollection());
+            if (oilField->analysisModels())                 uiTreeOrdering.add(oilField->analysisModels());
+            if (oilField->geoMechModels())                  uiTreeOrdering.add(oilField->geoMechModels());
+            if (oilField->wellPathCollection())             uiTreeOrdering.add(oilField->wellPathCollection());
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+            if (oilField->fractureDefinitionCollection())   uiTreeOrdering.add(oilField->fractureDefinitionCollection());
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+            if (oilField->formationNamesCollection())       uiTreeOrdering.add(oilField->formationNamesCollection());
         }
 
         uiTreeOrdering.add(scriptCollection());

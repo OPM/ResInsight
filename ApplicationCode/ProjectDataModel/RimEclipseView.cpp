@@ -52,6 +52,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimStimPlanColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -65,6 +66,13 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RivSingleCellPartGenerator.h"
 #include "RivTernarySaturationOverlayItem.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFracture.h"
+#include "RimSimWellFracture.h"
+#include "RivWellFracturePartMgr.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
@@ -83,7 +91,6 @@
 #include <QMessageBox>
 
 #include <limits.h>
-
 
 
 
@@ -111,6 +118,12 @@ RimEclipseView::RimEclipseView()
     faultResultSettings = new RimEclipseFaultColors();
     faultResultSettings.uiCapability()->setUiHidden(true);
   
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    CAF_PDM_InitFieldNoDefault(&stimPlanColors, "StimPlanColors", "Fracture Colors", "", "", "");
+    stimPlanColors = new RimStimPlanColors();
+    stimPlanColors.uiCapability()->setUiHidden(true);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimEclipseWellCollection;
     wellCollection.uiCapability()->setUiHidden(true);
@@ -220,6 +233,9 @@ void RimEclipseView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::updateScaleTransform()
 {
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
@@ -228,10 +244,18 @@ void RimEclipseView::updateScaleTransform()
     this->scaleTransform()->setLocalTransform(scale);
     m_simWellsPartManager->setScaleTransform(this->scaleTransform());
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    // Regenerate fracture geometry
+    std::vector<RimFracture*> fractures;
+    this->descendantsIncludingThisOfType(fractures);
+    for (RimFracture* fracture : fractures)
+    {
+        fracture->clearDisplayGeometryCache();
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// Create display model,
@@ -425,7 +449,18 @@ void RimEclipseView::createDisplayModel()
 
     m_wellPathPipeVizModel->removeAllParts();
 
+    // NB! StimPlan legend colors must be updated before well path geometry is added to the model
+    // as the fracture geometry depends on the StimPlan legend colors
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    stimPlanColors->updateLegendData();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     addWellPathsToModel(m_wellPathPipeVizModel.p(), currentActiveCellInfo()->geometryBoundingBox());
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    wellPathsPartManager()->appendStaticFracturePartsToModel(m_wellPathPipeVizModel.p(), this);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+    m_wellPathPipeVizModel->updateBoundingBoxesRecursive();
 
     m_viewer->addStaticModelOnce(m_wellPathPipeVizModel.p());
 
@@ -642,6 +677,40 @@ void RimEclipseView::updateCurrentTimeStep()
 
                 frameScene->addModel(wellPathModelBasicList.p());
             }
+
+            // Sim Well Fractures
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+            {
+                cvf::String name = "SimWellFracturesModel";
+                this->removeModelByName(frameScene, name);
+
+                cvf::ref<cvf::ModelBasicList> simWellFracturesModelBasicList = new cvf::ModelBasicList;
+                simWellFracturesModelBasicList->setName(name);
+
+                cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
+
+                std::vector<RimFracture*> fractures;
+                this->descendantsIncludingThisOfType(fractures);
+                for (RimFracture* f : fractures)
+                {
+                    RimEclipseWell* eclWell = nullptr;
+                    f->firstAncestorOrThisOfType(eclWell);
+                    if (eclWell)
+                    {
+                        bool isAnyGeometryPresent = eclWell->isWellPipeVisible(m_currentTimeStep) || eclWell->isWellSpheresVisible(m_currentTimeStep);
+                        if (!isAnyGeometryPresent)
+                        {
+                            continue;
+                        }
+                    }
+
+                    f->fracturePartManager()->appendGeometryPartsToModel(simWellFracturesModelBasicList.p(), this);
+                }
+
+                simWellFracturesModelBasicList->updateBoundingBoxesRecursive();
+                frameScene->addModel(simWellFracturesModelBasicList.p());
+            }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
         }
     }
 
@@ -678,6 +747,9 @@ void RimEclipseView::loadDataAndUpdate()
     this->cellEdgeResult()->loadResult();
 
     this->faultResultSettings()->customFaultResult()->loadResult();
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    this->stimPlanColors->loadDataAndUpdate();
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     updateMdiWindowVisibility();
 
@@ -690,9 +762,21 @@ void RimEclipseView::loadDataAndUpdate()
     m_simWellsPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
+    
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    {
+        // Update simulation well fractures after well cell results are imported
+        
+        std::vector<RimSimWellFracture*> simFractures;
+        this->descendantsIncludingThisOfType(simFractures);
+        for (auto fracture : simFractures)
+        {
+            fracture->loadDataAndUpdate();
+        }
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     this->scheduleCreateDisplayModelAndRedraw();
-
 }
 
 
@@ -971,6 +1055,19 @@ void RimEclipseView::updateLegends()
         this->cellEdgeResult()->legendConfig()->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig()->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    RimLegendConfig* stimPlanLegend = stimPlanColors()->activeLegend();
+    if (stimPlanLegend)
+    {
+        stimPlanColors->updateLegendData();
+        
+        if (stimPlanColors()->isChecked() && stimPlanLegend->legend())
+        {
+            m_viewer->addColorLegendToBottomLeftCorner(stimPlanLegend->legend());
+        }
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1313,6 +1410,9 @@ void RimEclipseView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     uiTreeOrdering.add(cellResult());
     uiTreeOrdering.add(cellEdgeResult());
     uiTreeOrdering.add(faultResultSettings());
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    uiTreeOrdering.add(stimPlanColors());
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     uiTreeOrdering.add(wellCollection());
     uiTreeOrdering.add(faultCollection());
@@ -1437,7 +1537,7 @@ cvf::Transform* RimEclipseView::scaleTransform()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCase* RimEclipseView::ownerCase()
+RimCase* RimEclipseView::ownerCase() const
 {
     return eclipseCase();
 }

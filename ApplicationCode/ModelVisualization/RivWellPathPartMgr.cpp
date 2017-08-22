@@ -37,11 +37,18 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "RimWellPathFractureCollection.h"
+#include "RimWellPathFracture.h"
+
 #include "RivFishbonesSubsPartMgr.h"
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
+
+#include "RivPartPriority.h"
+#include "RivWellFracturePartMgr.h"
+#include "RivWellPathPartMgr.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafEffectGenerator.h"
@@ -90,6 +97,23 @@ RivWellPathPartMgr::~RivWellPathPartMgr()
 {
     clearAllBranchData();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+void RivWellPathPartMgr::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, const RimEclipseView* eclView)
+{
+    if (!m_rimWellPath || !m_rimWellPath->fractureCollection()->isChecked()) return;
+
+    for (RimWellPathFracture* f : m_rimWellPath->fractureCollection()->fractures())
+    {
+        CVF_ASSERT(f);
+
+        f->fracturePartManager()->appendGeometryPartsToModel(model, eclView);
+    }
+}
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -369,8 +393,6 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     RimWellPathCollection* wellPathCollection = this->wellPathCollection();
     if (!wellPathCollection) return;
 
-    if (m_rimWellPath.isNull()) return;
-
     if (wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF)
         return;
 
@@ -379,7 +401,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
     buildWellPathParts(displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox);
- 
+
     if (m_pipeBranchData.m_surfacePart.notNull())
     {
         model->addPart(m_pipeBranchData.m_surfacePart.p());

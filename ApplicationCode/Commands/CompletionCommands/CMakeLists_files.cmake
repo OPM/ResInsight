@@ -20,6 +20,13 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathImportPerforationIntervalsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFishbonesTransmissibilityCalculationFeatureImp.h
 )
 
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_HEADER_FILES
+        ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.h
+    )
+endif()
+
+
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCaseAndFileExportSettingsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicEditPerforationCollectionFeature.cpp
@@ -35,6 +42,13 @@ ${CEE_CURRENT_LIST_DIR}RicWellPathImportCompletionsFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicWellPathImportPerforationIntervalsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFishbonesTransmissibilityCalculationFeatureImp.cpp
 )
+
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    list (APPEND SOURCE_GROUP_SOURCE_FILES
+        ${CEE_CURRENT_LIST_DIR}RicExportFractureCompletionsImpl.cpp
+    )
+endif()
+
 
 list(APPEND CODE_HEADER_FILES
 ${SOURCE_GROUP_HEADER_FILES}

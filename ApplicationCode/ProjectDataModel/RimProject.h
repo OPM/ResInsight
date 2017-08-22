@@ -76,7 +76,7 @@ public:
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     
     caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
-    
+
     caf::PdmField<QString>                              mainWindowTreeViewState;
     caf::PdmField<QString>                              mainWindowCurrentModelIndexPath;
 
@@ -110,6 +110,7 @@ public:
     bool            showPlotWindow() const;
 
     void            reloadCompletionTypeResultsInAllViews();
+    void            reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase);
 
     RimDialogData*  dialogData() const;
 
@@ -123,7 +124,6 @@ protected:
 
 private:
     void            appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
-    void            removeEclipseResultAndRedrawAllViews(RiaDefines::ResultCatType type, const QString& resultName);
 
 private:
     caf::PdmField<QString>  m_projectFileVersionString;

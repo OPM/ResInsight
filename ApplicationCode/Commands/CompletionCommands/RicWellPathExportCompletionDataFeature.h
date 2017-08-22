@@ -33,6 +33,7 @@
 
 class RimWellPath;
 class RimEclipseCase;
+class RimEclipseWell;
 class RigEclipseCaseData;
 class RigMainGrid;
 class RigCell;
@@ -126,6 +127,8 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
     std::vector<RimWellPath*>                    selectedWellPaths();
+    std::vector<RimEclipseWell*>                 selectedSimWells();
+
     bool                                         noWellPathsSelectedDirectly();
 
 public:
@@ -150,7 +153,7 @@ public:
                                                                                         double wellRadius,
                                                                                         size_t cellIndex,
                                                                                         CellDirection direction);
-    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const RicExportCompletionDataSettingsUi& exportSettings);
+    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimEclipseWell*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings);
 
 private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 

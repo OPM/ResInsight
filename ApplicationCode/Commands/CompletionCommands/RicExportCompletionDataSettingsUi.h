@@ -64,18 +64,24 @@ public:
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    caf::PdmField<bool>                     includeFractures;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     caf::PdmField<bool>                     excludeMainBoreForFishbones;
 
     caf::PdmField<int>                      timeStep;
 
+    void                                    showForSimWells();
+    void                                    showForWellPath();
 
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 protected:
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     bool                                    m_onlyWellPathCollectionSelected;
-
+    bool                                    m_displayForSimWell;
 };

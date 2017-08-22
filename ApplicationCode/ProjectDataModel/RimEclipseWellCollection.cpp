@@ -32,6 +32,10 @@
 #include "RimEclipseWell.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RiuMainWindow.h"
 
@@ -456,6 +460,19 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
     {
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    if (&wellPipeCoordType == changedField)
+    {
+        for (RimEclipseWell* w : wells)
+        {
+            for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())
+            {
+                frac->recomputeWellCenterlineCoordinates();
+            }
+        }
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }
 
 //--------------------------------------------------------------------------------------------------

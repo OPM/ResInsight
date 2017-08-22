@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RigHexIntersectionTools.h"
 
+#include "RigCellGeometryTools.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfRay.h"
+
+#include "cafHexGridIntersectionTools/cafHexGridIntersectionTools.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +70,8 @@ int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigHexIntersectionTools::isPointInCell(const cvf::Vec3d point, const cvf::Vec3d hexCorners[8])
+bool RigHexIntersectionTools::isPointInCell(const cvf::Vec3d point, 
+                                            const cvf::Vec3d hexCorners[8])
 {
     cvf::Ray ray;
     ray.setOrigin(point);
@@ -88,4 +93,63 @@ bool RigHexIntersectionTools::isPointInCell(const cvf::Vec3d point, const cvf::V
         }
     }
     return intersections % 2 == 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigHexIntersectionTools::planeHexCellIntersection(cvf::Vec3d* hexCorners, cvf::Plane fracturePlane, std::list<std::pair<cvf::Vec3d, cvf::Vec3d > >& intersectionLineSegments)
+{
+    bool isCellIntersected = false;
+    for (int face = 0; face < 6; ++face)
+    {
+        cvf::ubyte faceVertexIndices[4];
+        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+
+        cvf::Vec3d faceCenter = cvf::GeometryTools::computeFaceCenter(hexCorners[faceVertexIndices[0]], hexCorners[faceVertexIndices[1]], hexCorners[faceVertexIndices[2]], hexCorners[faceVertexIndices[3]]);
+
+        for (int i = 0; i < 4; i++)
+        {
+            int next = i < 3 ? i + 1 : 0;
+            caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint1;
+            caf::HexGridIntersectionTools::ClipVx triangleIntersectionPoint2;
+
+            bool isMostVxesOnPositiveSideOfP1 = false;
+
+            bool isIntersectingPlane = caf::HexGridIntersectionTools::planeTriangleIntersection(fracturePlane,
+                hexCorners[faceVertexIndices[i]], 0,
+                hexCorners[faceVertexIndices[next]], 1,
+                faceCenter, 2,
+                &triangleIntersectionPoint1, &triangleIntersectionPoint2, &isMostVxesOnPositiveSideOfP1);
+
+            if (isIntersectingPlane)
+            {
+                isCellIntersected = true;
+                intersectionLineSegments.push_back({ triangleIntersectionPoint1.vx, triangleIntersectionPoint2.vx });
+            }
+        }
+    }    return isCellIntersected;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigHexIntersectionTools::planeHexIntersectionPolygons(std::array<cvf::Vec3d, 8> hexCorners,
+                                                           cvf::Mat4d transformMatrixForPlane,
+                                                           std::vector<std::vector<cvf::Vec3d> >& polygons)
+{
+    bool isCellIntersected = false;
+
+    cvf::Plane fracturePlane;
+    fracturePlane.setFromPointAndNormal(transformMatrixForPlane.translation(),
+                                        static_cast<cvf::Vec3d>(transformMatrixForPlane.col(2)));
+
+    //Find line-segments where cell and fracture plane intersects
+    std::list<std::pair<cvf::Vec3d, cvf::Vec3d > > intersectionLineSegments;
+
+    isCellIntersected = planeHexCellIntersection(hexCorners.data(), fracturePlane, intersectionLineSegments);
+
+    RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
+
+    return isCellIntersected;
 }

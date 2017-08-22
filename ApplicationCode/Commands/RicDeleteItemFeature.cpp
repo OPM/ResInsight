@@ -26,6 +26,7 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseView.h"
 #include "RimFishbonesMultipleSubs.h"
+#include "RimEllipseFractureTemplate.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilter.h"
@@ -34,6 +35,9 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
+#include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
+#include "RimStimPlanFractureTemplate.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -47,6 +51,8 @@
 #include "RimPerforationInterval.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimAsciiDataCurve.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdSelectionHelper.h"
@@ -100,6 +106,13 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (dynamic_cast<RimFishbonesMultipleSubs*>(uiItem))     return true;
     if (dynamic_cast<RimPerforationInterval*>(uiItem))       return true;
     if (dynamic_cast<RimAsciiDataCurve*>(uiItem))            return true;
+    if (dynamic_cast<RimWellPathFractureCollection*>(uiItem))        return true;
+    if (dynamic_cast<RimWellPathFracture*>(uiItem))                  return true;
+    if (dynamic_cast<RimEllipseFractureTemplate*>(uiItem))        return true;
+    if (dynamic_cast<RimStimPlanFractureTemplate*>(uiItem))        return true;
+    if (dynamic_cast<RimSimWellFractureCollection*>(uiItem))        return true;
+    if (dynamic_cast<RimSimWellFracture*>(uiItem))                  return true;
+
 
     return false;    
 }

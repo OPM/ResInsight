@@ -722,9 +722,9 @@ void RimView::addWellPathsToModel(cvf::ModelBasicList* wellPathModelBasicList,
     cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
 
     wellPathsPartManager()->appendStaticGeometryPartsToModel(wellPathModelBasicList,
-        this->ownerCase()->characteristicCellSize(),
-        wellPathClipBoundingBox,
-        transForm.p());
+                                                             this->ownerCase()->characteristicCellSize(),
+                                                             wellPathClipBoundingBox,
+                                                             transForm.p());
 
     wellPathModelBasicList->updateBoundingBoxesRecursive();
 }
@@ -1028,7 +1028,7 @@ void RimView::zoomAll()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform()
+cvf::ref<caf::DisplayCoordTransform> RimView::displayCoordTransform() const
 {
     cvf::ref<caf::DisplayCoordTransform> coordTrans = new caf::DisplayCoordTransform;
 

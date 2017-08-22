@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigWellPath.h"
+#include "cvfGeometryTools.h"
 
 #include "cvfGeometryTools.h"
 
@@ -97,26 +98,57 @@ cvf::Vec3d RigWellPath::interpolatedPointAlongWellPath(double measuredDepth) con
 //--------------------------------------------------------------------------------------------------
 double RigWellPath::wellPathAzimuthAngle(const cvf::Vec3d& position) const
 {
-    double azimuthAngle = 0.0;
+    size_t closestIndex = cvf::UNDEFINED_SIZE_T;
+    double closestDistance = cvf::UNDEFINED_DOUBLE;
 
-    cvf::Vec3d p1 = cvf::Vec3d::UNDEFINED;
-    cvf::Vec3d p2 = cvf::Vec3d::UNDEFINED;
-
-    twoClosestPoints(position, &p1, &p2);
-    if (!p1.isUndefined() && !p2.isUndefined())
+    for (size_t i = 1; i < m_wellPathPoints.size(); i++)
     {
-        cvf::Vec3d direction = p1 - p2;
+        cvf::Vec3d p1 = m_wellPathPoints[i - 1];
+        cvf::Vec3d p2 = m_wellPathPoints[i - 0];
 
-        if (abs(direction.x()) > 1e-5)
+        double candidateDistance = cvf::GeometryTools::linePointSquareDist(p1, p2, position);
+        if (candidateDistance < closestDistance)
         {
-            double atanValue = direction.y() / direction.x();
-            azimuthAngle = atan(atanValue);
-            azimuthAngle = cvf::Math::toDegrees(azimuthAngle);
-            azimuthAngle = -azimuthAngle;
+            closestDistance = candidateDistance;
+            closestIndex = i;
         }
     }
 
-    return azimuthAngle;
+    //For vertical well (x-component of direction = 0) returned angle will be 90. 
+    double AzimuthAngle = 90.0;
+
+    if (closestIndex != cvf::UNDEFINED_DOUBLE)
+    {
+        cvf::Vec3d p1;
+        cvf::Vec3d p2;
+
+        if (closestIndex > 0)
+        {
+            p1 = m_wellPathPoints[closestIndex - 1];
+            p2 = m_wellPathPoints[closestIndex - 0];
+        }
+        else
+        {
+            p1 = m_wellPathPoints[closestIndex + 1];
+            p2 = m_wellPathPoints[closestIndex + 0];
+        }
+
+        cvf::Vec3d direction = p2 - p1;
+
+
+        if (abs(direction.y()) > 1e-5)
+        {
+            double atanValue = direction.x() / direction.y();
+            AzimuthAngle = atan(atanValue);
+            AzimuthAngle = cvf::Math::toDegrees(AzimuthAngle);
+        }
+    }
+
+    return AzimuthAngle;
+
+
+
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,5 +227,40 @@ std::vector<cvf::Vec3d> RigWellPath::clippedPointSubset(double startMD, double e
     }
 
     return points;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigWellPath::wellPathPointsIncludingFractureIntersection(double fractureIntersectionMD) const
+{
+    std::vector<cvf::Vec3d> points;
+    if (m_measuredDepths.empty()) return points;
+
+    cvf::Vec3d fractureWellPathPpoint = interpolatedPointAlongWellPath(fractureIntersectionMD);
+
+    for (size_t i = 0; i < m_measuredDepths.size()-1; i++)
+    {
+        if (m_measuredDepths[i] < fractureIntersectionMD)
+        {
+            points.push_back(m_wellPathPoints[i]);
+            if (m_measuredDepths[i + 1] > fractureIntersectionMD)
+            {
+                points.push_back(fractureWellPathPpoint);
+            }
+        }
+        else if (m_measuredDepths[i] < fractureIntersectionMD)
+        {
+            if (i == 0)
+            {
+                points.push_back(fractureWellPathPpoint);
+            }
+            points.push_back(m_wellPathPoints[i]);
+        }
+    }
+    points.push_back(m_wellPathPoints.back());
+
+    return points;
+
 }
 

@@ -45,6 +45,10 @@ class RimFishbonesCollection;
 class RimPerforationCollection;
 class RimWellPathCompletions;
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+class RimWellPathFractureCollection;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 //==================================================================================================
 ///  
 ///  
@@ -78,14 +82,19 @@ public:
 
     caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
 
-    RimFishbonesCollection*             fishbonesCollection();
-    const RimFishbonesCollection*       fishbonesCollection() const;
-    RimPerforationCollection*           perforationIntervalCollection();
-    const RimPerforationCollection*     perforationIntervalCollection() const;
-    const RimWellPathCompletions*       completions() const;
+    RimFishbonesCollection*              fishbonesCollection();
+    const RimFishbonesCollection*        fishbonesCollection() const;
+    RimPerforationCollection*            perforationIntervalCollection();
+    const RimPerforationCollection*      perforationIntervalCollection() const;
+    const RimWellPathCompletions*        completions() const;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    RimWellPathFractureCollection*       fractureCollection();
+    const RimWellPathFractureCollection* fractureCollection() const;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     RigWellPath*                        wellPathGeometry();
     const RigWellPath*                  wellPathGeometry() const;
+
     RivWellPathPartMgr*                 partMgr();
 
     bool                                readWellPathFile(QString * errorMessage, RifWellPathImporter* wellPathImporter);

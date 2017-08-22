@@ -30,6 +30,7 @@
 
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
+#include "cafPdmChildField.h"
 
 #include "cvfObject.h"
 
@@ -39,6 +40,7 @@ class RifWellPathImporter;
 class RimWellPath;
 class RimProject;
 class RigWellPath;
+class RimEclipseView;
 
 namespace cvf {
 class ModelBasicList;
@@ -99,6 +101,11 @@ public:
                                                                          double                            characteristicCellSize, 
                                                                          const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                                          const caf::DisplayCoordTransform* displayCoordTransform);
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    void                                appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                                         const RimEclipseView* eclView);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                                appendDynamicGeometryPartsToModel(cvf::ModelBasicList*              model, 
                                                                           const QDateTime&                  timeStamp,

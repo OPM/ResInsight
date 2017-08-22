@@ -35,7 +35,7 @@
 
 #include <QClipboard>
 #include <QString>
-#include "QAction"
+#include <QAction>
 
 
 

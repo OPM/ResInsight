@@ -62,6 +62,21 @@
 
 namespace caf {
 
+//#############################################################################################################################
+//#############################################################################################################################
+static const char checkDiscard_Transparent_Fragments_inl[] =
+        "                                                                                                      \n"
+        "#define CVF_CHECK_DISCARD_FRAGMENT_IMPL                                                               \n"
+        "                                                                                                      \n"
+        "//--------------------------------------------------------------------------------------------------  \n"
+        "/// Check if fragment should be discarded based on alpha fragment value                               \n"
+        "//--------------------------------------------------------------------------------------------------  \n"
+        "void checkDiscardFragment()                                                                           \n"
+        "{                                                                                                     \n"
+        "    vec4 color = srcFragment();                                                                       \n"
+        "    if (color.a < 1.0) discard;                                                                       \n"
+        "}                                                                                                     \n";
+
 
 //=============================================================================================================================
 //=============================================================================================================================
@@ -419,6 +434,7 @@ ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper
     m_faceCulling = FC_NONE;
     m_enableDepthWrite = true;
     m_disableLighting = false;
+    m_discardTransparentFragments = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,6 +447,11 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
     cvf::ShaderProgramGenerator gen("ScalarMapperEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Texture);
+
+    if (m_discardTransparentFragments)
+    {
+        gen.addFragmentCode(checkDiscard_Transparent_Fragments_inl);
+    }
     
     if (m_disableLighting)
     {
@@ -441,6 +462,7 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
         gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
         gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
     }
+
 
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     eff->setShaderProgram(prog.p());
@@ -570,7 +592,8 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
             && m_faceCulling == otherTextureResultEffect->m_faceCulling
             && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite
-            && m_disableLighting == otherTextureResultEffect->m_disableLighting)
+            && m_disableLighting == otherTextureResultEffect->m_disableLighting
+            && m_discardTransparentFragments == otherTextureResultEffect->m_discardTransparentFragments)
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
             otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
@@ -594,6 +617,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
     scEffGen->m_faceCulling = m_faceCulling;
     scEffGen->m_enableDepthWrite = m_enableDepthWrite;
     scEffGen->m_disableLighting = m_disableLighting;
+    scEffGen->m_discardTransparentFragments = m_discardTransparentFragments;
 
     return scEffGen;
 }

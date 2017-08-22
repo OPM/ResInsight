@@ -21,9 +21,12 @@
 #pragma once
 
 #include "cvfBase.h"
-#include "cvfObject.h"
 #include "cvfArray.h"
 #include "cvfPart.h"
+#include "cvfColor3.h"
+#include "cvfVector3.h"
+
+#include <vector>
 
 namespace cvf {
     class DrawableGeo;

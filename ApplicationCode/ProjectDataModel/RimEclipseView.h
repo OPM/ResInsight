@@ -41,18 +41,22 @@ class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class RigMainGrid;
 class Rim3dOverlayInfoConfig;
-class RimEclipseCase;
 class RimCellEdgeColors;
-class RimEclipsePropertyFilter;
-class RimEclipsePropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
-class RimFaultCollection;
-class RimEclipseFaultColors;
-class RimReservoirCellResultsStorage;
-class RimReservoirCellResultsStorage;
+class RimEclipseCase;
 class RimEclipseCellColors;
+class RimEclipseFaultColors;
+class RimEclipsePropertyFilter;
+class RimEclipsePropertyFilterCollection;
+class RimEclipseWell;
 class RimEclipseWellCollection;
+class RimFaultCollection;
+class RimReservoirCellResultsStorage;
+class RimReservoirCellResultsStorage;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+class RimStimPlanColors;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 class RiuViewer;
 class RivReservoirSimWellsPartMgr;
 class RivIntersectionPartMgr;
@@ -87,12 +91,15 @@ public:
 
     // Fields containing child objects :
 
-    caf::PdmChildField<RimEclipseCellColors*>       cellResult;
-    caf::PdmChildField<RimCellEdgeColors*>          cellEdgeResult;
-    caf::PdmChildField<RimEclipseFaultColors*>      faultResultSettings;
-                                                    
-    caf::PdmChildField<RimEclipseWellCollection*>   wellCollection;
-    caf::PdmChildField<RimFaultCollection*>         faultCollection;
+    caf::PdmChildField<RimEclipseCellColors*>               cellResult;
+    caf::PdmChildField<RimCellEdgeColors*>                  cellEdgeResult;
+    caf::PdmChildField<RimEclipseFaultColors*>              faultResultSettings;
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    caf::PdmChildField<RimStimPlanColors*>                  stimPlanColors;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+    caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
+    caf::PdmChildField<RimFaultCollection*>                  faultCollection;
 
     // Fields
 
@@ -113,7 +120,7 @@ public:
 
     void                                            setEclipseCase(RimEclipseCase* reservoir);
     RimEclipseCase*                                 eclipseCase() const;
-    virtual RimCase*                                ownerCase();
+    virtual RimCase*                                ownerCase() const override;
 
     RigMainGrid*                                    mainGrid() const;
 

@@ -30,6 +30,8 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
+#include "RimWellPathFractureCollection.h"
 
 #include "RimFishbonesMultipleSubs.h"
 #include "RimWellPathCompletions.h"
@@ -140,7 +142,6 @@ RimWellPath::~RimWellPath()
             }
         }
     }
-
 }
 
 
@@ -215,6 +216,30 @@ const RimWellPathCompletions* RimWellPath::completions() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+RimWellPathFractureCollection* RimWellPath::fractureCollection()
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fractureCollection();
+}
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+const RimWellPathFractureCollection * RimWellPath::fractureCollection() const
+{
+    CVF_ASSERT(m_completions);
+
+    return m_completions->fractureCollection();
+}
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigWellPath* RimWellPath::wellPathGeometry()
 {
     return m_wellPath.p();
@@ -223,7 +248,7 @@ RigWellPath* RimWellPath::wellPathGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigWellPath * RimWellPath::wellPathGeometry() const
+const RigWellPath* RimWellPath::wellPathGeometry() const
 {
     return m_wellPath.p();
 }
@@ -362,13 +387,14 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 { 
-    uiTreeOrdering.skipRemainingChildren(true);
     uiTreeOrdering.add(&m_wellLogFile);
 
     if (m_completions->hasCompletions())
     {
         uiTreeOrdering.add(&m_completions);
     }
+
+    uiTreeOrdering.skipRemainingChildren(true);
 }
 
 //--------------------------------------------------------------------------------------------------

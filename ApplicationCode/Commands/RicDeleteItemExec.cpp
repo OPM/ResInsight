@@ -24,7 +24,9 @@
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseWell.h"
 #include "RimFormationNamesCollection.h"
+#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
@@ -33,6 +35,7 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "cafNotificationCenter.h"
@@ -118,7 +121,36 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+        // SimWell Fractures
+        RimEclipseWell* eclipseWell;
+        parentObj->firstAncestorOrThisOfType(eclipseWell);
+        if (view && eclipseWell)
+        {
+            view->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        RimFractureTemplateCollection* fracTemplateColl;
+        parentObj->firstAncestorOrThisOfType(fracTemplateColl);
+        if (fracTemplateColl)
+        {
+            RimProject* proj = nullptr;
+            parentObj->firstAncestorOrThisOfType(proj);
+            if (proj)
+            {
+                proj->createDisplayModelAndRedrawAllViews();
+            }
+        }
+
+
         // Well paths
+
+        RimWellPath* wellPath;
+        parentObj->firstAncestorOrThisOfType(wellPath);
+
+        if (wellPath)
+        {
+            wellPath->updateConnectedEditors();
+        }
 
         RimWellPathCollection* wellPathColl;
         parentObj->firstAncestorOrThisOfType(wellPathColl);

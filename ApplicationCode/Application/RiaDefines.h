@@ -39,7 +39,8 @@ namespace RiaDefines
     enum CompletionType {
         WELL_PATH,
         PERFORATION_INTERVAL,
-        FISHBONES
+        FISHBONES,
+        FRACTURE,
     };
 
     bool isPerCellFaceResult(const QString& resultName);

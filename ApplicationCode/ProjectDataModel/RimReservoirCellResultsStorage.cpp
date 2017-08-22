@@ -391,10 +391,12 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::Result
     }
     else if (resultName == RiaDefines::completionTypeResultName())
     {
+        caf::ProgressInfo progressInfo(m_cellResults->maxTimeStepCount(), "Calculate Completion Type Results");
         m_cellResults->cellScalarResults(scalarResultIndex).resize(m_cellResults->maxTimeStepCount());
         for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); ++timeStepIdx)
         {
             computeCompletionTypeForTimeStep(timeStepIdx);
+            progressInfo.incrementProgress();
         }
     }
 
@@ -1500,7 +1502,7 @@ void RimReservoirCellResultsStorage::computeCompletionTypeForTimeStep(size_t tim
     firstAncestorOrThisOfTypeAsserted(eclipseCase);
     QDateTime timeStepDate = eclipseCase->timeStepDates()[timeStep];
 
-    RimCompletionCellIntersectionCalc::calculateIntersections(project, m_ownerMainGrid, completionTypeResult, timeStepDate);
+    RimCompletionCellIntersectionCalc::calculateIntersections(project, eclipseCase, m_ownerMainGrid, completionTypeResult, timeStepDate);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1636,13 +1638,6 @@ bool RimReservoirCellResultsStorage::isDataPresent(size_t scalarResultIndex) con
 //--------------------------------------------------------------------------------------------------
 double RimReservoirCellResultsStorage::darchysValue()
 {
-    // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
-    //     CDARCY Darcys constant
-    //         = 0.00852702 (E300); 0.008527 (ECLIPSE 100) (METRIC)
-    //         = 0.00112712 (E300); 0.001127 (ECLIPSE 100) (FIELD)
-    //         = 3.6 (LAB)
-    //         = 0.00864 (PVT - M)
-
     double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
     RimEclipseCase* rimCase = NULL;

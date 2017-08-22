@@ -49,6 +49,7 @@
 #include <fstream>
 #include <cmath>
 #include "RivWellPathPartMgr.h"
+#include "RimEclipseView.h"
 
 namespace caf
 {
@@ -90,6 +91,7 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
+
     wellPaths.uiCapability()->setUiHidden(true);
 
     m_wellPathImporter = new RifWellPathImporter;
@@ -347,6 +349,24 @@ void RimWellPathCollection::appendStaticGeometryPartsToModel(cvf::ModelBasicList
         partMgr->appendStaticGeometryPartsToModel(model, characteristicCellSize, wellPathClipBoundingBox, displayCoordTransform);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+void RimWellPathCollection::appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                             const RimEclipseView* eclView)
+{
+    if (!this->isActive()) return;
+    if (this->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
+
+    for (size_t wIdx = 0; wIdx < this->wellPaths.size(); wIdx++)
+    {
+        RivWellPathPartMgr* partMgr = this->wellPaths[wIdx]->partMgr();
+        partMgr->appendStaticFracturePartsToModel(model, eclView);
+    }
+}
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 //--------------------------------------------------------------------------------------------------
 /// 

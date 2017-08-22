@@ -37,7 +37,7 @@ public:
 protected:
     virtual caf::PdmFieldHandle* objectToggleField() override;
 
-private:
+protected:
     caf::PdmField<bool> m_isChecked;
 };
 

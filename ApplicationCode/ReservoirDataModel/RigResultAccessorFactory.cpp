@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(RigEclipseCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(const RigEclipseCaseData* eclipseCase,
                                                                              size_t gridIndex,
                                                                              RiaDefines::PorosityModelType porosityModel,
                                                                              size_t timeStepIndex,
@@ -50,7 +50,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
     CVF_ASSERT(eclipseCase->results(porosityModel));
     CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
 
-    RigGridBase* grid = eclipseCase->grid(gridIndex);
+    const RigGridBase* grid = eclipseCase->grid(gridIndex);
 
     if (uiResultName == RiaDefines::combinedTransmissibilityResultName())
     {
@@ -181,7 +181,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromUiResultName(Rig
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigEclipseCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(const RigEclipseCaseData* eclipseCase,
                                                                             size_t gridIndex,
                                                                             RiaDefines::PorosityModelType porosityModel,
                                                                             size_t timeStepIndex,
@@ -216,7 +216,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromNameAndType(RigE
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(RigEclipseCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition(const RigEclipseCaseData* eclipseCase,
                                                                                  size_t gridIndex,
                                                                                  size_t timeStepIndex,
                                                                                  RimEclipseResultDefinition* resultDefinition)
@@ -244,7 +244,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
         const std::vector<double>* resultValues = flowSol->flowDiagResults()->resultValues( resultDefinition->flowDiagResAddress(), timeStepIndex);
         if (!resultValues) return new RigHugeValResultAccessor;
 
-        RigGridBase* grid = eclipseCase->grid(gridIndex);
+        const RigGridBase* grid = eclipseCase->grid(gridIndex);
         if ( !grid ) return new RigHugeValResultAccessor;
 
         cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(resultDefinition->porosityModel()));
@@ -256,7 +256,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 //--------------------------------------------------------------------------------------------------
 /// This function must be harmonized with RigResultModifierFactory::createResultModifier()
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(RigEclipseCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultName(const RigEclipseCaseData* eclipseCase,
                                                                                    size_t gridIndex,
                                                                                    RiaDefines::PorosityModelType porosityModel,
                                                                                    size_t timeStepIndex,
@@ -284,7 +284,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromUiResultNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigEclipseCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(const RigEclipseCaseData* eclipseCase,
                                                                           size_t gridIndex,
                                                                           RiaDefines::PorosityModelType porosityModel,
                                                                           size_t timeStepIndex,
@@ -297,17 +297,17 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultIdx(RigEcl
 
     if (!eclipseCase) return NULL;
 
-    RigGridBase* grid = eclipseCase->grid(gridIndex);
+    const RigGridBase* grid = eclipseCase->grid(gridIndex);
     if (!grid) return NULL;
 
-    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(resultIndex);
+    const std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(resultIndex);
 
     if (timeStepIndex >= scalarSetResults.size())
     {
         return new RigHugeValResultAccessor;
     }
 
-    std::vector<double>* resultValues = NULL;
+    const std::vector<double>* resultValues = NULL;
     if (timeStepIndex < scalarSetResults.size())
     {
         resultValues = &(scalarSetResults[timeStepIndex]);

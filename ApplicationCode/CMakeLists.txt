@@ -189,6 +189,11 @@ if (${RESINSIGHT_FOUND_HDF5})
 endif()
 
 
+if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+	add_definitions(-DUSE_PROTOTYPE_FEATURE_FRACTURES)
+endif()
+
+
 #############################################################################
 # Qt specifics: Moc, ui, resources
 #############################################################################
@@ -338,6 +343,11 @@ if(RESINSIGHT_ENABLE_COTIRE)
         # mix of cvf and Qt namespaces
         ModelVisualization/GridBox/RivGridBoxGenerator.cpp
         ModelVisualization/Intersections/RivIntersectionGeometryGenerator.cpp
+
+        # exclude file using Eigen
+        ReservoirDataModel/RigTransmissibilityCondenser.cpp
+        ReservoirDataModel/RigEclipseToStimPlanCellTransmissibilityCalculator.cpp
+        ReservoirDataModel/RigCellGeometryTools.cpp
     )
 
 	foreach (fileToExclude ${COTIRE_EXCLUDE_FILES})

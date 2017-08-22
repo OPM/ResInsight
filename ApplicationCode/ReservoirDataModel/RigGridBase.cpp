@@ -148,7 +148,9 @@ void RigGridBase::initSubCellsMainGridCellIndex()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// For main grid, this will work with reservoirCellIndices retreiving the correct lgr cells as well.
+/// the cell() call retreives correct cell, because main grid has offset of 0, and we access the global 
+/// cell array in main grid.
 //--------------------------------------------------------------------------------------------------
 void RigGridBase::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const
 {

@@ -24,12 +24,15 @@
 #include "RicExportCompletionDataSettingsUi.h"
 #include "RicExportFeatureImpl.h"
 #include "RicFishbonesTransmissibilityCalculationFeatureImp.h"
+#include "RicExportFractureCompletionsImpl.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+
 #include "RigTransmissibilityEquations.h"
+
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
@@ -42,6 +45,8 @@
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimEclipseWell.h"
+#include "RimEclipseWellCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -65,7 +70,32 @@ CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCo
 //--------------------------------------------------------------------------------------------------
 bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 {
-    return !selectedWellPaths().empty();
+    std::vector<RimWellPath*> wellPaths = selectedWellPaths();
+    std::vector<RimEclipseWell*> simWells = selectedSimWells();
+
+    if (wellPaths.empty() && simWells.empty())
+    {
+        return false;
+    }
+
+    if (!wellPaths.empty() && !simWells.empty())
+    {
+        return false;
+    }
+
+    std::set<RimEclipseCase*> eclipseCases;
+    for (auto simWell : simWells)
+    {
+        RimEclipseCase* eclipseCase;
+        simWell->firstAncestorOrThisOfType(eclipseCase);
+        eclipseCases.insert(eclipseCase);
+    }
+    if (eclipseCases.size() > 1)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,17 +104,26 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
+    std::vector<RimEclipseWell*> simWells = selectedSimWells();
 
-    CVF_ASSERT(wellPaths.size() > 0);
+    CVF_ASSERT(wellPaths.size() > 0 || simWells.size() > 0);
 
     RiaApplication* app = RiaApplication::instance();
 
     QString projectFolder = app->currentProjectPath();
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback("COMPLETIONS", projectFolder);
-    
-    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
 
+    bool onlyWellPathCollectionSelected = noWellPathsSelectedDirectly();
     RicExportCompletionDataSettingsUi exportSettings(onlyWellPathCollectionSelected);
+
+    if (wellPaths.empty())
+    {
+        exportSettings.showForSimWells();
+    }
+    else
+    {
+        exportSettings.showForWellPath();
+    }
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
     for (auto c : cases)
@@ -106,7 +145,7 @@ void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
     {
         RiaApplication::instance()->setLastUsedDialogDirectory("COMPLETIONS", exportSettings.folder);
 
-        exportCompletions(wellPaths, exportSettings);
+        exportCompletions(wellPaths, simWells, exportSettings);
     }
 }
 
@@ -160,7 +199,33 @@ bool RicWellPathExportCompletionDataFeature::noWellPathsSelectedDirectly()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths, 
+std::vector<RimEclipseWell*> RicWellPathExportCompletionDataFeature::selectedSimWells()
+{
+    std::vector<RimEclipseWell*> simWells;
+    caf::SelectionManager::instance()->objectsByType(&simWells);
+
+    std::vector<RimEclipseWellCollection*> simWellCollections;
+    caf::SelectionManager::instance()->objectsByType(&simWellCollections);
+
+    for (auto simWellCollection : simWellCollections)
+    {
+        for (auto simWell : simWellCollection->wells())
+        {
+            simWells.push_back(simWell);
+        }
+    }
+
+    std::set<RimEclipseWell*> uniqueSimWells(simWells.begin(), simWells.end());
+    simWells.assign(uniqueSimWells.begin(), uniqueSimWells.end());
+
+    return simWells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths,
+                                                               const std::vector<RimEclipseWell*>& simWells,
                                                                const RicExportCompletionDataSettingsUi& exportSettings)
 {
 
@@ -197,6 +262,16 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 break;
             }
         }
+        for (const RimEclipseWell* simWell : simWells)
+        {
+            RimEclipseCase* eclipseCase;
+            simWell->firstAncestorOrThisOfType(eclipseCase);
+            if (exportSettings.caseToApply->eclipseCaseData()->unitsType() != eclipseCase->eclipseCaseData()->unitsType())
+            {
+                unitSystemMismatch = true;
+                break;
+            }
+        }
         if (unitSystemMismatch)
         {
             RiaLogging::error("Well path unit systems must match unit system of chosen eclipse case.");
@@ -205,6 +280,16 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
     }
     
     std::map<IJKCellIndex, std::vector<RigCompletionData> > completionsPerEclipseCell;
+//    FractureTransmissibilityExportInformation
+
+    QString fractureTransmisibillityExportInformationPath = QDir(exportSettings.folder).filePath("FractureTransmissibilityExportInformation");
+    QFile fractureTransmissibilityExportInformationFile(fractureTransmisibillityExportInformationPath);
+    if (!fractureTransmissibilityExportInformationFile.open(QIODevice::WriteOnly))
+    {
+        RiaLogging::error(QString("Export Completions Data: Could not open the file: %1").arg(fractureTransmisibillityExportInformationPath));
+        return;
+    }
+    QTextStream fractureTransmissibilityExportInformationStream(&fractureTransmissibilityExportInformationFile);
 
     for (auto wellPath : usedWellPaths)
     {
@@ -220,7 +305,26 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             std::vector<RigCompletionData> fishbonesCompletionData = RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(wellPath, exportSettings);
             appendCompletionData(&completionsPerEclipseCell, fishbonesCompletionData);
         }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+        if (exportSettings.includeFractures())
+        {
+            std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForWellPath(wellPath, exportSettings, &fractureTransmissibilityExportInformationStream);
+            appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
+        }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    for (auto simWell : simWells)
+    {
+        std::vector<RigCompletionData> fractureCompletionData = RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(exportSettings.caseToApply(), 
+                                                                                                                                  simWell, 
+                                                                                                                                  &fractureTransmissibilityExportInformationStream);
+        appendCompletionData(&completionsPerEclipseCell, fractureCompletionData);
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     const QString eclipseCaseName = exportSettings.caseToApply->caseUserDescription();
 
@@ -254,6 +358,8 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 }
             }
 
+            if (wellCompletions.empty()) continue;
+
             QString fileName = QString("%1_unifiedCompletions_%2").arg(wellPath->name()).arg(eclipseCaseName);
             printCompletionsToFile(exportSettings.folder, fileName, wellCompletions, exportSettings.compdatExport);
         }
@@ -270,13 +376,27 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
             }
             {
                 std::vector<RigCompletionData> fishbonesCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FISHBONES);
-                QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.compdatExport);
+                if (!fishbonesCompletions.empty())
+                {
+                    QString fileName = QString("%1_Fishbones_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                    printCompletionsToFile(exportSettings.folder, fileName, fishbonesCompletions, exportSettings.compdatExport);
+                }
             }
             {
                 std::vector<RigCompletionData> perforationCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::PERFORATION);
-                QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
-                printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
+                if (!perforationCompletions.empty())
+                {
+                    QString fileName = QString("%1_Perforations_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                    printCompletionsToFile(exportSettings.folder, fileName, perforationCompletions, exportSettings.compdatExport);
+                }
+            }
+            {
+                std::vector<RigCompletionData> fractureCompletions = getCompletionsForWellAndCompletionType(completions, wellPath->completions()->wellNameForExport(), RigCompletionData::FRACTURE);
+                if (!fractureCompletions.empty())
+                {
+                    QString fileName = QString("%1_Fractures_%2").arg(wellPath->name()).arg(eclipseCaseName);
+                    printCompletionsToFile(exportSettings.folder, fileName, fractureCompletions, exportSettings.compdatExport);
+                }
             }
         }
     }
@@ -319,21 +439,30 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 
     for (const RigCompletionData& completion : completions)
     {
+        resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
+        resultCompletion.m_metadata.insert(resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end());
+
         if (completion.completionType() != completions[0].completionType())
         {
-            RiaLogging::error(QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            QString errorMessage = QString("Cannot combine completions of different types in same cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            RiaLogging::error(errorMessage);
+            resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
         }
 
         if (completion.wellName() != completions[0].wellName())
         {
-            RiaLogging::error(QString("Cannot combine completions from different wells in same cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            QString errorMessage = QString("Cannot combine completions from different wells in same cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            RiaLogging::error(errorMessage);
+            resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
         }
         
         if (completion.transmissibility() == HUGE_VAL)
         {
-            RiaLogging::error(QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i).arg(cellIndexIJK.j).arg(cellIndexIJK.k));
+            QString errorMessage = QString("Transmissibility calculation has failed for cell [%1, %2, %3]").arg(cellIndexIJK.i + 1).arg(cellIndexIJK.j + 1).arg(cellIndexIJK.k + 1);
+            RiaLogging::error(errorMessage);
+            resultCompletion.addMetadata("ERROR", errorMessage);
             return resultCompletion; //Returning empty completion, should not be exported
         }       
 
@@ -343,10 +472,6 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
         }
 
         totalTrans = totalTrans + completion.transmissibility();
-
-        resultCompletion.m_metadata.reserve(resultCompletion.m_metadata.size() + completion.m_metadata.size());
-        resultCompletion.m_metadata.insert(resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end());
-
     }
 
 
@@ -354,8 +479,7 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
     {
         resultCompletion.setCombinedValuesExplicitTrans(totalTrans, completionType);
     }
-
-    if (settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS) 
+    else if (settings.compdatExport == RicExportCompletionDataSettingsUi::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS) 
     {
         //calculate trans for main bore - but as Eclipse will do it!      
         double transmissibilityEclipseCalculation = RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclipseDoes(settings.caseToApply(),
@@ -378,7 +502,10 @@ RigCompletionData RicWellPathExportCompletionDataFeature::combineEclipseCellComp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& folderName, const QString& fileName, std::vector<RigCompletionData>& completions, RicExportCompletionDataSettingsUi::CompdatExportType exportType)
+void RicWellPathExportCompletionDataFeature::printCompletionsToFile(const QString& folderName,
+                                                                    const QString& fileName,
+                                                                    std::vector<RigCompletionData>& completions,
+                                                                    RicExportCompletionDataSettingsUi::CompdatExportType exportType)
 {
     //TODO: Check that completion is ready for export
 
@@ -560,7 +687,7 @@ void RicWellPathExportCompletionDataFeature::generateWpimultTable(RifEclipseData
 
     for (auto& completion : completionData)
     {
-        if (completion.wpimult() == 0.0)
+        if (completion.wpimult() == 0.0 || completion.isDefaultValue(completion.wpimult()))
         {
             continue;
         }

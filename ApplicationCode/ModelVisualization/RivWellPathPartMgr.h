@@ -34,7 +34,8 @@ namespace cvf
     class ScalarMapper;
 }
 
-namespace caf {
+namespace caf
+{
     class DisplayCoordTransform;
 }
 
@@ -43,6 +44,7 @@ class RimProject;
 class RimWellPath;
 class RivFishbonesSubsPartMgr;
 class RimWellPathCollection;
+class RimEclipseView;
 
 class QDateTime;
 
@@ -56,6 +58,11 @@ public:
                                                                    double characteristicCellSize,
                                                                    const cvf::BoundingBox& wellPathClipBoundingBox,
                                                                    const caf::DisplayCoordTransform* displayCoordTransform);
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    void                          appendStaticFracturePartsToModel(cvf::ModelBasicList* model, 
+                                                                   const RimEclipseView* eclView);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     void                          appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, 
                                                                     const QDateTime& timeStamp,
@@ -78,6 +85,7 @@ private:
                                                             cvf::ModelBasicList* model,
                                                             const caf::DisplayCoordTransform* displayCoordTransform,
                                                             double characteristicCellSize);
+
 
     void                          buildWellPathParts(const caf::DisplayCoordTransform* displayCoordTransform,
                                                      double characteristicCellSize,

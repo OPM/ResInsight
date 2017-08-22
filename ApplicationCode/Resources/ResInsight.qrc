@@ -93,6 +93,10 @@
       <file>WellAllocPie16x16.png</file>
       <file>WellAllocLegend16x16.png</file>
       <file>SummaryPlotLight16x16.png</file>
+      <file>FractureLayout16x16.png</file>
+      <file>FractureSymbol16x16.png</file>
+      <file>FractureTemplate16x16.png</file>
+      <file>FractureTemplates16x16.png</file>
     </qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

@@ -21,6 +21,9 @@
 #include "RimFishbonesCollection.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimPerforationCollection.h"
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimWellPathFractureCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "cvfAssert.h"
 
@@ -43,6 +46,12 @@ RimWellPathCompletions::RimWellPathCompletions()
     CAF_PDM_InitFieldNoDefault(&m_fishbonesCollection, "Fishbones", "Fishbones", "", "", "");
     m_fishbonesCollection = new RimFishbonesCollection;
     m_fishbonesCollection.uiCapability()->setUiHidden(true);
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    CAF_PDM_InitFieldNoDefault(&m_fractureCollection, "Fractures", "Fractures", "", "", "");
+    m_fractureCollection = new RimWellPathFractureCollection;
+    m_fractureCollection.uiCapability()->setUiHidden(true);
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitField(&m_wellNameForExport, "WellNameForExport", QString(), "Well Name for Completion Export", "", "", "");
 }
@@ -86,8 +95,27 @@ QString RimWellPathCompletions::wellNameForExport() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+RimWellPathFractureCollection* RimWellPathCompletions::fractureCollection() const
+{
+    CVF_ASSERT(m_fractureCollection);
+
+    return m_fractureCollection;
+}
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellPathCompletions::hasCompletions() const
 {
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    if (!fractureCollection()->fractures().empty())
+    {
+        return true;
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
     return !fishbonesCollection()->fishbonesSubs().empty() ||
            !fishbonesCollection()->wellPathCollection()->wellPaths().empty() ||
            !perforationCollection()->perforations().empty();
@@ -118,4 +146,11 @@ void RimWellPathCompletions::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTree
     {
         uiTreeOrdering.add(&m_fishbonesCollection);
     }
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+    if (!fractureCollection()->fractures().empty())
+    {
+        uiTreeOrdering.add(&m_fractureCollection);
+    }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 }

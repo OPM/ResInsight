@@ -105,8 +105,14 @@ void RicfExportWellPathCompletions::execute()
             {
                 wellPaths.push_back(wellPath);
             }
+            else
+            {
+                RiaLogging::warning(QString("exportWellPathCompletions: Could not find well path with name %1").arg(wellPathName));
+            }
         }
     }
 
-   RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, exportSettings);
+    std::vector<RimEclipseWell*> simWells;
+
+    RicWellPathExportCompletionDataFeature::exportCompletions(wellPaths, simWells, exportSettings);
 }

@@ -1,0 +1,197 @@
+#include "RigWellPathStimplanIntersector.h"
+#include "RigWellPath.h"
+#include "RimFracture.h"
+#include "RigCellGeometryTools.h"
+#include "RimFractureTemplate.h"
+#include "cvfBase.h"
+#include "cvfMatrix4.h"
+#include "RigFractureCell.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RigFractureGrid.h"
+
+#include "cvfMath.h"
+
+#include <cmath>
+#include "RimSimWellFracture.h"
+
+
+RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, RimFracture* rimFracture)
+{
+    std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->wellPathPointsIncludingFractureIntersection(rimFracture->fractureMD());
+    cvf::Mat4d fractureXf                                    = rimFracture->transformMatrix();
+    double wellRadius                                        = rimFracture->wellRadius(rimFracture->fractureUnit());
+    std::vector<cvf::Vec3f> fracturePolygonf ; 
+    std::vector<std::vector<cvf::Vec3d> > stpCellPolygons;
+    {
+        RimFractureTemplate* fractureTemplate = rimFracture->fractureTemplate();
+
+        {
+            const std::vector<RigFractureCell>& stpCells = fractureTemplate->fractureGrid()->fractureCells();
+            for ( const auto& stpCell: stpCells ) stpCellPolygons.push_back(stpCell.getPolygon());
+        }
+    }
+    double perforationLength = rimFracture->perforationLength();
+
+    calculate(fractureXf, wellPathPoints, wellRadius, perforationLength, stpCellPolygons, m_stimPlanCellIdxToIntersectionInfoMap);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///  Todo: Use only the perforated parts of the well path
+//--------------------------------------------------------------------------------------------------
+
+void RigWellPathStimplanIntersector::calculate(const cvf::Mat4d &fractureXf, 
+                                               const std::vector<cvf::Vec3d>& wellPathPointsOrg, 
+                                               double wellRadius, 
+                                               double perforationLength,
+                                               const std::vector<std::vector<cvf::Vec3d> >& stpCellPolygons, 
+                                               std::map<size_t, WellCellIntersection>& m_stimPlanCellIdxToIntersectionInfoMap)
+{
+    cvf::Mat4d toFractureXf = fractureXf.getInverted();
+
+    std::vector<cvf::Vec3d> perforationLengthBoundingBoxPolygon;
+    double cicleRadius = perforationLength / 2;
+    int pointsInCirclePolygon = 20;
+    for (int i = 0; i < pointsInCirclePolygon; i++)
+    {
+        double x = cicleRadius * cvf::Math::cos(i * (2 * cvf::PI_D / pointsInCirclePolygon));
+        double y = cicleRadius * cvf::Math::sin(i * (2 * cvf::PI_D / pointsInCirclePolygon));
+        perforationLengthBoundingBoxPolygon.push_back(cvf::Vec3d(x, y, 0));
+    }
+
+    // Convert well path to fracture template system
+
+    std::vector<cvf::Vec3d> fractureRelativeWellPathPoints;
+    for ( auto & wellPPoint : wellPathPointsOrg )  fractureRelativeWellPathPoints.push_back(wellPPoint.getTransformedPoint( toFractureXf));
+
+    // Clip well path to fracture domain 
+
+    std::vector<std::vector<cvf::Vec3d> > wellPathPartsWithinFracture =
+        RigCellGeometryTools::clipPolylineByPolygon(fractureRelativeWellPathPoints, 
+                                                    perforationLengthBoundingBoxPolygon, 
+                                                    RigCellGeometryTools::INTERPOLATE_LINE_Z);
+
+    // Remove the part of the well path that is more than well radius away from the fracture plane
+
+    std::vector< std::vector< cvf::Vec3d > > intersectingWellPathParts;
+
+    for ( const auto& part : wellPathPartsWithinFracture )
+    {
+        std::vector< cvf::Vec3d > currentIntersectingWpPart;
+        for ( size_t vxIdx = 0; vxIdx < part.size() -1; ++vxIdx )
+        {
+            double thisAbsZ = fabs(part[vxIdx].z());
+            double nextAbsZ = fabs(part[vxIdx + 1].z());
+            double thisZ = part[vxIdx].z();
+            double nextZ = part[vxIdx + 1].z();
+
+            if ( thisAbsZ >= wellRadius && nextAbsZ >= wellRadius )
+            {
+                if (    (thisZ >= 0 && nextZ >= 0)
+                     || (thisZ <= 0 && nextZ <= 0 )  ) 
+                {
+                    continue; // Outside
+                }
+                else // In and out
+                {
+                    {
+                        double wellRadiusDistFromPlane = thisZ > 0 ? wellRadius: -wellRadius;
+
+                        double fraction = (wellRadiusDistFromPlane - thisZ)/ (nextZ - thisZ);
+
+                        cvf::Vec3d intersectPoint =  part[vxIdx] +  fraction * (part[vxIdx+1] - part[vxIdx]);
+                        currentIntersectingWpPart.push_back(intersectPoint);
+                    }
+                    {
+                        double wellRadiusDistFromPlane = nextZ > 0 ? wellRadius: -wellRadius;
+
+                        double fraction = (wellRadiusDistFromPlane - thisZ)/ (nextZ - thisZ);
+
+                        cvf::Vec3d intersectPoint =  part[vxIdx] +  fraction * (part[vxIdx+1] - part[vxIdx]);
+                        currentIntersectingWpPart.push_back(intersectPoint);
+
+                        intersectingWellPathParts.push_back(currentIntersectingWpPart);
+                        currentIntersectingWpPart.clear();
+                    }
+                    continue;
+                }
+            }
+            if ( thisAbsZ < wellRadius && nextAbsZ < wellRadius ) // Inside
+            {
+                currentIntersectingWpPart.push_back(part[vxIdx]);
+                continue;
+            }
+
+            if ( thisAbsZ < wellRadius && nextAbsZ >= wellRadius ) // Going out
+            {
+                currentIntersectingWpPart.push_back(part[vxIdx]);
+
+                double wellRadiusDistFromPlane = nextZ > 0 ? wellRadius: -wellRadius;
+
+                double fraction = (wellRadiusDistFromPlane - thisZ)/ (nextZ - thisZ);
+                
+                cvf::Vec3d intersectPoint =  part[vxIdx] +  fraction * (part[vxIdx+1] - part[vxIdx]);
+                currentIntersectingWpPart.push_back(intersectPoint);
+
+                intersectingWellPathParts.push_back(currentIntersectingWpPart);
+                currentIntersectingWpPart.clear();
+                continue;
+            }
+
+            if ( thisAbsZ >= wellRadius && nextAbsZ < wellRadius )  // Going in
+            {
+                double wellRadiusDistFromPlane = thisZ > 0 ? wellRadius: -wellRadius;
+
+                double fraction = (wellRadiusDistFromPlane - thisZ)/ (nextZ - thisZ);
+
+                cvf::Vec3d intersectPoint =  part[vxIdx] +  fraction * (part[vxIdx+1] - part[vxIdx]);
+                currentIntersectingWpPart.push_back(intersectPoint);
+                continue;
+            }
+
+        }
+
+        // Add last point if it is within the radius
+
+        if (part.size() > 1 && fabs(part.back().z()) < wellRadius)  
+        {
+            currentIntersectingWpPart.push_back(part.back());
+        }
+
+        if ( currentIntersectingWpPart.size() )
+        {
+            intersectingWellPathParts.push_back(currentIntersectingWpPart);
+        }
+    }
+
+    // Find the StimPlan cells touched by the intersecting well path parts 
+
+    for ( size_t cIdx = 0; cIdx < stpCellPolygons.size(); ++ cIdx )
+    {
+        const std::vector<cvf::Vec3d>& cellPolygon = stpCellPolygons[cIdx];
+        for ( const auto& wellpathPart :intersectingWellPathParts )
+        {
+            std::vector<std::vector<cvf::Vec3d> > wellPathPartsInPolygon =
+                RigCellGeometryTools::clipPolylineByPolygon(wellpathPart,
+                                                            cellPolygon,
+                                                            RigCellGeometryTools::USE_HUGEVAL);
+            for ( const auto& wellPathPartInCell: wellPathPartsInPolygon )
+            {
+                if ( wellPathPartInCell.size() )
+                {
+                    int endpointCount = 0;
+                    if ( wellPathPartInCell.front().z() != HUGE_VAL ) ++endpointCount;
+                    if ( wellPathPartInCell.back().z() != HUGE_VAL ) ++endpointCount;
+
+                    cvf::Vec3d intersectionLength = (wellPathPartInCell.back() - wellPathPartInCell.front());
+                    double xLengthInCell = fabs(intersectionLength.x());
+                    double yLengthInCell = fabs(intersectionLength.y());
+
+                    m_stimPlanCellIdxToIntersectionInfoMap[cIdx].endpointCount += endpointCount;
+                    m_stimPlanCellIdxToIntersectionInfoMap[cIdx].hlength += xLengthInCell;
+                    m_stimPlanCellIdxToIntersectionInfoMap[cIdx].vlength += yLengthInCell;
+                }
+            }
+        }
+    }
+}
