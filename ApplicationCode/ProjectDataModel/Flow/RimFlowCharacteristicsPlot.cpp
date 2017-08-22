@@ -175,16 +175,13 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
         {
             std::vector<RimEclipseResultCase*> cases;
             proj->descendantsIncludingThisOfType(cases);
-            RimEclipseResultCase* defaultCase = nullptr;
             for ( RimEclipseResultCase* c : cases )
             {
                 if ( c->defaultFlowDiagSolution() )
                 {
                     options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
-                    if (!defaultCase) defaultCase = c; // Select first
                 }
             }
-            if (!m_case() && defaultCase) m_case = defaultCase;
         }
     }
     else if ( fieldNeedingOptions == &m_flowDiagSolution )
@@ -290,6 +287,29 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    {
+        // Ensure a case is selected if one is available
+        RimProject* proj = nullptr;
+        this->firstAncestorOrThisOfType(proj);
+        if (proj)
+        {
+            std::vector<RimEclipseResultCase*> cases;
+            proj->descendantsIncludingThisOfType(cases);
+            RimEclipseResultCase* defaultCase = nullptr;
+            for (RimEclipseResultCase* c : cases)
+            {
+                if (c->defaultFlowDiagSolution())
+                {
+                    if (!defaultCase) defaultCase = c; // Select first
+                }
+            }
+            if (!m_case() && defaultCase)
+            {
+                m_case = defaultCase;
+                m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+            }
+        }
+    }
 
     {
         caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroup("Time Steps");
