@@ -1123,31 +1123,57 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Second:
         {
-            const int s = qwtAlignValue( 
-                dt.time().second(), stepSize, up );
+            // Manually patched from QWT trunk
+            int second = dt.time().second();
+            if (up)
+            {
+                if (dt.time().msec() > 0)
+                    second++;
+            }
 
-            dt = QwtDate::floor( dt, QwtDate::Minute );
-            dt = dt.addSecs( s );
+            const int s = qwtAlignValue(second, stepSize, up);
+
+            dt = QwtDate::floor(dt, QwtDate::Minute);
+            dt = dt.addSecs(s);
+
 
             break;
         }
         case QwtDate::Minute:
         {
-            const int m = qwtAlignValue( 
-                dt.time().minute(), stepSize, up );
+            // Manually patched from QWT trunk
+            int minute = dt.time().minute();
+            if (up)
+            {
+                if (dt.time().msec() > 0 || dt.time().second() > 0)
+                    minute++;
+            }
 
-            dt = QwtDate::floor( dt, QwtDate::Hour );
-            dt = dt.addSecs( m * 60 );
+            const int m = qwtAlignValue(minute, stepSize, up);
+
+            dt = QwtDate::floor(dt, QwtDate::Hour);
+            dt = dt.addSecs(m * 60);
+
 
             break;
         }
         case QwtDate::Hour:
         {
-            const int h = qwtAlignValue( 
-                dt.time().hour(), stepSize, up );
+            // Manually patched from QWT trunk
+            int hour = dt.time().hour();
+            if (up)
+            {
+                if (dt.time().msec() > 0 || dt.time().second() > 0
+                    || dt.time().minute() > 0)
+                {
+                    hour++;
+                }
+            }
+            const int h = qwtAlignValue(hour, stepSize, up);
 
-            dt = QwtDate::floor( dt, QwtDate::Day );
-            dt = dt.addSecs( h * 3600 );
+            dt = QwtDate::floor(dt, QwtDate::Day);
+            dt = dt.addSecs(h * 3600);
+
 
             break;
         }
@@ -1157,11 +1183,18 @@ QDateTime QwtDateScaleEngine::alignDate(
             // Aligning them to the beginning of the year avoids at least
             // jumping major ticks when panning
 
-            const int d = qwtAlignValue(
-                dt.date().dayOfYear(), stepSize, up );
+            // Manually patched from QWT trunk
+            int day = dt.date().dayOfYear();
+            if (up)
+            {
+                if (dt.time() > QTime(0, 0))
+                    day++;
+            }
 
-            dt = QwtDate::floor( dt, QwtDate::Year );
-            dt = dt.addDays( d - 1 );
+            const int d = qwtAlignValue(day, stepSize, up);
+
+            dt = QwtDate::floor(dt, QwtDate::Year);
+            dt = dt.addDays(d - 1);
 
             break;
         }
@@ -1191,29 +1224,50 @@ QDateTime QwtDateScaleEngine::alignDate(
         }
         case QwtDate::Month:
         {
-            const int m = qwtAlignValue( 
-                dt.date().month() - 1, stepSize, up );
+            // Manually patched from QWT trunk
+            int month = dt.date().month();
+            if (up)
+            {
+                if (dt.date().day() > 1 ||
+                    dt.time() > QTime(0, 0))
+                {
+                    month++;
+                }
+            }
 
-            dt = QwtDate::floor( dt, QwtDate::Year );
-            dt = dt.addMonths( m );
+            const int m = qwtAlignValue(month - 1, stepSize, up);
+
+            dt = QwtDate::floor(dt, QwtDate::Year);
+            dt = dt.addMonths(m);
 
             break;
         }
         case QwtDate::Year:
         {
-            const int y = qwtAlignValue(
-                dateTime.date().year(), stepSize, up );
+            // Manually patched from QWT trunk
+            int year = dateTime.date().year();
+            if (up)
+            {
+                if (dateTime.date().dayOfYear() > 1 ||
+                    dt.time() > QTime(0, 0))
+                {
+                    year++;
+                }
+            }
 
-            dt = QwtDate::floor( dt, QwtDate::Day );
-            if ( y == 0 )
+            const int y = qwtAlignValue(year, stepSize, up);
+
+            dt = QwtDate::floor(dt, QwtDate::Day);
+            if (y == 0)
             {
                 // there is no year 0 in the Julian calendar
-                dt.setDate( QDate( stepSize, 1, 1 ).addYears( -stepSize ) );
+                dt.setDate(QDate(stepSize, 1, 1).addYears(-stepSize));
             }
             else
             {
-                dt.setDate( QDate( y, 1, 1 ) );
+                dt.setDate(QDate(y, 1, 1));
             }
+
 
             break;
         }
