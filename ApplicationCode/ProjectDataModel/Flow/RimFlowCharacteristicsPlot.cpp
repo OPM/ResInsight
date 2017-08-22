@@ -85,7 +85,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     // Region group
     CAF_PDM_InitFieldNoDefault(&m_cellFilter, "CellFilter", "Cell Filter", "", "", "");
-    CAF_PDM_InitField(&m_tracerFilter, "TracerFilter", QString(), "Filter", "", "", "");
+    CAF_PDM_InitField(&m_tracerFilter, "TracerFilter", QString(), "Tracer Filter", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "");
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     CAF_PDM_InitFieldNoDefault(&m_showRegion, "ShowRegion", "", "", "", "");
