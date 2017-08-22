@@ -181,6 +181,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setSamples(std::vector<double> xSample
         setAxisScale(QwtPlot::xBottom, 0, maxVal);
         updateAxes();
     }
+    replot();
 }
 
 //--------------------------------------------------------------------------------------------------
