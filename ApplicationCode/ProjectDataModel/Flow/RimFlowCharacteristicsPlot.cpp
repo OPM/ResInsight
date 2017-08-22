@@ -311,6 +311,8 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
         }
     }
 
+    uiOrdering.add(&m_case);
+
     {
         caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroup("Time Steps");
 
@@ -336,7 +338,6 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
 
     {
         caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup("Options");
-        optionsGroup->add(&m_case);
         optionsGroup->add(&m_flowDiagSolution);
 
         optionsGroup->add(&m_showLegend);
