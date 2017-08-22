@@ -52,10 +52,6 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-#include "RimFractureTemplateCollection.h"
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
-
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -80,7 +76,6 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-#include "RimWellPathFracture.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -92,6 +87,12 @@
 #include "RiuWellLogPlot.h"
 #include "RiuWellAllocationPlot.h"
 #include "RiuFlowCharacteristicsPlot.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#include "RimWellPathFracture.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 
 #include "RicImportSummaryCaseFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"

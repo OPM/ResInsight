@@ -26,7 +26,6 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseWell.h"
 #include "RimFormationNamesCollection.h"
-#include "RimFractureTemplateCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
@@ -37,6 +36,11 @@
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+#include "RimFractureTemplateCollection.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 
 #include "cafNotificationCenter.h"
 #include "cafPdmChildArrayField.h"
@@ -129,6 +133,7 @@ void RicDeleteItemExec::redo()
             view->scheduleCreateDisplayModelAndRedraw();
         }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         RimFractureTemplateCollection* fracTemplateColl;
         parentObj->firstAncestorOrThisOfType(fracTemplateColl);
         if (fracTemplateColl)
@@ -140,6 +145,7 @@ void RicDeleteItemExec::redo()
                 proj->createDisplayModelAndRedrawAllViews();
             }
         }
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
         // Well paths

@@ -27,7 +27,11 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGeoMechResultDefinition.h"
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimStimPlanColors.h"
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
+
 #include "RimViewLinker.h"
 
 #include "cafCategoryLegend.h"
@@ -754,9 +758,12 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
 {
     bool hasStimPlanParent = false;
+
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     RimStimPlanColors* stimPlanColors = nullptr;
     this->firstAncestorOrThisOfType(stimPlanColors);
     if (stimPlanColors) hasStimPlanParent = true;
+#endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     bool isCategoryResult = false;
     {
