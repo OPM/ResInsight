@@ -142,6 +142,8 @@ TEST(RigCellGeometryTools, findCellAverageZTest)
 
 }
 
+#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -190,6 +192,7 @@ TEST(RigCellGeometryTools, lengthCalcTest)
     length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, polygonExample);
     EXPECT_DOUBLE_EQ(length, 2.5);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -311,7 +314,6 @@ TEST(RigCellGeometryTools, polylinePolygonIntersectionTest2)
     //Since both the line and the polygon is in the z=0 plane, the expected clipped line should be in this plane
 }
 
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RigWellPathStimplanIntersector.h"
 
