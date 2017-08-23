@@ -40,7 +40,7 @@ public:
 
     static void findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hexCorners, cvf::Vec3d &localXdirection, cvf::Vec3d &localYdirection, cvf::Vec3d &localZdirection);
 
-    static double polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygon2d);
+    static double polygonLengthInLocalXdirWeightedByArea(std::vector<cvf::Vec3d> polygon2d);
    
     static std::vector<std::vector<cvf::Vec3d> >  intersectPolygons(std::vector<cvf::Vec3d> polygon1, std::vector<cvf::Vec3d> polygon2);
 

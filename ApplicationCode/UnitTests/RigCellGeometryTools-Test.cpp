@@ -149,50 +149,31 @@ TEST(RigCellGeometryTools, findCellAverageZTest)
 //--------------------------------------------------------------------------------------------------
 TEST(RigCellGeometryTools, lengthCalcTest)
 {
-
     std::vector<cvf::Vec3d> polygonExample;
-
     polygonExample.push_back(cvf::Vec3d(0.00, 0.00, 0.0));
     polygonExample.push_back(cvf::Vec3d(0.00, 2.50, 0.0));
     polygonExample.push_back(cvf::Vec3d(1.50, 2.50, 0.0));
     polygonExample.push_back(cvf::Vec3d(1.50, 0.00, 0.0));
 
-
-//     polygonExample.push_back(cvf::Vec3d(0.00, 0.50, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-7.73, 0.48, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-14.69, 0.40, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-20.23, 0.29, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-23.78, 0.15, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-25.00, 0.00, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-23.78, -0.15, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-20.23, -0.29, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-14.69, -0.40, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(-7.73, -0.48, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(0.00, -0.50, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(7.73, -0.48, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(14.69, -0.40, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(20.23, -0.29, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(23.78, -0.15, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(25.00, 0.00, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(23.78, 0.15, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(20.23, 0.29, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(14.69, 0.40, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(7.73, 0.48, 0.0));
-//     polygonExample.push_back(cvf::Vec3d(0.00, 0.50, 0.0));
-
-    double length = 0.0;
-    cvf::Vec3d directionOfLength = cvf::Vec3d::ZERO;
-
-
-    directionOfLength = cvf::Vec3d(1, 0, 0);
-    length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, polygonExample);
+    double length = RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(polygonExample);
     EXPECT_DOUBLE_EQ(length, 1.5);
-
-    directionOfLength = cvf::Vec3d(0, 1, 0);
-    length = RigCellGeometryTools::polygonAreaWeightedLength(directionOfLength, polygonExample);
-    EXPECT_DOUBLE_EQ(length, 2.5);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigCellGeometryTools, lengthCalcTestTriangle)
+{
+    std::vector<cvf::Vec3d> trianglePolygonExample;
+    trianglePolygonExample.push_back(cvf::Vec3d(0.00, 0.00, 0.0));
+    trianglePolygonExample.push_back(cvf::Vec3d(2.50, 2.50, 0.0));
+    trianglePolygonExample.push_back(cvf::Vec3d(2.50, 0.00, 0.0));
+
+    double length = RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(trianglePolygonExample);
+    EXPECT_GT(length, 1.7);
+    EXPECT_LT(length, 1.8);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

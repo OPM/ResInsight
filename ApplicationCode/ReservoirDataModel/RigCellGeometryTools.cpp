@@ -153,11 +153,8 @@ void RigCellGeometryTools::findCellLocalXYZ(const std::array<cvf::Vec3d, 8>& hex
 //--------------------------------------------------------------------------------------------------
 ///  
 //--------------------------------------------------------------------------------------------------
-//TODO: Suggested rename: polygonLengthWeightedByArea. polygonAverageLengthWeightedByArea
-double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLength, std::vector<cvf::Vec3d> polygonToCalcLengthOf)
+double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea(std::vector<cvf::Vec3d> polygonToCalcLengthOf)
 {
-    //TODO: Check that polygon is in xy plane
-
     //Find bounding box
     cvf::BoundingBox polygonBBox;
     for (cvf::Vec3d nodeCoord : polygonToCalcLengthOf) polygonBBox.add(nodeCoord);
@@ -167,16 +164,25 @@ double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLen
 
     //Split bounding box in multiple polygons (2D)
     int resolutionOfLengthCalc = 20;
-    cvf::Vec3d widthOfPolygon = polygonBBox.extent() / resolutionOfLengthCalc;
+    double widthOfPolygon = polygonBBox.extent().y() / resolutionOfLengthCalc;
 
     std::vector<double> areasOfPolygonContributions;
     std::vector<double> lengthOfPolygonContributions;
 
+    cvf::Vec3d directionOfLength(1, 0, 0);
+
     for (int i = 0; i < resolutionOfLengthCalc; i++)
     {
-        //Doing the same thing twice, this part can be optimized... 
-        std::pair<cvf::Vec3d, cvf::Vec3d> line1 = getLineThroughBoundingBox(directionOfLength, polygonBBox, bboxCorners[0] + widthOfPolygon*i);    
-        std::pair<cvf::Vec3d, cvf::Vec3d> line2 = getLineThroughBoundingBox(directionOfLength, polygonBBox, bboxCorners[0] + widthOfPolygon*(i+1));
+        cvf::Vec3d pointOnLine1(bboxCorners[0].x(), bboxCorners[0].y() + i*widthOfPolygon, 0);
+        cvf::Vec3d pointOnLine2(bboxCorners[0].x(), bboxCorners[0].y() + (i + 1)*widthOfPolygon, 0);
+
+        std::pair<cvf::Vec3d, cvf::Vec3d> line1 = getLineThroughBoundingBox(directionOfLength,
+                                                                            polygonBBox,
+                                                                            pointOnLine1);
+        std::pair<cvf::Vec3d, cvf::Vec3d> line2 = getLineThroughBoundingBox(directionOfLength,
+                                                                            polygonBBox,
+                                                                            pointOnLine2);
+
         std::vector<cvf::Vec3d> polygon;
         polygon.push_back(line1.first);
         polygon.push_back(line1.second);
@@ -195,7 +201,8 @@ double RigCellGeometryTools::polygonAreaWeightedLength(cvf::Vec3d directionOfLen
         {
             areaVector = cvf::GeometryTools::polygonAreaNormal3D(clippedPolygon);
             area += areaVector.length();
-            length += getLengthOfPolygonAlongLine(line1, clippedPolygon); //For testing that parts of code fit together... 
+            length += (getLengthOfPolygonAlongLine(line1, clippedPolygon)
+                     + getLengthOfPolygonAlongLine(line2, clippedPolygon)) / 2;
         }
         areasOfPolygonContributions.push_back(area);
         lengthOfPolygonContributions.push_back(length);
