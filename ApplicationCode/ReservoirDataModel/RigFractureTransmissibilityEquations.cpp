@@ -114,7 +114,7 @@ double RigFractureTransmissibilityEquations::matrixToFractureTrans(double perm,
     double transmissibility;
 
     double slDivPi = 0.0;
-    if (abs(skinfactor) > 1e-9)
+    if ( cvf::Math::abs(skinfactor) > 1e-9)
     {
         slDivPi = (skinfactor * fractureAreaWeightedlength) / cvf::PI_D;
     }
