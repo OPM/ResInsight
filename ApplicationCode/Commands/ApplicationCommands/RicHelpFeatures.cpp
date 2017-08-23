@@ -65,10 +65,12 @@ void RicHelpAboutFeature::onActionTriggered(bool isChecked)
     dlg.addVersionEntry(" ", " ");
 
     QStringList activeFeatures;
+#ifdef USE_ODB_API
+    activeFeatures += "  Geomech";
+#endif
 #ifdef USE_HDF5
     activeFeatures += "  Souring";
 #endif
-
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     activeFeatures += "  Fractures";
 #endif
