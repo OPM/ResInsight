@@ -507,3 +507,69 @@ else (RESINSIGHT_PRIVATE_INSTALL)
     DESTINATION share/applications
     )
 endif (RESINSIGHT_PRIVATE_INSTALL)
+
+
+################################################################################
+# Installation packaging
+################################################################################
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(CPACK_GENERATOR TGZ)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set(CPACK_GENERATOR ZIP)
+endif()
+
+if(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE) 
+    get_filename_component(RESINSIGHT_OCTAVE_DIRECTORY ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} DIRECTORY)
+    
+    execute_process (COMMAND octave-config -v
+        WORKING_DIRECTORY ${RESINSIGHT_OCTAVE_DIRECTORY}
+                    OUTPUT_VARIABLE OCTAVE_VERSION_STRING
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif ()
+
+# Handling of system name on Windows
+if(${CMAKE_SYSTEM_NAME} MATCHES Windows)
+  if(CMAKE_CL_64)
+    set(CPACK_SYSTEM_NAME win64)
+  else()
+    set(CPACK_SYSTEM_NAME win32)
+  endif()
+endif()
+
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+string(REGEX MATCH "el[5,6]?" RESINSIGHT_RHEL_SYSTEM_NAME ${CMAKE_SYSTEM})
+
+
+set(RESINSIGHT_PACKAGE_NAME "ResInsight")
+
+set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}-${STRPRODUCTVER}")
+
+if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_odb")
+endif()
+
+if(NOT ${OCTAVE_VERSION_STRING} EQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_oct-${OCTAVE_VERSION_STRING}")
+endif()
+
+if(RESINSIGHT_FOUND_HDF5)
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_souring")
+endif()
+
+if(RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_fractures")
+endif()
+
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+if (NOT "${RESINSIGHT_RHEL_SYSTEM_NAME}" STREQUAL "")
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${RESINSIGHT_RHEL_SYSTEM_NAME}")
+else()
+    set (RESINSIGHT_PACKAGE_NAME "${RESINSIGHT_PACKAGE_NAME}_${CPACK_SYSTEM_NAME}")
+endif()
+
+#message("RESINSIGHT_PACKAGE_NAME : " ${RESINSIGHT_PACKAGE_NAME})
+set(CPACK_PACKAGE_FILE_NAME ${RESINSIGHT_PACKAGE_NAME})
+
+
+include (CPack)
