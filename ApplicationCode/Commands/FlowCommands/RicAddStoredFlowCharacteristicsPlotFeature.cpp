@@ -95,5 +95,5 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecke
 void RicAddStoredFlowCharacteristicsPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     //actionToSetup->setIcon(QIcon(":/new_icon16x16.png"));
-    actionToSetup->setText("Add Stored Well Allocation Plot");
+    actionToSetup->setText("Add Stored Flow Characteristics Plot");
 }
