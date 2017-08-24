@@ -31,6 +31,7 @@
 
 class RimFlowDiagSolution;
 class RimEclipseResultCase;
+class RimEclipseView;
 
 class RiuFlowCharacteristicsPlot;
 
@@ -96,6 +97,7 @@ private:
     caf::PdmField<double>                           m_maxPvFraction;
 
     caf::PdmField<RigFlowDiagResults::CellFilterEnum> m_cellFilter;
+    caf::PdmPtrField<RimEclipseView*>               m_cellFilterView;
     caf::PdmField<QString>                          m_tracerFilter;
     caf::PdmField< std::vector<QString> >           m_selectedTracerNames;
     caf::PdmField<bool>                             m_showRegion;

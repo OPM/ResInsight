@@ -136,6 +136,7 @@ public:
 
     const std::vector<RivCellSetEnum>&              visibleGridParts() const;
     const RivReservoirViewPartMgr*                  reservoirGridPartManager() const;
+    RivReservoirViewPartMgr*                        reservoirGridPartManager();
 
     // Does this belong here, really ?
     void                                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
@@ -147,6 +148,8 @@ public:
     virtual void                                    axisLabels(cvf::String* xLabel, cvf::String* yLabel, cvf::String* zLabel);
 
     virtual bool                                    isUsingFormationNames() const override;
+
+    virtual void                                    calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
 
 protected:
     virtual void                                    initAfterRead();
@@ -178,7 +181,6 @@ private:
 
     void                                            clampCurrentTimestep();
 
-    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 
     caf::PdmChildField<RimEclipsePropertyFilterCollection*> m_propertyFilterCollection;
     caf::PdmPointer<RimEclipsePropertyFilterCollection>     m_overridePropertyFilterCollection;

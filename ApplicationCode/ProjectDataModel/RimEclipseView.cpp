@@ -1251,6 +1251,14 @@ const RivReservoirViewPartMgr* RimEclipseView::reservoirGridPartManager() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RivReservoirViewPartMgr * RimEclipseView::reservoirGridPartManager()
+{
+    return m_reservoirGridPartManager.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid)
 {
     CVF_ASSERT(visibleCells != NULL);
@@ -1599,7 +1607,7 @@ void RimEclipseView::setOverridePropertyFilterCollection(RimEclipsePropertyFilte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
+void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep)
 {
     size_t gridCount = this->eclipseCase()->eclipseCaseData()->gridCount();
     size_t cellCount = this->mainGrid()->globalCellArray().size();
@@ -1614,7 +1622,7 @@ void RimEclipseView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalV
 
         for (size_t gpIdx = 0; gpIdx < m_visibleGridParts.size(); ++gpIdx)
         {
-            const cvf::UByteArray* visibility =  m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, m_currentTimeStep);
+            const cvf::UByteArray* visibility =  m_reservoirGridPartManager->cellVisibility(m_visibleGridParts[gpIdx], gridIdx, timeStep);
 
             for (int lcIdx = 0; lcIdx < gridCellCount; ++ lcIdx)
             {

@@ -28,6 +28,7 @@
 
 #include "cvfBase.h"
 #include "cvfObject.h"
+#include "cvfArray.h"
 
 #include <vector>
 #include <map>
@@ -44,9 +45,10 @@ public:
     enum CellFilter
     {
         CELLS_ACTIVE,
+        CELLS_VISIBLE,
         CELLS_COMMUNICATION,
         CELLS_FLOODED,
-        CELLS_DRAINED
+        CELLS_DRAINED,
     };
     
     typedef caf::AppEnum<CellFilter> CellFilterEnum;
@@ -82,6 +84,10 @@ public:
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex,
                                                                                            CellFilter cellSelection,
                                                                                            const std::vector<QString>& tracerNames,
+                                                                                           double max_pv_fraction);
+
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex,
+                                                                                           const std::vector<char>& visibleActiveCells,
                                                                                            double max_pv_fraction);
 
 private:

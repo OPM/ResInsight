@@ -19,6 +19,8 @@
 #include "RimFlowCharacteristicsPlot.h"
 
 #include "RigFlowDiagResults.h"
+#include "RigEclipseCaseData.h"
+#include "RigActiveCellInfo.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
@@ -85,6 +87,7 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 
     // Region group
     CAF_PDM_InitFieldNoDefault(&m_cellFilter, "CellFilter", "Cell Filter", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_cellFilterView, "CellFilterView", "View", "", "", "");
     CAF_PDM_InitField(&m_tracerFilter, "TracerFilter", QString(), "Tracer Filter", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "");
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -118,12 +121,17 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution(RimFlowDiagSolution* flowSo
     if ( !flowSolution )
     {
         m_case = nullptr;
+        m_cellFilterView = nullptr;
     }
     else
     {
         RimEclipseResultCase* eclCase;
         flowSolution->firstAncestorOrThisOfType(eclCase);
         m_case = eclCase;
+        if (!eclCase->reservoirViews.empty())
+        {
+            m_cellFilterView = eclCase->reservoirViews()[0];
+        }
     }
 
     m_flowDiagSolution = flowSolution;
@@ -181,6 +189,16 @@ QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions(
                 {
                     options.push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
                 }
+            }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_cellFilterView )
+    {
+        if ( m_case )
+        {
+            for (RimEclipseView* view : m_case()->reservoirViews())
+            {
+                options.push_back(caf::PdmOptionItemInfo(view->name(), view, false, view->uiIcon()));
             }
         }
     }
@@ -307,6 +325,10 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
             {
                 m_case = defaultCase;
                 m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+                if (!m_case()->reservoirViews.empty())
+                {
+                    m_cellFilterView = m_case()->reservoirViews()[0];
+                }
             }
         }
     }
@@ -328,11 +350,17 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
     {
         caf::PdmUiGroup* regionGroup = uiOrdering.addNewGroup("Region");
         regionGroup->add(&m_cellFilter);
-        if (m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE)
+        if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION ||
+            m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED ||
+            m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED)
         {
             regionGroup->add(&m_tracerFilter);
             regionGroup->add(&m_selectedTracerNames);
             regionGroup->add(&m_showRegion);
+        }
+        else if (m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE)
+        {
+            regionGroup->add(&m_cellFilterView);
         }
     }
 
@@ -395,8 +423,12 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     if ( &m_case == changedField )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();  
-        m_currentlyPlottedTimeSteps.clear();  
+        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        m_currentlyPlottedTimeSteps.clear();
+        if (!m_case()->reservoirViews.empty())
+        {
+            m_cellFilterView = m_case()->reservoirViews()[0];
+        }
     }
     else if (&m_applyTimeSteps == changedField)
     {
@@ -538,16 +570,50 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
             }
         }
 
-        for ( int timeStepIdx: calculatedTimesteps )
+        std::map<int, RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame> timeStepToFlowResultMap;
+
+        for (int timeStepIdx : calculatedTimesteps)
         {
-            lorenzVals[timeStepIdx] = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellFilter(), selectedTracerNames, m_maxPvFraction()).m_lorenzCoefficient;
+            if (m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE)
+            {
+                cvf::UByteArray visibleCells;
+                m_case()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+
+                if (m_cellFilterView)
+                {
+                    m_cellFilterView()->calculateCurrentTotalCellVisibility(&visibleCells, timeStepIdx);
+                }
+
+                RigActiveCellInfo* activeCellInfo = m_case()->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+                std::vector<char> visibleActiveCells(activeCellInfo->reservoirActiveCellCount(), 0);
+
+                for (size_t i = 0; i < visibleCells.size(); ++i)
+                {
+                    size_t cellIndex = activeCellInfo->cellResultIndex(i);
+                    if (cellIndex != cvf::UNDEFINED_SIZE_T)
+                    {
+                        visibleActiveCells[cellIndex] = visibleCells[i];
+                    }
+                }
+
+                auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, visibleActiveCells, m_maxPvFraction());
+                timeStepToFlowResultMap[timeStepIdx] = flowCharResults;
+            }
+            else
+            {
+                auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellFilter(), selectedTracerNames, m_maxPvFraction());
+                timeStepToFlowResultMap[timeStepIdx] = flowCharResults;
+            }
+            lorenzVals[timeStepIdx] = timeStepToFlowResultMap[timeStepIdx].m_lorenzCoefficient;
         }
+
         m_flowCharPlotWidget->setLorenzCurve(timeStepStrings, timeStepDates, lorenzVals);
 
         for ( int timeStepIdx: calculatedTimesteps )
         {
 
-            const auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellFilter(), selectedTracerNames, m_maxPvFraction());
+            const auto& flowCharResults = timeStepToFlowResultMap[timeStepIdx];
+
             m_flowCharPlotWidget->addFlowCapStorageCapCurve(timeStepDates[timeStepIdx],
                                                             flowCharResults.m_flowCapStorageCapCurve.first,
                                                             flowCharResults.m_flowCapStorageCapCurve.second);

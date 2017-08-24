@@ -903,8 +903,29 @@ void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(RivCellSetEnum geom
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const cvf::UByteArray* RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex) const
+const cvf::UByteArray* RivReservoirViewPartMgr::cellVisibility(RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex)
 {
+    if (geometryType == PROPERTY_FILTERED)
+    {
+        if (timeStepIndex >= m_propFilteredGeometryFramesNeedsRegen.size() || m_propFilteredGeometryFramesNeedsRegen[timeStepIndex])
+        {
+            createPropertyFilteredNoneWellCellGeometry(timeStepIndex);
+        }
+    }
+    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        if (timeStepIndex >= m_propFilteredWellGeometryFramesNeedsRegen.size() || m_propFilteredWellGeometryFramesNeedsRegen[timeStepIndex])
+        {
+            createPropertyFilteredWellGeometry(timeStepIndex);
+        }
+    }
+    else
+    {
+        if (m_geometriesNeedsRegen[geometryType])
+        {
+            createGeometry(geometryType);
+        }
+    }
     RivReservoirPartMgr * pmgr = (const_cast<RivReservoirViewPartMgr*>(this))->reservoirPartManager( geometryType,  timeStepIndex );
     return pmgr->cellVisibility(gridIndex).p();
 }

@@ -37,6 +37,7 @@ namespace caf
     void RigFlowDiagResults::CellFilterEnum::setUp()
     {
         addItem(RigFlowDiagResults::CELLS_ACTIVE,        "CELLS_ACTIVE",        "All Active Cells");
+        addItem(RigFlowDiagResults::CELLS_VISIBLE,       "CELLS_VISIBLE",       "Visible Cells");
         addItem(RigFlowDiagResults::CELLS_COMMUNICATION, "CELLS_COMMUNICATION", "Injector Producer Communication");
         addItem(RigFlowDiagResults::CELLS_FLOODED,       "CELLS_FLOODED",       "Flooded by Injector");
         addItem(RigFlowDiagResults::CELLS_DRAINED,       "CELLS_DRAINED",       "Drained by Producer");
@@ -793,6 +794,54 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
         for (size_t i = 0; i < injectorResults.size(); ++i)
         {
             selectedCellIndices.push_back(i);
+        }
+    }
+
+    return solverInterface()->calculateFlowCharacteristics(&injectorResults, &producerResults, selectedCellIndices, max_pv_fraction);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(int frameIndex,
+                                                                                                          const std::vector<char>& visibleActiveCells,
+                                                                                                          double max_pv_fraction)
+{
+    std::vector<QString> tracerNames = m_flowDiagSolution->tracerNames();
+
+    std::set<std::string> injectorNames;
+    std::set<std::string> producerNames;
+
+    for (const QString& tracerName : tracerNames)
+    {
+        RimFlowDiagSolution::TracerStatusType status = m_flowDiagSolution->tracerStatusInTimeStep(tracerName, frameIndex);
+        if (status == RimFlowDiagSolution::INJECTOR)
+        {
+            injectorNames.insert(tracerName.toStdString());
+        }
+        else if (status == RimFlowDiagSolution::PRODUCER)
+        {
+            producerNames.insert(tracerName.toStdString());
+        }
+    }
+
+    RigFlowDiagResultAddress injectorAddress(RIG_FLD_TOF_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, injectorNames);
+    RigFlowDiagResultAddress producerAddress(RIG_FLD_TOF_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, producerNames);
+
+    const std::vector<double>* allInjectorResults = resultValues(injectorAddress, frameIndex);
+    const std::vector<double>* allProducerResults = resultValues(producerAddress, frameIndex);
+
+    std::vector<size_t> selectedCellIndices;
+    std::vector<double> injectorResults;
+    std::vector<double> producerResults;
+
+    for (size_t i = 0; i < visibleActiveCells.size(); ++i)
+    {
+        if (visibleActiveCells[i])
+        {
+            selectedCellIndices.push_back(i);
+            injectorResults.push_back(allInjectorResults->at(i));
+            producerResults.push_back(allProducerResults->at(i));
         }
     }
 

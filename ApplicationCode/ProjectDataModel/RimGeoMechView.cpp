@@ -573,9 +573,9 @@ const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility)
+void RimGeoMechView::calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep)
 {
-    m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, m_currentTimeStep);
+    m_vizLogic->calculateCurrentTotalCellVisibility(totalVisibility, timeStep);
 }
 
 //--------------------------------------------------------------------------------------------------

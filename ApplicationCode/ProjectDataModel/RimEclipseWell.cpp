@@ -280,7 +280,7 @@ bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &
     if (!reservoirView) return false;
 
     const std::vector<RivCellSetEnum>& visGridParts = reservoirView->visibleGridParts();
-    const RivReservoirViewPartMgr* rvMan = reservoirView->reservoirGridPartManager();
+    RivReservoirViewPartMgr* rvMan = reservoirView->reservoirGridPartManager();
 
 
     for (const RivCellSetEnum& visGridPart : visGridParts)

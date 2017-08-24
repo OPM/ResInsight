@@ -84,6 +84,8 @@ public:
 
     virtual bool                                        isUsingFormationNames() const override;
 
+    virtual void                                        calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) override;
+
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
     
@@ -106,7 +108,6 @@ private:
     virtual void                                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                        initAfterRead();
 
-    virtual void calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility);
 
 
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;

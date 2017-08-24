@@ -874,7 +874,7 @@ cvf::ref<cvf::UByteArray> RimView::currentTotalCellVisibility()
     if (m_currentReservoirCellVisibility.isNull())
     {
         m_currentReservoirCellVisibility = new cvf::UByteArray;
-        this->calculateCurrentTotalCellVisibility(m_currentReservoirCellVisibility.p());
+        this->calculateCurrentTotalCellVisibility(m_currentReservoirCellVisibility.p(), m_currentTimeStep());
     }
 
     return m_currentReservoirCellVisibility;

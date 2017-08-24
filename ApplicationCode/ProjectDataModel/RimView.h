@@ -203,7 +203,7 @@ protected:
     virtual cvf::Transform*                 scaleTransform() = 0;
 
     virtual void                            resetLegendsInViewer() = 0;
-    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility) = 0;
+    virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
 
     RimWellPathCollection*                  wellPathsPartManager();
 
