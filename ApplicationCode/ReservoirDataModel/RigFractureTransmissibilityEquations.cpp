@@ -66,9 +66,15 @@ double RigFractureTransmissibilityEquations::fractureCellToWellRadialTrans(doubl
     double ro = 0.14 * cvf::Math::sqrt(
         pow(fractureCellSizeX, 2.0) + pow(fractureCellSizeZ, 2));
 
+    if (ro < (wellRadius * 1.01))
+    {
+        ro = wellRadius * 1.01;
+    }
+
     double Tc = 2 * cvf::PI_D * cDarcyForRelevantUnit * fractureCellConductivity /
         (log(ro / wellRadius) + skinFactor );
 
+    CVF_TIGHT_ASSERT(Tc > 0);
     return Tc;
 }
 
