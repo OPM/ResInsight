@@ -734,7 +734,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
 
         for (size_t i = 0; i < communicationResult->size(); ++i)
         {
-            if (communicationResult->at(i) != HUGE_VAL && communicationResult->at(i) > 0)
+            if (communicationResult->at(i) != HUGE_VAL && communicationResult->at(i) >= 0)
             {
                 selectedCellIndices.push_back(i);
                 if (allInjectorResults != nullptr) injectorResults.push_back(allInjectorResults->at(i));
