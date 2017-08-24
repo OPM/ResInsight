@@ -29,6 +29,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimFaultCollection.h"
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 #include "RicSelectOrCreateViewFeatureImpl.h"
@@ -453,7 +454,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
                 if (view != nullptr)
                 {
-
+                    view->faultCollection()->showFaultCollection = false;
                     view->cellResult()->setResultType(RiaDefines::FLOW_DIAGNOSTICS);
                     view->cellResult()->setFlowDiagTracerSelectionType(RimEclipseResultDefinition::FLOW_TR_BY_SELECTION);
                     view->cellResult()->setSelectedTracers(m_selectedTracerNames);
