@@ -16,11 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-class RimWellPath;
-class RicExportCompletionDataSettingsUi;
+#pragma once
+
+
+#include "RigCompletionData.h"
 
 #include <vector>
-#include "RigCompletionData.h"
+
+class RimWellPath;
+class RicExportCompletionDataSettingsUi;
 
 class QTextStream;
 class RigWellPath;
@@ -28,6 +32,9 @@ class RimEclipseCase;
 class RimEclipseWell;
 class RimFracture;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RicExportFractureCompletionsImpl
 {
 public:
