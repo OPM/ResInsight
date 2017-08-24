@@ -334,16 +334,23 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
         {
             if (externalCell.m_cellIndexSpace == RigTransmissibilityCondenser::CellAddress::ECLIPSE)
             {
-                double trans = transCondenser.condensedTransmissibility(externalCell, { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 });
+                if (externalCell.m_globalCellIdx > mainGrid->cellCount())
+                {
+                    RiaLogging::error(QString("LGR cells (not supported) found in export of COMPDAT values for fracture %1").arg(fracture->name()));
+                }
+                else
+                {
+                    double trans = transCondenser.condensedTransmissibility(externalCell, { true, RigTransmissibilityCondenser::CellAddress::WELL, 1 });
+                    
+                    eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
+                    size_t i, j, k;
+                    mainGrid->ijkFromCellIndex(externalCell.m_globalCellIdx, &i, &j, &k);
 
-                eclCellIdxToTransPrFractureMap[externalCell.m_globalCellIdx][fracture] = trans;
-                size_t i, j, k;
-                mainGrid->ijkFromCellIndex(externalCell.m_globalCellIdx, &i, &j, &k);
-
-                RigCompletionData compDat(wellPathName, {i,j,k} );
-                compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
-                compDat.addMetadata(fracture->name(), QString::number(trans));
-                fractureCompletions.push_back(compDat);
+                    RigCompletionData compDat(wellPathName, {i,j,k});
+                    compDat.setFromFracture(trans, fracture->fractureTemplate()->skinFactor());
+                    compDat.addMetadata(fracture->name(), QString::number(trans));
+                    fractureCompletions.push_back(compDat);
+                }
             }
         }
 

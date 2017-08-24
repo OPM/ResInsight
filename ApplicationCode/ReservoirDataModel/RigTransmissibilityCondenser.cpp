@@ -18,6 +18,7 @@
 
 #include "RigTransmissibilityCondenser.h"
 
+#include "RiaLogging.h"
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -191,10 +192,17 @@ void printCellAddress(std::stringstream& str,
     switch (cellAddr.m_cellIndexSpace) {
         case CellAddress::ECLIPSE: 
         {
-            str << "ECL ";
-            size_t i, j, k;
-            mainGrid->ijkFromCellIndex(cellAddr.m_globalCellIdx, &i, &j, &k);
-            str << std::setw(5) << i+1 << std::setw(5) << j+1 << std::setw(5) << k+1;
+            if (cellAddr.m_globalCellIdx > mainGrid->cellCount())
+            {
+                str << "ECL - LGR CELL     ";
+            }
+            else
+            {
+                str << "ECL ";
+                size_t i, j, k;
+                mainGrid->ijkFromCellIndex(cellAddr.m_globalCellIdx, &i, &j, &k);
+                str << std::setw(5) << i+1 << std::setw(5) << j+1 << std::setw(5) << k+1;
+            }
         }
         break;
         case CellAddress::STIMPLAN: 
@@ -226,7 +234,7 @@ std::string RigTransmissibilityCondenser::neighborTransDebugOutput(const RigMain
     for ( const auto& adrEqIdxPair : m_neighborTransmissibilities )
     {
         for (const auto& adrTransPair :adrEqIdxPair.second)
-        {
+        {          
             debugText << "-- ";
             printCellAddress(debugText, mainGrid, fractureGrid, adrEqIdxPair.first);
             printCellAddress(debugText, mainGrid, fractureGrid, adrTransPair.first);
