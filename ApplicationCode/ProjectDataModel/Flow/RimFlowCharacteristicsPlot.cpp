@@ -630,6 +630,18 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimFlowCharacteristicsPlot::viewGeometryUpdated()
+{
+    if (m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE)
+    {
+        // Only need to reload data if cell filtering is based on visible cells in view.
+        loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* RimFlowCharacteristicsPlot::createViewWidget(QWidget* mainWindowParent)
 {
     m_flowCharPlotWidget = new RiuFlowCharacteristicsPlot(this, mainWindowParent);

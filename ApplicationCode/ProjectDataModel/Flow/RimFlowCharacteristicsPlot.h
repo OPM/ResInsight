@@ -67,6 +67,8 @@ public:
     virtual void                                    deleteViewWidget() override; 
     virtual void                                    loadDataAndUpdate() override;
 
+    void                                            viewGeometryUpdated();
+
     enum TimeSelectionType 
     {
         ALL_AVAILABLE,

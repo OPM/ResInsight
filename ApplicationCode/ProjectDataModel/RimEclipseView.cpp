@@ -57,6 +57,7 @@
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -493,6 +494,17 @@ void RimEclipseView::createDisplayModel()
     {
         m_overlayInfoConfig()->update3DInfo();
         updateLegends();
+    }
+
+    std::vector<caf::PdmFieldHandle*> objects;
+    this->referringPtrFields(objects);
+    for (auto object : objects)
+    {
+        RimFlowCharacteristicsPlot* plot = dynamic_cast<RimFlowCharacteristicsPlot*>(object->ownerObject());
+        if (plot != nullptr)
+        {
+            plot->viewGeometryUpdated();
+        }
     }
 }
 
