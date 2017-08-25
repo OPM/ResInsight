@@ -167,7 +167,7 @@ bool RifEclipseUnifiedRestartFileAccess::dynamicNNCResults(const ecl_grid_type* 
         return false;
     }
 
-    ecl_file_view_type* summaryView = ecl_file_get_restart_view(m_ecl_file, timeStep, 0, 0, 0);
+    ecl_file_view_type* summaryView = ecl_file_get_restart_view(m_ecl_file, static_cast<int>(timeStep), 0, 0, 0);
     ecl_nnc_geometry_type* nnc_geo = ecl_nnc_geometry_alloc(grid);
 
     {
