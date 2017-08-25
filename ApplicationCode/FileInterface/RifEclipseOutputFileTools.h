@@ -67,6 +67,7 @@ public:
 
     static cvf::ref<RifEclipseRestartDataAccess> createDynamicResultAccess(const QString& fileName);
 
+    static QString      createIndexFileName(const QString& resultFileName);
 
 private:
     static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);

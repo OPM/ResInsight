@@ -374,6 +374,18 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RifEclipseOutputFileTools::createIndexFileName(const QString& resultFileName)
+{
+    QFileInfo fi(resultFileName);
+
+    QString indexFileName = fi.path() + "/" + fi.completeBaseName() + ".RESINSIGHT_IDX";
+
+    return indexFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps)
 {
     if (!reportSteps) return;
