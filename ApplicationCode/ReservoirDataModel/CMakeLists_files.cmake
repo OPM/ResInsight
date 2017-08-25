@@ -62,6 +62,8 @@ ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.h
 ${CEE_CURRENT_LIST_DIR}RigEclipseResultInfo.h
 ${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.h
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.h
+${CEE_CURRENT_LIST_DIR}RigNumberOfFloodedPoreVolumesCalculator.h
+
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
@@ -130,6 +132,7 @@ ${CEE_CURRENT_LIST_DIR}RigWellPathIntersectionTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigEclipseResultInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RigTransmissibilityEquations.cpp
+${CEE_CURRENT_LIST_DIR}RigNumberOfFloodedPoreVolumesCalculator.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
