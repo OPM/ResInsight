@@ -25,10 +25,15 @@
 
 #include <vector>
 
+class QDateTime;
+
 namespace caf {
     class PdmOptionItemInfo;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RimTools
 {
 public:
@@ -38,4 +43,6 @@ public:
 
     static void wellPathOptionItems(QList<caf::PdmOptionItemInfo>* options);
     static void caseOptionItems(QList<caf::PdmOptionItemInfo>* options);
+
+    static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
 };

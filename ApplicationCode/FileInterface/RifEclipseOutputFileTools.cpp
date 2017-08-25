@@ -20,6 +20,9 @@
 
 #include "RifEclipseOutputFileTools.h"
 
+#include "RifEclipseRestartFilesetAccess.h"
+#include "RifEclipseUnifiedRestartFileAccess.h"
+
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_grid.h"
 #include "ert/ecl/ecl_kw_magic.h"
@@ -335,6 +338,37 @@ int RifEclipseOutputFileTools::readUnitsType(ecl_file_type* ecl_file)
     }
 
     return unitsType;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicResultAccess(const QString& fileName)
+{
+    QStringList filesWithSameBaseName;
+    RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &filesWithSameBaseName);
+
+    cvf::ref<RifEclipseRestartDataAccess> resultsAccess;
+
+    // Look for unified restart file
+    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType(filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
+    if (unrstFileName.size() > 0)
+    {
+        resultsAccess = new RifEclipseUnifiedRestartFileAccess();
+        resultsAccess->setRestartFiles(QStringList(unrstFileName));
+    }
+    else
+    {
+        // Look for set of restart files (one file per time step)
+        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType(filesWithSameBaseName, ECL_RESTART_FILE);
+        if (restartFiles.size() > 0)
+        {
+            resultsAccess = new RifEclipseRestartFilesetAccess();
+            resultsAccess->setRestartFiles(restartFiles);
+        }
+    }
+
+    return resultsAccess;
 }
 
 //--------------------------------------------------------------------------------------------------

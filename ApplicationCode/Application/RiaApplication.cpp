@@ -23,6 +23,7 @@
 #include "RiaBaseDefs.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaProjectModifier.h"
@@ -38,20 +39,13 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseFaultColors.h"
-#include "RimEclipseInputCase.h"
-#include "RimEclipseInputPropertyCollection.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseResultCase.h"
-#include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 
+#include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -94,6 +88,7 @@
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 
+#include "RicImportInputEclipseCaseFeature.h"
 #include "RicImportSummaryCaseFeature.h"
 #include "ExportCommands/RicSnapshotViewToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
@@ -963,192 +958,6 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projec
     return projectDir.absoluteFilePath(projectRelativePath);
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
-{
-    if (!caf::Utils::fileExists(fileName)) return false;
-
-    QFileInfo gridFileName(fileName);
-    QString caseName = gridFileName.completeBaseName();
-
-    return openEclipseCase(caseName, fileName);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
-{
-    RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
-    rimResultReservoir->setCaseInfo(caseName, caseFileName);
-
-    RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
-    if (analysisModels == NULL) return false;
-
-    RiuMainWindow::instance()->show();
-
-    analysisModels->cases.push_back(rimResultReservoir);
-
-    RimEclipseView* riv = rimResultReservoir->createAndAddReservoirView();
-
-    // Select SOIL as default result variable
-    riv->cellResult()->setResultType(RiaDefines::DYNAMIC_NATIVE);
-
-    if (m_preferences->loadAndShowSoil)
-    {
-        riv->cellResult()->setResultVariable("SOIL");
-    }
-    riv->hasUserRequestedAnimation = true;
-
-    riv->loadDataAndUpdate();
-
-    if (analysisModels->cases.size() > 0)
-    {
-        if (rimResultReservoir->eclipseCaseData())
-        {
-#ifdef USE_PROTOTYPE_FEATURE_FRACTURES
-            project()->activeOilField()->fractureDefinitionCollection->defaultUnitsForFracTemplates = rimResultReservoir->eclipseCaseData()->unitsType();
-#endif // USE_PROTOTYPE_FEATURE_FRACTURES
-        }
-    }
-
-
-
-    // Add a corresponding summary case if it exists
-    {
-        RimSummaryCaseCollection* sumCaseColl = m_project->activeOilField() ? m_project->activeOilField()->summaryCaseCollection() : NULL;
-        if(sumCaseColl)
-        {
-            if (sumCaseColl->summaryCaseCount() == 0 && m_mainPlotWindow)
-            {
-                m_mainPlotWindow->hide();
-            }
-
-            if (!sumCaseColl->findSummaryCaseFromEclipseResultCase(rimResultReservoir))
-            {
-                RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromEclipseResultCase(rimResultReservoir);
-
-                if (newSumCase)
-                {
-                    newSumCase->loadCase();
-
-                    RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
-                    if (existingFileSummaryCase)
-                    {
-                        // Replace all occurrences of file sum with ecl sum
-
-                        std::vector<caf::PdmObjectHandle*> referringObjects;
-                        existingFileSummaryCase->objectsWithReferringPtrFields(referringObjects);
-
-                        std::set<RimSummaryCurveFilter*> curveFilters;
-
-                        for (caf::PdmObjectHandle* objHandle : referringObjects)
-                        {
-                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
-                            if (summaryCurve)
-                            {
-                                summaryCurve->setSummaryCase(newSumCase);
-                                summaryCurve->updateConnectedEditors();
-
-                                RimSummaryCurveFilter* parentFilter = nullptr;
-                                summaryCurve->firstAncestorOrThisOfType(parentFilter);
-                                if (parentFilter)
-                                {
-                                    curveFilters.insert(parentFilter);
-                                }
-                            }
-                        }
-
-                        // UI settings of a curve filter is updated based
-                        // on the new case association for the curves in the curve filter
-                        // UI is updated by loadDataAndUpdate()
-
-                        for (RimSummaryCurveFilter* curveFilter : curveFilters)
-                        {
-                            curveFilter->loadDataAndUpdate();
-                            curveFilter->updateConnectedEditors();
-                        }
-
-                        sumCaseColl->deleteCase(existingFileSummaryCase);
-
-                        delete existingFileSummaryCase;
-
-                    }
-                    else
-                    {
-                        if (m_preferences->autoCreatePlotsOnImport())
-                        {
-                            RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
-                            RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-                
-                            RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
-                        }
-                    }
-
-                    sumCaseColl->updateConnectedEditors();
-                }
-            }
-        }
-    }
-
-    if (!riv->cellResult()->hasResult())
-    {
-        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
-    }
-    
-    analysisModels->updateConnectedEditors();
-
-    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
-
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
-{
-    RimEclipseInputCase* rimInputReservoir = new RimEclipseInputCase();
-    m_project->assignCaseIdToCase(rimInputReservoir);
-
-    rimInputReservoir->openDataFileSet(fileNames);
-
-    RimEclipseCaseCollection* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
-    if (analysisModels == NULL) return false;
-
-    analysisModels->cases.push_back(rimInputReservoir);
-
-    RimEclipseView* riv = rimInputReservoir->createAndAddReservoirView();
-
-    riv->cellResult()->setResultType(RiaDefines::INPUT_PROPERTY);
-    riv->hasUserRequestedAnimation = true;
-
-    riv->loadDataAndUpdate();
-
-    if (!riv->cellResult()->hasResult())
-    {
-        riv->cellResult()->setResultVariable(RiaDefines::undefinedResultName());
-    }
-
-    analysisModels->updateConnectedEditors();
-
-    RiuMainWindow::instance()->selectAsCurrentItem(riv->cellResult());
-
-    if (fileNames.size() == 1)
-    {
-        addToRecentFiles(fileNames[0]);
-    }
-
-    return true;
-}
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1201,7 +1010,7 @@ bool RiaApplication::openOdbCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMockModel()
 {
-    openEclipseCase(RiaDefines::mockModelBasic(), RiaDefines::mockModelBasic());
+    RiaImportEclipseCaseTools::openMockModel(RiaDefines::mockModelBasic());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1209,7 +1018,7 @@ void RiaApplication::createMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createResultsMockModel()
 {
-    openEclipseCase(RiaDefines::mockModelBasicWithResults(), RiaDefines::mockModelBasicWithResults());
+    RiaImportEclipseCaseTools::openMockModel(RiaDefines::mockModelBasicWithResults());
 }
 
 
@@ -1218,7 +1027,7 @@ void RiaApplication::createResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createLargeResultsMockModel()
 {
-    openEclipseCase(RiaDefines::mockModelLargeWithResults(), RiaDefines::mockModelLargeWithResults());
+    RiaImportEclipseCaseTools::openMockModel(RiaDefines::mockModelLargeWithResults());
 }
 
 
@@ -1227,7 +1036,7 @@ void RiaApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMockModelCustomized()
 {
-    openEclipseCase(RiaDefines::mockModelCustomized(), RiaDefines::mockModelCustomized());
+    RiaImportEclipseCaseTools::openMockModel(RiaDefines::mockModelCustomized());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1235,7 +1044,7 @@ void RiaApplication::createMockModelCustomized()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCaseFromFileNames(QStringList(RiaDefines::mockModelBasicInputCase()));
+    RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(QStringList(RiaDefines::mockModelBasicInputCase()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1549,21 +1358,21 @@ bool RiaApplication::parseArguments()
             if (caf::Utils::fileExists(caseName) &&
                 (fileExtension == "EGRID" || fileExtension == "GRID"))
             {
-                openEclipseCaseFromFile(caseName);
+                RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseName);
             }
             else
             {
                 QString caseFileNameWithExt = caseName + ".EGRID";
                 if (caf::Utils::fileExists(caseFileNameWithExt))
                 {
-                    openEclipseCaseFromFile(caseFileNameWithExt);
+                    RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
                 }
                 else
                 {
                     caseFileNameWithExt = caseName + ".GRID";
                     if (caf::Utils::fileExists(caseFileNameWithExt))
                     {
-                        openEclipseCaseFromFile(caseFileNameWithExt);
+                        RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
                     }
                 }
             }
@@ -2270,11 +2079,11 @@ bool RiaApplication::openFile(const QString& fileName)
     }
     else if (fileName.contains(".egrid", Qt::CaseInsensitive) || fileName.contains(".grid", Qt::CaseInsensitive))
     {
-        loadingSucceded = openEclipseCaseFromFile(fileName);
+        loadingSucceded = RiaImportEclipseCaseTools::openEclipseCaseFromFile(fileName);
     }
     else if (fileName.contains(".grdecl", Qt::CaseInsensitive))
     {
-        loadingSucceded = openInputEclipseCaseFromFileNames(QStringList(fileName));
+        loadingSucceded = RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(QStringList(fileName));
     }
     else if (fileName.contains(".odb", Qt::CaseInsensitive))
     {
@@ -2572,100 +2381,6 @@ void RiaApplication::updateRegressionTest(const QString& testRootPath)
             QFile::copy(genDir.filePath(fileName), baseDir.filePath(fileName));
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Make sure changes in this functions is validated to RimIdenticalGridCaseGroup::initAfterRead()
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::addEclipseCases(const QStringList& fileNames)
-{
-    if (fileNames.size() == 0) return true;
-
-    // First file is read completely including grid.
-    // The main grid from the first case is reused directly in for the other cases. 
-    // When reading active cell info, only the total cell count is tested for consistency
-    RimEclipseResultCase* mainResultCase = NULL;
-    std::vector< std::vector<int> > mainCaseGridDimensions;
-    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-
-    {
-        QString firstFileName = fileNames[0];
-        QFileInfo gridFileName(firstFileName);
-
-        QString caseName = gridFileName.completeBaseName();
-
-        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
-        rimResultReservoir->setCaseInfo(caseName, firstFileName);
-        if (!rimResultReservoir->openEclipseGridFile())
-        {
-            delete rimResultReservoir;
-
-            return false;
-        }
-
-        rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
-
-        mainResultCase = rimResultReservoir;
-        RimOilField* oilField = m_project->activeOilField();
-        if (oilField && oilField->analysisModels())
-        {
-            gridCaseGroup = oilField->analysisModels->createIdenticalCaseGroupFromMainCase(mainResultCase);
-        }
-    }
-
-    caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
-
-    for (int i = 1; i < fileNames.size(); i++)
-    {
-        QString caseFileName = fileNames[i];
-        QFileInfo gridFileName(caseFileName);
-
-        QString caseName = gridFileName.completeBaseName();
-
-        RimEclipseResultCase* rimResultReservoir = new RimEclipseResultCase();
-        rimResultReservoir->setCaseInfo(caseName, caseFileName);
-
-        std::vector< std::vector<int> > caseGridDimensions;
-        rimResultReservoir->readGridDimensions(caseGridDimensions);
-
-        bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
-        if (identicalGrid)
-        {
-            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->eclipseCaseData()))
-            {
-                RimOilField* oilField = m_project->activeOilField();
-                if (oilField && oilField->analysisModels())
-                {
-                    oilField->analysisModels()->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
-                }
-            }
-            else
-            {
-                delete rimResultReservoir;
-            }
-        }
-        else
-        {
-            delete rimResultReservoir;
-        }
-
-        info.setProgress(i);
-    }
-
-    if (gridCaseGroup)
-    {
-        // Create placeholder results and propagate results info from main case to all other cases 
-        gridCaseGroup->loadMainCaseAndActiveCellInfo();
-    }
-
-    m_project->activeOilField()->analysisModels()->updateConnectedEditors();
-
-    if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
-    {
-        RiuMainWindow::instance()->selectAsCurrentItem(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
-    }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

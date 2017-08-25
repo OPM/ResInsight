@@ -20,19 +20,22 @@
 
 #pragma once
 
+#include "RifEclipseRestartDataAccess.h"
+
+#include "ert/ecl/ecl_util.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
-
-#include "RifReaderInterface.h"
-#include "RifEclipseRestartDataAccess.h"
 
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
 
-#include "ert/ecl/ecl_util.h"
+#include <vector>
 
 typedef struct ecl_file_struct ecl_file_type;
+
+class RifEclipseRestartDataAccess;
 
 
 //==================================================================================================
@@ -61,6 +64,9 @@ public:
     static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
 
     static int          readUnitsType(ecl_file_type* ecl_file);
+
+    static cvf::ref<RifEclipseRestartDataAccess> createDynamicResultAccess(const QString& fileName);
+
 
 private:
     static void         createReportStepsMetaData(std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps);

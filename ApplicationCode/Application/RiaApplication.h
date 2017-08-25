@@ -121,10 +121,6 @@ public:
     void                setLastUsedDialogDirectory(const QString& dialogName, const QString& directory);
 
     bool                openFile(const QString& fileName);
-    bool                openEclipseCaseFromFile(const QString& fileName);
-    bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
-    bool                addEclipseCases(const QStringList& fileNames);
-    bool                openInputEclipseCaseFromFileNames(const QStringList& fileNames);
 
     bool                openOdbCaseFromFile(const QString& fileName);
 

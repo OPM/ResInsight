@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017  Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,54 +16,37 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicImportEclipseCaseFeature.h"
-
-#include "RiaImportEclipseCaseTools.h"
+#include "RicImportEclipseCaseTimeStepFilterFeature.h"
 
 #include "RiaApplication.h"
-
-#include "RimEclipseCaseCollection.h"
+#include "RiaImportEclipseCaseTools.h"
 
 #include "RiuMainWindow.h"
 
-#include "cafSelectionManager.h"
-  
 #include <QAction>
 #include <QFileDialog>
+#include <QFileInfo>
 
-CAF_CMD_SOURCE_INIT(RicImportEclipseCaseFeature, "RicImportEclipseCaseFeature");
+CAF_CMD_SOURCE_INIT(RicImportEclipseCaseTimeStepFilterFeature, "RicImportEclipseCaseTimeStepFilterFeature");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicImportEclipseCaseFeature::isCommandEnabled()
-{
-    return true;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
+void RicImportEclipseCaseTimeStepFilterFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
 
     QString defaultDir = app->lastUsedDialogDirectory("BINARY_GRID");
-    QStringList fileNames = QFileDialog::getOpenFileNames(RiuMainWindow::instance(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
-    if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
-    app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
-
-    int i;
-    for (i = 0; i < fileNames.size(); i++)
+    QString fileName = QFileDialog::getOpenFileName(RiuMainWindow::instance(), "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
+    if (!fileName.isEmpty())
     {
-        QString fileName = fileNames[i];
+        defaultDir = QFileInfo(fileName).absolutePath();
+        app->setLastUsedDialogDirectory("BINARY_GRID", defaultDir);
 
-        if (!fileNames.isEmpty())
+        if (RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter(fileName))
         {
-            if (RiaImportEclipseCaseTools::openEclipseCaseFromFile(fileName))
-            {
-                app->addToRecentFiles(fileName);
-            }
+            app->addToRecentFiles(fileName);
         }
     }
 }
@@ -72,8 +54,16 @@ void RicImportEclipseCaseFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicImportEclipseCaseFeature::setupActionLook(QAction* actionToSetup)
+void RicImportEclipseCaseTimeStepFilterFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/Case48x48.png"));
-    actionToSetup->setText("Import Eclipse Case");
+    actionToSetup->setText("Import Eclipse Case (Time Step Filtered)");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportEclipseCaseTimeStepFilterFeature::isCommandEnabled()
+{
+    return true;
 }

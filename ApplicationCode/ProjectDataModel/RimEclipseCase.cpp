@@ -37,17 +37,18 @@
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimFormationNames.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimProject.h"
-#include "RimMainPlotCollection.h"
-#include "RimWellLogPlotCollection.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimFlowPlotCollection.h"
-#include "RimWellLogPlot.h"
-#include "RimSummaryPlot.h"
 #include "RimFlowCharacteristicsPlot.h"
+#include "RimFlowPlotCollection.h"
+#include "RimFormationNames.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimTools.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -435,42 +436,7 @@ void RimEclipseCase::createTimeStepFormatString()
 {
     std::vector<QDateTime> timeStepDates = this->timeStepDates();
 
-    bool hasHoursAndMinutesInTimesteps = false;
-    bool hasSecondsInTimesteps = false;
-    bool hasMillisecondsInTimesteps = false;
-    for (size_t i = 0; i < timeStepDates.size(); i++)
-    {
-        if (timeStepDates[i].time().msec() != 0.0)
-        {
-            hasMillisecondsInTimesteps = true;
-            hasSecondsInTimesteps = true;
-            hasHoursAndMinutesInTimesteps = true;
-            break;
-        }
-        else if (timeStepDates[i].time().second() != 0.0)
-        {
-            hasHoursAndMinutesInTimesteps = true;
-            hasSecondsInTimesteps = true;
-        }
-        else if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
-        {
-            hasHoursAndMinutesInTimesteps = true;
-        }
-    }
-
-    m_timeStepFormatString = "dd.MMM yyyy";
-    if (hasHoursAndMinutesInTimesteps)
-    {
-        m_timeStepFormatString += " - hh:mm";
-        if (hasSecondsInTimesteps)
-        {
-            m_timeStepFormatString += ":ss";
-            if (hasMillisecondsInTimesteps)
-            {
-                m_timeStepFormatString += ".zzz";
-            }
-        }
-    }
+    m_timeStepFormatString = RimTools::createTimeFormatStringFromDates(timeStepDates);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -582,10 +548,6 @@ void RimEclipseCase::setFilesContainingFaults(const std::vector<QString>& val)
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseCase::openReserviorCase()
 {
-    // If read already, return
-
-    if (this->eclipseCaseData() != NULL) return true;
-    
     if (!openEclipseGridFile())
     {
         return false;
@@ -593,7 +555,7 @@ bool RimEclipseCase::openReserviorCase()
 
     {
         RimReservoirCellResultsStorage* results = this->results(RiaDefines::MATRIX_MODEL);
-        if (results->cellResults())
+        if (results && results->cellResults())
         {
             results->cellResults()->createPlaceholderResultEntries();
             // After the placeholder result for combined transmissibility is created, 
@@ -621,9 +583,13 @@ bool RimEclipseCase::openReserviorCase()
         }
 
     }
+
     {
         RimReservoirCellResultsStorage* results = this->results(RiaDefines::FRACTURE_MODEL);
-        if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+        if (results && results->cellResults())
+        {
+            results->cellResults()->createPlaceholderResultEntries();
+        }
     }
 
     createTimeStepFormatString();

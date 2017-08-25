@@ -34,6 +34,7 @@
 
 #include <QFileInfo>
 #include <QDir>
+#include <QDateTime>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -258,4 +259,50 @@ void RimTools::caseOptionItems(QList<caf::PdmOptionItemInfo>* options)
             options->push_back(caf::PdmOptionItemInfo(c->caseUserDescription(), c, false, c->uiIcon()));
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& dates)
+{
+    bool hasHoursAndMinutesInTimesteps = false;
+    bool hasSecondsInTimesteps = false;
+    bool hasMillisecondsInTimesteps = false;
+
+    for (size_t i = 0; i < dates.size(); i++)
+    {
+        if (dates[i].time().msec() != 0.0)
+        {
+            hasMillisecondsInTimesteps = true;
+            hasSecondsInTimesteps = true;
+            hasHoursAndMinutesInTimesteps = true;
+            break;
+        }
+        else if (dates[i].time().second() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+            hasSecondsInTimesteps = true;
+        }
+        else if (dates[i].time().hour() != 0.0 || dates[i].time().minute() != 0.0)
+        {
+            hasHoursAndMinutesInTimesteps = true;
+        }
+    }
+
+    QString formatString = "dd.MMM yyyy";
+    if (hasHoursAndMinutesInTimesteps)
+    {
+        formatString += " - hh:mm";
+        if (hasSecondsInTimesteps)
+        {
+            formatString += ":ss";
+            if (hasMillisecondsInTimesteps)
+            {
+                formatString += ".zzz";
+            }
+        }
+    }
+
+    return formatString;
 }

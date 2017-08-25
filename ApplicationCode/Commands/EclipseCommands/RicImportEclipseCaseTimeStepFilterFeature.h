@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017  Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,24 +22,17 @@
 
 #include <vector>
 
-class QStringList;
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicImportInputEclipseCaseFeature : public caf::CmdFeature
+class RicImportEclipseCaseTimeStepFilterFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static bool openInputEclipseCaseFromFileNames(const QStringList& fileNames);
-
-
 protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook( QAction* actionToSetup );
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
+    virtual bool isCommandEnabled() override;
 };
 
 

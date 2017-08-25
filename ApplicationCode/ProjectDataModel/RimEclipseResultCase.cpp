@@ -93,11 +93,19 @@ RimEclipseResultCase::RimEclipseResultCase()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultCase::openEclipseGridFile()
 {
-    caf::ProgressInfo progInfo(50, "Reading Eclipse Grid File");
+    return importGridAndResultMetaData(false);
+}
 
-    progInfo.setProgressDescription("Open Grid File");
-    progInfo.setNextProgressIncrement(48);
-    
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
+{
+     caf::ProgressInfo progInfo(50, "Reading Eclipse Grid File");
+ 
+     progInfo.setProgressDescription("Open Grid File");
+     progInfo.setNextProgressIncrement(48);
+
     // Early exit if data is already read
     if (m_gridAndWellDataIsReadFromFile) return true;
 
@@ -115,24 +123,59 @@ bool RimEclipseResultCase::openEclipseGridFile()
         }
 
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
-        readerInterface = new RifReaderEclipseOutput;
-        readerInterface->setReaderSetting(prefs->readerSettings());
-        readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
+        cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
+        readerEclipseOutput->setReaderSetting(prefs->readerSettings());
+        readerEclipseOutput->setFilenamesWithFaults(this->filesContainingFaults());
 
-        if (!m_timeStepFilter->timeStepIndicesToImport().empty())
+        if (showTimeStepFilter)
         {
-            readerInterface->setTimeStepFilter(m_timeStepFilter->timeStepIndicesToImport());
+            cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess(caseFileName());
+            if (restartDataAccess.isNull())
+            {
+                return false;
+            }
+
+            {
+                std::vector<QDateTime> timeSteps;
+                std::vector<double> daysSinceSimulationStart;
+
+                restartDataAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
+
+                // Show GUI to select time steps 
+
+                RimTimeStepFilter myTimeStepFilter;
+                myTimeStepFilter.setCustomTimeSteps(timeSteps);
+
+                caf::PdmUiPropertyViewDialog propertyDialog(NULL, &myTimeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+                propertyDialog.resize(QSize(400, 200));
+
+                if (propertyDialog.exec() != QDialog::Accepted)
+                {
+                    return false;
+                }
+
+                m_timeStepFilter->setSelectedTimeStepIndices(myTimeStepFilter.selectedTimeStepIndices());
+            }
+
+            readerEclipseOutput->setFileDataAccess(restartDataAccess.p());
+        }
+
+        if (!m_timeStepFilter->selectedTimeStepIndices().empty())
+        {
+            readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->selectedTimeStepIndices());
         }
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
-        if (!readerInterface->open(caseFileName(), eclipseCase.p()))
+        if (!readerEclipseOutput->open(caseFileName(), eclipseCase.p()))
         {
             return false;
         }
 
-        this->setFilesContainingFaults(readerInterface->filenamesWithFaults());
+        this->setFilesContainingFaults(readerEclipseOutput->filenamesWithFaults());
 
-        this->setReservoirData( eclipseCase.p() );
+        this->setReservoirData(eclipseCase.p());
+
+         readerInterface = readerEclipseOutput; 
     }
 
     results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
@@ -163,7 +206,7 @@ bool RimEclipseResultCase::openEclipseGridFile()
     }
     
     return true;
- }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

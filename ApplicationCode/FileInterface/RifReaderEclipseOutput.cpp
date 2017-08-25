@@ -24,9 +24,6 @@
 
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RifEclipseRestartFilesetAccess.h"
-#include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifHdf5ReaderInterface.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5Reader.h"
@@ -372,6 +369,8 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     // Get set of files
     QStringList fileSet;
     if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
+
+    m_fileName = fileName;
     
     progInfo.incrementProgress();
 
@@ -470,12 +469,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     RiaLogging::info("HDF: Removing all existing Sour Sim data ...");
     matrixModelResults->eraseAllSourSimData();
 
-    std::vector<QDateTime> dateTimes;
-    std::vector<double> daysSinceSimulationStart;
-    if (m_dynamicResultsAccess.notNull())
-    {
-        m_dynamicResultsAccess->timeSteps(&dateTimes, &daysSinceSimulationStart);
-    }
+    std::vector<RigEclipseTimeStepInfo> timeStepInfos = createFilteredTimeStepInfos();
 
     std::unique_ptr<RifHdf5ReaderInterface> myReader;
 #ifdef USE_HDF5
@@ -490,27 +484,21 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     }
 
     std::vector<QDateTime> hdfTimeSteps = myReader->timeSteps();
-    if (dateTimes.size() > 0)
-    {
-        if (hdfTimeSteps.size() != dateTimes.size())
-        {
-            RiaLogging::error("HDF: Time step count does not match");
-            RiaLogging::error(QString("HDF: Eclipse count %1").arg(dateTimes.size()));
-            RiaLogging::error(QString("HDF:     HDF count %1").arg(hdfTimeSteps.size()));
-
-            return;
-        }
     
+    if (timeStepInfos.size() > 0)
+    {
         bool isTimeStampsEqual = true;
-        for (size_t i = 0; i < dateTimes.size(); i++)
+
+        for (size_t i = 0; i < timeStepInfos.size(); i++)
         {
-            if (hdfTimeSteps[i].date() != dateTimes[i].date())
+            size_t indexOnFile = timeStepIndexOnFile(i);
+            QString dateStr("yyyy.MMM.ddd hh:mm");
+
+            if (!isEclipseAndSoursimTimeStepsEqual(hdfTimeSteps[indexOnFile], timeStepInfos[i].m_date))
             {
                 RiaLogging::error("HDF: Time steps does not match");
 
-                QString dateStr("yyyy.MMM.ddd hh:mm");
-
-                RiaLogging::error(QString("HDF: Eclipse date %1").arg(dateTimes[i].toString(dateStr)));
+                RiaLogging::error(QString("HDF: Eclipse date %1").arg(timeStepInfos[i].m_date.toString(dateStr)));
                 RiaLogging::error(QString("HDF:     HDF date %1").arg(hdfTimeSteps[i].toString(dateStr)));
 
                 isTimeStampsEqual = false;
@@ -522,19 +510,15 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     else
     {
         // Use time steps from HDF to define the time steps
-        dateTimes = hdfTimeSteps;
-
         QDateTime firstDate = hdfTimeSteps[0];
+
+        std::vector<double> daysSinceSimulationStart; 
 
         for (auto d : hdfTimeSteps)
         {
             daysSinceSimulationStart.push_back(firstDate.daysTo(d));
         }
 
-    }
-
-    std::vector<RigEclipseTimeStepInfo> timeStepInfos;
-    {
         std::vector<int> reportNumbers;
         if (m_dynamicResultsAccess.notNull())
         {
@@ -542,13 +526,13 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
         }
         else
         {
-            for (size_t i = 0; i < dateTimes.size(); i++)
+            for (size_t i = 0; i < hdfTimeSteps.size(); i++)
             {
                 reportNumbers.push_back(static_cast<int>(i));
             }
         }
 
-        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(dateTimes, reportNumbers, daysSinceSimulationStart);
+        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(hdfTimeSteps, reportNumbers, daysSinceSimulationStart);
     }
 
     QStringList resultNames = myReader->propertyNames();
@@ -559,6 +543,14 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     }
 
     m_hdfReaderInterface = std::move(myReader);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::setFileDataAccess(RifEclipseRestartDataAccess* restartDataAccess)
+{
+    m_dynamicResultsAccess = restartDataAccess;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -686,7 +678,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
         return false;
     }
     
-    m_dynamicResultsAccess = createDynamicResultsAccess();
+    ensureDynamicResultAccessIsPresent();
     if (m_dynamicResultsAccess.notNull())
     {
         m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
@@ -801,7 +793,7 @@ void RifReaderEclipseOutput::buildMetaData()
     std::vector<RigEclipseTimeStepInfo> timeStepInfos;
 
     // Create access object for dynamic results
-    m_dynamicResultsAccess = createDynamicResultsAccess();
+    ensureDynamicResultAccessIsPresent();
     if (m_dynamicResultsAccess.notNull())
     {
         m_dynamicResultsAccess->open();
@@ -914,29 +906,12 @@ void RifReaderEclipseOutput::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// Create results access object (.UNRST or .X0001 ... .XNNNN)
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess()
+void RifReaderEclipseOutput::ensureDynamicResultAccessIsPresent()
 {
-    RifEclipseRestartDataAccess* resultsAccess = NULL;
-
-    // Look for unified restart file
-    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
-    if (unrstFileName.size() > 0)
+    if (m_dynamicResultsAccess.isNull())
     {
-        resultsAccess = new RifEclipseUnifiedRestartFileAccess();
-        resultsAccess->setRestartFiles(QStringList(unrstFileName));
+        m_dynamicResultsAccess = RifEclipseOutputFileTools::createDynamicResultAccess(m_fileName);
     }
-    else
-    {
-        // Look for set of restart files (one file per time step)
-        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
-        if (restartFiles.size() > 0)
-        {
-            resultsAccess = new RifEclipseRestartFilesetAccess();
-            resultsAccess->setRestartFiles(restartFiles);
-        }
-    }
-
-    return resultsAccess;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -997,7 +972,9 @@ void RifReaderEclipseOutput::sourSimRlResult(const QString& result, size_t stepI
         fracActCellInfo->gridActiveCellCounts(0, activeCellCount);
     }
 
-    bool readCellResultOk = m_hdfReaderInterface->dynamicResult(result, stepIndex, values);
+    size_t fileIndex = timeStepIndexOnFile(stepIndex);
+
+    bool readCellResultOk = m_hdfReaderInterface->dynamicResult(result, fileIndex, values);
 
     if (activeCellCount != values->size())
     {
@@ -1013,12 +990,7 @@ void RifReaderEclipseOutput::sourSimRlResult(const QString& result, size_t stepI
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
- 
-
-    if (m_dynamicResultsAccess.isNull())
-    {
-        m_dynamicResultsAccess = createDynamicResultsAccess();
-    }
+    ensureDynamicResultAccessIsPresent();
 
     if (m_dynamicResultsAccess.notNull())
     {
@@ -1974,6 +1946,17 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
     }
 
     return timeStepInfos;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& dt1, const QDateTime& dt2)
+{
+    // Currently, HDF files do not contain hours and minutes
+    // Only compare date, and skip hour/minutes
+
+    return dt1.date() == dt2.date();
 }
 
 //--------------------------------------------------------------------------------------------------

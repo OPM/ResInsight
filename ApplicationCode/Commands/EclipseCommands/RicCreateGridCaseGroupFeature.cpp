@@ -19,8 +19,9 @@
 
 #include "RicCreateGridCaseGroupFeature.h"
 
+#include "RiaImportEclipseCaseTools.h"
+
 #include "RimEclipseCaseCollection.h"
-#include "RiaApplication.h"
 #include "RiuMultiCaseImportDialog.h"
 
 #include "cafSelectionManager.h"
@@ -42,13 +43,12 @@ bool RicCreateGridCaseGroupFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCaseGroupFeature::onActionTriggered(bool isChecked)
 {
-    RiaApplication* app = RiaApplication::instance();
     RiuMultiCaseImportDialog dialog;
     int action = dialog.exec();
     if (action == QDialog::Accepted)
     {
         QStringList gridFileNames = dialog.eclipseCaseFileNames();
-        app->addEclipseCases(gridFileNames);
+        RiaImportEclipseCaseTools::addEclipseCases(gridFileNames);
     }
 }
 

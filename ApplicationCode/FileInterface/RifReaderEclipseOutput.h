@@ -54,6 +54,7 @@ public:
 
     bool                    open(const QString& fileName, RigEclipseCaseData* eclipseCase);
     void                    setHdf5FileName(const QString& fileName);
+    void                    setFileDataAccess(RifEclipseRestartDataAccess* restartDataAccess);
 
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase);
     void                    close();
@@ -82,11 +83,13 @@ private:
     void                    transferStaticNNCData(const ecl_grid_type* mainEclGrid , ecl_file_type* init_file, RigMainGrid* mainGrid);
     void                    transferDynamicNNCData(const ecl_grid_type* mainEclGrid, RigMainGrid* mainGrid);
     
-    RifEclipseRestartDataAccess*   createDynamicResultsAccess();
+    void                    ensureDynamicResultAccessIsPresent();
 
     QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, RiaDefines::PorosityModelType matrixOrFracture, size_t timeStepCount) const;
     
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
+
+    static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& dt1, const QDateTime& dt2);
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

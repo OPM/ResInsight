@@ -18,6 +18,11 @@
 
 #include "RimTimeStepFilter.h"
 
+#include "RimCase.h"
+#include "RimTools.h"
+
+#include <QDateTime>
+
 CAF_PDM_SOURCE_INIT(RimTimeStepFilter, "TimeStepFilter");
 
 //--------------------------------------------------------------------------------------------------
@@ -27,21 +32,76 @@ RimTimeStepFilter::RimTimeStepFilter()
 {
     CAF_PDM_InitObject("Time Step Filter", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_timeStepIndicesToImport, "TimeStepIndicesToImport", "Values", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedTimeStepIndices, "TimeStepIndicesToImport", "Values", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimTimeStepFilter::timeStepIndicesToImport() const
+void RimTimeStepFilter::setCustomTimeSteps(const std::vector<QDateTime>& timeSteps)
+{
+    m_customTimeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimTimeStepFilter::selectedTimeStepIndices() const
 {
     std::vector<size_t> indices;
 
     // Convert vector from int to size_t
-    for (auto intValue : m_timeStepIndicesToImport.v())
+    for (auto intValue : m_selectedTimeStepIndices.v())
     {
         indices.push_back(intValue);
     }
 
     return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::setSelectedTimeStepIndices(const std::vector<size_t>& indices)
+{
+    m_selectedTimeStepIndices.v().clear();
+
+    for (auto sizetValue : indices)
+    {
+        m_selectedTimeStepIndices.v().push_back(static_cast<int>(sizetValue));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> optionItems;
+
+    if (fieldNeedingOptions == &m_selectedTimeStepIndices)
+    {
+        RimCase* rimCase = nullptr;
+        this->firstAncestorOrThisOfType(rimCase);
+        if (rimCase)
+        {
+            QStringList timeSteps = rimCase->timeStepStrings();
+
+            for (int i = 0; i < timeSteps.size(); i++)
+            {
+                optionItems.push_back(caf::PdmOptionItemInfo(timeSteps[i], static_cast<int>(i)));
+            }
+        }
+        else
+        {
+            QString formatString = RimTools::createTimeFormatStringFromDates(m_customTimeSteps);
+
+            for (size_t i = 0; i < m_customTimeSteps.size(); i++)
+            {
+                optionItems.push_back(caf::PdmOptionItemInfo(m_customTimeSteps[i].toString(formatString), static_cast<int>(i)));
+            }
+        }
+    }
+
+    return optionItems;
 }

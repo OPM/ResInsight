@@ -23,6 +23,8 @@
 
 #include <vector>
 
+class QDateTime;
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -32,9 +34,15 @@ class RimTimeStepFilter : public caf::PdmObject
 public:
     RimTimeStepFilter();
 
-    std::vector<size_t> timeStepIndicesToImport() const;
+    void                setCustomTimeSteps(const std::vector<QDateTime>& timeSteps);
+
+    std::vector<size_t> selectedTimeStepIndices() const;
+    void                setSelectedTimeStepIndices(const std::vector<size_t>& indices);
     
 private:
-    caf::PdmField< std::vector<int> > m_timeStepIndicesToImport;
-};
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
 
+private:
+    caf::PdmField< std::vector<int> >   m_selectedTimeStepIndices;
+    std::vector<QDateTime>              m_customTimeSteps;
+};
