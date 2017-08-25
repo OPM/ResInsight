@@ -186,11 +186,11 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
     }
     else if (appearance == CurveAppearanceType::SYMBOL)
     {
-        numOptions = caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size();
+        numOptions = caf::AppEnum<RimPlotCurve::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledSymbol()
     }
     else if (appearance == CurveAppearanceType::LINE_STYLE)
     {
-        numOptions = caf::AppEnum<RimPlotCurve::LineStyleEnum>::size();
+        numOptions = caf::AppEnum<RimPlotCurve::LineStyleEnum>::size() - 1; // -1 since the No symbol option is not counted see cycledLineStyle()
     }
     else {
         // If none of these styles are used, fall back to a simply incrementing index
