@@ -427,7 +427,7 @@ public:
         size_t scalarResultIndex = results->findOrLoadScalarResult(propertyName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            scalarResultIndex = results->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
+            scalarResultIndex = results->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
         }
         
         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)

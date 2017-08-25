@@ -46,7 +46,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
 
     std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepInfos(0);
 
-    size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
+    size_t destinationScalarResultIndex = destinationCellResults->findOrCreateScalarResultIndex(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
     destinationCellResults->setTimeStepInfos(destinationScalarResultIndex, sourceTimeStepInfos);

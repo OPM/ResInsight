@@ -258,7 +258,7 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::addEmptyScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
+size_t RigCaseCellResultsData::findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
 {
     size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
 
@@ -627,7 +627,7 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::addStaticScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
 {
-    size_t resultIdx = addEmptyScalarResult(type, resultName, needsToBeStored);
+    size_t resultIdx = findOrCreateScalarResultIndex(type, resultName, needsToBeStored);
     
     m_cellScalarResults[resultIdx].resize(1, std::vector<double>());
     m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);
@@ -718,7 +718,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
             if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
             {
-                soilIndex = addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
+                soilIndex = findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "SOIL", false);
                 this->setMustBeCalculated(soilIndex);
             }
         }
@@ -729,7 +729,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
         size_t completionTypeIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
         if (completionTypeIndex == cvf::UNDEFINED_SIZE_T)
         {
-            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName(), false);
+            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName(), false);
         }
     }
 
@@ -741,7 +741,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+") != cvf::UNDEFINED_SIZE_T &&
             findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+") != cvf::UNDEFINED_SIZE_T)
         {
-            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName(), false);
+            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName(), false);
         }
         size_t oilIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
         if (oilIndex == cvf::UNDEFINED_SIZE_T &&
@@ -749,7 +749,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILJ+") != cvf::UNDEFINED_SIZE_T &&
             findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLROILK+") != cvf::UNDEFINED_SIZE_T)
         {
-            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName(), false);
+            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName(), false);
         }
         size_t gasIndex = findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
         if (gasIndex == cvf::UNDEFINED_SIZE_T &&
@@ -757,7 +757,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASJ+") != cvf::UNDEFINED_SIZE_T &&
             findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, "FLRGASK+") != cvf::UNDEFINED_SIZE_T)
         {
-            addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName(), false);
+            findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName(), false);
         }
     }
 

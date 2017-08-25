@@ -415,7 +415,7 @@ public:
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
 
                 size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
                 rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount(&scalarResWithMostTimeSteps);
@@ -808,7 +808,7 @@ public:
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->addEmptyScalarResult(RiaDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)

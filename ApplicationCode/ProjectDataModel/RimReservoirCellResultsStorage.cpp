@@ -1564,7 +1564,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
     for (size_t rIdx = 0; rIdx < m_resultCacheMetaData.size(); ++rIdx)
     {
         RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
-        size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
+        size_t resultIndex = m_cellResults->findOrCreateScalarResultIndex(resInfo->m_resultType(), resInfo->m_resultName(), true);
 
         std::vector<int> reportNumbers; // Hack: Using no report step numbers. Not really used except for Flow Diagnostics...
         reportNumbers.resize(resInfo->m_timeStepDates().size());

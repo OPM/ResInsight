@@ -88,10 +88,10 @@ public:
 
     // Find or create a slot for the results
 
+    size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     size_t                                             findScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    size_t                                             addEmptyScalarResult(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               createPlaceholderResultEntries();

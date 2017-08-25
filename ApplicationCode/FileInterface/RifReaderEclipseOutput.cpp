@@ -538,7 +538,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     QStringList resultNames = myReader->propertyNames();
     for (int i = 0; i < resultNames.size(); ++i)
     {
-        size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::SOURSIMRL, resultNames[i], false);
+        size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::SOURSIMRL, resultNames[i], false);
         matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
     }
 
@@ -814,7 +814,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
+                size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
             }
         }
@@ -827,7 +827,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
+                size_t resIndex = fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepInfos(resIndex, timeStepInfos);
             }
         }
@@ -881,7 +881,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
+                size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepInfos(resIndex, staticTimeStepInfo);
             }
         }
@@ -896,7 +896,7 @@ void RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
+                size_t resIndex = fractureModelResults->findOrCreateScalarResultIndex(RiaDefines::STATIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepInfos(resIndex, staticTimeStepInfo);
             }
         }

@@ -259,7 +259,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                 size_t scalarResultIndex = cellResultsStorage->cellResults()->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
-                    size_t scalarResultIndex = cellResultsStorage->cellResults()->addEmptyScalarResult(resultType, resultName, needsToBeStored);
+                    size_t scalarResultIndex = cellResultsStorage->cellResults()->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
                     
                     if (mustBeCalculated) cellResultsStorage->cellResults()->setMustBeCalculated(scalarResultIndex);
 
