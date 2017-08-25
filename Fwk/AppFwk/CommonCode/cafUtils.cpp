@@ -254,6 +254,19 @@ QString Utils::fileExtension(const QString & fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool Utils::isFolderWritable(const QString& folderName)
+{
+    // See platform issues here
+    // http://doc.qt.io/qt-4.8/qfile.html#platform-specific-issues
+
+    QFileInfo dir(folderName);
+    
+    return dir.isWritable();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool Utils::isStringMatch(const QString& filterString, const QString& value)
 {
     if (filterString.isEmpty()) return true;
