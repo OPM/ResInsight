@@ -21,12 +21,16 @@
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseOutputFileTools.h"
 
+#include "RiaLogging.h"
+
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw_magic.h"
 #include "ert/ecl/ecl_nnc_geometry.h"
 #include "ert/ecl/ecl_nnc_data.h"
 
-#include <QDebug>
+#include "cafUtils.h"
+
+#include <QFileInfo>
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -63,7 +67,40 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 {
     if (!m_ecl_file)
     {
-        m_ecl_file = ecl_file_open(m_filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+        QString indexFileName = RifEclipseOutputFileTools::createIndexFileName(m_filename);
+        if (caf::Utils::fileExists(indexFileName))
+        {
+            QFileInfo indexFileInfo(indexFileName);
+            QFileInfo resultFileInfo(m_filename);
+
+            if (resultFileInfo.lastModified() < indexFileInfo.lastModified())
+            {
+                m_ecl_file = ecl_file_fast_open(m_filename.toAscii().data(), indexFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+                if (!m_ecl_file)
+                {
+                    RiaLogging::error(QString("Failed to open file %1 using index file.").arg(m_filename));
+                    RiaLogging::info(QString("Will try to open file without index file."));
+                }
+            }
+        }
+
+        if (!m_ecl_file)
+        {
+            m_ecl_file = ecl_file_open(m_filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+            if (m_ecl_file)
+            {
+                QFileInfo fi(indexFileName);
+                QString resultPath = fi.absolutePath();
+                if (caf::Utils::isFolderWritable(resultPath))
+                {
+                    ecl_file_write_index(m_ecl_file, indexFileName.toAscii().data());
+                }
+            }
+            else
+            {
+                RiaLogging::error(QString("Failed to open file %1").arg(m_filename));
+            }
+        }
     }
 
     if (!m_ecl_file) return false;
