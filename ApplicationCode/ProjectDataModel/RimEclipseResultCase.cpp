@@ -141,6 +141,9 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
                 restartDataAccess->timeSteps(&timeSteps, &daysSinceSimulationStart);
 
+                // Restore cursor as the progress dialog is active
+                QApplication::restoreOverrideCursor();
+
                 // Show GUI to select time steps 
 
                 RimTimeStepFilter myTimeStepFilter;
@@ -153,6 +156,10 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
                 {
                     return false;
                 }
+
+                // Set cursor in wait state to continue display of progress dialog including
+                // wait cursor
+                QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
                 m_timeStepFilter->setSelectedTimeStepIndices(myTimeStepFilter.selectedTimeStepIndices());
             }
