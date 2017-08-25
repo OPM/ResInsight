@@ -333,11 +333,14 @@ void RiuMainWindow::createMenus()
     fileMenu->addAction(cmdFeatureMgr->action("RicOpenLastUsedFileFeature"));
     fileMenu->addSeparator();
 
+
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportInputEclipseCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicImportSummaryCaseFeature"));
     importMenu->addAction(cmdFeatureMgr->action("RicCreateGridCaseGroupFeature"));
+    importMenu->addSeparator();
+    importMenu->addAction(cmdFeatureMgr->action("RicImportEclipseCaseTimeStepFilterFeature"));
     importMenu->addSeparator();
     #ifdef USE_ODB_API
     importMenu->addAction(cmdFeatureMgr->action("RicImportGeoMechCaseFeature"));
