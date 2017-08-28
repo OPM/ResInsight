@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator(RigMainGrid* mainGrid, 
                                                                                  RimEclipseCase* caseToApply, 
-                                                                                 std::vector<std::string> tracerNames )
+                                                                                 std::vector<std::string> tracerNames)
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
@@ -89,6 +89,8 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         flowrateNNCatAllTimeSteps.push_back(connectionFlowrate);
     }
 
+
+
     size_t totalNumberOfCells = porvResults->size();
 
     std::vector<std::vector<double>> cellQwInAtAllTimeSteps;
@@ -107,7 +109,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
         const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep];
 
-        std::vector<double> flowrateIntoCell(totalNumberOfCells);
+        std::vector<double> totoalFlowrateIntoCell(totalNumberOfCells);
 
         std::vector<double> summedTracerValues(totalNumberOfCells);
         //sum all tracers at current timestep
@@ -127,19 +129,19 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
                                     flowrateI, 
                                     flowrateJ, 
                                     flowrateK, 
-                                    flowrateIntoCell);
+                                    totoalFlowrateIntoCell);
 
         distributeNNCflow(connections, 
                           summedTracerValues, 
                           flowrateNNC, 
-                          flowrateIntoCell);
+                          totoalFlowrateIntoCell);
 
         std::vector<double> CellQwIn(totalNumberOfCells);
 
         for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
         {
             CellQwIn[globalCellIndex] = cellQwInAtAllTimeSteps[timeStep-1][globalCellIndex] 
-                + (flowrateIntoCell[globalCellIndex]) * deltaT;
+                + (totoalFlowrateIntoCell[globalCellIndex]) * deltaT;
         }
         cellQwInAtAllTimeSteps.push_back(CellQwIn);
 
@@ -206,63 +208,55 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
 {
     for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
     {
-        size_t i, j, k;
-        mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k); //TODO: Generalize grid!!!!
+        const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
+        RigGridBase* hostGrid = cell.hostGrid();
+        size_t gridLocalCellIndex = cell.gridLocalCellIndex();
 
-        if (i < mainGrid->cellCountI())
+        size_t i, j, k;
+        hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+
+        if (i < (hostGrid->cellCountI()-1))
         {
-            size_t globalCellIndexPosINeightbour = mainGrid->cellIndexFromIJK(i + 1, j, k);
+            size_t globalCellIndexPosINeightbour = hostGrid->cellIndexFromIJK(i + 1, j, k);
 
             if (flrWatResultI->at(globalCellIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
                 totalFlowrateIntoCell[globalCellIndexPosINeightbour] += flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndex];
             }
-            else if (flrWatResultI->at(globalCellIndex) < 0 && i < mainGrid->cellCountI())
+            else if (flrWatResultI->at(globalCellIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
                 totalFlowrateIntoCell[globalCellIndex] += (-1) * flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndexPosINeightbour];
             }
         }
-    }
 
-    for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
-    {
-        size_t i, j, k;
-        mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k); //TODO: Generalize grid!!!!
-
-        if (i < mainGrid->cellCountI())
+        if (j < (hostGrid->cellCountJ()-1))
         {
-            size_t globalCellIndexPosJNeightbour = mainGrid->cellIndexFromIJK(i, j + 1, k);
+            size_t globalCellIndexPosJNeightbour = hostGrid->cellIndexFromIJK(i, j + 1, k);
 
             if (flrWatResultJ->at(globalCellIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
                 totalFlowrateIntoCell[globalCellIndexPosJNeightbour] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndex];
             }
-            else if (flrWatResultJ->at(globalCellIndex) < 0 && i < mainGrid->cellCountI())
+            else if (flrWatResultJ->at(globalCellIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
                 totalFlowrateIntoCell[globalCellIndex] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndexPosJNeightbour];
             }
         }
-    }
 
-    for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
-    {
-        size_t i, j, k;
-        mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k); //TODO: Generalize grid!!!!
-
-        if (i < mainGrid->cellCountI())
+        if (k < (hostGrid->cellCountK()-1))
         {
-            size_t globalCellIndexPosKNeightbour = mainGrid->cellIndexFromIJK(i, j, k + 1);
+            size_t globalCellIndexPosKNeightbour = hostGrid->cellIndexFromIJK(i, j, k + 1);
 
             if (flrWatResultK->at(globalCellIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
                 totalFlowrateIntoCell[globalCellIndexPosKNeightbour] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndex];
             }
-            else if (flrWatResultK->at(globalCellIndex) < 0 && i < mainGrid->cellCountI())
+            else if (flrWatResultK->at(globalCellIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
                 totalFlowrateIntoCell[globalCellIndex] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndexPosKNeightbour];
