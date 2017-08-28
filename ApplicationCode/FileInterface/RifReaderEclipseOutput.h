@@ -63,6 +63,8 @@ public:
     bool                    dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
     void                    sourSimRlResult(const QString& result, size_t stepIndex, std::vector<double>* values);
 
+    std::vector<QDateTime>  allTimeSteps() const;
+
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase);
     static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
 
@@ -98,7 +100,7 @@ private:
     RigEclipseCaseData*                     m_eclipseCase;
 
     ecl_file_type*                          m_ecl_init_file;            // File access to static results
-    cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;     // File access to dynamic results
+    mutable cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;     // File access to dynamic results
 
     std::unique_ptr<RifHdf5ReaderInterface> m_hdfReaderInterface;
 };

@@ -987,6 +987,21 @@ void RifReaderEclipseOutput::sourSimRlResult(const QString& result, size_t stepI
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RifReaderEclipseOutput::allTimeSteps() const
+{
+    std::vector<QDateTime> steps;
+    if (m_dynamicResultsAccess.notNull())
+    {
+        std::vector<double> dymmy;
+        m_dynamicResultsAccess->timeSteps(&steps, &dymmy);
+    }
+
+    return steps;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Get dynamic result at given step index. Will concatenate values for the main grid and all sub grids.
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
