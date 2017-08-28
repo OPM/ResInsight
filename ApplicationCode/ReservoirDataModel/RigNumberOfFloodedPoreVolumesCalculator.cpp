@@ -53,17 +53,41 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATI+"));
     }
 
+    std::vector<double> daysSinceSimulationStart = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart();
 
-    std::vector<QDateTime> timeStepDates = caseToApply->timeStepDates();
+    //TODO
+//     std::vector<const std::vector<double>* > flrWatResultIatAllTimeSteps;
+//     std::vector<const std::vector<double>* > flrWatResultJatAllTimeSteps;
+//     std::vector<const std::vector<double>* > flrWatResultKatAllTimeSteps;
+// 
+//     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
+//     {
+//         const std::vector<double>* flrWatResultI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatI, timeStep));
+//         flrWatResultIatAllTimeSteps.push_back(flrWatResultI);
+//         const std::vector<double>* flrWatResultJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatJ, timeStep));
+//         flrWatResultJatAllTimeSteps.push_back(flrWatResultJ);
+//         const std::vector<double>* flrWatResultK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatK, timeStep));
+//         flrWatResultKatAllTimeSteps.push_back(flrWatResultK);
+//     }
+       
 
+    size_t totalNumberOfCells = porvResults->size();
 
-    for (size_t timeStep = 1; timeStep < timeStepDates.size(); timeStep++)
+    std::vector<std::vector<double>> cellQwInAtAllTimeSteps;
+    std::vector<double> cellQwInTimeStep0(totalNumberOfCells);
+    cellQwInAtAllTimeSteps.push_back(cellQwInTimeStep0);
+
+    
+    for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
+        double daysSinceSimStartNow = daysSinceSimulationStart[timeStep];
+        double daysSinceSimStartLastTimeStep = daysSinceSimulationStart[timeStep -1];
+        double deltaT = daysSinceSimStartNow - daysSinceSimStartLastTimeStep;
+
         const std::vector<double>* flrWatResultI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatI, timeStep));
         const std::vector<double>* flrWatResultJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatJ, timeStep));
         const std::vector<double>* flrWatResultK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatK, timeStep));
 
-        size_t totalNumberOfCells = flrWatResultI->size();
         std::vector<double> FwI(totalNumberOfCells);
         std::vector<double> FwJ(totalNumberOfCells);
         std::vector<double> FwK(totalNumberOfCells);
@@ -92,9 +116,32 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
         //TODO: Add NNC contributions
 
+        std::vector<double> CellQwIn(totalNumberOfCells);
+
+        for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
+        {
+            CellQwIn[globalCellIndex] = cellQwInAtAllTimeSteps[timeStep-1][globalCellIndex] 
+                + (FwI[globalCellIndex] + FwJ[globalCellIndex] + FwK[globalCellIndex]) * deltaT;
+        }
+        cellQwInAtAllTimeSteps.push_back(CellQwIn);
 
 
 
+    }
+
+    //Calculate number-of-cell-PV flooded
+    std::vector<double> cumWinflowPVTimeStep0(totalNumberOfCells);
+    m_cumWinflowPVAllTimeSteps.clear();
+    m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPVTimeStep0);
+
+    for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
+    {
+        for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
+        {
+            m_cumWinflowPVAllTimeSteps[timeStep][globalCellIndex]  = cellQwInAtAllTimeSteps[timeStep][globalCellIndex] 
+                                                                   / porvResults->at(globalCellIndex);
+
+        }
     }
 
 

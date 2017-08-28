@@ -50,6 +50,7 @@ public:
 
 
 private:
+    std::vector<std::vector<double>> m_cumWinflowPVAllTimeSteps;
 
 };
 
