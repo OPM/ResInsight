@@ -18,15 +18,19 @@
 
 #include "RigNumberOfFloodedPoreVolumesCalculator.h"
 
-
-#include "RigMainGrid.h"
-#include <string>
-#include "RimReservoirCellResultsStorage.h"
-#include "RigEclipseCaseData.h"
-#include "RimEclipseCase.h"
 #include "RiaPorosityModel.h"
-#include "RigEclipseCaseData.h"
+
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigReservoirBuilderMock.h"
+
+#include "RimEclipseCase.h"
+#include "RimReservoirCellResultsStorage.h"
+
+#include <string>
+#include <vector>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -58,16 +62,31 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<const std::vector<double>* > flowrateJatAllTimeSteps;
     std::vector<const std::vector<double>* > flowrateKatAllTimeSteps;
 
+    RigNNCData* nncData = eclipseCaseData->mainGrid()->nncData();
+    const std::vector<RigConnection> connections = nncData->connections();
+
+    //TODO: oil or gas flowrate
+    std::vector<const std::vector<double>* > flowrateNNCatAllTimeSteps;
+    QString nncConnectionProperty = mainGrid->nncData()->propertyNameFluxWat();
+
+    
     std::vector<double> daysSinceSimulationStart = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart();
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        const std::vector<double>* flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, timeStep));
+        const std::vector<double>* flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, 
+                                                                                                                       timeStep));
         flowrateIatAllTimeSteps.push_back(flowrateI);
-        const std::vector<double>* flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ, timeStep));
+        const std::vector<double>* flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ, 
+                                                                                                                       timeStep));
         flowrateJatAllTimeSteps.push_back(flowrateJ);
-        const std::vector<double>* flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK, timeStep));
+        const std::vector<double>* flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK, 
+                                                                                                                       timeStep));
         flowrateKatAllTimeSteps.push_back(flowrateK);
+
+        const std::vector<double>* connectionFlowrate = nncData->dynamicConnectionScalarResultByName(nncConnectionProperty,
+                                                                                                     timeStep);
+        flowrateNNCatAllTimeSteps.push_back(connectionFlowrate);
     }
 
     size_t totalNumberOfCells = porvResults->size();
@@ -86,9 +105,9 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep];
         const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep];
 
-        std::vector<double> FwI(totalNumberOfCells);
-        std::vector<double> FwJ(totalNumberOfCells);
-        std::vector<double> FwK(totalNumberOfCells);
+        const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep];
+
+        std::vector<double> flowrateIntoCell(totalNumberOfCells);
 
         std::vector<double> summedTracerValues(totalNumberOfCells);
         //sum all tracers at current timestep
@@ -102,24 +121,25 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
             }
         }
 
-        distributeNeighbourCellFlow(mainGrid, 
+        distributeNeighbourCellFlow(mainGrid,
                                     totalNumberOfCells, 
                                     summedTracerValues, 
                                     flowrateI, 
-                                    FwI, 
                                     flowrateJ, 
-                                    FwJ, 
                                     flowrateK, 
-                                    FwK);
+                                    flowrateIntoCell);
 
-        //TODO: Add NNC contributions
+        distributeNNCflow(connections, 
+                          summedTracerValues, 
+                          flowrateNNC, 
+                          flowrateIntoCell);
 
         std::vector<double> CellQwIn(totalNumberOfCells);
 
         for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
         {
             CellQwIn[globalCellIndex] = cellQwInAtAllTimeSteps[timeStep-1][globalCellIndex] 
-                + (FwI[globalCellIndex] + FwJ[globalCellIndex] + FwK[globalCellIndex]) * deltaT;
+                + (flowrateIntoCell[globalCellIndex]) * deltaT;
         }
         cellQwInAtAllTimeSteps.push_back(CellQwIn);
 
@@ -142,6 +162,37 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow(std::vector<RigConnection> connections,
+                                                                std::vector<double> summedTracerValues,
+                                                                const std::vector<double>* flowrateNNC, 
+                                                                std::vector<double> &flowrateIntoCell)
+{
+    for (size_t connectionIndex = 0; connectionIndex < connections.size(); connectionIndex++)
+    {
+        RigConnection connection = connections[connectionIndex];
+        double connectionValue = flowrateNNC->at(connectionIndex);
+
+        size_t cell1Index = connection.m_c1GlobIdx;
+        size_t cell2Index = connection.m_c2GlobIdx;
+
+        if (connectionValue > 0)
+        {
+            //Flow out of cell with cell1index, into cell cell2index
+            flowrateIntoCell[cell2Index] += connectionValue * summedTracerValues[cell1Index];
+        }
+        else if (connectionValue < 0)
+        {
+            //flow out of cell with cell2index, into cell cell1index
+            flowrateIntoCell[cell1Index] += connectionValue * summedTracerValues[cell2Index];
+        }
+
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -149,11 +200,9 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
                                                                           size_t totalNumberOfCells,
                                                                           std::vector<double> summedTracerValues,
                                                                           const std::vector<double>* flrWatResultI,
-                                                                          std::vector<double> &FwI,
                                                                           const std::vector<double>* flrWatResultJ,
-                                                                          std::vector<double> &FwJ,
                                                                           const std::vector<double>* flrWatResultK,
-                                                                          std::vector<double> &FwK)
+                                                                          std::vector<double> &totalFlowrateIntoCell)
 {
     for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
     {
@@ -167,12 +216,12 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             if (flrWatResultI->at(globalCellIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
-                FwI[globalCellIndexPosINeightbour] += flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndex];
+                totalFlowrateIntoCell[globalCellIndexPosINeightbour] += flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndex];
             }
             else if (flrWatResultI->at(globalCellIndex) < 0 && i < mainGrid->cellCountI())
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                FwI[globalCellIndex] += flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndexPosINeightbour];
+                totalFlowrateIntoCell[globalCellIndex] += (-1) * flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndexPosINeightbour];
             }
         }
     }
@@ -189,12 +238,12 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             if (flrWatResultJ->at(globalCellIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
-                FwJ[globalCellIndexPosJNeightbour] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndex];
+                totalFlowrateIntoCell[globalCellIndexPosJNeightbour] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndex];
             }
             else if (flrWatResultJ->at(globalCellIndex) < 0 && i < mainGrid->cellCountI())
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                FwJ[globalCellIndex] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndexPosJNeightbour];
+                totalFlowrateIntoCell[globalCellIndex] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndexPosJNeightbour];
             }
         }
     }
@@ -211,12 +260,12 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             if (flrWatResultK->at(globalCellIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
-                FwK[globalCellIndexPosKNeightbour] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndex];
+                totalFlowrateIntoCell[globalCellIndexPosKNeightbour] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndex];
             }
             else if (flrWatResultK->at(globalCellIndex) < 0 && i < mainGrid->cellCountI())
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                FwK[globalCellIndex] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndexPosKNeightbour];
+                totalFlowrateIntoCell[globalCellIndex] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndexPosKNeightbour];
             }
         }
     }

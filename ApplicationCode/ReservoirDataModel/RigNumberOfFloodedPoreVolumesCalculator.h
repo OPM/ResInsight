@@ -24,6 +24,7 @@
 
 class RimEclipseCase;
 class RigMainGrid;
+class RigConnection;
 
 //==================================================================================================
 /// 
@@ -38,17 +39,19 @@ public:
                                                      std::vector<std::string> tracerNames
                                                      );
 
-    void distributeNeighbourCellFlow(RigMainGrid* mainGrid, 
+
+    void distributeNNCflow(std::vector<RigConnection> connections, 
+                           std::vector<double> summedTracerValues, 
+                           const std::vector<double>* flowrateNNC, 
+                           std::vector<double> &flowrateIntoCell);
+
+    void distributeNeighbourCellFlow(RigMainGrid* mainGrid,
                                      size_t totalNumberOfCells, 
                                      std::vector<double> summedTracerValues, 
                                      const std::vector<double>* flrWatResultI, 
-                                     std::vector<double> &FwI, 
                                      const std::vector<double>* flrWatResultJ, 
-                                     std::vector<double> &FwJ, 
                                      const std::vector<double>* flrWatResultK, 
-                                     std::vector<double> &FwK);
-
-
+                                     std::vector<double> &totalFlowrateIntoCell);
 private:
     std::vector<std::vector<double>> m_cumWinflowPVAllTimeSteps;
 
