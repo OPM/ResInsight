@@ -146,31 +146,27 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
                 // Show GUI to select time steps 
 
-                RimTimeStepFilter myTimeStepFilter;
-                myTimeStepFilter.setCustomTimeSteps(timeSteps);
+                m_timeStepFilter->setTimeStepsFromFile(timeSteps);
 
-                caf::PdmUiPropertyViewDialog propertyDialog(NULL, &myTimeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-                propertyDialog.resize(QSize(400, 200));
+                caf::PdmUiPropertyViewDialog propertyDialog(NULL, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+                propertyDialog.resize(QSize(400, 600));
 
                 if (propertyDialog.exec() != QDialog::Accepted)
                 {
                     return false;
                 }
 
+                m_timeStepFilter->clearTimeStepsFromFile();
+
                 // Set cursor in wait state to continue display of progress dialog including
                 // wait cursor
                 QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-                m_timeStepFilter->setSelectedTimeStepIndices(myTimeStepFilter.selectedTimeStepIndices());
             }
 
             readerEclipseOutput->setFileDataAccess(restartDataAccess.p());
         }
 
-        if (!m_timeStepFilter->selectedTimeStepIndices().empty())
-        {
-            readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->selectedTimeStepIndices());
-        }
+        readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->selectedTimeStepIndices());
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
         if (!readerEclipseOutput->open(caseFileName(), eclipseCase.p()))
