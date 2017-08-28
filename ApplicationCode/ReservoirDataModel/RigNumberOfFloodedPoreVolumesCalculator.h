@@ -40,7 +40,20 @@ public:
                                                      );
 
 
-    void distributeNNCflow(std::vector<RigConnection> connections, 
+
+private:
+    void calculate(RigMainGrid* mainGrid, 
+                   std::vector<double> daysSinceSimulationStart, 
+                   const std::vector<double>* porvResults, 
+                   std::vector<const std::vector<double>* > flowrateIatAllTimeSteps, 
+                   std::vector<const std::vector<double>* > flowrateJatAllTimeSteps, 
+                   std::vector<const std::vector<double>* > flowrateKatAllTimeSteps, 
+                   const std::vector<RigConnection> connections, 
+                   std::vector<const std::vector<double>* > flowrateNNCatAllTimeSteps, 
+                   std::vector<std::vector<double> > summedTracersAtAllTimesteps);
+
+
+    void distributeNNCflow(std::vector<RigConnection> connections,
                            std::vector<double> summedTracerValues, 
                            const std::vector<double>* flowrateNNC, 
                            std::vector<double> &flowrateIntoCell);
@@ -52,6 +65,7 @@ public:
                                      const std::vector<double>* flrWatResultJ, 
                                      const std::vector<double>* flrWatResultK, 
                                      std::vector<double> &totalFlowrateIntoCell);
+
 private:
     std::vector<std::vector<double>> m_cumWinflowPVAllTimeSteps;
 
