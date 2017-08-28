@@ -55,6 +55,7 @@ public:
 
     void                            setReaderInterface(RifReaderInterface* readerInterface);
     RifReaderInterface*             readerInterface();
+    const RifReaderInterface*       readerInterface() const;
 
     void                            computeDepthRelatedResults();
     bool                            isDataPresent(size_t scalarResultIndex) const;

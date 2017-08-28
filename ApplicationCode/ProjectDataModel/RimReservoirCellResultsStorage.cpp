@@ -233,6 +233,14 @@ RifReaderInterface* RimReservoirCellResultsStorage::readerInterface()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const RifReaderInterface* RimReservoirCellResultsStorage::readerInterface() const
+{
+    return m_readerInterface.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
 {
     if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
