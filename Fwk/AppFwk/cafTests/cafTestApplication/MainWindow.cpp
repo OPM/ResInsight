@@ -104,6 +104,21 @@ public:
 private:
     double m_doubleMember;
 
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
+    {
+        uiOrdering.add(&m_doubleField);
+        uiOrdering.add(&m_intField);
+
+        QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intField);
+
+        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(dynamicGroupName, "MyTest");
+        group->add(&m_textField);
+        group->add(&m_proxyDoubleField);
+    }
 };
 
 CAF_PDM_SOURCE_INIT(SmallDemoPdmObject, "SmallDemoPdmObject");

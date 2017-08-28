@@ -41,6 +41,8 @@ set( PROJECT_FILES
     cafPdmUiTreeOrdering.cpp
     cafPdmUiTreeOrdering.h
     cafUiTreeItem.h
+    cafPdmUiGroup.cpp
+    cafPdmUiGroup.h
 
     cafSelectionManager.cpp
     cafSelectionManager.h

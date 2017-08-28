@@ -218,7 +218,7 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
             const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
 
-            QString groupBoxKey = uiItems[i]->uiName();
+            QString groupBoxKey = group->keyword();
             QMinimizePanel* groupBox = NULL;
             QGridLayout* groupBoxLayout = NULL;
 
@@ -229,7 +229,8 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             if (it == m_groupBoxes.end())
             {
                 groupBox = new QMinimizePanel( parent );
-                groupBox->setTitle(uiItems[i]->uiName());
+                groupBox->setTitle(group->uiName(uiConfigName));
+                groupBox->setObjectName(group->keyword());
                 groupBoxLayout = new QGridLayout();
                 groupBox->contentFrame()->setLayout(groupBoxLayout);
                 connect(groupBox, SIGNAL(expandedChanged(bool)), this, SLOT(groupBoxExpandedStateToggled(bool)));
@@ -254,6 +255,9 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             // Set Expanded state
             bool isExpanded = isUiGroupExpanded(group);
             groupBox->setExpanded(isExpanded);
+
+            // Update the title to be able to support dynamic group names
+            groupBox->setTitle(group->uiName(uiConfigName));
 
             recursiveSetupFieldsAndGroups(groupChildren, groupBox->contentFrame(), groupBoxLayout, uiConfigName);
             currentRowIndex++;
@@ -379,9 +383,9 @@ bool PdmUiDefaultObjectEditor::isUiGroupExpanded(const PdmUiGroup* uiGroup)
     auto kwMapPair = m_objectKeywordGroupUiNameExpandedState.find(pdmObject()->xmlCapability()->classKeyword());
     if ( kwMapPair != m_objectKeywordGroupUiNameExpandedState.end() )
     {
-        QString uiName = uiGroup->uiName();
+        QString keyword = uiGroup->keyword();
 
-        auto uiNameExpStatePair = kwMapPair->second.find(uiName);
+        auto uiNameExpStatePair = kwMapPair->second.find(keyword);
         if ( uiNameExpStatePair != kwMapPair->second.end() )
         {
             return uiNameExpStatePair->second;
@@ -403,7 +407,7 @@ void PdmUiDefaultObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmU
             PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
             const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
 
-            QString groupBoxKey = uiItems[i]->uiName();
+            QString groupBoxKey = group->keyword();
 
             if (groupNames->find(groupBoxKey) != groupNames->end())
             {
@@ -492,7 +496,7 @@ void PdmUiDefaultObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
     
     if (!panel) return;
 
-    m_objectKeywordGroupUiNameExpandedState[objKeyword][panel->title()] = isExpanded;
+    m_objectKeywordGroupUiNameExpandedState[objKeyword][panel->objectName()] = isExpanded;
 
 }
 

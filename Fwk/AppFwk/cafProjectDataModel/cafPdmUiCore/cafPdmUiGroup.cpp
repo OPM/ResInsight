@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,12 +34,7 @@
 //
 //##################################################################################################
 
-#include "cafPdmUiOrdering.h"
-
-#include "cafPdmDataValueField.h"
-#include "cafPdmObjectHandle.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiObjectHandle.h"
+#include "cafPdmUiGroup.h"
 
 
 namespace caf
@@ -48,103 +43,82 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiOrdering::~PdmUiOrdering()
+PdmUiGroup::PdmUiGroup()
 {
-    for (size_t i = 0; i < m_createdGroups.size(); ++i)
+    m_isCollapsedByDefault = false;
+    m_hasForcedExpandedState = false;
+    m_forcedCollapseState = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiGroup::setKeyword(const QString& keyword)
+{
+    m_keyword = keyword;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString PdmUiGroup::keyword() const
+{
+    if (!m_keyword.isEmpty())
     {
-        delete m_createdGroups[i];
-        m_createdGroups[i] = NULL;
+        return m_keyword;
     }
+
+    // Fallback to uiName with default uiConfigName
+    return uiName();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiGroup* PdmUiOrdering::addNewGroup(const QString& displayName)
+bool PdmUiGroup::isUiGroup()
 {
-    PdmUiGroup* group = new PdmUiGroup;
-    group->setUiName(displayName);
-
-    m_createdGroups.push_back(group);
-    m_ordering.push_back(group);
-
-    return group;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* PdmUiOrdering::addNewGroupWithKeyword(const QString& displayName, const QString& keyword)
+void PdmUiGroup::setCollapsedByDefault(bool doCollapse)
 {
-    PdmUiGroup* group = addNewGroup(displayName);
-
-    group->setKeyword(keyword);
-
-    return group;
+    m_isCollapsedByDefault = doCollapse;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiOrdering::contains(const PdmUiItem* item) const
+void PdmUiGroup::setCollapsed(bool doCollapse)
 {
-    for (size_t i = 0; i < m_ordering.size(); ++i)
-    {
-        if (m_ordering[i] == item) return true;
-        if (m_ordering[i] && m_ordering[i]->isUiGroup())
-        {
-            if (static_cast<PdmUiGroup*>(m_ordering[i])->contains(item)) return true;
-        }
-    }
-    return false;
+    m_hasForcedExpandedState = true;
+    m_forcedCollapseState = doCollapse;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::add(const PdmFieldHandle* field)
+bool PdmUiGroup::isExpandedByDefault() const
 {
-    PdmUiFieldHandle* uiItem = const_cast<PdmFieldHandle*>(field)->uiCapability();
-    CAF_ASSERT(uiItem);
-    CAF_ASSERT(!this->contains(uiItem));
-
-    m_ordering.push_back(uiItem);
+    return !m_isCollapsedByDefault;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::add(const PdmObjectHandle* obj)
+bool PdmUiGroup::hasForcedExpandedState() const
 {
-    PdmUiObjectHandle* uiItem = uiObj(const_cast<PdmObjectHandle*>(obj));
-    CAF_ASSERT(uiItem);
-    CAF_ASSERT(!this->contains(uiItem));
-
-    m_ordering.push_back(uiItem);
+    return m_hasForcedExpandedState;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiOrdering::isIncludingRemainingFields() const
+bool PdmUiGroup::forcedExpandedState() const
 {
-    return !m_skipRemainingFields;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void PdmUiOrdering::skipRemainingFields(bool doSkip /*= true*/)
-{
-    m_skipRemainingFields = doSkip;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<PdmUiItem*>& PdmUiOrdering::uiItems() const
-{
-    return m_ordering;
+    return !m_forcedCollapseState;
 }
 
 } //End of namespace caf

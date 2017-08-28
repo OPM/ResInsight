@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -37,50 +37,44 @@
 #pragma once
 
 #include "cafPdmUiItem.h"
+#include "cafPdmUiOrdering.h"
 
-#include <QString>
-#include <vector>
-
-namespace caf 
+namespace caf
 {
 
-class PdmUiGroup;
-class PdmFieldHandle;
-class PdmObjectHandle;
-
 //==================================================================================================
-/// Class storing the order and grouping of fields and groups of fields etc. to be used in the Gui
+/// Class representing a group of fields communicated to the Gui
 //==================================================================================================
 
-class PdmUiOrdering
+class PdmUiGroup : public PdmUiItem, public PdmUiOrdering
 {
 public:
-    PdmUiOrdering(): m_skipRemainingFields(false) { };
-    virtual ~PdmUiOrdering();
+    PdmUiGroup();
 
-    PdmUiOrdering(const PdmUiOrdering&) = delete;
-    PdmUiOrdering& operator=(const PdmUiOrdering&) = delete;
+    void        setKeyword(const QString& keyword);
+    QString     keyword() const;
 
-    PdmUiGroup*                     addNewGroup(const QString& displayName);
-    PdmUiGroup*                     addNewGroupWithKeyword(const QString& displayName, const QString& keyword);
+    virtual bool isUiGroup();
 
-    void                            add(const PdmFieldHandle* field);
-    void                            add(const PdmObjectHandle* obj);
-
-    void                            skipRemainingFields(bool doSkip = true);
+    /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect. 
+    void         setCollapsedByDefault(bool doCollapse); 
+    /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
+    void         setCollapsed(bool doCollapse);
 
     // Pdm internal methods
-
-    const std::vector<PdmUiItem*>&  uiItems() const;
-    bool                            contains(const PdmUiItem* item) const;
-    bool                            isIncludingRemainingFields() const;
+    bool         isExpandedByDefault()    const; 
+    bool         hasForcedExpandedState() const; 
+    bool         forcedExpandedState()    const;
 
 private:
-    std::vector<PdmUiItem*>         m_ordering;            ///< The order of groups and fields
-    std::vector<PdmUiGroup*>        m_createdGroups;       ///< Owned PdmUiGroups, for memory management only
-    bool                            m_skipRemainingFields;
+    bool         m_isCollapsedByDefault;
+    bool         m_hasForcedExpandedState;
+    bool         m_forcedCollapseState;
+
+    QString     m_keyword;
 };
+
+
 
 } // End of namespace caf
 
-#include "cafPdmUiGroup.h"
