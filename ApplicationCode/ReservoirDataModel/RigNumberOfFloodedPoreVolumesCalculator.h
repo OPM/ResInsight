@@ -39,6 +39,8 @@ public:
                                                      std::vector<std::string> tracerNames
                                                      );
 
+    std::vector<std::vector<double>>    numberOfFloodedPorevolumes();
+    std::vector<double>                 numberOfFloodedPorevolumesAtTimeStep(size_t timeStep);
 
 
 private:

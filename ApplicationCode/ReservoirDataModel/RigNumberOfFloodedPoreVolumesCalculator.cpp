@@ -122,6 +122,23 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<std::vector<double>> RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumes()
+{
+    return m_cumWinflowPVAllTimeSteps;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumesAtTimeStep(size_t timeStep)
+{
+    return m_cumWinflowPVAllTimeSteps[timeStep];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
                                                         std::vector<double> daysSinceSimulationStart,
                                                         const std::vector<double>* porvResults,
