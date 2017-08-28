@@ -41,11 +41,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
 
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
-    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));
-    
-    size_t scalarResultIndexFlrWatI = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATI+");
-    size_t scalarResultIndexFlrWatJ = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATJ+");
-    size_t scalarResultIndexFlrWatK = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATK+");
+    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));  
 
     std::vector<size_t> scalarResultIndexTracers;
     for (std::string tracerName : tracerNames)
@@ -53,23 +49,26 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATI+"));
     }
 
+    //TODO: Option for Oil and Gas instead of water
+    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATI+");
+    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATJ+");
+    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATK+");
+
+    std::vector<const std::vector<double>* > flowrateIatAllTimeSteps;
+    std::vector<const std::vector<double>* > flowrateJatAllTimeSteps;
+    std::vector<const std::vector<double>* > flowrateKatAllTimeSteps;
+
     std::vector<double> daysSinceSimulationStart = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart();
 
-    //TODO
-//     std::vector<const std::vector<double>* > flrWatResultIatAllTimeSteps;
-//     std::vector<const std::vector<double>* > flrWatResultJatAllTimeSteps;
-//     std::vector<const std::vector<double>* > flrWatResultKatAllTimeSteps;
-// 
-//     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
-//     {
-//         const std::vector<double>* flrWatResultI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatI, timeStep));
-//         flrWatResultIatAllTimeSteps.push_back(flrWatResultI);
-//         const std::vector<double>* flrWatResultJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatJ, timeStep));
-//         flrWatResultJatAllTimeSteps.push_back(flrWatResultJ);
-//         const std::vector<double>* flrWatResultK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatK, timeStep));
-//         flrWatResultKatAllTimeSteps.push_back(flrWatResultK);
-//     }
-       
+    for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
+    {
+        const std::vector<double>* flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, timeStep));
+        flowrateIatAllTimeSteps.push_back(flowrateI);
+        const std::vector<double>* flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ, timeStep));
+        flowrateJatAllTimeSteps.push_back(flowrateJ);
+        const std::vector<double>* flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK, timeStep));
+        flowrateKatAllTimeSteps.push_back(flowrateK);
+    }
 
     size_t totalNumberOfCells = porvResults->size();
 
@@ -77,16 +76,15 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<double> cellQwInTimeStep0(totalNumberOfCells);
     cellQwInAtAllTimeSteps.push_back(cellQwInTimeStep0);
 
-    
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
         double daysSinceSimStartNow = daysSinceSimulationStart[timeStep];
         double daysSinceSimStartLastTimeStep = daysSinceSimulationStart[timeStep -1];
         double deltaT = daysSinceSimStartNow - daysSinceSimStartLastTimeStep;
 
-        const std::vector<double>* flrWatResultI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatI, timeStep));
-        const std::vector<double>* flrWatResultJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatJ, timeStep));
-        const std::vector<double>* flrWatResultK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlrWatK, timeStep));
+        const std::vector<double>* flowrateI = flowrateIatAllTimeSteps[timeStep];
+        const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep];
+        const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep];
 
         std::vector<double> FwI(totalNumberOfCells);
         std::vector<double> FwJ(totalNumberOfCells);
@@ -107,11 +105,11 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         distributeNeighbourCellFlow(mainGrid, 
                                     totalNumberOfCells, 
                                     summedTracerValues, 
-                                    flrWatResultI, 
+                                    flowrateI, 
                                     FwI, 
-                                    flrWatResultJ, 
+                                    flowrateJ, 
                                     FwJ, 
-                                    flrWatResultK, 
+                                    flowrateK, 
                                     FwK);
 
         //TODO: Add NNC contributions
@@ -124,8 +122,6 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
                 + (FwI[globalCellIndex] + FwJ[globalCellIndex] + FwK[globalCellIndex]) * deltaT;
         }
         cellQwInAtAllTimeSteps.push_back(CellQwIn);
-
-
 
     }
 
@@ -143,11 +139,6 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
         }
     }
-
-
-
-
-
 
 }
 
