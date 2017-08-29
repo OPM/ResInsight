@@ -45,6 +45,7 @@ public:
 
 private:
     void calculate(RigMainGrid* mainGrid, 
+                   RimEclipseCase* caseToApply,
                    std::vector<double> daysSinceSimulationStart, 
                    const std::vector<double>* porvResults, 
                    std::vector<const std::vector<double>* > flowrateIatAllTimeSteps, 
@@ -61,7 +62,7 @@ private:
                            std::vector<double> &flowrateIntoCell);
 
     void distributeNeighbourCellFlow(RigMainGrid* mainGrid,
-                                     size_t totalNumberOfCells, 
+                                     RimEclipseCase* caseToApply,
                                      std::vector<double> summedTracerValues, 
                                      const std::vector<double>* flrWatResultI, 
                                      const std::vector<double>* flrWatResultJ, 
