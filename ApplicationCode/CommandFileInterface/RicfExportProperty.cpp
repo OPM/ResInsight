@@ -32,6 +32,8 @@
 
 #include "RifEclipseInputFileTools.h"
 
+#include "cafUtils.h"
+
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT(RicfExportProperty, "exportProperty");
@@ -54,15 +56,8 @@ RicfExportProperty::RicfExportProperty()
 //--------------------------------------------------------------------------------------------------
 void RicfExportProperty::execute()
 {
-    QString fileName = m_path;
-    if (fileName.isNull())
-    {
-        QDir propertiesDir(RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::PROPERTIES));
-        fileName = propertiesDir.filePath(m_propertyName);
-    }
 
     RimEclipseCase* eclipseCase;
-
     {
         bool foundCase = false;
         for (RimEclipseCase* c : RiaApplication::instance()->project()->activeOilField()->analysisModels()->cases)
@@ -79,6 +74,15 @@ void RicfExportProperty::execute()
             RiaLogging::error(QString("exportProperty: Could not find case with ID %1").arg(m_caseId()));
             return;
         }
+    }
+
+    QString filePath = m_path;
+    if (filePath.isNull())
+    {
+        QDir propertiesDir(RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::PROPERTIES));
+        QString fileName = QString("%1-%2").arg(eclipseCase->caseUserDescription()).arg(m_propertyName);
+        fileName = caf::Utils::makeValidFileBasename(fileName);
+        filePath = propertiesDir.filePath(fileName);
     }
 
     // FIXME : Select correct view?
@@ -102,5 +106,5 @@ void RicfExportProperty::execute()
     view->cellResult->setResultVariable(m_propertyName);
     view->loadDataAndUpdate();
 
-    RifEclipseInputFileTools::writeBinaryResultToTextFile(fileName, eclipseCase->eclipseCaseData(), m_timeStepIndex, view->cellResult, m_eclipseKeyword, m_undefinedValue);
+    RifEclipseInputFileTools::writeBinaryResultToTextFile(filePath, eclipseCase->eclipseCaseData(), m_timeStepIndex, view->cellResult, m_eclipseKeyword, m_undefinedValue);
 }
