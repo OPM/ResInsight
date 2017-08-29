@@ -40,6 +40,9 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "");
     importAdvancedMswData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    CAF_PDM_InitField(&useResultIndexFile, "useResultIndexFile", false, "Use Result Index File", "", "", "");
+    useResultIndexFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     CAF_PDM_InitField(&faultIncludeFileAbsolutePathPrefix, "faultIncludeFileAbsolutePathPrefix", QString(), "Fault Include File Absolute Path Prefix", "", "Path used to prefix absolute UNIX paths in fault include statements on Windows", "");
 }
 
@@ -50,7 +53,8 @@ void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, 
 {
     if (field == &importFaults ||
         field == &importAdvancedMswData ||
-        field == &importNNCs)
+        field == &importNNCs ||
+        field == &useResultIndexFile)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -65,6 +69,7 @@ void RifReaderSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     uiOrdering.add(&importFaults);
     uiOrdering.add(&importNNCs);
     uiOrdering.add(&importAdvancedMswData);
+    uiOrdering.add(&useResultIndexFile);
 #ifdef WIN32
     uiOrdering.add(&faultIncludeFileAbsolutePathPrefix);
 #endif

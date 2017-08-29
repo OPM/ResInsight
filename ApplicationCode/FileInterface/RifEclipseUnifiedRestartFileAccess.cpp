@@ -19,9 +19,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseUnifiedRestartFileAccess.h"
-#include "RifEclipseOutputFileTools.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
+
+#include "RifEclipseOutputFileTools.h"
+#include "RifReaderSettings.h"
 
 #include "ert/ecl/ecl_file.h"
 #include "ert/ecl/ecl_kw_magic.h"
@@ -68,18 +72,26 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
     if (!m_ecl_file)
     {
         QString indexFileName = RifEclipseOutputFileTools::createIndexFileName(m_filename);
-        if (caf::Utils::fileExists(indexFileName))
-        {
-            QFileInfo indexFileInfo(indexFileName);
-            QFileInfo resultFileInfo(m_filename);
 
-            if (resultFileInfo.lastModified() < indexFileInfo.lastModified())
+        if (useResultIndexFile())
+        {
+            if (caf::Utils::fileExists(indexFileName))
             {
-                m_ecl_file = ecl_file_fast_open(m_filename.toAscii().data(), indexFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
-                if (!m_ecl_file)
+                QFileInfo indexFileInfo(indexFileName);
+                QFileInfo resultFileInfo(m_filename);
+
+                if (resultFileInfo.lastModified() < indexFileInfo.lastModified())
                 {
-                    RiaLogging::error(QString("Failed to open file %1 using index file.").arg(m_filename));
-                    RiaLogging::info(QString("Will try to open file without index file."));
+                    m_ecl_file = ecl_file_fast_open(m_filename.toAscii().data(), indexFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
+                    if (!m_ecl_file)
+                    {
+                        RiaLogging::error(QString("Failed to open file %1 using index file.").arg(m_filename));
+                        RiaLogging::info(QString("Will try to open file without index file."));
+                    }
+                    else
+                    {
+                        RiaLogging::info(QString("Imported file %1 using index file.").arg(m_filename));
+                    }
                 }
             }
         }
@@ -87,18 +99,30 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
         if (!m_ecl_file)
         {
             m_ecl_file = ecl_file_open(m_filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
-            if (m_ecl_file)
+            if (!m_ecl_file)
             {
-                QFileInfo fi(indexFileName);
-                QString resultPath = fi.absolutePath();
-                if (caf::Utils::isFolderWritable(resultPath))
-                {
-                    ecl_file_write_index(m_ecl_file, indexFileName.toAscii().data());
-                }
+                RiaLogging::error(QString("Failed to open file %1").arg(m_filename));
             }
             else
             {
-                RiaLogging::error(QString("Failed to open file %1").arg(m_filename));
+                if (useResultIndexFile())
+                {
+                    QFileInfo fi(indexFileName);
+                    QString resultPath = fi.absolutePath();
+                    if (caf::Utils::isFolderWritable(resultPath))
+                    {
+                        bool success = ecl_file_write_index(m_ecl_file, indexFileName.toAscii().data());
+
+                        if (success)
+                        {
+                            RiaLogging::info(QString("Exported index file to %1 ").arg(indexFileName));
+                        }
+                        else
+                        {
+                            RiaLogging::info(QString("Failed to exported index file to %1 ").arg(indexFileName));
+                        }
+                    }
+                }
             }
         }
     }
@@ -106,6 +130,17 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
     if (!m_ecl_file) return false;
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUnifiedRestartFileAccess::useResultIndexFile() const
+{
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+    const RifReaderSettings* readerSettings = prefs->readerSettings();
+
+    return readerSettings->useResultIndexFile();
 }
 
 //--------------------------------------------------------------------------------------------------

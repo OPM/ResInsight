@@ -59,6 +59,7 @@ public:
 
 private:
     bool                        openFile();
+    bool                        useResultIndexFile() const;
 
 private:
     QString         m_filename;
