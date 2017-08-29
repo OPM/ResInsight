@@ -575,9 +575,14 @@ void RimEclipseResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     group->add(&flipXAxis);
     group->add(&flipYAxis);
 
-    auto group1 = uiOrdering.addNewGroup("Time Step Filter");
-    group1->setCollapsedByDefault(true);
-    m_timeStepFilter->uiOrdering(uiConfigName, *group1);
+    if (eclipseCaseData()
+        && eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)
+        && eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount() > 0)
+    {
+        auto group1 = uiOrdering.addNewGroup("Time Step Filter");
+        group1->setCollapsedByDefault(true);
+        m_timeStepFilter->uiOrdering(uiConfigName, *group1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
