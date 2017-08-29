@@ -43,7 +43,7 @@ public:
     caf::PdmField<bool> useResultIndexFile;
     caf::PdmField<bool> skipWellData;
 
-protected:
+private:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

@@ -19,6 +19,7 @@
 
 
 #include "RifReaderSettings.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 
 
@@ -71,6 +72,9 @@ void RifReaderSettings::defineEditorAttribute(const caf::PdmFieldHandle* field, 
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifReaderSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&importFaults);
