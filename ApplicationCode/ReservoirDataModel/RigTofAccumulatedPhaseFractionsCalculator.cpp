@@ -52,9 +52,21 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
     size_t scalarResultIndexSoil = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
     size_t scalarResultIndexSgas = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SGAS");
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
-    const std::vector<double>* swatResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSwat, timestep));
-    const std::vector<double>* soilResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSoil, timestep));
-    const std::vector<double>* sgasResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSgas, timestep));
+    const std::vector<double>* swatResults = nullptr;
+    const std::vector<double>* soilResults = nullptr;
+    const std::vector<double>* sgasResults = nullptr;
+    if (scalarResultIndexSwat != cvf::UNDEFINED_SIZE_T)
+    {
+        swatResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSwat, timestep));
+    }
+    if (scalarResultIndexSoil != cvf::UNDEFINED_SIZE_T)
+    {
+        soilResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSoil, timestep));
+    }
+    if (scalarResultIndexSgas != cvf::UNDEFINED_SIZE_T)
+    {
+        sgasResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSgas, timestep));
+    }
     const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));
         
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
@@ -130,9 +142,18 @@ void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFract
         for (int index : element.second)
         {
             fractionPorvSum += fractionData->at(index) * porvResults->at(index);
-            fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults->at(index) * swatResults->at(index);
-            fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults->at(index) * soilResults->at(index);
-            fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults->at(index) * sgasResults->at(index);
+            if (swatResults != nullptr)
+            {
+                fractionPorvPhaseSumSwat += fractionData->at(index) * porvResults->at(index) * swatResults->at(index);
+            }
+            if (soilResults != nullptr)
+            {
+                fractionPorvPhaseSumSoil += fractionData->at(index) * porvResults->at(index) * soilResults->at(index);
+            }
+            if (sgasResults != nullptr)
+            {
+                fractionPorvPhaseSumSgas += fractionData->at(index) * porvResults->at(index) * sgasResults->at(index);
+            }
         }
 
         tofInIncreasingOrder.push_back(tofValue);
