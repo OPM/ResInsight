@@ -38,6 +38,7 @@
 
 #include "cafSelectionManager.h"
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafUtils.h"
 
 #include "cvfMath.h"
 
@@ -157,14 +158,16 @@ bool RicExportFishbonesWellSegmentsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportFishbonesWellSegmentsFeature::exportWellSegments(const RimWellPath* wellPath, const std::vector<RimFishbonesMultipleSubs*>& fishbonesSubs, const RicCaseAndFileExportSettingsUi& settings)
 {
-    QString filePath = QDir(settings.folder()).filePath("Welsegs");
-    QFile exportFile(filePath);
-
     if (settings.caseToApply() == nullptr)
     {
         RiaLogging::error("Export Well Segments: Cannot export completions data without specified eclipse case");
         return;
     }
+
+    QString fileName = QString("%1-Welsegs").arg(settings.caseToApply()->caseUserDescription());
+    fileName = caf::Utils::makeValidFileBasename(fileName);
+    QString filePath = QDir(settings.folder()).filePath(fileName);
+    QFile exportFile(filePath);
 
     if (!exportFile.open(QIODevice::WriteOnly))
     {
