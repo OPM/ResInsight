@@ -1,22 +1,23 @@
-#  Copyright (C) 2015  Statoil ASA, Norway. 
-#   
-#  The file 'ecl_3dkw.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2015  Statoil ASA, Norway.
+#
+#  The file 'ecl_3dkw.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
+from ecl.util import monkey_the_camel
 from .ecl_kw import EclKW
 
 class Ecl3DKW(EclKW):
@@ -26,7 +27,7 @@ class Ecl3DKW(EclKW):
     The Ecl3DKW class is derived from the EclKW class, and most of the
     methods are implemented in the EclKW base class. The purpose of
     the Ecl3DKW class is to simplify working with 3D properties like
-    PORO or SATNUM. 
+    PORO or SATNUM.
 
     The Ecl3DKW class has an attached EclGrid which is used to support
     [i,j,k] indexing, and a defined default value which is used when
@@ -53,7 +54,7 @@ class Ecl3DKW(EclKW):
 
     In the example we open an ECLIPSE INIT file and extract the PERMX
     and PORV properties, and then iterate over all the cells in the
-    grid. 
+    grid.
 
     In the INIT file the PORV keyword is stored with all cells,
     whereas the PERMX keyword typically only has the active cells
@@ -64,7 +65,7 @@ class Ecl3DKW(EclKW):
 
     we say that we want the value -1 for all inactive cells in the
     PERMX property.
-    
+
     """
     def __init__(self, kw , grid , value_type , default_value = 0 , global_active = False):
         if global_active:
@@ -81,7 +82,7 @@ class Ecl3DKW(EclKW):
     def create(cls , kw , grid , value_type , default_value = 0 , global_active = False):
         new_kw = Ecl3DKW(kw , grid , value_type , default_value , global_active)
         return new_kw
-        
+
     @classmethod
     def read_grdecl( cls , grid , fileH , kw , strict = True , ecl_type = None):
         """
@@ -92,9 +93,9 @@ class Ecl3DKW(EclKW):
         kw = super(Ecl3DKW , cls).read_grdecl( fileH , kw , strict , ecl_type)
         Ecl3DKW.castFromKW(kw , grid)
         return kw
-        
 
-    
+
+
     def __getitem__(self , index):
         """Will return item [g] or [i,j,k].
 
@@ -117,8 +118,8 @@ class Ecl3DKW(EclKW):
                     return self.getDefault()
                 else:
                     index = self.grid.get_active_index( ijk = index )
-                
-        
+
+
         return super(Ecl3DKW , self).__getitem__( index )
 
 
@@ -144,17 +145,17 @@ class Ecl3DKW(EclKW):
                     raise ValueError("Tried to assign value to inactive cell: (%d,%d,%d)" % index)
                 else:
                     index = self.grid.get_active_index( ijk = index )
-                
-        
+
+
         return super(Ecl3DKW , self).__setitem__( index , value )
-            
+
 
     @classmethod
-    def castFromKW(cls , kw , grid , default_value = 0):
+    def cast_from_kw(cls, kw, grid, default_value=0):
         """Will convert a normal EclKW to a Ecl3DKW.
 
         The method will convert a normal EclKW instance to Ecl3DKw
-        instance with an attached grid and a default value. 
+        instance with an attached grid and a default value.
 
         The method will check that size of the keyword is compatible
         with the grid dimensions, i.e. the keyword must have either
@@ -167,9 +168,9 @@ class Ecl3DKW(EclKW):
           1. Load the poro keyword from a grdecl formatted file.
           2. Convert the keyword to a 3D keyword.
 
-        
+
         from ecl.ecl import EclGrid,EclKW,Ecl3DKW
-        
+
         grid = EclGrid("ECLIPSE.EGRID")
         poro = EclKW.read_grdecl(open("poro.grdecl") , "PORO")
         Ecl3DKW.castFromKW( poro , grid )
@@ -183,7 +184,7 @@ class Ecl3DKW(EclKW):
         else:
             raise ValueError("Size mismatch - must have size matching global/active size of grid")
 
-            
+
         kw.__class__ = cls
         kw.default_value = default_value
         kw.grid = grid
@@ -195,8 +196,8 @@ class Ecl3DKW(EclKW):
         kw.setDefault( default_value )
         return kw
 
-    
-    def compressedCopy(self):
+
+    def compressed_copy(self):
         """Will return a EclKW copy with nactive elements.
 
         The returned copy will be of type EclKW; i.e. no default
@@ -207,7 +208,7 @@ class Ecl3DKW(EclKW):
         return self.grid.compressedKWCopy( self )
 
 
-    def globalCopy(self):
+    def global_copy(self):
         """Will return a EclKW copy with nx*ny*nz elements.
 
         The returned copy will be of type EclKW; i.e. no default
@@ -217,18 +218,22 @@ class Ecl3DKW(EclKW):
         """
         return self.grid.globalKWCopy( self , self.getDefault() )
 
-    
+
 
     def dims(self):
         return (self.grid.getNX() , self.grid.getNY() , self.grid.getNZ())
-        
-        
-    def setDefault(self, default_value):
+
+
+    def set_default(self, default_value):
         self.default_value = default_value
 
 
-    def getDefault(self):
+    def get_default(self):
         return self.default_value
 
 
-
+monkey_the_camel(Ecl3DKW, 'castFromKW', Ecl3DKW.cast_from_kw, classmethod)
+monkey_the_camel(Ecl3DKW, 'compressedCopy', Ecl3DKW.compressed_copy)
+monkey_the_camel(Ecl3DKW, 'globalCopy', Ecl3DKW.global_copy)
+monkey_the_camel(Ecl3DKW, 'setDefault', Ecl3DKW.set_default)
+monkey_the_camel(Ecl3DKW, 'getDefault', Ecl3DKW.get_default)

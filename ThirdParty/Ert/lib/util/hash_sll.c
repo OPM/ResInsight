@@ -35,7 +35,7 @@ struct hash_sll_struct {
 
 
 static hash_sll_type * hash_sll_alloc( void ) {
-  hash_sll_type * hash_sll = util_malloc(sizeof * hash_sll );
+  hash_sll_type * hash_sll = (hash_sll_type*) util_malloc(sizeof * hash_sll );
   hash_sll->length = 0;
   hash_sll->head   = NULL;
   return hash_sll;
@@ -43,7 +43,7 @@ static hash_sll_type * hash_sll_alloc( void ) {
 
 
 hash_sll_type ** hash_sll_alloc_table(int size) {
-  hash_sll_type ** table = util_malloc(size * sizeof * table );
+  hash_sll_type ** table = (hash_sll_type**) util_malloc(size * sizeof * table );
   int i;
   for (i=0; i<size; i++)
     table[i] = hash_sll_alloc();

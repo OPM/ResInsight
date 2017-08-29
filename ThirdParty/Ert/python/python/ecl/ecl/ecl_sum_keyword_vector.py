@@ -24,38 +24,40 @@ import datetime
 # argument. In the python code this order has been reversed.
 
 from cwrap import BaseCClass
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclPrototype
 
 
 
 class EclSumKeyWordVector(BaseCClass):
     TYPE_NAME       = "ecl_sum_vector"
-    _alloc          = EclPrototype("void* ecl_sum_vector_alloc(ecl_sum )" , bind = False)
-    _free           = EclPrototype("void ecl_sum_vector_free(ecl_sum_vector )")
-    _add            = EclPrototype("bool ecl_sum_vector_add_key( ecl_sum_vector ,  char* )")
-    _add_multiple   = EclPrototype("void ecl_sum_vector_add_keys( ecl_sum_vector ,  char* )")
-    _get_size       = EclPrototype("int ecl_sum_vector_get_size( ecl_sum_vector )")
+    _alloc          = EclPrototype("void* ecl_sum_vector_alloc(ecl_sum)", bind=False)
+    _free           = EclPrototype("void ecl_sum_vector_free(ecl_sum_vector)")
+    _add            = EclPrototype("bool ecl_sum_vector_add_key(ecl_sum_vector,  char*)")
+    _add_multiple   = EclPrototype("void ecl_sum_vector_add_keys(ecl_sum_vector,  char*)")
+    _get_size       = EclPrototype("int ecl_sum_vector_get_size(ecl_sum_vector)")
 
-    
 
     def __init__(self, ecl_sum):
         c_pointer = self._alloc(ecl_sum)
         super(EclSumKeyWordVector, self).__init__(c_pointer)
-        
+
     def __len__(self):
-        return self._get_size( )
+        return self._get_size()
 
     def free(self):
-        self._free( )
+        self._free()
 
-    def addKeyword(self, keyword):
+    def add_keyword(self, keyword):
         success = self._add(keyword)
         if not success:
             raise KeyError("Failed to add keyword to vector")
 
-    def addKeywords(self, keyword_pattern):
+    def add_keywords(self, keyword_pattern):
         self._add_multiple(keyword_pattern)
 
+    def __repr__(self):
+        return self._create_repr('len=%d' % len(self))
 
-
-
+monkey_the_camel(EclSumKeyWordVector, 'addKeyword', EclSumKeyWordVector.add_keyword)
+monkey_the_camel(EclSumKeyWordVector, 'addKeywords', EclSumKeyWordVector.add_keywords)

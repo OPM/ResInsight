@@ -231,7 +231,7 @@ typedef enum {left_pad   = 0,
   bool         util_fscanf_int(FILE * , int * );
   bool         util_fscanf_bool(FILE * stream , bool * value);
   bool         util_sscanf_bool(const char * , bool *);
-  bool         util_sscanf_octal_int(const char * buffer , unsigned int * value);
+  bool         util_sscanf_octal_int(const char * buffer , int * value);
   int          util_strcmp_int( const char * s1 , const char * s2);
   int          util_strcmp_float( const char * s1 , const char * s2);
   bool         util_sscanf_int(const char * , int * );
@@ -285,9 +285,7 @@ typedef enum {left_pad   = 0,
 
   bool         util_is_first_day_in_month_utc( time_t t);
 
-
-  void     util_fread_from_buffer(void *  , size_t  , size_t , char ** );
-
+  unsigned int util_dev_urandom_seed( );
   unsigned int util_clock_seed( void );
   void         util_fread_dev_random(int , char * );
   void         util_fread_dev_urandom(int , char * );
@@ -351,6 +349,8 @@ typedef enum {left_pad   = 0,
   long     util_fread_long(FILE * );
   bool     util_fread_bool(FILE * );
   double   util_fread_double(FILE * stream);
+  void     util_fwrite_offset(offset_type    , FILE * );
+  void     util_fwrite_size_t (size_t    , FILE * );
   void     util_fwrite_int   (int    , FILE * );
   void     util_fwrite_long  (long    , FILE * );
   void     util_fwrite_bool  (bool    , FILE * );
@@ -531,9 +531,7 @@ void    util_abort_set_executable( const char * argv0 );
   bool         util_try_lockf(const char *  , mode_t  , int * );
 #endif
 
-
-
-
+#include "util_unlink.h"
 
 #ifdef __cplusplus
 }

@@ -303,18 +303,21 @@ ecl_sum_tstep_type * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step
 }
 
 
-ecl_sum_type * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
+ecl_sum_type * ecl_sum_alloc_restart_writer( const char * ecl_case , const char * restart_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
+  
   ecl_sum_type * ecl_sum = ecl_sum_alloc__( ecl_case , key_join_string );
   ecl_sum_set_unified( ecl_sum , unified );
   ecl_sum_set_fmt_case( ecl_sum , fmt_output );
 
-  ecl_sum->smspec = ecl_smspec_alloc_writer( key_join_string , sim_start , time_in_days , nx , ny , nz );
+  ecl_sum->smspec = ecl_smspec_alloc_writer( key_join_string , restart_case, sim_start , time_in_days , nx , ny , nz );
   ecl_sum->data   = ecl_sum_data_alloc_writer( ecl_sum->smspec );
 
   return ecl_sum;
 }
 
-
+ecl_sum_type * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
+  return ecl_sum_alloc_restart_writer(ecl_case, NULL, fmt_output, unified, key_join_string, sim_start, time_in_days, nx, ny, nz);
+}
 
 void ecl_sum_fwrite( const ecl_sum_type * ecl_sum ) {
   ecl_sum_fwrite_smspec( ecl_sum );

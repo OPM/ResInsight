@@ -135,7 +135,7 @@ UTIL_IS_INSTANCE_FUNCTION( ecl_file_kw , ECL_FILE_KW_TYPE_ID )
 
 
 
-static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_data_type data_type , int size , offset_type offset) {
+ecl_file_kw_type * ecl_file_kw_alloc0( const char * header , ecl_data_type data_type , int size , offset_type offset) {
   ecl_file_kw_type * file_kw = util_malloc( sizeof * file_kw );
   UTIL_TYPE_ID_INIT( file_kw , ECL_FILE_KW_TYPE_ID );
 
@@ -161,7 +161,7 @@ static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_data_ty
 */
 
 ecl_file_kw_type * ecl_file_kw_alloc( const ecl_kw_type * ecl_kw , offset_type offset ) {
-  return ecl_file_kw_alloc__( ecl_kw_get_header( ecl_kw ) , ecl_kw_get_data_type( ecl_kw ) , ecl_kw_get_size( ecl_kw ) , offset );
+  return ecl_file_kw_alloc0( ecl_kw_get_header( ecl_kw ) , ecl_kw_get_data_type( ecl_kw ) , ecl_kw_get_size( ecl_kw ) , offset );
 }
 
 
@@ -169,7 +169,7 @@ ecl_file_kw_type * ecl_file_kw_alloc( const ecl_kw_type * ecl_kw , offset_type o
     Does NOT copy the kw pointer which must be reloaded.
 */
 ecl_file_kw_type * ecl_file_kw_alloc_copy( const ecl_file_kw_type * src ) {
-  return ecl_file_kw_alloc__( src->header , ecl_file_kw_get_data_type(src) , src->kw_size , src->file_offset );
+  return ecl_file_kw_alloc0( src->header , ecl_file_kw_get_data_type(src) , src->kw_size , src->file_offset );
 }
 
 
@@ -191,6 +191,19 @@ void ecl_file_kw_free__( void * arg ) {
 }
 
 
+bool ecl_file_kw_equal( const ecl_file_kw_type * kw1 , const ecl_file_kw_type * kw2)
+{
+  if (kw1->file_offset != kw2->file_offset)
+    return false;
+
+  if (kw1->kw_size != kw2->kw_size)
+    return false;
+
+  if (!ecl_type_is_equal( kw1->data_type, kw2->data_type))
+    return false;
+
+  return util_string_equal( kw1->header , kw2->header );
+}
 
 static void ecl_file_kw_assert_kw( const ecl_file_kw_type * file_kw ) {
   if(!ecl_type_is_equal(
@@ -273,7 +286,7 @@ void ecl_file_kw_replace_kw( ecl_file_kw_type * file_kw , fortio_type * target ,
               ecl_kw_get_data_type(new_kw)
               ))
     util_abort("%s: sorry type mismatch between in-file keyword and new keyword \n",__func__);
-  if((file_kw->kw_size == ecl_kw_get_size( new_kw )))
+  if(file_kw->kw_size != ecl_kw_get_size(new_kw))
     util_abort("%s: sorry size mismatch between in-file keyword and new keyword \n",__func__);
 
   if (file_kw->kw != NULL)
@@ -323,4 +336,89 @@ void ecl_file_kw_inplace_fwrite( ecl_file_kw_type * file_kw , fortio_type * fort
 }
 
 
+void ecl_file_kw_fwrite( const ecl_file_kw_type * file_kw , FILE * stream ) {
+  int header_length = strlen( file_kw->header );
+  for (int i=0; i < ECL_STRING8_LENGTH; i++) {
+    if (i < header_length)
+      fputc( file_kw->header[i], stream );
+    else
+      fputc( ' ' , stream );
+  }
 
+  util_fwrite_int( file_kw->kw_size , stream );
+  util_fwrite_offset( file_kw->file_offset , stream );
+  util_fwrite_int( ecl_type_get_type( file_kw->data_type ) , stream );
+  util_fwrite_size_t( ecl_type_get_sizeof_ctype_fortio( file_kw->data_type ) , stream );
+}
+
+ecl_file_kw_type ** ecl_file_kw_fread_alloc_multiple( FILE * stream , int num) {
+  
+  size_t file_kw_size = ECL_STRING8_LENGTH + 2 * sizeof(int) + sizeof(offset_type) + sizeof(size_t);
+  size_t buffer_size = num * file_kw_size;
+  char * buffer = util_malloc( buffer_size * sizeof * buffer );
+  size_t num_read = fread( buffer, 1 , buffer_size , stream);
+
+  if (num_read != buffer_size) {
+    free( buffer );
+    return NULL;
+  }
+
+  {
+    ecl_file_kw_type ** kw_list = util_malloc( num * sizeof * kw_list );
+    for (int ikw = 0; ikw < num; ikw++) {
+      int buffer_offset = ikw * file_kw_size;
+      char header[ECL_STRING8_LENGTH + 1];
+      int kw_size;
+      offset_type file_offset;
+      ecl_type_enum ecl_type;
+      size_t type_size;
+      {
+        int index = 0;
+        while (true) {
+        if (buffer[index + buffer_offset] != ' ')
+          header[index] = buffer[index + buffer_offset];
+        else
+          break;
+
+        index++;
+        if (index == ECL_STRING8_LENGTH)
+          break;
+        }
+        header[index] = '\0';
+        buffer_offset += ECL_STRING8_LENGTH;
+      }
+
+      kw_size = *((int *) &buffer[ buffer_offset ]);
+      buffer_offset += sizeof kw_size;
+
+      file_offset = *((offset_type *) &buffer[ buffer_offset ]);
+      buffer_offset += sizeof file_offset;
+
+      ecl_type = *(( ecl_type_enum *) &buffer[ buffer_offset ]);
+      buffer_offset += sizeof ecl_type;
+
+      type_size = *((size_t *) &buffer[ buffer_offset ]);
+      buffer_offset += sizeof type_size;
+
+      kw_list[ikw] = ecl_file_kw_alloc0( header , ecl_type_create( ecl_type , type_size ), kw_size, file_offset );
+    }
+
+    free( buffer );
+    return kw_list;
+  }
+}
+
+
+
+
+ecl_file_kw_type * ecl_file_kw_fread_alloc( FILE * stream ) {
+  ecl_file_kw_type * file_kw = NULL;
+  ecl_file_kw_type ** multiple = ecl_file_kw_fread_alloc_multiple( stream , 1 );
+
+  if (multiple) {
+    file_kw = multiple[0];
+    free( multiple );
+  }
+
+  return file_kw;
+}

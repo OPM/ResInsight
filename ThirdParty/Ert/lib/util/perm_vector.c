@@ -36,7 +36,7 @@ struct perm_vector_struct {
 */
 
 perm_vector_type * perm_vector_alloc( int * perm_input, int size ) {
-  perm_vector_type * perm = util_malloc( sizeof * perm );
+  perm_vector_type * perm = (perm_vector_type*)util_malloc( sizeof * perm );
   UTIL_TYPE_ID_INIT( perm , PERM_VECTOR_TYPE_ID );
   perm->size = size;
   perm->perm = perm_input;

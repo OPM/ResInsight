@@ -19,12 +19,13 @@
 #ifndef ERT_VECTOR_H
 #define ERT_VECTOR_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <ert/util/node_data.h>
 #include <ert/util/type_macros.h>
 #include <ert/util/int_vector.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
   typedef void ( vector_func_type ) (void * , void *);
   typedef int  ( vector_cmp_ftype)  (const void * , const void *);
@@ -76,6 +77,7 @@ extern "C" {
   void        * vector_pop_front(vector_type * );
   void          vector_sort(vector_type * vector , vector_cmp_ftype * cmp);
   int_vector_type * vector_alloc_sort_perm(const vector_type * vector , vector_cmp_ftype * cmp);
+  void          vector_permute(vector_type * vector , const int_vector_type * perm_vector);
   void          vector_inplace_reverse(vector_type * vector);
   vector_type * vector_alloc_copy(const vector_type * src , bool deep_copy);
 

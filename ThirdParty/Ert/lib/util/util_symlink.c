@@ -70,7 +70,7 @@ char * util_alloc_link_target(const char * link) {
     int buffer_size = 256;
     char * target   = NULL;
     do {
-      target        = util_realloc(target , buffer_size );
+      target        = (char*)util_realloc(target , buffer_size );
       target_length = readlink(link , target , buffer_size);
       
       if (target_length == -1) 
@@ -83,7 +83,7 @@ char * util_alloc_link_target(const char * link) {
       
     } while (retry);
     target[target_length] = '\0';
-    target = util_realloc( target , strlen( target ) + 1 );   /* Shrink down to accurate size. */
+    target = (char*)util_realloc( target , strlen( target ) + 1 );   /* Shrink down to accurate size. */
     return target;
   } else
     return util_alloc_string_copy( link );
@@ -119,7 +119,7 @@ char * util_alloc_atlink_target(const char * path , const char * link) {
       int target_length;
       int buffer_size = 256;
       do {
-        target        = util_realloc(target , buffer_size );
+        target        = (char*)util_realloc(target , buffer_size );
         target_length = readlinkat( path_fd , link , target , buffer_size);
         
         if (target_length == -1) 
@@ -132,7 +132,7 @@ char * util_alloc_atlink_target(const char * path , const char * link) {
         
       } while (retry);
       target[target_length] = '\0';
-      target = util_realloc( target , strlen( target ) + 1 );   /* Shrink down to accurate size. */
+      target = (char*)util_realloc( target , strlen( target ) + 1 );   /* Shrink down to accurate size. */
     } 
     closedir( dir );
     return target;

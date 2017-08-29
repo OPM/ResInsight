@@ -139,7 +139,7 @@ static bool __string_contains(const char * string , const char * char_set) {
 
 
 menu_type * menu_alloc(const char * title , const char * quit_label , const char * quit_keys) {
-  menu_type * menu = util_malloc(sizeof * menu );
+  menu_type * menu = (menu_type*)util_malloc(sizeof * menu );
   
   menu->title     = util_alloc_sprintf_escape( title , 0 );
   menu->quit_keys = util_alloc_string_copy( quit_keys );
@@ -151,7 +151,7 @@ menu_type * menu_alloc(const char * title , const char * quit_label , const char
 }
 
 static menu_item_type * menu_item_alloc_empty() {
-  menu_item_type * item = util_malloc(sizeof * item );
+  menu_item_type * item = (menu_item_type*)util_malloc(sizeof * item );
 
   item->label   = NULL; 
   item->key_set = NULL; 
@@ -335,7 +335,7 @@ static void menu_display(const menu_type * menu) {
   int i;
   int length = strlen(menu->title);
   for (i = 0; i < vector_get_size(menu->items); i++) {
-    const menu_item_type * item = vector_iget_const( menu->items , i);
+    const menu_item_type * item = (const menu_item_type*)vector_iget_const( menu->items , i);
     if(!item->helptext)
       length = util_int_max(length , item->label_length);
     if(item->helptext)
@@ -349,7 +349,7 @@ static void menu_display(const menu_type * menu) {
   util_fprintf_string(menu->title , length + 6 , center_pad , stdout);  printf(" |\n");
   __print_line(length + 10 , 1);
   for (i=0; i < vector_get_size(menu->items); i++) {
-    const menu_item_type * item = vector_iget_const( menu->items , i);
+    const menu_item_type * item = (const menu_item_type*)vector_iget_const( menu->items , i);
     if (item->separator) 
       __print_sep(length + 6);
     else if (item->helptext)
@@ -401,7 +401,7 @@ menu_item_type * menu_get_item(const menu_type * menu, char cmd) {
   int item_index = 0;
   menu_item_type * item = NULL;
   while (item_index < vector_get_size(menu->items)) {
-    menu_item_type * current_item = vector_iget(menu->items , item_index);
+    menu_item_type * current_item = (menu_item_type*)vector_iget(menu->items , item_index);
     if (!current_item->separator || !current_item->helptext) {
       if (strchr(current_item->key_set , cmd) != NULL) {
         item = current_item;
@@ -434,7 +434,7 @@ void menu_run(const menu_type * menu) {
     {
       int item_index = 0;
       while (1) {
-        const menu_item_type * item = vector_iget_const(menu->items , item_index);
+        const menu_item_type * item = (const menu_item_type*)vector_iget_const(menu->items , item_index);
         if (!item->separator) {
           if(!item->helptext) {
             if (strchr(item->key_set , cmd) != NULL) {

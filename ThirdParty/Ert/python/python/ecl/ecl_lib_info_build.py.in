@@ -1,3 +1,3 @@
 lib_path = "${LIBRARY_OUTPUT_PATH}"
-so_version = "${ERT_BINARY_POSTFIX}"
-__version__ = "${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR}.${ERT_VERSION_MICRO}"
+so_version = "${ECL_BINARY_POSTFIX}"
+__version__ = "${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}.${ECL_VERSION_MICRO}"

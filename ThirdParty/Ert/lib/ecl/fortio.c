@@ -475,7 +475,7 @@ bool fortio_data_fskip(fortio_type* fortio, const int element_size, const int el
 
 
 void fortio_data_fseek(fortio_type* fortio, offset_type data_offset, size_t data_element, const int element_size, const int element_count, const int block_size) {
-    if(data_element < 0 || data_element >= element_count) {
+    if(data_element >= element_count) {
         util_abort("%s: Element index is out of range: 0 <= %d < %d \n", __func__, data_element, element_count);
     }
     {
@@ -681,7 +681,7 @@ static fortio_status_type fortio_check_record( FILE * stream , bool endian_flip 
         if (tail == header)
           /* All OK */
           status = FORTIO_OK;
-        else if ( tail != header )
+        else
           /* The numerical value of the tail did not agree with the header. */
           status = FORTIO_HEADER_MISMATCH;
       } else
@@ -839,7 +839,7 @@ bool fortio_read_at_eof( fortio_type * fortio ) {
 
 void fortio_fwrite_error(fortio_type * fortio) {
   if (fortio->writable)
-    unlink( fortio->filename );
+    util_unlink( fortio->filename );
 }
 
 

@@ -401,7 +401,7 @@ values (2e20) are denoted with '*'.
 #define INTEHEAD_NWGMAX_INDEX  19     // Maximum number of wells in any group
 #define INTEHEAD_NGMAXZ_INDEX  20     // Maximum number of groups in field
 #define INTEHEAD_NSWELZ_INDEX  25
-#define INTEHEAD_NXWELZ_INDEX  26
+
 #define INTEHEAD_NICONZ_INDEX  32     // Number of elements pr completion in the ICON array.
 #define INTEHEAD_NSCONZ_INDEX  33     // Number of elements pr completion in the SCON array
 #define INTEHEAD_NXCONZ_INDEX  34     // Number of elements pr completion in the XCON array
@@ -591,12 +591,13 @@ values (2e20) are denoted with '*'.
 
 #define GLOBAL_STRING  "GLOBAL"
 
-#define GRIDHEAD_TYPE_INDEX   0
-#define GRIDHEAD_NX_INDEX     1
-#define GRIDHEAD_NY_INDEX     2
-#define GRIDHEAD_NZ_INDEX     3
-#define GRIDHEAD_LGR_INDEX    4
-#define GRIDHEAD_SIZE       100
+#define GRIDHEAD_TYPE_INDEX    0
+#define GRIDHEAD_NX_INDEX      1
+#define GRIDHEAD_NY_INDEX      2
+#define GRIDHEAD_NZ_INDEX      3
+#define GRIDHEAD_LGR_INDEX     4
+#define GRIDHEAD_NUMRES_INDEX 24
+#define GRIDHEAD_SIZE        100
 
 /* Observe that these indices are one value lower than the values used
    in the ecl_smspec file. */

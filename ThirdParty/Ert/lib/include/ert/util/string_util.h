@@ -18,11 +18,12 @@
 #ifndef ERT_STRING_UTIL_H
 #define ERT_STRING_UTIL_H
 
+#include <ert/util/int_vector.h>
+#include <ert/util/bool_vector.h>
+
 #ifdef __cplusplus 
 extern "C" {
 #endif
-#include <ert/util/int_vector.h>
-#include <ert/util/bool_vector.h>
 
   bool               string_util_init_active_list( const char * range_string , int_vector_type * active_list );
   bool               string_util_update_active_list( const char * range_string , int_vector_type * active_list );

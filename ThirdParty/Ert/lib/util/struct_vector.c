@@ -38,7 +38,7 @@ UTIL_IS_INSTANCE_FUNCTION( struct_vector , STRUCT_VECTOR_TYPE_ID)
 
 
 static void struct_vector_resize( struct_vector_type * struct_vector , int new_alloc_size) {
-  struct_vector->data = util_realloc( struct_vector->data , struct_vector->element_size * new_alloc_size );
+  struct_vector->data = (char*)util_realloc( struct_vector->data , struct_vector->element_size * new_alloc_size );
   struct_vector->alloc_size = new_alloc_size;
 }
 
@@ -57,7 +57,7 @@ struct_vector_type * struct_vector_alloc( int element_size ) {
   }
 
   {
-    struct_vector_type * vector = util_malloc( sizeof * vector );
+    struct_vector_type * vector = (struct_vector_type*)util_malloc( sizeof * vector );
     UTIL_TYPE_ID_INIT( vector , STRUCT_VECTOR_TYPE_ID );
     vector->size = 0;
     vector->alloc_size = 0;

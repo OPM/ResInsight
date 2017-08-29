@@ -7,7 +7,7 @@ class PathContext(object):
         self.cwd = os.getcwd()
         self.store = store
         self.path_list = [ ]
-        
+
         if not os.path.exists(path):
             work_path = path
 
@@ -27,8 +27,8 @@ class PathContext(object):
                 raise OSError("Entry %s already exists" % path)
         os.chdir( path )
 
-            
-        
+
+
     def __exit__(self , exc_type , exc_val , exc_tb):
         os.chdir( self.cwd )
         if self.store == False:
@@ -38,9 +38,9 @@ class PathContext(object):
                     os.rmdir( path )
                 except OSError:
                     break
-            
+
         return False
 
-    
+
     def __enter__(self):
         return self

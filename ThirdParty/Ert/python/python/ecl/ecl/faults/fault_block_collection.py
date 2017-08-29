@@ -16,19 +16,21 @@
 
 
 from cwrap import BaseCClass
+
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclPrototype
 
 
 class FaultBlockCollection(BaseCClass):
     TYPE_NAME = "fault_block_collection"
-    _alloc         = EclPrototype("void* fault_block_collection_alloc(ecl_grid)", bind = False)
+    _alloc         = EclPrototype("void* fault_block_collection_alloc(ecl_grid)", bind=False)
     _free          = EclPrototype("void  fault_block_collection_free(fault_block_collection)")
     _num_layers    = EclPrototype("int   fault_block_collection_num_layers(fault_block_collection)")
     _scan_keyword  = EclPrototype("bool  fault_block_collection_scan_kw(fault_block_collection, ecl_kw)")
     _get_layer     = EclPrototype("fault_block_layer_ref  fault_block_collection_get_layer(fault_block_collection, int)")
 
-    def __init__(self , grid):
-        c_ptr = self._alloc( grid )
+    def __init__(self, grid):
+        c_ptr = self._alloc(grid)
         if c_ptr:
             super(FaultBlockCollection, self).__init__(c_ptr)
         else:
@@ -42,33 +44,41 @@ class FaultBlockCollection(BaseCClass):
 
 
     def __len__(self):
-        return self._num_layers( )
+        return self._num_layers()
 
 
-    def __getitem__(self , index):
+    def __repr__(self):
+        return self._create_repr('len=%s' % len(self))
+
+
+    def __getitem__(self, index):
         """
         @rtype: FaultBlockLayer
         """
         if isinstance(index, int):
             if 0 <= index < len(self):
-                return self._get_layer( index ).setParent(self)
+                return self._get_layer(index).setParent(self)
             else:
-                raise IndexError("Index:%d out of range [0,%d)" % (index , len(self)))
+                raise IndexError("Index:%d out of range [0,%d)" % (index, len(self)))
         else:
             raise TypeError("Index should be integer type")
 
 
-    def getLayer(self , k):
+    def get_layer(self, k):
         """
         @rtype: FaultBlockLayer
         """
         return self[k]
 
     def free(self):
-        self._free( )
+        self._free()
 
 
-    def scanKeyword(self , fault_block_kw):
-        ok = self._scan_keyword( fault_block_kw )
+    def scan_keyword(self, fault_block_kw):
+        ok = self._scan_keyword(fault_block_kw)
         if not ok:
             raise ValueError("The fault block keyword had wrong type/size")
+
+
+monkey_the_camel(FaultBlockCollection, 'getLayer', FaultBlockCollection.get_layer)
+monkey_the_camel(FaultBlockCollection, 'scanKeyword', FaultBlockCollection.scan_keyword)

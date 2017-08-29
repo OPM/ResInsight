@@ -14,9 +14,11 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
+from cwrap import BaseCClass
+
+from ecl.util import monkey_the_camel
 from ecl.util import CTime
 from ecl.ecl import EclPrototype , EclFile, Ecl3DKW , Ecl3DFile, EclFileEnum
-from cwrap import BaseCClass
 
 class EclRestartHead(BaseCClass):
     TYPE_NAME = "ecl_rsthead"
@@ -28,7 +30,7 @@ class EclRestartHead(BaseCClass):
     _get_sim_days    = EclPrototype("double ecl_rsthead_get_sim_days(ecl_rsthead)")
     _get_nxconz      = EclPrototype("int   ecl_rsthead_get_nxconz(ecl_rsthead)")
     _get_ncwmax      = EclPrototype("int   ecl_rsthead_get_ncwmax(ecl_rsthead)")
-    
+
     def __init__(self , kw_arg = None , rst_view = None):
         if kw_arg is None and rst_view is None:
             raise ValueError('Cannot construct EclRestartHead without one of kw_arg and rst_view, both were None!')
@@ -45,21 +47,21 @@ class EclRestartHead(BaseCClass):
     def free(self):
         self._free( )
 
-    def getReportStep(self):
+    def get_report_step(self):
         return self._get_report_step( )
 
-    def getSimDate(self):
+    def get_sim_date(self):
         ct = CTime( self._get_sim_time( ) )
         return ct.datetime( )
 
-    def getSimDays(self):
+    def get_sim_days(self):
         return self._get_sim_days( )
 
     def well_details(self):
         return {"NXCONZ" : self._get_nxconz(),
                 "NCWMAX" : self._get_ncwmax()}
 
-                
+
 
 
 class EclRestartFile(Ecl3DFile):
@@ -100,7 +102,7 @@ class EclRestartFile(Ecl3DFile):
         return self.is_unified
 
 
-    def assertHeaders(self):
+    def assert_headers(self):
         if self.rst_headers is None:
             self.rst_headers = []
             if self.unified():
@@ -117,7 +119,7 @@ class EclRestartFile(Ecl3DFile):
                 self.rst_headers.append( EclRestartHead( kw_arg = (self.report_step , intehead_kw , doubhead_kw , logihead_kw) ))
 
 
-    def timeList(self):
+    def time_list(self):
         """Will return a list of report_step, simulation time and days.
 
         The return value will be a list tuples. For a unified restart
@@ -137,7 +139,7 @@ class EclRestartFile(Ecl3DFile):
 
         return time_list
 
-    
+
     def headers(self):
         self.assertHeaders()
         return self.rst_headers
@@ -146,3 +148,10 @@ class EclRestartFile(Ecl3DFile):
     def get_header(self, index):
         self.assertHeaders()
         return self.rst_headers[index]
+
+monkey_the_camel(EclRestartHead, 'getReportStep', EclRestartHead.get_report_step)
+monkey_the_camel(EclRestartHead, 'getSimDate', EclRestartHead.get_sim_date)
+monkey_the_camel(EclRestartHead, 'getSimDays', EclRestartHead.get_sim_days)
+
+monkey_the_camel(EclRestartFile, 'assertHeaders', EclRestartFile.assert_headers)
+monkey_the_camel(EclRestartFile, 'timeList', EclRestartFile.time_list)

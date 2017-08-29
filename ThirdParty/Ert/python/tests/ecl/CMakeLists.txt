@@ -10,6 +10,7 @@ set(TEST_SOURCES
     test_ecl_file.py
     test_ecl_init_file.py
     test_ecl_restart_file.py
+    test_debug.py
     test_ecl_sum.py
     test_ecl_sum_vector.py
     test_fault_blocks.py
@@ -47,9 +48,9 @@ set(TEST_SOURCES
 add_python_package("python.tests.ecl"  ${PYTHON_INSTALL_PREFIX}/tests/ecl "${TEST_SOURCES}" False)
 
 addPythonTest(tests.ecl.test_fk_user_data.FKTest)
-addPythonTest(tests.ecl.test_grid.GridTest )
-addPythonTest(tests.ecl.test_grid_generator.GridGeneratorTest )
-addPythonTest(tests.ecl.test_ecl_kw.KWTest)
+addPythonTest(tests.ecl.test_grid.GridTest LABELS SLOW_1)
+addPythonTest(tests.ecl.test_grid_generator.GridGeneratorTest LABELS SLOW_2)
+addPythonTest(tests.ecl.test_ecl_kw.KWTest LABELS SLOW_2)
 addPythonTest(tests.ecl.test_kw_function.KWFunctionTest)
 addPythonTest(tests.ecl.test_ecl_3dkw.Ecl3DKWTest )
 addPythonTest(tests.ecl.test_rft.RFTTest)
@@ -69,6 +70,7 @@ addPythonTest(tests.ecl.test_grav.EclGravTest)
 addPythonTest(tests.ecl.test_geertsma.GeertsmaTest)
 addPythonTest(tests.ecl.test_ecl_type.EclDataTypeTest)
 addPythonTest(tests.ecl.test_region.RegionTest)
+addPythonTest(tests.ecl.test_debug.DebugTest)
 
 
 if (STATOIL_TESTDATA_ROOT)

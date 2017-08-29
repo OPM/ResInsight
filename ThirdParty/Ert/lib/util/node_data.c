@@ -53,7 +53,7 @@ struct node_data_struct {
 */
 
 static node_data_type * node_data_alloc__(const void * data , node_ctype ctype , int buffer_size , copyc_ftype * copyc, free_ftype * del) {
-  node_data_type * node = util_malloc(sizeof * node );
+  node_data_type * node = (node_data_type*)util_malloc(sizeof * node );
   node->ctype           = ctype;
   node->copyc           = copyc;
   node->del             = del;
@@ -87,27 +87,27 @@ node_data_type * node_data_alloc_buffer(const void * data, int buffer_size) {  /
 
 
 static node_data_type * node_data_copyc(const node_data_type * src , bool deep_copy) {
-  node_data_type * new;
+  node_data_type * next;
 
   if (src->buffer_size > 0) {
     /* 
        The source node has internal storage - it has been allocated with _alloc_buffer() 
     */
     if (deep_copy) 
-      new  = node_data_alloc__(util_alloc_copy( src->data , src->buffer_size )  /* A new copy is allocated prior to insert. */
+      next  = node_data_alloc__(util_alloc_copy( src->data , src->buffer_size )  /* A next copy is allocated prior to insert. */
                                , src->ctype , src->buffer_size , NULL , free);
     else
-      new  = node_data_alloc__(src->data , src->ctype , src->buffer_size , NULL , NULL);  /* The copy does not have destructor. */
+      next  = node_data_alloc__(src->data , src->ctype , src->buffer_size , NULL , NULL);  /* The copy does not have destructor. */
   } else {
     if (deep_copy) {
       if (src->copyc == NULL) 
         util_abort("%s: Tried allocate deep_copy of mnode with no constructor - aborting. \n",__func__);  
-      new = node_data_alloc__(src->data , src->ctype , 0 , src->copyc , src->del);
+      next = node_data_alloc__(src->data , src->ctype , 0 , src->copyc , src->del);
     } else
-      new = node_data_alloc__(src->data , src->ctype , 0 , NULL , NULL); /*shallow copy - we 'hide' constructor and destructor. */
+      next = node_data_alloc__(src->data , src->ctype , 0 , NULL , NULL); /*shallow copy - we 'hide' constructor and destructor. */
   }
 
-  return new;
+  return next;
 }
 
 node_data_type * node_data_alloc_copy(const node_data_type * node , bool deep_copy) {

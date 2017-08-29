@@ -48,7 +48,7 @@ struct lars_struct {
 
 
 static lars_type * lars_alloc__() {
-  lars_type * lars = util_malloc( sizeof * lars );
+  lars_type * lars = (lars_type*)util_malloc( sizeof * lars );
   UTIL_TYPE_ID_INIT( lars , LARS_TYPE_ID );
   lars->X = NULL;
   lars->Y = NULL;

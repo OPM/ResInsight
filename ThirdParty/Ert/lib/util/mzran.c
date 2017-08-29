@@ -211,7 +211,7 @@ void mzran_get_state(void * __rng , char * state_buffer) {
 
 
 void * mzran_alloc( void ) {
-  mzran_type * rng = util_malloc( sizeof * rng );
+  mzran_type * rng = (mzran_type*) util_malloc( sizeof * rng );
   UTIL_TYPE_ID_INIT( rng , MZRAN_TYPE_ID );
   mzran_set_default_state( rng );
   return rng;

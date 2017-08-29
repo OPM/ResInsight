@@ -18,9 +18,6 @@
 
 #ifndef ERT_STRINGLIST_H
 #define ERT_STRINGLIST_H
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -29,6 +26,11 @@ extern "C" {
 #include <ert/util/type_macros.h>
 #include <ert/util/int_vector.h>
 #include <ert/util/buffer.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef struct stringlist_struct stringlist_type;
 typedef int  ( string_cmp_ftype)  (const void * , const void *);

@@ -14,7 +14,7 @@ set(PYTHON_SOURCES
     rng.py
     stat.py
     stringlist.py
-    substitution_list.py
+    #substitution_list.py
     thread_pool.py
     cthread_pool.py
     time_vector.py
@@ -25,6 +25,7 @@ set(PYTHON_SOURCES
     version.py
     arg_pack.py
     path_format.py
+    cwd_context.py
 )
 
 add_python_package("python.ecl.util"  ${PYTHON_INSTALL_PREFIX}/ecl/util "${PYTHON_SOURCES}" True)

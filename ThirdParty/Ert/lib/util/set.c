@@ -38,7 +38,7 @@ static UTIL_SAFE_CAST_FUNCTION( set , SET_TYPE_ID )
 
 
 set_type * set_alloc(int size, const char ** keyList) {
-  set_type * set = malloc(sizeof * set);
+  set_type * set = (set_type*) malloc(sizeof * set);
   UTIL_TYPE_ID_INIT( set , SET_TYPE_ID );
   set->key_hash  = hash_alloc_unlocked();
   {
@@ -242,7 +242,7 @@ struct set_iter_struct
 
 set_iter_type * set_iter_alloc(const set_type * set)
 {
-  set_iter_type * set_iter = util_malloc(sizeof * set_iter);
+  set_iter_type * set_iter = (set_iter_type*) util_malloc(sizeof * set_iter);
   set_iter->hash_iter = hash_iter_alloc(set->key_hash);
   return set_iter;
 }

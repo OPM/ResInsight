@@ -21,6 +21,10 @@ namespace ERT {
         return *this;
     }
 
+    int smspec_node::cmp( const smspec_node& node1, const smspec_node& node2) {
+        return smspec_node_cmp( node1.get() , node2.get() );
+    }
+
     static const int dummy_dims[ 3 ] = { -1, -1, -1 };
     const auto default_join = ":";
 

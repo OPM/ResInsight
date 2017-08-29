@@ -131,7 +131,7 @@ static test_work_area_type * test_work_area_alloc__(const char * prefix , const 
     char * test_cwd = util_alloc_sprintf(FULL_PATH_FMT , prefix , test_path );
     util_make_path( test_cwd );
     if (true) {
-      work_area = util_malloc( sizeof * work_area );
+      work_area = (test_work_area_type*)util_malloc( sizeof * work_area );
 
       UTIL_TYPE_ID_INIT( work_area , TEST_WORK_AREA_TYPE_ID );
       work_area->original_cwd = util_alloc_cwd();

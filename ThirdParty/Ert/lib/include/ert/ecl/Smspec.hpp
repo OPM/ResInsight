@@ -17,6 +17,7 @@ namespace ERT {
             smspec_node& operator=( const smspec_node& );
             smspec_node& operator=( smspec_node&& );
 
+            static int cmp( const smspec_node& node1, const smspec_node& node2);
             smspec_node(
                     ecl_smspec_var_type,
                     const std::string& wgname,

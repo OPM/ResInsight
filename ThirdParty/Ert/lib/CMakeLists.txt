@@ -3,7 +3,7 @@ project(libecl-ecl C CXX)
 if (HAVE_PTHREAD)
     # The block_fs filesystem is so heavily dependant on pthreads that it is
     # not built if de not have pthreads.
-    list(APPEND opt_srcs util/thread_pool.c util/block_fs.c)
+     list(APPEND opt_srcs util/thread_pool.c)
 endif ()
 
 if (LAPACK_FOUND)
@@ -38,10 +38,6 @@ if (ERT_HAVE_LOCKF)
     list(APPEND opt_srcs util/util_lockf.c)
 endif ()
 
-if (ERT_HAVE_REGEXP)
-    list(APPEND opt_srcs util/template_loop.c)
-endif ()
-
 if (ERT_HAVE_UNISTD)
    list(APPEND opt_srcs util/path_stack.c)
 endif ()
@@ -50,8 +46,17 @@ if (MSVC)
     configure_file(include/ert/util/msvc_stdbool.h ert/util/stdbool.h)
 endif ()
 
-foreach (type int double bool long time_t size_t float)
+foreach (type int double long time_t float)
     set(TYPE ${type})
+    set(SIGNED_TYPE true)
+    configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
+    configure_file(util/vector_template.c ${type}_vector.c)
+    list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)
+endforeach ()
+
+foreach (type bool size_t)
+    set(TYPE ${type})
+    set(SIGNED_TYPE false)
     configure_file(vector_template.h.in include/ert/util/${type}_vector.h)
     configure_file(util/vector_template.c ${type}_vector.c)
     list(APPEND opt_srcs ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)
@@ -86,11 +91,11 @@ add_library(ecl util/rng.c
                 util/util_env.c
                 util/util_symlink.c
                 util/util_lfs.c
+                util/util_unlink.c
                 util/msg.c
                 util/arg_pack.c
                 util/path_fmt.c
                 util/menu.c
-                util/subst_list.c
                 util/subst_func.c
                 util/vector.c
                 util/parser.c
@@ -98,13 +103,12 @@ add_library(ecl util/rng.c
                 util/matrix.c
                 util/buffer.c
                 util/log.c
-                util/template.c
                 util/timer.c
                 util/time_interval.c
                 util/string_util.c
                 util/type_vector_functions.c
                 util/ui_return.c
-                util/ert_version.c
+                util/ecl_version.c
                 util/struct_vector.c
                 util/perm_vector.c
                 util/test_util.c
@@ -191,9 +195,9 @@ target_include_directories(ecl
 target_compile_definitions(ecl PRIVATE
             -DGIT_COMMIT=${GIT_COMMIT}
             -DGIT_COMMIT_SHORT=${GIT_COMMIT_SHORT}
-            -DERT_VERSION_MAJOR=${ERT_VERSION_MAJOR}
-            -DERT_VERSION_MINOR=${ERT_VERSION_MINOR}
-            -DERT_VERSION_MICRO=${ERT_VERSION_MICRO}
+            -DECL_VERSION_MAJOR=${ECL_VERSION_MAJOR}
+            -DECL_VERSION_MINOR=${ECL_VERSION_MINOR}
+            -DECL_VERSION_MICRO=${ECL_VERSION_MICRO}
 )
 
 target_compile_options(ecl PUBLIC ${pthreadarg})
@@ -208,35 +212,33 @@ if (ERT_USE_OPENMP)
 endif ()
 
 set_target_properties(ecl PROPERTIES
-                          VERSION ${ERT_VERSION_MAJOR}.${ERT_VERSION_MINOR}
-                          SOVERSION ${ERT_VERSION_MAJOR})
+                          VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
+                          SOVERSION ${ECL_VERSION_MAJOR})
 
-if (INSTALL_ERT)
-    install(TARGETS ecl
-            EXPORT  ecl-config
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS ecl
+        EXPORT  ecl-config
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY include/
+        DESTINATION include
+        PATTERN *.h
+)
+install(DIRECTORY include/
+        DESTINATION include
+        PATTERN *.hpp EXCLUDE
+)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
+        DESTINATION include
+        PATTERN *.h
+)
+
+if (ERT_BUILD_CXX)
     install(DIRECTORY include/
             DESTINATION include
-            PATTERN *.h
-    )
-    install(DIRECTORY include/
-            DESTINATION include
-            PATTERN *.hpp EXCLUDE
-    )
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
-            DESTINATION include
-            PATTERN *.h
-    )
-
-    if (ERT_BUILD_CXX)
-        install(DIRECTORY include/
-                DESTINATION include
-                PATTERN *.hpp
-    )
-    endif ()
-endif()
+            PATTERN *.hpp
+)
+endif ()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -265,7 +267,6 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_stringlist_test
                 ert_util_string_util
                 ert_util_strstr_int_format
-                ert_util_subst_list
                 ert_util_time_interval
                 ert_util_type_vector_functions
                 ert_util_ui_return
@@ -277,6 +278,11 @@ foreach (name   ert_util_alloc_file_components
     target_link_libraries(${name} ecl)
     add_test(NAME ${name} COMMAND ${name})
 endforeach ()
+
+add_executable(ecl_smspec_node ecl/tests/ecl_smspec_node.c)
+target_link_libraries( ecl_smspec_node ecl)
+add_test(NAME ecl_smspec_node COMMAND ecl_smspec_node)
+
 
 add_executable(ert_util_work_area util/tests/ert_util_work_area.c)
 target_link_libraries(ert_util_work_area ecl)
@@ -336,10 +342,6 @@ if (HAVE_BACKTRACE)
 endif()
 
 if (HAVE_UTIL_ABORT_INTERCEPT)
-   add_executable(ert_util_block_fs util/tests/ert_util_block_fs.c)
-   target_link_libraries(ert_util_block_fs ecl)
-   add_test(NAME ert_util_block_fs COMMAND ert_util_block_fs)
-
    add_executable(ert_util_struct_vector util/tests/ert_util_struct_vector.c)
    target_link_libraries(ert_util_struct_vector ecl)
    add_test(NAME ert_util_struct_vector COMMAND ert_util_struct_vector)
@@ -379,6 +381,8 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_nnc_info_test
                 ecl_nnc_vector
                 ecl_rft_cell
+                ecl_file_view
+                test_ecl_file_index
                 ecl_rst_file
                 ecl_sum_writer
                 ecl_util_make_date_no_shift

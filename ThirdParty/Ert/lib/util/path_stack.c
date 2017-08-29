@@ -51,7 +51,7 @@ struct path_stack_struct {
 */
 
 path_stack_type * path_stack_alloc() {
-  path_stack_type * path_stack = util_malloc( sizeof * path_stack );
+  path_stack_type * path_stack = (path_stack_type*)util_malloc( sizeof * path_stack );
   path_stack->stack = stringlist_alloc_new(); 
   path_stack->storage = stringlist_alloc_new(); 
   return path_stack; 

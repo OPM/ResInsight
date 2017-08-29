@@ -43,7 +43,7 @@ UTIL_IS_INSTANCE_FUNCTION(ui_return , UI_RETURN_TYPE_ID)
 
 
 ui_return_type * ui_return_alloc(ui_return_status_enum status) {
-  ui_return_type * ui_return = util_malloc( sizeof * ui_return );
+  ui_return_type * ui_return = (ui_return_type*)util_malloc( sizeof * ui_return );
   UTIL_TYPE_ID_INIT(ui_return , UI_RETURN_TYPE_ID);
   ui_return->status = status;
   ui_return->help_text = NULL;
@@ -105,7 +105,7 @@ const char * ui_return_get_help(const ui_return_type * ui_return) {
 void ui_return_add_help(ui_return_type * ui_return, const char * help_text) {
   if (ui_return->help_text) {
     int new_length = strlen(ui_return->help_text) + strlen(help_text) + 1 + 1;
-    ui_return->help_text = util_realloc(ui_return->help_text , new_length * sizeof * ui_return->help_text);
+    ui_return->help_text = (char*)util_realloc(ui_return->help_text , new_length * sizeof * ui_return->help_text);
 
     strcat(ui_return->help_text , " ");
     strcat(ui_return->help_text , help_text);

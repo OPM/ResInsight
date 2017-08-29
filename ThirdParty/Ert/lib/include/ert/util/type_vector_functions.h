@@ -18,12 +18,13 @@
 #ifndef ERT_TYPE_VECTOR_FUNCTIONS_H
 #define ERT_TYPE_VECTOR_FUNCTIONS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <ert/util/int_vector.h>
 #include <ert/util/bool_vector.h>
 #include <ert/util/double_vector.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
   int_vector_type  * bool_vector_alloc_active_list( const bool_vector_type * mask );
   bool_vector_type * int_vector_alloc_mask( const int_vector_type * active_list );

@@ -1,17 +1,17 @@
-#  Copyright (C) 2017  Statoil ASA, Norway. 
-#   
-#  The file 'ecl_type.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+#  Copyright (C) 2017  Statoil ASA, Norway.
+#
+#  The file 'ecl_type.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
 from cwrap import BaseCClass, BaseCEnum
@@ -27,13 +27,13 @@ class EclTypeEnum(BaseCEnum):
     ECL_MESS_TYPE   = None
     ECL_STRING_TYPE = None
 
-EclTypeEnum.addEnum("ECL_CHAR_TYPE" , 0 )
-EclTypeEnum.addEnum("ECL_FLOAT_TYPE" , 1 )
-EclTypeEnum.addEnum("ECL_DOUBLE_TYPE" , 2 )
-EclTypeEnum.addEnum("ECL_INT_TYPE" , 3 )
-EclTypeEnum.addEnum("ECL_BOOL_TYPE" , 4 )
-EclTypeEnum.addEnum("ECL_MESS_TYPE" , 5 )
-EclTypeEnum.addEnum("ECL_STRING_TYPE" , 7 )
+EclTypeEnum.addEnum("ECL_CHAR_TYPE",   0)
+EclTypeEnum.addEnum("ECL_FLOAT_TYPE",  1)
+EclTypeEnum.addEnum("ECL_DOUBLE_TYPE", 2)
+EclTypeEnum.addEnum("ECL_INT_TYPE",    3)
+EclTypeEnum.addEnum("ECL_BOOL_TYPE",   4)
+EclTypeEnum.addEnum("ECL_MESS_TYPE",   5)
+EclTypeEnum.addEnum("ECL_STRING_TYPE", 7)
 
 #-----------------------------------------------------------------
 
@@ -43,7 +43,7 @@ class EclDataType(BaseCClass):
 
     _alloc            = EclPrototype("void* ecl_type_alloc_python(ecl_type_enum, size_t)", bind=False)
     _alloc_from_type  = EclPrototype("void* ecl_type_alloc_from_type_python(ecl_type_enum)", bind=False)
-    _alloc_from_name  = EclPrototype("void* ecl_type_alloc_from_name_python(char*)", bind = False)
+    _alloc_from_name  = EclPrototype("void* ecl_type_alloc_from_name_python(char*)", bind=False)
     _free             = EclPrototype("void ecl_type_free_python(ecl_data_type)")
     _get_type         = EclPrototype("ecl_type_enum ecl_type_get_type_python(ecl_data_type)")
     _get_element_size = EclPrototype("size_t ecl_type_get_sizeof_ctype_fortio_python(ecl_data_type)")
@@ -58,7 +58,7 @@ class EclDataType(BaseCClass):
     _is_numeric       = EclPrototype("bool ecl_type_is_numeric_python(ecl_data_type)")
     _is_equal         = EclPrototype("bool ecl_type_is_equal_python(ecl_data_type, ecl_data_type)")
 
-    def __init__(self, type_enum = None, element_size = None, type_name = None):
+    def __init__(self, type_enum=None, element_size=None, type_name=None):
         self._assert_valid_arguments(type_enum, element_size, type_name)
 
         if type_name:
@@ -144,7 +144,7 @@ class EclDataType(BaseCClass):
 
     @classmethod
     def create_from_type_name(cls, name):
-        return EclDataType(type_name = name)
+        return EclDataType(type_name=name)
 
     # Enables one to fetch a type as EclDataType.ECL_XXXX
     class classproperty(object):

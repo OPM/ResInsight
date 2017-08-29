@@ -71,7 +71,7 @@ vector_type * load_expected( const ecl_grid_type * grid, const char * filename )
 }
 
 
-int test_well_point(const ecl_grid_type * grid, const point_type * expected) {
+void test_well_point(const ecl_grid_type * grid, const point_type * expected) {
   int g = ecl_grid_get_global_index_from_xyz(grid , expected->x, expected->y , expected->z , 0 );
   if (g != ecl_grid_get_global_index3(grid, expected->i,expected->j, expected->k)) {
     int i,j,k;

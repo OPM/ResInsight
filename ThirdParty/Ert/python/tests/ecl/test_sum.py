@@ -70,19 +70,25 @@ class SumTest(ExtendedTestCase):
                                      ("AARQ" , None , 10),
                                      ("RGPT" , None  ,1)])
 
-        node = case.smspec_node( "FOPT" )
-        self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_FIELD_VAR )
+        node1 = case.smspec_node( "FOPT" )
+        self.assertEqual( node1.varType( ) , EclSumVarType.ECL_SMSPEC_FIELD_VAR )
 
-        node = case.smspec_node( "AARQ:10" )
-        self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
-        self.assertEqual( node.getNum( ) , 10 )
+        node2 = case.smspec_node( "AARQ:10" )
+        self.assertEqual( node2.varType( ) , EclSumVarType.ECL_SMSPEC_AQUIFER_VAR )
+        self.assertEqual( node2.getNum( ) , 10 )
 
-        node = case.smspec_node("RGPT:1")
-        self.assertEqual( node.varType( ) , EclSumVarType.ECL_SMSPEC_REGION_VAR )
-        self.assertEqual( node.getNum( ) , 1 )
-        self.assertTrue( node.isTotal( ))
+        node3 = case.smspec_node("RGPT:1")
+        self.assertEqual( node3.varType( ) , EclSumVarType.ECL_SMSPEC_REGION_VAR )
+        self.assertEqual( node3.getNum( ) , 1 )
+        self.assertTrue( node3.isTotal( ))
 
+        self.assertLess( node1, node3 )
+        self.assertGreater( node2, node3 )
+        self.assertEqual( node1, node1 )
+        self.assertNotEqual( node1, node2 )
         
+        with self.assertRaises(TypeError):
+            a = node1 < 1
         
     def test_csv_export(self):
         case = createEclSum("CSV" , [("FOPT", None , 0) , ("FOPR" , None , 0)])

@@ -20,6 +20,10 @@
 #define ERT_PARSER_H
 #include <ert/util/stringlist.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 typedef struct basic_parser_struct basic_parser_type;
 
 
@@ -156,4 +160,9 @@ stringlist_type * basic_parser_tokenize_file(
 void   basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buffer);
 bool   basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream , const char * string , bool skip_string , bool case_sensitive);
 char * basic_parser_fread_alloc_file_content(const char * filename , const char * quote_set , const char * delete_set , const char * comment_start , const char * comment_end);
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+
 #endif
+

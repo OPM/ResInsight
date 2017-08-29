@@ -88,49 +88,42 @@ static const char * ecl_nnc_data_get_str_kw(int kw_type, int grid1, int grid2) {
 
 
 static ecl_kw_type * ecl_nnc_data_get_gl_kw( const ecl_file_view_type * init_file_view , const char * kw, int kw_type, int lgr_nr) {
-  ecl_kw_type * return_kw = NULL;
+  if(!kw)
+    return NULL;
 
-  if (kw != NULL)
   if (lgr_nr == 0) {
     if(ecl_file_view_has_kw(init_file_view, kw)) 
-      return_kw = ecl_file_view_iget_named_kw(init_file_view, kw, 0);
-  } else {
-    {
-      const int file_num_kw = ecl_file_view_get_size( init_file_view );
-      int global_kw_index = 0;
-      bool finished = false;
-      bool correct_lgrheadi = false;
-      int head_index = 0;
-      int steps = 0;
+      return ecl_file_view_iget_named_kw(init_file_view, kw, 0);
+    else
+      return NULL;
+  }
 
-      while(!finished){
-        ecl_kw_type * ecl_kw = ecl_file_view_iget_kw( init_file_view , global_kw_index );
-        const char *current_kw = ecl_kw_get_header(ecl_kw);
-        if (strcmp( LGRHEADI_KW , current_kw) == 0) {
-          if (ecl_kw_iget_int( ecl_kw , LGRHEADI_LGR_NR_INDEX) == lgr_nr) {
-            correct_lgrheadi = true;
-            head_index = global_kw_index;
-          }else{
-            correct_lgrheadi = false;
-          }
-        }
-        if(correct_lgrheadi) {
-          if (strcmp(kw, current_kw) == 0) {
-            steps  = global_kw_index - head_index; /* This is to calculate who fare from lgrheadi we found the TRANGL/TRANNNC key word */
-            if (kw_type != TRANS_DATA || steps == 3 || steps == 4 || steps == 6) { /* We only support a file format where TRANNNC is 3 steps and TRANGL is 4 or 6 steps from LGRHEADI */
-              return_kw = ecl_kw;
-              finished = true;
-              break;
-            }
-          }
-        }
-        global_kw_index++;
-        if (global_kw_index == file_num_kw)
-          finished = true;
+  bool correct_lgrheadi = false;
+  const int file_num_kw = ecl_file_view_get_size(init_file_view);
+  for(int kw_index = 0, head_index = 0; kw_index < file_num_kw; ++kw_index) {
+    ecl_kw_type * ecl_kw = ecl_file_view_iget_kw(init_file_view, kw_index);
+    const char * current_kw = ecl_kw_get_header(ecl_kw);
+
+    if (strcmp(LGRHEADI_KW, current_kw) == 0) {
+      if (ecl_kw_iget_int(ecl_kw, LGRHEADI_LGR_NR_INDEX) == lgr_nr) {
+        correct_lgrheadi = true;
+        head_index = kw_index;
+      } else {
+        correct_lgrheadi = false;
+      }
+    }
+
+    if (correct_lgrheadi && strcmp(kw, current_kw) == 0) {
+      /* This is to calculate who fare from lgrheadi we found the TRANGL/TRANNNC key word */
+      int steps = kw_index - head_index;
+      /* We only support a file format where TRANNNC is 3 steps and TRANGL is 4 or 6 steps from LGRHEADI */
+      if (kw_type != TRANS_DATA || steps == 3 || steps == 4 || steps == 6) {
+        return ecl_kw;
       }
     }
   }
-  return return_kw;
+
+  return NULL;
 }
 
 
@@ -174,7 +167,7 @@ static ecl_kw_type * ecl_nnc_data_get_kw( const ecl_grid_type * grid, const ecl_
       return NULL;
 }
 
-static void assert_correct_kw_count(ecl_kw_type * kw, char * function_name, bool check_kw_count, int correct_kw_count, int kw_count) {
+static void assert_correct_kw_count(ecl_kw_type * kw, const char * function_name, bool check_kw_count, int correct_kw_count, int kw_count) {
    if (check_kw_count & (correct_kw_count != kw_count))
       util_abort("In function %s, reading kw: %s. %d != %d", function_name, ecl_kw_get_header(kw), correct_kw_count, kw_count);
 }
@@ -269,10 +262,13 @@ const double * ecl_nnc_data_get_values( const ecl_nnc_data_type * data ) {
 
 
 double ecl_nnc_data_iget_value(const ecl_nnc_data_type * data, int index) {
-    if (index < data->size)
-        return data->values[index];
-     else
-        util_abort("%s: index value:%d out range: [0,%d) \n",__func__ , index , data->size);
+  if (index >= data->size)
+    util_abort(
+        "%s: index value:%d out range: [0,%d) \n",
+        __func__ , index , data->size
+        );
+
+  return data->values[index];
 }
 
 

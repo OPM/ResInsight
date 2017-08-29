@@ -38,8 +38,9 @@ more extensive wrapping of the fortio implementation would be easy.
 """
 import ctypes
 import os
-import sys
+
 from cwrap import BaseCClass
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclPrototype
 
 
@@ -127,7 +128,7 @@ class FortIO(BaseCClass):
             self._invalidateCPointer()
 
 
-    def getPosition(self):
+    def get_position(self):
         """ @rtype: long """
         return self._get_position()
 
@@ -157,7 +158,7 @@ class FortIO(BaseCClass):
 
 
     @classmethod
-    def isFortranFile(cls, filename, endian_flip=True):
+    def is_fortran_file(cls, filename, endian_flip=True):
 
         """@rtype: bool
         @type filename: str
@@ -205,3 +206,6 @@ def openFortIO(file_name, mode=FortIO.READ_MODE, fmt_file=False, endian_flip_hea
     """
     return FortIOContextManager(FortIO(file_name, mode=mode, fmt_file=fmt_file,
                                        endian_flip_header=endian_flip_header))
+
+monkey_the_camel(FortIO, 'getPosition', FortIO.get_position)
+monkey_the_camel(FortIO, 'isFortranFile', FortIO.is_fortran_file, classmethod)

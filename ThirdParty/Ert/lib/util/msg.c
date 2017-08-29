@@ -132,7 +132,7 @@ void msg_update_int(msg_type * msg , const char * fmt , int value) {
 UTIL_SAFE_CAST_FUNCTION( msg , MSG_TYPE_ID )
 
 msg_type * msg_alloc(const char * prompt, bool debug) {
-  msg_type * msg = util_malloc(sizeof * msg );
+  msg_type * msg = (msg_type*)util_malloc(sizeof * msg );
   UTIL_TYPE_ID_INIT( msg , MSG_TYPE_ID);
   msg->prompt = util_alloc_string_copy(prompt);
   

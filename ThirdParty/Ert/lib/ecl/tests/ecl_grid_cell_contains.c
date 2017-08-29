@@ -116,7 +116,7 @@ void test_contains( const ecl_grid_type * grid ) {
   for (int k=0; k < nz; k++) {
     for (int j=0; j < ny; j++) {
       for (int i=0; i < nx; i++) {
-        if (!ecl_grid_get_cell_twist3( grid , i,j,k) == 0) {
+        if (ecl_grid_get_cell_twist3( grid , i,j,k) != 0) {
           double x,y,z;
           if (get_test_point3( grid , i,j,k , &x,&y,&z)) {
             assert_contains( grid , i , j , k , x , y , z);

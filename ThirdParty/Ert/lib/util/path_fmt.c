@@ -76,7 +76,7 @@ void path_fmt_reset_fmt(path_fmt_type * path , const char * fmt) {
 
 
 static path_fmt_type * path_fmt_alloc__(const char * fmt , bool is_directory) {
-  path_fmt_type * path = util_malloc(sizeof * path );
+  path_fmt_type * path = (path_fmt_type*)util_malloc(sizeof * path );
   UTIL_TYPE_ID_INIT(path , PATH_FMT_ID);
   path->fmt            = NULL;
   path->file_fmt       = NULL;

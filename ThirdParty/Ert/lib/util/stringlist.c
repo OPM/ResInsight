@@ -134,7 +134,7 @@ void stringlist_insert_owned_ref(stringlist_type * stringlist , int index , cons
 
 
 static stringlist_type * stringlist_alloc_empty( bool alloc_vector ) {
-  stringlist_type * stringlist = util_malloc(sizeof * stringlist );
+  stringlist_type * stringlist = (stringlist_type*)util_malloc(sizeof * stringlist );
   UTIL_TYPE_ID_INIT( stringlist , STRINGLIST_TYPE_ID);
 
   if (alloc_vector)
@@ -333,20 +333,20 @@ void stringlist_idel(stringlist_type * stringlist , int index) {
 
 
 char * stringlist_pop( stringlist_type * stringlist) {
-  return vector_pop_back( stringlist->strings );
+  return (char*)vector_pop_back( stringlist->strings );
 }
 
 
 const char * stringlist_iget(const stringlist_type * stringlist , int index) {
-  return vector_iget(stringlist->strings ,index);
+  return (const char*)vector_iget(stringlist->strings ,index);
 }
 
 const char * stringlist_front(const stringlist_type * stringlist) {
-  return vector_iget(stringlist->strings , 0);
+  return (const char*)vector_iget(stringlist->strings , 0);
 }
 
 const char * stringlist_back(const stringlist_type * stringlist) {
-  return vector_iget(stringlist->strings , vector_get_size( stringlist->strings ) - 1);
+  return (const char*)vector_iget(stringlist->strings , vector_get_size( stringlist->strings ) - 1);
 }
 
 
@@ -395,7 +395,7 @@ bool stringlist_iget_as_bool( const stringlist_type * stringlist, int index, boo
 }
 
 const char * stringlist_get_last( const stringlist_type * stringlist ) {
-  return vector_get_last( stringlist->strings );
+  return (const char*)vector_get_last( stringlist->strings );
 }
 
 
@@ -438,7 +438,7 @@ static char ** stringlist_alloc_char__(const stringlist_type * stringlist, bool 
   int size = stringlist_get_size( stringlist );
   if (size > 0) {
     int i;
-    strings = util_calloc(size , sizeof * strings );
+    strings = (char**)util_calloc(size , sizeof * strings );
     for (i = 0; i <size; i++) {
       if (deep_copy)
         strings[i] = stringlist_iget_copy( stringlist , i);
@@ -572,7 +572,7 @@ char * stringlist_alloc_joined_substring( const stringlist_type * s , int start_
         total_length += (strlen(stringlist_iget( s , i)) + sep_length);
 
       total_length += (1 - sep_length);
-      string    = util_malloc( total_length * sizeof * string );
+      string    = (char*)util_malloc( total_length * sizeof * string );
       string[0] = '\0';
     }
 
@@ -730,7 +730,7 @@ int stringlist_select_matching(stringlist_type * names , const char * pattern) {
 
   {
     int i;
-    glob_t * pglob = util_malloc( sizeof * pglob );
+    glob_t * pglob = (glob_t*)util_malloc( sizeof * pglob );
     int glob_flags = 0;
     glob( pattern , glob_flags , NULL , pglob);
     match_count = pglob->gl_pathc;

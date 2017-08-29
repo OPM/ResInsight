@@ -25,6 +25,7 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 //Same as pythons default log levels, but with different numeric values.
 typedef enum {

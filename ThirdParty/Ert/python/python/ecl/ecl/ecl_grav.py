@@ -1,18 +1,18 @@
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
-#  The file 'ecl_grav.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
+#  The file 'ecl_grav.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 """
 Calculate dynamic change in gravitational strength.
 
@@ -22,13 +22,13 @@ different surveys. The implementation is a thin wrapper around the
 ecl_grav.c implementation in the libecl library.
 """
 from cwrap import BaseCClass
+from ecl.util import monkey_the_camel
 from ecl.ecl import EclPhaseEnum, EclPrototype
-
 
 class EclGrav(BaseCClass):
     """
     Holding ECLIPSE results for calculating gravity changes.
-    
+
     The EclGrav class is a collection class holding the results from
     ECLIPSE forward modelling of gravity surveys. Observe that the
     class is focused on the ECLIPSE side of things, and does not have
@@ -42,37 +42,37 @@ class EclGrav(BaseCClass):
       3. Evalute the gravitational response with the eval() method.
     """
     TYPE_NAME = "ecl_grav"
-    _grav_alloc = EclPrototype("void* ecl_grav_alloc( ecl_grid , ecl_file )" , bind = False)
-    _free = EclPrototype("void ecl_grav_free( ecl_grav )")
-    _add_survey_RPORV = EclPrototype("void*  ecl_grav_add_survey_RPORV( ecl_grav , char* , ecl_file_view )")
-    _add_survey_PORMOD = EclPrototype("void*  ecl_grav_add_survey_PORMOD( ecl_grav , char* , ecl_file_view )")
-    _add_survey_FIP = EclPrototype("void*  ecl_grav_add_survey_FIP( ecl_grav , char* , ecl_file_view )")
-    _add_survey_RFIP = EclPrototype("void*  ecl_grav_add_survey_RFIP( ecl_grav , char* , ecl_file_view )")
-    _new_std_density = EclPrototype("void ecl_grav_new_std_density( ecl_grav , int , double)")
-    _add_std_density = EclPrototype("void ecl_grav_add_std_density( ecl_grav , int , int , double)")
-    _eval = EclPrototype("double ecl_grav_eval( ecl_grav , char* , char* , ecl_region , double , double , double, int)")
+    _grav_alloc = EclPrototype("void* ecl_grav_alloc(ecl_grid, ecl_file)", bind=False)
+    _free = EclPrototype("void ecl_grav_free(ecl_grav)")
+    _add_survey_RPORV = EclPrototype("void*  ecl_grav_add_survey_RPORV(ecl_grav, char*, ecl_file_view)")
+    _add_survey_PORMOD = EclPrototype("void*  ecl_grav_add_survey_PORMOD(ecl_grav, char*, ecl_file_view)")
+    _add_survey_FIP = EclPrototype("void*  ecl_grav_add_survey_FIP(ecl_grav, char*, ecl_file_view)")
+    _add_survey_RFIP = EclPrototype("void*  ecl_grav_add_survey_RFIP(ecl_grav, char*, ecl_file_view)")
+    _new_std_density = EclPrototype("void ecl_grav_new_std_density(ecl_grav, int, double)")
+    _add_std_density = EclPrototype("void ecl_grav_add_std_density(ecl_grav, int, int, double)")
+    _eval = EclPrototype("double ecl_grav_eval(ecl_grav, char*, char*, ecl_region, double, double, double, int)")
 
-    
 
-    def __init__( self, grid, init_file ):
+
+    def __init__(self, grid, init_file):
         """
-        Creates a new EclGrav instance. 
+        Creates a new EclGrav instance.
 
         The input arguments @grid and @init_file should be instances
         of EclGrid and EclFile respectively.
         """
         self.init_file = init_file   # Inhibit premature garbage collection of init_file
 
-        c_ptr = self._grav_alloc( grid , init_file )
-        super(EclGrav , self).__init__( c_ptr )
-        
+        c_ptr = self._grav_alloc(grid, init_file)
+        super(EclGrav, self).__init__(c_ptr)
+
         self.dispatch = {"FIP"    : self.add_survey_FIP,
                          "RFIP"   : self.add_survey_RFIP,
                          "PORMOD" : self.add_survey_PORMOD,
                          "RPORV"  : self.add_survey_RPORV}
 
 
-    def add_survey_RPORV( self, survey_name, restart_view ):
+    def add_survey_RPORV(self, survey_name, restart_view):
         """
         Add new survey based on RPORV keyword.
 
@@ -87,10 +87,10 @@ class EclGrav(BaseCClass):
            from ecl.ecl import EclRestartFile
            ...
            ...
-           date = datetime.datetime( year , month , day )
-           rst_file = EclRestartFile( "ECLIPSE.UNRST" )
-           restart_view1 = rst_file.restartView( sim_time = date)
-           restart_view2 = rst_file.restartView( report_step = 67 )
+           date = datetime.datetime(year, month, day)
+           rst_file = EclRestartFile("ECLIPSE.UNRST")
+           restart_view1 = rst_file.restartView(sim_time=date)
+           restart_view2 = rst_file.restartView(report_step=67)
 
         The pore volume of each cell will be calculated based on the
         RPORV keyword from the restart files. The methods
@@ -99,17 +99,17 @@ class EclGrav(BaseCClass):
         """
         self._add_survey_RPORV(survey_name, restart_view)
 
-    def add_survey_PORMOD( self, survey_name, restart_view ):
+    def add_survey_PORMOD(self, survey_name, restart_view):
         """
         Add new survey based on PORMOD keyword.
-        
+
         The pore volum is calculated from the initial pore volume and
         the PORV_MOD keyword from the restart file; see
         add_survey_RPORV() for further details.
         """
         self._add_survey_PORMOD(survey_name, restart_view)
 
-    def add_survey_FIP( self, survey_name, restart_view ):
+    def add_survey_FIP(self, survey_name, restart_view):
         """
         Add new survey based on FIP keywords.
 
@@ -124,7 +124,7 @@ class EclGrav(BaseCClass):
         """
         self._add_survey_FIP(survey_name, restart_view)
 
-    def add_survey_RFIP( self, survey_name, restart_view ):
+    def add_survey_RFIP(self, survey_name, restart_view):
         """
         Add new survey based on RFIP keywords.
 
@@ -133,29 +133,29 @@ class EclGrav(BaseCClass):
         calculated based on the RFIPxxx keyword along with the
         per-cell mass density of the respective phases.
         """
-        self._add_survey_RFIP( survey_name, restart_view)
+        self._add_survey_RFIP(survey_name, restart_view)
 
-    def addSurvey(self, name , restart_view, method):
+    def add_survey(self, name, restart_view, method):
         method = self.dispatch[ method ]
-        return method( name , restart_view )
+        return method(name, restart_view)
 
     def eval(self, base_survey, monitor_survey, pos, region=None,
              phase_mask=EclPhaseEnum.ECL_OIL_PHASE + EclPhaseEnum.ECL_GAS_PHASE + EclPhaseEnum.ECL_WATER_PHASE):
         """
         Calculates the gravity change between two surveys.
-        
+
         This is the method everything is leading up to; will calculate
         the change in gravitational strength, in units of micro Gal,
         between the two surveys named @base_survey and
-        @monitor_survey. 
+        @monitor_survey.
 
         The monitor survey can be 'None' - the resulting answer has
         nothing whatsovever to do with gravitation, but can be
         interesting to determine the numerical size of the quantities
         which are subtracted in a 4D study.
-        
+
         The @pos argument should be a tuple of three elements with the
-        (utm_x , utm_y , depth) position where we want to evaluate the
+        (utm_x, utm_y, depth) position where we want to evaluate the
         change in gravitational strength.
 
         If supplied the optional argument @region should be an
@@ -170,7 +170,7 @@ class EclGrav(BaseCClass):
         return self._eval(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], phase_mask)
 
 
-    def new_std_density( self, phase_enum, default_density):
+    def new_std_density(self, phase_enum, default_density):
         """
         Adds a new phase with a corresponding density.
 
@@ -188,12 +188,12 @@ class EclGrav(BaseCClass):
         used before you use the add_survey_FIP() method to add a
         survey based on the FIP keyword.
         """
-        self._new_std_density( phase_enum, default_density)
+        self._new_std_density(phase_enum, default_density)
 
-    def add_std_density( self, phase_enum, pvtnum, density):
+    def add_std_density(self, phase_enum, pvtnum, density):
         """
         Add standard conditions density for PVT region @pvtnum.
-        
+
         The new_std_density() method will add a standard conditions
         density which applies to all cells in the model. Using the
         add_std_density() method it is possible to add standard
@@ -203,13 +203,15 @@ class EclGrav(BaseCClass):
 
         The new_std_density() method must be called before calling the
         add_std_density() method.
-        
+
         The new_std_density() and add_std_density() methods must be
         used before you use the add_survey_FIP() method to add a
         survey based on the FIP keyword.
         """
         self._add_std_density(phase_enum, pvtnum, density)
 
-        
+
     def free(self):
-        self._free( )
+        self._free()
+
+monkey_the_camel(EclGrav, 'addSurvey', EclGrav.add_survey)

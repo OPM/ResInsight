@@ -72,7 +72,7 @@ void test_alloc_global_only(bool data_in_file) {
 
             test_assert_true( ecl_file_view_has_kw( view_file, TRANNNC_KW) );
             test_assert_true(nnc_data_size == 3);
-            double * values = ecl_nnc_data_get_values( nnc_geo_data );
+            const double * values = ecl_nnc_data_get_values( nnc_geo_data );
             test_assert_double_equal(values[0] , 0);
             test_assert_double_equal(values[1] , 1.5);
             test_assert_double_equal(values[2] , 3.0);

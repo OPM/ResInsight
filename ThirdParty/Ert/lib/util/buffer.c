@@ -85,12 +85,12 @@ UTIL_SAFE_CAST_FUNCTION( buffer , BUFFER_TYPE_ID )
 
 static void buffer_resize__(buffer_type * buffer , size_t new_size, bool abort_on_error) {
   if (abort_on_error) {
-    buffer->data       = util_realloc(buffer->data , new_size );
+    buffer->data       = (char*)util_realloc(buffer->data , new_size );
     buffer->alloc_size = new_size;
   } else {
     void * tmp   = realloc(buffer->data , new_size);
     if (tmp != NULL) {
-      buffer->data = tmp;
+      buffer->data = (char*)tmp;
       buffer->alloc_size = new_size;
     }
   }
@@ -100,7 +100,7 @@ static void buffer_resize__(buffer_type * buffer , size_t new_size, bool abort_o
 
 
 static buffer_type * buffer_alloc_empty( ) {
-  buffer_type * buffer = util_malloc( sizeof * buffer );
+  buffer_type * buffer = (buffer_type*)util_malloc( sizeof * buffer );
   UTIL_TYPE_ID_INIT( buffer , BUFFER_TYPE_ID );
   buffer->data = NULL;
 
@@ -142,7 +142,7 @@ void buffer_shrink_to_fit( buffer_type * buffer ) {
 buffer_type * buffer_alloc_private_wrapper(void * data , size_t buffer_size ) {
   buffer_type * buffer = buffer_alloc_empty();
 
-  buffer->data         = data;        /* We have stolen the data pointer. */
+  buffer->data         = (char*)data;        /* We have stolen the data pointer. */
   buffer->content_size = buffer_size;
   buffer->pos          = buffer_size;
   buffer->alloc_size   = buffer_size;
@@ -194,98 +194,52 @@ void buffer_clear( buffer_type * buffer ) {
 }
 
 
-/*****************************************************************/
-/**
-    Observe that it is the functions with _safe_ in the name which
-    most closely mimicks the behaviour of fread(), and fwrite() -
-    these functions will *NOT* abort if the buffer is to small,
-    instead they will just return the number of items read/written,
-    and it is the responsability of the calling scope to check the
-    return values.
-
-    The functions buffer_fread() and buffer_fwrite() will abort if
-    read/write to buffer failed.
-*/
-
-
-
-static size_t buffer_fread__(buffer_type * buffer , void * target_ptr , size_t item_size , size_t items, bool abort_on_error) {
+size_t buffer_fread(buffer_type * buffer,
+                    void * target_ptr,
+                    size_t item_size,
+                    size_t items) {
   size_t remaining_size  = buffer->content_size - buffer->pos;
   size_t remaining_items = remaining_size / item_size;
-  size_t read_items      = util_size_t_min( items , remaining_items );
-  size_t read_bytes      = read_items * item_size;
+  if (remaining_items < items)
+    util_abort("%s: read beyond the length of the buffer (%d exceeds %d)\n",
+               __func__, items, remaining_items);
 
-  memcpy( target_ptr , &buffer->data[buffer->pos] , read_bytes );
+  size_t read_bytes = items * item_size;
+
+  memcpy(target_ptr, &buffer->data[buffer->pos], read_bytes);
   buffer->pos += read_bytes;
 
-  if (read_items < items) {
-    /* The buffer was not large enough - what to do now???? */
-    if (abort_on_error)
-      util_abort("%s: tried to read beyond the length of the buffer: Wanted:%ld Size:%ld \n",__func__ , items , read_items);
-    else
-      /* OK we emulate fread() behaviour - setting errno to EOVERFLOW*/
-      errno = ENOMEM;//EOVERFLOW;
-  }
-
-  return read_items;
-}
-
-
-size_t buffer_safe_fread(buffer_type * buffer , void * target_ptr , size_t item_size , size_t items) {
-  return buffer_fread__(buffer , target_ptr , item_size , items , false);
-}
-
-
-size_t buffer_fread(buffer_type * buffer , void * target_ptr , size_t item_size , size_t items) {
-  return buffer_fread__(buffer , target_ptr , item_size , items , true);
+  return items;
 }
 
 
 /*****************************************************************/
 
 
-static size_t buffer_fwrite__(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items, bool abort_on_error) {
-  size_t remaining_size  = buffer->alloc_size - buffer->pos;
-  size_t target_size     = item_size * items;
+
+size_t buffer_fwrite(buffer_type * buffer,
+                     const void * src_ptr,
+                     size_t item_size,
+                     size_t items) {
+  size_t remaining_size = buffer->alloc_size - buffer->pos;
+  size_t target_size    = item_size * items;
 
   if (target_size > remaining_size) {
-    buffer_resize__(buffer , buffer->pos + 2 * (item_size * items) , abort_on_error);
-    /**
-       OK - now we have the buffer size we are going to get.
-    */
+    buffer_resize__(buffer , buffer->pos + 2 * (item_size * items), true);
     remaining_size = buffer->alloc_size - buffer->pos;
   }
 
+  size_t remaining_items = remaining_size / item_size;
+  size_t write_items     = util_size_t_min( items , remaining_items );
+  size_t write_bytes     = write_items * item_size;
 
-  {
-    size_t remaining_items = remaining_size / item_size;
-    size_t write_items     = util_size_t_min( items , remaining_items );
-    size_t write_bytes     = write_items * item_size;
+  memcpy( &buffer->data[buffer->pos] , src_ptr , write_bytes );
+  buffer->pos += write_bytes;
 
-    memcpy( &buffer->data[buffer->pos] , src_ptr , write_bytes );
-    buffer->pos += write_bytes;
-
-    if (write_items < items) {
-      /* The buffer was not large enough - what to do now???? */
-      if (abort_on_error)
-        util_abort("%s: failed to write %d elements to the buffer \n",__func__ , items); /* This code is never executed - abort is in resize__(); */
-      else
-        /* OK we emulate fwrite() behaviour - setting errno to ENOMEM */
-        errno = ENOMEM;
-    }
-    buffer->content_size = util_size_t_max(buffer->content_size , buffer->pos);
-    return write_items;
-  }
-}
-
-
-size_t buffer_safe_fwrite(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items) {
-  return buffer_fwrite__(buffer , src_ptr , item_size , items , false);
-}
-
-
-size_t buffer_fwrite(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items) {
-  return buffer_fwrite__(buffer , src_ptr , item_size , items , true);
+  if (write_items < items)
+    util_abort("%s: failed to write %d elements to the buffer \n",__func__ , items);
+  buffer->content_size = util_size_t_max(buffer->content_size , buffer->pos);
+  return write_items;
 }
 
 
@@ -321,7 +275,8 @@ void buffer_fseek(buffer_type * buffer , ssize_t offset , int whence) {
   if ((new_pos >= 0) && (new_pos <= buffer->content_size))
     buffer->pos = new_pos;
   else
-    util_abort("%s: tried to seek to position:%ld - outside of bounds: [0,%d) \n",__func__ , new_pos , buffer->content_size);
+    util_abort("%s: tried to seek to position:%ld - outside of bounds: [0,%d) \n",
+               __func__ , new_pos , buffer->content_size);
 }
 
 
@@ -331,34 +286,36 @@ void buffer_fskip(buffer_type * buffer, ssize_t offset) {
 
 
 int buffer_fread_int(buffer_type * buffer) {
-  int value;
-  buffer_fread(buffer , &value , sizeof value , 1);
+  int value = 0;
+  int read = buffer_fread(buffer, &value, sizeof value, 1);
+  if (read != 1)
+      util_abort("%s: read mismatch, read %d expected to read %d\n",
+                 __func__, read, 1);
   return value;
 }
 
 
 bool buffer_fread_bool(buffer_type * buffer) {
-  bool value;
-  buffer_fread(buffer , &value , sizeof value , 1);
+  bool value = false;
+  buffer_fread(buffer, &value, sizeof value, 1);
   return value;
 }
 
 
 long int buffer_fread_long(buffer_type * buffer) {
-  long value;
-  buffer_fread(buffer , &value , sizeof value , 1);
+  long value = 0L;
+  buffer_fread(buffer, &value, sizeof value, 1);
   return value;
 }
 
 
-int buffer_fgetc( buffer_type * buffer ) {
+int buffer_fgetc(buffer_type * buffer) {
   if (buffer->pos == buffer->content_size)
     return EOF;
-  else {
-    unsigned char byte;
-    buffer_fread( buffer , &byte , sizeof byte , 1 );
-    return byte;
-  }
+
+  unsigned char byte = 0;
+  buffer_fread(buffer, &byte, sizeof byte, 1);
+  return byte;
 }
 
 /**
@@ -572,8 +529,8 @@ void buffer_memshift(buffer_type * buffer , size_t offset, ssize_t shift) {
   {
     size_t move_size;
     if (shift < 0)
-      if (abs(shift) > offset)
-        offset = abs(shift);  /* We are 'trying' to left shift beyond the start of the buffer. */
+      if (labs(shift) > offset)
+        offset = labs(shift);  /* We are 'trying' to left shift beyond the start of the buffer. */
 
     move_size = buffer->content_size - offset;
     memmove( &buffer->data[offset + shift] , &buffer->data[offset] , move_size );
@@ -763,7 +720,7 @@ buffer_type * buffer_fread_alloc(const char * filename) {
 */
 
 size_t buffer_stream_fwrite_n( const buffer_type * buffer , size_t offset , ssize_t write_size , FILE * stream ) {
-  if (offset < 0 || offset > buffer->content_size)
+  if (offset > buffer->content_size)
     util_abort("%s: invalid offset:%ld - valid range: [0,%ld) \n",__func__ , offset , offset);
   {
     ssize_t len;
@@ -773,7 +730,7 @@ size_t buffer_stream_fwrite_n( const buffer_type * buffer , size_t offset , ssiz
     else if (write_size == 0)       /* Write everything from the offset */
       len = buffer->content_size - offset;
     else                            /* @write_size < 0 - write everything excluding the last abs(write_size) bytes. */
-      len = buffer->content_size - offset - abs( write_size );
+      len = buffer->content_size - offset - labs( write_size );
 
     if (len < 0)
       util_abort("%s: invalid length spesifier - tried to write %ld bytes \n",__func__ , len);
@@ -912,7 +869,7 @@ size_t buffer_fread_compressed(buffer_type * buffer , size_t compressed_size , v
 
 
     if (compressed_size > 0) {
-        int uncompress_result = uncompress(target_ptr , &uncompressed_size , (unsigned char *) &buffer->data[buffer->pos] , compressed_size);
+        int uncompress_result = uncompress((Bytef*)target_ptr , &uncompressed_size , (unsigned char *) &buffer->data[buffer->pos] , compressed_size);
         if (uncompress_result != Z_OK) {
             fprintf(stderr,"%s: ** Warning uncompress result:%d != Z_OK.\n" , __func__ , uncompress_result);
             /**

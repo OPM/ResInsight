@@ -59,7 +59,7 @@ static void vector_resize__(vector_type * vector, int new_alloc_size) {
       node_data_free( vector->data[i] );
   }
 
-  vector->data = util_realloc( vector->data , new_alloc_size * sizeof * vector->data );
+  vector->data = (node_data_type**)util_realloc( vector->data , new_alloc_size * sizeof * vector->data );
   for (i = vector->alloc_size; i < new_alloc_size; i++)
     vector->data[i] = NULL; /* Initialising new nodes to NULL */
 
@@ -69,7 +69,7 @@ static void vector_resize__(vector_type * vector, int new_alloc_size) {
 
 
 vector_type * vector_alloc_new() {
-  vector_type * vector = util_malloc( sizeof * vector );
+  vector_type * vector = (vector_type*)util_malloc( sizeof * vector );
   UTIL_TYPE_ID_INIT(vector , VECTOR_TYPE_ID);
   vector->size       = 0;
   vector->alloc_size = 0;
@@ -557,7 +557,7 @@ static int vector_cmp(const void * s1 , const void * s2) {
 
 
 static vector_sort_node_type * vector_alloc_sort_data( const vector_type * vector , vector_cmp_ftype * cmp) {
-  vector_sort_node_type * sort_data = util_calloc( vector->size , sizeof * sort_data );
+  vector_sort_node_type * sort_data = (vector_sort_node_type*)util_calloc( vector->size , sizeof * sort_data );
   int i;
 
   /* Fill up the temporary storage used for sorting */
@@ -597,12 +597,21 @@ int_vector_type * vector_alloc_sort_perm(const vector_type * vector , vector_cmp
 }
 
 
+void vector_permute(vector_type * vector , const int_vector_type * perm_vector) {
+  node_data_type ** new_data = (node_data_type**)util_calloc( vector->size , sizeof * new_data );
+  for (int index = 0; index < vector->size; index++) {
+    int perm_index = int_vector_iget( perm_vector , index );
+    new_data[index] = vector->data[ perm_index ];
+  }
+  free(vector->data);
+  vector->data = new_data;
+}
 
 
 
 void vector_inplace_reverse(vector_type * vector) {
   if (vector->size > 0) {
-    node_data_type ** new_data = util_calloc( vector->size , sizeof * new_data );
+    node_data_type ** new_data = (node_data_type**)util_calloc( vector->size , sizeof * new_data );
     int index;
     for (index = 0; index < vector->size; index++) {
       int rev_index = vector->size - 1 - index;

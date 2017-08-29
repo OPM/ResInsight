@@ -103,7 +103,7 @@ void log_set_level( log_type * logh , int log_level) {
 log_type * log_open( const char * filename , int log_level) {
   log_type   *logh;
 
-  logh = util_malloc(sizeof *logh );
+  logh = (log_type*)util_malloc(sizeof *logh );
   
   logh->log_level     = log_level;
   logh->filename      = NULL;

@@ -14,15 +14,16 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 
-from ecl.geo import Polyline, CPolyline, GeometryTools
+from ecl.util import monkey_the_camel
 from ecl.util import stat
 from ecl.util import Matrix
+from ecl.geo import Polyline, CPolyline, GeometryTools
 
 from .fault_line import FaultLine
 from .fault_segments import FaultSegment, SegmentMap
 
 
-class Layer(object):
+class FaultLayer(object):
     def __init__(self, grid, K):
         assert(isinstance(K, int))
         self.__grid = grid
@@ -32,7 +33,7 @@ class Layer(object):
         self.__processed = False
 
 
-    def addSegment(self, segment):
+    def add_segment(self, segment):
         self.__segment_map.addSegment(segment)
         self.__processed = False
 
@@ -48,24 +49,28 @@ class Layer(object):
         self.processSegments()
         return self.__fault_lines[index]
 
-    def getK(self):
+    def get_k(self):
+        return self.__K
+
+    @property
+    def k(self):
         return self.__K
 
 
-    def getNeighborCells(self):
+    def get_neighbor_cells(self):
         neighbor_cells = []
         for fl in self:
             neighbor_cells += fl.getNeighborCells()
         return neighbor_cells
 
-    def getPolyline(self, name=None):
+    def get_polyline(self, name=None):
         polyline = CPolyline(name=name)
         for fl in self:
             polyline += fl.getPolyline()
         return polyline
 
 
-    def getIJPolyline(self):
+    def get_ij_polyline(self):
         """
         Will return a python list of (int,int) tuple.
         """
@@ -75,10 +80,10 @@ class Layer(object):
         return polyline
 
 
-    def numLines(self):
+    def num_lines(self):
         return len(self)
 
-    def __sortFaultLines(self):
+    def __sort_fault_lines(self):
         """A fault can typically consist of several non connected fault
            segments; right after reading the fault input these can be in
            a complete mess:
@@ -134,7 +139,7 @@ class Layer(object):
 
 
 
-    def processSegments(self):
+    def process_segments(self):
         if self.__processed:
             return
 
@@ -154,7 +159,7 @@ class Layer(object):
                 current_segment = current_segment.next_segment
 
         if len(self.__fault_lines) > 1:
-            self.__sortFaultLines()
+            self.__sort_fault_lines()
 
         self.__processed = True
 
@@ -191,17 +196,17 @@ class Fault(object):
             yield layer
 
 
-    def hasLayer(self, K):
+    def has_layer(self, K):
         return self.__layer_map.has_key(K)
 
 
-    def addLayer(self, K):
-        layer = Layer(self.__grid, K)
+    def add_layer(self, K):
+        layer = FaultLayer(self.__grid, K)
         self.__layer_map[K] = layer
         self.__layer_list.append(layer)
 
 
-    def createSegment(self, I1, I2, J1, J2, face):
+    def create_segment(self, I1, I2, J1, J2, face):
         if face in ["X", "I"]:
             C1 = I1 + 1 + J1*(self.nx + 1)
             C2 = C1 + (1 + J2 - J1) * (self.nx + 1)
@@ -221,7 +226,7 @@ class Fault(object):
 
 
 
-    def addRecord(self, I1, I2, J1, J2, K1, K2, face):
+    def add_record(self, I1, I2, J1, J2, K1, K2, face):
         if not face in Fault.allowed_faces:
             raise ValueError("Invalid face:%s" % face)
 
@@ -272,34 +277,39 @@ class Fault(object):
                 layer.addSegment(segment)
 
 
-    def getName(self):
+
+    @property
+    def name(self):
+        return self.__name
+
+    def get_name(self):
         return self.__name
 
 
-    def getNeighborCells(self):
+    def get_neighbor_cells(self):
         neighbor_cells = []
         for layer in self:
             neighbor_cells += layer.getNeighborCells()
         return neighbor_cells
 
 
-    def getPolyline(self, k):
+    def get_polyline(self, k):
         layer = self[k]
         return layer.getPolyline(name="Polyline[%s]" % self.getName())
 
 
-    def getIJPolyline(self, k):
+    def get_ij_polyline(self, k):
         layer = self[k]
         return layer.getIJPolyline()
 
 
-    def numLines(self, k):
+    def num_lines(self, k):
         layer = self[k]
         return layer.numLines()
 
 
     @staticmethod
-    def __rayIntersect(p0, p1, polyline):
+    def __ray_intersect(p0, p1, polyline):
         ray_dir = GeometryTools.lineToRay(p0, p1)
         intersections = GeometryTools.rayPolygonIntersections(p1, ray_dir, polyline)
         if intersections:
@@ -314,7 +324,7 @@ class Fault(object):
             return None
 
 
-    def connectWithPolyline(self, polyline, k):
+    def connect_with_polyline(self, polyline, k):
         """
         """
         if self.intersectsPolyline(polyline, k):
@@ -336,7 +346,7 @@ class Fault(object):
 
 
 
-    def extendToPolyline(self, polyline, k):
+    def extend_to_polyline(self, polyline, k):
         """Extends the fault until it intersects @polyline in layer @k.
 
         The return value is a list [(x1,y1), (x2,y2)] where (x1,y1)
@@ -377,25 +387,25 @@ class Fault(object):
         fault_polyline = self.getPolyline(k)
         p0 = fault_polyline[-2]
         p1 = fault_polyline[-1]
-        extension = self.__rayIntersect(p0, p1, polyline)
+        extension = self.__ray_intersect(p0, p1, polyline)
         if extension:
             return extension
 
         p0 = fault_polyline[1]
         p1 = fault_polyline[0]
-        extension = self.__rayIntersect(p0, p1, polyline)
+        extension = self.__ray_intersect(p0, p1, polyline)
         if extension:
             return extension
 
         p0 = fault_polyline[0]
         p1 = fault_polyline[-1]
-        extension = self.__rayIntersect(p0, p1, polyline)
+        extension = self.__ray_intersect(p0, p1, polyline)
         if extension:
             return extension
 
         p0 = fault_polyline[-1]
         p1 = fault_polyline[0]
-        extension = self.__rayIntersect(p0, p1, polyline)
+        extension = self.__ray_intersect(p0, p1, polyline)
         if extension:
             return extension
 
@@ -403,27 +413,27 @@ class Fault(object):
 
 
 
-    def intersectsPolyline(self, polyline, k):
+    def intersects_polyline(self, polyline, k):
         fault_line = self.getPolyline(k)
         return fault_line.intersects(polyline)
 
 
-    def intersectsFault(self, other_fault, k):
+    def intersects_fault(self, other_fault, k):
         fault_line = other_fault.getPolyline(k)
         return self.intersectsPolyline(fault_line, k)
 
-    def extendToFault(self, fault, k):
+    def extend_to_fault(self, fault, k):
         fault_line = fault.getPolyline(k)
         return self.extendToPolyline(fault_line, k)
 
-    def extendToEdge(self, edge, k):
+    def extend_to_edge(self, edge, k):
         if isinstance(edge, Fault):
             return self.extendToFault(edge, k)
         else:
             return self.extendToPolyline(edge, k)
 
 
-    def extendToBBox(self, bbox, k, start=True):
+    def extend_to_b_box(self, bbox, k, start=True):
         fault_polyline = self.getPolyline(k)
         if start:
             p0 = fault_polyline[1]
@@ -446,7 +456,7 @@ class Fault(object):
             raise Exception("Logical error - must intersect with bounding box")
 
 
-    def endJoin(self, other, k):
+    def end_join(self, other, k):
         fault_polyline = self.getPolyline(k)
 
         if isinstance(other, Fault):
@@ -458,7 +468,7 @@ class Fault(object):
 
 
 
-    def connectPolylineOnto(self, polyline, k):
+    def connect_polyline_onto(self, polyline, k):
         if self.intersectsPolyline(polyline, k):
             return None
 
@@ -467,14 +477,14 @@ class Fault(object):
 
 
 
-    def extendPolylineOnto(self, polyline, k):
+    def extend_polyline_onto(self, polyline, k):
         if self.intersectsPolyline(polyline, k):
             return None
 
         if len(polyline) > 1:
             fault_polyline = self.getPolyline(k)
-            ext1 = self.__rayIntersect(polyline[-2], polyline[-1], fault_polyline)
-            ext2 = self.__rayIntersect(polyline[0] , polyline[1] , fault_polyline)
+            ext1 = self.__ray_intersect(polyline[-2], polyline[-1], fault_polyline)
+            ext2 = self.__ray_intersect(polyline[0] , polyline[1] , fault_polyline)
 
             if ext1 and ext2:
                 d1 = GeometryTools.distance(ext1[0], ext1[1])
@@ -495,7 +505,7 @@ class Fault(object):
 
 
     @staticmethod
-    def intersectFaultRays(ray1, ray2):
+    def intersect_fault_rays(ray1, ray2):
         p1,dir1 = ray1
         p2,dir2 = ray2
         if p1 == p2:
@@ -527,7 +537,7 @@ class Fault(object):
 
 
     @staticmethod
-    def intRay(p1,p2):
+    def int_ray(p1,p2):
         if p1 == p2:
             raise Exception("Can not form ray from coincident points")
 
@@ -553,7 +563,7 @@ class Fault(object):
 
 
 
-    def getEndRays(self, k):
+    def get_end_rays(self, k):
         polyline = self.getIJPolyline(k)
 
         p0 = polyline[0]
@@ -567,7 +577,7 @@ class Fault(object):
 
 
     @staticmethod
-    def joinFaults(fault1, fault2, k):
+    def join_faults(fault1, fault2, k):
         fault1_rays = fault1.getEndRays(k)
         fault2_rays = fault2.getEndRays(k)
 
@@ -609,3 +619,36 @@ class Fault(object):
             return xy_list
         else:
             return fault1.endJoin(fault2, k)
+
+
+monkey_the_camel(FaultLayer, 'addSegment', FaultLayer.add_segment)
+monkey_the_camel(FaultLayer, 'getK', FaultLayer.get_k)
+monkey_the_camel(FaultLayer, 'getNeighborCells', FaultLayer.get_neighbor_cells)
+monkey_the_camel(FaultLayer, 'getPolyline', FaultLayer.get_polyline)
+monkey_the_camel(FaultLayer, 'getIJPolyline', FaultLayer.get_ij_polyline)
+monkey_the_camel(FaultLayer, 'numLines', FaultLayer.num_lines)
+monkey_the_camel(FaultLayer, 'processSegments', FaultLayer.process_segments)
+
+monkey_the_camel(Fault, 'hasLayer', Fault.has_layer)
+monkey_the_camel(Fault, 'addLayer', Fault.add_layer)
+monkey_the_camel(Fault, 'createSegment', Fault.create_segment)
+monkey_the_camel(Fault, 'addRecord', Fault.add_record)
+monkey_the_camel(Fault, 'getName', Fault.get_name)
+monkey_the_camel(Fault, 'getNeighborCells', Fault.get_neighbor_cells)
+monkey_the_camel(Fault, 'getPolyline', Fault.get_polyline)
+monkey_the_camel(Fault, 'getIJPolyline', Fault.get_ij_polyline)
+monkey_the_camel(Fault, 'numLines', Fault.num_lines)
+monkey_the_camel(Fault, 'connectWithPolyline', Fault.connect_with_polyline)
+monkey_the_camel(Fault, 'extendToPolyline', Fault.extend_to_polyline)
+monkey_the_camel(Fault, 'intersectsPolyline', Fault.intersects_polyline)
+monkey_the_camel(Fault, 'intersectsFault', Fault.intersects_fault)
+monkey_the_camel(Fault, 'extendToFault', Fault.extend_to_fault)
+monkey_the_camel(Fault, 'extendToEdge', Fault.extend_to_edge)
+monkey_the_camel(Fault, 'extendToBBox', Fault.extend_to_b_box)
+monkey_the_camel(Fault, 'endJoin', Fault.end_join)
+monkey_the_camel(Fault, 'connectPolylineOnto', Fault.connect_polyline_onto)
+monkey_the_camel(Fault, 'extendPolylineOnto', Fault.extend_polyline_onto)
+monkey_the_camel(Fault, 'intersectFaultRays', Fault.intersect_fault_rays, staticmethod)
+monkey_the_camel(Fault, 'intRay', Fault.int_ray, staticmethod)
+monkey_the_camel(Fault, 'getEndRays', Fault.get_end_rays)
+monkey_the_camel(Fault, 'joinFaults', Fault.join_faults, staticmethod)

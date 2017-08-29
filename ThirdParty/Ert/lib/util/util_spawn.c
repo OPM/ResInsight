@@ -62,7 +62,7 @@ static pthread_mutex_t spawn_mutex = PTHREAD_MUTEX_INITIALIZER;
 */
 pid_t util_spawn(const char *executable, int argc, const char **argv, const char *stdout_file, const char *stderr_file) {
   pid_t pid;
-  char **__argv = util_malloc((argc + 2) * sizeof *__argv);
+  char **__argv = (char**)util_malloc((argc + 2) * sizeof *__argv);
 
   {
     int iarg;
@@ -123,7 +123,8 @@ int util_spawn_blocking(const char *executable, int argc, const char **argv, con
 #define str(s) xstr(s)
 bool util_ping(const char *hostname) {
   int wait_status;
-  wait_status = util_spawn_blocking(str(PING_CMD), 4, (const char *[4]) {"-c" , "3" , "-q", hostname}, "/dev/null" , "/dev/null");
+  const char* args[ 4 ] = { "-c", "3", "-q", hostname };
+  wait_status = util_spawn_blocking(str(PING_CMD), 4, args, "/dev/null" , "/dev/null");
 
   if (WIFEXITED( wait_status )) {
       int ping_status = WEXITSTATUS( wait_status );

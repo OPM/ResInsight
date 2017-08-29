@@ -112,7 +112,7 @@ struct arg_pack_struct {
 /* First comes the arg_node functions. These are all fully static.*/
 
 static arg_node_type * arg_node_alloc_empty() {
-  arg_node_type * node = util_malloc( sizeof * node );
+  arg_node_type * node = (arg_node_type*)util_malloc( sizeof * node );
   node->buffer      = NULL;
   node->destructor  = NULL;
   node->ctype       = CTYPE_INVALID;
@@ -344,7 +344,7 @@ static void __arg_pack_assert_index(const arg_pack_type * arg , int iarg) {
 
 
 static void arg_pack_realloc_nodes(arg_pack_type * arg_pack , int new_size) {
-  arg_pack->nodes      = util_realloc(arg_pack->nodes , new_size * sizeof * arg_pack->nodes );
+  arg_pack->nodes      = (arg_node_type**) util_realloc(arg_pack->nodes , new_size * sizeof * arg_pack->nodes );
   {
     int i;
     for (i = arg_pack->alloc_size; i < new_size; i++)
@@ -400,7 +400,7 @@ void arg_pack_lock(arg_pack_type * arg_pack) {
 
 
 arg_pack_type * arg_pack_alloc() {
-  arg_pack_type * arg_pack = util_malloc(sizeof * arg_pack );
+  arg_pack_type * arg_pack = (arg_pack_type*)util_malloc(sizeof * arg_pack );
   UTIL_TYPE_ID_INIT( arg_pack , ARG_PACK_TYPE_ID);
   arg_pack->nodes      = NULL;
   arg_pack->alloc_size = 0;

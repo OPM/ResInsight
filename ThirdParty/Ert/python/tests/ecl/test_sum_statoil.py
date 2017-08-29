@@ -1,19 +1,19 @@
 #!/usr/bin/env python
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
-#  The file 'sum_test.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
+#  The file 'sum_test.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 
 import os
 import datetime
@@ -61,7 +61,7 @@ class SumTest(ExtendedTestCase):
         sum = self.ecl_sum
         with self.assertRaises(KeyError):
             v = sum["KeyMissing"]
-        
+
         with self.assertRaises(KeyError):
             v = sum.get_interp("Missing" , days = 750)
 
@@ -110,7 +110,7 @@ class SumTest(ExtendedTestCase):
         sum = EclSum( self.createTestPath("Statoil/ECLIPSE/Heidrun/LGRISSUE/EM-LTAA-ISEG_CARFIN_NWPROPS"))
         self.assertTrue( sum.has_key("LLINEARS") )
 
-        
+
 
     def test_wells(self):
         wells = self.ecl_sum.wells()
@@ -156,7 +156,7 @@ class SumTest(ExtendedTestCase):
         self.assertEqual(sum.end_time, datetime.datetime(2004, 12, 31, 0, 0, 0))
         self.assertTrue(sum.check_sim_time(datetime.datetime(2004, 12, 31, 0, 0, 0)))
         self.assertEqual(sum.end_date , datetime.date(2004, 12, 31))
-        
+
 
 
     def test_dates2( self ):
@@ -280,12 +280,8 @@ class SumTest(ExtendedTestCase):
         self.assertTrue(node.isTotal())
         self.assertFalse(node.isRate())
         self.assertIsNone(node.wgname)
-
-        node = sum.smspec_node("FOPTH")
-        self.assertIsNone(node.num)
-
         node = sum.smspec_node("BPR:1095")
-        self.assertEquals(node.num, 1095)
+        self.assertEqual(node.num, 1095)
 
     def test_stringlist_gc(self):
         sum = EclSum(self.case)
@@ -377,7 +373,7 @@ class SumTest(ExtendedTestCase):
         self.assertTrue( trange[0] == datetime.date( 2016 , 2 , 1 ))
         for t in trange:
             sum.get_interp( "FOPT" , date = t )
-        
+
 
 
     def test_regularProduction(self):
@@ -385,7 +381,7 @@ class SumTest(ExtendedTestCase):
         with self.assertRaises(TypeError):
             trange = TimeVector.createRegular( sum.start_time , sum.end_time , "1M" )
             prod = sum.blockedProduction("FOPR" , trange)
-            
+
         with self.assertRaises(KeyError):
             trange = TimeVector.createRegular( sum.start_time , sum.end_time , "1M" )
             prod = sum.blockedProduction("NoNotThis" , trange)
@@ -397,14 +393,14 @@ class SumTest(ExtendedTestCase):
         trange = sum.timeRange(interval = "5Y")
         self.assertTrue( trange[0]  == datetime.date( 2000 , 1 , 1 ))
         self.assertTrue( trange[-1] == datetime.date( 2005 , 1 , 1 ))
-        
+
         trange = sum.timeRange(interval = "6M")
         wprod1 = sum.blockedProduction("WOPT:OP_1" , trange)
         wprod2 = sum.blockedProduction("WOPT:OP_2" , trange)
         wprod3 = sum.blockedProduction("WOPT:OP_3" , trange)
         wprod4 = sum.blockedProduction("WOPT:OP_4" , trange)
         wprod5 = sum.blockedProduction("WOPT:OP_5" , trange)
-    
+
         fprod = sum.blockedProduction("FOPT" , trange)
         gprod = sum.blockedProduction("GOPT:OP" , trange)
         wprod = wprod1 + wprod2 + wprod3 + wprod4 + wprod5
@@ -418,18 +414,18 @@ class SumTest(ExtendedTestCase):
         writer = EclSum.writer("CASE" , datetime.date( 2000 , 1 , 1) , 10 , 10 , 5)
         self.assertIsInstance(self.ecl_sum, EclSum)
 
-        
+
         writer.addVariable( "FOPT" )
         self.assertTrue( writer.has_key( "FOPT" ))
-        
+
         writer.addTStep( 1 , 100 )
 
-        
+
     def test_aquifer(self):
         case = EclSum( self.createTestPath( "Statoil/ECLIPSE/Aquifer/06_PRESSURE_R009-0"))
         self.assertTrue( "AAQR:2" in case )
-                       
-        
+
+
     def test_restart_mapping(self):
         history = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/iter-1/NOR-2013A_R007-0") )
         total = EclSum( self.createTestPath( "Statoil/ECLIPSE/SummaryRestart/Prediction/NOR-2013A_R007_PRED-0") , include_restart = True)
@@ -439,7 +435,7 @@ class SumTest(ExtendedTestCase):
         for i in range(len(history_dates)):
             self.assertEqual( history_dates[i] , total_dates[i] )
 
-            
+
         keys = history.keys( pattern = "W*")
         for key in keys:
             if key in total:

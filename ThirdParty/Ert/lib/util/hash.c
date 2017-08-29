@@ -87,10 +87,6 @@ typedef struct hash_sort_node {
 /*                          locking                              */
 /*****************************************************************/
 #ifdef HAVE_PTHREAD
-static void __hash_deadlock_abort(hash_type * hash) {
-  util_abort("%s: A deadlock condition has been detected in the hash routine - and the program will abort.\n", __func__);
-}
-
 
 static void __hash_rdlock(hash_type * hash) {
   int lock_error = pthread_rwlock_tryrdlock( &hash->rwlock );
@@ -163,14 +159,14 @@ static void * __hash_get_node(const hash_type *hash_in , const char *key, bool a
   hash_node_type * node;
   hash_type * hash = (hash_type *)hash_in;
   __hash_rdlock( hash );
-  node = __hash_get_node_unlocked(hash , key , abort_on_error);
+  node = (hash_node_type*)__hash_get_node_unlocked(hash , key , abort_on_error);
   __hash_unlock( hash );
   return node;
 }
 
 
 static node_data_type * hash_get_node_data(const hash_type *hash , const char *key) {
-  hash_node_type * node = __hash_get_node(hash , key , true);
+  hash_node_type * node = (hash_node_type*)__hash_get_node(hash , key , true);
   return hash_node_get_data(node);
 }
 
@@ -233,7 +229,7 @@ static void __hash_insert_node(hash_type *hash , hash_node_type *node) {
         If a node with the same key already exists in the table
         it is removed.
       */
-      hash_node_type *existing_node = __hash_get_node_unlocked(hash , hash_node_get_key(node) , false);
+      hash_node_type *existing_node = (hash_node_type*)__hash_get_node_unlocked(hash , hash_node_get_key(node) , false);
       if (existing_node != NULL) {
         hash_sll_del_node(hash->table[table_index] , existing_node);
         hash->elements--;
@@ -316,7 +312,7 @@ static char ** hash_alloc_keylist__(hash_type *hash , bool lock) {
     if (hash->elements > 0) {
       int i = 0;
       hash_node_type *node = NULL;
-      keylist = calloc(hash->elements , sizeof *keylist);
+      keylist = (char**)calloc(hash->elements , sizeof *keylist);
       {
         uint32_t i = 0;
         while (i < hash->size && hash_sll_empty(hash->table[i]))
@@ -461,8 +457,8 @@ void hash_clear(hash_type *hash) {
 
 
 void * hash_get(const hash_type *hash , const char *key) {
-  hash_node_type * hash_node = __hash_get_node(hash , key , true);
-  node_data_type * data_node = hash_node_get_data( hash_node );
+  hash_node_type * hash_node = (hash_node_type*)__hash_get_node(hash , key , true);
+  node_data_type * data_node = (node_data_type*)hash_node_get_data( hash_node );
   return node_data_get_ptr( data_node );
 }
 
@@ -472,7 +468,7 @@ void * hash_get(const hash_type *hash , const char *key) {
    contain 'key'.
 */
 void * hash_safe_get( const hash_type * hash , const char * key ) {
-  hash_node_type * hash_node = __hash_get_node(hash , key , false);
+  hash_node_type * hash_node = (hash_node_type*)__hash_get_node(hash , key , false);
   if (hash_node != NULL) {
     node_data_type * data_node = hash_node_get_data( hash_node );
     return node_data_get_ptr( data_node );
@@ -509,7 +505,7 @@ void * hash_pop( hash_type * hash , const char * key) {
 
 static hash_type * __hash_alloc(int size, double resize_fill , hashf_type *hashf) {
   hash_type* hash;
-  hash = util_malloc(sizeof *hash );
+  hash = (hash_type*)util_malloc(sizeof *hash );
   UTIL_TYPE_ID_INIT(hash , HASH_TYPE_ID);
   hash->size      = size;
   hash->hashf     = hashf;
@@ -660,7 +656,7 @@ int hash_get_size(const hash_type *hash) {
 static hash_sort_type * hash_alloc_sort_list(const hash_type *hash ,
                                              const char **keylist) {
 
-  int i; hash_sort_type * sort_list = calloc(hash_get_size(hash) , sizeof * sort_list);
+  int i; hash_sort_type * sort_list = (hash_sort_type*)calloc(hash_get_size(hash) , sizeof * sort_list);
   for (i=0; i < hash_get_size(hash); i++)
     sort_list[i].key = util_alloc_string_copy(keylist[i]);
 
@@ -698,7 +694,7 @@ static char ** __hash_alloc_ordered_keylist(hash_type *hash , int ( hash_get_cmp
     sort_list[i].cmp_value = hash_get_cmp_value( hash_get(hash , sort_list[i].key) );
 
   qsort(sort_list , hash_get_size(hash) , sizeof *sort_list , &hash_sortlist_cmp);
-  sorted_keylist = calloc(hash_get_size(hash) , sizeof *sorted_keylist);
+  sorted_keylist = (char**)calloc(hash_get_size(hash) , sizeof *sorted_keylist);
   for (i = 0; i < hash_get_size(hash); i++) {
     sorted_keylist[i] = util_alloc_string_copy(sort_list[i].key);
     free(tmp_keylist[i]);
@@ -865,7 +861,7 @@ void hash_iter_restart( hash_iter_type * iter ) {
 
 
 hash_iter_type * hash_iter_alloc(const hash_type * hash) {
-  hash_iter_type * iter = util_malloc(sizeof * iter );
+  hash_iter_type * iter = (hash_iter_type*)util_malloc(sizeof * iter );
 
   iter->hash            = hash;
   iter->num_keys        = hash_get_size(hash);

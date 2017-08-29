@@ -67,7 +67,7 @@ char * subst_func_eval( const subst_func_type * subst_func , const stringlist_ty
 
 
 subst_func_type * subst_func_alloc( const char * func_name , const char * doc_string , subst_func_ftype * func , bool vararg, int argc_min , int argc_max , void * arg) {
-  subst_func_type * subst_func = util_malloc( sizeof * subst_func );
+  subst_func_type * subst_func = (subst_func_type*)util_malloc( sizeof * subst_func );
   UTIL_TYPE_ID_INIT( subst_func , SUBST_FUNC_TYPE_ID );
   subst_func->func       = func;
   subst_func->name       = util_alloc_string_copy( func_name );
@@ -101,7 +101,7 @@ static void subst_func_free__( void * arg ) {
 UTIL_IS_INSTANCE_FUNCTION( subst_func_pool , SUBST_FUNC_POOL_TYPE_ID);
 
 subst_func_pool_type * subst_func_pool_alloc( ) {
-  subst_func_pool_type * pool = util_malloc( sizeof * pool );
+  subst_func_pool_type * pool = (subst_func_pool_type*)util_malloc( sizeof * pool );
   UTIL_TYPE_ID_INIT( pool , SUBST_FUNC_POOL_TYPE_ID );
   pool->func_table = hash_alloc_unlocked();
   return pool;
@@ -122,7 +122,7 @@ void subst_func_pool_add_func( subst_func_pool_type * pool , const char * func_n
 
 
 subst_func_type * subst_func_pool_get_func( const subst_func_pool_type * pool , const char * func_name ) {
-  return hash_get( pool->func_table , func_name );
+  return (subst_func_type*)hash_get( pool->func_table , func_name );
 }
 
 bool subst_func_pool_has_func( const subst_func_pool_type * pool , const char * func_name ) {

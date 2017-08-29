@@ -6436,6 +6436,7 @@ ecl_kw_type * ecl_grid_alloc_gridhead_kw( int nx, int ny , int nz , int grid_nr)
   ecl_kw_iset_int( gridhead_kw , GRIDHEAD_NX_INDEX , nx);
   ecl_kw_iset_int( gridhead_kw , GRIDHEAD_NY_INDEX , ny);
   ecl_kw_iset_int( gridhead_kw , GRIDHEAD_NZ_INDEX , nz);
+  ecl_kw_iset_int( gridhead_kw , GRIDHEAD_NUMRES_INDEX , 1);
   ecl_kw_iset_int( gridhead_kw , GRIDHEAD_LGR_INDEX , grid_nr );
   return gridhead_kw;
 }

@@ -23,6 +23,20 @@
 
 #include <ert/ecl/ecl_smspec.h>
 
+void test_sort( ecl_smspec_type * smspec )
+{
+  int num_nodes = ecl_smspec_num_nodes( smspec );
+  ecl_smspec_sort( smspec );
+  test_assert_int_equal( num_nodes, ecl_smspec_num_nodes( smspec ));
+
+  for (int i=1; i < ecl_smspec_num_nodes( smspec ); i++) {
+    const smspec_node_type * node1 = ecl_smspec_iget_node( smspec, i - 1 );
+    const smspec_node_type * node2 = ecl_smspec_iget_node( smspec, i );
+    test_assert_true( smspec_node_cmp( node1 , node2 ) <= 0 );
+
+    test_assert_int_equal( smspec_node_get_params_index( node1 ) , i - 1 );
+  }
+}
 
 
 int main(int argc, char ** argv) {
@@ -37,6 +51,8 @@ int main(int argc, char ** argv) {
   test_assert_false( ecl_smspec_equal( smspec1 , smspec2 ));
   test_assert_false( ecl_smspec_equal( smspec2 , smspec1 ));
 
+  test_sort( smspec1 );
+  test_sort( smspec2 );
   ecl_smspec_free( smspec1 );
   ecl_smspec_free( smspec2 );
 }

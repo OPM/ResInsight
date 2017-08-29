@@ -92,7 +92,7 @@ node_data_type * hash_node_get_data(const hash_node_type * node) {
 
 hash_node_type * hash_node_alloc_new(const char *key, node_data_type * data, hashf_type *hashf , uint32_t table_size) {
   hash_node_type *node;
-  node              = util_malloc(sizeof *node );
+  node              = (hash_node_type*) util_malloc(sizeof *node );
   node->key         = util_alloc_string_copy( key );
   node->data        = data;
   node->next_node   = NULL;

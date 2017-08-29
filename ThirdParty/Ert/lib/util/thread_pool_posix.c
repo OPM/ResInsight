@@ -153,7 +153,7 @@ static UTIL_SAFE_CAST_FUNCTION( thread_pool , THREAD_POOL_TYPE_ID )
 static void thread_pool_resize_queue( thread_pool_type * pool, int queue_length ) {
   pthread_rwlock_wrlock( &pool->queue_lock );
   {
-    pool->queue            = util_realloc( pool->queue , queue_length * sizeof * pool->queue );
+    pool->queue            = (thread_pool_arg_type*)util_realloc( pool->queue , queue_length * sizeof * pool->queue );
     pool->queue_alloc_size = queue_length;
   }
   pthread_rwlock_unlock( &pool->queue_lock );
@@ -242,7 +242,7 @@ static void * thread_pool_main_loop( void * arg ) {
                take a copy of the node we are interested in.
             */
             pthread_rwlock_rdlock( &tp->queue_lock );
-            tp_arg = util_alloc_copy( &tp->queue[ tp->queue_index ] , sizeof * tp_arg );
+            tp_arg = (thread_pool_arg_type*)util_alloc_copy( &tp->queue[ tp->queue_index ] , sizeof * tp_arg );
             pthread_rwlock_unlock( &tp->queue_lock );
 
             tp_arg->slot_index = slot_index;
@@ -366,14 +366,14 @@ bool thread_pool_try_join(thread_pool_type * pool, int timeout_seconds) {
 
   pool->join = true;                               /* Signals to the main thread that joining can start. */
   if (pool->max_running > 0) {
-    struct timespec ts;
     time_t timeout_time = time( NULL );
-
     util_inplace_forward_seconds_utc(&timeout_time , timeout_seconds );
-    ts.tv_sec = timeout_time;
-    ts.tv_nsec = 0;
 
 #ifdef HAVE_TIMEDJOIN
+
+    struct timespec ts;
+    ts.tv_sec = timeout_time;
+    ts.tv_nsec = 0;
 
     {
       int join_return = pthread_timedjoin_np( pool->dispatch_thread , NULL , &ts);  /* Wait for the main thread to complete. */
@@ -423,9 +423,9 @@ bool thread_pool_try_join(thread_pool_type * pool, int timeout_seconds) {
 */
 
 thread_pool_type * thread_pool_alloc(int max_running , bool start_queue) {
-  thread_pool_type * pool = util_malloc( sizeof *pool );
+  thread_pool_type * pool = (thread_pool_type*)util_malloc( sizeof *pool );
   UTIL_TYPE_ID_INIT( pool , THREAD_POOL_TYPE_ID );
-  pool->job_slots         = util_calloc( max_running , sizeof * pool->job_slots );
+  pool->job_slots         = (thread_pool_job_slot_type*)util_calloc( max_running , sizeof * pool->job_slots );
   pool->max_running       = max_running;
   pool->queue             = NULL;
   pool->accepting_jobs    = false;

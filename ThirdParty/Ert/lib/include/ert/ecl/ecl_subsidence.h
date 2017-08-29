@@ -18,7 +18,7 @@
 */
 
 #ifndef ERT_ECL_SUBSIDENCE_H
-#define ERT_ECL_SUBSICENCE_H
+#define ERT_ECL_SUBSIDENCE_H
 #ifdef __plusplus
 extern "C" {
 #endif

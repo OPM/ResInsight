@@ -17,6 +17,7 @@
 import itertools, numpy
 from math import sqrt
 
+from ecl.util import monkey_the_camel
 from ecl.util import IntVector
 from ecl.ecl import EclGrid, EclKW, EclDataType, EclPrototype
 
@@ -60,7 +61,7 @@ class EclGridGenerator:
     _alloc_rectangular = EclPrototype("ecl_grid_obj ecl_grid_alloc_rectangular(int, int, int, double, double, double, int*)", bind=False)
 
     @classmethod
-    def createRectangular(cls, dims, dV, actnum=None):
+    def create_rectangular(cls, dims, dV, actnum=None):
         """
         Will create a new rectangular grid. @dims = (nx,ny,nz)  @dVg = (dx,dy,dz)
 
@@ -703,3 +704,5 @@ class EclGridGenerator:
                     "Either change one of the lower bounds by 1 " +
                     "or activate decomposition_change."
                     )
+
+monkey_the_camel(EclGridGenerator, 'createRectangular', EclGridGenerator.create_rectangular, classmethod)

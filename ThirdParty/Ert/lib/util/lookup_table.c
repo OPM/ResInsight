@@ -111,7 +111,7 @@ bool lookup_table_has_high_limit(const lookup_table_type * lt  ) {
 
 
 lookup_table_type * lookup_table_alloc( double_vector_type * x , double_vector_type * y , bool data_owner) {
-  lookup_table_type * lt = util_malloc( sizeof * lt);
+  lookup_table_type * lt = (lookup_table_type*)util_malloc( sizeof * lt);
   lt->data_owner = false;
   if ((x == NULL) && (y == NULL)) {
     x = double_vector_alloc(0 , 0);

@@ -192,6 +192,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   int                   ecl_sum_iget_report_end( const ecl_sum_type * ecl_sum , int report_step );
   int                   ecl_sum_iget_report_start( const ecl_sum_type * ecl_sum , int report_step );
 
+  ecl_sum_type * ecl_sum_alloc_restart_writer( const char * ecl_case , const char * restart_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz);
   ecl_sum_type        * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz);
   void                  ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case);
   void                  ecl_sum_fwrite( const ecl_sum_type * ecl_sum );

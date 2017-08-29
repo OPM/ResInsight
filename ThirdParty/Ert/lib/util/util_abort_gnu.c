@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include <ert/util/util.h>
+#include <ert/util/test_util.h>
 
 #include <stdbool.h>
 
@@ -66,10 +67,10 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
   *line_nr   = 0;
   {
     bool  address_found = false;
-    Dl_info dl_info;
 #if defined(__APPLE__)
-    return false;
+    return address_found;
 #else
+    Dl_info dl_info;
     if (dladdr(bt_addr , &dl_info)) {
       const char * executable = dl_info.dli_fname;
       *func_name = util_alloc_string_copy( dl_info.dli_sname );
@@ -77,7 +78,7 @@ static bool util_addr2line_lookup__(const void * bt_addr , char ** func_name , c
         char *stdout_file = util_alloc_tmp_file("/tmp" , "addr2line" , true);
         /* 1: Run addr2line application */
         {
-          char ** argv = util_calloc(3 , sizeof * argv );
+          char ** argv = (char**)util_calloc(3 , sizeof * argv );
           argv[0] = util_alloc_string_copy("--functions");
           argv[1] = util_alloc_sprintf("--exe=%s" , executable );
           {
@@ -148,7 +149,7 @@ static pthread_mutex_t __abort_mutex  = PTHREAD_MUTEX_INITIALIZER; /* Used purel
 
 static char * realloc_padding(char * pad_ptr , int pad_length) {
   int i;
-  pad_ptr = util_realloc( pad_ptr , (pad_length + 1) * sizeof * pad_ptr );
+  pad_ptr = (char*)util_realloc( pad_ptr , (pad_length + 1) * sizeof * pad_ptr );
   for (i=0; i < pad_length; i++)
     pad_ptr[i] = ' ';
   pad_ptr[pad_length] = '\0';
@@ -243,8 +244,7 @@ void util_abort_test_set_intercept_function(const char * function) {
   intercept_function = util_realloc_string_copy( intercept_function , function );
 }
 
-char* __abort_program_message;
-char* __current_executable;
+static char* __abort_program_message;
 
 void util_abort__(const char * file , const char * function , int line , const char * fmt , ...) {
   util_abort_test_intercept( function );

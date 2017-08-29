@@ -454,3 +454,13 @@ class KWTest(ExtendedTestCase):
                     loaded_kw = EclKW.fread(fortio)
 
                 self.assertEqual(kw, loaded_kw)
+
+                
+    def test_string_padding(self):
+        kw = EclKW("TEST_KW" , 1 , EclDataType.ECL_STRING(4))
+        kw[0] = "AB"
+        self.assertEqual( kw[0] , "AB  " )
+
+        kw = EclKW("TEST_KW" , 1 , EclDataType.ECL_CHAR)
+        kw[0] = "ABCD"
+        self.assertEqual( kw[0] , "ABCD    " )

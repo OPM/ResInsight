@@ -18,7 +18,7 @@
 void util_compress_buffer(const void * data , int data_size , void * zbuffer , unsigned long * compressed_size) {
   int compress_result;
   if (data_size > 0) {
-    compress_result = compress(zbuffer , compressed_size , data , data_size);
+    compress_result = compress((Bytef*)zbuffer , compressed_size , (const Bytef*)data , data_size);
     /**
        Have some not reproducible "one-in-a-thousand" problems with
        the return value from compress. It seemingly randomly returns:
@@ -176,7 +176,7 @@ void util_fread_compressed(void *__data , FILE * stream) {
         util_abort("%s: read only %d/%d bytes from compressed file - aborting \n",__func__ , bytes_read , compressed_size);
       
     }
-    uncompress_result = uncompress(&data[offset] , &block_size , zbuffer , compressed_size);
+    uncompress_result = uncompress(&data[offset] , &block_size , (const Bytef*)zbuffer , compressed_size);
     if (uncompress_result != Z_OK) {
       fprintf(stderr,"%s: ** Warning uncompress result:%d != Z_OK.\n" , __func__ , uncompress_result);
       /**
@@ -217,7 +217,7 @@ void * util_fread_alloc_compressed(FILE * stream) {
     return NULL;
   else {
     util_fseek(stream , current_pos , SEEK_SET);
-    data = util_calloc(size , sizeof * data );
+    data = (char*)util_calloc(size , sizeof * data );
     util_fread_compressed(data , stream);
     return data;
   }

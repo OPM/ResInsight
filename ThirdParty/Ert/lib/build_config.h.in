@@ -28,6 +28,8 @@
 #cmakedefine HAVE_CHMOD
 #cmakedefine HAVE_MODE_T
 #cmakedefine HAVE_CXX_SHARED_PTR
+#cmakedefine HAVE_POSIX_UNLINK
+#cmakedefine HAVE_WINDOWS_UNLINK
 
 
 #cmakedefine HAVE_WINDOWS_GET_TEMP_PATH

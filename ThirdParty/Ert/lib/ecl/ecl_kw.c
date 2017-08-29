@@ -850,9 +850,11 @@ void ecl_kw_iset_char_ptr( ecl_kw_type * ecl_kw , int index, const char * s) {
 }
 
 /**
- * This function will verify that the given string is of approperiate length
- * (0 <= lenght <= data_type.element_size). If so, the elements of @s will be
- * written to the @ecl_kw string array starting at @index.
+ This function will verify that the given string is of approperiate
+ length (0 <= lenght <= data_type.element_size). If so, the elements
+ of @s will be written to the @ecl_kw string array starting at
+ @index. If the input string is shorter than the type length the
+ string will be padded with trailing spaces.
  */
 void ecl_kw_iset_string_ptr( ecl_kw_type * ecl_kw, int index, const char * s) {
   if(!ecl_type_is_alpha(ecl_kw_get_data_type(ecl_kw))) {
@@ -866,11 +868,18 @@ void ecl_kw_iset_string_ptr( ecl_kw_type * ecl_kw, int index, const char * s) {
   if(input_len > type_len)
     util_abort("%s: String of length %d cannot hold input string of length %d\n", __func__, type_len, input_len);
 
-  char * ecl_string = (char *) ecl_kw_iget_ptr(ecl_kw, index);
-  for(int i = 0; i < input_len; ++i)
-    ecl_string[i] = s[i];
+  {
+    char * ecl_string = (char *) ecl_kw_iget_ptr(ecl_kw, index);
+    int i;
 
-  ecl_string[input_len] = '\0';
+    for(i = 0; i < input_len; ++i)
+      ecl_string[i] = s[i];
+
+    for (i=input_len; i < type_len; ++i)
+      ecl_string[i] = ' ';
+
+    ecl_string[type_len] = '\0';
+  }
 }
 
 

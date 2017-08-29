@@ -19,13 +19,13 @@
 #ifndef ERT_UI_RETURN_H
 #define ERT_UI_RETURN_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 
 #include <ert/util/type_macros.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct ui_return_struct ui_return_type;
 

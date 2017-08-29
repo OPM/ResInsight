@@ -62,7 +62,7 @@ void time_interval_reopen( time_interval_type * time_interval) {
 
 
 time_interval_type * time_interval_alloc( time_t start_time , time_t end_time ) {
-  time_interval_type * ti = util_malloc( sizeof * ti );
+  time_interval_type * ti = (time_interval_type*)util_malloc( sizeof * ti );
   time_interval_update( ti , start_time , end_time );
   return ti;
 }

@@ -18,13 +18,15 @@
 
 #ifndef ERT_PATH_FMT_H
 #define ERT_PATH_FMT_H
-#ifdef __cplusplus
-extern "C" {
-#endif
+
 #include <stdarg.h>
 #include <stdbool.h>
 
 #include <ert/util/node_ctype.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
   typedef struct path_fmt_struct path_fmt_type;
   

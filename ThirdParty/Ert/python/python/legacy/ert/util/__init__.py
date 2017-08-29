@@ -15,7 +15,6 @@ from ecl.util import Log
 from ecl.util import LookupTable
 from ecl.util import Buffer
 from ecl.util import Hash, StringHash, DoubleHash, IntegerHash
-from ecl.util import SubstitutionList
 from ecl.util import UIReturn
 from ecl.util import ThreadPool
 from ecl.util import CThreadPool, startCThreadPool
@@ -23,3 +22,8 @@ from ecl.util import installAbortSignals, updateAbortSignals
 from ecl.util import Profiler
 from ecl.util import ArgPack
 from ecl.util import PathFormat
+
+try:
+    from res.util import SubstitutionList
+except ImportError:
+    pass

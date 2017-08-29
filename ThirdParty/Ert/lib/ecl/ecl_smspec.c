@@ -292,12 +292,14 @@ int * ecl_smspec_alloc_mapping( const ecl_smspec_type * self, const ecl_smspec_t
 
   for (int i=0; i < ecl_smspec_num_nodes( self ); i++) {
     const smspec_node_type * self_node = ecl_smspec_iget_node( self , i );
-    int self_index = smspec_node_get_params_index( self_node );
-    const char * key = smspec_node_get_gen_key1( self_node );
-    if (ecl_smspec_has_general_var( other , key)) {
-      const smspec_node_type * other_node = ecl_smspec_get_general_var_node( other , key);
-      int other_index = smspec_node_get_params_index(other_node);
-      mapping[ self_index ]  =  other_index;
+    if (smspec_node_is_valid( self_node )) {
+      int self_index = smspec_node_get_params_index( self_node );
+      const char * key = smspec_node_get_gen_key1( self_node );
+      if (ecl_smspec_has_general_var( other , key)) {
+        const smspec_node_type * other_node = ecl_smspec_get_general_var_node( other , key);
+        int other_index = smspec_node_get_params_index(other_node);
+        mapping[ self_index ]  =  other_index;
+      }
     }
   }
 
@@ -344,12 +346,15 @@ void ecl_smspec_lock( ecl_smspec_type * smspec ) {
 static ecl_data_type get_wgnames_type(const ecl_smspec_type * smspec) {
   size_t max_len = 0;
   for(int i = 0; i < ecl_smspec_num_nodes(smspec); ++i) {
-    const char * name = smspec_node_get_wgname(ecl_smspec_iget_node(smspec, i));
-    if(name != NULL)
+    const smspec_node_type * node = ecl_smspec_iget_node(smspec, i);
+    if (smspec_node_is_valid( node )) {
+      const char * name = smspec_node_get_wgname( node );
+      if(name)
         max_len = util_size_t_max(max_len, strlen(name));
+    }
   }
 
-  return max_len <= 8 ? ECL_CHAR : ECL_STRING(max_len);
+  return max_len <= ECL_STRING8_LENGTH ? ECL_CHAR : ECL_STRING(max_len);
 }
 
 // DIMENS
@@ -364,9 +369,19 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
   int num_nodes           = ecl_smspec_num_nodes( smspec );
   {
     ecl_kw_type * restart_kw = ecl_kw_alloc( RESTART_KW , SUMMARY_RESTART_SIZE , ECL_CHAR );
-    int i;
-    for (i=0; i < SUMMARY_RESTART_SIZE; i++)
-      ecl_kw_iset_string8( restart_kw , i , "");
+    for (int i=0; i < SUMMARY_RESTART_SIZE; i++)
+           ecl_kw_iset_string8( restart_kw , i , "");
+
+    if (smspec->restart_case != NULL) {
+       int restart_case_len = strlen(smspec->restart_case);                           
+     
+       int offset = 0;
+       for (int i = 0; i < SUMMARY_RESTART_SIZE ; i++) {
+          if (offset < restart_case_len)
+              ecl_kw_iset_string8( restart_kw , i , &smspec->restart_case[ offset ]);
+          offset += ECL_STRING8_LENGTH;
+       } 
+    }
 
     ecl_kw_fwrite( restart_kw , fortio );
     ecl_kw_free( restart_kw );
@@ -435,7 +450,7 @@ static void ecl_smspec_fortio_fwrite( const ecl_smspec_type * smspec , fortio_ty
           ecl_kw_iset_string8( units_kw , i , smspec_node_get_unit( smspec_node ));
           {
             const char * wgname = DUMMY_WELL;
-            if (smspec_node_get_wgname( smspec_node ) != NULL)
+            if (smspec_node_get_wgname( smspec_node ))
               wgname = smspec_node_get_wgname( smspec_node );
             ecl_kw_iset_string_ptr( wgnames_kw , i , wgname);
           }
@@ -486,9 +501,15 @@ void ecl_smspec_fwrite( const ecl_smspec_type * smspec , const char * ecl_case ,
   free( filename );
 }
 
-ecl_smspec_type * ecl_smspec_alloc_writer( const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
+ecl_smspec_type * ecl_smspec_alloc_writer( const char * key_join_string , const char * restart_case, time_t sim_start , bool time_in_days , int nx , int ny , int nz) {
   ecl_smspec_type * ecl_smspec = ecl_smspec_alloc_empty( true , key_join_string );
-
+  
+  if (restart_case != NULL) {
+     if (strlen(restart_case) <= (SUMMARY_RESTART_SIZE * ECL_STRING8_LENGTH))
+        ecl_smspec->restart_case = util_alloc_string_copy( restart_case );
+     else 
+        return NULL;
+  }
   ecl_smspec->grid_dims[0] = nx;
   ecl_smspec->grid_dims[1] = ny;
   ecl_smspec->grid_dims[2] = nz;
@@ -989,7 +1010,7 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
     char * restart_base;
     int i;
     tmp_base[0] = '\0';
-    for (i=0; i < ecl_kw_get_size( restart_kw ); i++)
+    for (i=0; i < ecl_kw_get_size( restart_kw ); i++) 
       strcat( tmp_base , ecl_kw_iget_ptr( restart_kw , i ));
 
     restart_base = util_alloc_strip_copy( tmp_base );
@@ -1020,13 +1041,13 @@ void ecl_smspec_index_node( ecl_smspec_type * ecl_smspec , smspec_node_type * sm
     well or group name can be left at NULL. In that case the node is
     not installed in the different indexes.
   */
-  // var_type == ECL_SMSPEC_INVALID_VAR??
-  if (smspec_node_get_gen_key1( smspec_node ) != NULL) {
+  if (smspec_node_is_valid( smspec_node )) {
     ecl_smspec_install_gen_keys( ecl_smspec , smspec_node );
     ecl_smspec_install_special_keys( ecl_smspec , smspec_node );
+
+    if (smspec_node_need_nums( smspec_node ))
+      ecl_smspec->need_nums = true;
   }
-  if (smspec_node_need_nums( smspec_node ))
-    ecl_smspec->need_nums = true;
 }
 
 
@@ -1073,10 +1094,8 @@ void ecl_smspec_add_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smsp
 
 
 void ecl_smspec_init_var( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node , const char * keyword , const char * wgname , int num, const char * unit ) {
-  if (smspec_node_init( smspec_node , ecl_smspec_identify_var_type( keyword ) , wgname , keyword , unit , ecl_smspec->key_join_string , ecl_smspec->grid_dims , num ))
-    ecl_smspec_index_node( ecl_smspec , smspec_node );
-  else
-    util_abort("%s: initializing node failed \n",__func__);
+  smspec_node_init( smspec_node , ecl_smspec_identify_var_type( keyword ) , wgname , keyword , unit , ecl_smspec->key_join_string , ecl_smspec->grid_dims , num );
+  ecl_smspec_index_node( ecl_smspec , smspec_node );
 }
 
 
@@ -1177,10 +1196,7 @@ static bool ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
           smspec_node = smspec_node_alloc( var_type , well , kw , unit , ecl_smspec->key_join_string , ecl_smspec->grid_dims , num , params_index , default_value);
 
 
-        if (smspec_node != NULL) {
-          /** OK - we know this is valid shit. */
-          ecl_smspec_add_node( ecl_smspec , smspec_node );
-        }
+        ecl_smspec_add_node( ecl_smspec , smspec_node );
 
         free( kw );
         free( well );
@@ -1860,4 +1876,15 @@ void ecl_smspec_update_wgname( ecl_smspec_type * smspec , smspec_node_type * nod
 
 char * ecl_smspec_alloc_well_key( const ecl_smspec_type * smspec , const char * keyword , const char * wgname) {
   return smspec_alloc_well_key( smspec->key_join_string , keyword , wgname );
+}
+
+
+void ecl_smspec_sort( ecl_smspec_type * smspec ) {
+  vector_sort( smspec->smspec_nodes , smspec_node_cmp__);
+
+  for (int i=0; i < vector_get_size( smspec->smspec_nodes ); i++) {
+    smspec_node_type * node = vector_iget( smspec->smspec_nodes , i );
+    smspec_node_set_params_index( node , i );
+  }
+
 }

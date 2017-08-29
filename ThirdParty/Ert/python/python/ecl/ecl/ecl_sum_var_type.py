@@ -13,6 +13,7 @@
 #
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
+
 from cwrap import BaseCEnum
 from ecl.ecl import ECL_LIB
 
@@ -20,36 +21,36 @@ from ecl.ecl import ECL_LIB
 class EclSumVarType(BaseCEnum):
     TYPE_NAME = "ecl_sum_var_type"
     ECL_SMSPEC_INVALID_VAR            = None
-    ECL_SMSPEC_AQUIFER_VAR            = None
-    ECL_SMSPEC_WELL_VAR               = None
-    ECL_SMSPEC_REGION_VAR             = None
     ECL_SMSPEC_FIELD_VAR              = None
+    ECL_SMSPEC_REGION_VAR             = None
     ECL_SMSPEC_GROUP_VAR              = None
+    ECL_SMSPEC_WELL_VAR               = None
+    ECL_SMSPEC_SEGMENT_VAR            = None
     ECL_SMSPEC_BLOCK_VAR              = None
+    ECL_SMSPEC_AQUIFER_VAR            = None
     ECL_SMSPEC_COMPLETION_VAR         = None
+    ECL_SMSPEC_NETWORK_VAR            = None
+    ECL_SMSPEC_REGION_2_REGION_VAR    = None
     ECL_SMSPEC_LOCAL_BLOCK_VAR        = None
     ECL_SMSPEC_LOCAL_COMPLETION_VAR   = None
     ECL_SMSPEC_LOCAL_WELL_VAR         = None
-    ECL_SMSPEC_NETWORK_VAR            = None
-    ECL_SMSPEC_REGION_2_REGION_VAR    = None
-    ECL_SMSPEC_SEGMENT_VAR            = None
     ECL_SMSPEC_MISC_VAR               = None
 
-
-
-EclSumVarType.addEnum("ECL_SMSPEC_INVALID_VAR",  0)
-EclSumVarType.addEnum("ECL_SMSPEC_AQUIFER_VAR",  1) 
-EclSumVarType.addEnum("ECL_SMSPEC_WELL_VAR",  2) 
-EclSumVarType.addEnum("ECL_SMSPEC_REGION_VAR",  3) 
-EclSumVarType.addEnum("ECL_SMSPEC_FIELD_VAR",  4) 
-EclSumVarType.addEnum("ECL_SMSPEC_GROUP_VAR",  5) 
-EclSumVarType.addEnum("ECL_SMSPEC_BLOCK_VAR",  6) 
-EclSumVarType.addEnum("ECL_SMSPEC_COMPLETION_VAR",  7) 
-EclSumVarType.addEnum("ECL_SMSPEC_LOCAL_BLOCK_VAR",  8) 
-EclSumVarType.addEnum("ECL_SMSPEC_LOCAL_COMPLETION_VAR",  9) 
-EclSumVarType.addEnum("ECL_SMSPEC_LOCAL_WELL_VAR", 10) 
-EclSumVarType.addEnum("ECL_SMSPEC_NETWORK_VAR", 11)
-EclSumVarType.addEnum("ECL_SMSPEC_REGION_2_REGION_VAR", 12)
-EclSumVarType.addEnum("ECL_SMSPEC_SEGMENT_VAR", 13)
+    
+EclSumVarType.addEnum("ECL_SMSPEC_INVALID_VAR", 0)
+EclSumVarType.addEnum("ECL_SMSPEC_FIELD_VAR", 1)
+EclSumVarType.addEnum("ECL_SMSPEC_REGION_VAR", 2)
+EclSumVarType.addEnum("ECL_SMSPEC_GROUP_VAR", 3)
+EclSumVarType.addEnum("ECL_SMSPEC_WELL_VAR", 4)
+EclSumVarType.addEnum("ECL_SMSPEC_SEGMENT_VAR", 5)
+EclSumVarType.addEnum("ECL_SMSPEC_BLOCK_VAR", 6)
+EclSumVarType.addEnum("ECL_SMSPEC_AQUIFER_VAR", 7)
+EclSumVarType.addEnum("ECL_SMSPEC_COMPLETION_VAR", 8)
+EclSumVarType.addEnum("ECL_SMSPEC_NETWORK_VAR", 9)
+EclSumVarType.addEnum("ECL_SMSPEC_REGION_2_REGION_VAR", 10)
+EclSumVarType.addEnum("ECL_SMSPEC_LOCAL_BLOCK_VAR", 11)
+EclSumVarType.addEnum("ECL_SMSPEC_LOCAL_COMPLETION_VAR", 12)
+EclSumVarType.addEnum("ECL_SMSPEC_LOCAL_WELL_VAR", 13)
 EclSumVarType.addEnum("ECL_SMSPEC_MISC_VAR", 14)
+    
 

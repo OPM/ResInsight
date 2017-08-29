@@ -88,7 +88,7 @@ basic_parser_type * basic_parser_alloc(
   const char * comment_start,    /** Set to NULL if not interessting.            */
   const char * comment_end)      /** Set to NULL  if not interessting.           */
 {
-  basic_parser_type * parser = util_malloc(sizeof * parser);
+  basic_parser_type * parser = (basic_parser_type*)util_malloc(sizeof * parser);
   parser->splitters     = NULL;
   parser->delete_set    = NULL;
   parser->quoters       = NULL;
@@ -261,11 +261,11 @@ static int length_of_comment(  const char * buffer_position, const basic_parser_
 static char * alloc_quoted_token( const char * buffer, int length,  bool strip_quote_marks) {
   char * token;
   if(!strip_quote_marks) {
-    token = util_calloc( (length + 1) , sizeof * token );
+    token = (char*)util_calloc( (length + 1) , sizeof * token );
     memmove(token, &buffer[0], length * sizeof * token );
     token[length] = '\0';
   } else  {
-    token = util_calloc( (length - 1) , sizeof * token);
+    token = (char*)util_calloc( (length - 1) , sizeof * token);
     memmove(token, &buffer[1], (length -1) * sizeof * token);
     token[length-2] = '\0';
     /**
@@ -432,7 +432,7 @@ stringlist_type * basic_parser_tokenize_buffer(
 
     {
       int length   = length_of_normal_non_splitters( &buffer[position], parser );
-      char * token = util_calloc( (length + 1) , sizeof * token);
+      char * token = (char*)util_calloc( (length + 1) , sizeof * token);
       int token_length;
       if (parser->delete_set == NULL) {
         token_length = length;
@@ -623,7 +623,7 @@ bool basic_parser_fseek_string(const basic_parser_type * parser , FILE * stream 
 
 void basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buffer) {
   char * src     = *__buffer;
-  char * target  = util_calloc( ( strlen( *__buffer ) + 1) , sizeof * target );
+  char * target  = (char*)util_calloc( ( strlen( *__buffer ) + 1) , sizeof * target );
 
   int src_position    = 0;
   int target_position = 0;
@@ -672,7 +672,7 @@ void basic_parser_strip_buffer(const basic_parser_type * parser , char ** __buff
     target_position += 1;
   }
   target[target_position] = '\0';
-  target = util_realloc( target , sizeof * target * (target_position + 1) );
+  target = (char*)util_realloc( target , sizeof * target * (target_position + 1) );
   
   free( src );
   *__buffer = target;

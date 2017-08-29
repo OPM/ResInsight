@@ -37,7 +37,7 @@ void test_error_exit( const char * fmt , ...) {
   va_start(ap , fmt);
   s = util_alloc_sprintf_va(fmt , ap);
   va_end(ap);
-  fprintf(stderr , s );
+  fprintf(stderr, "%s", s);
   exit(1);
 }
 
@@ -50,7 +50,7 @@ void test_exit__(const char * file , int line , const char * fmt , ...) {
     va_start(ap , fmt);
     s = util_alloc_sprintf_va(fmt , ap);
     va_end(ap);
-    fprintf(stderr , s );
+    fprintf(stderr, "%s", s);
     exit(1);
   }
 }

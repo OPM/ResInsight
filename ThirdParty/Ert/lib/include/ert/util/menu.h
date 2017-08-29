@@ -19,6 +19,10 @@
 #ifndef ERT_MENU_H
 #define ERT_MENU_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif //__cplusplus
+
 typedef struct menu_struct menu_type;
 typedef struct menu_item_struct menu_item_type;
 
@@ -39,5 +43,9 @@ void             menu_item_set_label( menu_item_type * , const char *);
 void             menu_item_disable( menu_item_type * item );
 void             menu_item_enable( menu_item_type * item );
 void             menu_add_helptext(menu_type * menu, const char * label );
+
+#ifdef __cplusplus
+}
+#endif //__cplusplus
 
 #endif

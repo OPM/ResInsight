@@ -1,6 +1,5 @@
 find_package(Sphinx REQUIRED)
 if (SPHINX_FOUND)
-  set( ERT_DOC_INSTALL_PATH  "" CACHE PATH "Absolute path to install documentation *in addition* to $PREFIX/documentation")
   set( ERT_DOC_EXTERNAL_ROOT "" CACHE PATH "Path to site local ERT documentation")
 
   file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/doc-src")
@@ -21,7 +20,7 @@ if (SPHINX_FOUND)
   if (BUILD_PYTHON)
      add_custom_target(api-doc ALL
        COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_CURRENT_SOURCE_DIR}/code" "${PROJECT_BINARY_DIR}/doc-src/code"
-       COMMAND sphinx-apidoc -e -o doc-src/API/python ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}
+       COMMAND sphinx-apidoc -e -o doc-src/API/python/ecl ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX}
        DEPENDS ecl
        WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   endif()

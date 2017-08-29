@@ -48,9 +48,7 @@ extern "C" {
 
   void               buffer_free_container( buffer_type * buffer );
   void               buffer_free( buffer_type * buffer);
-  size_t             buffer_safe_fread(buffer_type * buffer , void * target_ptr , size_t item_size , size_t items);
   size_t             buffer_fread(buffer_type * buffer , void * target_ptr , size_t item_size , size_t items);
-  size_t             buffer_safe_fwrite(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items);
   size_t             buffer_fwrite(buffer_type * buffer , const void * src_ptr , size_t item_size , size_t items);
   void               buffer_summarize(const buffer_type * buffer , const char *);
 

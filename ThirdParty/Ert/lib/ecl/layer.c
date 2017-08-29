@@ -452,7 +452,7 @@ static bool layer_find_edge( const layer_type * layer , int *i , int *j , int va
 bool layer_trace_block_edge( const layer_type * layer , int start_i , int start_j , int value , struct_vector_type * corner_list , int_vector_type * cell_list) {
   int g = layer_get_global_cell_index( layer , start_i , start_j);
   cell_type * cell = &layer->data[g];
-  if ((cell->cell_value == value)) {
+  if (cell->cell_value == value) {
     int i = start_i;
     int j = start_j;
 

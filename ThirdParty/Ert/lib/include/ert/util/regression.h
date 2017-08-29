@@ -19,13 +19,11 @@
 #ifndef ERT_REGRESSION_H
 #define ERT_REGRESSION_H
 
+#include <ert/util/matrix.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <ert/util/matrix.h>
-
-
 double  regression_scale( matrix_type * X ,  matrix_type * Y , matrix_type * X_mean , matrix_type * X_norm);
 double  regression_unscale(const matrix_type * beta , const matrix_type * X_norm , const matrix_type * X_mean , double Y_mean , matrix_type * beta0);
 void    regression_augmented_OLS(const matrix_type * X , const matrix_type * Y , const matrix_type *E, matrix_type * beta);

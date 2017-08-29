@@ -63,10 +63,10 @@ char ** util_alloc_PATH_list() {
     int     path_size;
     
     util_split_string(path_env , PATHVAR_SPLIT , &path_size , &path_list);
-    path_list = util_realloc( path_list , (path_size + 1) * sizeof * path_list);
+    path_list = (char**)util_realloc( path_list , (path_size + 1) * sizeof * path_list);
     path_list[path_size] = NULL;
   } else {
-    path_list = util_malloc( sizeof * path_list);
+    path_list = (char**)util_malloc( sizeof * path_list);
     path_list[0] = NULL;
   }
   return path_list;
@@ -238,7 +238,7 @@ char * util_alloc_envvar( const char * value ) {
     
     while (true) {
       if (buffer_strchr( buffer , '$')) {
-        const char * data = buffer_get_data( buffer );
+        const char * data = (const char*)buffer_get_data( buffer );
         int offset        = buffer_get_offset( buffer ) + 1;    /* Points at the first character following the '$' */
         int var_length = 0;
         
@@ -272,7 +272,7 @@ char * util_alloc_envvar( const char * value ) {
     
     buffer_shrink_to_fit( buffer );
     {
-      char * expanded_value = buffer_get_data( buffer );
+      char * expanded_value = (char*)buffer_get_data( buffer );
       buffer_free_container( buffer );
       return expanded_value;
     }

@@ -1,3 +1,0 @@
-The ert.config package
-======================
-

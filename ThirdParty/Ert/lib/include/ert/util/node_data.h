@@ -18,10 +18,12 @@
 
 #ifndef ERT_NODE_DATA_H
 #define ERT_NODE_DATA_H
+
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <stdbool.h>
 
 typedef void       * (  copyc_ftype ) (const void *);
 typedef void         (  free_ftype )  (void *);

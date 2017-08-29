@@ -1,19 +1,19 @@
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
 #  The file 'ecl_subsidence.py' is part of ERT - Ensemble based
 #  Reservoir Tool.
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 """
 Calculate dynamic change in gravitational strength.
 
@@ -24,12 +24,12 @@ ecl_subsidence.c implementation in the libecl library.
 """
 from cwrap import BaseCClass
 from ecl.ecl import EclPrototype
-
+from ecl.util import monkey_the_camel
 
 class EclSubsidence(BaseCClass):
     """
     Holding ECLIPSE results for calculating subsidence changes.
-    
+
     The EclSubsidence class is a collection class holding the results from
     ECLIPSE forward modelling of subsidence surveys. Observe that the
     class is focused on the ECLIPSE side of things, and does not have
@@ -52,7 +52,7 @@ class EclSubsidence(BaseCClass):
 
     def __init__( self, grid, init_file ):
         """
-        Creates a new EclSubsidence instance. 
+        Creates a new EclSubsidence instance.
 
         The input arguments @grid and @init_file should be instances
         of EclGrid and EclFile respectively.
@@ -65,7 +65,7 @@ class EclSubsidence(BaseCClass):
     def __contains__(self , survey_name):
         return self._has_survey( survey_name )
 
-    
+
 
     def add_survey_PRESSURE( self, survey_name, restart_file ):
         """
@@ -92,30 +92,30 @@ class EclSubsidence(BaseCClass):
         self._add_survey_PRESSURE( survey_name, restart_file)
 
 
-    def evalGeertsma(self, base_survey, monitor_survey, pos, youngs_modulus, poisson_ratio, seabed, region=None):
+    def eval_geertsma(self, base_survey, monitor_survey, pos, youngs_modulus, poisson_ratio, seabed, region=None):
         if not base_survey in self:
             raise KeyError("No such survey: %s" % base_survey)
 
         if monitor_survey is not None:
             if not monitor_survey in self:
                 raise KeyError("No such survey: %s" % monitor_survey)
-        
+
         return self._eval_geertsma(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], youngs_modulus, poisson_ratio, seabed)
 
     def eval(self, base_survey, monitor_survey, pos, compressibility, poisson_ratio, region=None):
         """
         Calculates the subsidence change between two surveys.
-        
+
         This is the method everything is leading up to; will calculate
         the change in subsidence, in centimeters,
         between the two surveys named @base_survey and
-        @monitor_survey. 
+        @monitor_survey.
 
         The monitor survey can be 'None' - the resulting answer has
         nothing whatsovever to do with subsidence, but can be
         interesting to determine the numerical size of the quantities
         which are subtracted in a 4D study.
-        
+
         The @pos argument should be a tuple of three elements with the
         (utm_x , utm_y , depth) position where we want to evaluate the
         change in subsidence.
@@ -131,10 +131,13 @@ class EclSubsidence(BaseCClass):
 
         if not monitor_survey in self:
             raise KeyError("No such survey: %s" % monitor_survey)
-        
+
         return self._eval(base_survey, monitor_survey, region, pos[0], pos[1], pos[2], compressibility,poisson_ratio)
 
 
-    
+
     def free(self):
         self._free( )
+
+
+monkey_the_camel(EclSubsidence, 'evalGeertsma', EclSubsidence.eval_geertsma)

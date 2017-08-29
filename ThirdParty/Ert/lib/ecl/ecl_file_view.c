@@ -777,3 +777,35 @@ ecl_file_view_type * ecl_file_view_add_summary_view( ecl_file_view_type * file_v
 void ecl_file_view_fclose_stream( ecl_file_view_type * file_view ) {
   fortio_fclose_stream( file_view->fortio );
 }
+
+void ecl_file_view_write_index(const ecl_file_view_type * file_view, FILE * ostream) {
+  int size = ecl_file_view_get_size(file_view);
+  util_fwrite_int( size , ostream);
+  
+  ecl_file_kw_type * file_kw;
+  for (int i = 0; i < size; i++) {
+     file_kw = ecl_file_view_iget_file_kw( file_view, i );
+     ecl_file_kw_fwrite( file_kw , ostream );
+  }
+}
+
+ecl_file_view_type * ecl_file_view_fread_alloc( fortio_type * fortio , int * flags , inv_map_type * inv_map, FILE * istream ) {
+
+  int index_size = util_fread_int(istream);
+  ecl_file_kw_type ** file_kw_list = ecl_file_kw_fread_alloc_multiple( istream, index_size);
+  if (file_kw_list) {
+    ecl_file_view_type * file_view = ecl_file_view_alloc( fortio , flags , inv_map , true ); 
+    for (int i=0; i < index_size; i++)
+      ecl_file_view_add_kw(file_view , file_kw_list[i]);
+
+    free(file_kw_list);
+    ecl_file_view_make_index( file_view );
+    return file_view;
+  }
+  else {
+    fprintf(stderr, "%s: error reading ecl_file_type index file.\n", __func__);
+    return NULL;
+  }
+  
+}
+
