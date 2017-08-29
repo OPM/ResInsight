@@ -349,7 +349,7 @@ QString RiuResultTextBuilder::nncResultText()
                 {
                     size_t scalarResultIdx = m_reservoirView->currentFaultResultColors()->scalarResultIndex();
                     RiaDefines::ResultCatType resultType = m_reservoirView->currentFaultResultColors()->resultType();
-                    const std::vector<double>* nncValues;
+                    const std::vector<double>* nncValues = nullptr;
                     if (resultType == RiaDefines::STATIC_NATIVE)
                     {
                         nncValues = nncData->staticConnectionScalarResult(scalarResultIdx);
