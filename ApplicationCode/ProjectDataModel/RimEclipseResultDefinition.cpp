@@ -244,6 +244,7 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         if (m_phaseSelection() != RigFlowDiagResultAddress::PHASE_ALL)
         {
+            m_resultType = m_resultTypeUiField;
             m_resultVariable = RIG_FLD_TOF_RESNAME;
             m_resultVariableUiField = RIG_FLD_TOF_RESNAME;
         }
