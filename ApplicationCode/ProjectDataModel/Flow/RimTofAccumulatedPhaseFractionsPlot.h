@@ -85,6 +85,7 @@ protected:
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
+    caf::PdmField<int>                              m_maxTof;
 
     QPointer<RiuTofAccumulatedPhaseFractionsPlot>   m_tofAccumulatedPhaseFractionsPlotWidget;
 };

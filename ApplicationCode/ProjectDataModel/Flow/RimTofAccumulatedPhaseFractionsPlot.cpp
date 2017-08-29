@@ -53,6 +53,8 @@ RimTofAccumulatedPhaseFractionsPlot::RimTofAccumulatedPhaseFractionsPlot()
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
     m_showPlotTitle.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_maxTof, "MaxTof", 50, "Max Time of Flight [year]", "", "", "");
     m_showWindow = false;
 }
 
@@ -148,6 +150,10 @@ void RimTofAccumulatedPhaseFractionsPlot::fieldChangedByUi(const caf::PdmFieldHa
     {
         updateMdiWindowTitle();
     }
+    else if (changedField == &m_maxTof)
+    {
+        loadDataAndUpdate();
+    }
  
 }
 
@@ -197,7 +203,7 @@ void RimTofAccumulatedPhaseFractionsPlot::loadDataAndUpdate()
         const std::vector<double>& oilValues = calc.accumulatedPhaseFractionsSoil();
         const std::vector<double>& gasValues = calc.accumulatedPhaseFractionsSgas();
 
-        m_tofAccumulatedPhaseFractionsPlotWidget->setSamples(xValues, watValues, oilValues, gasValues);
+        m_tofAccumulatedPhaseFractionsPlotWidget->setSamples(xValues, watValues, oilValues, gasValues, m_maxTof());
     }
 }
 

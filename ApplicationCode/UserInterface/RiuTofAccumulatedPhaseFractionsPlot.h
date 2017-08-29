@@ -52,7 +52,8 @@ public:
     void                            setSamples(std::vector<double> xSamples,
                                                std::vector<double> watValues,
                                                std::vector<double> oilValues,
-                                               std::vector<double> gasValues);
+                                               std::vector<double> gasValues,
+                                               int maxTofYears);
 
 protected:
     virtual QSize                   sizeHint() const override;
