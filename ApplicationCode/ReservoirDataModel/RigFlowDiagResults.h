@@ -84,7 +84,9 @@ public:
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex,
                                                                                            CellFilter cellSelection,
                                                                                            const std::vector<QString>& tracerNames,
-                                                                                           double max_pv_fraction);
+                                                                                           double max_pv_fraction,
+                                                                                           double minCommunication,
+                                                                                           int maxTof);
 
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame  flowCharacteristicsResults(int frameIndex,
                                                                                            const std::vector<char>& visibleActiveCells,

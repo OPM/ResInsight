@@ -93,6 +93,8 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
     CAF_PDM_InitFieldNoDefault(&m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "");
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     CAF_PDM_InitFieldNoDefault(&m_showRegion, "ShowRegion", "", "", "", "");
+    CAF_PDM_InitField(&m_minCommunication, "MinCommunication", 0.0, "Min Communication", "", "", "");
+    CAF_PDM_InitField(&m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]", "", "", "");
     m_showRegion.xmlCapability()->setIOWritable(false);
     m_showRegion.xmlCapability()->setIOReadable(false);
     m_showRegion.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
@@ -363,6 +365,16 @@ void RimFlowCharacteristicsPlot::defineUiOrdering(QString uiConfigName, caf::Pdm
         {
             regionGroup->add(&m_cellFilterView);
         }
+
+        if (m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION)
+        {
+            regionGroup->add(&m_minCommunication);
+        }
+        else if (m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED ||
+                 m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED)
+        {
+            regionGroup->add(&m_maxTof);
+        }
     }
 
     {
@@ -602,7 +614,12 @@ void RimFlowCharacteristicsPlot::loadDataAndUpdate()
             }
             else
             {
-                auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx, m_cellFilter(), selectedTracerNames, m_maxPvFraction());
+                auto flowCharResults = flowResult->flowCharacteristicsResults(timeStepIdx,
+                                                                              m_cellFilter(),
+                                                                              selectedTracerNames,
+                                                                              m_maxPvFraction(),
+                                                                              m_minCommunication(),
+                                                                              m_maxTof());
                 timeStepToFlowResultMap[timeStepIdx] = flowCharResults;
             }
             lorenzVals[timeStepIdx] = timeStepToFlowResultMap[timeStepIdx].m_lorenzCoefficient;

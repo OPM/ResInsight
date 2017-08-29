@@ -104,6 +104,9 @@ private:
     caf::PdmField< std::vector<QString> >           m_selectedTracerNames;
     caf::PdmField<bool>                             m_showRegion;
 
+    caf::PdmField<double>                           m_minCommunication;
+    caf::PdmField<int>                              m_maxTof;
+
     std::vector<int>                                m_currentlyPlottedTimeSteps;
 
     QPointer<RiuFlowCharacteristicsPlot>            m_flowCharPlotWidget;

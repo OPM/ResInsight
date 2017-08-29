@@ -695,7 +695,9 @@ std::vector<int> RigFlowDiagResults::calculatedTimeSteps(RigFlowDiagResultAddres
 RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::flowCharacteristicsResults(int frameIndex,
                                                                                                           CellFilter cellSelection,
                                                                                                           const std::vector<QString>& tracerNames,
-                                                                                                          double max_pv_fraction)
+                                                                                                          double max_pv_fraction,
+                                                                                                          double minCommunication,
+                                                                                                          int maxTof)
 {
     std::set<std::string> injectorNames;
     std::set<std::string> producerNames;
@@ -734,7 +736,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
 
         for (size_t i = 0; i < communicationResult->size(); ++i)
         {
-            if (communicationResult->at(i) != HUGE_VAL && communicationResult->at(i) >= 0)
+            if (communicationResult->at(i) != HUGE_VAL && communicationResult->at(i) >= minCommunication)
             {
                 selectedCellIndices.push_back(i);
                 if (allInjectorResults != nullptr) injectorResults.push_back(allInjectorResults->at(i));
@@ -748,7 +750,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
         {
             for (size_t i = 0; i < allInjectorResults->size(); ++i)
             {
-                if (allInjectorResults->at(i) != HUGE_VAL)
+                if (allInjectorResults->at(i) != HUGE_VAL && allInjectorResults->at(i) <= maxTof)
                 {
                     selectedCellIndices.push_back(i);
                     injectorResults.push_back(allInjectorResults->at(i));
@@ -770,7 +772,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagResults::f
         {
             for (size_t i = 0; i < allProducerResults->size(); ++i)
             {
-                if (allProducerResults->at(i) != HUGE_VAL)
+                if (allProducerResults->at(i) != HUGE_VAL && allProducerResults->at(i) <= maxTof)
                 {
                     selectedCellIndices.push_back(i);
                     producerResults.push_back(allProducerResults->at(i));
