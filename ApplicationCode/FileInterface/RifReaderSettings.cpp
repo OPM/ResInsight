@@ -40,7 +40,10 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField(&importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data", "", "", "");
     importAdvancedMswData.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&useResultIndexFile, "useResultIndexFile", false, "Use Result Index File", "", "", "");
+    CAF_PDM_InitField(&useResultIndexFile, "useResultIndexFile", false, "Use Result Index File", "",
+                      "After import of a result file, store index data in an index file in the same folder as the result file.\n"
+                      "Import of result data if a result index file is present, will reduce file parsing significantly.", "");
+
     useResultIndexFile.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&skipWellData, "skipWellData", false, "Skip Import of Simulation Well Data", "", "", "");
