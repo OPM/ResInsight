@@ -13,6 +13,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileResampleUi.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.h
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputVisibleCellsFeature.h
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputVisibleCellsUi.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.h
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSnapshotAllPlotsToFileFeature.h
@@ -31,6 +33,8 @@ ${CEE_CURRENT_LIST_DIR}RicExportMultipleSnapshotsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportToLasFileResampleUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputPropertyFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputVisibleCellsFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSaveEclipseInputVisibleCellsUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyExec.cpp
 ${CEE_CURRENT_LIST_DIR}RicSaveEclipseResultAsInputPropertyFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSnapshotAllPlotsToFileFeature.cpp

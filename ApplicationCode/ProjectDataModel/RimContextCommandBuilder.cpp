@@ -125,6 +125,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewViewFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
+            commandIds << "RicSaveEclipseInputVisibleCellsFeature";
         }
         else if (dynamic_cast<RimCaseCollection*>(uiItem))
         {
