@@ -24,22 +24,22 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTools.h"
 
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTextEditor.h"
 
 #include <QDateTime>
-#include "cafPdmUiPushButtonEditor.h"
 
 namespace caf {
 
     template<>
     void caf::AppEnum< RimTimeStepFilter::TimeStepFilterTypeEnum >::setUp()
     {
-        addItem(RimTimeStepFilter::TS_ALL, "TS_ALL", "All");
-        addItem(RimTimeStepFilter::TS_INTERVAL_DAYS, "TS_INTERVAL_DAYS", "Skip by Days");
-        addItem(RimTimeStepFilter::TS_INTERVAL_WEEKS, "TS_INTERVAL_WEEKS", "Skip by Weeks");
-        addItem(RimTimeStepFilter::TS_INTERVAL_MONTHS, "TS_INTERVAL_MONTHS", "Skip by Months");
-        addItem(RimTimeStepFilter::TS_INTERVAL_QUARTERS, "TS_INTERVAL_QUARTERS", "Skip by Quarters");
-        addItem(RimTimeStepFilter::TS_INTERVAL_YEARS, "TS_INTERVAL_YEARS", "Skip by Years");
+        addItem(RimTimeStepFilter::TS_ALL,                  "TS_ALL",               "All");
+        addItem(RimTimeStepFilter::TS_INTERVAL_DAYS,        "TS_INTERVAL_DAYS",     "Skip by Days");
+        addItem(RimTimeStepFilter::TS_INTERVAL_WEEKS,       "TS_INTERVAL_WEEKS",    "Skip by Weeks");
+        addItem(RimTimeStepFilter::TS_INTERVAL_MONTHS,      "TS_INTERVAL_MONTHS",   "Skip by Months");
+        addItem(RimTimeStepFilter::TS_INTERVAL_QUARTERS,    "TS_INTERVAL_QUARTERS", "Skip by Quarters");
+        addItem(RimTimeStepFilter::TS_INTERVAL_YEARS,       "TS_INTERVAL_YEARS",    "Skip by Years");
 
         setDefault(RimTimeStepFilter::TS_ALL);
     }
@@ -62,7 +62,7 @@ RimTimeStepFilter::RimTimeStepFilter()
     CAF_PDM_InitField(&m_lastTimeStep, "LastTimeStep", 0, "Last Time Step", "", "", "");
 
     caf::AppEnum< RimTimeStepFilter::TimeStepFilterTypeEnum > filterType = TS_ALL;
-    CAF_PDM_InitField(&m_filterType, "FilterType", filterType, "Filter type", "", "", "");
+    CAF_PDM_InitField(&m_filterType, "FilterType", filterType, "Filter Type", "", "", "");
 
     CAF_PDM_InitField(&m_interval, "Interval", 1, "Interval", "", "", "");
 
@@ -338,7 +338,15 @@ void RimTimeStepFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword(displayUiName, "FilteredTimeStepKeyword");
     group->add(&m_filteredTimeStepsText);
-    group->setCollapsedByDefault(true);
+
+    if (m_timeStepsFromFile.size() == 0)
+    {
+        group->setCollapsedByDefault(true);
+    }
+    else
+    {
+        group->setCollapsedByDefault(false);
+    }
 
     updateDerivedData();
     updateFieldVisibility();

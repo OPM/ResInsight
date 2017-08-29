@@ -32,14 +32,14 @@
 #include "RigFlowDiagSolverInterface.h"
 #include "RigMainGrid.h"
 
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimTimeStepFilter.h"
 #include "RimTools.h"
-#include "RimEclipseView.h"
-#include "RimEclipseCellColors.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -149,7 +149,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
                 m_timeStepFilter->setTimeStepsFromFile(timeSteps);
 
                 caf::PdmUiPropertyViewDialog propertyDialog(NULL, m_timeStepFilter, "Time Step Filter", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-                propertyDialog.resize(QSize(400, 600));
+                propertyDialog.resize(QSize(400, 400));
 
                 if (propertyDialog.exec() != QDialog::Accepted)
                 {
