@@ -29,6 +29,7 @@
 #include "RiaProjectModifier.h"
 #include "RiaSocketServer.h"
 #include "RiaVersionInfo.h"
+#include "RiaArgumentParser.h"
 
 #include "RigGridManager.h"
 #include "RigEclipseCaseData.h"
@@ -1146,325 +1147,14 @@ bool RiaApplication::showPerformanceInfo() const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::parseArguments()
 {
-    cvf::ProgramOptions progOpt;
-    progOpt.registerOption("last",                      "",                                 "Open last used project.");
-    progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension.)", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("savesnapshots",             "all|views|plots",                  "Save snapshot of all views or plots to project file location sub folder 'snapshots'. Option 'all' will include both views and plots. Application closes after snapshots have been written.", cvf::ProgramOptions::OPTIONAL_MULTI_VALUE);
-    progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
-    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file. Repeat parameter for multiple replace operations.", cvf::ProgramOptions::MULTI_VALUE, cvf::ProgramOptions::COMBINE_REPEATED);
-    progOpt.registerOption("replacePropertiesFolder",   "[<caseId>] <newPropertiesFolder>", "Replace the folder containing property files for an eclipse input case.", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("commandFile",               "<commandfile>",                    "Execute the command file.", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("help",                      "",                                 "Displays help text.");
-    progOpt.registerOption("?",                         "",                                 "Displays help text.");
-    progOpt.registerOption("regressiontest",            "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "System command", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("unittest",                  "",                                 "System command");
-
-    progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
-
-    m_helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
-    m_helpText += "Copyright Statoil ASA, Ceetron Solution AS, Ceetron AS\n\n";
-
-    const cvf::String usageText = progOpt.usageText(110, 30);
-    m_helpText += cvfqt::Utils::toQString(usageText);
-
-    QStringList arguments = QCoreApplication::arguments();
-
-    bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
-
-    // If positional parameter functionality is to be supported, the test for existence of positionalParameters must be removed
-    // This is based on a pull request by @andlaus https://github.com/OPM/ResInsight/pull/162
-    if (!parseOk ||
-        progOpt.hasOption("help") ||
-        progOpt.hasOption("?") ||
-        progOpt.positionalParameters().size() > 0)
+    bool result = RiaArgumentParser::parseArguments();
+    if (!result)
     {
-#if defined(_MSC_VER) && defined(_WIN32)
-        showFormattedTextInMessageBox(m_helpText);
-#else
-        fprintf(stdout, "%s\n", m_helpText.toAscii().data());
-        fflush(stdout);
-#endif
-        return false;
-    }
-
-
-    // Handling of the actual command line options
-    // --------------------------------------------------------
-    if (cvf::Option o = progOpt.option("regressiontest"))
-    {
-        CVF_ASSERT(o.valueCount() == 1);
-        QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
-        executeRegressionTests(regressionTestPath);
-        return false;
-    }
-
-    if (cvf::Option o = progOpt.option("updateregressiontestbase"))
-    {
-        CVF_ASSERT(o.valueCount() == 1);
-        QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
-        updateRegressionTest(regressionTestPath);
-        return false;
-    }
-
-    if (cvf::Option o = progOpt.option("startdir"))
-    {
-        CVF_ASSERT(o.valueCount() == 1);
-        m_startupDefaultDirectory = cvfqt::Utils::toQString(o.value(0));
-    }
-
-    if (cvf::Option o = progOpt.option("size"))
-    {
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        int width =  o.safeValue(0).toInt(-1);
-        int height = o.safeValue(1).toInt(-1);
-        if (mainWnd && width > 0 && height > 0)
-        {
-            mainWnd->resize(width, height);
-        }
-    }
-
-
-    QString projectFileName;
-
-    if (progOpt.hasOption("last"))
-    {
-        projectFileName = m_preferences->lastUsedProjectFileName;
-    }
-
-    if (cvf::Option o = progOpt.option("project"))
-    {
-        CVF_ASSERT(o.valueCount() == 1);
-        projectFileName = cvfqt::Utils::toQString(o.value(0));
-    }
-
-
-    if (!projectFileName.isEmpty())
-    {
-        if (cvf::Option o = progOpt.option("multiCaseSnapshots"))
-        {
-            QString gridListFile = cvfqt::Utils::toQString(o.safeValue(0));
-            std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
-            runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
-
-            closeAllWindows();
-            processEvents();
-
-            return false;
-        }
-    }
-
-
-    if (!projectFileName.isEmpty())
-    {
-        cvf::ref<RiaProjectModifier> projectModifier;
-        ProjectLoadAction projectLoadAction = PLA_NONE;
-
-        if (cvf::Option o = progOpt.option("replaceCase"))
-        {
-            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
-
-            if (o.valueCount() == 1)
-            {
-                // One argument is available, use replace case for first occurrence in the project
-
-                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
-                projectModifier->setReplaceCaseFirstOccurrence(gridFileName);
-            }
-            else
-            {
-                size_t optionIdx = 0;
-                while (optionIdx < o.valueCount())
-                {
-                    const int caseId = o.safeValue(optionIdx++).toInt(-1);
-                    QString gridFileName = cvfqt::Utils::toQString(o.safeValue(optionIdx++));
-
-                    if (caseId != -1 && !gridFileName.isEmpty())
-                    {
-                        projectModifier->setReplaceCase(caseId, gridFileName);
-                    }
-                }
-            }
-        }
-
-        if (cvf::Option o = progOpt.option("replaceSourceCases"))
-        {
-            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
-
-            if (o.valueCount() == 1)
-            {
-                // One argument is available, use replace case for first occurrence in the project
-
-                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
-                projectModifier->setReplaceSourceCasesFirstOccurrence(gridFileNames);
-            }
-            else
-            {
-                size_t optionIdx = 0;
-                while (optionIdx < o.valueCount())
-                {
-                    const int groupId = o.safeValue(optionIdx++).toInt(-1);
-                    std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(optionIdx++)));
-
-                    if (groupId != -1 && gridFileNames.size() > 0)
-                    {
-                        projectModifier->setReplaceSourceCasesById(groupId, gridFileNames);
-                    }
-                }
-            }
-
-            projectLoadAction = PLA_CALCULATE_STATISTICS;
-        }
-
-        if (cvf::Option o = progOpt.option("replacePropertiesFolder"))
-        {
-            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
-
-            if (o.valueCount() == 1)
-            {
-                QString propertiesFolder = cvfqt::Utils::toQString(o.safeValue(0));
-                projectModifier->setReplacePropertiesFolderFirstOccurrence(propertiesFolder);
-            }
-            else
-            {
-                size_t optionIdx = 0;
-                while (optionIdx < o.valueCount())
-                {
-                    const int caseId = o.safeValue(optionIdx++).toInt(-1);
-                    QString propertiesFolder = cvfqt::Utils::toQString(o.safeValue(optionIdx++));
-
-                    if (caseId != -1 && !propertiesFolder.isEmpty())
-                    {
-                        projectModifier->setReplacePropertiesFolder(caseId, propertiesFolder);
-                    }
-                }
-            }
-        }
-
-        loadProject(projectFileName, projectLoadAction, projectModifier.p());
-    }
-
-
-    if (cvf::Option o = progOpt.option("case"))
-    {
-        QStringList caseNames = cvfqt::Utils::toQStringList(o.values());
-        foreach (QString caseName, caseNames)
-        {
-            QString fileExtension = caf::Utils::fileExtension(caseName);
-            if (caf::Utils::fileExists(caseName) &&
-                (fileExtension == "EGRID" || fileExtension == "GRID"))
-            {
-                RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseName);
-            }
-            else
-            {
-                QString caseFileNameWithExt = caseName + ".EGRID";
-                if (caf::Utils::fileExists(caseFileNameWithExt))
-                {
-                    RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
-                }
-                else
-                {
-                    caseFileNameWithExt = caseName + ".GRID";
-                    if (caf::Utils::fileExists(caseFileNameWithExt))
-                    {
-                        RiaImportEclipseCaseTools::openEclipseCaseFromFile(caseFileNameWithExt);
-                    }
-                }
-            }
-        }
-    }
-
-
-    if (cvf::Option o = progOpt.option("savesnapshots"))
-    {
-        bool snapshotViews = false;
-        bool snapshotPlots = false;
-
-        QStringList snapshotItemTexts = cvfqt::Utils::toQStringList(o.values());
-        if (snapshotItemTexts.size() == 0)
-        {
-            // No options will keep backwards compability before we introduced snapshot of plots
-            snapshotViews = true;
-        }
-
-        for (QString s : snapshotItemTexts)
-        {
-            if (s.toLower() == "all")
-            {
-                snapshotViews = true;
-                snapshotPlots = true;
-            }
-            else if (s.toLower() == "views")
-            {
-                snapshotViews = true;
-            }
-            else if (s.toLower() == "plots")
-            {
-                snapshotPlots = true;
-            }
-        }
-
-        if (m_project.notNull() && !m_project->fileName().isEmpty())
-        {
-            if (snapshotViews)
-            {
-                RiuMainWindow* mainWnd = RiuMainWindow::instance();
-                CVF_ASSERT(mainWnd);
-                mainWnd->hideAllDockWindows();
-
-                // 2016-11-09 : Location of snapshot folder was previously located in 'snapshot' folder 
-                // relative to current working folder. Now harmonized to behave as RiuMainWindow::slotSnapshotAllViewsToFile()
-                QString absolutePathToSnapshotDir = createAbsolutePathFromProjectRelativePath("snapshots");
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfAllViewsIntoFolder(absolutePathToSnapshotDir);
-
-                mainWnd->loadWinGeoAndDockToolBarLayout();
-            }
-
-            if (snapshotPlots)
-            {
-                if (m_mainPlotWindow)
-                {
-                    m_mainPlotWindow->hideAllDockWindows();
-
-                    // Will be saved relative to current directory
-                    RicSnapshotAllPlotsToFileFeature::saveAllPlots();
-
-                    m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
-                }
-            }
-            
-            closeAllWindows();
-            processEvents();
-        }
-
-        // Returning false will exit the application
-        return false;
-    }
-
-    if (cvf::Option o = progOpt.option("commandFile"))
-    {
-        QString commandFile = cvfqt::Utils::toQString(o.safeValue(0));
-        QFile file(commandFile);
-        RicfMessages messages;
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            // TODO : Error logging?
-            return false;
-        }
-
-        QTextStream in(&file);
-        RicfCommandFileExecutor::instance()->executeCommands(in);
         closeAllWindows();
         processEvents();
-        return false;
     }
 
-    return true;
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2747,4 +2437,12 @@ void RiaApplication::regressionTestConfigureProject()
 QSize RiaApplication::regressionDefaultImageSize()
 {
     return QSize(1000, 745);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::setHelpText(const QString& helpText)
+{
+    m_helpText = helpText;
 }

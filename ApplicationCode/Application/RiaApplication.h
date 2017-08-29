@@ -58,6 +58,7 @@ class RimWellAllocationPlot;
 class RiuMainWindowBase;
 class RiuMainPlotWindow;
 class RiuRecentFileActionProvider;
+class RiaArgumentParser;
 
 namespace caf
 {
@@ -222,6 +223,8 @@ private:
     void                    regressionTestConfigureProject();
     static QSize            regressionDefaultImageSize();
 
+    void                    setHelpText(const QString& helpText);
+
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void                slotUpdateScheduledDisplayModels();
@@ -232,6 +235,7 @@ private slots:
     // of scheduled redraws
     friend class RimView;
     friend class RicExportMultipleSnapshotsFeature;
+    friend class RiaArgumentParser;
 
 private:
     caf::PdmPointer<RimView>            m_activeReservoirView;
