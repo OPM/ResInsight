@@ -115,7 +115,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
         for (int i = 0; i < fileNames.size(); i++)
         {
-            if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), prefs->readerSettings->importFaults()))
+            if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->eclipseCaseData(), prefs->readerSettings()->importFaults()))
             {
                 m_gridFileName = fileNames[i];
 
@@ -192,7 +192,6 @@ bool RimEclipseInputCase::openEclipseGridFile()
         {
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
             readerInterface = new RifReaderEclipseInput;
-            readerInterface->setReaderSetting(prefs->readerSettings());
 
             cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))

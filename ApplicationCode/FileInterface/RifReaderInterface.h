@@ -49,8 +49,6 @@ public:
     RifReaderInterface()            { }
     virtual ~RifReaderInterface()   { }
 
-    void                        setReaderSetting(RifReaderSettings* settings);
-
     bool                        isFaultImportEnabled();
     bool                        isImportOfCompleteMswDataEnabled();
     bool                        isNNCsEnabled();
@@ -72,8 +70,10 @@ protected:
     size_t                      timeStepIndexOnFile(size_t timeStepIndex) const;
 
 private:
-    std::vector<QString>                m_filenamesWithFaults;
-    caf::PdmPointer<RifReaderSettings>  m_settings;
+    const RifReaderSettings*    readerSettings() const;
+
+private:
+    std::vector<QString>        m_filenamesWithFaults;
     
-    std::vector<size_t>                 m_fileTimeStepIndices;
+    std::vector<size_t>         m_fileTimeStepIndices;
 };

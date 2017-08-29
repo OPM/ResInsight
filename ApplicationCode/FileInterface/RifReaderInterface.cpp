@@ -19,27 +19,17 @@
 
 #include "RifReaderInterface.h"
 
-#include "RifReaderSettings.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifReaderInterface::setReaderSetting(RifReaderSettings* settings)
-{
-    m_settings = settings;
-}
+#include "RifReaderSettings.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isFaultImportEnabled()
 {
-    if (m_settings.notNull())
-    {
-        return m_settings->importFaults;
-    }
-
-    return false;
+    return readerSettings()->importFaults;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,12 +37,7 @@ bool RifReaderInterface::isFaultImportEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
 {
-    if (m_settings.notNull())
-    {
-        return m_settings->importAdvancedMswData;
-    }
-
-    return false;
+    return readerSettings()->importAdvancedMswData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,12 +45,7 @@ bool RifReaderInterface::isImportOfCompleteMswDataEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderInterface::isNNCsEnabled()
 {
-    if (m_settings.notNull())
-    {
-        return m_settings->importNNCs;
-    }
-
-    return false;
+    return readerSettings()->importNNCs;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,12 +53,7 @@ bool RifReaderInterface::isNNCsEnabled()
 //--------------------------------------------------------------------------------------------------
 const QString RifReaderInterface::faultIncludeFileAbsolutePathPrefix()
 {
-    if (m_settings.notNull())
-    {
-        return m_settings->faultIncludeFileAbsolutePathPrefix;
-    }
-
-    return QString();
+    return readerSettings()->faultIncludeFileAbsolutePathPrefix;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,5 +93,17 @@ size_t RifReaderInterface::timeStepIndexOnFile(size_t timeStepIndex) const
     }
 
     return timeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RifReaderSettings* RifReaderInterface::readerSettings() const
+{
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+    CVF_ASSERT(prefs->readerSettings());
+
+    return prefs->readerSettings();
 }
 

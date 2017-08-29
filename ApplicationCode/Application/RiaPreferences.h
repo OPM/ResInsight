@@ -42,6 +42,8 @@ public:
 
     QStringList tabNames();
 
+    const RifReaderSettings* readerSettings() const;
+
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
@@ -71,7 +73,6 @@ public: // Pdm Fields
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
     caf::PdmField<bool>     loadAndShowSoil;
 
-    caf::PdmChildField<RifReaderSettings*> readerSettings;
 
     // Summary
 
@@ -85,5 +86,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
+    caf::PdmChildField<RifReaderSettings*> m_readerSettings;
+
     QStringList m_tabNames;
 };

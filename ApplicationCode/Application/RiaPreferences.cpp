@@ -83,8 +83,8 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "");
     loadAndShowSoil.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader Settings", "", "", "");
-    readerSettings = new RifReaderSettings;
+    CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
+    m_readerSettings = new RifReaderSettings;
 
     CAF_PDM_InitField(&autoCreatePlotsOnImport,         "AutoCreatePlotsOnImport", true, "Automatically Create Summary Plots On Import", "", "", "");
     autoCreatePlotsOnImport.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
@@ -102,7 +102,7 @@ RiaPreferences::RiaPreferences(void)
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::~RiaPreferences(void)
 {
-    delete readerSettings;
+    delete m_readerSettings;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ RiaPreferences::~RiaPreferences(void)
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    readerSettings->defineEditorAttribute(field, uiConfigName, attribute);
+    m_readerSettings->defineEditorAttribute(field, uiConfigName, attribute);
 
     if (field == &scriptDirectories)
     {
@@ -172,7 +172,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         newCaseBehaviourGroup->add(&autocomputeDepthRelatedProperties);
         newCaseBehaviourGroup->add(&loadAndShowSoil);
     
-        readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
+        m_readerSettings->defineUiOrdering(uiConfigName, *newCaseBehaviourGroup);
     }
     else if (uiConfigName == m_tabNames[2])
     {
@@ -225,5 +225,13 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions(const caf::P
 QStringList RiaPreferences::tabNames()
 {
     return m_tabNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RifReaderSettings* RiaPreferences::readerSettings() const
+{
+    return m_readerSettings;
 }
 

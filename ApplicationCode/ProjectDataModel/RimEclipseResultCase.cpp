@@ -124,7 +124,6 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
-        readerEclipseOutput->setReaderSetting(prefs->readerSettings());
         readerEclipseOutput->setFilenamesWithFaults(this->filesContainingFaults());
 
         if (showTimeStepFilter)
