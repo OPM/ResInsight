@@ -20,11 +20,14 @@
 
 #include "RifReaderEclipseOutput.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RifHdf5ReaderInterface.h"
+#include "RifReaderSettings.h"
 
 #ifdef USE_HDF5
 #include "RifHdf5Reader.h"
@@ -436,8 +439,11 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     }
 
     progInfo.setNextProgressIncrement(8);
-    progInfo.setProgressDescription("Reading Well information");
-    readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
+    if (!RiaApplication::instance()->preferences()->readerSettings()->skipWellData())
+    {
+        progInfo.setProgressDescription("Reading Well information");
+        readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
+    }
     progInfo.incrementProgress();
 
     progInfo.setProgressDescription("Releasing reader memory");

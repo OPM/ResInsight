@@ -41,6 +41,7 @@ public:
     caf::PdmField<bool> importAdvancedMswData;
     caf::PdmField<QString> faultIncludeFileAbsolutePathPrefix;
     caf::PdmField<bool> useResultIndexFile;
+    caf::PdmField<bool> skipWellData;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
