@@ -58,6 +58,7 @@ void RicfExportSnapshots::execute()
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT(mainWnd);
     mainWnd->hideAllDockWindows();
+    RiaApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath(RicfCommandFileExecutor::SNAPSHOTS);
     if (absolutePathToSnapshotDir.isNull())
@@ -74,4 +75,5 @@ void RicfExportSnapshots::execute()
     }
 
     mainWnd->loadWinGeoAndDockToolBarLayout();
+    RiaApplication::instance()->processEvents();
 }
