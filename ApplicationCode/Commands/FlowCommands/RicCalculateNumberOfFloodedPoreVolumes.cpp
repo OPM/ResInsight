@@ -18,25 +18,18 @@
 
 #include "RicCalculateNumberOfFloodedPoreVolumes.h"
 
+
 #include "RiaApplication.h"
 
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
+#include "RigNumberOfFloodedPoreVolumesCalculator.h"
+
 #include "RimEclipseCase.h"
-#include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
-#include "RimFlowPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimView.h"
-#include "RimWellAllocationPlot.h"
-
-#include "RiuMainPlotWindow.h"
-
-#include "cafSelectionManager.h"
 
 #include <QAction>
-#include "RigMainGrid.h"
-#include "RigEclipseCaseData.h"
-#include "RigNumberOfFloodedPoreVolumesCalculator.h"
+#include <QString>
 
 CAF_CMD_SOURCE_INIT(RicCalculateNumberOfFloodedPoreVolumes, "RicCalculateNumberOfFloodedPoreVolumes");
 
@@ -58,7 +51,7 @@ void RicCalculateNumberOfFloodedPoreVolumes::onActionTriggered(bool isChecked)
     view->firstAncestorOrThisOfType(caseToApply);
 
     RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
-    std::vector<std::string> tracerNames;
+    std::vector<QString> tracerNames;
     tracerNames.push_back("SOIL");
 
     RigNumberOfFloodedPoreVolumesCalculator calc(mainGrid, caseToApply, tracerNames);

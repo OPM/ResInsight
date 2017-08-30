@@ -20,7 +20,7 @@
 
 #include <cstddef>
 #include <vector>
-#include <string>
+#include <QString>
 
 class RimEclipseCase;
 class RigMainGrid;
@@ -36,7 +36,7 @@ class RigNumberOfFloodedPoreVolumesCalculator
 public:
     explicit RigNumberOfFloodedPoreVolumesCalculator(RigMainGrid* mainGrid, 
                                                      RimEclipseCase* caseToApply,
-                                                     std::vector<std::string> tracerNames
+                                                     const std::vector<QString> tracerNames
                                                      );
 
     std::vector<std::vector<double>>    numberOfFloodedPorevolumes();

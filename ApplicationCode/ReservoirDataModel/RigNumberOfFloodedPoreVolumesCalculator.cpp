@@ -20,6 +20,7 @@
 
 #include "RiaPorosityModel.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -28,9 +29,8 @@
 #include "RimEclipseCase.h"
 #include "RimReservoirCellResultsStorage.h"
 
-#include <string>
 #include <vector>
-#include "RigActiveCellInfo.h"
+#include <QString>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -38,30 +38,28 @@
 //--------------------------------------------------------------------------------------------------
 RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator(RigMainGrid* mainGrid, 
                                                                                  RimEclipseCase* caseToApply, 
-                                                                                 std::vector<std::string> tracerNames)
+                                                                                 const std::vector<QString> tracerNames)
 {
 
 
 
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
 
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
     const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));  
 
     std::vector<size_t> scalarResultIndexTracers;
-    for (std::string tracerName : tracerNames)
+    for (QString tracerName : tracerNames)
     {
-        scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATI+"));
+        scalarResultIndexTracers.push_back(gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, tracerName));
     }
     std::vector<std::vector<double> > summedTracersAtAllTimesteps;
 
-
     //TODO: Option for Oil and Gas instead of water
-    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATI+");
-    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATJ+");
-    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "FLRWATK+");
+    size_t scalarResultIndexFlowrateI = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATI+");
+    size_t scalarResultIndexFlowrateJ = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATJ+");
+    size_t scalarResultIndexFlowrateK = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "FLRWATK+");
 
     std::vector<const std::vector<double>* > flowrateIatAllTimeSteps;
     std::vector<const std::vector<double>* > flowrateJatAllTimeSteps;
