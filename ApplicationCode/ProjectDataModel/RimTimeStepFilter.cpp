@@ -193,11 +193,15 @@ QString RimTimeStepFilter::filteredTimeStepsAsText() const
 
     QString formatString = RimTools::createTimeFormatStringFromDates(timeSteps);
 
-    for (auto index : m_selectedTimeStepIndices.v())
+    for (auto selectedIndex : m_selectedTimeStepIndices.v())
     {
-        QString stepText = timeSteps[static_cast<size_t>(index)].toString(formatString);
-        text += stepText;
-        text += "\n";
+        size_t timeStepIndex = static_cast<size_t>(selectedIndex);
+
+        if (timeStepIndex < timeSteps.size())
+        {
+            text += timeSteps[timeStepIndex].toString(formatString);
+            text += "\n";
+        }
     }
 
     return text;
