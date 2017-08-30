@@ -108,6 +108,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicImportInputEclipseCaseFeature";
             commandIds << "RicCreateGridCaseGroupFeature";
             commandIds << "RicEclipseCaseNewGroupFeature";
+            commandIds << "RicCalculateNumberOfFloodedPoreVolumes";
         }
         else if (dynamic_cast<RimGeoMechView*>(uiItem))
         {
