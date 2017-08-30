@@ -117,8 +117,9 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 
 		std::string dateString = getStringAttribute(mainFile, "/KaseStudy/TransientSections", "initial_date");
 
-
 		QDateTime dtInitial = sourSimDateTimeToQDateTime(dateString);
+
+        int secondsPerDay = 60 * 60 * 24;
 
 		for (size_t i = 0; i < m_timeStepFileNames.size(); i++)
 		{
@@ -128,11 +129,12 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 			H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
 
 			double timeStepValue = getDoubleAttribute(file, timeStepGroup, "timestep");				// Assumes only one time step per file
-			int	   timeStepDays  = cvf::Math::floor(timeStepValue);									// NB: open question: unit of SourSimRL time step values, days?
+            int seconds = timeStepValue * secondsPerDay;
 
 			QDateTime dt = dtInitial;
+            dt = dt.addSecs(seconds);
 
-			times.push_back(dt.addDays(timeStepDays));												// NB: open question: unit of SourSimRL time step values, days?
+			times.push_back(dt);
 		}
 	}
 

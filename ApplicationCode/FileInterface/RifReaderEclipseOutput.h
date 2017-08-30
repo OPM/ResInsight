@@ -91,7 +91,7 @@ private:
     
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 
-    static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& dt1, const QDateTime& dt2);
+    static bool             isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime);
 
 private:
     QString                                 m_fileName;                 // Name of file used to start accessing Eclipse output files

@@ -499,14 +499,14 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
         for (size_t i = 0; i < timeStepInfos.size(); i++)
         {
             size_t indexOnFile = timeStepIndexOnFile(i);
-            QString dateStr("yyyy.MMM.ddd hh:mm");
+            QString dateStr("yyyy.MMM.ddd hh:mm:ss");
 
             if (!isEclipseAndSoursimTimeStepsEqual(hdfTimeSteps[indexOnFile], timeStepInfos[i].m_date))
             {
                 RiaLogging::error("HDF: Time steps does not match");
 
                 RiaLogging::error(QString("HDF: Eclipse date %1").arg(timeStepInfos[i].m_date.toString(dateStr)));
-                RiaLogging::error(QString("HDF:     HDF date %1").arg(hdfTimeSteps[i].toString(dateStr)));
+                RiaLogging::error(QString("HDF:     HDF date %1").arg(hdfTimeSteps[indexOnFile].toString(dateStr)));
 
                 isTimeStampsEqual = false;
             }
@@ -1973,12 +1973,18 @@ std::vector<RigEclipseTimeStepInfo> RifReaderEclipseOutput::createFilteredTimeSt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& dt1, const QDateTime& dt2)
+bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& eclipseDateTime, const QDateTime& sourSimDateTime)
 {
-    // Currently, HDF files do not contain hours and minutes
-    // Only compare date, and skip hour/minutes
+    // Compare date down to and including seconds
+    // Compare of complete date time objects will often result in differences
 
-    return dt1.date() == dt2.date();
+    if (eclipseDateTime.date() != sourSimDateTime.date()) return false;
+    
+    if (eclipseDateTime.time().hour()   != sourSimDateTime.time().hour())   return false;
+    if (eclipseDateTime.time().minute() != sourSimDateTime.time().minute()) return false;
+    if (eclipseDateTime.time().second() != sourSimDateTime.time().second()) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
