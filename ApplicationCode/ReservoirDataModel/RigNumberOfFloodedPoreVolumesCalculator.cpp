@@ -77,18 +77,32 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     
     std::vector<double> daysSinceSimulationStart = caseToApply->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->daysSinceSimulationStart();
 
-    for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
+    for (size_t timeStep = 0; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        const std::vector<double>* flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, 
-                                                                                                                       timeStep));
+        const std::vector<double>* flowrateI = nullptr;
+        if (scalarResultIndexFlowrateI != cvf::UNDEFINED_SIZE_T)
+        {
+            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateI, 
+                                                                                                timeStep));
+        }
         flowrateIatAllTimeSteps.push_back(flowrateI);
 
-        const std::vector<double>* flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ, 
-                                                                                                                       timeStep));
+
+        const std::vector<double>* flowrateJ = nullptr;
+        if (scalarResultIndexFlowrateJ != cvf::UNDEFINED_SIZE_T)
+        {
+            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ,
+                                                                                                timeStep));
+        }
         flowrateJatAllTimeSteps.push_back(flowrateJ);
-        
-        const std::vector<double>* flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK, 
-                                                                                                                       timeStep));
+
+
+        const std::vector<double>* flowrateK = nullptr;
+        if (scalarResultIndexFlowrateK != cvf::UNDEFINED_SIZE_T)
+        {
+            flowrateK = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateK,
+                                                                                                timeStep));
+        }
         flowrateKatAllTimeSteps.push_back(flowrateK);
 
         const std::vector<double>* connectionFlowrate = nncData->dynamicConnectionScalarResultByName(nncConnectionProperty,
@@ -100,11 +114,14 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         std::vector<double> summedTracerValues(porvResults->size());
         for (size_t tracerIndex : scalarResultIndexTracers)
         {
-            const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(tracerIndex, timeStep));
-
-            for (size_t i = 0; i < summedTracerValues.size(); i++)
+            if (tracerIndex != cvf::UNDEFINED_SIZE_T)
             {
-                summedTracerValues[i] += tracerResult->at(i);
+                const std::vector<double>* tracerResult = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(tracerIndex, timeStep));
+
+                for (size_t i = 0; i < summedTracerValues.size(); i++)
+                {
+                    summedTracerValues[i] += tracerResult->at(i);
+                }
             }
         }
         summedTracersAtAllTimesteps.push_back(summedTracerValues);
@@ -162,34 +179,41 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        double daysSinceSimStartNow = daysSinceSimulationStart[timeStep];
-        double daysSinceSimStartLastTimeStep = daysSinceSimulationStart[timeStep - 1];
-        double deltaT = daysSinceSimStartNow - daysSinceSimStartLastTimeStep;
-
-        const std::vector<double>* flowrateI = flowrateIatAllTimeSteps[timeStep];
-        const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep];
-        const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep];
-
-        const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep];
-
         std::vector<double> totoalFlowrateIntoCell(totalNumberOfCells);
 
+        if (flowrateIatAllTimeSteps[timeStep] != nullptr
+            && flowrateJatAllTimeSteps[timeStep] != nullptr
+            && flowrateKatAllTimeSteps[timeStep] != nullptr)
 
+        {
+            const std::vector<double>* flowrateI = flowrateIatAllTimeSteps[timeStep];
+            const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep];
+            const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep];
 
-        distributeNeighbourCellFlow(mainGrid,
-                                    caseToApply,
-                                    summedTracersAtAllTimesteps[timeStep],
-                                    flowrateI,
-                                    flowrateJ,
-                                    flowrateK,
-                                    totoalFlowrateIntoCell);
+            distributeNeighbourCellFlow(mainGrid,
+                                        caseToApply,
+                                        summedTracersAtAllTimesteps[timeStep],
+                                        flowrateI,
+                                        flowrateJ,
+                                        flowrateK,
+                                        totoalFlowrateIntoCell);
+        }
+
+        const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep];
 
         distributeNNCflow(connections,
                           summedTracersAtAllTimesteps[timeStep],
                           flowrateNNC,
                           totoalFlowrateIntoCell);
 
+
+
+
         std::vector<double> CellQwIn(totalNumberOfCells);
+
+        double daysSinceSimStartNow = daysSinceSimulationStart[timeStep];
+        double daysSinceSimStartLastTimeStep = daysSinceSimulationStart[timeStep - 1];
+        double deltaT = daysSinceSimStartNow - daysSinceSimStartLastTimeStep;
 
         for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
         {
@@ -207,12 +231,13 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
+        std::vector<double> cumWinflowPV(totalNumberOfCells);
         for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
         {
-            m_cumWinflowPVAllTimeSteps[timeStep][globalCellIndex] = cellQwInAtAllTimeSteps[timeStep][globalCellIndex]
+            cumWinflowPV[globalCellIndex] = cellQwInAtAllTimeSteps[timeStep][globalCellIndex]
                 / porvResults->at(globalCellIndex);
-
         }
+        m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPV);
     }
 }
 
