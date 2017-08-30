@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RicfCommandObject.h"
 
 #include "cafPdmField.h"
@@ -37,10 +39,11 @@ public:
     virtual void execute() override;
 
 private:
-    caf::PdmField<int>     m_caseId;
-    caf::PdmField<int>     m_timeStepIndex;
-    caf::PdmField<QString> m_propertyName;
-    caf::PdmField<QString> m_eclipseKeyword;
-    caf::PdmField<double>  m_undefinedValue;
-    caf::PdmField<QString> m_path;
+    caf::PdmField<int>                                       m_caseId;
+    caf::PdmField<int>                                       m_timeStepIndex;
+    caf::PdmField<QString>                                   m_propertyName;
+    caf::PdmField< caf::AppEnum<RiaDefines::ResultCatType> > m_type;
+    caf::PdmField<QString>                                   m_eclipseKeyword;
+    caf::PdmField<double>                                    m_undefinedValue;
+    caf::PdmField<QString>                                   m_path;
 };
