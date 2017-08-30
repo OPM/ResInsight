@@ -444,6 +444,10 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
         progInfo.setProgressDescription("Reading Well information");
         readWellCells(mainEclGrid, isImportOfCompleteMswDataEnabled());
     }
+    else
+    {
+        RiaLogging::info("Skipping import of simulation well data");
+    }
     progInfo.incrementProgress();
 
     progInfo.setProgressDescription("Releasing reader memory");
