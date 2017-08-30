@@ -141,7 +141,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumes()
+const std::vector<std::vector<double>>& RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumes() const
 {
     return m_cumWinflowPVAllTimeSteps;
 }
@@ -150,7 +150,7 @@ std::vector<std::vector<double>> RigNumberOfFloodedPoreVolumesCalculator::number
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumesAtTimeStep(size_t timeStep)
+const std::vector<double>&  RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumesAtTimeStep(size_t timeStep) const
 {
     return m_cumWinflowPVAllTimeSteps[timeStep];
 }

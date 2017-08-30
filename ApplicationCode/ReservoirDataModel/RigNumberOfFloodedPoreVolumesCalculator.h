@@ -39,8 +39,8 @@ public:
                                                      const std::vector<QString> tracerNames
                                                      );
 
-    std::vector<std::vector<double>>    numberOfFloodedPorevolumes();
-    std::vector<double>                 numberOfFloodedPorevolumesAtTimeStep(size_t timeStep);
+    const std::vector<std::vector<double>>& numberOfFloodedPorevolumes() const;
+    const std::vector<double>&              numberOfFloodedPorevolumesAtTimeStep(size_t timeStep) const;
 
 
 private:
