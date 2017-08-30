@@ -104,7 +104,7 @@ RimFracture::RimFracture(void)
     CAF_PDM_InitFieldNoDefault(&m_uiWellPathAzimuth, "WellPathAzimuth", "Well Path Azimuth", "", "", "");
     m_uiWellPathAzimuth.registerGetMethod(this, &RimFracture::wellAzimuthAtFracturePositionText);
     m_uiWellPathAzimuth.uiCapability()->setUiReadOnly(true);
-    CAF_PDM_InitFieldNoDefault(&m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between Fracture and Well", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between\nFracture and Well", "", "", "");
     m_uiWellFractureAzimuthDiff.registerGetMethod(this, &RimFracture::wellFractureAzimuthDiffText);
     m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&m_wellFractureAzimuthAngleWarning, "WellFractureAzimithAngleWarning", QString("Difference is below 10 degrees. Consider longitudinal fracture"), "", "", "", "");
