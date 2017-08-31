@@ -30,6 +30,8 @@
 
 #include <QAction>
 #include <QString>
+#include "RimReservoirCellResultsStorage.h"
+#include "RigActiveCellInfo.h"
 
 CAF_CMD_SOURCE_INIT(RicCalculateNumberOfFloodedPoreVolumes, "RicCalculateNumberOfFloodedPoreVolumes");
 
@@ -57,7 +59,22 @@ void RicCalculateNumberOfFloodedPoreVolumes::onActionTriggered(bool isChecked)
     RigNumberOfFloodedPoreVolumesCalculator calc(mainGrid, caseToApply, tracerNames);
 
     std::vector<std::vector<double>>  numberOfFloodedPorevolumes = calc.numberOfFloodedPorevolumes();
-        
+    std::vector<std::vector<double>>  cumInflow = calc.cumInflow();
+
+
+    //Test Norne
+    size_t cellIndex = mainGrid->reservoirCellIndex(mainGrid->cellIndexFromIJK(4, 1, 4));
+    RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t cellResultIndex = actCellInfo->cellResultIndex(cellIndex);
+
+    std::vector<double> numberOfFloodedPorevolumesForSingleCell;
+    std::vector<double> cumInflowForSingleCell;
+
+    for (size_t timeStep = 0; timeStep < numberOfFloodedPorevolumes.size(); timeStep++)
+    {
+        numberOfFloodedPorevolumesForSingleCell.push_back(numberOfFloodedPorevolumes[timeStep][cellResultIndex]);
+        cumInflowForSingleCell.push_back(cumInflow[timeStep][cellResultIndex]);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

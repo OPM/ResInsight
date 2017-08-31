@@ -40,11 +40,11 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
                                                                                  RimEclipseCase* caseToApply, 
                                                                                  const std::vector<QString> tracerNames)
 {
-
-
-
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
+
+    RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t numberOfActiveCells = actCellInfo->reservoirCellResultCount();
 
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
     const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));  
@@ -89,7 +89,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         const std::vector<double>* flowrateJ = nullptr;
         if (scalarResultIndexFlowrateJ != cvf::UNDEFINED_SIZE_T)
         {
-            flowrateI = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ,
+            flowrateJ = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexFlowrateJ,
                                                                                                 timeStep));
         }
         flowrateJatAllTimeSteps.push_back(flowrateJ);
@@ -109,7 +109,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
 
         //sum all tracers at current timestep
-        std::vector<double> summedTracerValues(porvResults->size());
+        std::vector<double> summedTracerValues(numberOfActiveCells);
         for (size_t tracerIndex : scalarResultIndexTracers)
         {
             if (tracerIndex != cvf::UNDEFINED_SIZE_T)
@@ -129,7 +129,8 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     calculate(mainGrid,
               caseToApply,
               daysSinceSimulationStart,
-              porvResults, flowrateIatAllTimeSteps, 
+              porvResults, 
+              flowrateIatAllTimeSteps, 
               flowrateJatAllTimeSteps, 
               flowrateKatAllTimeSteps, 
               connections, 
@@ -169,15 +170,18 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
                                                         std::vector<const std::vector<double>* > flowrateNNCatAllTimeSteps,
                                                         std::vector<std::vector<double> > summedTracersAtAllTimesteps)
 {
-    size_t totalNumberOfCells = mainGrid->globalCellArray().size();
+    //size_t totalNumberOfCells = mainGrid->globalCellArray().size();
+    RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+    size_t numberOfActiveCells = actCellInfo->reservoirCellResultCount();
+
 
     std::vector<std::vector<double>> cellQwInAtAllTimeSteps;
-    std::vector<double> cellQwInTimeStep0(totalNumberOfCells);
+    std::vector<double> cellQwInTimeStep0(numberOfActiveCells);
     cellQwInAtAllTimeSteps.push_back(cellQwInTimeStep0);
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        std::vector<double> totoalFlowrateIntoCell(totalNumberOfCells);
+        std::vector<double> totoalFlowrateIntoCell(numberOfActiveCells); //brukt result celle index / active  antall i stedet
 
         if (flowrateIatAllTimeSteps[timeStep] != nullptr
             && flowrateJatAllTimeSteps[timeStep] != nullptr
@@ -200,70 +204,90 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
         const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep];
 
         distributeNNCflow(connections,
+                          caseToApply,
                           summedTracersAtAllTimesteps[timeStep],
                           flowrateNNC,
                           totoalFlowrateIntoCell);
 
-
-
-
-        std::vector<double> CellQwIn(totalNumberOfCells);
+        std::vector<double> CellQwIn(numberOfActiveCells);
 
         double daysSinceSimStartNow = daysSinceSimulationStart[timeStep];
         double daysSinceSimStartLastTimeStep = daysSinceSimulationStart[timeStep - 1];
         double deltaT = daysSinceSimStartNow - daysSinceSimStartLastTimeStep;
 
-        for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
+        for (size_t cellResultIndex = 0; cellResultIndex < numberOfActiveCells; cellResultIndex++)
         {
-            CellQwIn[globalCellIndex] = cellQwInAtAllTimeSteps[timeStep - 1][globalCellIndex]
-                + (totoalFlowrateIntoCell[globalCellIndex]) * deltaT;
+            CellQwIn[cellResultIndex] = cellQwInAtAllTimeSteps[timeStep - 1][cellResultIndex]
+                + (totoalFlowrateIntoCell[cellResultIndex]) * deltaT;
         }
         cellQwInAtAllTimeSteps.push_back(CellQwIn);
 
     }
 
+    //Using porv only for active cells
+    std::vector<double> porvResultsActiveCellsOnly;
+    for (size_t globalCellIndex = 0; globalCellIndex < mainGrid->globalCellArray().size(); globalCellIndex++)
+    {
+        if (actCellInfo->isActive(globalCellIndex))
+        {
+            porvResultsActiveCellsOnly.push_back(porvResults->at(globalCellIndex));
+        }
+    }
+    CVF_ASSERT(porvResultsActiveCellsOnly.size() == numberOfActiveCells);
+
+
     //Calculate number-of-cell-PV flooded
-    std::vector<double> cumWinflowPVTimeStep0(totalNumberOfCells);
+    std::vector<double> cumWinflowPVTimeStep0(numberOfActiveCells);
     m_cumWinflowPVAllTimeSteps.clear();
     m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPVTimeStep0);
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        std::vector<double> cumWinflowPV(totalNumberOfCells);
-        for (size_t globalCellIndex = 0; globalCellIndex < totalNumberOfCells; globalCellIndex++)
+        std::vector<double> cumWinflowPV(numberOfActiveCells);
+        for (size_t cellResultIndex = 0; cellResultIndex < numberOfActiveCells; cellResultIndex++)
         {
-            cumWinflowPV[globalCellIndex] = cellQwInAtAllTimeSteps[timeStep][globalCellIndex]
-                / porvResults->at(globalCellIndex);
+            cumWinflowPV[cellResultIndex] = cellQwInAtAllTimeSteps[timeStep][cellResultIndex]
+                / porvResultsActiveCellsOnly[cellResultIndex];
         }
         m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPV);
     }
+
+    //TODO: Only for testing
+    m_cellQwInAtAllTimeSteps = cellQwInAtAllTimeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow(std::vector<RigConnection> connections,
+                                                                RimEclipseCase* caseToApply,
                                                                 std::vector<double> summedTracerValues,
                                                                 const std::vector<double>* flowrateNNC, 
                                                                 std::vector<double> &flowrateIntoCell)
 {
+    RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+
+
     for (size_t connectionIndex = 0; connectionIndex < connections.size(); connectionIndex++)
     {
         RigConnection connection = connections[connectionIndex];
         double connectionValue = flowrateNNC->at(connectionIndex);
 
         size_t cell1Index = connection.m_c1GlobIdx;
+        size_t cell1ResultIndex = actCellInfo->cellResultIndex(cell1Index);
+
         size_t cell2Index = connection.m_c2GlobIdx;
+        size_t cell2ResultIndex = actCellInfo->cellResultIndex(cell2Index);
 
         if (connectionValue > 0)
         {
             //Flow out of cell with cell1index, into cell cell2index
-            flowrateIntoCell[cell2Index] += connectionValue * summedTracerValues[cell1Index];
+            flowrateIntoCell[cell2ResultIndex] += connectionValue * summedTracerValues[cell1ResultIndex];
         }
         else if (connectionValue < 0)
         {
             //flow out of cell with cell2index, into cell cell1index
-            flowrateIntoCell[cell1Index] += connectionValue * summedTracerValues[cell2Index];
+            flowrateIntoCell[cell1ResultIndex] += connectionValue * summedTracerValues[cell2ResultIndex];
         }
 
     }
@@ -280,14 +304,16 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
                                                                           const std::vector<double>* flrWatResultK,
                                                                           std::vector<double> &totalFlowrateIntoCell)
 {
+    RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+
     for (size_t globalCellIndex = 0; globalCellIndex < mainGrid->globalCellArray().size(); globalCellIndex++)
     {
+        if (!actCellInfo->isActive(globalCellIndex)) continue;
 
         const RigCell& cell = mainGrid->globalCellArray()[globalCellIndex];
         RigGridBase* hostGrid = cell.hostGrid();
         size_t gridLocalCellIndex = cell.gridLocalCellIndex();
-
-        RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+        
         size_t cellResultIndex = actCellInfo->cellResultIndex(globalCellIndex);
 
         size_t i, j, k;
@@ -296,7 +322,11 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
         if (i < (hostGrid->cellCountI()-1))
         {
             size_t gridLocalCellIndexPosINeighbour = hostGrid->cellIndexFromIJK(i + 1, j, k);
-
+            size_t reservoirCellIndexPosINeighbour = hostGrid->reservoirCellIndex(gridLocalCellIndexPosINeighbour);
+            size_t cellResultIndexPosINeighbour = actCellInfo->cellResultIndex(reservoirCellIndexPosINeighbour);
+            
+            if (!actCellInfo->isActive(reservoirCellIndexPosINeighbour)) continue;
+            
             if (hostGrid->cell(gridLocalCellIndexPosINeighbour).subGrid() != NULL)
             {
                 //subgrid exists in cell, will be handled though NNCs
@@ -306,18 +336,23 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             if (flrWatResultI->at(cellResultIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
-                totalFlowrateIntoCell[gridLocalCellIndexPosINeighbour] += flrWatResultI->at(globalCellIndex) * summedTracerValues[globalCellIndex];
+                totalFlowrateIntoCell[cellResultIndexPosINeighbour] += flrWatResultI->at(cellResultIndex) * summedTracerValues[cellResultIndex];
             }
             else if (flrWatResultI->at(cellResultIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[globalCellIndex] += (-1) * flrWatResultI->at(globalCellIndex) * summedTracerValues[gridLocalCellIndexPosINeighbour];
+                totalFlowrateIntoCell[cellResultIndex] += (-1) * flrWatResultI->at(cellResultIndex) * summedTracerValues[cellResultIndexPosINeighbour];
             }
         }
 
         if (j < (hostGrid->cellCountJ()-1))
         {
             size_t gridLocalCellIndexPosJNeighbour = hostGrid->cellIndexFromIJK(i, j + 1, k);
+            size_t reservoirCellIndexPosJNeighbour = hostGrid->reservoirCellIndex(gridLocalCellIndexPosJNeighbour);
+            size_t cellResultIndexPosJNeighbour = actCellInfo->cellResultIndex(reservoirCellIndexPosJNeighbour);
+
+            if (!actCellInfo->isActive(reservoirCellIndexPosJNeighbour)) continue;
+            
             if (hostGrid->cell(gridLocalCellIndexPosJNeighbour).subGrid() != NULL)
             {
                 //subgrid exists in cell, will be handled though NNCs
@@ -328,18 +363,23 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             if (flrWatResultJ->at(cellResultIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
-                totalFlowrateIntoCell[gridLocalCellIndexPosJNeighbour] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[globalCellIndex];
+                totalFlowrateIntoCell[cellResultIndexPosJNeighbour] += flrWatResultJ->at(cellResultIndex) * summedTracerValues[cellResultIndex];
             }
             else if (flrWatResultJ->at(cellResultIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[globalCellIndex] += flrWatResultJ->at(globalCellIndex) * summedTracerValues[gridLocalCellIndexPosJNeighbour];
+                totalFlowrateIntoCell[cellResultIndex] += flrWatResultJ->at(cellResultIndex) * summedTracerValues[cellResultIndexPosJNeighbour];
             }
         }
 
         if (k < (hostGrid->cellCountK()-1))
         {
             size_t gridLocalCellIndexPosKNeighbour = hostGrid->cellIndexFromIJK(i, j, k + 1);
+            size_t reservoirCellIndexPosKNeighbour = hostGrid->reservoirCellIndex(gridLocalCellIndexPosKNeighbour);
+            size_t cellResultIndexPosKNeighbour = actCellInfo->cellResultIndex(reservoirCellIndexPosKNeighbour);
+
+            if (!actCellInfo->isActive(reservoirCellIndexPosKNeighbour)) continue;
+
             if (hostGrid->cell(gridLocalCellIndexPosKNeighbour).subGrid() != NULL)
             {
                 //subgrid exists in cell, will be handled though NNCs
@@ -349,12 +389,12 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             if (flrWatResultK->at(cellResultIndex) > 0)
             {
                 //Flow out of cell globalCellIndex, into cell i+1
-                totalFlowrateIntoCell[gridLocalCellIndexPosKNeighbour] += flrWatResultK->at(globalCellIndex) * summedTracerValues[globalCellIndex];
+                totalFlowrateIntoCell[cellResultIndexPosKNeighbour] += flrWatResultK->at(cellResultIndex) * summedTracerValues[cellResultIndex];
             }
             else if (flrWatResultK->at(cellResultIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[globalCellIndex] += flrWatResultK->at(globalCellIndex) * summedTracerValues[gridLocalCellIndexPosKNeighbour];
+                totalFlowrateIntoCell[cellResultIndex] += flrWatResultK->at(cellResultIndex) * summedTracerValues[cellResultIndexPosKNeighbour];
             }
         }
     }
