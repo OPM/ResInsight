@@ -61,20 +61,19 @@ void RicCalculateNumberOfFloodedPoreVolumes::onActionTriggered(bool isChecked)
     std::vector<std::vector<double>>  numberOfFloodedPorevolumes = calc.numberOfFloodedPorevolumes();
     std::vector<std::vector<double>>  cumInflow = calc.cumInflow();
 
-
-    //Test Norne
-    size_t cellIndex = mainGrid->reservoirCellIndex(mainGrid->cellIndexFromIJK(4, 1, 4));
-    RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-    size_t cellResultIndex = actCellInfo->cellResultIndex(cellIndex);
-
-    std::vector<double> numberOfFloodedPorevolumesForSingleCell;
-    std::vector<double> cumInflowForSingleCell;
-
-    for (size_t timeStep = 0; timeStep < numberOfFloodedPorevolumes.size(); timeStep++)
-    {
-        numberOfFloodedPorevolumesForSingleCell.push_back(numberOfFloodedPorevolumes[timeStep][cellResultIndex]);
-        cumInflowForSingleCell.push_back(cumInflow[timeStep][cellResultIndex]);
-    }
+    //Test
+//     size_t cellIndex = mainGrid->reservoirCellIndex(mainGrid->cellIndexFromIJK(19, 34, 9));
+//     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
+//     size_t cellResultIndex = actCellInfo->cellResultIndex(cellIndex);
+// 
+//     std::vector<double> numberOfFloodedPorevolumesForSingleCell;
+//     std::vector<double> cumInflowForSingleCell;
+// 
+//     for (size_t timeStep = 0; timeStep < numberOfFloodedPorevolumes.size(); timeStep++)
+//     {
+//         numberOfFloodedPorevolumesForSingleCell.push_back(numberOfFloodedPorevolumes[timeStep][cellResultIndex]);
+//         cumInflowForSingleCell.push_back(cumInflow[timeStep][cellResultIndex]);
+//     }
 }
 
 //--------------------------------------------------------------------------------------------------

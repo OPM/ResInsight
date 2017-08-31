@@ -183,31 +183,38 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
     {
         std::vector<double> totoalFlowrateIntoCell(numberOfActiveCells); //brukt result celle index / active  antall i stedet
 
-        if (flowrateIatAllTimeSteps[timeStep] != nullptr
-            && flowrateJatAllTimeSteps[timeStep] != nullptr
-            && flowrateKatAllTimeSteps[timeStep] != nullptr)
+        if (flowrateIatAllTimeSteps[timeStep-1] != nullptr
+            && flowrateJatAllTimeSteps[timeStep-1] != nullptr
+            && flowrateKatAllTimeSteps[timeStep-1] != nullptr)
 
         {
-            const std::vector<double>* flowrateI = flowrateIatAllTimeSteps[timeStep];
-            const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep];
-            const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep];
+            const std::vector<double>* flowrateI = flowrateIatAllTimeSteps[timeStep-1];
+            const std::vector<double>* flowrateJ = flowrateJatAllTimeSteps[timeStep-1];
+            const std::vector<double>* flowrateK = flowrateKatAllTimeSteps[timeStep-1];
 
-            distributeNeighbourCellFlow(mainGrid,
-                                        caseToApply,
-                                        summedTracersAtAllTimesteps[timeStep],
-                                        flowrateI,
-                                        flowrateJ,
-                                        flowrateK,
-                                        totoalFlowrateIntoCell);
+            if (flowrateI->size() > 0 && flowrateJ->size() > 0 && flowrateK->size() > 0)
+            {
+                distributeNeighbourCellFlow(mainGrid,
+                                            caseToApply,
+                                            summedTracersAtAllTimesteps[timeStep-1],
+                                            flowrateI,
+                                            flowrateJ,
+                                            flowrateK,
+                                            totoalFlowrateIntoCell);
+            }
+
         }
 
-        const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep];
+        const std::vector<double>* flowrateNNC = flowrateNNCatAllTimeSteps[timeStep-1];
 
-        distributeNNCflow(connections,
-                          caseToApply,
-                          summedTracersAtAllTimesteps[timeStep],
-                          flowrateNNC,
-                          totoalFlowrateIntoCell);
+        if (flowrateNNC->size() > 0)
+        {
+            distributeNNCflow(connections,
+                              caseToApply,
+                              summedTracersAtAllTimesteps[timeStep-1],
+                              flowrateNNC,
+                              totoalFlowrateIntoCell);
+        }
 
         std::vector<double> CellQwIn(numberOfActiveCells);
 
