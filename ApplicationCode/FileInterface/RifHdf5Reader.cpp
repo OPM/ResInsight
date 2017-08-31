@@ -129,10 +129,14 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 			H5::H5File file(fileName.c_str(), H5F_ACC_RDONLY);
 
 			double timeStepValue = getDoubleAttribute(file, timeStepGroup, "timestep");				// Assumes only one time step per file
-            int seconds = timeStepValue * secondsPerDay;
+            int timeStepDays = cvf::Math::floor(timeStepValue);
+            
+            double fractionOfDay = timeStepValue - timeStepDays;
+            double milliseconds = fractionOfDay * 24.0 * 60.0 * 60.0 * 1000.0;
 
 			QDateTime dt = dtInitial;
-            dt = dt.addSecs(seconds);
+            dt = dt.addDays(timeStepDays);
+            dt = dt.addMSecs(milliseconds);
 
 			times.push_back(dt);
 		}
