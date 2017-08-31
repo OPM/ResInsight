@@ -22,12 +22,15 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagSolverInterface.h"
 #include "RigFlowDiagStatCalc.h"
+#include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
 #include "RigFlowDiagResultFrames.h"
 #include "RigStatisticsDataCache.h"
+#include "RigNumberOfFloodedPoreVolumesCalculator.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
 
@@ -211,6 +214,10 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
     else if ( resVarAddr.variableName == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
     {
         return calculateTracerWithMaxFractionResult(resVarAddr, frameIndex);
+    }
+    else if (resVarAddr.variableName == RIG_NUM_FLOODED_PV)
+    {
+        return calculateNumFloodedPV(resVarAddr, frameIndex);
     }
 
     return nullptr; 
@@ -416,6 +423,29 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult(const RigF
     }
 
     return &commPI;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>* RigFlowDiagResults::calculateNumFloodedPV(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
+{
+    RimEclipseCase* eclipseCase;
+    m_flowDiagSolution->firstAncestorOrThisOfTypeAsserted(eclipseCase);
+    std::vector<QString> tracerNames;
+    for (const std::string& tracerName : resVarAddr.selectedTracerNames)
+    {
+        tracerNames.push_back(QString::fromUtf8(tracerName.c_str()));
+    }
+    RigNumberOfFloodedPoreVolumesCalculator calc(eclipseCase, tracerNames);
+
+    RigFlowDiagResultFrames* frames = this->createScalarResult(resVarAddr);
+
+    std::vector<double>& frame = frames->frameData(frameIndex);
+
+    frame = calc.numberOfFloodedPorevolumesAtTimeStep(frameIndex);
+
+    return &frame;
 }
 
 

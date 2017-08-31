@@ -221,23 +221,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
                                                                                  size_t timeStepIndex,
                                                                                  RimEclipseResultDefinition* resultDefinition)
 {
-    if (resultDefinition->resultType() != RiaDefines::FLOW_DIAGNOSTICS)
-    {
-
-        size_t adjustedTimeStepIndex = timeStepIndex;
-        if ( resultDefinition->hasStaticResult() )
-        {
-            adjustedTimeStepIndex = 0;
-        }
-
-        return RigResultAccessorFactory::createFromNameAndType(eclipseCase,
-                                                                gridIndex,
-                                                                resultDefinition->porosityModel(),
-                                                                adjustedTimeStepIndex,
-                                                                resultDefinition->resultVariable(),
-                                                                resultDefinition->resultType());
-    }
-    else
+    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS || resultDefinition->resultType() == RiaDefines::INJECTION_FLOODING)
     {
         RimFlowDiagSolution* flowSol = resultDefinition->flowDiagSolution();
         if (!flowSol) return new RigHugeValResultAccessor;;
@@ -251,6 +235,21 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
         cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(resultDefinition->porosityModel()));
 
         return object;
+    }
+    else
+    {
+        size_t adjustedTimeStepIndex = timeStepIndex;
+        if ( resultDefinition->hasStaticResult() )
+        {
+            adjustedTimeStepIndex = 0;
+        }
+
+        return RigResultAccessorFactory::createFromNameAndType(eclipseCase,
+                                                                gridIndex,
+                                                                resultDefinition->porosityModel(),
+                                                                adjustedTimeStepIndex,
+                                                                resultDefinition->resultVariable(),
+                                                                resultDefinition->resultType());
     }
 }
 

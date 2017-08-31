@@ -1125,6 +1125,10 @@ public:
         resTypeNames.push_back("Generated");
         resTypes.push_back(RiaDefines::INPUT_PROPERTY);
         resTypeNames.push_back("Input");
+#ifdef ENABLE_SOURING
+        resTypes.push_back(RiaDefines::INJECTION_FLOODING);
+        resTypeNames.push_back("Injection Flooding");
+#endif /* ENABLE_SOURING */
 
         for (size_t rtIdx = 0; rtIdx < resTypes.size(); ++rtIdx)
         {

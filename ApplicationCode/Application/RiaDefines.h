@@ -33,6 +33,7 @@ namespace RiaDefines
         INPUT_PROPERTY,
         FORMATION_NAMES,
         FLOW_DIAGNOSTICS,
+        INJECTION_FLOODING,
         REMOVED
     };
 

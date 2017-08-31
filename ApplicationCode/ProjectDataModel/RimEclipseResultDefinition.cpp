@@ -82,6 +82,9 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_selectedTracers, "SelectedTracers", "Tracers", "", "", "");
     m_selectedTracers.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "");
+    m_selectedSouringTracers.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_phaseSelection, "PhaseSelection", "Phases", "", "", "");
 
@@ -110,6 +113,11 @@ RimEclipseResultDefinition::RimEclipseResultDefinition()
     m_selectedTracersUiField.xmlCapability()->setIOReadable(false);
     m_selectedTracersUiField.xmlCapability()->setIOWritable(false);
     m_selectedTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+ 
+    CAF_PDM_InitFieldNoDefault(&m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers", "", "", "");
+    m_selectedSouringTracersUiField.xmlCapability()->setIOReadable(false);
+    m_selectedSouringTracersUiField.xmlCapability()->setIOWritable(false);
+    m_selectedSouringTracersUiField.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_selectedTracersUiFieldFilter, "SelectedTracersFilter", "Filter", "", "", "");
 }
@@ -132,6 +140,7 @@ void RimEclipseResultDefinition::simpleCopy(const RimEclipseResultDefinition* ot
     this->setResultType(other->resultType());
     this->setFlowSolution(other->m_flowSolution());
     this->setSelectedTracers(other->m_selectedTracers());
+    this->setSelectedSouringTracers(other->m_selectedSouringTracers());
     m_flowTracerSelectionMode = other->m_flowTracerSelectionMode();
     m_phaseSelection = other->m_phaseSelection;
 }
@@ -204,6 +213,10 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
             m_flowSolution = m_flowSolutionUiField();
             m_selectedTracers = m_selectedTracersUiField();
         }
+        else if (m_resultTypeUiField() == RiaDefines::INJECTION_FLOODING)
+        {
+            m_selectedSouringTracers = m_selectedSouringTracersUiField();
+        }
         loadDataAndUpdate();
     }
 
@@ -238,6 +251,16 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
         }
 
         loadDataAndUpdate();
+    }
+
+    if (&m_selectedSouringTracersUiField == changedField)
+    {
+        if (!m_resultVariable().isEmpty())
+        {
+            m_resultType = m_resultTypeUiField();
+            m_selectedSouringTracers = m_selectedSouringTracersUiField();
+            loadDataAndUpdate();
+        }
     }
 
     if (&m_phaseSelection == changedField)
@@ -433,13 +456,19 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         hasSourSimRLFile = false;
 #endif
 
+        bool enableSouring = false;
+
+#ifdef ENABLE_SOURING
+        enableSouring = true;
+#endif /* ENABLE_SOURING */
+
 
         RimGridTimeHistoryCurve* timeHistoryCurve;
         this->firstAncestorOrThisOfType(timeHistoryCurve);
 
         // Do not include flow diagnostics results if it is a time history curve
         // Do not include SourSimRL if no SourSim file is loaded
-        if ( timeHistoryCurve != nullptr || !hasSourSimRLFile )
+        if ( timeHistoryCurve != nullptr || !hasSourSimRLFile || !enableSouring )
         {
             using ResCatEnum = caf::AppEnum< RiaDefines::ResultCatType >;
             for ( size_t i = 0; i < ResCatEnum::size(); ++i )
@@ -457,20 +486,18 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
                     continue;
                 }
 
+                if (resType == RiaDefines::INJECTION_FLOODING && !enableSouring)
+                {
+                    continue;
+                }
+
                 QString uiString = ResCatEnum::uiTextFromIndex(i);
                 options.push_back(caf::PdmOptionItemInfo(uiString, resType));
             }
         }
     }
 
-    if ( m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS )
-    {
-        if ( fieldNeedingOptions == &m_resultVariableUiField )
-        {
-            options = calcOptionsForVariableUiFieldStandard();
-        }
-    }
-    else
+    if ( m_resultTypeUiField() == RiaDefines::FLOW_DIAGNOSTICS )
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
@@ -523,6 +550,45 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             }
         }
     }
+    else if (m_resultTypeUiField() == RiaDefines::INJECTION_FLOODING)
+    {
+        if (fieldNeedingOptions == &m_selectedSouringTracersUiField)
+        {
+            RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
+            if (cellResultsStorage && cellResultsStorage->cellResults())
+            {
+                QStringList dynamicResultNames = cellResultsStorage->cellResults()->resultNames(RiaDefines::DYNAMIC_NATIVE);
+
+                for (const QString& resultName : dynamicResultNames)
+                {
+                    if (resultName == "SOIL" ||
+                        resultName == "SWAT" ||
+                        resultName == "SGAS" ||
+                        resultName == "PRESSURE" ||
+                        resultName.startsWith("FLRWAT") ||
+                        resultName.startsWith("FLROIL") ||
+                        resultName.startsWith("FLRGAS") ||
+                        resultName == RiaDefines::completionTypeResultName())
+                    {
+                        continue;
+                    }
+                    options.push_back(caf::PdmOptionItemInfo(resultName, resultName));
+                }
+            }
+        }
+        else if (fieldNeedingOptions == &m_resultVariableUiField)
+        {
+            options.push_back(caf::PdmOptionItemInfo(RIG_NUM_FLOODED_PV, RIG_NUM_FLOODED_PV));
+        }
+    }
+    else
+    {
+        if ( fieldNeedingOptions == &m_resultVariableUiField )
+        {
+            options = calcOptionsForVariableUiFieldStandard();
+        }
+    }
+
 
     (*useOptionsOnly) = true;
     
@@ -535,7 +601,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard()
 {
-    CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS);
+    CVF_ASSERT(m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS && m_resultTypeUiField() != RiaDefines::INJECTION_FLOODING);
 
     if (this->currentGridCellResults())
     {
@@ -655,7 +721,7 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 {
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS) return cvf::UNDEFINED_SIZE_T;
+    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || m_resultType() == RiaDefines::INJECTION_FLOODING) return cvf::UNDEFINED_SIZE_T;
 
     const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults && gridCellResults->cellResults())
@@ -671,71 +737,83 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 {
-    CVF_ASSERT(m_resultType() == RiaDefines::FLOW_DIAGNOSTICS);
+    CVF_ASSERT(m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || m_resultType() == RiaDefines::INJECTION_FLOODING);
 
-    size_t timeStep = 0;
-
-    RimView* rimView = nullptr;
-    this->firstAncestorOrThisOfType(rimView);
-    if (rimView)
+    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
-        timeStep = rimView->currentTimeStep();
-    }
-    RimWellLogExtractionCurve* wellLogExtractionCurve = nullptr;
-    this->firstAncestorOrThisOfType(wellLogExtractionCurve);
-    if (wellLogExtractionCurve)
-    {
-        timeStep = static_cast<size_t>(wellLogExtractionCurve->currentTimeStep());
-    }
+        size_t timeStep = 0;
 
-    // Time history curves are not supported, since it requires the time 
-    // step to access to be supplied.
-    RimGridTimeHistoryCurve* timeHistoryCurve = nullptr;
-    this->firstAncestorOrThisOfType(timeHistoryCurve);
-    CVF_ASSERT(timeHistoryCurve == nullptr);
-
-    std::set<std::string> selTracerNames;
-    if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
-    {
-        for (const QString& tName : m_selectedTracers())
+        RimView* rimView = nullptr;
+        this->firstAncestorOrThisOfType(rimView);
+        if (rimView)
         {
-            selTracerNames.insert(tName.toStdString());
+            timeStep = rimView->currentTimeStep();
         }
+        RimWellLogExtractionCurve* wellLogExtractionCurve = nullptr;
+        this->firstAncestorOrThisOfType(wellLogExtractionCurve);
+        if (wellLogExtractionCurve)
+        {
+            timeStep = static_cast<size_t>(wellLogExtractionCurve->currentTimeStep());
+        }
+
+        // Time history curves are not supported, since it requires the time 
+        // step to access to be supplied.
+        RimGridTimeHistoryCurve* timeHistoryCurve = nullptr;
+        this->firstAncestorOrThisOfType(timeHistoryCurve);
+        CVF_ASSERT(timeHistoryCurve == nullptr);
+
+        std::set<std::string> selTracerNames;
+        if (m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION)
+        {
+            for (const QString& tName : m_selectedTracers())
+            {
+                selTracerNames.insert(tName.toStdString());
+            }
+        }
+        else
+        {
+            RimFlowDiagSolution* flowSol = m_flowSolution();
+            if (flowSol)
+            {
+                std::vector<QString> tracerNames = flowSol->tracerNames();
+
+                if (m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
+                {
+                    for (const QString& tracerName : tracerNames)
+                    {
+                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep(tracerName, timeStep);
+                        if (status == RimFlowDiagSolution::INJECTOR)
+                        {
+                            selTracerNames.insert(tracerName.toStdString());
+                        }
+                    }
+                }
+
+                if (m_flowTracerSelectionMode == FLOW_TR_PRODUCERS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
+                {
+                    for (const QString& tracerName : tracerNames)
+                    {
+                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep(tracerName, timeStep);
+                        if (status == RimFlowDiagSolution::PRODUCER)
+                        {
+                            selTracerNames.insert(tracerName.toStdString());
+                        }
+                    }
+                }
+            }
+        }
+
+        return RigFlowDiagResultAddress(m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames);
     }
     else
     {
-        RimFlowDiagSolution* flowSol = m_flowSolution();
-        if (flowSol)
+        std::set<std::string> selTracerNames;
+        for (const QString& selectedTracerName : m_selectedSouringTracers())
         {
-            std::vector<QString> tracerNames = flowSol->tracerNames();
-
-            if (m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
-            {
-                for (const QString& tracerName : tracerNames)
-                {
-                    RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep(tracerName, timeStep);
-                    if (status == RimFlowDiagSolution::INJECTOR)
-                    {
-                        selTracerNames.insert(tracerName.toStdString());
-                    }
-                }
-            }
-            
-            if (m_flowTracerSelectionMode == FLOW_TR_PRODUCERS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD)
-            {
-                for (const QString& tracerName : tracerNames)
-                {
-                    RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep(tracerName, timeStep);
-                    if (status == RimFlowDiagSolution::PRODUCER)
-                    {
-                        selTracerNames.insert(tracerName.toStdString());
-                    }
-                }
-            }
+            selTracerNames.insert(selectedTracerName.toUtf8().constData());
         }
+        return RigFlowDiagResultAddress(RIG_NUM_FLOODED_PV, RigFlowDiagResultAddress::PHASE_ALL, selTracerNames);
     }
-
-    return RigFlowDiagResultAddress(m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -810,7 +888,7 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
-    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS) return; // Will load automatically on access
+    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING) return; // Will load automatically on access
 
     RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
@@ -826,7 +904,7 @@ void RimEclipseResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasStaticResult() const
 {
-    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS) return false;
+    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING) return false;
 
     const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     size_t gridScalarResultIndex = this->scalarResultIndex();
@@ -846,7 +924,7 @@ bool RimEclipseResultDefinition::hasStaticResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasResult() const
 {
-    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING)
     {
         if (m_flowSolution() && !m_resultVariable().isEmpty()) return true;
     }
@@ -877,6 +955,10 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
             return true;
         }
         else if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+        {
+            return true;
+        }
+        else if (m_resultType() == RiaDefines::INJECTION_FLOODING)
         {
             return true;
         }
@@ -962,6 +1044,15 @@ void RimEclipseResultDefinition::setSelectedTracers(const std::vector<QString>& 
 {
     this->m_selectedTracers = selectedTracers;
     this->m_selectedTracersUiField = selectedTracers;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultDefinition::setSelectedSouringTracers(const std::vector<QString>& selectedTracers)
+{
+    this->m_selectedSouringTracers = selectedTracers;
+    this->m_selectedSouringTracersUiField = selectedTracers;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1053,6 +1144,12 @@ void RimEclipseResultDefinition::defineUiOrdering(QString uiConfigName, caf::Pdm
             assignFlowSolutionFromCase();
         }
     }
+
+    if (m_resultTypeUiField() == RiaDefines::INJECTION_FLOODING)
+    {
+        uiOrdering.add(&m_selectedSouringTracersUiField);
+    }
+
     uiOrdering.add(&m_resultVariableUiField);
 
     uiOrdering.skipRemainingFields(true);

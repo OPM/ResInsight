@@ -105,6 +105,7 @@ private:
     std::vector<double>*                     calculateSumOfFractionsResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
     std::vector<double>*                     calculateTracerWithMaxFractionResult(const RigFlowDiagResultAddress &resVarAddr, size_t frameIndex);
     std::vector<double>*                     calculateCommunicationResult(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
+    std::vector<double>*                     calculateNumFloodedPV(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex);
 
 
     std::vector<const std::vector<double>* > findResultsForSelectedTracers(const RigFlowDiagResultAddress& resVarAddr, 

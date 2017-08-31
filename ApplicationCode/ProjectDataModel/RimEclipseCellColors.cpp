@@ -273,7 +273,7 @@ public :
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
 {
-    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING)
     {
         double globalMin, globalMax;
         double globalPosClosestToZero, globalNegClosestToZero;

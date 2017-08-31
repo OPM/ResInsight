@@ -252,7 +252,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::updateRangeLabel()
 {
-    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS || resultDefinition->resultType() == RiaDefines::INJECTION_FLOODING)
     {
         m_rangeLabelText = "Current Timestep";
     }
@@ -348,7 +348,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     clearCategories();
 
-    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS || resultDefinition->resultType() == RiaDefines::INJECTION_FLOODING)
     {
         RimView* view;
         this->firstAncestorOrThisOfType(view);
@@ -423,7 +423,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
     //
     // If the user manually has set a filter value, this value is left untouched
 
-    if (resultDefinition->resultType() != RiaDefines::FLOW_DIAGNOSTICS)
+    if (resultDefinition->resultType() != RiaDefines::FLOW_DIAGNOSTICS && resultDefinition->resultType() != RiaDefines::INJECTION_FLOODING)
     {
         return;
     }

@@ -26,6 +26,7 @@
 #define RIG_FLD_CELL_FRACTION_RESNAME        "Fraction"
 #define RIG_FLD_MAX_FRACTION_TRACER_RESNAME  "MaxFractionTracer"
 #define RIG_FLD_COMMUNICATION_RESNAME        "Communication"
+#define RIG_NUM_FLOODED_PV                   "Number of Flooded PV"
 
 #define RIG_FLOW_TOTAL_NAME "Total"
 #define RIG_FLOW_OIL_NAME "Oil"
