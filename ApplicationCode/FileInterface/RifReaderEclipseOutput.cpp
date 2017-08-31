@@ -482,19 +482,19 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 
     std::vector<RigEclipseTimeStepInfo> timeStepInfos = createFilteredTimeStepInfos();
 
-    std::unique_ptr<RifHdf5ReaderInterface> myReader;
+    std::unique_ptr<RifHdf5ReaderInterface> hdf5ReaderInterface;
 #ifdef USE_HDF5
-    myReader = std::unique_ptr<RifHdf5ReaderInterface>(new RifHdf5Reader(fileName));
+    hdf5ReaderInterface = std::unique_ptr<RifHdf5ReaderInterface>(new RifHdf5Reader(fileName));
 #endif // USE_HDF5
 
-    if (!myReader)
+    if (!hdf5ReaderInterface)
     {
         RiaLogging::error("HDF: Failed to import Sour Sim data ");
 
         return;
     }
 
-    std::vector<QDateTime> hdfTimeSteps = myReader->timeSteps();
+    std::vector<QDateTime> sourSimTimeSteps = hdf5ReaderInterface->timeSteps();
     
     if (timeStepInfos.size() > 0)
     {
@@ -503,15 +503,8 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
         for (size_t i = 0; i < timeStepInfos.size(); i++)
         {
             size_t indexOnFile = timeStepIndexOnFile(i);
-            QString dateStr("yyyy.MMM.dd hh:mm:ss:zzz");
-
-            if (!isEclipseAndSoursimTimeStepsEqual(hdfTimeSteps[indexOnFile], timeStepInfos[i].m_date))
+            if (!isEclipseAndSoursimTimeStepsEqual(timeStepInfos[i].m_date, sourSimTimeSteps[indexOnFile]))
             {
-                RiaLogging::error("HDF: Time steps does not match");
-
-                RiaLogging::error(QString("HDF: Eclipse date %1").arg(timeStepInfos[i].m_date.toString(dateStr)));
-                RiaLogging::error(QString("HDF:     HDF date %1").arg(hdfTimeSteps[indexOnFile].toString(dateStr)));
-
                 isTimeStampsEqual = false;
             }
         }
@@ -521,11 +514,11 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
     else
     {
         // Use time steps from HDF to define the time steps
-        QDateTime firstDate = hdfTimeSteps[0];
+        QDateTime firstDate = sourSimTimeSteps[0];
 
         std::vector<double> daysSinceSimulationStart; 
 
-        for (auto d : hdfTimeSteps)
+        for (auto d : sourSimTimeSteps)
         {
             daysSinceSimulationStart.push_back(firstDate.daysTo(d));
         }
@@ -537,23 +530,23 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
         }
         else
         {
-            for (size_t i = 0; i < hdfTimeSteps.size(); i++)
+            for (size_t i = 0; i < sourSimTimeSteps.size(); i++)
             {
                 reportNumbers.push_back(static_cast<int>(i));
             }
         }
 
-        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(hdfTimeSteps, reportNumbers, daysSinceSimulationStart);
+        timeStepInfos = RigEclipseTimeStepInfo::createTimeStepInfos(sourSimTimeSteps, reportNumbers, daysSinceSimulationStart);
     }
 
-    QStringList resultNames = myReader->propertyNames();
+    QStringList resultNames = hdf5ReaderInterface->propertyNames();
     for (int i = 0; i < resultNames.size(); ++i)
     {
         size_t resIndex = matrixModelResults->findOrCreateScalarResultIndex(RiaDefines::SOURSIMRL, resultNames[i], false);
         matrixModelResults->setTimeStepInfos(resIndex, timeStepInfos);
     }
 
-    m_hdfReaderInterface = std::move(myReader);
+    m_hdfReaderInterface = std::move(hdf5ReaderInterface);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1982,11 +1975,26 @@ bool RifReaderEclipseOutput::isEclipseAndSoursimTimeStepsEqual(const QDateTime& 
     // Compare date down to and including seconds
     // Compare of complete date time objects will often result in differences
 
-    if (eclipseDateTime.date() != sourSimDateTime.date()) return false;
-    
-    if (eclipseDateTime.time().hour()   != sourSimDateTime.time().hour())   return false;
-    if (eclipseDateTime.time().minute() != sourSimDateTime.time().minute()) return false;
-    if (eclipseDateTime.time().second() != sourSimDateTime.time().second()) return false;
+    const int secondsThreshold = 4;
+    const QString dateStr("yyyy.MMM.dd hh:mm:ss:zzz");
+
+    int secondsDiff = eclipseDateTime.secsTo(sourSimDateTime);
+    if (secondsDiff > secondsThreshold)
+    {
+        RiaLogging::error("HDF: Time steps does not match");
+
+        RiaLogging::error(QString("  %1 - Eclipse").arg(eclipseDateTime.toString(dateStr)));
+        RiaLogging::error(QString("  %1 - SourSim").arg(sourSimDateTime.toString(dateStr)));
+
+        return false;
+    }
+
+    if (eclipseDateTime.time().second() != sourSimDateTime.time().second())
+    {
+        RiaLogging::warning("HDF: Time steps differ, but within time step compare threshold");
+        RiaLogging::warning(QString("  %1 - Eclipse").arg(eclipseDateTime.toString(dateStr)));
+        RiaLogging::warning(QString("  %1 - SourSim").arg(sourSimDateTime.toString(dateStr)));
+    }
 
     return true;
 }
