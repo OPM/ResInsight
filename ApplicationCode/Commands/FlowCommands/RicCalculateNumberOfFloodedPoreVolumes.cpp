@@ -51,12 +51,12 @@ void RicCalculateNumberOfFloodedPoreVolumes::onActionTriggered(bool isChecked)
     RimView* view = RiaApplication::instance()->activeReservoirView();
     RimEclipseCase* caseToApply;
     view->firstAncestorOrThisOfType(caseToApply);
-
     RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
+    
     std::vector<QString> tracerNames;
     tracerNames.push_back("SOIL");
 
-    RigNumberOfFloodedPoreVolumesCalculator calc(mainGrid, caseToApply, tracerNames);
+    RigNumberOfFloodedPoreVolumesCalculator calc(caseToApply, tracerNames);
 
     std::vector<std::vector<double>>  numberOfFloodedPorevolumes = calc.numberOfFloodedPorevolumes();
     std::vector<std::vector<double>>  cumInflow = calc.cumInflow();

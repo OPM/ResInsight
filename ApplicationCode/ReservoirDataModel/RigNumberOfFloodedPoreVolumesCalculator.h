@@ -34,8 +34,7 @@ class RigNumberOfFloodedPoreVolumesCalculator
 {
 
 public:
-    explicit RigNumberOfFloodedPoreVolumesCalculator(RigMainGrid* mainGrid, 
-                                                     RimEclipseCase* caseToApply,
+    explicit RigNumberOfFloodedPoreVolumesCalculator(RimEclipseCase* caseToApply,
                                                      const std::vector<QString> tracerNames
                                                      );
 
@@ -52,6 +51,7 @@ private:
                    RimEclipseCase* caseToApply,
                    std::vector<double> daysSinceSimulationStart, 
                    const std::vector<double>* porvResults, 
+                   const std::vector<double>* scwrResults,
                    std::vector<const std::vector<double>* > flowrateIatAllTimeSteps, 
                    std::vector<const std::vector<double>* > flowrateJatAllTimeSteps, 
                    std::vector<const std::vector<double>* > flowrateKatAllTimeSteps, 

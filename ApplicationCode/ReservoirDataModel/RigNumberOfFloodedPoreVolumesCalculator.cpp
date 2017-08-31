@@ -36,10 +36,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator(RigMainGrid* mainGrid, 
-                                                                                 RimEclipseCase* caseToApply, 
+RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator(RimEclipseCase* caseToApply,
                                                                                  const std::vector<QString> tracerNames)
 {
+    RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
+
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
 
@@ -47,7 +48,15 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     size_t numberOfActiveCells = actCellInfo->reservoirCellResultCount();
 
     size_t scalarResultIndexPorv = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PORV");
-    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));  
+    const std::vector<double>* porvResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexPorv, 0));
+
+    size_t scalarResultIndexSwcr = gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "SWCR");
+    const std::vector<double>* swcrResults = nullptr;
+    if (scalarResultIndexSwcr != cvf::UNDEFINED_SIZE_T)
+    {
+        swcrResults = &(eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->cellScalarResults(scalarResultIndexSwcr, 0));
+    }
+
 
     std::vector<size_t> scalarResultIndexTracers;
     for (QString tracerName : tracerNames)
@@ -130,6 +139,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
               caseToApply,
               daysSinceSimulationStart,
               porvResults, 
+              swcrResults,
               flowrateIatAllTimeSteps, 
               flowrateJatAllTimeSteps, 
               flowrateKatAllTimeSteps, 
@@ -163,6 +173,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
                                                         RimEclipseCase* caseToApply,
                                                         std::vector<double> daysSinceSimulationStart,
                                                         const std::vector<double>* porvResults,
+                                                        const std::vector<double>* swcrResults,
                                                         std::vector<const std::vector<double>* > flowrateIatAllTimeSteps,
                                                         std::vector<const std::vector<double>* > flowrateJatAllTimeSteps,
                                                         std::vector<const std::vector<double>* > flowrateKatAllTimeSteps,
@@ -231,7 +242,8 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
 
     }
 
-    //Using porv only for active cells
+
+    //Using porv and swcr only for active cells
     std::vector<double> porvResultsActiveCellsOnly;
     for (size_t globalCellIndex = 0; globalCellIndex < mainGrid->globalCellArray().size(); globalCellIndex++)
     {
@@ -253,8 +265,14 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
         std::vector<double> cumWinflowPV(numberOfActiveCells);
         for (size_t cellResultIndex = 0; cellResultIndex < numberOfActiveCells; cellResultIndex++)
         {
+            double scaledPoreVolume = porvResultsActiveCellsOnly[cellResultIndex];
+            if (swcrResults != nullptr && swcrResults->size() == numberOfActiveCells)
+            {
+                scaledPoreVolume = scaledPoreVolume * (1 - swcrResults->at(cellResultIndex));
+            }
+
             cumWinflowPV[cellResultIndex] = cellQwInAtAllTimeSteps[timeStep][cellResultIndex]
-                / porvResultsActiveCellsOnly[cellResultIndex];
+                / scaledPoreVolume;
         }
         m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPV);
     }
