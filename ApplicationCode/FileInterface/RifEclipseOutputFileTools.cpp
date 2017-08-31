@@ -159,14 +159,9 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 
         double dayValue = dayValues[i];
         double dayFraction = dayValue - cvf::Math::floor(dayValue);
-        int milliseconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0 * 1000.0);
-        int seconds = milliseconds % 1000;
-        milliseconds -= seconds * 1000;
-        QTime time(0, 0);
-        time = time.addSecs(seconds);
-        time = time.addMSecs(milliseconds);
+        double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
-        reportDateTime.setTime(time);
+        reportDateTime = reportDateTime.addMSecs(milliseconds);
 
         if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
         {
