@@ -503,7 +503,7 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
         for (size_t i = 0; i < timeStepInfos.size(); i++)
         {
             size_t indexOnFile = timeStepIndexOnFile(i);
-            QString dateStr("yyyy.MMM.ddd hh:mm:ss");
+            QString dateStr("yyyy.MMM.dd hh:mm:ss:zzz");
 
             if (!isEclipseAndSoursimTimeStepsEqual(hdfTimeSteps[indexOnFile], timeStepInfos[i].m_date))
             {
