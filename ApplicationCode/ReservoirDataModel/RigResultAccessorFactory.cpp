@@ -230,11 +230,12 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
             adjustedTimeStepIndex = 0;
         }
 
-        return RigResultAccessorFactory::createFromUiResultName(eclipseCase,
+        return RigResultAccessorFactory::createFromNameAndType(eclipseCase,
                                                                 gridIndex,
                                                                 resultDefinition->porosityModel(),
                                                                 adjustedTimeStepIndex,
-                                                                resultDefinition->resultVariable());
+                                                                resultDefinition->resultVariable(),
+                                                                resultDefinition->resultType());
     }
     else
     {
