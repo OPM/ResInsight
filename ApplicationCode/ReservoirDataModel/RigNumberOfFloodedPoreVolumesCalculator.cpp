@@ -277,8 +277,6 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
         m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPV);
     }
 
-    //TODO: Only for testing
-    m_cellQwInAtAllTimeSteps = cellQwInAtAllTimeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------

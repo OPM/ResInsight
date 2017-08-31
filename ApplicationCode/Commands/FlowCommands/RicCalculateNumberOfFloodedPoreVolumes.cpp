@@ -59,7 +59,6 @@ void RicCalculateNumberOfFloodedPoreVolumes::onActionTriggered(bool isChecked)
     RigNumberOfFloodedPoreVolumesCalculator calc(caseToApply, tracerNames);
 
     std::vector<std::vector<double>>  numberOfFloodedPorevolumes = calc.numberOfFloodedPorevolumes();
-    std::vector<std::vector<double>>  cumInflow = calc.cumInflow();
 
     //Test
 //     size_t cellIndex = mainGrid->reservoirCellIndex(mainGrid->cellIndexFromIJK(19, 34, 9));
@@ -72,7 +71,6 @@ void RicCalculateNumberOfFloodedPoreVolumes::onActionTriggered(bool isChecked)
 //     for (size_t timeStep = 0; timeStep < numberOfFloodedPorevolumes.size(); timeStep++)
 //     {
 //         numberOfFloodedPorevolumesForSingleCell.push_back(numberOfFloodedPorevolumes[timeStep][cellResultIndex]);
-//         cumInflowForSingleCell.push_back(cumInflow[timeStep][cellResultIndex]);
 //     }
 }
 

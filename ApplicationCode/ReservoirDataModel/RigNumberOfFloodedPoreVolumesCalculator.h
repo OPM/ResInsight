@@ -41,10 +41,6 @@ public:
     const std::vector<std::vector<double>>& numberOfFloodedPorevolumes() const;
     const std::vector<double>&              numberOfFloodedPorevolumesAtTimeStep(size_t timeStep) const;
 
-    //TODO: remove, only for testing
-    const std::vector<std::vector<double>>& cumInflow() const { return m_cellQwInAtAllTimeSteps; }
-
-
 
 private:
     void calculate(RigMainGrid* mainGrid, 
@@ -76,9 +72,5 @@ private:
 
 private:
     std::vector<std::vector<double>> m_cumWinflowPVAllTimeSteps;
-
-    //TODO: remove, only for testing
-    std::vector<std::vector<double>> m_cellQwInAtAllTimeSteps;
-
 };
 
