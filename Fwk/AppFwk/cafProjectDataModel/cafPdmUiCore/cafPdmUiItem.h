@@ -59,7 +59,7 @@ public:
         : m_editorTypeName(""), m_isHidden(-1), m_isTreeChildrenHidden(-1), m_isReadOnly(-1), m_labelAlignment(LEFT)
     {}
 
-    PdmUiItemInfo( QString  uiName,   QIcon icon = QIcon(), QString  toolTip = "", QString  whatsThis = "")
+    PdmUiItemInfo(const QString& uiName, QIcon icon = QIcon(), QString toolTip = "", QString whatsThis = "")
         : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis),
           m_editorTypeName(""), m_isHidden(false), m_isTreeChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
     { }
@@ -86,11 +86,11 @@ private:
 class PdmOptionItemInfo
 {
 public:
-    PdmOptionItemInfo( QString  anOptionUiText, QVariant aValue, bool anIsDimmed = false, QIcon anIcon = QIcon() )
+    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon() )
         :  value(aValue), optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
     {}
 
-    PdmOptionItemInfo(QString  anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
+    PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
 
     QString  optionUiText;
     bool     isDimmed;

@@ -46,7 +46,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo(QString anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
+PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
     : optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
 {
     value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
