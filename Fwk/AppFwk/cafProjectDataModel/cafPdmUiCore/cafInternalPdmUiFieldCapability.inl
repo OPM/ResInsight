@@ -29,7 +29,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
             uint optionIndex = uiValue.toUInt();
             CAF_ASSERT(optionIndex < static_cast<unsigned int>(m_optionEntryCache.size()));
 
-            QVariant optionVariantValue = m_optionEntryCache[optionIndex].value;
+            QVariant optionVariantValue = m_optionEntryCache[optionIndex].value();
             
             typename FieldType::FieldDataType fieldValue;
             PdmUiFieldSpecialization<typename FieldType::FieldDataType>::setFromVariant(optionVariantValue, fieldValue);
@@ -55,7 +55,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor(const QVariant& uiValue
                         unsigned int opIdx = selectedIndexes[i].toUInt();
                         if (opIdx < static_cast<unsigned int>(m_optionEntryCache.size()))
                         {
-                            valuesToSetInField.push_back(m_optionEntryCache[opIdx].value);
+                            valuesToSetInField.push_back(m_optionEntryCache[opIdx].value());
                         }
                     }
                     typename FieldType::FieldDataType value;
@@ -220,7 +220,7 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions(bool* useOp
                     bool isFound = false;
                     for(unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(m_optionEntryCache.size()); ++opIdx)
                     {
-                        if(PdmUiFieldSpecialization<typename FieldType::FieldDataType>::isDataElementEqual(valuesSelectedInField[i], m_optionEntryCache[opIdx].value))
+                        if(PdmUiFieldSpecialization<typename FieldType::FieldDataType>::isDataElementEqual(valuesSelectedInField[i], m_optionEntryCache[opIdx].value()))
                         {
                             isFound = true;
                         }

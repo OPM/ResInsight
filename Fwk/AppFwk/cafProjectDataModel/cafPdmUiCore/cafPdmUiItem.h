@@ -86,16 +86,14 @@ private:
 class PdmOptionItemInfo
 {
 public:
-    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon() )
-        :  value(aValue), optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
-    {}
-
+    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon() );
     PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
 
-    QString  optionUiText;
-    bool     isDimmed;
-    QIcon    icon;
-    QVariant value;
+    const QString   optionUiText() const;
+    const QVariant  value() const;
+    bool            isDimmed() const;
+    const QIcon     icon() const;
+
 
     // Static utility methods to handle QList of PdmOptionItemInfo
     // Please regard as private to the PDM system 
@@ -104,6 +102,12 @@ public:
     template<typename T>
     static bool        findValues     (const QList<PdmOptionItemInfo>& optionList , QVariant fieldValue, 
                                       std::vector<unsigned int>& foundIndexes);
+
+private:
+    QString  m_optionUiText;
+    QVariant m_value;
+    bool     m_isDimmed;
+    QIcon    m_icon;
 };
 
 class PdmUiEditorHandle;
@@ -131,7 +135,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
 
             for (int i= 0 ; i < optionList.size(); ++i)
             {
-                optionVariantAndIndexPairs.push_back(std::make_pair(optionList[i].value, i));
+                optionVariantAndIndexPairs.push_back(std::make_pair(optionList[i].value(), i));
             }
 
             for (int i = 0; i < valuesSelectedInField.size(); ++i)
@@ -159,7 +163,7 @@ bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList, Q
     {
         for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(optionList.size()); ++opIdx)
         {
-            if (PdmUiFieldSpecialization<T>::isDataElementEqual(optionList[opIdx].value, fieldValue))
+            if (PdmUiFieldSpecialization<T>::isDataElementEqual(optionList[opIdx].value(), fieldValue))
             {
                 foundIndexes.push_back(opIdx);
                 break;

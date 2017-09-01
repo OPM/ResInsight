@@ -235,7 +235,7 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
         if (!enumNames.isEmpty() && fromMenuOnly == true)
         {
             int enumValue = field()->uiValue().toInt();
-            m_lineEdit->setText(enumNames[enumValue].optionUiText);
+            m_lineEdit->setText(enumNames[enumValue].optionUiText());
         }
         else
         {

@@ -230,7 +230,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
 
                             if (index < options.size())
                             {
-                                displayText += options.at(index).optionUiText;
+                                displayText += options.at(index).optionUiText();
                             }
                         }
                     }
@@ -251,7 +251,7 @@ QVariant PdmUiTableViewModel::data(const QModelIndex &index, int role /*= Qt::Di
                     return "";
                 }
 
-                return valueOptions[listIndex].optionUiText;
+                return valueOptions[listIndex].optionUiText();
             }
 
             QVariant val;

@@ -42,14 +42,54 @@
 namespace caf
 {
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed /* = false */, QIcon anIcon /* = QIcon()*/)
+    : m_value(aValue), m_optionUiText(anOptionUiText), m_isDimmed(anIsDimmed), m_icon(anIcon)
+{
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
-    : optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
+    : m_optionUiText(anOptionUiText), m_isDimmed(anIsDimmed), m_icon(anIcon)
 {
-    value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
+    m_value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString PdmOptionItemInfo::optionUiText() const
+{
+    return m_optionUiText;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QVariant PdmOptionItemInfo::value() const
+{
+    return m_value;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmOptionItemInfo::isDimmed() const
+{
+    return m_isDimmed;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QIcon PdmOptionItemInfo::icon() const
+{
+    return m_icon;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,14 +98,19 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObje
 QStringList PdmOptionItemInfo::extractUiTexts(const QList<PdmOptionItemInfo>& optionList)
 {
     QStringList texts;
-    int i; 
-    for (i = 0; i < optionList.size(); ++i)
+    
+    for (auto option : optionList)
     {
-        texts.push_back(optionList[i].optionUiText);
+        texts.push_back(option.optionUiText());
     }
+
     return texts;
 }
 
+
+//==================================================================================================
+/// PdmUiItem
+//==================================================================================================
 
 
 //--------------------------------------------------------------------------------------------------
@@ -189,7 +234,6 @@ bool PdmUiItem::isUiReadOnly(QString uiConfigName /*= ""*/)
 
     return false;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

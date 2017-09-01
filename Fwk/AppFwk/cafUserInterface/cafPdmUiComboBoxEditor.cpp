@@ -86,7 +86,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
         {
             for (int i = 0; i < options.size(); i++)
             {
-                m_comboBox->addItem(options[i].icon, options[i].optionUiText);
+                m_comboBox->addItem(options[i].icon(), options[i].optionUiText());
             }
             m_comboBox->setCurrentIndex(field()->uiValue().toInt());
         }

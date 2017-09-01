@@ -1178,7 +1178,7 @@ void RimEclipseResultDefinition::removePerCellFaceOptionItems(QList<caf::PdmOpti
     std::vector<int> indicesToRemove;
     for (int i = 0; i < optionItems.size(); i++)
     {
-        QString text = optionItems[i].optionUiText;
+        QString text = optionItems[i].optionUiText();
 
         if (RiaDefines::isPerCellFaceResult(text))
         {
