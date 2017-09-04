@@ -32,7 +32,7 @@ public:
 
     RimSummaryCase*     summaryCase(size_t idx);
     size_t              summaryCaseCount();
-
+	
     void                createSummaryCasesFromRelevantEclipseResultCases();
     RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
     RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);

@@ -195,7 +195,7 @@ RimSummaryCurve::~RimSummaryCurve()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 {
-    m_summaryCase = sumCase;
+	m_summaryCase = sumCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -504,10 +504,17 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
     if(changedField == &m_uiFilterResultSelection)
     {
-        if (0 <= m_uiFilterResultSelection() && static_cast<size_t>(m_uiFilterResultSelection()) < summaryReader()->allResultAddresses().size())
-        {
-            m_curveVariable->setAddress(summaryReader()->allResultAddresses()[m_uiFilterResultSelection()]);
-        }
+		if (summaryReader())
+		{
+			if (0 <= m_uiFilterResultSelection() && static_cast<size_t>(m_uiFilterResultSelection()) < summaryReader()->allResultAddresses().size())
+			{
+				m_curveVariable->setAddress(summaryReader()->allResultAddresses()[m_uiFilterResultSelection()]);
+			}
+			else
+			{
+				m_curveVariable->setAddress(RifEclipseSummaryAddress());
+			}
+		}
         else
         {
             m_curveVariable->setAddress(RifEclipseSummaryAddress());
