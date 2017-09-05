@@ -48,6 +48,8 @@
 #include "qwt_abstract_legend.h"
 #include "qwt_legend.h"
 
+#include "vector"
+
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
 
@@ -756,6 +758,41 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
             curve->setParentQwtPlot(m_qwtPlot);
             this->updateAxes();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeCurve(RimSummaryCurve* curve)
+{
+    if (curve)
+    {
+        m_summaryCurves.removeChildObject(curve);
+        delete curve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::removeCurveAssosiatedWithCase(RimSummaryCase* summaryCase)
+{
+    std::vector<RimSummaryCurve*> summaryCurvesToDelete;
+
+    for (RimSummaryCurve* summaryCurve : m_summaryCurves)
+    {
+        if (!summaryCurve) continue;
+        if (!summaryCurve->summaryCase()) continue;
+
+        if (summaryCurve->summaryCase() == summaryCase)
+        {
+            summaryCurvesToDelete.push_back(summaryCurve);
+        }
+    }
+    for (RimSummaryCurve* summaryCurve : summaryCurvesToDelete)
+    {
+        removeCurve(summaryCurve);
     }
 }
 

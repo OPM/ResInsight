@@ -32,6 +32,7 @@
 
 class RiuSummaryQwtPlot;
 class RimSummaryCurve;
+class RimSummaryCase;
 class RimSummaryCurveFilter;
 class RimSummaryYAxisProperties;
 class RimSummaryTimeAxisProperties;
@@ -59,6 +60,8 @@ public:
 
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
+    void                                            removeCurve(RimSummaryCurve* curve);
+    void                                            removeCurveAssosiatedWithCase(RimSummaryCase* summaryCase);
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
