@@ -43,7 +43,7 @@ CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseFeature, "RicCloseSummaryCaseFeature");
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 {
-	actionToSetup->setText("Close Summary Plot");
+	actionToSetup->setText("Close Summary Case");
 	actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
@@ -65,7 +65,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummary
     {
         for (RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots)
         {
-            summaryPlot->removeCurveAssosiatedWithCase(summaryCase);
+            summaryPlot->removeCurvesAssosiatedWithCase(summaryCase);
         }
         summaryPlotColl->updateConnectedEditors();
 
