@@ -257,7 +257,6 @@ void RimEclipseResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
     {
         if (!m_resultVariable().isEmpty())
         {
-            m_resultType = m_resultTypeUiField();
             m_selectedSouringTracers = m_selectedSouringTracersUiField();
             loadDataAndUpdate();
         }
@@ -812,7 +811,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
         {
             selTracerNames.insert(selectedTracerName.toUtf8().constData());
         }
-        return RigFlowDiagResultAddress(RIG_NUM_FLOODED_PV, RigFlowDiagResultAddress::PHASE_ALL, selTracerNames);
+        return RigFlowDiagResultAddress(m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames);
     }
 }
 
