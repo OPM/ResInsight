@@ -86,13 +86,16 @@ private:
 class PdmOptionItemInfo
 {
 public:
-    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon() );
+    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon());
     PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
+
+    void            setLevel(int level);
 
     const QString   optionUiText() const;
     const QVariant  value() const;
     bool            isDimmed() const;
     const QIcon     icon() const;
+    int             level() const;
 
 
     // Static utility methods to handle QList of PdmOptionItemInfo
@@ -104,10 +107,11 @@ public:
                                       std::vector<unsigned int>& foundIndexes);
 
 private:
-    QString  m_optionUiText;
-    QVariant m_value;
-    bool     m_isDimmed;
-    QIcon    m_icon;
+    QString     m_optionUiText;
+    QVariant    m_value;
+    bool        m_isDimmed;
+    QIcon       m_icon;
+    int         m_level;
 };
 
 class PdmUiEditorHandle;

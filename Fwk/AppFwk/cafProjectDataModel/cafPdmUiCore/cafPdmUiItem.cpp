@@ -46,7 +46,11 @@ namespace caf
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed /* = false */, QIcon anIcon /* = QIcon()*/)
-    : m_value(aValue), m_optionUiText(anOptionUiText), m_isDimmed(anIsDimmed), m_icon(anIcon)
+    : m_value(aValue),
+    m_optionUiText(anOptionUiText),
+    m_isDimmed(anIsDimmed),
+    m_icon(anIcon),
+    m_level(0)
 {
 }
 
@@ -55,9 +59,20 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVaria
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
-    : m_optionUiText(anOptionUiText), m_isDimmed(anIsDimmed), m_icon(anIcon)
+    : m_optionUiText(anOptionUiText),
+    m_isDimmed(anIsDimmed),
+    m_icon(anIcon),
+    m_level(0)
 {
     m_value = QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(obj));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmOptionItemInfo::setLevel(int level)
+{
+    m_level = level;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,6 +105,14 @@ bool PdmOptionItemInfo::isDimmed() const
 const QIcon PdmOptionItemInfo::icon() const
 {
     return m_icon;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int PdmOptionItemInfo::level() const
+{
+    return m_level;
 }
 
 //--------------------------------------------------------------------------------------------------
