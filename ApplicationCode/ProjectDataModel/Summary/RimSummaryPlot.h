@@ -60,7 +60,6 @@ public:
 
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
-    void                                            removeCurve(RimSummaryCurve* curve);
     void                                            removeCurveAssosiatedWithCase(RimSummaryCase* summaryCase);
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
@@ -117,6 +116,8 @@ private:
 
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
+
+    void                                            removeCurve(RimSummaryCurve* curve);
 
     // RimViewWindow overrides
 
