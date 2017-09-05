@@ -152,19 +152,11 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<double>>& RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumes() const
+std::vector<std::vector<double>>& RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumes()
 {
     return m_cumWinflowPVAllTimeSteps;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>&  RigNumberOfFloodedPoreVolumesCalculator::numberOfFloodedPorevolumesAtTimeStep(size_t timeStep) const
-{
-    return m_cumWinflowPVAllTimeSteps[timeStep];
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -183,18 +175,18 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
 {
     //size_t totalNumberOfCells = mainGrid->globalCellArray().size();
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
-    size_t numberOfActiveCells = actCellInfo->reservoirCellResultCount();
+    size_t resultCellCount = actCellInfo->reservoirCellResultCount();
 
 
     std::vector<std::vector<double>> cellQwInAtAllTimeSteps;
-    std::vector<double> cellQwInTimeStep0(numberOfActiveCells);
+    std::vector<double> cellQwInTimeStep0(resultCellCount);
     cellQwInAtAllTimeSteps.push_back(cellQwInTimeStep0);
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        std::vector<double> totoalFlowrateIntoCell(numberOfActiveCells); //brukt result celle index / active  antall i stedet
+        std::vector<double> totoalFlowrateIntoCell(resultCellCount); //brukt result celle index / active  antall i stedet
 
-        if (flowrateIatAllTimeSteps[timeStep-1] != nullptr
+        if (   flowrateIatAllTimeSteps[timeStep-1] != nullptr
             && flowrateJatAllTimeSteps[timeStep-1] != nullptr
             && flowrateKatAllTimeSteps[timeStep-1] != nullptr)
 
@@ -227,13 +219,13 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
                               totoalFlowrateIntoCell);
         }
 
-        std::vector<double> CellQwIn(numberOfActiveCells);
+        std::vector<double> CellQwIn(resultCellCount);
 
         double daysSinceSimStartNow = daysSinceSimulationStart[timeStep];
         double daysSinceSimStartLastTimeStep = daysSinceSimulationStart[timeStep - 1];
         double deltaT = daysSinceSimStartNow - daysSinceSimStartLastTimeStep;
 
-        for (size_t cellResultIndex = 0; cellResultIndex < numberOfActiveCells; cellResultIndex++)
+        for (size_t cellResultIndex = 0; cellResultIndex < resultCellCount; cellResultIndex++)
         {
             CellQwIn[cellResultIndex] = cellQwInAtAllTimeSteps[timeStep - 1][cellResultIndex]
                 + (totoalFlowrateIntoCell[cellResultIndex]) * deltaT;
@@ -252,21 +244,21 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
             porvResultsActiveCellsOnly.push_back(porvResults->at(globalCellIndex));
         }
     }
-    CVF_ASSERT(porvResultsActiveCellsOnly.size() == numberOfActiveCells);
+    CVF_ASSERT(porvResultsActiveCellsOnly.size() == resultCellCount);
 
 
     //Calculate number-of-cell-PV flooded
-    std::vector<double> cumWinflowPVTimeStep0(numberOfActiveCells);
+    std::vector<double> cumWinflowPVTimeStep0(resultCellCount);
     m_cumWinflowPVAllTimeSteps.clear();
     m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPVTimeStep0);
 
     for (size_t timeStep = 1; timeStep < daysSinceSimulationStart.size(); timeStep++)
     {
-        std::vector<double> cumWinflowPV(numberOfActiveCells);
-        for (size_t cellResultIndex = 0; cellResultIndex < numberOfActiveCells; cellResultIndex++)
+        std::vector<double> cumWinflowPV(resultCellCount);
+        for (size_t cellResultIndex = 0; cellResultIndex < resultCellCount; cellResultIndex++)
         {
             double scaledPoreVolume = porvResultsActiveCellsOnly[cellResultIndex];
-            if (swcrResults != nullptr && swcrResults->size() == numberOfActiveCells)
+            if (swcrResults != nullptr && swcrResults->size() == resultCellCount)
             {
                 scaledPoreVolume = scaledPoreVolume * (1 - swcrResults->at(cellResultIndex));
             }
@@ -310,7 +302,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNNCflow(std::vector<RigC
         else if (connectionValue < 0)
         {
             //flow out of cell with cell2index, into cell cell1index
-            flowrateIntoCell[cell1ResultIndex] += connectionValue * summedTracerValues[cell2ResultIndex];
+            flowrateIntoCell[cell1ResultIndex] += -1.0*connectionValue * summedTracerValues[cell2ResultIndex];
         }
 
     }

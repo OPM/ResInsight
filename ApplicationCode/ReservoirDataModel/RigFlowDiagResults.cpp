@@ -217,7 +217,8 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult(const RigFlowDia
     }
     else if (resVarAddr.variableName == RIG_NUM_FLOODED_PV)
     {
-        return calculateNumFloodedPV(resVarAddr, frameIndex);
+        calculateNumFloodedPV(resVarAddr);
+        return findScalarResultFrame(resVarAddr, frameIndex);
     }
 
     return nullptr; 
@@ -428,7 +429,7 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult(const RigF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>* RigFlowDiagResults::calculateNumFloodedPV(const RigFlowDiagResultAddress& resVarAddr, size_t frameIndex)
+void RigFlowDiagResults::calculateNumFloodedPV(const RigFlowDiagResultAddress& resVarAddr)
 {
     RimEclipseCase* eclipseCase;
     m_flowDiagSolution->firstAncestorOrThisOfTypeAsserted(eclipseCase);
@@ -440,12 +441,12 @@ std::vector<double>* RigFlowDiagResults::calculateNumFloodedPV(const RigFlowDiag
     RigNumberOfFloodedPoreVolumesCalculator calc(eclipseCase, tracerNames);
 
     RigFlowDiagResultFrames* frames = this->createScalarResult(resVarAddr);
+    for (size_t frameIdx = 0; frameIdx < m_timeStepCount; ++frameIdx)
+    {
+        std::vector<double>& frame = frames->frameData(frameIdx);
 
-    std::vector<double>& frame = frames->frameData(frameIndex);
-
-    frame = calc.numberOfFloodedPorevolumesAtTimeStep(frameIndex);
-
-    return &frame;
+        frame.swap(calc.numberOfFloodedPorevolumes()[frameIdx]);
+    }
 }
 
 

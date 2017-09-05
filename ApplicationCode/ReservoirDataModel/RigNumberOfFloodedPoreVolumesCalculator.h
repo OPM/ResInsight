@@ -38,9 +38,9 @@ public:
                                                      const std::vector<QString> tracerNames
                                                      );
 
-    const std::vector<std::vector<double>>& numberOfFloodedPorevolumes() const;
-    const std::vector<double>&              numberOfFloodedPorevolumesAtTimeStep(size_t timeStep) const;
+    // Used to "steal" the data from this one using swap
 
+    std::vector<std::vector<double>>& numberOfFloodedPorevolumes();
 
 private:
     void calculate(RigMainGrid* mainGrid, 
