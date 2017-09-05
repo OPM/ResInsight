@@ -31,6 +31,7 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 
 
@@ -72,7 +73,11 @@ public:
         CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", " ", "", "", "");
         m_multiSelectList.xmlCapability()->setIOReadable(false);
         m_multiSelectList.xmlCapability()->setIOWritable(false);
-        m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+
+        m_multiSelectList.v().push_back("First");
+        m_multiSelectList.v().push_back("Second");
+        m_multiSelectList.v().push_back("Third");
     }
 
 
@@ -100,6 +105,50 @@ public:
 
     void setDoubleMember(const double& d) { m_doubleMember = d; std::cout << "setDoubleMember" << std::endl; }
     double doubleMember() const { std::cout << "doubleMember" << std::endl; return m_doubleMember; }
+
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        QString text;
+
+        text = "First";
+        options.push_back(caf::PdmOptionItemInfo(text, text));
+
+        text = "Second";
+        options.push_back(caf::PdmOptionItemInfo(text, text));
+
+
+        {
+            text = "Second_a";
+            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+            itemInfo.setLevel(1);
+            options.push_back(itemInfo);
+        }
+
+        if (1)
+        {
+            text = "Second_b";
+            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+            itemInfo.setLevel(1);
+            options.push_back(itemInfo);
+        }
+
+
+        text = "Third";
+        options.push_back(caf::PdmOptionItemInfo(text, text));
+
+        text = "Fourth";
+        options.push_back(caf::PdmOptionItemInfo(text, text));
+
+
+        return options;
+
+    }
 
 private:
     double m_doubleMember;

@@ -45,6 +45,8 @@ set( QOBJECT_HEADERS
     cafPdmUiTreeViewEditor.h
     cafUiProcess.h
     QMinimizePanel.h
+    cafPdmUiTreeSelectionEditor.h
+    cafPdmUiTreeSelectionQModel.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -86,6 +88,10 @@ set( PROJECT_FILES
     cafPdmUiToolBarEditor.h
     cafPdmUiToolButtonEditor.cpp
     cafPdmUiToolButtonEditor.h
+    cafPdmUiTreeSelectionEditor.h
+    cafPdmUiTreeSelectionEditor.cpp
+    cafPdmUiTreeSelectionQModel.h
+    cafPdmUiTreeSelectionQModel.cpp
 
 
     # object editors
