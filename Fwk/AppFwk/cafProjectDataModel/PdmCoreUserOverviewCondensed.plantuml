@@ -1,0 +1,17 @@
+@startuml
+title Simplified Overview of Pdm classes
+
+PdmUiItem <|---- PdmUiObjectHandle 
+PdmUiObjectHandle  <|-- PdmObject
+PdmObject <|-- YourClass
+
+PdmUiItem <|-- PdmUiFieldHandle
+PdmFieldHandle -* PdmUiFieldHandle
+PdmFieldHandle <|--- "PdmField<T>"
+PdmFieldHandle <|--- "PdmProxyField<T>"
+PdmFieldHandle <|--- "PdmPtrField<T*>"
+PdmFieldHandle <|--- "PdmChildField<T*>"
+PdmFieldHandle <|--- "PdmChildArrayField<T*>"
+
+@enduml
+		
