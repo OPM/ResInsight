@@ -54,14 +54,6 @@ RimWellLogCurve::RimWellLogCurve()
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurve::~RimWellLogCurve()
 {
-    m_qwtPlotCurve->detach();    
-    delete m_qwtPlotCurve;
-    m_qwtPlotCurve = NULL;
-
-    if (m_parentQwtPlot)
-    {
-        m_parentQwtPlot->replot();
-    }
 }
 
 
