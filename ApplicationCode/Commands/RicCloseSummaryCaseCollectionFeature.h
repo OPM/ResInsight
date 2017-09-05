@@ -20,19 +20,12 @@
 
 #include "cafCmdFeature.h"
 
-#include <vector>
-
-class RimSummaryCase;
-class RimSummaryPlot;
-
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCloseSummaryCaseFeature : public caf::CmdFeature
+class RicCloseSummaryCaseCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-public:
-    static void deleteSummaryCases(const std::vector<RimSummaryCase*>& cases);
 
 protected:
     // Overrides

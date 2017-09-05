@@ -34,6 +34,7 @@
 #include <QAction>
 
 
+
 CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseFeature, "RicCloseSummaryCaseFeature");
 
 
@@ -49,10 +50,42 @@ void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummaryCase*>& cases)
+{
+    RimProject* project = RiaApplication::instance()->project();
+    CVF_ASSERT(project);
+
+    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
+    CVF_ASSERT(mainPlotColl);
+
+    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+    CVF_ASSERT(summaryPlotColl);
+
+    for (RimSummaryCase* summaryCase : cases)
+    {
+        for (RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots)
+        {
+            summaryPlot->removeCurveAssosiatedWithCase(summaryCase);
+        }
+        summaryPlotColl->updateConnectedEditors();
+
+        RimSummaryCaseCollection* summaryCaseCollection = nullptr;
+        summaryCase->firstAncestorOrThisOfTypeAsserted(summaryCaseCollection);
+
+        summaryCaseCollection->deleteCase(summaryCase);
+        delete summaryCase;
+        summaryCaseCollection->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicCloseSummaryCaseFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
+
     return (selection.size() > 0);
 }
 
@@ -64,29 +97,6 @@ void RicCloseSummaryCaseFeature::onActionTriggered(bool isChecked)
 	std::vector<RimSummaryCase*> selection;
 	caf::SelectionManager::instance()->objectsByType(&selection);
     CVF_ASSERT(selection.size() > 0);
-
-	RimProject* project = RiaApplication::instance()->project();
-	CVF_ASSERT(project);
-
-	RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-	CVF_ASSERT(mainPlotColl);
-
-	RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-	CVF_ASSERT(summaryPlotColl);
-
-	for (RimSummaryCase* summaryCase : selection)
-	{
-		for (RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots)
-		{
-			summaryPlot->removeCurveAssosiatedWithCase(summaryCase);
-		}
-		summaryPlotColl->updateConnectedEditors();
-
-		RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-		summaryCase->firstAncestorOrThisOfTypeAsserted(summaryCaseCollection);
-
-		summaryCaseCollection->deleteCase(summaryCase);
-		delete summaryCase;
-		summaryCaseCollection->updateConnectedEditors();
-	}
+    
+    RicCloseSummaryCaseFeature::deleteSummaryCases(selection);
 }
