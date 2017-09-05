@@ -30,14 +30,15 @@ class RimSummaryPlot;
 //==================================================================================================
 class RicCloseSummaryCaseFeature : public caf::CmdFeature
 {
-	CAF_CMD_HEADER_INIT;
+    CAF_CMD_HEADER_INIT;
 public:
 
 protected:
-	// Overrides
-	virtual bool isCommandEnabled() override;
-	virtual void onActionTriggered(bool isChecked) override;
-	virtual void setupActionLook(QAction* actionToSetup) override;
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered(bool isChecked) override;
+    virtual void setupActionLook(QAction* actionToSetup) override;
+
 private:
-	RimSummaryCase* selectedSummaryCase() const;
+    RimSummaryCase* selectedSummaryCase() const;
 };
