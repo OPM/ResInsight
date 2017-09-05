@@ -356,7 +356,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             else if (flrWatResultI->at(cellResultIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[cellResultIndex] += (-1) * flrWatResultI->at(cellResultIndex) * summedTracerValues[cellResultIndexPosINeighbour];
+                totalFlowrateIntoCell[cellResultIndex] += (-1.0) * flrWatResultI->at(cellResultIndex) * summedTracerValues[cellResultIndexPosINeighbour];
             }
         }
 
@@ -383,7 +383,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             else if (flrWatResultJ->at(cellResultIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[cellResultIndex] += flrWatResultJ->at(cellResultIndex) * summedTracerValues[cellResultIndexPosJNeighbour];
+                totalFlowrateIntoCell[cellResultIndex] += (-1.0) * flrWatResultJ->at(cellResultIndex) * summedTracerValues[cellResultIndexPosJNeighbour];
             }
         }
 
@@ -409,7 +409,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::distributeNeighbourCellFlow(RigMai
             else if (flrWatResultK->at(cellResultIndex) < 0)
             {
                 //Flow into cell globelCellIndex, from cell i+1
-                totalFlowrateIntoCell[cellResultIndex] += flrWatResultK->at(cellResultIndex) * summedTracerValues[cellResultIndexPosKNeighbour];
+                totalFlowrateIntoCell[cellResultIndex] += (-1.0) * flrWatResultK->at(cellResultIndex) * summedTracerValues[cellResultIndexPosKNeighbour];
             }
         }
     }
