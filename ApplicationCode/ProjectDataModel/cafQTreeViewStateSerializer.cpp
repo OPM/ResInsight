@@ -16,7 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimTreeViewStateSerializer.h"
+#include "cafQTreeViewStateSerializer.h"
+
 
 #include <QTreeView>
 
@@ -67,7 +68,7 @@ void storeExpandedState(QStringList & nodes, const QTreeView * view, QAbstractIt
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTreeViewStateSerializer::applyTreeViewStateFromString( QTreeView* treeView, const QString& treeViewState)
+void caf::QTreeViewStateSerializer::applyTreeViewStateFromString( QTreeView* treeView, const QString& treeViewState)
 {
     if (treeView->model())
     {
@@ -83,7 +84,7 @@ void RimTreeViewStateSerializer::applyTreeViewStateFromString( QTreeView* treeVi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTreeViewStateSerializer::storeTreeViewStateToString(const QTreeView* treeView, QString& treeViewState)
+void caf::QTreeViewStateSerializer::storeTreeViewStateToString(const QTreeView* treeView, QString& treeViewState)
 {
     if (treeView->model())
     {
@@ -100,7 +101,7 @@ void RimTreeViewStateSerializer::storeTreeViewStateToString(const QTreeView* tre
 /// Find index based of an encode QString <row> <column>;<row> <column>;...;<row> <column>
 /// Set the decoded index as current index in the QAbstractItemView
 //--------------------------------------------------------------------------------------------------
-QModelIndex RimTreeViewStateSerializer::getModelIndexFromString(QAbstractItemModel* model, const QString& currentIndexString)
+QModelIndex caf::QTreeViewStateSerializer::getModelIndexFromString(QAbstractItemModel* model, const QString& currentIndexString)
 {
     QStringList modelIndexStringList = currentIndexString.split(";");
 
@@ -124,7 +125,7 @@ QModelIndex RimTreeViewStateSerializer::getModelIndexFromString(QAbstractItemMod
 //--------------------------------------------------------------------------------------------------
 /// Store path to model index in item view using follwoing encoding into a QString <row> <column>;<row> <column>;...;<row> <column>
 //--------------------------------------------------------------------------------------------------
-void RimTreeViewStateSerializer::encodeStringFromModelIndex(const QModelIndex mi, QString& encodedModelIndex)
+void caf::QTreeViewStateSerializer::encodeStringFromModelIndex(const QModelIndex mi, QString& encodedModelIndex)
 {
     if (!mi.isValid()) return;
 

@@ -33,7 +33,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
-#include "RimTreeViewStateSerializer.h"
+#include "cafQTreeViewStateSerializer.h"
 #include "RimView.h"
 
 #include "RiuDragDrop.h"
@@ -1449,13 +1449,13 @@ void RiuMainWindow::restoreTreeViewState()
         if (!stateString.isEmpty())
         {
             m_projectTreeView->treeView()->collapseAll();
-            RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
+            caf::QTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
         QString currentIndexString = RiaApplication::instance()->project()->mainWindowCurrentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
+            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }

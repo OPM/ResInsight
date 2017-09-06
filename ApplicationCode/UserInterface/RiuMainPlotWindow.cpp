@@ -24,7 +24,7 @@
 
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "RimTreeViewStateSerializer.h"
+#include "cafQTreeViewStateSerializer.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
@@ -642,13 +642,13 @@ void RiuMainPlotWindow::restoreTreeViewState()
         if (!stateString.isEmpty())
         {
             m_projectTreeView->treeView()->collapseAll();
-            RimTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
+            caf::QTreeViewStateSerializer::applyTreeViewStateFromString(m_projectTreeView->treeView(), stateString);
         }
 
         QString currentIndexString = RiaApplication::instance()->project()->plotWindowCurrentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            QModelIndex mi = RimTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
+            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString(m_projectTreeView->treeView()->model(), currentIndexString);
             m_projectTreeView->treeView()->setCurrentIndex(mi);
         }
     }

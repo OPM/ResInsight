@@ -63,7 +63,7 @@
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimTreeViewStateSerializer.h"
+#include "cafQTreeViewStateSerializer.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellAllocationPlot.h"
@@ -656,12 +656,12 @@ void RiaApplication::storeTreeViewState()
             caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
 
             QString treeViewState;
-            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+            caf::QTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
 
             QModelIndex mi = projectTreeView->treeView()->currentIndex();
 
             QString encodedModelIndexString;
-            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+            caf::QTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
 
             project()->plotWindowTreeViewState = treeViewState;
             project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
@@ -673,12 +673,12 @@ void RiaApplication::storeTreeViewState()
         if (projectTreeView)
         {
             QString treeViewState;
-            RimTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
+            caf::QTreeViewStateSerializer::storeTreeViewStateToString(projectTreeView->treeView(), treeViewState);
 
             QModelIndex mi = projectTreeView->treeView()->currentIndex();
 
             QString encodedModelIndexString;
-            RimTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
+            caf::QTreeViewStateSerializer::encodeStringFromModelIndex(mi, encodedModelIndexString);
 
             project()->mainWindowTreeViewState = treeViewState;
             project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
