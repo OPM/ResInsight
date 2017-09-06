@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,22 +18,21 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "cafCmdFeature.h"
 
-class QString;
-class RifReaderEclipseSummary;
+#include <vector>
 
-class RigSummaryCaseData: public cvf::Object
+class RimSummaryCase;
+
+class RicReloadSummaryCaseFeature : public caf::CmdFeature
 {
-public:
-    explicit RigSummaryCaseData(const QString& summaryHeaderFileName );
-    ~RigSummaryCaseData();
+    CAF_CMD_HEADER_INIT;
 
-    void openOrReloadCase(const QString& summaryHeaderFileName);
-
-    RifReaderEclipseSummary* summaryReader();
+protected:
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered(bool isChecked);
+    virtual void setupActionLook(QAction* actionToSetup);
 
 private:
-    cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
+    static std::vector<RimSummaryCase*> selectedSummaryCases();
 };

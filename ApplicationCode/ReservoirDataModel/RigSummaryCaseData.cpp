@@ -29,16 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 RigSummaryCaseData::RigSummaryCaseData(const QString& summaryHeaderFileName)
 {
-    std::string headerFileName;
-    std::vector<std::string> dataFileNames;
-    std::string nativeSumHeadFileName = QDir::toNativeSeparators(summaryHeaderFileName).toStdString();
-    RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileName, &dataFileNames);
-
-    m_summaryFileReader = new RifReaderEclipseSummary();
-    if (!m_summaryFileReader->open(headerFileName, dataFileNames))
-    {
-        m_summaryFileReader = nullptr;
-    }
+    openOrReloadCase(summaryHeaderFileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +38,31 @@ RigSummaryCaseData::RigSummaryCaseData(const QString& summaryHeaderFileName)
 RigSummaryCaseData::~RigSummaryCaseData()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigSummaryCaseData::openOrReloadCase(const QString& summaryHeaderFileName)
+{
+    std::string headerFileName;
+    std::vector<std::string> dataFileNames;
+    std::string nativeSumHeadFileName = QDir::toNativeSeparators(summaryHeaderFileName).toStdString();
+    RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileName, &dataFileNames);
+
+    if (m_summaryFileReader.isNull())
+    {
+        m_summaryFileReader = new RifReaderEclipseSummary();
+    }
+    else
+    {
+        m_summaryFileReader->close();
+    }
+
+    if (!m_summaryFileReader->open(headerFileName, dataFileNames))
+    {
+        m_summaryFileReader = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

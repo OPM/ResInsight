@@ -59,6 +59,16 @@ void RimSummaryCase::loadCase()
     if (m_summaryCaseData.isNull()) m_summaryCaseData = new RigSummaryCaseData(this->summaryHeaderFilename());
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::reloadCase()
+{
+    if (m_summaryCaseData.notNull())
+    {
+        m_summaryCaseData->openOrReloadCase(this->summaryHeaderFilename());
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

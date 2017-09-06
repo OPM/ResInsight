@@ -46,6 +46,7 @@ public:
     void                updateOptionSensitivity();
 
     void                loadCase();
+    void                reloadCase();
     RigSummaryCaseData* caseData();
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;

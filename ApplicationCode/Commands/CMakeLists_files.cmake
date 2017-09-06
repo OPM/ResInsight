@@ -48,6 +48,7 @@ ${CEE_CURRENT_LIST_DIR}RicCloseSourSimDataFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCommandFeature.h
 
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicReloadSummaryCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.h
 )
 
@@ -107,6 +108,7 @@ ${CEE_CURRENT_LIST_DIR}RicDeleteSubItemsFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseSourSimDataFeature.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicReloadCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicReloadSummaryCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicFlyToObjectFeature.cpp
 )
 
