@@ -42,9 +42,7 @@ class QLabel;
 class QTreeView;
 class QAbstractItemModel;
 
-class CheckableItemTreeModel;
-
-namespace caf 
+namespace caf
 {
 
 //==================================================================================================
@@ -55,8 +53,6 @@ class PdmUiTreeSelectionEditor : public PdmUiFieldEditorHandle
     Q_OBJECT
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
-    friend class CheckableItemTreeModel;
-
 public:
     PdmUiTreeSelectionEditor(); 
     virtual ~PdmUiTreeSelectionEditor(); 
@@ -66,10 +62,12 @@ protected:
     virtual QWidget*    createLabelWidget(QWidget * parent);
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
 
+private slots:
+    void                slotSetSelectionStateForIndex(int index, bool isSelected);
+
 private:
     QPointer<QTreeView> m_treeView;
     QPointer<QLabel>    m_label;
 };
-
 
 } // end namespace caf

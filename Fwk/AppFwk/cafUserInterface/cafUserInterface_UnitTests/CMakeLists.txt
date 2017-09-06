@@ -24,6 +24,7 @@ set( PROJECT_FILES
 	cafUserInterface_UnitTests.cpp 
 	
 	cafPdmUiTreeViewModelTest.cpp 
+	cafPdmUiTreeSelectionQModelTest.cpp 
 
 	gtest/gtest-all.cpp
 )

@@ -40,7 +40,6 @@
 
 #include <QAbstractItemModel>
 
-
 namespace caf 
 {
 
@@ -53,6 +52,7 @@ class PdmUiFieldHandle;
 //==================================================================================================
 class PdmUiTreeSelectionQModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     explicit PdmUiTreeSelectionQModel(QObject *parent = 0);
 
@@ -66,8 +66,11 @@ public:
     virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
+signals:
+    void                    signalSelectionStateForIndexHasChanged(int index, bool isSelected);
+
 private:
-    static int toOptionItemIndex(const QModelIndex& modelIndex);
+    static int              toOptionItemIndex(const QModelIndex& modelIndex);
 
 private:
     QList<caf::PdmOptionItemInfo>   m_options;

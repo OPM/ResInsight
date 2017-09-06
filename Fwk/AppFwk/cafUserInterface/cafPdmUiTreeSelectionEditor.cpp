@@ -43,12 +43,6 @@
 #include <QTreeView>
 #include <QLabel>
 
-// #include <QAbstractItemModel>
-// #include <QLabel>
-// #include <QTreeView>
-
-
-
 
 namespace caf
 {
@@ -84,11 +78,47 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     caf::PdmUiTreeSelectionQModel* model = new caf::PdmUiTreeSelectionQModel(m_treeView);
     m_treeView->setModel(model);
 
-    // TODO: Wire up signal from model to editor
+    connect(model, SIGNAL(signalSelectionStateForIndexHasChanged(int, bool)), this, SLOT(slotSetSelectionStateForIndex(int, bool)));
 
     model->setOptions(this, options);
 
-     m_treeView->expandAll();
+    // TODO: Try to merge expanded state with newly generated tree
+    //m_treeView->expandAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotSetSelectionStateForIndex(int index, bool isSelected)
+{
+    unsigned int unsignedValue = static_cast<unsigned int>(index);
+
+    QVariant fieldValue = field()->uiValue();
+    QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+    if (!isSelected)
+    {
+        valuesSelectedInField.removeAll(QVariant(unsignedValue));
+    }
+    else
+    {
+        bool isIndexPresent = false;
+        for (QVariant v : valuesSelectedInField)
+        {
+            unsigned int indexInField = v.toUInt();
+            if (indexInField == unsignedValue)
+            {
+                isIndexPresent = true;
+            }
+        }
+
+        if (!isIndexPresent)
+        {
+            valuesSelectedInField.push_back(QVariant(unsignedValue));
+        }
+    }
+
+    this->setValueToField(valuesSelectedInField);
 }
 
 //--------------------------------------------------------------------------------------------------

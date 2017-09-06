@@ -43,9 +43,6 @@
 #include <QLabel>
 #include <QTreeView>
 
-
-
-
   
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -217,6 +214,8 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
     }
     else if (role == Qt::CheckStateRole)
     {
+        CAF_ASSERT(m_uiFieldHandle);
+
         QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
         QList<QVariant> valuesSelectedInField = fieldValue.toList();
 
@@ -242,33 +241,9 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
 {
     if (role == Qt::CheckStateRole)
     {
-        // TODO: wire up signal to editor
+        bool isSelected = value.toBool();
 
-/*
-        QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
-        QList<QVariant> valuesSelectedInField = fieldValue.toList();
-
-        bool isPresent = false;
-        for (QVariant v : valuesSelectedInField)
-        {
-            unsigned int indexInField = v.toUInt();
-            if (indexInField == toOptionItemIndex(index))
-            {
-                valuesSelectedInField.removeAll(v);
-                isPresent = true;
-            }
-        }
-
-        if (!isPresent)
-        {
-            // Use unsigned int as all values communicated from UI to field is assumed to be unsigned int
-
-            unsigned int value = static_cast<unsigned int>(toOptionItemIndex(index));
-            valuesSelectedInField.push_back(QVariant(value));
-        }
-
-        m_uiFieldHandle->setValueToField(valuesSelectedInField);
-*/
+        emit signalSelectionStateForIndexHasChanged(toOptionItemIndex(index), isSelected);
 
         return true;
     }
