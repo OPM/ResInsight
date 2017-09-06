@@ -128,6 +128,8 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget * parent)
 {
     m_treeView = new QTreeView(parent);
 
+    m_treeView->setHeaderHidden(true);
+
     return m_treeView;
 }
 
