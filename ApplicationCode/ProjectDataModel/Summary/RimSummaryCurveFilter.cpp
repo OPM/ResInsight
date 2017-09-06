@@ -493,6 +493,30 @@ std::vector<RimSummaryCurve*> RimSummaryCurveFilter::curves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveFilter::removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
+{
+    std::vector<RimSummaryCurve*> summaryCurvesToDelete;
+
+    for (RimSummaryCurve* summaryCurve : m_curves)
+    {
+        if (!summaryCurve) continue;
+        if (!summaryCurve->summaryCase()) continue;
+
+        if (summaryCurve->summaryCase() == summaryCase)
+        {
+            summaryCurvesToDelete.push_back(summaryCurve);
+        }
+    }
+    for (RimSummaryCurve* summaryCurve : summaryCurvesToDelete)
+    {
+        m_curves.removeChildObject(summaryCurve);
+        delete summaryCurve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
     const std::vector<RimSummaryCase*>& cases,
     const RimSummaryFilter& filter,

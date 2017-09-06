@@ -60,7 +60,7 @@ public:
 
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
-    void                                            removeCurveAssosiatedWithCase(RimSummaryCase* summaryCase);
+    void                                            removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 

@@ -776,8 +776,14 @@ void RimSummaryPlot::removeCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeCurveAssosiatedWithCase(RimSummaryCase* summaryCase)
+void RimSummaryPlot::removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 {
+    for (RimSummaryCurveFilter* summaryCurveFilter : m_curveFilters)
+    {
+        if (!summaryCurveFilter) continue;
+        summaryCurveFilter->removeCurvesAssosiatedWithCase(summaryCase);
+    }
+
     std::vector<RimSummaryCurve*> summaryCurvesToDelete;
 
     for (RimSummaryCurve* summaryCurve : m_summaryCurves)
