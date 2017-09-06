@@ -114,37 +114,59 @@ public:
     {
         QList<caf::PdmOptionItemInfo> options;
 
-        QString text;
-
-        text = "First";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
-
-        text = "Second";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
-
-
+        if (fieldNeedingOptions == &m_multiSelectList)
         {
-            text = "Second_a";
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
-            itemInfo.setLevel(1);
-            options.push_back(itemInfo);
+            QString text;
+
+            text = "First";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+            text = "Second";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+
+            {
+                text = "Second_a";
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+            {
+                text = "Second_b";
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+            static int s_additionalSubItems = 0;
+            s_additionalSubItems++;
+            for (auto i = 0; i < s_additionalSubItems; i++)
+            {
+                text = "Second_b_" + QString::number(i);
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+
+            int additionalSubItems = 0;
+            for (auto i = 0; i < additionalSubItems; i++)
+            {
+                text = "Second_b_" + QString::number(i);
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
+
+
+
+            text = "Third";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
+
+            text = "Fourth";
+            options.push_back(caf::PdmOptionItemInfo(text, text));
         }
-
-        if (1)
-        {
-            text = "Second_b";
-            caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
-            itemInfo.setLevel(1);
-            options.push_back(itemInfo);
-        }
-
-
-        text = "Third";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
-
-        text = "Fourth";
-        options.push_back(caf::PdmOptionItemInfo(text, text));
-
 
         return options;
 

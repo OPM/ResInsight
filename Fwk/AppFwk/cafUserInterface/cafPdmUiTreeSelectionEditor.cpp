@@ -40,6 +40,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeSelectionQModel.h"
 
+#include "cafQTreeViewStateSerializer.h"
+
 #include <QTreeView>
 #include <QLabel>
 
@@ -75,15 +77,20 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     bool optionsOnly = true;
     QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
 
-    caf::PdmUiTreeSelectionQModel* model = new caf::PdmUiTreeSelectionQModel(m_treeView);
-    m_treeView->setModel(model);
+    if (!m_treeView->model())
+    {
+        caf::PdmUiTreeSelectionQModel* model = new caf::PdmUiTreeSelectionQModel(m_treeView);
+        m_treeView->setModel(model);
+        connect(model, SIGNAL(signalSelectionStateForIndexHasChanged(int, bool)), this, SLOT(slotSetSelectionStateForIndex(int, bool)));
+    }
 
-    connect(model, SIGNAL(signalSelectionStateForIndexHasChanged(int, bool)), this, SLOT(slotSetSelectionStateForIndex(int, bool)));
-
-    model->setOptions(this, options);
-
-    // TODO: Try to merge expanded state with newly generated tree
-    //m_treeView->expandAll();
+    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
+    if (treeSelectionQModel)
+    {
+        // TODO: If the count is different between incoming and current list of items,
+        // use cafQTreeViewStateSerializer to restore collapsed state
+        treeSelectionQModel->setOptions(this, options);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

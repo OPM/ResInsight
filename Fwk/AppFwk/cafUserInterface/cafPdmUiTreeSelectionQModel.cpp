@@ -58,10 +58,21 @@ caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/)
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options)
 {
+    bool itemCountIsChanged = false;
+    if (m_options.size() != options.size())
+    {
+        itemCountIsChanged = true;
+    }
+
     m_uiFieldHandle = field;
     m_options = options;
 
     computeOptionItemTreeData();
+
+    if (itemCountIsChanged)
+    {
+        reset();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,6 +185,8 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
         bool isSelected = value.toBool();
 
         emit signalSelectionStateForIndexHasChanged(toOptionItemIndex(index), isSelected);
+
+        emit dataChanged(index, index);
 
         return true;
     }
