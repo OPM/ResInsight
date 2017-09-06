@@ -87,6 +87,7 @@ set( PROJECT_FILES
     cafPdmUiToolButtonEditor.cpp
     cafPdmUiToolButtonEditor.h
 
+
     # object editors
     cafPdmUiDefaultObjectEditor.cpp
     cafPdmUiDefaultObjectEditor.h
@@ -128,6 +129,8 @@ set( PROJECT_FILES
     cafUiProcess.h
     QMinimizePanel.cpp
     QMinimizePanel.h
+    cafQTreeViewStateSerializer.h
+    cafQTreeViewStateSerializer.cpp
 )
 
 add_library( ${PROJECT_NAME}

@@ -62,7 +62,6 @@ ${CEE_CURRENT_LIST_DIR}RimViewWindow.h
 ${CEE_CURRENT_LIST_DIR}RimView.h
 ${CEE_CURRENT_LIST_DIR}RimViewManipulator.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
-${CEE_CURRENT_LIST_DIR}cafQTreeViewStateSerializer.h
 ${CEE_CURRENT_LIST_DIR}RimViewController.h
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.h
@@ -158,7 +157,6 @@ ${CEE_CURRENT_LIST_DIR}RimViewWindow.cpp
 ${CEE_CURRENT_LIST_DIR}RimView.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewManipulator.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
-${CEE_CURRENT_LIST_DIR}cafQTreeViewStateSerializer.cpp
 ${CEE_CURRENT_LIST_DIR}RimViewController.cpp
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.cpp
