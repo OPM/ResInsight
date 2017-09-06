@@ -43,13 +43,14 @@
 #include <QLabel>
 #include <QTreeView>
 
-  
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/) : QAbstractItemModel(parent)
 {
-
+    m_uiFieldHandle = nullptr;
+    m_zeroLevelRowCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +60,8 @@ void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* fiel
 {
     m_uiFieldHandle = field;
     m_options = options;
+
+    computeOptionItemTreeData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,32 +80,20 @@ QModelIndex caf::PdmUiTreeSelectionQModel::index(int row, int column, const QMod
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
+    int optionItemIndex = -1;
     if (parent.isValid())
     {
-        int optionItemIndex = parent.internalId() + 1 + row;
-
-        return createIndex(row, column, optionItemIndex);
+        optionItemIndex = toOptionItemIndex(parent) + row + 1;
     }
     else
     {
-        int optionItemIndex = 0;
-        int zeroLevelItemCount = 0;
-
-        while (optionItemIndex < m_options.size())
-        {
-            if (m_options[optionItemIndex].level() == 0)
-            {
-                zeroLevelItemCount++;
-                if (zeroLevelItemCount == row + 1)
-                {
-                    return createIndex(row, column, optionItemIndex);
-                }
-            }
-            optionItemIndex++;
-        }
+        optionItemIndex = m_zeroLevelRowToOptionIndex.at(row);
     }
 
-    return QModelIndex();
+    CAF_ASSERT(optionItemIndex > -1);
+    CAF_ASSERT(optionItemIndex < m_options.size());
+ 
+    return createIndex(row, column, optionItemIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,40 +112,7 @@ QModelIndex caf::PdmUiTreeSelectionQModel::parent(const QModelIndex &child) cons
     if (!child.isValid())
         return QModelIndex();
 
-    int childOptionIndex = toOptionItemIndex(child);
-    int childLevel = m_options[childOptionIndex].level();
-    if (childLevel < 1)
-    {
-        return QModelIndex();
-    }
-
-    int parentOptionIndex = childOptionIndex - 1;
-    while (parentOptionIndex > -1)
-    {
-        if (m_options[parentOptionIndex].level() == childLevel - 1)
-        {
-            int parentRow = 0;
-
-            int parentLevelOptionIndex = parentOptionIndex - 1;
-            while (parentLevelOptionIndex > -1 && m_options[parentLevelOptionIndex].level() > childLevel - 2)
-            {
-                if (m_options[parentLevelOptionIndex].level() == childLevel - 1)
-                {
-                    parentRow++;
-                }
-
-                parentLevelOptionIndex--;
-            }
-
-            return createIndex(parentRow, 0, parentOptionIndex);
-        }
-
-        parentOptionIndex--;
-    }
-
-    CAF_ASSERT(false);
-
-    return QModelIndex();
+    return m_optionsTreeData[toOptionItemIndex(child)].parentModelIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,41 +122,10 @@ int caf::PdmUiTreeSelectionQModel::rowCount(const QModelIndex &parent /*= QModel
 {
     if (!parent.isValid())
     {
-        int childCount = 0;
-        for (auto o : m_options)
-        {
-            if (o.level() == 0)
-            {
-                childCount++;
-            }
-        }
-
-        return childCount;
-    }
-    else
-    {
-        int childCount = 0;
-
-        int parentOptionIndex = toOptionItemIndex(parent);
-        int parentLevel = m_options[parentOptionIndex].level();
-        int currentOptionIndex = parentOptionIndex + 1;
-
-        while (currentOptionIndex < m_options.size() && m_options[currentOptionIndex].level() > parentLevel)
-        {
-            if (m_options[currentOptionIndex].level() == parentLevel + 1)
-            {
-                childCount++;
-            }
-
-            currentOptionIndex++;
-        }
-
-        return childCount;
+        return m_zeroLevelRowCount;
     }
 
-    CAF_ASSERT(false);
-
-    return 0;
+    return m_optionsTreeData[toOptionItemIndex(parent)].childCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,29 +133,32 @@ int caf::PdmUiTreeSelectionQModel::rowCount(const QModelIndex &parent /*= QModel
 //--------------------------------------------------------------------------------------------------
 QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role /*= Qt::DisplayRole*/) const
 {
-    CAF_ASSERT(index.internalId() < m_options.size());
-
-    if (role == Qt::DisplayRole)
+    if (index.isValid())
     {
-        return m_options[toOptionItemIndex(index)].optionUiText();
-    }
-    else if (role == Qt::CheckStateRole)
-    {
-        CAF_ASSERT(m_uiFieldHandle);
+        CAF_ASSERT(index.internalId() < m_options.size());
 
-        QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
-        QList<QVariant> valuesSelectedInField = fieldValue.toList();
-
-        for (QVariant v : valuesSelectedInField)
+        if (role == Qt::DisplayRole)
         {
-            int indexInField = v.toInt();
-            if (indexInField == toOptionItemIndex(index))
-            {
-                return Qt::Checked;
-            }
+            return m_options[toOptionItemIndex(index)].optionUiText();
         }
+        else if (role == Qt::CheckStateRole)
+        {
+            CAF_ASSERT(m_uiFieldHandle);
 
-        return Qt::Unchecked;
+            QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+            QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+            for (QVariant v : valuesSelectedInField)
+            {
+                int indexInField = v.toInt();
+                if (indexInField == toOptionItemIndex(index))
+                {
+                    return Qt::Checked;
+                }
+            }
+
+            return Qt::Unchecked;
+        }
     }
 
     return QVariant();
@@ -254,9 +184,86 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::toOptionItemIndex(const QModelIndex& modelIndex)
+void caf::PdmUiTreeSelectionQModel::computeOptionItemTreeData()
+{
+    m_optionsTreeData.clear();
+    m_zeroLevelRowToOptionIndex.clear();
+
+    if (m_options.size() == 0) return;
+
+    m_optionsTreeData.resize(m_options.size());
+
+    m_zeroLevelRowCount = 0;
+
+    for (int i = 0; i < m_options.size(); i++)
+    {
+        if (m_options[i].level() == 0)
+        {
+            m_zeroLevelRowToOptionIndex[m_zeroLevelRowCount] = i;
+            
+            m_zeroLevelRowCount++;
+
+            m_optionsTreeData[i].parentModelIndex = QModelIndex();
+        }
+        else if (m_options[i].level() > 0)
+        {
+            // Compute parent model index
+
+            int childLevel = m_options[i].level();
+
+            int parentOptionIndex = i - 1;
+            while (parentOptionIndex > -1)
+            {
+                if (m_options[parentOptionIndex].level() == childLevel - 1)
+                {
+                    int parentRow = 0;
+
+                    int parentLevelOptionIndex = parentOptionIndex - 1;
+                    while (parentLevelOptionIndex > -1 && m_options[parentLevelOptionIndex].level() > childLevel - 2)
+                    {
+                        if (m_options[parentLevelOptionIndex].level() == childLevel - 1)
+                        {
+                            parentRow++;
+                        }
+
+                        parentLevelOptionIndex--;
+                    }
+
+                    m_optionsTreeData[i].parentModelIndex = createIndex(parentRow, 0, parentOptionIndex);
+                    break;
+                }
+
+                parentOptionIndex--;
+            }
+        }
+
+        int childCount = 0;
+        {
+            int parentLevel = m_options[i].level();
+            int currentOptionIndex = i + 1;
+
+            while (currentOptionIndex < m_options.size() && m_options[currentOptionIndex].level() > parentLevel)
+            {
+                if (m_options[currentOptionIndex].level() == parentLevel + 1)
+                {
+                    childCount++;
+                }
+
+                currentOptionIndex++;
+            }
+        }
+
+        m_optionsTreeData[i].childCount = childCount;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int caf::PdmUiTreeSelectionQModel::toOptionItemIndex(const QModelIndex& modelIndex) const
 {
     CAF_ASSERT(modelIndex.isValid());
+    CAF_ASSERT(modelIndex.internalId() < m_options.size());
 
     return modelIndex.internalId();
 }

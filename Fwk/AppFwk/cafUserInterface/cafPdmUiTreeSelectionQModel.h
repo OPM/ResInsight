@@ -40,12 +40,26 @@
 
 #include <QAbstractItemModel>
 
+#include <vector>
+#include <map>
+
 namespace caf 
 {
 
 class PdmOptionItemInfo;
 class PdmUiFieldHandle;
 
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class OptionItemTreeData
+{
+public:
+    int             zeroLevelIndex;
+    int             childCount;
+    QModelIndex     parentModelIndex;
+};
 
 //==================================================================================================
 /// 
@@ -70,11 +84,16 @@ signals:
     void                    signalSelectionStateForIndexHasChanged(int index, bool isSelected);
 
 private:
-    static int              toOptionItemIndex(const QModelIndex& modelIndex);
+    void                    computeOptionItemTreeData();
+    int                     toOptionItemIndex(const QModelIndex& modelIndex) const;
 
 private:
     QList<caf::PdmOptionItemInfo>   m_options;
     caf::PdmUiFieldEditorHandle*    m_uiFieldHandle;
+
+    std::vector<OptionItemTreeData> m_optionsTreeData;
+    int                             m_zeroLevelRowCount;
+    std::map<int, int>              m_zeroLevelRowToOptionIndex;
 };
 
 
