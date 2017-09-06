@@ -33,7 +33,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryPlot.h"
@@ -77,7 +77,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CAF_ASSERT(project);
 
-    RimSummaryCaseCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return;
 
     RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
@@ -220,7 +220,7 @@ RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimEcli
     RimProject* project = RiaApplication::instance()->project();
     if (!project) return nullptr;
 
-    RimSummaryCaseCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return nullptr;
 
     RimEclipseResultCase* eclCase = nullptr;

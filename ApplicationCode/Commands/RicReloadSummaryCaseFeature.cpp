@@ -24,7 +24,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -90,14 +90,14 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
     std::vector<RimSummaryCase*> caseSelection;
     caf::SelectionManager::instance()->objectsByType(&caseSelection);
 
-    std::vector<RimSummaryCaseCollection*> collectionSelection;
-    caf::SelectionManager::instance()->objectsByType(&collectionSelection);
+    std::vector<RimSummaryCaseMainCollection*> mainCollectionSelection;
+    caf::SelectionManager::instance()->objectsByType(&mainCollectionSelection);
 
-    for (auto sumColl : collectionSelection)
+    for (auto sumMainColl : mainCollectionSelection)
     {
-        for (size_t i = 0; i < sumColl->summaryCaseCount(); i++)
+        for (size_t i = 0; i < sumMainColl->summaryCaseCount(); i++)
         {
-            caseSelection.push_back(sumColl->summaryCase(i));
+            caseSelection.push_back(sumMainColl->summaryCase(i));
         }
     }
 

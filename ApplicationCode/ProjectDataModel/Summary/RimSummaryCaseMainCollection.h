@@ -23,12 +23,12 @@
 class RimSummaryCase;
 class RimEclipseResultCase;
 
-class RimSummaryCaseCollection : public caf::PdmObject
+class RimSummaryCaseMainCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimSummaryCaseCollection();
-    virtual ~RimSummaryCaseCollection();
+    RimSummaryCaseMainCollection();
+    virtual ~RimSummaryCaseMainCollection();
 
     RimSummaryCase*     summaryCase(size_t idx);
     size_t              summaryCaseCount();

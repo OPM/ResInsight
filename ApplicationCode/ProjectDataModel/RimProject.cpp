@@ -49,7 +49,7 @@
 #include "RimMultiSnapshotDefinition.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
 #include "RimViewLinker.h"
@@ -439,8 +439,8 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
         {
             oilField->formationNamesCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
-        if (oilField->summaryCaseCollection() != NULL) {
-            oilField->summaryCaseCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        if (oilField->summaryCaseMainCollection() != NULL) {
+            oilField->summaryCaseMainCollection()->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
         }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
@@ -538,12 +538,12 @@ void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
     for (RimOilField* oilField: oilFields)
     {
         if(!oilField) continue;
-        RimSummaryCaseCollection* sumCaseColl = oilField->summaryCaseCollection();
-        if(sumCaseColl)
+        RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+        if(sumCaseMainColl)
         {
-            for (size_t scIdx = 0; scIdx <  sumCaseColl->summaryCaseCount(); ++scIdx)
+            for (size_t scIdx = 0; scIdx <  sumCaseMainColl->summaryCaseCount(); ++scIdx)
             {
-                sumCases.push_back(sumCaseColl->summaryCase(scIdx));
+                sumCases.push_back(sumCaseMainColl->summaryCase(scIdx));
             }
         }
     }
@@ -856,7 +856,7 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->summaryCaseCollection())     uiTreeOrdering.add(oilField->summaryCaseCollection());
+            if (oilField->summaryCaseMainCollection())     uiTreeOrdering.add(oilField->summaryCaseMainCollection());
         }
 
         if (mainPlotCollection)

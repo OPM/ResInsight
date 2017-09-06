@@ -23,7 +23,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -73,9 +73,9 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
         plot->addCurve(newCurve);
 
         RimSummaryCase* defaultCase = nullptr; 
-        if (project->activeOilField()->summaryCaseCollection()->summaryCaseCount() > 0)
+        if (project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0)
         {
-            defaultCase = project->activeOilField()->summaryCaseCollection()->summaryCase(0);
+            defaultCase = project->activeOilField()->summaryCaseMainCollection()->summaryCase(0);
             newCurve->setSummaryCase(defaultCase);
 
             newCurve->setSummaryAddress(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));

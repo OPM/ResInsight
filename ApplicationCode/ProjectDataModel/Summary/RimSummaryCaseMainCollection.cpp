@@ -15,7 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 
 #include "RifEclipseSummaryTools.h"
 #include "RimEclipseResultCase.h"
@@ -28,12 +28,12 @@
 #include <QDir>
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection,"SummaryCaseCollection");
+CAF_PDM_SOURCE_INIT(RimSummaryCaseMainCollection,"SummaryCaseCollection");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection::RimSummaryCaseCollection()
+RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 {
     CAF_PDM_InitObject("Summary Cases",":/Cases16x16.png","","");
 
@@ -45,7 +45,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection::~RimSummaryCaseCollection()
+RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
     m_cases.deleteAllChildObjects();
 }
@@ -53,7 +53,7 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::createSummaryCasesFromRelevantEclipseResultCases()
+void RimSummaryCaseMainCollection::createSummaryCasesFromRelevantEclipseResultCases()
 {
     RimProject* proj = nullptr;
     firstAncestorOrThisOfType(proj);
@@ -96,7 +96,7 @@ void RimSummaryCaseCollection::createSummaryCasesFromRelevantEclipseResultCases(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclipseResultCase) const
+RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclipseResultCase) const
 {
     for (RimSummaryCase* summaryCase : m_cases)
     {
@@ -116,7 +116,7 @@ RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromEclipseResultCase(R
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromFileName(const QString& fileName) const
+RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const QString& fileName) const
 {
     // Use QFileInfo object to compare two file names to avoid mix of / and \\
 
@@ -141,7 +141,7 @@ RimSummaryCase* RimSummaryCaseCollection::findSummaryCaseFromFileName(const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::deleteCase(RimSummaryCase* summaryCase)
+void RimSummaryCaseMainCollection::deleteCase(RimSummaryCase* summaryCase)
 {
     m_cases.removeChildObject(summaryCase);
 }
@@ -149,7 +149,7 @@ void RimSummaryCaseCollection::deleteCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::summaryCase(size_t idx)
+RimSummaryCase* RimSummaryCaseMainCollection::summaryCase(size_t idx)
 {
     return m_cases[idx];
 }
@@ -157,7 +157,7 @@ RimSummaryCase* RimSummaryCaseCollection::summaryCase(size_t idx)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimSummaryCaseCollection::summaryCaseCount()
+size_t RimSummaryCaseMainCollection::summaryCaseCount()
 {
     return m_cases.size();
 }
@@ -165,7 +165,7 @@ size_t RimSummaryCaseCollection::summaryCaseCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::loadAllSummaryCaseData()
+void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
     for (RimSummaryCase* sumCase: m_cases)
     {
@@ -176,7 +176,7 @@ void RimSummaryCaseCollection::loadAllSummaryCaseData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase)
+RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase)
 {
     QString gridFileName = eclResCase->gridFileName();
     if(RifEclipseSummaryTools::hasSummaryFiles(QDir::toNativeSeparators(gridFileName).toStdString()))
@@ -193,7 +193,7 @@ RimSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromEclipseResu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromFileName(const QString& fileName)
+RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromFileName(const QString& fileName)
 {
     RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
 
@@ -207,7 +207,7 @@ RimSummaryCase* RimSummaryCaseCollection::createAndAddSummaryCaseFromFileName(co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCaseCollection::uniqueShortNameForCase(RimSummaryCase* summaryCase)
+QString RimSummaryCaseMainCollection::uniqueShortNameForCase(RimSummaryCase* summaryCase)
 {
     std::set<QString> allAutoShortNames;
 
@@ -267,7 +267,7 @@ QString RimSummaryCaseCollection::uniqueShortNameForCase(RimSummaryCase* summary
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+void RimSummaryCaseMainCollection::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
 {
     for (auto summaryCase : m_cases)
     {

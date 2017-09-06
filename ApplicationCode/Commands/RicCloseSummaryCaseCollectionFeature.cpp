@@ -25,7 +25,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -53,9 +53,9 @@ void RicCloseSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 bool RicCloseSummaryCaseCollectionFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
-    caf::SelectionManager::instance()->objectsByType(&summaryCaseCollections);
-    return (summaryCaseCollections.size() > 0);
+    std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
+    caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
+    return (summaryCaseMainCollections.size() > 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,10 +63,10 @@ bool RicCloseSummaryCaseCollectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
-    caf::SelectionManager::instance()->objectsByType(&summaryCaseCollections);
+    std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
+    caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
 
-    for (RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections)
+    for (RimSummaryCaseMainCollection* summaryCaseCollection : summaryCaseMainCollections)
     {
         std::vector<RimSummaryCase*> summaryCasesFromCollection;
 

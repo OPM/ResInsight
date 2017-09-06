@@ -58,7 +58,7 @@
 #include "RimReservoirCellResultsStorage.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -477,12 +477,12 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
     {
         if (oilField == NULL) continue; 
         // Temporary
-        if(!oilField->summaryCaseCollection())
+        if(!oilField->summaryCaseMainCollection())
         {
-            oilField->summaryCaseCollection = new RimSummaryCaseCollection();
+            oilField->summaryCaseMainCollection = new RimSummaryCaseMainCollection();
         }
-        oilField->summaryCaseCollection()->createSummaryCasesFromRelevantEclipseResultCases();
-        oilField->summaryCaseCollection()->loadAllSummaryCaseData();
+        oilField->summaryCaseMainCollection()->createSummaryCasesFromRelevantEclipseResultCases();
+        oilField->summaryCaseMainCollection()->loadAllSummaryCaseData();
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         oilField->fractureDefinitionCollection()->loadAndUpdateData();

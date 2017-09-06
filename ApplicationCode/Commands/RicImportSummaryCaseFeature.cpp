@@ -26,7 +26,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
@@ -62,7 +62,7 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
 
     RimProject* proj = app->project();
 
-    RimSummaryCaseCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return;
 
     for (auto f : fileNames)
@@ -97,7 +97,7 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
-    RimSummaryCaseCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
     RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);

@@ -23,7 +23,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -69,12 +69,12 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummary
         }
         summaryPlotColl->updateConnectedEditors();
 
-        RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-        summaryCase->firstAncestorOrThisOfTypeAsserted(summaryCaseCollection);
+        RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
+        summaryCase->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
 
-        summaryCaseCollection->deleteCase(summaryCase);
+        summaryCaseMainCollection->deleteCase(summaryCase);
         delete summaryCase;
-        summaryCaseCollection->updateConnectedEditors();
+        summaryCaseMainCollection->updateConnectedEditors();
     }
 }
 

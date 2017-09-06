@@ -32,7 +32,7 @@
 #include "RimGridTimeHistoryCurve.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 

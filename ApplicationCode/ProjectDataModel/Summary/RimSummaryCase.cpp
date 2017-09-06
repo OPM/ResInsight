@@ -20,7 +20,7 @@
 
 #include "RigSummaryCaseData.h"
 #include "RimEclipseCase.h"
-#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
 
 #include <QFileInfo>
 #include "RimProject.h"
@@ -147,11 +147,11 @@ void RimSummaryCase::updateAutoShortName()
 {
     if(m_useAutoShortName)
     {
-        RimSummaryCaseCollection* summaryCaseCollection = NULL;
-        this->firstAncestorOrThisOfType(summaryCaseCollection);
-        CVF_ASSERT(summaryCaseCollection);
+        RimSummaryCaseMainCollection* summaryCaseMainCollection = NULL;
+        this->firstAncestorOrThisOfType(summaryCaseMainCollection);
+        CVF_ASSERT(summaryCaseMainCollection);
 
-        m_shortName =  summaryCaseCollection->uniqueShortNameForCase(this);
+        m_shortName =  summaryCaseMainCollection->uniqueShortNameForCase(this);
         updateTreeItemName();
     }
     else if (m_shortName() == QString("Display Name"))

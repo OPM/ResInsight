@@ -9,7 +9,7 @@ ${CEE_CURRENT_LIST_DIR}RimAsciiDataCurve.h
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCase.h
-${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCaseMainCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurve.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAppearanceCalculator.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAutoName.h
@@ -27,7 +27,7 @@ ${CEE_CURRENT_LIST_DIR}RimAsciiDataCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimFileSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimGridSummaryCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCase.cpp
-${CEE_CURRENT_LIST_DIR}RimSummaryCaseCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCaseMainCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAppearanceCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAutoName.cpp
