@@ -69,6 +69,7 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
 
     if (m_ecl_sum)
     {
+        m_timeSteps.clear();
         m_ecl_SmSpec = ecl_sum_get_smspec(m_ecl_sum);
 
         for ( int time_index = 0; time_index < timeStepCount(); time_index++ )
