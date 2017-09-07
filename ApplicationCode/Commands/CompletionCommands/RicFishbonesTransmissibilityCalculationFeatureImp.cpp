@@ -46,8 +46,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     RiaEclipseUnitTools::UnitSystem unitSystem = caseData->unitsType();
     bool isMainBore = false;
 
-    std::vector<RigCompletionData> completionData;
-
     for (const WellSegmentLocation& location : locations)
     {
         for (const WellSegmentLateral& lateral : location.laterals)

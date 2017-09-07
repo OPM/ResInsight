@@ -485,8 +485,7 @@ public:
             resultsToAdd->at(tsId).resize(connectionCount, HUGE_VAL);
         }
 
-        std::vector<double> readBuffer;
-        double * internalMatrixData = nullptr;
+        double* internalMatrixData = nullptr;
 
         QDataStream socketStream(currentClient);
         socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);

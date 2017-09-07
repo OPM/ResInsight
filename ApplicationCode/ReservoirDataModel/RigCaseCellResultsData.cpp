@@ -691,8 +691,6 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::eraseAllSourSimData()
 {
-    std::vector<size_t> sourSimIndices;
-
     for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
         RigEclipseResultInfo& ri = m_resultInfos[i];

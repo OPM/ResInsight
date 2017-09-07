@@ -92,7 +92,6 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     // SWCR if defined
 
     const std::vector<double>* swcrResults = nullptr;
-    std::vector<double> swcrActiveCellsResultStorage;
     swcrResults = getResultIndexableStaticResult(actCellInfo, gridCellResults, "SWCR", porvActiveCellsResultStorage);
 
     std::vector<size_t> scalarResultIndexTracers;
