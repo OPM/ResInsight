@@ -18,12 +18,14 @@
 #include "RimSummaryCaseMainCollection.h"
 
 #include "RifEclipseSummaryTools.h"
+
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
 #include "RimGridSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include <QDir>
 
@@ -37,9 +39,11 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 {
     CAF_PDM_InitObject("Summary Cases",":/Cases16x16.png","","");
 
-    CAF_PDM_InitFieldNoDefault(&m_cases,"SummaryCases","","","","");
-    m_cases.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_cases, "SummaryCases", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_caseCollections, "SummaryCaseCollections", "", "", "", "");
 
+    m_cases.uiCapability()->setUiHidden(true);
+    m_caseCollections.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,6 +52,7 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
     m_cases.deleteAllChildObjects();
+    m_caseCollections.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +149,24 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
 void RimSummaryCaseMainCollection::deleteCase(RimSummaryCase* summaryCase)
 {
     m_cases.removeChildObject(summaryCase);
+    for (RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections)
+    {
+        summaryCaseCollection->deleteCase(summaryCase);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::addCaseCollection(std::vector<RimSummaryCase*> summaryCases)
+{
+    RimSummaryCaseCollection* summaryCaseCollection = new RimSummaryCaseCollection();
+    for (RimSummaryCase* summaryCase : summaryCases)
+    {
+        m_cases.removeChildObject(summaryCase);
+        summaryCaseCollection->addCase(summaryCase);
+    }
+    m_caseCollections.push_back(summaryCaseCollection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,9 +188,30 @@ size_t RimSummaryCaseMainCollection::summaryCaseCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases()
+{
+    std::vector<RimSummaryCase*> allCases;
+    
+    for (RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections)
+    {
+        std::vector<RimSummaryCase*> cases;
+        summaryCaseCollection->descendantsIncludingThisOfType(cases);
+        allCases.insert(allCases.end(), cases.begin(), cases.end());
+    }
+    
+    std::vector<RimSummaryCase*> cases;
+    this->descendantsIncludingThisOfType(cases);
+    allCases.insert(allCases.end(), cases.begin(), cases.end());
+
+    return allCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
-    for (RimSummaryCase* sumCase: m_cases)
+    for (RimSummaryCase* sumCase: allSummaryCases())
     {
         if (sumCase) sumCase->loadCase();
     }

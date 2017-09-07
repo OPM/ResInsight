@@ -20,44 +20,23 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
-#include <vector>
-
 class RimSummaryCase;
-class RimEclipseResultCase;
-class RimSummaryCaseCollection;
 
-class RimSummaryCaseMainCollection : public caf::PdmObject
+class RimSummaryCaseCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimSummaryCaseMainCollection();
-    virtual ~RimSummaryCaseMainCollection();
+    RimSummaryCaseCollection();
+    virtual ~RimSummaryCaseCollection();
 
     RimSummaryCase*     summaryCase(size_t idx);
     size_t              summaryCaseCount();
-
-    std::vector<RimSummaryCase*> allSummaryCases();
 	
-    void                createSummaryCasesFromRelevantEclipseResultCases();
-    RimSummaryCase*     createAndAddSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase);
-    RimSummaryCase*     createAndAddSummaryCaseFromFileName(const QString& fileName);
-    
-    RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
-    RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
-
     void                deleteCase(RimSummaryCase* summaryCase);
-
-    void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases);
-
-    void                loadAllSummaryCaseData();
-
-    QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
-
-    void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
+    void                addCase(RimSummaryCase* summaryCase);
 
 private:
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
-    caf::PdmChildArrayField<RimSummaryCaseCollection*> m_caseCollections;
 };

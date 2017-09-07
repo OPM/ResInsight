@@ -16,56 +16,49 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCloseSummaryCaseCollectionFeature.h"
+#include "RicCreateSummaryCaseCollectionFeature.h"
 
-#include "RiaApplication.h"
-
-#include "RicCloseSummaryCaseFeature.h"
-
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
+#include "cafPdmObject.h"
 #include "cafSelectionManager.h"
 
-#include "cvfAssert.h"
-
 #include <QAction>
-#include <vector>
 
-
-CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseCollectionFeature, "RicCloseSummaryCaseCollectionFeature");
+CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCaseCollectionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCloseSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
+bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
 {
-    actionToSetup->setText("Close Sub Items");
-    actionToSetup->setIcon(QIcon(":/Erase.png"));
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+
+    return (selection.size() > 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicCloseSummaryCaseCollectionFeature::isCommandEnabled()
+void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
-    caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
-    return (summaryCaseMainCollections.size() > 0);
+    std::vector<RimSummaryCase*> selection;
+    caf::SelectionManager::instance()->objectsByType(&selection);
+
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
+    selection.at(0)->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
+
+    summaryCaseMainCollection->addCaseCollection(selection);
+    summaryCaseMainCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCloseSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
+void RicCreateSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
-    std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
-    caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
-
-    RicCloseSummaryCaseFeature::deleteSummaryCases(summaryCaseMainCollections[0]->allSummaryCases());
+    actionToSetup->setText("Group Summary Cases");
+    actionToSetup->setIcon(QIcon(":/Folder.png"));
 }
-

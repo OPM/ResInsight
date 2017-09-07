@@ -24,9 +24,11 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -87,17 +89,25 @@ void RicReloadSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
 {
-    std::vector<RimSummaryCase*> caseSelection;
-    caf::SelectionManager::instance()->objectsByType(&caseSelection);
-
     std::vector<RimSummaryCaseMainCollection*> mainCollectionSelection;
     caf::SelectionManager::instance()->objectsByType(&mainCollectionSelection);
 
-    for (auto sumMainColl : mainCollectionSelection)
+    if (mainCollectionSelection.size() > 0)
     {
-        for (size_t i = 0; i < sumMainColl->summaryCaseCount(); i++)
+        return mainCollectionSelection[0]->allSummaryCases();
+    }
+
+    std::vector<RimSummaryCase*> caseSelection;
+    caf::SelectionManager::instance()->objectsByType(&caseSelection);
+
+    std::vector<RimSummaryCaseCollection*> collectionSelection;
+    caf::SelectionManager::instance()->objectsByType(&collectionSelection);
+
+    for (auto collection : collectionSelection)
+    {
+        for (size_t i = 0; i < collection->summaryCaseCount(); i++)
         {
-            caseSelection.push_back(sumMainColl->summaryCase(i));
+            caseSelection.push_back(collection->summaryCase(i));
         }
     }
 
