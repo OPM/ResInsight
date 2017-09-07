@@ -541,10 +541,9 @@ void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
         RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
         if(sumCaseMainColl)
         {
-            for (size_t scIdx = 0; scIdx <  sumCaseMainColl->summaryCaseCount(); ++scIdx)
-            {
-                sumCases.push_back(sumCaseMainColl->summaryCase(scIdx));
-            }
+            sumCases.clear();
+            std::vector<RimSummaryCase*> allSummaryCases = sumCaseMainColl->allSummaryCases();
+            sumCases.insert(sumCases.end(), allSummaryCases.begin(), allSummaryCases.end());
         }
     }
 }

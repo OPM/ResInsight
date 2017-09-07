@@ -190,20 +190,10 @@ size_t RimSummaryCaseMainCollection::summaryCaseCount()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases()
 {
-    std::vector<RimSummaryCase*> allCases;
-    
-    for (RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections)
-    {
-        std::vector<RimSummaryCase*> cases;
-        summaryCaseCollection->descendantsIncludingThisOfType(cases);
-        allCases.insert(allCases.end(), cases.begin(), cases.end());
-    }
-    
     std::vector<RimSummaryCase*> cases;
     this->descendantsIncludingThisOfType(cases);
-    allCases.insert(allCases.end(), cases.begin(), cases.end());
 
-    return allCases;
+    return cases;
 }
 
 //--------------------------------------------------------------------------------------------------
