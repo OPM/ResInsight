@@ -177,8 +177,6 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
             lengthXareaOfFractureParts.push_back(length * area);
 
             cvf::Plane fracturePlane;
-            bool isCellIntersected = false;
-
             fracturePlane.setFromPointAndNormal(static_cast<cvf::Vec3d>(m_fractureTransform.translation()),
                                                 static_cast<cvf::Vec3d>(m_fractureTransform.col(2)));
 

@@ -978,14 +978,13 @@ void RifReaderEclipseOutput::sourSimRlResult(const QString& result, size_t stepI
 
     size_t fileIndex = timeStepIndexOnFile(stepIndex);
 
-    bool readCellResultOk = m_hdfReaderInterface->dynamicResult(result, fileIndex, values);
+    m_hdfReaderInterface->dynamicResult(result, fileIndex, values);
 
     if (activeCellCount != values->size())
     {
         values->clear();
 
         RiaLogging::error("SourSimRL results does not match the number of active cells in the grid");
-        return;
     }
 }
 

@@ -15,10 +15,14 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimFractureContainment.h"
-#include "cafPdmUiSliderEditor.h"
+
 #include "RigMainGrid.h"
+
 #include "RimProject.h"
+
+#include "cafPdmUiSliderEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimFractureContainment, "FractureContainment");
@@ -95,7 +99,7 @@ bool RimFractureContainment::isEclipseCellWithinContainment(const RigMainGrid* m
     size_t i, j, k;
     if (globalCellIndex >= mainGrid->globalCellArray().size()) return false;
 
-    bool ok = mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
+    mainGrid->ijkFromCellIndex(globalCellIndex, &i, &j, &k);
 
     if (k + 1 < static_cast<size_t>(m_topKLayer())) 
     {

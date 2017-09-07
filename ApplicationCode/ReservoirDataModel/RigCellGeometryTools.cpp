@@ -365,8 +365,6 @@ std::vector<std::vector<cvf::Vec3d> > RigCellGeometryTools::clipPolylineByPolygo
     //Adjusting polygon to avoid clipper issue with interpolating z-values when lines crosses though polygon vertecies
     std::vector<cvf::Vec3d> adjustedPolygon = ajustPolygonToAvoidIntersectionsAtVertex(polyLine, polygon);
 
-    int polygonScaleFactor = 10000; //For transform to clipper int 
-
     //Convert to int for clipper library and store as clipper "path"
     ClipperLib::Path polyLinePath;
     for (const cvf::Vec3d& v : polyLine)

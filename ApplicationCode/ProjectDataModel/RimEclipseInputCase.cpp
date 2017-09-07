@@ -190,7 +190,6 @@ bool RimEclipseInputCase::openEclipseGridFile()
         }
         else
         {
-            RiaPreferences* prefs = RiaApplication::instance()->preferences();
             readerInterface = new RifReaderEclipseInput;
 
             cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;

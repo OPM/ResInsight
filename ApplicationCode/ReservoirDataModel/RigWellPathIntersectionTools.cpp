@@ -96,7 +96,6 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
 //--------------------------------------------------------------------------------------------------
 std::vector<HexIntersectionInfo> RigWellPathIntersectionTools::getIntersectedCells(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords)
 {
-    const std::vector<cvf::Vec3d>& nodeCoords = grid->nodes();
     std::vector<HexIntersectionInfo> intersections;
     for (size_t i = 0; i < coords.size() - 1; ++i)
     {
@@ -167,8 +166,6 @@ std::vector<size_t> RigWellPathIntersectionTools::findCloseCells(const RigMainGr
 //--------------------------------------------------------------------------------------------------
 size_t RigWellPathIntersectionTools::findCellFromCoords(const RigMainGrid* grid, const cvf::Vec3d& coords, bool* foundCell)
 {
-    const std::vector<cvf::Vec3d>& nodeCoords = grid->nodes();
-
     cvf::BoundingBox bb;
     bb.add(coords);
     std::vector<size_t> closeCells = findCloseCells(grid, bb);

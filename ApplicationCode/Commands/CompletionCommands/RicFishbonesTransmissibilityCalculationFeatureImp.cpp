@@ -202,7 +202,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     RiaEclipseUnitTools::UnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
     bool isMainBore = true;
     double holeDiameter = wellPath->fishbonesCollection()->mainBoreDiameter(unitSystem);
-    double FishboneStartMD = wellPath->fishbonesCollection()->startMD();
 
     std::vector<double> wellPathMD = wellPath->wellPathGeometry()->m_measuredDepths;
     double wellPathEndMD = 0.0;

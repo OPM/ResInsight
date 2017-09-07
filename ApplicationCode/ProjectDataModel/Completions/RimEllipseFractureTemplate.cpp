@@ -205,8 +205,6 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
     std::vector<RigFractureCell> fractureCells;
     std::pair<size_t, size_t> wellCenterFractureCellIJ = std::make_pair(0, 0);
 
-    bool wellCenterFractureCellFound = false;
-
     int numberOfCellsX = 35;
     int numberOfCellsY = 35;
     
@@ -268,16 +266,12 @@ void RimEllipseFractureTemplate::setupFractureGridCells()
                     wellCenterFractureCellIJ = std::make_pair(fractureCell.getI(), fractureCell.getJ());
                     RiaLogging::debug(QString("Setting wellCenterFractureCell at cell %1, %2").
                                       arg(QString::number(fractureCell.getI()), QString::number(fractureCell.getJ())));
-
-                    wellCenterFractureCellFound = true;
                 }
             }
 
             fractureCells.push_back(fractureCell);
-
         }
     }
-
     
     m_fractureGrid->setFractureCells(fractureCells);
     m_fractureGrid->setWellCenterFractureCellIJ(wellCenterFractureCellIJ);

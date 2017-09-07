@@ -180,13 +180,10 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             
             size_t stimPlanCellIndex = fractureGrid->getGlobalIndexFromIJ(fractureCell.getI(), fractureCell.getJ());
 
-            bool hasAnyContribEclCellWithinContainment = false;
- 
             for ( size_t i = 0; i < fractureCellContributingEclipseCells.size(); i++ )
             {
                 if ( fracture->isEclipseCellWithinContainment(caseToApply->eclipseCaseData()->mainGrid(), fractureCellContributingEclipseCells[i]) )
                 {
-                    hasAnyContribEclCellWithinContainment = true;
                     if ( useFiniteConductivityInFracture )
                     {
                         transCondenser.addNeighborTransmissibility({ true,  CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
