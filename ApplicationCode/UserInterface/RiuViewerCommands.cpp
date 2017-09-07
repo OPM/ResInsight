@@ -321,6 +321,9 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);
 
+                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
+                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
+
                 commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
                 commandIds << "RicPlotProductionRateFeature";
@@ -328,10 +331,6 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 commandIds << "RicShowContributingWellsFeature";
                 commandIds << "Separator";
                 commandIds << "RicNewSimWellIntersectionFeature";
-
-
-                RiuSelectionItem* selItem = new RiuSimWellSelectionItem(eclipseWellSourceInfo->well(), m_currentPickPositionInDomainCoords, eclipseWellSourceInfo->branchIndex());
-                RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
                 commandIds << "RicPlotProductionRateFeature";
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
                 commandIds << "RicNewSimWellFractureAtPosFeature";

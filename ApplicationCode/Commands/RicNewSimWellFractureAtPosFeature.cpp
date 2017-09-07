@@ -55,12 +55,8 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered(bool isChecked)
     RiuSelectionManager* riuSelManager = RiuSelectionManager::instance();
     RiuSelectionItem* selItem = riuSelManager->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
 
-    RiuSimWellSelectionItem* simWellItem = nullptr;
-    if (selItem->type() == RiuSelectionItem::SIMWELL_SELECTION_OBJECT)
-    {
-        simWellItem = static_cast<RiuSimWellSelectionItem*>(selItem);
-        if (!simWellItem) return;
-    }
+    RiuSimWellSelectionItem* simWellItem = static_cast<RiuSimWellSelectionItem*>(selItem);
+    if (!simWellItem) return;
     
     RimEclipseWell* simWell = simWellItem->m_simWell;
     if (!simWell) return;
