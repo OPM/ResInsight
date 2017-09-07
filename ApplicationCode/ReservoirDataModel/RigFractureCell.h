@@ -31,11 +31,7 @@ class RigFractureCell
 {
 
 public:
-    RigFractureCell();
     RigFractureCell(std::vector<cvf::Vec3d> polygon, size_t i, size_t j);
-
-
-    virtual ~RigFractureCell();
 
     const std::vector<cvf::Vec3d>& getPolygon() const { return m_polygon; }
     double                  getConductivtyValue() const { return m_concutivityValue; }
@@ -47,11 +43,11 @@ public:
 
     double                  cellSizeX() const;
     double                  cellSizeZ() const;
+
 private:
     std::vector<cvf::Vec3d> m_polygon;
     double                  m_concutivityValue;
     size_t                  m_i;
     size_t                  m_j;
-
 };
 
