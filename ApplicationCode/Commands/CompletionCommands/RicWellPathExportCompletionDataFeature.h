@@ -84,7 +84,9 @@ struct WellSegmentLocation {
           measuredDepth(measuredDepth),
           trueVerticalDepth(trueVerticalDepth),
           subIndex(subIndex),
-          segmentNumber(segmentNumber)
+          segmentNumber(segmentNumber),
+          icdBranchNumber(-1),
+          icdSegmentNumber(-1)
     {
     }
 
