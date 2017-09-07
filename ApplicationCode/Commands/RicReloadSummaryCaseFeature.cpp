@@ -29,7 +29,6 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
-
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
 

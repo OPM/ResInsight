@@ -33,10 +33,7 @@
 
 #include <QAction>
 
-
-
 CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseFeature, "RicCloseSummaryCaseFeature");
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

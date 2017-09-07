@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimSummaryCaseCollection.h"
 
 #include "RimGridSummaryCase.h"
@@ -22,7 +23,6 @@
 #include "RimSummaryCase.h"
 
 #include <QDir>
-
 
 CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection,"SummaryCaseSubCollection");
 
@@ -35,7 +35,6 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_cases,"SummaryCases","","","","");
     m_cases.uiCapability()->setUiHidden(true);
-
 }
 
 //--------------------------------------------------------------------------------------------------
