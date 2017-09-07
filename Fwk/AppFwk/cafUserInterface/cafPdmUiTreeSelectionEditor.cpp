@@ -74,6 +74,25 @@ PdmUiTreeSelectionEditor::~PdmUiTreeSelectionEditor()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
+    // Label
+    CAF_ASSERT(!m_label.isNull());
+
+    QIcon ic = field()->uiIcon(uiConfigName);
+    if (!ic.isNull())
+    {
+        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
+    }
+    else
+    {
+        QString uiName = field()->uiName(uiConfigName);
+        m_label->setText(uiName);
+    }
+
+    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+
+    // Tree view
+
     bool optionsOnly = true;
     QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
 
