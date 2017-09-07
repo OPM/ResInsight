@@ -15,12 +15,14 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
+
+#include "cvfBase.h"
+#include "cvfMatrix4.h"
 
 #include <map>
 #include <vector>
-#include "cvfBase.h"
-#include "cvfMatrix4.h"
 
 class RigWellPath;
 class RimFracture;

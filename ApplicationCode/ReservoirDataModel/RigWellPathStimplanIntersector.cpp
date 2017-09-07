@@ -1,18 +1,38 @@
-#include "RigWellPathStimplanIntersector.h"
-#include "RigWellPath.h"
-#include "RimFracture.h"
-#include "RigCellGeometryTools.h"
-#include "RimFractureTemplate.h"
-#include "cvfBase.h"
-#include "cvfMatrix4.h"
-#include "RigFractureCell.h"
-#include "RimStimPlanFractureTemplate.h"
-#include "RigFractureGrid.h"
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2017-     Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
 
+#include "RigWellPathStimplanIntersector.h"
+
+#include "RigCellGeometryTools.h"
+#include "RigFractureCell.h"
+#include "RigFractureGrid.h"
+#include "RigWellPath.h"
+
+#include "RimFracture.h"
+#include "RimFractureTemplate.h"
+#include "RimSimWellFracture.h"
+#include "RimStimPlanFractureTemplate.h"
+
+#include "cvfBase.h"
 #include "cvfMath.h"
+#include "cvfMatrix4.h"
 
 #include <cmath>
-#include "RimSimWellFracture.h"
 
 
 RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath* wellpathGeom, RimFracture* rimFracture)
@@ -20,7 +40,6 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector(const RigWellPath
     std::vector<cvf::Vec3d> wellPathPoints                   = wellpathGeom->wellPathPointsIncludingFractureIntersection(rimFracture->fractureMD());
     cvf::Mat4d fractureXf                                    = rimFracture->transformMatrix();
     double wellRadius                                        = rimFracture->wellRadius(rimFracture->fractureUnit());
-    std::vector<cvf::Vec3f> fracturePolygonf ; 
     std::vector<std::vector<cvf::Vec3d> > stpCellPolygons;
     {
         RimFractureTemplate* fractureTemplate = rimFracture->fractureTemplate();
