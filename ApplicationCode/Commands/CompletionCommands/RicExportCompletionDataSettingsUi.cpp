@@ -78,7 +78,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
 
     CAF_PDM_InitField(&excludeMainBoreForFishbones, "ExcludeMainBoreForFishbones", false, "Exclude Main Bore Transmissibility For Fishbones", "", "", "");
     m_onlyWellPathCollectionSelected = onlyWellPathCollectionSelected;
-
+    m_displayForSimWell = true;
 }
 
 //--------------------------------------------------------------------------------------------------
