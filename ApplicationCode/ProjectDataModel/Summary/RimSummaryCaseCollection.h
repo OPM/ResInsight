@@ -20,6 +20,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+#include <vector>
+
 class RimSummaryCase;
 
 class RimSummaryCaseCollection : public caf::PdmObject
@@ -34,6 +36,7 @@ public:
 	
     void                deleteCase(RimSummaryCase* summaryCase);
     void                addCase(RimSummaryCase* summaryCase);
+    std::vector<RimSummaryCase*> allSummaryCases();
 
 private:
 

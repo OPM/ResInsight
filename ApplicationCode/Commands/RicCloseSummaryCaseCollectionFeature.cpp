@@ -25,6 +25,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -55,7 +56,11 @@ bool RicCloseSummaryCaseCollectionFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
-    return (summaryCaseMainCollections.size() > 0);
+
+    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    caf::SelectionManager::instance()->objectsByType(&summaryCaseCollections);
+
+    return (summaryCaseMainCollections.size() > 0 || summaryCaseCollections.size() > 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +71,17 @@ void RicCloseSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
 
-    RicCloseSummaryCaseFeature::deleteSummaryCases(summaryCaseMainCollections[0]->allSummaryCases());
+    if (summaryCaseMainCollections.size() > 0)
+    {
+        RicCloseSummaryCaseFeature::deleteSummaryCases(summaryCaseMainCollections[0]->allSummaryCases());
+    }
+
+    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    caf::SelectionManager::instance()->objectsByType(&summaryCaseCollections);
+
+    for (RimSummaryCaseCollection* summaryCaseCollection : summaryCaseCollections)
+    {
+        RicCloseSummaryCaseFeature::deleteSummaryCases(summaryCaseCollection->allSummaryCases());
+    }
 }
 

@@ -65,6 +65,18 @@ void RimSummaryCaseCollection::addCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases()
+{
+    std::vector<RimSummaryCase*> allSummaryCases;
+
+    allSummaryCases.insert(allSummaryCases.begin(), m_cases.begin(), m_cases.end());
+
+    return allSummaryCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimSummaryCaseCollection::summaryCase(size_t idx)
 {
     return m_cases[idx];
