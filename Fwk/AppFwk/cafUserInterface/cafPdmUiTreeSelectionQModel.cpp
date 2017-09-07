@@ -187,6 +187,10 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         {
             return m_options[opIndex].optionUiText();
         }
+        else if (role == Qt::DecorationRole)
+        {
+            return m_options[opIndex].icon();
+        }
         else if (role == Qt::CheckStateRole && !m_options[opIndex].isHeading())
         {
             CAF_ASSERT(m_uiFieldHandle);
