@@ -19,6 +19,7 @@
 #include "RicCreateSummaryCaseCollectionFeature.h"
 
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 
 #include "cafPdmObject.h"
@@ -34,9 +35,16 @@ CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCase
 bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    caf::SelectionManager::instance()->objectsByType(&selection); 
 
-    return (selection.size() > 0);
+    RimSummaryCaseCollection* summaryCaseCollection = nullptr;
+
+    if (selection.size() > 0)
+    {
+        selection[0]->firstAncestorOrThisOfType(summaryCaseCollection);
+    }
+    
+    return (selection.size() > 0 && !summaryCaseCollection);
 }
 
 //--------------------------------------------------------------------------------------------------
