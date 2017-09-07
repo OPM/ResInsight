@@ -155,7 +155,7 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
-    const std::vector<double>* nncResultVals;
+    const std::vector<double>* nncResultVals = nullptr;
     if (resultType == RiaDefines::STATIC_NATIVE)
     {
         nncResultVals = m_nncData->staticConnectionScalarResult(scalarResultIndex);
