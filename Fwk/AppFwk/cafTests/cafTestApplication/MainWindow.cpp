@@ -58,7 +58,7 @@ public:
     {   
         CAF_PDM_InitObject("Small Demo Object", ":/images/win/filenew.png", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Add Items To Multi Select", "", "Toggle Field tooltip", " Toggle Field whatsthis");
         CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want" );
         CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "Small Number", "", "Enter some small number here", "This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString(""), "Text", "", "Text tooltip", "This is a place you can enter a small integer value if you want");
@@ -138,20 +138,7 @@ public:
                 options.push_back(itemInfo);
             }
 
-/*
-            static int s_additionalSubItems = 0;
-            s_additionalSubItems++;
-            for (auto i = 0; i < s_additionalSubItems; i++)
-            {
-                text = "Second_b_" + QString::number(i);
-                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
-                itemInfo.setLevel(1);
-                options.push_back(itemInfo);
-            }
-*/
-
-
-            int additionalSubItems = 0;
+            int additionalSubItems = 2;
             for (auto i = 0; i < additionalSubItems; i++)
             {
                 text = "Second_b_" + QString::number(i);
@@ -160,7 +147,18 @@ public:
                 options.push_back(itemInfo);
             }
 
-
+            static int s_additionalSubItems = 0;
+            if (m_toggleField())
+            {
+                s_additionalSubItems++;
+            }
+            for (auto i = 0; i < s_additionalSubItems; i++)
+            {
+                text = "Second_b_" + QString::number(i);
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                itemInfo.setLevel(1);
+                options.push_back(itemInfo);
+            }
 
             text = "Third";
             options.push_back(caf::PdmOptionItemInfo(text, text));

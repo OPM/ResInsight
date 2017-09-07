@@ -87,9 +87,17 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
     if (treeSelectionQModel)
     {
+        bool itemCountHasChaged = false;
+        if (treeSelectionQModel->optionItemCount() != options.size()) itemCountHasChaged = true;
+
         // TODO: If the count is different between incoming and current list of items,
         // use cafQTreeViewStateSerializer to restore collapsed state
         treeSelectionQModel->setOptions(this, options);
+
+        if (itemCountHasChaged)
+        {
+            m_treeView->expandAll();
+        }
     }
 }
 
