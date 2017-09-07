@@ -84,18 +84,7 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     CAF_ASSERT(!m_textEdit.isNull());
     CAF_ASSERT(!m_label.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
-
-    //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     m_textEdit->setReadOnly(field()->isUiReadOnly(uiConfigName));
     //m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?

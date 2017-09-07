@@ -63,18 +63,7 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
     CAF_ASSERT(!m_spinBox.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
-    {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-    }
-    else
-    {
-        m_label->setText(field()->uiName(uiConfigName));
-    }
-
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+    PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
     m_spinBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_spinBox->setToolTip(field()->uiToolTip(uiConfigName));

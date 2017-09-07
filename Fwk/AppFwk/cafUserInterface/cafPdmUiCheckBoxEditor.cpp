@@ -72,22 +72,14 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (attributes.m_useNativeCheckBoxLabel)
     {
         m_checkBox->setText(field()->uiName(uiConfigName));
+
+        m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+        m_label->setToolTip(field()->uiToolTip(uiConfigName));
     }
     else
     {
-        QIcon ic = field()->uiIcon(uiConfigName);
-        if (!ic.isNull())
-        {
-            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
-        }
-        else
-        {
-            m_label->setText(field()->uiName(uiConfigName));
-        }
+        PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName); 
     }
-
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_checkBox->setToolTip(field()->uiToolTip(uiConfigName));
