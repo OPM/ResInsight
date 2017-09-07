@@ -79,7 +79,8 @@ protected: // Interface to override:
 protected:
     /// This needs to be called from subclass when connecting to a PdmField or Object
     void                bindToPdmItem(PdmUiItem* item);
-    PdmUiItem*          pdmItem() { return m_pdmItem; }
+    PdmUiItem*          pdmItem()       { return m_pdmItem; }
+    const PdmUiItem*    pdmItem() const { return m_pdmItem; }
 
 private:
     friend PdmUiItem::~PdmUiItem();

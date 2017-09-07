@@ -40,6 +40,7 @@
 #include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiCommandSystemProxy.h"
 
+#include <QLabel>
 #include <QVariant>
 
 namespace caf
@@ -100,6 +101,31 @@ void PdmUiFieldEditorHandle::setValueToField(const QVariant& newUiValue)
     PdmUiCommandSystemProxy::instance()->setUiValueToField(field(), newUiValue);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldEditorHandle::updateLabelFromField(QLabel* label, const QString& uiConfigName) const
+{
+    CAF_ASSERT(label);
+    
+    const PdmUiFieldHandle* fieldHandle = dynamic_cast<const PdmUiFieldHandle*>(pdmItem());
+    if (fieldHandle)
+    {
+        QIcon ic = fieldHandle->uiIcon(uiConfigName);
+        if (!ic.isNull())
+        {
+            label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
+        }
+        else
+        {
+            QString uiName = fieldHandle->uiName(uiConfigName);
+            label->setText(uiName);
+        }
+
+        label->setEnabled(!fieldHandle->isUiReadOnly(uiConfigName));
+        label->setToolTip(fieldHandle->uiToolTip(uiConfigName));
+    }
+}
 
 } //End of namespace caf
 

@@ -263,7 +263,7 @@ bool PdmUiItem::isUiTreeChildrenHidden(QString uiConfigName) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmUiItem::isUiReadOnly(QString uiConfigName /*= ""*/)
+bool PdmUiItem::isUiReadOnly(QString uiConfigName /*= ""*/) const
 {
     const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
     const PdmUiItemInfo* defInfo = defaultInfo();

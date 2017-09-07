@@ -217,7 +217,7 @@ public:
     bool             isUiTreeChildrenHidden(QString uiConfigName = "") const;
     void             setUiTreeChildrenHidden(bool isTreeChildrenHidden, QString uiConfigName = "")     { m_configItemInfos[uiConfigName].m_isTreeChildrenHidden = isTreeChildrenHidden; } 
 
-    bool             isUiReadOnly(QString uiConfigName = "");
+    bool             isUiReadOnly(QString uiConfigName = "") const;
     void             setUiReadOnly(bool isReadOnly, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly; } 
    
     PdmUiItemInfo::LabelPosType  

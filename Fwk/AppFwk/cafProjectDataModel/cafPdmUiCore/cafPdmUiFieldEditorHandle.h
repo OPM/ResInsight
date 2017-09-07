@@ -47,6 +47,8 @@
 #include <QString>
 #include <QWidget>
 
+class QLabel;
+
 
 // Taken from gtest.h
 //
@@ -117,6 +119,8 @@ protected: // Virtual interface to override
     virtual QWidget*    createLabelWidget(QWidget * parent)    { return NULL; }
 
     void                setValueToField(const QVariant& value);
+
+    void                updateLabelFromField(QLabel* label, const QString& uiConfigName = "") const;
 
 private:
     QPointer<QWidget>   m_combinedWidget;
