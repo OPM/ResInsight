@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection,"SummaryCaseSubCollection");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
 {
-    CAF_PDM_InitObject("Summary Case Group",":/Cases16x16.png","","");
+    CAF_PDM_InitObject("Summary Case Group",":/Folder.png","","");
 
     CAF_PDM_InitFieldNoDefault(&m_cases,"SummaryCases","","","","");
     m_cases.uiCapability()->setUiHidden(true);
