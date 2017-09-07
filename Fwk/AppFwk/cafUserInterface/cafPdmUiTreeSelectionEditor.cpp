@@ -40,10 +40,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeSelectionQModel.h"
 
-#include "cafQTreeViewStateSerializer.h"
-
-#include <QTreeView>
 #include <QLabel>
+#include <QMenu>
+#include <QTreeView>
 
 
 namespace caf
@@ -111,36 +110,225 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotSetSelectionStateForIndex(int index, bool isSelected)
+void PdmUiTreeSelectionEditor::slotSetSelectionStateForIndex(int index, bool setSelected)
 {
-    unsigned int unsignedValue = static_cast<unsigned int>(index);
+    std::vector<int> indices;
+    indices.push_back(index);
 
-    QVariant fieldValue = field()->uiValue();
-    QList<QVariant> valuesSelectedInField = fieldValue.toList();
+    setSelectionStateForIndices(indices, setSelected);
+}
 
-    if (!isSelected)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
+{
+    QMenu menu;
+
     {
-        valuesSelectedInField.removeAll(QVariant(unsignedValue));
-    }
-    else
-    {
-        bool isIndexPresent = false;
-        for (QVariant v : valuesSelectedInField)
+        std::vector<int> items = selectedCheckableItems();
+        if (items.size() > 0)
         {
-            unsigned int indexInField = v.toUInt();
-            if (indexInField == unsignedValue)
             {
-                isIndexPresent = true;
+                QAction* act = new QAction("Set Selected On", this);
+                connect(act, SIGNAL(triggered()), SLOT(slotSetSelectedOn()));
+
+                menu.addAction(act);
+            }
+
+            {
+                QAction* act = new QAction("Set Selected Off", this);
+                connect(act, SIGNAL(triggered()), SLOT(slotSetSelectedOff()));
+
+                menu.addAction(act);
             }
         }
+    }
 
-        if (!isIndexPresent)
+    {
+        std::vector<int> items = selectedHeaderItems();
+        if (items.size() > 0)
         {
-            valuesSelectedInField.push_back(QVariant(unsignedValue));
+            {
+                QAction* act = new QAction("Set Sub Items On", this);
+                connect(act, SIGNAL(triggered()), SLOT(slotSetSubItemsOn()));
+
+                menu.addAction(act);
+            }
+
+            {
+                QAction* act = new QAction("Set Sub Items Off", this);
+                connect(act, SIGNAL(triggered()), SLOT(slotSetSubItemsOff()));
+
+                menu.addAction(act);
+            }
         }
     }
 
-    this->setValueToField(valuesSelectedInField);
+    if (menu.actions().size() > 0)
+    {
+        // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
+        QPoint globalPos = m_treeView->viewport()->mapToGlobal(pos);
+
+        menu.exec(globalPos);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotSetSelectedOn()
+{
+    std::vector<int> items = selectedCheckableItems();
+    if (items.size() > 0)
+    {
+        setSelectionStateForIndices(items, true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotSetSelectedOff()
+{
+    std::vector<int> items = selectedCheckableItems();
+    if (items.size() > 0)
+    {
+        setSelectionStateForIndices(items, false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotSetSubItemsOn()
+{
+    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
+
+    std::vector<int> items = selectedHeaderItems();
+    for (auto i : items)
+    {
+        std::vector<int> children = treeSelectionQModel->allSubItemIndices(i);
+
+        setSelectionStateForIndices(children, true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotSetSubItemsOff()
+{
+    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
+
+    std::vector<int> items = selectedHeaderItems();
+    for (auto i : items)
+    {
+        std::vector<int> children = treeSelectionQModel->allSubItemIndices(i);
+
+        setSelectionStateForIndices(children, false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> PdmUiTreeSelectionEditor::selectedCheckableItems() const
+{
+    std::vector<int> items;
+
+    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
+    if (treeSelectionQModel)
+    {
+        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
+
+        for (auto mi : selectedIndexes)
+        {
+            auto optionItem = treeSelectionQModel->optionItem(mi);
+            if (!optionItem->isHeading())
+            {
+                items.push_back(treeSelectionQModel->optionItemIndex(mi));
+            }
+        }
+    }
+
+    return items;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> PdmUiTreeSelectionEditor::selectedHeaderItems() const
+{
+    std::vector<int> items;
+
+    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
+    if (treeSelectionQModel)
+    {
+        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
+
+        for (auto mi : selectedIndexes)
+        {
+            auto optionItem = treeSelectionQModel->optionItem(mi);
+            if (optionItem->isHeading())
+            {
+                items.push_back(treeSelectionQModel->optionItemIndex(mi));
+            }
+        }
+    }
+
+    return items;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::setSelectionStateForIndices(const std::vector<int>& indices, bool setSelected)
+{
+    std::vector<unsigned int> selectedIndices;
+    {
+        QVariant fieldValue = field()->uiValue();
+        QList<QVariant> fieldValueSelection = fieldValue.toList();
+
+        for (auto v : fieldValueSelection)
+        {
+            selectedIndices.push_back(v.toUInt());
+        }
+    }
+
+    for (auto index : indices)
+    {
+        unsigned int unsignedIndex = static_cast<unsigned int>(index);
+
+        if (setSelected)
+        {
+            bool isIndexPresent = false;
+            for (auto indexInField : selectedIndices)
+            {
+                if (indexInField == unsignedIndex)
+                {
+                    isIndexPresent = true;
+                }
+            }
+
+            if (!isIndexPresent)
+            {
+                selectedIndices.push_back(unsignedIndex);
+            }
+        }
+        else
+        {
+            selectedIndices.erase(std::remove(selectedIndices.begin(), selectedIndices.end(), unsignedIndex), selectedIndices.end());
+        }
+    }
+
+    QList<QVariant> fieldValueSelection;
+    for (auto v : selectedIndices)
+    {
+        fieldValueSelection.push_back(QVariant(v));
+    }
+
+    this->setValueToField(fieldValueSelection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,6 +339,10 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget * parent)
     m_treeView = new QTreeView(parent);
 
     m_treeView->setHeaderHidden(true);
+    m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
     return m_treeView;
 }

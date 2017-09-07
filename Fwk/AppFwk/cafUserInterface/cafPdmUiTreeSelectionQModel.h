@@ -72,7 +72,10 @@ public:
 
     void setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
 
-    int                     optionItemCount() const;
+    int                             optionItemCount() const;
+    const caf::PdmOptionItemInfo*   optionItem(const QModelIndex &index) const;
+    int                             optionItemIndex(const QModelIndex& modelIndex) const;
+    std::vector<int>                allSubItemIndices(int headingIndex) const;
 
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const override;
     virtual QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -87,7 +90,6 @@ signals:
 
 private:
     void                    computeOptionItemTreeData();
-    int                     toOptionItemIndex(const QModelIndex& modelIndex) const;
 
 private:
     QList<caf::PdmOptionItemInfo>   m_options;

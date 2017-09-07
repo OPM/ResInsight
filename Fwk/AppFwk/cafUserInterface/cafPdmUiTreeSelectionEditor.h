@@ -63,7 +63,18 @@ protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
 
 private slots:
-    void                slotSetSelectionStateForIndex(int index, bool isSelected);
+    void                slotSetSelectionStateForIndex(int index, bool setSelected);
+    void                customMenuRequested(const QPoint& pos);
+
+    void                slotSetSelectedOn();
+    void                slotSetSelectedOff();
+    void                slotSetSubItemsOn();
+    void                slotSetSubItemsOff();
+
+private:
+    std::vector<int>    selectedCheckableItems() const;
+    std::vector<int>    selectedHeaderItems() const;
+    void                setSelectionStateForIndices(const std::vector<int>& indices, bool setSelected);
 
 private:
     QPointer<QTreeView> m_treeView;
