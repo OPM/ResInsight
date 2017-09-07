@@ -93,6 +93,7 @@ public:
         FISHBONES,
         FRACTURE,
         PERFORATION,
+        CT_UNDEFINED
     };
 
     RigCompletionData(const QString wellName, const IJKCellIndex& cellIndex);

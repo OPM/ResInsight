@@ -44,7 +44,8 @@ RigCompletionData::RigCompletionData(const QString wellName, const IJKCellIndex&
       m_count(1),
       m_wpimult(HUGE_VAL),
       m_isMainBore(false),
-      m_readyForExport(false)
+      m_readyForExport(false),
+      m_completionType(CT_UNDEFINED)
 {
 }
 
