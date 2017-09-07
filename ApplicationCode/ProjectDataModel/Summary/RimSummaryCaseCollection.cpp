@@ -31,10 +31,12 @@ CAF_PDM_SOURCE_INIT(RimSummaryCaseCollection,"SummaryCaseSubCollection");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::RimSummaryCaseCollection()
 {
-    CAF_PDM_InitObject("Summary Case Group",":/Folder.png","","");
+    CAF_PDM_InitObject("Summary Case Group", ":/Folder.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_cases,"SummaryCases","","","","");
+    CAF_PDM_InitFieldNoDefault(&m_cases, "SummaryCases", "", "", "", "");
     m_cases.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitField(&m_name, "CollectionName", QString("Case Group"), "Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +73,14 @@ std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases()
     allSummaryCases.insert(allSummaryCases.begin(), m_cases.begin(), m_cases.end());
 
     return allSummaryCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
+{
+    return &m_name;
 }
 
 //--------------------------------------------------------------------------------------------------

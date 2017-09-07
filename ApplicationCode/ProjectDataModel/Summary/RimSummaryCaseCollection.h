@@ -18,6 +18,7 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include <vector>
@@ -37,9 +38,11 @@ public:
     void                deleteCase(RimSummaryCase* summaryCase);
     void                addCase(RimSummaryCase* summaryCase);
     std::vector<RimSummaryCase*> allSummaryCases();
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
+    caf::PdmField<QString>                   m_name;
 };
