@@ -70,6 +70,16 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+PdmOptionItemInfo PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
+{
+    PdmOptionItemInfo header(anOptionUiText, QVariant(), anIsDimmed, anIcon);
+
+    return header;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmOptionItemInfo::setLevel(int level)
 {
     m_level = level;
@@ -97,6 +107,14 @@ const QVariant PdmOptionItemInfo::value() const
 bool PdmOptionItemInfo::isDimmed() const
 {
     return m_isDimmed;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmOptionItemInfo::isHeading() const
+{
+    return !m_value.isValid();
 }
 
 //--------------------------------------------------------------------------------------------------

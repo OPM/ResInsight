@@ -70,7 +70,7 @@ public:
         m_proxyDoubleField = 0;
         if (!(m_proxyDoubleField == 3)) { std::cout << "Double is not 3 " << std::endl; }
     
-        CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", " ", "", "", "");
+        CAF_PDM_InitFieldNoDefault(&m_multiSelectList, "SelectedItems", "Multi Select Field", "", "", "");
         m_multiSelectList.xmlCapability()->setIOReadable(false);
         m_multiSelectList.xmlCapability()->setIOWritable(false);
         m_multiSelectList.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -122,8 +122,7 @@ public:
             options.push_back(caf::PdmOptionItemInfo(text, text));
 
             text = "Second";
-            options.push_back(caf::PdmOptionItemInfo(text, text));
-
+            options.push_back(caf::PdmOptionItemInfo::createHeader(text));
 
             {
                 text = "Second_a";
@@ -139,6 +138,7 @@ public:
                 options.push_back(itemInfo);
             }
 
+/*
             static int s_additionalSubItems = 0;
             s_additionalSubItems++;
             for (auto i = 0; i < s_additionalSubItems; i++)
@@ -148,6 +148,7 @@ public:
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }
+*/
 
 
             int additionalSubItems = 0;

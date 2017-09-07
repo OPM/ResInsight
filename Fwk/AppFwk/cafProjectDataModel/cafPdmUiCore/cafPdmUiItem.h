@@ -89,11 +89,14 @@ public:
     PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon());
     PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
 
+    static PdmOptionItemInfo createHeader(const QString& anOptionUiText, bool anIsDimmed = false, QIcon anIcon = QIcon());
+
     void            setLevel(int level);
 
     const QString   optionUiText() const;
     const QVariant  value() const;
     bool            isDimmed() const;
+    bool            isHeading() const;
     const QIcon     icon() const;
     int             level() const;
 

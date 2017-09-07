@@ -80,7 +80,17 @@ void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* fiel
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags(const QModelIndex &index) const
 {
-    return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
+    if (index.isValid())
+    {
+        int optionItemIndex = toOptionItemIndex(index);
+
+        if (!m_options[optionItemIndex].isHeading())
+        {
+            return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
+        }
+    }
+    
+    return QAbstractItemModel::flags(index);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,11 +158,13 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
     {
         CAF_ASSERT(index.internalId() < m_options.size());
 
+        int optionItemIndex = toOptionItemIndex(index);
+
         if (role == Qt::DisplayRole)
         {
-            return m_options[toOptionItemIndex(index)].optionUiText();
+            return m_options[optionItemIndex].optionUiText();
         }
-        else if (role == Qt::CheckStateRole)
+        else if (role == Qt::CheckStateRole && !m_options[optionItemIndex].isHeading())
         {
             CAF_ASSERT(m_uiFieldHandle);
 
@@ -162,7 +174,7 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
             for (QVariant v : valuesSelectedInField)
             {
                 int indexInField = v.toInt();
-                if (indexInField == toOptionItemIndex(index))
+                if (indexInField == optionItemIndex)
                 {
                     return Qt::Checked;
                 }
