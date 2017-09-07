@@ -44,6 +44,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafPdmXml
     cafUserInterface
     ${QT_LIBRARIES}
+    ${THREAD_LIBRARY}
 )
 
 # Copy Qt Dlls
