@@ -203,11 +203,28 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         myAttr->m_minimum = 1;
         myAttr->m_maximum = static_cast<int>(grid->cellCountK());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    bool readOnlyState = isRangeFilterControlled();
+
+    std::vector<caf::PdmFieldHandle*> objFields;
+    this->fields(objFields);
+    for (size_t i = 0; i < objFields.size(); i ++)
+    {
+        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
+    }
+
+    const cvf::StructGridInterface* grid = selectedGrid();
 
     RimCase* rimCase = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimCase);
     const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid(rimCase);
-    
+
     RimView* rimView = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(rimView);
     RigActiveCellInfo* actCellInfo = RigReservoirGridTools::activeCellInfo(rimView);
@@ -241,21 +258,6 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         cellCountI.uiCapability()->setUiName(QString("  Width"));
         cellCountJ.uiCapability()->setUiName(QString("  Width"));
         cellCountK.uiCapability()->setUiName(QString("  Width"));
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
-{
-    bool readOnlyState = isRangeFilterControlled();
-
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields(objFields);
-    for (size_t i = 0; i < objFields.size(); i ++)
-    {
-        objFields[i]->uiCapability()->setUiReadOnly(readOnlyState);
     }
 }
 
