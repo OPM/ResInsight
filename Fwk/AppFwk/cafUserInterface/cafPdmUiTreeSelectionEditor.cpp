@@ -44,6 +44,8 @@
 #include <QMenu>
 #include <QTreeView>
 
+#include <algorithm>
+
 
 namespace caf
 {
