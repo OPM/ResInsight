@@ -49,14 +49,10 @@ public:
 
     std::pair<size_t, size_t>               fractureCellAtWellCenter() const { return m_wellCenterFractureCellIJ; }
 
-
 private:
     std::vector<RigFractureCell>    m_fractureCells;
     std::pair<size_t, size_t>       m_wellCenterFractureCellIJ;
     size_t                          m_iCellCount;
     size_t                          m_jCellCount;
-
-    
-
 };
 
