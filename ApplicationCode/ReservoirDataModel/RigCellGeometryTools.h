@@ -51,7 +51,7 @@ public:
 
     static std::pair<cvf::Vec3d, cvf::Vec3d> getLineThroughBoundingBox(cvf::Vec3d lineDirection, cvf::BoundingBox polygonBBox, cvf::Vec3d pointOnLine);
 
-    static double getLengthOfPolygonAlongLine(std::pair<cvf::Vec3d, cvf::Vec3d> line, std::vector<cvf::Vec3d> polygon);
+    static double getLengthOfPolygonAlongLine(const std::pair<cvf::Vec3d, cvf::Vec3d>& line, const std::vector<cvf::Vec3d>& polygon);
 
 private:
     static std::vector<cvf::Vec3d> ajustPolygonToAvoidIntersectionsAtVertex(const std::vector<cvf::Vec3d>& polyLine, 

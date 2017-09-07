@@ -452,11 +452,9 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCellGeometryTools::getLengthOfPolygonAlongLine(std::pair<cvf::Vec3d, cvf::Vec3d> line, std::vector<cvf::Vec3d> polygon)
+double RigCellGeometryTools::getLengthOfPolygonAlongLine(const std::pair<cvf::Vec3d, cvf::Vec3d>& line, const std::vector<cvf::Vec3d>& polygon)
 {
     cvf::BoundingBox lineBoundingBox;
-
-    std::vector<cvf::Vec3d> pointsOnLine;
 
     for (cvf::Vec3d polygonPoint : polygon)
     {
@@ -465,6 +463,7 @@ double RigCellGeometryTools::getLengthOfPolygonAlongLine(std::pair<cvf::Vec3d, c
     }
 
     double length = lineBoundingBox.extent().length();
+    
     return length;
 }
 
