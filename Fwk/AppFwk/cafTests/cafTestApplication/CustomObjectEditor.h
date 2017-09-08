@@ -56,6 +56,20 @@ class PdmUiItem;
 class PdmUiGroup;
 
 
+class WidgetAndArea
+{
+public:
+    WidgetAndArea(QWidget* w, const std::vector<int>& occupiedCellIds)
+        : m_customWidget(w),
+        m_customWidgetCellIds(occupiedCellIds)
+    {
+    }
+
+    QWidget*           m_customWidget;
+    std::vector<int>   m_customWidgetCellIds;
+};
+
+
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -69,9 +83,14 @@ public:
 
     void defineGrid(int rows, int columns);
 
-    //virtual void insertTopWidgetInlayout(QWidget* parentWidget);
+    // See QGridLayout::addWidget
+    void addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
 
-    //void insertWidget(QWidget* w, int row, int col);
+    void addBlankCell(int row, int column);
+    bool isCellOccupied(int cellId) const;
+
+    void removeWidget(QWidget* w);
+    bool isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
 
 protected:
     virtual QWidget*    createWidget(QWidget* parent) override;
@@ -82,6 +101,14 @@ protected slots:
     void                groupBoxExpandedStateToggled(bool isExpanded);
 
 private:
+    void                resetDynamicCellCounter();
+    std::pair<int, int> rowAndCell(int cellId) const;
+    int                 cellId(int row, int column) const;
+
+    int                 getNextAvailableCellId();
+
+    std::vector<int>    cellIds(int row, int column, int rowSpan, int columnSpan) const;
+
     void                recursiveSetupFieldsAndGroupsRoot(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
     void                recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
     bool                isUiGroupExpanded(const PdmUiGroup* uiGroup);
@@ -98,6 +125,9 @@ private:
 
     int m_rowCount;
     int m_columnCount;
+    int m_dynamicCellIndex;
+
+    std::vector<WidgetAndArea>  m_customWidgetAreas;
 };
 
 

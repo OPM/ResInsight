@@ -463,10 +463,19 @@ MainWindow::MainWindow()
 
     // Register default command features (add/delete item in list)
  
+    QPixmap pix;
+    pix.load(":/images/curvePlot.png");
+
+    m_plotLabel = new QLabel(this);
+    m_plotLabel->setPixmap(pix.scaled(250, 100));
+
+    m_smallPlotLabel = new QLabel(this);
+    m_smallPlotLabel->setPixmap(pix.scaled(100, 50));
+
     createActions();
     createDockPanels();
-
     buildTestModel();
+
     setPdmRoot(m_testRoot);
 
     sm_mainWindowInstance = this;
@@ -643,7 +652,13 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     pdmRoot->descendantsIncludingThisOfType(obj);
     if (obj.size() == 1)
     {
+        m_customObjectEditor->defineGrid(5, 4);
         m_customObjectEditor->setPdmObject(obj[0]);
+
+        m_customObjectEditor->addBlankCell(0, 0);
+        m_customObjectEditor->addWidget(m_plotLabel, 0, 1, 1, 2);
+        m_customObjectEditor->addWidget(m_smallPlotLabel, 1, 2, 2, 1);
+
         m_customObjectEditor->updateUi();
     }
 }

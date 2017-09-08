@@ -59,31 +59,14 @@
 namespace caf
 {
 
-/*
-// Register default field editor for selected types
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiCheckBoxEditor, bool);
-
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, QString);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiDateEditor, QDate);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiDateEditor, QDateTime);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, int);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, double);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, float);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, quint64);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<QString>);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
-*/
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 CustomObjectEditor::CustomObjectEditor()
 {
+    m_columnCount = 2;
     m_rowCount = 2;
-    m_columnCount = 3;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,6 +86,88 @@ void CustomObjectEditor::defineGrid(int rows, int columns)
 {
     m_rowCount = rows;
     m_columnCount = columns;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CustomObjectEditor::addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment /*= 0*/)
+{
+    CAF_ASSERT(isAreaAvailable(row, column, rowSpan, columnSpan));
+
+    m_customWidgetAreas.push_back(WidgetAndArea(w, CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan)));
+
+    m_layout->addWidget(w, row, column, rowSpan, columnSpan);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CustomObjectEditor::addBlankCell(int row, int column)
+{
+    m_customWidgetAreas.push_back(WidgetAndArea(nullptr, CustomObjectEditor::cellIds(row, column, 1, 1)));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CustomObjectEditor::isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const
+{
+    auto candidateCells = CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan);
+    for (auto candidateCell : candidateCells)
+    {
+        if (isCellOccupied(candidateCell))
+        {
+            return false;
+        }
+    }
+
+    if (row + rowSpan > m_rowCount) return false;
+    if (column + columnSpan > m_columnCount) return false;
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CustomObjectEditor::isCellOccupied(int cellId) const
+{
+    for (auto customArea : m_customWidgetAreas)
+    {
+        for (auto occupiedCell : customArea.m_customWidgetCellIds)
+        {
+            if (cellId == occupiedCell)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CustomObjectEditor::removeWidget(QWidget* w)
+{
+    size_t indexToRemove = 10000;
+    for (size_t i = 0; i < m_customWidgetAreas.size(); i++)
+    {
+        if (w == m_customWidgetAreas[i].m_customWidget)
+        {
+            indexToRemove = i;
+            break;
+        }
+    }
+
+    if (indexToRemove < 10000)
+    {
+        m_layout->removeWidget(w);
+
+        m_customWidgetAreas.erase(m_customWidgetAreas.begin() + indexToRemove);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,10 +282,75 @@ void CustomObjectEditor::cleanupBeforeSettingPdmObject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void CustomObjectEditor::resetDynamicCellCounter()
+{
+    m_dynamicCellIndex = 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> CustomObjectEditor::rowAndCell(int cellId) const
+{
+    int column = cellId % m_columnCount;
+    int row = cellId / m_columnCount;
+
+    return std::make_pair(row, column);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int CustomObjectEditor::cellId(int row, int column) const
+{
+    return row * m_columnCount + column;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int CustomObjectEditor::getNextAvailableCellId()
+{
+    while (isCellOccupied(m_dynamicCellIndex) && m_dynamicCellIndex < (m_rowCount * m_columnCount))
+    {
+        m_dynamicCellIndex++;
+    }
+
+    if (isCellOccupied(m_dynamicCellIndex))
+    {
+        return -1;
+    }
+    else
+    {
+        return m_dynamicCellIndex++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<int> CustomObjectEditor::cellIds(int row, int column, int rowSpan, int columnSpan) const
+{
+    std::vector<int> cells;
+
+    for (auto r = row; r < row + rowSpan; r++)
+    {
+        for (auto c = column; c < column + columnSpan; c++)
+        {
+            cells.push_back(cellId(r, c));
+        }
+    }
+
+    return cells;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void CustomObjectEditor::recursiveSetupFieldsAndGroupsRoot(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName)
 {
-    int currentRowIndex = 0;
-    int currentColIndex = 0;
+    resetDynamicCellCounter();
+
     QWidget* previousTabOrderWidget = NULL;
 
     for (size_t i = 0; i < uiItems.size(); ++i)
@@ -264,13 +394,9 @@ void CustomObjectEditor::recursiveSetupFieldsAndGroupsRoot(const std::vector<Pdm
 
             /// Insert the group box at the correct position of the parent layout
 
-            parentLayout->addWidget(groupBox, currentRowIndex, currentColIndex, 1, 1);
-            currentColIndex++;
-            if (currentColIndex > m_columnCount - 1)
-            {
-                currentColIndex = 0;
-                currentRowIndex++;
-            }
+            int nextCellId = getNextAvailableCellId();
+            std::pair<int, int> rowCol = rowAndCell(nextCellId);
+            parentLayout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
 
             // Set Expanded state
             bool isExpanded = isUiGroupExpanded(group);
@@ -280,7 +406,6 @@ void CustomObjectEditor::recursiveSetupFieldsAndGroupsRoot(const std::vector<Pdm
             groupBox->setTitle(group->uiName(uiConfigName));
 
             recursiveSetupFieldsAndGroups(groupChildren, groupBox->contentFrame(), groupBoxLayout, uiConfigName);
-            //currentRowIndex++;
         }
     }
 
@@ -529,53 +654,6 @@ void CustomObjectEditor::recursiveVerifyUniqueNames(const std::vector<PdmUiItem*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-/*
-caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFieldHandle* field, const QString& uiConfigName)
-{
-    caf::PdmUiFieldEditorHandle* fieldEditor = NULL;
-
-    // If editor type is specified, find in factory
-    if (!field->uiEditorTypeName(uiConfigName).isEmpty())
-    {
-        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
-    }
-    else
-    {
-        // Find the default field editor
-        QString fieldTypeName = qStringTypeName(*(field->fieldHandle()));
-
-        if (fieldTypeName.indexOf("PdmPtrField") != -1)
-        {
-            fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-        }
-        else if (fieldTypeName.indexOf("PdmPtrArrayField") != -1)
-        {
-            fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
-        }
-        else if (field->toUiBasedQVariant().type() != QVariant::List)
-        {
-            // Handle a single value field with valueOptions: Make a combobox
-
-            bool useOptionsOnly = true;
-            QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
-            CAF_ASSERT(useOptionsOnly); // Not supported
-
-            if (!options.empty())
-            {
-                fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-            }
-        }
-
-        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(fieldTypeName);
-    }
-
-    return fieldEditor;
-}
-*/
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void CustomObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
 {
     if (!this->pdmObject()->xmlCapability()) return;
@@ -586,7 +664,6 @@ void CustomObjectEditor::groupBoxExpandedStateToggled(bool isExpanded)
     if (!panel) return;
 
     m_objectKeywordGroupUiNameExpandedState[objKeyword][panel->objectName()] = isExpanded;
-
 }
 
 } // end namespace caf

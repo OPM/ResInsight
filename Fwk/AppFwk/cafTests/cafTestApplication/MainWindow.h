@@ -7,6 +7,7 @@
 class DemoPdmObject;
 class QTreeView;
 class QUndoView;
+class QLabel;
 
 namespace caf
 {
@@ -62,5 +63,8 @@ private:
     caf::PdmObjectCollection*   m_testRoot;
 
     caf::CustomObjectEditor*    m_customObjectEditor;
+
+    QLabel*                     m_plotLabel;
+    QLabel*                     m_smallPlotLabel;
 };
 
