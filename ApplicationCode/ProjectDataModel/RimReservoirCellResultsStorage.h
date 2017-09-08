@@ -58,7 +58,6 @@ public:
     const RifReaderInterface*       readerInterface() const;
 
     void                            computeDepthRelatedResults();
-    bool                            isDataPresent(size_t scalarResultIndex) const;
 
     size_t                          findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
     size_t                          findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
@@ -71,19 +70,6 @@ protected:
     virtual void                    setupBeforeSave();
 
 private:
-    void                            computeSOILForTimeStep(size_t timeStepIndex);
-    void                            computeRiTransComponent(const QString& riTransComponentResultName);
-    void                            computeNncCombRiTrans();
-
-    void                            computeRiMULTComponent(const QString& riMultCompName);
-    void                            computeNncCombRiMULT();
-    void                            computeRiTRANSbyAreaComponent(const QString& riTransByAreaCompResultName);
-    void                            computeNncCombRiTRANSbyArea();
-
-    void                            computeCompletionTypeForTimeStep(size_t timeStep);
-
-    double                          darchysValue();
-
     QString                         getValidCacheFileName();
     QString                         getCacheDirectoryPath();
     // Fields

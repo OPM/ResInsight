@@ -44,7 +44,9 @@ class RigEclipseTimeStepInfo;
 class RigCaseCellResultsData : public cvf::Object
 {
 public:
-    explicit RigCaseCellResultsData(RigMainGrid* ownerGrid);
+    explicit RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData);
+
+    void                                               setReaderInterface(RifReaderInterface* readerInterface);
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
     void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
@@ -86,6 +88,10 @@ public:
     std::vector<RigEclipseTimeStepInfo>                       timeStepInfos(size_t scalarResultIndex) const;
     void                                               setTimeStepInfos(size_t scalarResultIndex, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos);
 
+    size_t                                             findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                                             findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
+    size_t                                             findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+
     // Find or create a slot for the results
 
     size_t                                             findOrCreateScalarResultIndex(RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
@@ -95,6 +101,7 @@ public:
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               createPlaceholderResultEntries();
+    void                                               computeDepthRelatedResults();
 
     void                                               removeResult(const QString& resultName);
     void                                               clearAllResults();
@@ -122,7 +129,25 @@ public:
                                                                                   bool needsToBeStored,
                                                                                   size_t resultValueCount);
 
-    bool                                                    findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
+    bool
+                                                        findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
+private: // from RimReservoirCellResultsStorage
+    void                                               computeSOILForTimeStep(size_t timeStepIndex);
+    void                                               computeRiTransComponent(const QString& riTransComponentResultName);
+    void                                               computeNncCombRiTrans();
+
+    void                                               computeRiMULTComponent(const QString& riMultCompName);
+    void                                               computeNncCombRiMULT();
+    void                                               computeRiTRANSbyAreaComponent(const QString& riTransByAreaCompResultName);
+    void                                               computeNncCombRiTRANSbyArea();
+
+    void                                               computeCompletionTypeForTimeStep(size_t timeStep);
+    double                                             darchysValue();
+
+    bool                                               isDataPresent(size_t scalarResultIndex) const;
+
+    cvf::ref<RifReaderInterface>                       m_readerInterface;
+
 
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
@@ -132,5 +157,6 @@ private:
     std::vector<RigEclipseResultInfo>                              m_resultInfos;
 
     RigMainGrid*                                            m_ownerMainGrid;
+    RigEclipseCaseData*                                     m_ownerCaseData;
     RigActiveCellInfo*                                      m_activeCellInfo;
 };

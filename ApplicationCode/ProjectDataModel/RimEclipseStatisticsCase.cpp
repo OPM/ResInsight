@@ -148,7 +148,7 @@ bool RimEclipseStatisticsCase::openEclipseGridFile()
 {
     if (this->eclipseCaseData()) return true;
 
-    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
 
     CVF_ASSERT(parentStatisticsCaseCollection());
 

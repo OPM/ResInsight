@@ -105,7 +105,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
     if (this->eclipseCaseData() == NULL) 
     {
-        this->setReservoirData(new RigEclipseCaseData);
+        this->setReservoirData(new RigEclipseCaseData(this));
     }
 
     // First find and read the grid data 
@@ -192,7 +192,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
         {
             readerInterface = new RifReaderEclipseInput;
 
-            cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+            cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
             {
                 return false;
@@ -220,8 +220,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
         RimReservoirCellResultsStorage* matrixResults = results(RiaDefines::MATRIX_MODEL);
         RimReservoirCellResultsStorage* fractureResults = results(RiaDefines::FRACTURE_MODEL);
 
-        matrixResults->computeDepthRelatedResults();
-        fractureResults->computeDepthRelatedResults();
+        matrixResults->cellResults()->computeDepthRelatedResults();
+        fractureResults->cellResults()->computeDepthRelatedResults();
     }
 
     return true;
@@ -346,7 +346,7 @@ void RimEclipseInputCase::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel(QString modelName)
 {
-    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(this);
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
     if (modelName == RiaDefines::mockModelBasicInputCase())

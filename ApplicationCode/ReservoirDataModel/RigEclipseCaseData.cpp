@@ -32,12 +32,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseCaseData::RigEclipseCaseData()
+RigEclipseCaseData::RigEclipseCaseData(RimEclipseCase* ownerCase)
 {
     m_mainGrid = new RigMainGrid();
+    m_ownerCase = ownerCase;
 
-    m_matrixModelResults = new RigCaseCellResultsData(m_mainGrid.p());
-    m_fractureModelResults = new RigCaseCellResultsData(m_mainGrid.p());
+    m_matrixModelResults = new RigCaseCellResultsData(this);
+    m_fractureModelResults = new RigCaseCellResultsData(this);
 
     m_activeCellInfo = new RigActiveCellInfo;
     m_fractureActiveCellInfo = new RigActiveCellInfo;

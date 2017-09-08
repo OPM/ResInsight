@@ -42,6 +42,7 @@ class RigCaseCellResultsData;
 class RigActiveCellInfo;
 class RigSingleWellResultsData;
 class RigCell;
+class RimEclipseCase;
 
 struct RigWellResultPoint;
 
@@ -51,8 +52,10 @@ struct RigWellResultPoint;
 class RigEclipseCaseData : public cvf::Object
 {
 public:
-    RigEclipseCaseData();
+    explicit RigEclipseCaseData(RimEclipseCase* ownerCase);
     ~RigEclipseCaseData();
+
+    RimEclipseCase*                             ownerCase() { return m_ownerCase; }
 
     RigMainGrid*                                mainGrid();
     const RigMainGrid*                          mainGrid() const;
@@ -96,6 +99,7 @@ private:
 
 private:
     cvf::ref<RigMainGrid>                       m_mainGrid;
+    RimEclipseCase*                             m_ownerCase;
 
     cvf::ref<RigActiveCellInfo>                 m_activeCellInfo;
     cvf::ref<RigActiveCellInfo>                 m_fractureActiveCellInfo;

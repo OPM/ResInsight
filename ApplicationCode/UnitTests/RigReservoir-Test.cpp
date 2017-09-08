@@ -32,7 +32,7 @@ TEST(RigGridManager, BasicTest)
 {
     cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
 
-    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(nullptr);
     eclipseCase->setMainGrid(mainGridA.p());
 
     EXPECT_EQ(mainGridA->refCount(), 2);
@@ -58,7 +58,7 @@ TEST(RigGridManager, EqualTests)
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 1));
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 2));
 
-    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(nullptr);
     eclipseCase->setMainGrid(mainGridA.p());
 
 

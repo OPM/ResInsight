@@ -166,7 +166,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
         readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->selectedTimeStepIndices());
 
-        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
         if (!readerEclipseOutput->open(caseFileName(), eclipseCase.p()))
         {
             return false;
@@ -240,7 +240,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
             return false;
         }
 
-        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData;
+        cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
 
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
@@ -316,7 +316,7 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
 cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel(QString modelName)
 {
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
-    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData;
+    cvf::ref<RigEclipseCaseData> reservoir = new RigEclipseCaseData(this);
 
      if (modelName == RiaDefines::mockModelBasic())
     {
