@@ -64,11 +64,13 @@ QString RicSnapshotFilenameGenerator::generateSnapshotFilenameForRimView(RimView
     QStringList timeSteps = rimView->ownerCase()->timeStepStrings();
     int timeStep = rimView->currentTimeStep();
 
-    QString fileName = QString("%1_%2_%3_%4_%5").arg(rimView->ownerCase()->caseUserDescription())
-                                                .arg(rimView->name())
-                                                .arg(resultName(rimView))
-                                                .arg(timeStep, 2, 10, QChar('0'))
-                                                .arg(timeSteps[timeStep].replace(".", "-"));
+    QString fileName = QString("%1_%2_%3").arg(rimView->ownerCase()->caseUserDescription())
+                                          .arg(rimView->name())
+                                          .arg(resultName(rimView));
+
+    if ( timeSteps.size() ) fileName += QString("_%1_%2").arg(timeStep, 2, 10, QChar('0'))
+                                                         .arg(timeSteps[timeStep].replace(".", "-"));
+
     fileName = caf::Utils::makeValidFileBasename(fileName);
 
     return fileName;
