@@ -14,6 +14,7 @@ set ( QT_MOC_HEADERS
 	MainWindow.h 
     WidgetLayoutTest.h
     ManyGroups.h
+    CustomObjectEditor.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP
@@ -52,8 +53,13 @@ include_directories (
 set( PROJECT_FILES
     Main.cpp
     MainWindow.cpp
+    MainWindow.h
     WidgetLayoutTest.cpp
+    WidgetLayoutTest.h
     ManyGroups.cpp
+    ManyGroups.h
+    CustomObjectEditor.cpp
+    CustomObjectEditor.h
 )
 
 

@@ -2,6 +2,9 @@
 #include "cafPdmField.h"
 
 #include "MainWindow.h"
+
+#include "CustomObjectEditor.h"
+#include "ManyGroups.h"
 #include "WidgetLayoutTest.h"
 
 #include <QDockWidget>
@@ -493,6 +496,19 @@ void MainWindow::createDockPanels()
     }
 
     {
+        QDockWidget* dockWidget = new QDockWidget("CustomObjectEditor", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+        m_customObjectEditor = new caf::CustomObjectEditor;
+        QWidget* w = m_customObjectEditor->getOrCreateWidget(this);
+        dockWidget->setWidget(w);
+
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+    }
+
+
+    {
         QDockWidget* dockWidget = new QDockWidget("cafPropertyView", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
@@ -550,7 +566,10 @@ void MainWindow::createDockPanels()
 void MainWindow::buildTestModel()
 {
     m_testRoot = new DemoPdmObjectGroup;
-    
+
+    ManyGroups* manyGroups = new ManyGroups;
+    m_testRoot->objects.push_back(manyGroups);
+
     DemoPdmObject* demoObject = new DemoPdmObject;
     m_testRoot->objects.push_back(demoObject);
 
@@ -618,6 +637,15 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     }
 
     connect(m_pdmUiTreeView2, SIGNAL(selectionChanged()), SLOT(slotShowTableView()));
+
+    // Wire up ManyGroups object
+    std::vector<ManyGroups*> obj;
+    pdmRoot->descendantsIncludingThisOfType(obj);
+    if (obj.size() == 1)
+    {
+        m_customObjectEditor->setPdmObject(obj[0]);
+        m_customObjectEditor->updateUi();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
