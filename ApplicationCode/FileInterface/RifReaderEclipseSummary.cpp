@@ -98,7 +98,11 @@ void RifReaderEclipseSummary::close()
 
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
-    if (smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR) return RifEclipseSummaryAddress();
+    if (   smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR
+        || !smspec_node_is_valid(ertSumVarNode)) 
+    {
+        return RifEclipseSummaryAddress();
+    }
 
     RifEclipseSummaryAddress::SummaryVarCategory sumCategory(RifEclipseSummaryAddress::SUMMARY_INVALID);
     std::string        quantityName;
