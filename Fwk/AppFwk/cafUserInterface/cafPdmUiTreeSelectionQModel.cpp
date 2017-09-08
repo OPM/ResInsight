@@ -209,6 +209,16 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
 
             return Qt::Unchecked;
         }
+        else if (role == Qt::FontRole)
+        {
+            if (m_options[opIndex].isHeading())
+            {
+                QFont font;
+                font.setBold(true);
+
+                return font;
+            }
+        }
     }
 
     return QVariant();
