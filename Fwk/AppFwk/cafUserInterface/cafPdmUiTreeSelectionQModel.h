@@ -56,7 +56,6 @@ class PdmUiFieldHandle;
 class OptionItemTreeData
 {
 public:
-    int             zeroLevelIndex;
     int             childCount;
     QModelIndex     parentModelIndex;
 };
