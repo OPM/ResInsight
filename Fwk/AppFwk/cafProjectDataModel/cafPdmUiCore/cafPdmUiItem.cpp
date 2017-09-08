@@ -45,10 +45,10 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed /* = false */, QIcon anIcon /* = QIcon()*/)
+PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool isReadOnly /* = false */, QIcon anIcon /* = QIcon()*/)
     : m_value(aValue),
     m_optionUiText(anOptionUiText),
-    m_isDimmed(anIsDimmed),
+    m_isReadOnly(isReadOnly),
     m_icon(anIcon),
     m_level(0)
 {
@@ -58,9 +58,9 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, const QVaria
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
+PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool isReadOnly /*= false*/, QIcon anIcon /*= QIcon()*/)
     : m_optionUiText(anOptionUiText),
-    m_isDimmed(anIsDimmed),
+    m_isReadOnly(isReadOnly),
     m_icon(anIcon),
     m_level(0)
 {
@@ -70,9 +70,9 @@ PdmOptionItemInfo::PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObje
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmOptionItemInfo PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool anIsDimmed /*= false*/, QIcon anIcon /*= QIcon()*/)
+PdmOptionItemInfo PdmOptionItemInfo::createHeader(const QString& anOptionUiText, bool isReadOnly /*= false*/, QIcon anIcon /*= QIcon()*/)
 {
-    PdmOptionItemInfo header(anOptionUiText, QVariant(), anIsDimmed, anIcon);
+    PdmOptionItemInfo header(anOptionUiText, QVariant(), isReadOnly, anIcon);
 
     return header;
 }
@@ -104,9 +104,9 @@ const QVariant PdmOptionItemInfo::value() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool PdmOptionItemInfo::isDimmed() const
+bool PdmOptionItemInfo::isReadOnly() const
 {
-    return m_isDimmed;
+    return m_isReadOnly;
 }
 
 //--------------------------------------------------------------------------------------------------

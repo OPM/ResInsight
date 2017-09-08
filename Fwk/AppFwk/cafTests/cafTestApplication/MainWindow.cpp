@@ -126,7 +126,7 @@ public:
 
             {
                 text = "Second_a";
-                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text);
+                caf::PdmOptionItemInfo itemInfo = caf::PdmOptionItemInfo(text, text, true);
                 itemInfo.setLevel(1);
                 options.push_back(itemInfo);
             }

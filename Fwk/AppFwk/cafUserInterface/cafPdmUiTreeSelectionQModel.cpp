@@ -107,7 +107,11 @@ Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags(const QModelIndex &index) con
     {
         int opIndex = optionItemIndex(index);
 
-        if (!m_options[opIndex].isHeading())
+        if (m_options[opIndex].isReadOnly())
+        {
+            return QAbstractItemModel::flags(index)^Qt::ItemIsEnabled;
+        }
+        else if (!m_options[opIndex].isHeading())
         {
             return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
         }

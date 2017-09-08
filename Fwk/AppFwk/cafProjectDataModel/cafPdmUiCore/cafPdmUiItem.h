@@ -86,16 +86,16 @@ private:
 class PdmOptionItemInfo
 {
 public:
-    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool anIsDimmed = false, QIcon anIcon = QIcon());
-    PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool anIsDimmed = false, QIcon anIcon = QIcon());
+    PdmOptionItemInfo(const QString& anOptionUiText, const QVariant& aValue, bool isReadOnly = false, QIcon anIcon = QIcon());
+    PdmOptionItemInfo(const QString& anOptionUiText, caf::PdmObjectHandle* obj, bool isReadOnly = false, QIcon anIcon = QIcon());
 
-    static PdmOptionItemInfo createHeader(const QString& anOptionUiText, bool anIsDimmed = false, QIcon anIcon = QIcon());
+    static PdmOptionItemInfo createHeader(const QString& anOptionUiText, bool isReadOnly = false, QIcon anIcon = QIcon());
 
     void            setLevel(int level);
 
     const QString   optionUiText() const;
     const QVariant  value() const;
-    bool            isDimmed() const;
+    bool            isReadOnly() const;
     bool            isHeading() const;
     const QIcon     icon() const;
     int             level() const;
@@ -112,7 +112,7 @@ public:
 private:
     QString     m_optionUiText;
     QVariant    m_value;
-    bool        m_isDimmed;
+    bool        m_isReadOnly;
     QIcon       m_icon;
     int         m_level;
 };
