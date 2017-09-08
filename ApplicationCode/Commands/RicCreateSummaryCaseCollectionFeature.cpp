@@ -37,14 +37,7 @@ bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection); 
 
-    RimSummaryCaseCollection* summaryCaseCollection = nullptr;
-
-    if (selection.size() > 0)
-    {
-        selection[0]->firstAncestorOrThisOfType(summaryCaseCollection);
-    }
-    
-    return (selection.size() > 0 && !summaryCaseCollection);
+    return (selection.size() > 0);
 }
 
 //--------------------------------------------------------------------------------------------------

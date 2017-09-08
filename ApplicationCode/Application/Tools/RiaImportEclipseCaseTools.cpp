@@ -178,7 +178,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                             curveFilter->updateConnectedEditors();
                         }
 
-                        sumCaseColl->deleteCase(existingFileSummaryCase);
+                        sumCaseColl->removeCase(existingFileSummaryCase);
 
                         delete existingFileSummaryCase;
 

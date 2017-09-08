@@ -23,7 +23,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicCloseSummaryCaseCollectionFeature : public caf::CmdFeature
+class RicCloseSummaryCaseInCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

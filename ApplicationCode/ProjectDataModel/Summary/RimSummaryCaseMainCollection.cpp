@@ -146,13 +146,21 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::deleteCase(RimSummaryCase* summaryCase)
+void RimSummaryCaseMainCollection::removeCase(RimSummaryCase* summaryCase)
 {
     m_cases.removeChildObject(summaryCase);
     for (RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections)
     {
-        summaryCaseCollection->deleteCase(summaryCase);
+        summaryCaseCollection->removeCase(summaryCase);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::addCase(RimSummaryCase* summaryCase)
+{
+    m_cases.push_back(summaryCase);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,12 +169,33 @@ void RimSummaryCaseMainCollection::deleteCase(RimSummaryCase* summaryCase)
 void RimSummaryCaseMainCollection::addCaseCollection(std::vector<RimSummaryCase*> summaryCases)
 {
     RimSummaryCaseCollection* summaryCaseCollection = new RimSummaryCaseCollection();
+
     for (RimSummaryCase* summaryCase : summaryCases)
     {
-        m_cases.removeChildObject(summaryCase);
+        RimSummaryCaseCollection* currentSummaryCaseCollection = nullptr;
+        summaryCase->firstAncestorOrThisOfType(currentSummaryCaseCollection);
+        
+        if (currentSummaryCaseCollection)
+        {
+            currentSummaryCaseCollection->removeCase(summaryCase);
+        }
+        else
+        {
+            m_cases.removeChildObject(summaryCase);
+        }
+
         summaryCaseCollection->addCase(summaryCase);
     }
+
     m_caseCollections.push_back(summaryCaseCollection);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::removeCaseCollection(RimSummaryCaseCollection* caseCollection)
+{
+    m_caseCollections.removeChildObject(caseCollection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,7 +209,7 @@ RimSummaryCase* RimSummaryCaseMainCollection::summaryCase(size_t idx)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimSummaryCaseMainCollection::summaryCaseCount()
+size_t RimSummaryCaseMainCollection::summaryCaseCount() const
 {
     return m_cases.size();
 }

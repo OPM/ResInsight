@@ -36,7 +36,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     CAF_PDM_InitFieldNoDefault(&m_cases, "SummaryCases", "", "", "", "");
     m_cases.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&m_name, "CollectionName", QString("Case Group"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "SummaryCollectionName", QString("Case Group"), "Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::deleteCase(RimSummaryCase* summaryCase)
+void RimSummaryCaseCollection::removeCase(RimSummaryCase* summaryCase)
 {
     m_cases.removeChildObject(summaryCase);
 }
@@ -81,22 +81,6 @@ std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases()
 caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 {
     return &m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseCollection::summaryCase(size_t idx)
-{
-    return m_cases[idx];
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RimSummaryCaseCollection::summaryCaseCount()
-{
-    return m_cases.size();
 }
 
 

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicCloseSummaryCaseCollectionFeature.h"
+#include "RicCloseSummaryCaseInCollectionFeature.h"
 
 #include "RiaApplication.h"
 
@@ -38,21 +38,21 @@
 #include <vector>
 
 
-CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseCollectionFeature, "RicCloseSummaryCaseCollectionFeature");
+CAF_CMD_SOURCE_INIT(RicCloseSummaryCaseInCollectionFeature, "RicCloseSummaryCaseInCollectionFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCloseSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSetup)
+void RicCloseSummaryCaseInCollectionFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Close Sub Items");
+    actionToSetup->setText("Close Summary Cases");
     actionToSetup->setIcon(QIcon(":/Erase.png"));
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicCloseSummaryCaseCollectionFeature::isCommandEnabled()
+bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);
@@ -66,7 +66,7 @@ bool RicCloseSummaryCaseCollectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicCloseSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
+void RicCloseSummaryCaseInCollectionFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimSummaryCaseMainCollection*> summaryCaseMainCollections;
     caf::SelectionManager::instance()->objectsByType(&summaryCaseMainCollections);

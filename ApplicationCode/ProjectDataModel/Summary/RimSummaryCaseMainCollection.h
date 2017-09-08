@@ -34,7 +34,7 @@ public:
     virtual ~RimSummaryCaseMainCollection();
 
     RimSummaryCase*     summaryCase(size_t idx);
-    size_t              summaryCaseCount();
+    size_t              summaryCaseCount() const;
 
     std::vector<RimSummaryCase*> allSummaryCases();
 	
@@ -45,9 +45,11 @@ public:
     RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
     RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
 
-    void                deleteCase(RimSummaryCase* summaryCase);
+    void                removeCase(RimSummaryCase* summaryCase);
 
+    void                addCase(RimSummaryCase* summaryCase);
     void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases);
+    void                removeCaseCollection(RimSummaryCaseCollection* caseCollection);
 
     void                loadAllSummaryCaseData();
 

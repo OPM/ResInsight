@@ -51,13 +51,7 @@ bool RicReloadSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
+    RimSummaryPlotCollection* summaryPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
     CVF_ASSERT(summaryPlotColl);
 
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
@@ -104,10 +98,8 @@ std::vector<RimSummaryCase*> RicReloadSummaryCaseFeature::selectedSummaryCases()
 
     for (auto collection : collectionSelection)
     {
-        for (size_t i = 0; i < collection->summaryCaseCount(); i++)
-        {
-            caseSelection.push_back(collection->summaryCase(i));
-        }
+        std::vector<RimSummaryCase*> summaryCaseCollection = collection->allSummaryCases();
+        caseSelection.insert(caseSelection.end(), summaryCaseCollection.begin(), summaryCaseCollection.end());
     }
 
     return caseSelection;

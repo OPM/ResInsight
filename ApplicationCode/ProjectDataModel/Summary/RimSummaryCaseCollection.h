@@ -31,16 +31,14 @@ class RimSummaryCaseCollection : public caf::PdmObject
 public:
     RimSummaryCaseCollection();
     virtual ~RimSummaryCaseCollection();
-
-    RimSummaryCase*     summaryCase(size_t idx);
-    size_t              summaryCaseCount();
 	
-    void                deleteCase(RimSummaryCase* summaryCase);
+    void                removeCase(RimSummaryCase* summaryCase);
     void                addCase(RimSummaryCase* summaryCase);
+
     std::vector<RimSummaryCase*> allSummaryCases();
-    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;
