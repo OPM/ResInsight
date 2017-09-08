@@ -41,7 +41,11 @@ RifReaderEclipseSummary::RifReaderEclipseSummary()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseSummary::~RifReaderEclipseSummary()
 {
-    close();
+    if (m_ecl_sum)
+    {
+        ecl_sum_free(m_ecl_sum);
+        m_ecl_sum = NULL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,15 +91,6 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::close()
-{
-    if (m_ecl_sum)
-    {
-        ecl_sum_free(m_ecl_sum);
-        m_ecl_sum = NULL;
-    }
-}
-
 RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSumVarNode)
 {
     if (   smspec_node_get_var_type(ertSumVarNode) == ECL_SMSPEC_INVALID_VAR

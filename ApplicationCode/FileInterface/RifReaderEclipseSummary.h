@@ -41,7 +41,6 @@ public:
     ~RifReaderEclipseSummary();
 
     bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
-    void                                         close();
 
     bool                                         hasAddress(const RifEclipseSummaryAddress& resultAddress);
     const std::vector<RifEclipseSummaryAddress>& allResultAddresses();

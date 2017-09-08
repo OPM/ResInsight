@@ -50,14 +50,7 @@ void RigSummaryCaseData::openOrReloadCase(const QString& summaryHeaderFileName)
     std::string nativeSumHeadFileName = QDir::toNativeSeparators(summaryHeaderFileName).toStdString();
     RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileName, &dataFileNames);
 
-    if (m_summaryFileReader.isNull())
-    {
-        m_summaryFileReader = new RifReaderEclipseSummary();
-    }
-    else
-    {
-        m_summaryFileReader->close();
-    }
+    m_summaryFileReader = new RifReaderEclipseSummary();
 
     if (!m_summaryFileReader->open(headerFileName, dataFileNames))
     {
