@@ -25,6 +25,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 

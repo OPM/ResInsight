@@ -24,6 +24,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesCalculator.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -69,7 +70,9 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
     m_curveFilters.uiCapability()->setUiTreeHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCurves, "SummaryCurves", "",  "", "", "");
+	CAF_PDM_InitFieldNoDefault(&m_curveCollection, "SummaryCurveCollection", "", "", "", "");
+	
+	CAF_PDM_InitFieldNoDefault(&m_summaryCurves, "SummaryCurves", "", "", "", "");
     m_summaryCurves.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "");

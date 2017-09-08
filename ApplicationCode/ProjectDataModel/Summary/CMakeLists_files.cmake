@@ -17,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAutoName.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveFilter.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurvesCalculator.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryFilter.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCurveCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.h
@@ -36,6 +37,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryCurveAutoName.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurveFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCurvesCalculator.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryFilter.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCurveCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryTimeAxisProperties.cpp

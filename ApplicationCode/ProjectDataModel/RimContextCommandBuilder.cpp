@@ -300,6 +300,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "Separator";
             commandIds << "RicViewZoomAllFeature";
+			commandIds << "RicEditSummaryCurves";
         }
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {

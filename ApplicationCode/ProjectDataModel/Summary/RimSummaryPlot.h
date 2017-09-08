@@ -34,6 +34,7 @@ class RiuSummaryQwtPlot;
 class RimSummaryCurve;
 class RimSummaryCase;
 class RimSummaryCurveFilter;
+class RimSummaryCurveCollection;
 class RimSummaryYAxisProperties;
 class RimSummaryTimeAxisProperties;
 class RimGridTimeHistoryCurve;
@@ -133,6 +134,7 @@ private:
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters;
+	caf::PdmChildField<RimSummaryCurveCollection*>		m_curveCollection;
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
     caf::PdmField<bool>                                 m_isAutoZoom;
