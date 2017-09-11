@@ -55,7 +55,6 @@ public:
     const QString               faultIncludeFileAbsolutePathPrefix();
 
     virtual bool                open(const QString& fileName, RigEclipseCaseData* eclipseCase) = 0;
-    virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;

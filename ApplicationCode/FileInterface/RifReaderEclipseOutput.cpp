@@ -216,8 +216,6 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
-    close();
-
     if (m_ecl_init_file)
     {
         ecl_file_close(m_ecl_init_file);
@@ -229,14 +227,6 @@ RifReaderEclipseOutput::~RifReaderEclipseOutput()
         m_dynamicResultsAccess->close();
     }
 
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Close interface (for now, no files are kept open after calling methods, so just clear members)
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::close()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -366,9 +356,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
     caf::ProgressInfo progInfo(100, "");
 
     progInfo.setProgressDescription("Reading Grid");
-
-    // Make sure everything's closed
-    close();
 
     // Get set of files
     QStringList fileSet;
@@ -665,8 +652,6 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     {
         return false;
     }
-
-    close();
 
     // Get set of files
     QStringList fileSet;

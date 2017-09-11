@@ -96,15 +96,6 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCaseData* eclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderMockModel::close()
-{
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RifReaderMockModel::inputProperty(const QString& propertyName, std::vector<double>* values)
 {
     return m_reservoirBuilder.inputProperty(m_reservoir, propertyName, values);

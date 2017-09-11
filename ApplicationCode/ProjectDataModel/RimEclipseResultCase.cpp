@@ -257,8 +257,6 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
             return false;
         }
 
-        readerEclipseOutput->close();
-
         this->setReservoirData( eclipseCase.p() );
 
         readerInterface = readerEclipseOutput;

@@ -37,7 +37,6 @@ public:
     void                    addLocalGridRefinement(const cvf::Vec3st& minCellPosition, const cvf::Vec3st& maxCellPosition, const cvf::Vec3st& singleCellRefinementFactors);
 
     virtual bool            open( const QString& fileName, RigEclipseCaseData* eclipseCase );
-    virtual void            close();
                             
     virtual bool            staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values );
     virtual bool            dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values );

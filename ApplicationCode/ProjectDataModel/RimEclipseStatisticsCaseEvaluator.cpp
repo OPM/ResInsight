@@ -305,9 +305,6 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                 eclipseCase->results(RiaDefines::FRACTURE_MODEL)->cellResults()->freeAllocatedResultsData();
             }
 
-            // Todo : These calls really do nothing right now the access actually closes automatically in ert i belive ...
-            eclipseCase->results(RiaDefines::MATRIX_MODEL)->readerInterface()->close();
-            eclipseCase->results(RiaDefines::FRACTURE_MODEL)->readerInterface()->close();
         }
 
         progressInfo.setProgress(timeIndicesIdx);
