@@ -128,6 +128,9 @@ QModelIndex caf::PdmUiTreeSelectionQModel::index(int row, int column, const QMod
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
+    if (m_zeroLevelRowToOptionIndex.size() == 0)
+        return QModelIndex();
+
     int opIndex = -1;
     if (parent.isValid())
     {
