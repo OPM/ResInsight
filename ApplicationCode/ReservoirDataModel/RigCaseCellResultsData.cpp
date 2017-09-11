@@ -443,6 +443,22 @@ bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader() const
+{
+    const RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<const RifReaderEclipseOutput*>(m_readerInterface.p());
+    if (rifReaderOutput)
+    {
+        return rifReaderOutput->allTimeSteps();
+    } 
+    else
+    {
+        return std::vector<QDateTime>();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() && m_resultInfos[scalarResultIndex].m_timeStepInfos.size() > timeStepIndex)
@@ -597,14 +613,14 @@ QString RigCaseCellResultsData::makeResultNameUnique(const QString& resultNamePr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::removeResult(const QString& resultName)
+void RigCaseCellResultsData::clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName)
 {
-    size_t resultIdx = findScalarResultIndex(resultName);
-    if (resultIdx == cvf::UNDEFINED_SIZE_T) return;
+    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return;
 
-    m_cellScalarResults[resultIdx].clear();
+    m_cellScalarResults[scalarResultIndex].clear();
 
-    m_resultInfos[resultIdx].m_resultType = RiaDefines::REMOVED;
+    //m_resultInfos[scalarResultIndex].m_resultType = RiaDefines::REMOVED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2123,6 +2139,18 @@ void RigCaseCellResultsData::setReaderInterface(RifReaderInterface* readerInterf
     m_readerInterface = readerInterface;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setHdf5Filename(const QString& hdf5SourSimFilename)
+{
+    RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(m_readerInterface.p());
+    if (rifReaderOutput)
+    {
+        rifReaderOutput->setHdf5FileName(hdf5SourSimFilename);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///  If we have any results on any time step, assume we have loaded results

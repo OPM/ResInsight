@@ -84,5 +84,5 @@ private:
 
     caf::PdmField<bool>     m_applyReloadOfCase;
 
-    std::vector<QDateTime>  m_timeStepsFromFile;
+    std::vector<QDateTime>  m_timeStepsFromFile; /// Temporarily set to provide correct options before the case data structures are operative
 };

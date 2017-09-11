@@ -47,6 +47,7 @@ public:
     explicit RigCaseCellResultsData(RigEclipseCaseData* ownerCaseData);
 
     void                                               setReaderInterface(RifReaderInterface* readerInterface);
+    void                                               setHdf5Filename(const QString& hdf5SourSimFilename );
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
     void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
@@ -77,6 +78,7 @@ public:
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
     bool                                               hasFlowDiagUsableFluxes() const;
 
+    std::vector<QDateTime>                             allTimeStepDatesFromEclipseReader() const;
     std::vector<QDateTime>                             timeStepDates() const;
     QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
@@ -103,7 +105,7 @@ public:
     void                                               createPlaceholderResultEntries();
     void                                               computeDepthRelatedResults();
 
-    void                                               removeResult(const QString& resultName);
+    void                                               clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
 

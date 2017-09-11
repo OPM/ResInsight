@@ -179,8 +179,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
          readerInterface = readerEclipseOutput; 
     }
 
-    results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
-    results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+    results(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
 
     progInfo.incrementProgress();
 
@@ -262,8 +262,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         readerInterface = readerEclipseOutput;
     }
 
-    results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
-    results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
+    results(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+    results(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
 
     CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
@@ -282,11 +282,7 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
 {
     if (!results(RiaDefines::MATRIX_MODEL)) return;
 
-    RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<RifReaderEclipseOutput*>(results(RiaDefines::MATRIX_MODEL)->readerInterface());
-    if (rifReaderOutput)
-    {
-        rifReaderOutput->setHdf5FileName(m_sourSimFileName);
-    }
+    results(RiaDefines::MATRIX_MODEL)->cellResults()->setHdf5Filename(m_sourSimFileName);
 
     if (!hasSourSimFile())
     {

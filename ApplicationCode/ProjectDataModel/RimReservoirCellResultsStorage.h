@@ -51,19 +51,9 @@ public:
 
     size_t                          storedResultsCount();
 
-    void                            setMainGrid(RigMainGrid* mainGrid);
-
-    void                            setReaderInterface(RifReaderInterface* readerInterface);
-    RifReaderInterface*             readerInterface();
-    const RifReaderInterface*       readerInterface() const;
-
-    void                            computeDepthRelatedResults();
-
     size_t                          findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
     size_t                          findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
     size_t                          findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
-
-    void                            clearScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
 
 protected:
     // Overridden methods from PdmObject
@@ -77,9 +67,7 @@ private:
     caf::PdmChildArrayField<RimReservoirCellResultsStorageEntryInfo*> 
                                     m_resultCacheMetaData;
 
-    cvf::ref<RifReaderInterface>    m_readerInterface;
     RigCaseCellResultsData*         m_cellResults;
-    RigMainGrid*                    m_ownerMainGrid;
 };
 
 class RimReservoirCellResultsStorageEntryInfo : public caf::PdmObject

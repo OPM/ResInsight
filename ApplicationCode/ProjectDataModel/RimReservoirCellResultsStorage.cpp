@@ -49,8 +49,7 @@ CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage"
 /// 
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
-    : m_cellResults(NULL), 
-    m_ownerMainGrid(NULL)
+    : m_cellResults(NULL)
 {
     CAF_PDM_InitObject("Cacher", "", "", "");
 
@@ -215,47 +214,11 @@ QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::setReaderInterface(RifReaderInterface* readerInterface)
-{
-    m_readerInterface = readerInterface;
-    m_cellResults->setReaderInterface(readerInterface);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifReaderInterface* RimReservoirCellResultsStorage::readerInterface()
-{
-    return m_readerInterface.p();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RifReaderInterface* RimReservoirCellResultsStorage::readerInterface() const
-{
-    return m_readerInterface.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
 {
     if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
     return m_cellResults->findOrLoadScalarResult(resultName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::clearScalarResult(RiaDefines::ResultCatType type, const QString & resultName)
-{
-    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-    m_cellResults->cellScalarResults(scalarResultIndex).clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,14 +325,6 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
 
         progress.incrementProgress();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::setMainGrid(RigMainGrid* mainGrid)
-{
-    m_ownerMainGrid = mainGrid;
 }
 
 //--------------------------------------------------------------------------------------------------

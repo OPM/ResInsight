@@ -28,6 +28,7 @@
 #include "cafPdmUiTextEditor.h"
 
 #include <QDateTime>
+#include "RigCaseCellResultsData.h"
 
 namespace caf {
 
@@ -231,11 +232,7 @@ std::vector<QDateTime> RimTimeStepFilter::allTimeSteps() const
     RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
     if (rimEclipseResultCase && rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL))
     {
-        const RifReaderEclipseOutput* rifReaderOutput = dynamic_cast<const RifReaderEclipseOutput*>(rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL)->readerInterface());
-        if (rifReaderOutput)
-        {
-            return rifReaderOutput->allTimeSteps();
-        }
+        return  rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL)->cellResults()->allTimeStepDatesFromEclipseReader();
     }
 
     return m_timeStepsFromFile;

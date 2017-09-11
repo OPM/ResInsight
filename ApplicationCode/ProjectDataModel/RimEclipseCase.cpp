@@ -258,7 +258,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::recalculateCompletionTypeAndRedrawAllViews()
 {
-    m_matrixModelResults->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+    m_matrixModelResults->cellResults()->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
 
     for (RimView* view : views())
     {
@@ -417,15 +417,11 @@ void RimEclipseCase::setReservoirData(RigEclipseCaseData* eclipseCase)
     {
         m_fractureModelResults()->setCellResults(eclipseCaseData()->results(RiaDefines::FRACTURE_MODEL));
         m_matrixModelResults()->setCellResults(eclipseCaseData()->results(RiaDefines::MATRIX_MODEL));
-        m_fractureModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
-        m_matrixModelResults()->setMainGrid(this->eclipseCaseData()->mainGrid());
     }
     else
     {
         m_fractureModelResults()->setCellResults(NULL);
         m_matrixModelResults()->setCellResults(NULL);
-        m_fractureModelResults()->setMainGrid(NULL);
-        m_matrixModelResults()->setMainGrid(NULL);
     }
 }
 
