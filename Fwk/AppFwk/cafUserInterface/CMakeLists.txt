@@ -47,6 +47,7 @@ set( QOBJECT_HEADERS
     QMinimizePanel.h
     cafPdmUiTreeSelectionEditor.h
     cafPdmUiTreeSelectionQModel.h
+    cafPdmUiWidgetBasedObjectEditor.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -125,6 +126,9 @@ set( PROJECT_FILES
     cafPdmUiPropertyView.h
     cafPdmUiPropertyViewDialog.cpp
     cafPdmUiPropertyViewDialog.h
+    cafPdmUiWidgetBasedObjectEditor.cpp
+    cafPdmUiWidgetBasedObjectEditor.h
+
 
     # div
     cafAboutDialog.cpp
