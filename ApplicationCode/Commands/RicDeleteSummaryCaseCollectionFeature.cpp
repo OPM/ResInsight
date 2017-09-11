@@ -54,11 +54,6 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(RimSumma
     }
     
     summaryPlotColl->updateConnectedEditors();
-
-    /*RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    caseCollection->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
-    summaryCaseMainCollection->removeCaseCollection(caseCollection);
-    delete caseCollection;*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,22 +74,49 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimSummaryCaseCollection*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-    
-    bool userConfirmedClosingOfGroup = askUserWhereToPutTheSummaryCases(selection);
+    if (selection.size() == 0) return;
 
-    if (userConfirmedClosingOfGroup)
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Question);
+
+    QString questionText;
+    questionText = QString("Do you also want to close the summary cases in the group?");
+
+    msgBox.setText(questionText);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+
+    int ret = msgBox.exec();
+
+    if (ret == QMessageBox::Cancel)
     {
-        RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-        selection[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
-
-        for (RimSummaryCaseCollection* caseCollection : selection)
-        {
-            summaryCaseMainCollection->removeCaseCollection(caseCollection);
-            delete caseCollection;
-        }
-
-        summaryCaseMainCollection->updateConnectedEditors();
+        return;
     }
+    
+    if (ret == QMessageBox::Yes)
+    {
+        for (RimSummaryCaseCollection* summaryCaseCollection : selection)
+        {
+            RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(summaryCaseCollection);
+        }
+    }
+    else if (ret == QMessageBox::No)
+    {
+        for (RimSummaryCaseCollection* summaryCaseCollection : selection)
+        {
+            RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(summaryCaseCollection);
+        }
+    }
+
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
+    selection[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
+
+    for (RimSummaryCaseCollection* caseCollection : selection)
+    {
+        summaryCaseMainCollection->removeCaseCollection(caseCollection);
+        delete caseCollection;
+    }
+
+    summaryCaseMainCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,45 +131,7 @@ void RicDeleteSummaryCaseCollectionFeature::setupActionLook(QAction* actionToSet
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicDeleteSummaryCaseCollectionFeature::askUserWhereToPutTheSummaryCases(std::vector<RimSummaryCaseCollection*> selectedSummaryCases)
-{
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Question);
-
-    QString questionText;
-    questionText = QString("Do you also want to close the summary cases in the group?");
-
-    msgBox.setText(questionText);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-
-    int ret = msgBox.exec();
-
-    if (ret == QMessageBox::Yes)
-    {
-        for (RimSummaryCaseCollection* summaryCaseCollection : selectedSummaryCases)
-        {
-            RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(summaryCaseCollection);
-        }
-        return true;
-    }
-    else if (ret == QMessageBox::No)
-    {
-        for (RimSummaryCaseCollection* summaryCaseCollection : selectedSummaryCases)
-        {
-            RicDeleteSummaryCaseCollectionFeature::moveSummaryCasesFromSummaryCollectionToMainSummaryCollection(summaryCaseCollection);
-        }
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicDeleteSummaryCaseCollectionFeature::moveSummaryCasesFromSummaryCollectionToMainSummaryCollection(RimSummaryCaseCollection* summaryCaseCollection)
+void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(RimSummaryCaseCollection* summaryCaseCollection)
 {
     std::vector<RimSummaryCase*> summaryCases = summaryCaseCollection->allSummaryCases();
     if (summaryCases.size() < 0) return;

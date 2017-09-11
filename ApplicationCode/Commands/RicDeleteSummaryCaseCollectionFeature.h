@@ -31,16 +31,11 @@ class RicDeleteSummaryCaseCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void deleteSummaryCaseCollection(RimSummaryCaseCollection* caseCollection);
-    static void moveSummaryCasesFromSummaryCollectionToMainSummaryCollection(RimSummaryCaseCollection* summaryCaseCollection);
-
 private:
-    bool askUserWhereToPutTheSummaryCases(std::vector<RimSummaryCaseCollection*> selectedSummaryCases);
-
-protected:
-    // Overrides
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
+    
+    static void deleteSummaryCaseCollection(RimSummaryCaseCollection* caseCollection);
+    static void moveAllCasesToMainSummaryCollection(RimSummaryCaseCollection* summaryCaseCollection);
 };
