@@ -64,8 +64,9 @@ public:
     QWidget*            getOrCreateWidget(QWidget* parent);
     QWidget*            widget() { return m_widget; }
 
-    void                setPdmObject(PdmObjectHandle* object);
-    PdmObjectHandle*    pdmObject();
+    void                    setPdmObject(PdmObjectHandle* object);
+    PdmObjectHandle*        pdmObject();
+    const PdmObjectHandle*  pdmObject() const;
 
 protected:
     virtual QWidget*    createWidget(QWidget* parent) = 0;

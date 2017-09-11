@@ -83,5 +83,23 @@ PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const caf::PdmObjectHandle* PdmUiObjectEditorHandle::pdmObject() const
+{
+    const PdmUiItem* pdmItem = this->pdmItem();
+
+    const PdmUiObjectHandle* uiObject = dynamic_cast<const PdmUiObjectHandle*>(pdmItem);
+    if (uiObject)
+    {
+        return uiObject->objectHandle();
+    }
+    else
+    {
+        return nullptr;
+    }
+}
+
 } //End of namespace caf
 
