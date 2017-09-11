@@ -27,8 +27,7 @@ class RicCloseSummaryCaseInCollectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-protected:
-    // Overrides
+private:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered(bool isChecked) override;
     virtual void setupActionLook(QAction* actionToSetup) override;

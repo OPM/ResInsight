@@ -146,6 +146,14 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::addCase(RimSummaryCase* summaryCase)
+{
+    m_cases.push_back(summaryCase);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCase(RimSummaryCase* summaryCase)
 {
     m_cases.removeChildObject(summaryCase);
@@ -153,14 +161,6 @@ void RimSummaryCaseMainCollection::removeCase(RimSummaryCase* summaryCase)
     {
         summaryCaseCollection->removeCase(summaryCase);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::addCase(RimSummaryCase* summaryCase)
-{
-    m_cases.push_back(summaryCase);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,6 +26,9 @@ class RimSummaryCase;
 class RimEclipseResultCase;
 class RimSummaryCaseCollection;
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class RimSummaryCaseMainCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -45,9 +48,9 @@ public:
     RimSummaryCase*     findSummaryCaseFromEclipseResultCase(RimEclipseResultCase* eclResCase) const;
     RimSummaryCase*     findSummaryCaseFromFileName(const QString& fileName) const;
 
+    void                addCase(RimSummaryCase* summaryCase);
     void                removeCase(RimSummaryCase* summaryCase);
 
-    void                addCase(RimSummaryCase* summaryCase);
     void                addCaseCollection(std::vector<RimSummaryCase*> summaryCases);
     void                removeCaseCollection(RimSummaryCaseCollection* caseCollection);
 
@@ -56,8 +59,6 @@ public:
     QString             uniqueShortNameForCase(RimSummaryCase* summaryCase);
 
     void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
-
-private:
 
 private:
     caf::PdmChildArrayField<RimSummaryCase*> m_cases;

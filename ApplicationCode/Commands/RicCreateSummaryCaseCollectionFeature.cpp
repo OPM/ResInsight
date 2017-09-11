@@ -47,9 +47,10 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
+    if (selection.size() == 0) return;
 
     RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    selection.at(0)->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
+    selection[0]->firstAncestorOrThisOfTypeAsserted(summaryCaseMainCollection);
 
     summaryCaseMainCollection->addCaseCollection(selection);
     summaryCaseMainCollection->updateConnectedEditors();
