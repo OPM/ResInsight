@@ -42,25 +42,7 @@ class RicSummaryCurveCreator : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum ItemType
-    {
-        SUM_FILTER_FIELD,
-        SUM_FILTER_AQUIFER,
-        SUM_FILTER_NETWORK,
-        SUM_FILTER_MISC,
-        SUM_FILTER_REGION,
-        SUM_FILTER_REGION_2_REGION,
-        SUM_FILTER_WELL_GROUP,
-        SUM_FILTER_WELL,
-        SUM_FILTER_WELL_COMPLETION,
-        SUM_FILTER_WELL_COMPLETION_LGR,
-        SUM_FILTER_WELL_LGR,
-        SUM_FILTER_WELL_SEGMENT,
-        SUM_FILTER_BLOCK,
-        SUM_FILTER_BLOCK_LGR,
-    };
-
-    enum ItemTypeInput
+    enum SummaryIdentifierType
     {
         INPUT_REGION_NUMBER,
         INPUT_REGION2_NUMBER,
@@ -73,30 +55,23 @@ public:
     };
 
 private:
-    class PdmFieldInfo
+    class SummaryIdentifierAndField
     {
     public:
-        PdmFieldInfo() :
-            m_itemTypeInput((ItemTypeInput)0),
-            m_index(-1),
+        SummaryIdentifierAndField() :
+            m_summaryIdentifier((SummaryIdentifierType)0),
             m_pdmField(nullptr) {}
-        PdmFieldInfo(ItemTypeInput itemTypeInput, int index) :
-            m_itemTypeInput(itemTypeInput),
-            m_index(index),
+        SummaryIdentifierAndField(SummaryIdentifierType summaryIdentifier) :
+            m_summaryIdentifier(summaryIdentifier),
             m_pdmField(new caf::PdmField<std::vector<QString>>()) {}
-        virtual ~PdmFieldInfo() { delete m_pdmField; }
-    private:
-        ItemTypeInput m_itemTypeInput;
-        int m_index;
-        caf::PdmField<std::vector<QString>> *m_pdmField;
-    public:
-        ItemTypeInput itemTypeInput() const { return m_itemTypeInput; }
-        int index() const { return m_index; }
-        caf::PdmField<std::vector<QString>>* pdmField() { return m_pdmField; }
-    };
+        virtual ~SummaryIdentifierAndField() { delete m_pdmField; }
 
-    typedef std::map<ItemTypeInput, std::vector<QString>>   SelectionList;
-    typedef std::map<ItemType, std::vector<PdmFieldInfo*>>  ItemTypeInputSelections;
+        SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
+        caf::PdmField<std::vector<QString>>* pdmField() { return m_pdmField; }
+    private:
+        SummaryIdentifierType m_summaryIdentifier;
+        caf::PdmField<std::vector<QString>> *m_pdmField;
+    };
 
 public:
     RicSummaryCurveCreator();
@@ -107,18 +82,19 @@ private:
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-private:
-    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses(const PdmFieldInfo *currPdmFieldInfo, const ItemTypeInputSelections &selections);
-    SelectionList buildSelectionList(const PdmFieldInfo *currPdmFieldInfo);
-    RifEclipseSummaryAddress::SummaryVarCategory mapItemType(ItemType itemType);
-    QString getItemTypeValueFromAddress(ItemTypeInput itemTypeInput, const RifEclipseSummaryAddress &address);
-    PdmFieldInfo* findPdmFieldInfo(const caf::PdmFieldHandle* pdmFieldHandle);
-    PdmFieldInfo* findParentPdmFieldInfo(const PdmFieldInfo *pdmFieldInfo);
-    bool isAddressSelected(const RifEclipseSummaryAddress &address, const SelectionList &selections);
+    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
+    std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
+    QString getIdentifierTextFromAddress(SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address);
+    SummaryIdentifierAndField* findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle);
+    SummaryIdentifierAndField* lookupControllingField(const SummaryIdentifierAndField *identifierAndField);
+    bool isAddressSelected(const RifEclipseSummaryAddress &address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
+
+    void loadDataAndUpdatePlot();
+    void syncCurvesFromUiSelection();
 
 private:
-    caf::PdmPtrArrayField<RimSummaryCase*>          m_selectedCases;
-    caf::PdmField<caf::AppEnum<ItemType>>           m_selectedItemType;
-    std::map<ItemType, std::vector<PdmFieldInfo*>>  m_itemTypePdmFields;
-    caf::PdmChildArrayField<RimSummaryCurve*>       m_selectedCurves;
+    caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
+    std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_selectedIdentifiers;
+    caf::PdmChildArrayField<RimSummaryCurve*>                                                           m_selectedCurves;
 };
