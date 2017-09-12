@@ -93,26 +93,25 @@ void CustomObjectEditor::defineGridLayout(int rowCount, int columnCount)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment /*= 0*/)
+void CustomObjectEditor::addWidget(QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment /*= 0*/)
 {
     CAF_ASSERT(isAreaAvailable(row, column, rowSpan, columnSpan));
 
+    m_customWidgetAreas.push_back(WidgetCellIds(widget, CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan)));
+
     // The ownership of item is transferred to the layout, and it's the layout's responsibility to delete it.
-
-    m_customWidgetAreas.push_back(WidgetCellIds(w, CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan)));
-
-    m_layout->addWidget(w, row, column, rowSpan, columnSpan, alignment);
+    m_layout->addWidget(widget, row, column, rowSpan, columnSpan, alignment);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::removeWidget(QWidget* w)
+void CustomObjectEditor::removeWidget(QWidget* widget)
 {
     size_t indexToRemove = size_t(-1);
     for (size_t i = 0; i < m_customWidgetAreas.size(); i++)
     {
-        if (w == m_customWidgetAreas[i].m_customWidget)
+        if (widget == m_customWidgetAreas[i].m_customWidget)
         {
             indexToRemove = i;
             break;
@@ -121,7 +120,7 @@ void CustomObjectEditor::removeWidget(QWidget* w)
 
     if (indexToRemove != size_t(-1))
     {
-        m_layout->removeWidget(w);
+        m_layout->removeWidget(widget);
 
         m_customWidgetAreas.erase(m_customWidgetAreas.begin() + indexToRemove);
     }
@@ -140,50 +139,40 @@ void CustomObjectEditor::addBlankCell(int row, int column)
 //--------------------------------------------------------------------------------------------------
 QWidget* CustomObjectEditor::createWidget(QWidget* parent)
 {
-    QWidget* m_mainWidget = PdmUiWidgetBasedObjectEditor::createWidget(parent);
+    QWidget* widget = new QWidget(parent);
 
     m_layout = new QGridLayout();
     m_layout->setContentsMargins(0, 0, 0, 0);
-    m_mainWidget->setLayout(m_layout);
+    widget->setLayout(m_layout);
 
-    return m_mainWidget;
+    return widget;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName)
-{
-    setupTopLevelGroupsInGridLayout(uiItems, parent, m_layout, uiConfigName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::setupTopLevelGroupsInGridLayout(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName)
+void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems, const QString& uiConfigName)
 {
     resetCellId();
 
     QWidget* previousTabOrderWidget = NULL;
 
-    for (size_t i = 0; i < uiItems.size(); ++i)
+    for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
-        if (uiItems[i]->isUiHidden(uiConfigName)) continue;
+        if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
 
-        if (uiItems[i]->isUiGroup())
+        if (topLevelUiItems[i]->isUiGroup())
         {
-            PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
-            QMinimizePanel* groupBox = findOrCreateGroupBox(group, parent, uiConfigName);
+            PdmUiGroup* group = static_cast<PdmUiGroup*>(topLevelUiItems[i]);
+            QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
             /// Insert the group box at the correct position of the parent layout
             int nextCellId = getNextAvailableCellId();
             std::pair<int, int> rowCol = rowAndColumn(nextCellId);
-            parentLayout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
-
-            QGridLayout* groupBoxLayout = this->groupBoxLayout(groupBox);
+            m_layout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
 
             const std::vector<PdmUiItem*>& groupChildren = group->uiItems();
-            recursiveSetupFieldsAndGroups(groupChildren, groupBox->contentFrame(), groupBoxLayout, uiConfigName);
+            recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
         }
 
         // NB! Only groups at top level are handled, fields at top level are not added to layout

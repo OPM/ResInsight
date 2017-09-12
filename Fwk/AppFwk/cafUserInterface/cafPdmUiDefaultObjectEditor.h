@@ -53,7 +53,7 @@ class PdmUiGroup;
 
 
 //==================================================================================================
-/// The default editor for PdmObjects. Manages the field editors in a gridlayout vertically
+/// The default editor for PdmObjects. Manages the field editors in a grid layout vertically
 //==================================================================================================
 class PdmUiDefaultObjectEditor : public PdmUiWidgetBasedObjectEditor
 {
@@ -63,11 +63,10 @@ public:
     ~PdmUiDefaultObjectEditor();
 
 private:
-    virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName) override;
+    virtual QWidget* createWidget(QWidget* parent) override;
+    virtual void     recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
+                                                                  const QString& uiConfigName) override;
 
-private:
-    QPointer<QGridLayout> m_layout;
 };
 
 

@@ -38,21 +38,12 @@
 
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
-#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 
-#include "QMinimizePanel.h"
-
-#include <QDate>
-#include <QDateTime>
 #include <QGridLayout>
-#include <QWidget>
-
 
 namespace caf
 {
@@ -93,11 +84,11 @@ PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 {
-    QWidget* widget = PdmUiWidgetBasedObjectEditor::createWidget(parent);
+    QWidget* widget = new QWidget(parent);
     
-    m_layout = new QGridLayout();
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    widget->setLayout(m_layout);
+    QGridLayout* gridLayout = new QGridLayout();
+    gridLayout->setContentsMargins(0, 0, 0, 0);
+    widget->setLayout(gridLayout);
     
     return widget;
 }
@@ -105,9 +96,11 @@ QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiDefaultObjectEditor::setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName)
+void PdmUiDefaultObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems, const QString& uiConfigName)
 {
-    recursiveSetupFieldsAndGroups(uiItems, parent, m_layout, uiConfigName);
+    CAF_ASSERT(this->widget());
+
+    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(topLevelUiItems, this->widget(), uiConfigName);
 }
 
 } // end namespace caf

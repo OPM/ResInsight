@@ -71,15 +71,15 @@ public:
     void defineGridLayout(int rowCount, int columnCount);
 
     // See QGridLayout::addWidget
-    void addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = 0);
-    void removeWidget(QWidget* w);
+    void addWidget(QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = 0);
+    void removeWidget(QWidget* widget);
 
     void addBlankCell(int row, int column);
 
 private:
     virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName) override;
-    void                setupTopLevelGroupsInGridLayout(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
+    virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
+                                                                     const QString& uiConfigName) override;
 
     bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
     bool                isCellIdAvailable(int cellId) const;

@@ -69,7 +69,9 @@ public:
     const PdmObjectHandle*  pdmObject() const;
 
 protected:
+    /// Supposed to create the top level widget of the editor with a suitable QLayout 
     virtual QWidget*    createWidget(QWidget* parent) = 0;
+
     virtual void        cleanupBeforeSettingPdmObject() {};
 
 protected:

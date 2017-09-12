@@ -64,29 +64,32 @@ public:
     ~PdmUiWidgetBasedObjectEditor();
 
 protected:
-    virtual void            setupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, const QString& uiConfigName) = 0;
-    virtual QWidget*        createWidget(QWidget* parent) override;
+    /// When overriding this function, use findOrCreateGroupBox() or findOrCreateFieldEditor() for detailed control
+    /// Use recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn() for automatic layout of group and field widgets
+    virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<PdmUiItem*>& topLevelUiItems,
+                                                                         const QString& uiConfigName) = 0;
     
-    bool                    isUiGroupExpanded(const PdmUiGroup* uiGroup) const;
-    QMinimizePanel*         findOrCreateGroupBox(PdmUiGroup* group, QWidget* parent, const QString& uiConfigName);
-    PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);
+    void                    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(const std::vector<PdmUiItem*>& uiItems,
+                                                                                   QWidget* containerWidgetWithGridLayout,
+                                                                                   const QString& uiConfigName);
 
-    static QGridLayout*     groupBoxLayout(QMinimizePanel* groupBox);
-    
-    void                    recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
+    QMinimizePanel*         findOrCreateGroupBox(QWidget* parent, PdmUiGroup* group, const QString& uiConfigName);
+    PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);
 
 private slots:
     void                    groupBoxExpandedStateToggled(bool isExpanded);
 
 private:
+    bool                    isUiGroupExpanded(const PdmUiGroup* uiGroup) const;
     virtual void            cleanupBeforeSettingPdmObject() override;
     virtual void            configureAndUpdateUi(const QString& uiConfigName) override;
     
-    static void             recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames);
+    static void             recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems,
+                                                       const QString& uiConfigName,
+                                                       std::set<QString>* fieldKeywordNames,
+                                                       std::set<QString>* groupNames);
 
 private:
-    QPointer<QWidget>                                   m_mainWidget;
-
     std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 
     std::map<QString, QPointer<QMinimizePanel> >        m_groupBoxes;
     std::map<QString, QPointer<QMinimizePanel> >        m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
