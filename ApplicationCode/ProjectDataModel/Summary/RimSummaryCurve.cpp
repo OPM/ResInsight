@@ -535,6 +535,11 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
         plot->updateAxes();
     }
+    else if (changedField == &m_summaryCase)
+    {
+        plot->updateCaseNameHasChanged();
+        this->onLoadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

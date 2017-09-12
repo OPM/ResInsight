@@ -60,6 +60,7 @@ public:
     QString                                         description() const;
 
     void                                            addCurve(RimSummaryCurve* curve);
+    void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
     void                                            removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
 
@@ -117,8 +118,6 @@ private:
 
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
-
-    void                                            removeCurve(RimSummaryCurve* curve);
 
     // RimViewWindow overrides
 

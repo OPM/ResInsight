@@ -767,7 +767,7 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::removeCurve(RimSummaryCurve* curve)
+void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
 {
     if (curve)
     {
@@ -801,7 +801,7 @@ void RimSummaryPlot::removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
     }
     for (RimSummaryCurve* summaryCurve : summaryCurvesToDelete)
     {
-        removeCurve(summaryCurve);
+        deleteCurve(summaryCurve);
     }
 }
 
