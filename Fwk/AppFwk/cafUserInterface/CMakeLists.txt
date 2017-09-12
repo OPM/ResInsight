@@ -93,7 +93,8 @@ set( PROJECT_FILES
     cafPdmUiTreeSelectionEditor.cpp
     cafPdmUiTreeSelectionQModel.h
     cafPdmUiTreeSelectionQModel.cpp
-
+    cafPdmUiFieldEditorHelper.h
+    cafPdmUiFieldEditorHelper.cpp
 
     # object editors
     cafPdmUiDefaultObjectEditor.cpp

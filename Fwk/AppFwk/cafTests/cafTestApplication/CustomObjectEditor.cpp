@@ -42,18 +42,17 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiDateEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
-#include "cafPdmUiDateEditor.h"
 
 #include <QGridLayout>
 #include <QWidget>
 #include <QDate>
 #include <QDateTime>
-#include "cafPdmUiDefaultObjectEditor.h"
-
 
 
 namespace caf

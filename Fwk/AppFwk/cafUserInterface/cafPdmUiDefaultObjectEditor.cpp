@@ -34,7 +34,6 @@
 //
 //##################################################################################################
 
-
 #include "cafPdmUiDefaultObjectEditor.h"
 
 #include "cafPdmProxyValueField.h"
@@ -213,51 +212,6 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             }
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmUiFieldEditorHandle* PdmUiFieldEditorHelper::fieldEditorForField(PdmUiFieldHandle* field, const QString& uiConfigName)
-{
-    caf::PdmUiFieldEditorHandle* fieldEditor = NULL;
-
-    // If editor type is specified, find in factory
-    if (!field->uiEditorTypeName(uiConfigName).isEmpty())
-    {
-        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
-    }
-    else
-    {
-        // Find the default field editor
-        QString fieldTypeName = qStringTypeName(*(field->fieldHandle()));
-
-        if (fieldTypeName.indexOf("PdmPtrField") != -1)
-        {
-            fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-        }
-        else if (fieldTypeName.indexOf("PdmPtrArrayField") != -1)
-        {
-            fieldTypeName = caf::PdmUiListEditor::uiEditorTypeName();
-        }
-        else if (field->toUiBasedQVariant().type() != QVariant::List)
-        {
-            // Handle a single value field with valueOptions: Make a combobox
-
-            bool useOptionsOnly = true;
-            QList<PdmOptionItemInfo> options = field->valueOptions(&useOptionsOnly);
-            CAF_ASSERT(useOptionsOnly); // Not supported
-
-            if (!options.empty())
-            {
-                fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-            }
-        }
-
-        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(fieldTypeName);
-    }
-
-    return fieldEditor;
 }
 
 

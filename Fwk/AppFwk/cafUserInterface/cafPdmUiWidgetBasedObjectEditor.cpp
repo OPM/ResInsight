@@ -39,6 +39,8 @@
 
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldEditorHelper.h"
+#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafPdmUiOrdering.h"
 #include "cafPdmXmlObjectHandle.h"
@@ -47,8 +49,6 @@
 
 #include <QGridLayout>
 #include <QFrame>
-#include "cafPdmUiFieldHandle.h"
-#include "cafPdmUiDefaultObjectEditor.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

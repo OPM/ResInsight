@@ -42,7 +42,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiCommandSystemProxy.h"
-#include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiFieldEditorHelper.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableItemEditor.h"
 #include "cafSelectionManager.h"

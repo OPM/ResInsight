@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -37,38 +37,20 @@
 
 #pragma once
 
-#include "cafPdmUiWidgetBasedObjectEditor.h"
-
-#include <QPointer>
-
-class QGridLayout;
 class QString;
 
-namespace caf 
+namespace caf
 {
-
-class PdmUiFieldEditorHandle;
-class PdmUiItem;
-class PdmUiGroup;
-
+    class PdmUiFieldEditorHandle;
+    class PdmUiFieldHandle;
 
 //==================================================================================================
-/// The default editor for PdmObjects. Manages the field editors in a gridlayout vertically
+/// 
 //==================================================================================================
-class PdmUiDefaultObjectEditor : public PdmUiWidgetBasedObjectEditor
+class PdmUiFieldEditorHelper
 {
-    Q_OBJECT
 public:
-    PdmUiDefaultObjectEditor();
-    ~PdmUiDefaultObjectEditor();
-
-private:
-    virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName) override;
-    void                recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
-
-private:
-    QPointer<QGridLayout> m_layout;
+    static PdmUiFieldEditorHandle* fieldEditorForField(PdmUiFieldHandle* fieldHandle, const QString& uiConfigName);
 };
 
 
