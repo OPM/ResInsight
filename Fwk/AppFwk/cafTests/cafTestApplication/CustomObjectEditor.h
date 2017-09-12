@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2017 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -34,100 +34,69 @@
 //
 //##################################################################################################
 
-
 #pragma once
 
-#include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiWidgetBasedObjectEditor.h"
 
-#include <map>
-
-#include <QGroupBox>
 #include <QPointer>
-#include <QString>
-#include <QWidget>
-#include "QMinimizePanel.h"
+
+#include <vector>
 
 class QGridLayout;
+class QString;
+class QWidget;
+
+class WidgetCellIds;
 
 namespace caf 
 {
-class PdmUiFieldEditorHandle;
+
 class PdmUiItem;
 class PdmUiGroup;
 
 
-class WidgetAndArea
-{
-public:
-    WidgetAndArea(QWidget* w, const std::vector<int>& occupiedCellIds)
-        : m_customWidget(w),
-        m_customWidgetCellIds(occupiedCellIds)
-    {
-    }
-
-    QWidget*           m_customWidget;
-    std::vector<int>   m_customWidgetCellIds;
-};
-
-
 //==================================================================================================
-/// 
+/// Automatically layout top level groups into a grid layout
+///
+/// User defined external widgets can be inserted into grid layout cells, and these cells
+/// are excluded for automatic layout
 //==================================================================================================
-
-class CustomObjectEditor : public PdmUiObjectEditorHandle
+class CustomObjectEditor : public PdmUiWidgetBasedObjectEditor
 {
     Q_OBJECT
 public:
     CustomObjectEditor();
     ~CustomObjectEditor();
 
-    void defineGrid(int rows, int columns);
+    void defineGridLayout(int rowCount, int columnCount);
 
     // See QGridLayout::addWidget
-    void addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
+    void addWidget(QWidget* w, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment = 0);
+    void removeWidget(QWidget* w);
 
     void addBlankCell(int row, int column);
-    bool isCellOccupied(int cellId) const;
-
-    void removeWidget(QWidget* w);
-    bool isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
-
-protected:
-    virtual QWidget*    createWidget(QWidget* parent) override;
-    virtual void        configureAndUpdateUi(const QString& uiConfigName) override;
-    virtual void        cleanupBeforeSettingPdmObject() override;
-
-protected slots:
-    void                groupBoxExpandedStateToggled(bool isExpanded);
 
 private:
-    void                resetDynamicCellCounter();
-    std::pair<int, int> rowAndCell(int cellId) const;
-    int                 cellId(int row, int column) const;
+    virtual QWidget*    createWidget(QWidget* parent) override;
+    virtual void        setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName) override;
+    void                setupTopLevelGroupsInGridLayout(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
 
+    bool                isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const;
+    bool                isCellIdAvailable(int cellId) const;
+    void                resetCellId();
     int                 getNextAvailableCellId();
-
+    int                 cellId(int row, int column) const;
+    std::pair<int, int> rowAndColumn(int cellId) const;
     std::vector<int>    cellIds(int row, int column, int rowSpan, int columnSpan) const;
 
-    void                recursiveSetupFieldsAndGroupsRoot(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
-    void                recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
-    bool                isUiGroupExpanded(const PdmUiGroup* uiGroup);
-    void                recursiveVerifyUniqueNames(const std::vector<PdmUiItem*>& uiItems, const QString& uiConfigName, std::set<QString>* fieldKeywordNames, std::set<QString>* groupNames);
+private:
+    QPointer<QGridLayout>       m_layout;
 
-    std::map<PdmFieldHandle*, PdmUiFieldEditorHandle*>  m_fieldViews; 
-    std::map<QString, QPointer<QMinimizePanel> >        m_groupBoxes;
-    std::map<QString, QPointer<QMinimizePanel> >        m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
+    int                         m_rowCount;
+    int                         m_columnCount;
+    int                         m_currentCellId;
 
-    QPointer<QWidget>                                   m_mainWidget;
-    QPointer<QGridLayout>                               m_layout;
-
-    std::map<QString, std::map<QString, bool> >         m_objectKeywordGroupUiNameExpandedState; 
-
-    int m_rowCount;
-    int m_columnCount;
-    int m_dynamicCellIndex;
-
-    std::vector<WidgetAndArea>  m_customWidgetAreas;
+    std::vector<WidgetCellIds>  m_customWidgetAreas;
 };
 
 

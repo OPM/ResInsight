@@ -652,7 +652,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     pdmRoot->descendantsIncludingThisOfType(obj);
     if (obj.size() == 1)
     {
-        m_customObjectEditor->defineGrid(5, 4);
+        m_customObjectEditor->defineGridLayout(5, 4);
         m_customObjectEditor->setPdmObject(obj[0]);
 
         m_customObjectEditor->addBlankCell(0, 0);
