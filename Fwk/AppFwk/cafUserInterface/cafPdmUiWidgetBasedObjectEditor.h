@@ -72,6 +72,8 @@ protected:
     PdmUiFieldEditorHandle* findOrCreateFieldEditor(QWidget* parent, PdmUiFieldHandle* field, const QString& uiConfigName);
 
     static QGridLayout*     groupBoxLayout(QMinimizePanel* groupBox);
+    
+    void                    recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
 
 private slots:
     void                    groupBoxExpandedStateToggled(bool isExpanded);

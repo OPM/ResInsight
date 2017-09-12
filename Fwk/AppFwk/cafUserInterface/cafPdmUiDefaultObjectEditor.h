@@ -65,7 +65,6 @@ public:
 private:
     virtual QWidget*    createWidget(QWidget* parent) override;
     virtual void        setupFieldsAndGroups(const std::vector<PdmUiItem *>& uiItems, QWidget* parent, const QString& uiConfigName) override;
-    void                recursiveSetupFieldsAndGroups(const std::vector<PdmUiItem*>& uiItems, QWidget* parent, QGridLayout* parentLayout, const QString& uiConfigName);
 
 private:
     QPointer<QGridLayout> m_layout;
