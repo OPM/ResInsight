@@ -16,6 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include <sstream>
 #include "RicSummaryCurveCreator.h"
 
 #include "RiaApplication.h"
@@ -25,6 +26,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCase.h"
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 
 namespace caf
@@ -58,42 +60,64 @@ CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::RicSummaryCurveCreator() : m_itemTypePdmFields(
 {
+    { SUM_FILTER_FIELD, {
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 0) }
+    } },
+    { SUM_FILTER_AQUIFER, {
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 0) }
+    } },
+    { SUM_FILTER_NETWORK, {
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 0) }
+    } },
+    { SUM_FILTER_MISC, {
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 0) }
+    } },
     { SUM_FILTER_REGION,{
-        { new PdmFieldInfo(INPUT_REGION_NUMBER, 0)}
+        { new PdmFieldInfo(INPUT_REGION_NUMBER, 0) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 1) }
     } },
     { SUM_FILTER_REGION_2_REGION,{
-        { new PdmFieldInfo(INPUT_REGION_NUMBER, 0)},
-        { new PdmFieldInfo(INPUT_REGION2_NUMBER, 1)}
+        { new PdmFieldInfo(INPUT_REGION_NUMBER, 0) },
+        { new PdmFieldInfo(INPUT_REGION2_NUMBER, 1) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 2) }
     } },
     { SUM_FILTER_WELL_GROUP,{
-        { new PdmFieldInfo(INPUT_WELL_GROUP_NAME, 0)}
+        { new PdmFieldInfo(INPUT_WELL_GROUP_NAME, 0) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 1) }
     } },
     { SUM_FILTER_WELL,{
-        { new PdmFieldInfo(INPUT_WELL_NAME, 0)}
+        { new PdmFieldInfo(INPUT_WELL_NAME, 0) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 1) }
     } },
     { SUM_FILTER_WELL_COMPLETION,{
-        { new PdmFieldInfo(INPUT_WELL_NAME, 0)},
-        { new PdmFieldInfo(INPUT_CELL_IJK, 1)}
+        { new PdmFieldInfo(INPUT_WELL_NAME, 0) },
+        { new PdmFieldInfo(INPUT_CELL_IJK, 1) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 2) }
     } },
     { SUM_FILTER_WELL_COMPLETION_LGR,{
-        { new PdmFieldInfo(INPUT_LGR_NAME, 0)},
-        { new PdmFieldInfo(INPUT_WELL_NAME, 1)},
-        { new PdmFieldInfo(INPUT_CELL_IJK, 2)}
+        { new PdmFieldInfo(INPUT_LGR_NAME, 0) },
+        { new PdmFieldInfo(INPUT_WELL_NAME, 1) },
+        { new PdmFieldInfo(INPUT_CELL_IJK, 2) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 3) }
     } },
     { SUM_FILTER_WELL_LGR,{
-        { new PdmFieldInfo(INPUT_LGR_NAME, 0)},
-        { new PdmFieldInfo(INPUT_WELL_NAME, 1)}
+        { new PdmFieldInfo(INPUT_LGR_NAME, 0) },
+        { new PdmFieldInfo(INPUT_WELL_NAME, 1) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 2) }
     } },
     { SUM_FILTER_WELL_SEGMENT,{
-        { new PdmFieldInfo(INPUT_WELL_NAME, 0)},
-        { new PdmFieldInfo(INPUT_SEGMENT_NUMBER, 1)}
+        { new PdmFieldInfo(INPUT_WELL_NAME, 0) },
+        { new PdmFieldInfo(INPUT_SEGMENT_NUMBER, 1) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 2) }
     } },
     { SUM_FILTER_BLOCK,{
-        { new PdmFieldInfo(INPUT_CELL_IJK, 0)}
+        { new PdmFieldInfo(INPUT_CELL_IJK, 0) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 1) }
     } },
     { SUM_FILTER_BLOCK_LGR,{
-        { new PdmFieldInfo(INPUT_LGR_NAME, 0)},
-        { new PdmFieldInfo(INPUT_CELL_IJK, 1)}
+        { new PdmFieldInfo(INPUT_LGR_NAME, 0) },
+        { new PdmFieldInfo(INPUT_CELL_IJK, 1) },
+        { new PdmFieldInfo(INPUT_VECTOR_NAME, 2) }
     } }
 })
 {
@@ -102,41 +126,70 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_itemTypePdmFields(
 
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedItemType, "ItemTypes", "Item types", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_selectedVectors, "Vectors", "Vectors", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_FIELD][0]->pdmField(), "FieldVectors", "Field vectors", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_AQUIFER][0]->pdmField(), "AquiferVectors", "Aquifer vectors", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_NETWORK][0]->pdmField(), "NetworkVectors", "Network vectors", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_MISC][0]->pdmField(), "MiscVectors", "Misc vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_REGION][0]->pdmField(), "Regions", "Regions", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_REGION][1]->pdmField(), "RegionsVectors", "Regions vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_REGION_2_REGION][0]->pdmField(), "Region2RegionRegions", "Regions", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_REGION_2_REGION][1]->pdmField(), "Region2RegionRegion2s", "Region2s", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_REGION_2_REGION][2]->pdmField(), "Region2RegionVectors", "Region2s vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_GROUP][0]->pdmField(), "WellGroupWellGroupNames", "Well groups", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_GROUP][1]->pdmField(), "WellGroupVectors", "Well group vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL][0]->pdmField(), "WellWellName", "Wells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL][1]->pdmField(), "WellVectors", "Well vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION][0]->pdmField(), "WellCompletionWellName", "Wells", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION][1]->pdmField(), "WellCompletionIjk", "Cell IJK", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION][2]->pdmField(), "WellCompletionVectors", "Well completion vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION_LGR][0]->pdmField(), "WellCompletionLgrLgrName", "Lgr names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION_LGR][1]->pdmField(), "WellCompletionLgrWellName", "Wells", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION_LGR][2]->pdmField(), "WellCompletionLgrIjk", "Cell IJK", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_COMPLETION_LGR][3]->pdmField(), "WellCompletionLgrVectors", "Well completion vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_LGR][0]->pdmField(), "WellLgrLgrName", "Lgr names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_LGR][1]->pdmField(), "WellLgrWellName", "Wells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_LGR][2]->pdmField(), "WellLgrVectors", "Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_SEGMENT][0]->pdmField(), "WellSegmentWellName", "Wells", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_SEGMENT][1]->pdmField(), "WellSegmentNumber", "Segments", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_WELL_SEGMENT][2]->pdmField(), "WellSegmentVectors", "Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_BLOCK][1]->pdmField(), "BlockVectors", "Block vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "Lgr names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_itemTypePdmFields[SUM_FILTER_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block vectors", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedCurves, "Curves", "Curves", "", "", "");
 
     // Todo: Init all objects
+    for (auto itemTypes : m_itemTypePdmFields)
+    {
+        for (auto itemInputType : itemTypes.second)
+        {
+            itemInputType->pdmField()->uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+        }
+    }
 
     m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedCases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedItemType.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedItemType.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedCurves.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedCurves.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,31 +233,14 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
             options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
     }
-    else if (fieldNeedingOptions == &m_selectedVectors)
-    {
-        std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses();
-
-        std::vector<QString> quantityNames;
-        for (const auto& address : addrUnion)
-        {
-            std::string name = address.quantityName();
-            quantityNames.push_back(QString::fromStdString(name));
-        }
-        std::sort(quantityNames.begin(), quantityNames.end());
-        quantityNames.erase(std::unique(quantityNames.begin(), quantityNames.end()), quantityNames.end());
-        for (auto qName : quantityNames)
-            options.push_back(caf::PdmOptionItemInfo(qName, qName));
-    }
     else
     {
-        // Lookup item type input field(s)
+        // Lookup item type input field
         auto pdmFieldInfo = findPdmFieldInfo(fieldNeedingOptions);
         if (pdmFieldInfo != nullptr)
         {
             auto pdmField = pdmFieldInfo->pdmField();
-            auto parentPdmField = findParentPdmFieldInfo(pdmFieldInfo);
-            auto selections = buildSelectionVector(pdmField);
-            std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses(selections, pdmFieldInfo->index() == 0);
+            std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses(pdmFieldInfo, m_itemTypePdmFields);
             std::vector<QString> itemNames;
 
             for (const auto& address : addrUnion)
@@ -243,27 +279,23 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
             itemInputGroup->add(pdmField->pdmField());
     }
 
-    caf::PdmUiGroup* vectorsGroup = uiOrdering.addNewGroup("Vectors");
-    vectorsGroup->add(&m_selectedVectors);
-
+    caf::PdmUiGroup* curvesGroup = uiOrdering.addNewGroup("Curves");
+    curvesGroup->add(&m_selectedCurves);
 
     uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the summary addresses that match the selected item type
-//--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddresses()
-{
-    return findPossibleSummaryAddresses(std::vector<Selection>(), true);
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddresses(const std::vector<Selection> &selections, bool ignoreSelections)
+std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddresses(const PdmFieldInfo *currPdmFieldInfo, const ItemTypeInputSelections &selections)
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
+
+    auto isVectorField = currPdmFieldInfo->itemTypeInput() == INPUT_VECTOR_NAME;
+    auto parentFieldInfo = findParentPdmFieldInfo(currPdmFieldInfo);
+    if (!isVectorField && parentFieldInfo != nullptr && parentFieldInfo->pdmField()->v().size() == 0)
+        return addrUnion;
 
     for (RimSummaryCase* currCase : m_selectedCases)
     {
@@ -275,21 +307,51 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
             const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
             int addressCount = static_cast<int>(allAddresses.size());
 
-            auto selectedItemType = mapItemType(m_selectedItemType.v());
+            SelectionList selections;
+            if (!isVectorField || parentFieldInfo == nullptr)
+            {
+                // Build selections vector
+                selections = buildSelectionList(currPdmFieldInfo);
+            }
 
+            auto selectedCategory = mapItemType(m_selectedItemType.v());
             for (int i = 0; i < addressCount; i++)
             {
-                bool addressSelected = !ignoreSelections ? isAddressSelected(allAddresses[i], selections) : true;
+                if (allAddresses[i].category() == selectedCategory)
+                {
+                    bool addressSelected = isVectorField || parentFieldInfo != nullptr ? isAddressSelected(allAddresses[i], selections) : true;
 
-                // Todo: Add text filter
-                //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
+                    // Todo: Add text filter
+                    //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
 
-                if (allAddresses[i].category() == selectedItemType && addressSelected)
-                    addrUnion.insert(allAddresses[i]);
+                    if (addressSelected)
+                        addrUnion.insert(allAddresses[i]);
+                }
             }
         }
     }
     return addrUnion;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Build a list of relevant selections
+//--------------------------------------------------------------------------------------------------
+RicSummaryCurveCreator::SelectionList RicSummaryCurveCreator::buildSelectionList(const PdmFieldInfo *currPdmFieldInfo)
+{
+    SelectionList selections;
+    auto pdmFieldInfoList = m_itemTypePdmFields[m_selectedItemType()];
+    for (auto pdmFieldInfo : pdmFieldInfoList)
+    {
+        if (pdmFieldInfo == currPdmFieldInfo)
+            break;
+        if (selections.find(pdmFieldInfo->itemTypeInput()) == selections.end())
+            selections.insert(std::make_pair(pdmFieldInfo->itemTypeInput(), std::vector<QString>()));
+        for (auto selectedValue : pdmFieldInfo->pdmField()->v())
+        {
+            selections[pdmFieldInfo->itemTypeInput()].push_back(selectedValue);
+        }
+    }
+    return selections;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,12 +394,13 @@ QString RicSummaryCurveCreator::getItemTypeValueFromAddress(ItemTypeInput itemTy
         QString::number(address.cellJ()), QString::number(address.cellK()));
     case INPUT_LGR_NAME: return QString::fromStdString(address.lgrName());
     case INPUT_SEGMENT_NUMBER: return QString("%1").arg(address.wellSegmentNumber());
+    case INPUT_VECTOR_NAME: return QString::fromStdString(address.quantityName());
     }
     return "";
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns pdm field info from teh specified pdm field
+/// Returns pdm field info from the specified pdm field
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::PdmFieldInfo* RicSummaryCurveCreator::findPdmFieldInfo(const caf::PdmFieldHandle* pdmFieldHandle)
 {
@@ -364,8 +427,10 @@ RicSummaryCurveCreator::PdmFieldInfo* RicSummaryCurveCreator::findParentPdmField
         {
             for (auto info : itemTypes.second)
             {
-                if (info->index() == pdmFieldInfo->index() - 1)
-                    return info;
+                if (info == pdmFieldInfo)
+                {
+                    return itemTypes.second[pdmFieldInfo->index() - 1];
+                }
             }
         }
     }
@@ -373,51 +438,23 @@ RicSummaryCurveCreator::PdmFieldInfo* RicSummaryCurveCreator::findParentPdmField
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns true if the specified address object matches at least one of the selections
+/// Returns true if the specified address object matches the selections
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &address, const std::vector<Selection> &selections)
+bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &address, const SelectionList &selections)
 {
-    for (auto sel : selections)
+    for (auto selectionList : selections)
     {
-        if (QString::compare(getItemTypeValueFromAddress(sel.first, address), sel.second) == 0)
-            return true;
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Returns a list of all selections made in the pdm fields 'above' the specified pdm field
-//--------------------------------------------------------------------------------------------------
-std::vector<RicSummaryCurveCreator::Selection> RicSummaryCurveCreator::buildSelectionVector(const caf::PdmFieldHandle *pdmField)
-{
-    std::vector<Selection> selections;
-    auto itemType = findItemTypeFromPdmField(pdmField);
-    auto itemTypeInputs = m_itemTypePdmFields[itemType];
-    for (auto itemTypeInput : itemTypeInputs)
-    {
-        if (itemTypeInput->pdmField() == pdmField)
-            break;
-        for (auto sel : itemTypeInput->pdmField()->v())
+        bool match = false;
+        for (auto selection : selectionList.second)
         {
-            selections.push_back(std::make_pair(itemTypeInput->itemTypeInput(), sel));
+            if (QString::compare(getItemTypeValueFromAddress(selectionList.first, address), selection) == 0)
+            {
+                match = true;
+                break;
+            }
         }
+        if (!match)
+            return false;
     }
-    return selections;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// REturns the ItemType for the specified pdm field
-//--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreator::ItemType RicSummaryCurveCreator::findItemTypeFromPdmField(const caf::PdmFieldHandle *pdmField)
-{
-    for (auto itemTypes : m_itemTypePdmFields)
-    {
-        for (auto itemTypeInput : itemTypes.second)
-        {
-            if (pdmField == itemTypeInput->pdmField())
-                return itemTypes.first;
-        }
-    }
-    // Default?
-    return ItemType::SUM_FILTER_FIELD;
+    return true;
 }

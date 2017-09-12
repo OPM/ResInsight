@@ -27,27 +27,10 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
-//#include "cafAppEnum.h"
-//#include "cafPdmPtrArrayField.h"
-//
 #include "RifEclipseSummaryAddress.h"
-//
-//#include "RiaDefines.h"
-//#include "RimSummaryCurveAppearanceCalculator.h"
-//
-//class QwtPlot;
-//class QwtPlotCurve;
-//class RifReaderEclipseSummary;
+#include "RimSummaryCurve.h"
 
 class RimSummaryCase;
-
-//class RimSummaryCurve;
-//class RimSummaryFilter;
-//class RiuLineSegmentQwtPlotCurve;
-//class RimSummaryCurveAutoName;
-//
-//
-//Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
 
 
 //==================================================================================================
@@ -85,7 +68,8 @@ public:
         INPUT_WELL_GROUP_NAME,
         INPUT_CELL_IJK,
         INPUT_LGR_NAME,
-        INPUT_SEGMENT_NUMBER
+        INPUT_SEGMENT_NUMBER,
+        INPUT_VECTOR_NAME
     };
 
 private:
@@ -99,20 +83,20 @@ private:
         PdmFieldInfo(ItemTypeInput itemTypeInput, int index) :
             m_itemTypeInput(itemTypeInput),
             m_index(index),
-            m_pdmField(new caf::PdmField<std::vector<QString>>()){}
+            m_pdmField(new caf::PdmField<std::vector<QString>>()) {}
         virtual ~PdmFieldInfo() { delete m_pdmField; }
     private:
         ItemTypeInput m_itemTypeInput;
         int m_index;
         caf::PdmField<std::vector<QString>> *m_pdmField;
     public:
-        ItemTypeInput itemTypeInput() { return m_itemTypeInput; }
+        ItemTypeInput itemTypeInput() const { return m_itemTypeInput; }
         int index() const { return m_index; }
         caf::PdmField<std::vector<QString>>* pdmField() { return m_pdmField; }
     };
 
-    typedef std::pair<ItemTypeInput, PdmFieldInfo*>  PdmFieldInfoElement;
-    typedef std::pair<ItemTypeInput, QString>    Selection;
+    typedef std::map<ItemTypeInput, std::vector<QString>>   SelectionList;
+    typedef std::map<ItemType, std::vector<PdmFieldInfo*>>  ItemTypeInputSelections;
 
 public:
     RicSummaryCurveCreator();
@@ -124,21 +108,17 @@ private:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses();
-    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses(const std::vector<Selection> &selections, bool ignoreSelections = false);
+    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses(const PdmFieldInfo *currPdmFieldInfo, const ItemTypeInputSelections &selections);
+    SelectionList buildSelectionList(const PdmFieldInfo *currPdmFieldInfo);
     RifEclipseSummaryAddress::SummaryVarCategory mapItemType(ItemType itemType);
     QString getItemTypeValueFromAddress(ItemTypeInput itemTypeInput, const RifEclipseSummaryAddress &address);
-    PdmFieldInfo* findPdmFieldInfo(const caf::PdmFieldHandle* fieldNeedingOptions);
+    PdmFieldInfo* findPdmFieldInfo(const caf::PdmFieldHandle* pdmFieldHandle);
     PdmFieldInfo* findParentPdmFieldInfo(const PdmFieldInfo *pdmFieldInfo);
-    bool isAddressSelected(const RifEclipseSummaryAddress &address, const std::vector<Selection> &selections);
-    std::vector<Selection> buildSelectionVector(const caf::PdmFieldHandle *pdmField);
-    ItemType findItemTypeFromPdmField(const caf::PdmFieldHandle *pdmField);
+    bool isAddressSelected(const RifEclipseSummaryAddress &address, const SelectionList &selections);
 
 private:
-    caf::PdmPtrArrayField<RimSummaryCase*>			 m_selectedCases;
-    caf::PdmField<caf::AppEnum<ItemType>>			 m_selectedItemType;
-    std::map<ItemType, std::vector<PdmFieldInfo*>>   m_itemTypePdmFields;
-    caf::PdmField<std::vector<QString>>				 m_selectedVectors;
-    caf::PdmField<std::vector<QString>>              m_selectedCurves;
+    caf::PdmPtrArrayField<RimSummaryCase*>          m_selectedCases;
+    caf::PdmField<caf::AppEnum<ItemType>>           m_selectedItemType;
+    std::map<ItemType, std::vector<PdmFieldInfo*>>  m_itemTypePdmFields;
+    caf::PdmChildArrayField<RimSummaryCurve*>       m_selectedCurves;
 };
-
