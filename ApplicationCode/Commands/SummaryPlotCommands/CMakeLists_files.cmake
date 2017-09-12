@@ -15,6 +15,7 @@ ${CEE_CURRENT_LIST_DIR}RicViewZoomAllFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveSwitchAxisFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPasteSummaryPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPasteSummaryCurveFeature.h
+${CEE_CURRENT_LIST_DIR}RicPasteSummaryCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicAsciiExportSummaryPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewGridTimeHistoryCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSelectSummaryPlotUI.h
@@ -34,6 +35,7 @@ ${CEE_CURRENT_LIST_DIR}RicViewZoomAllFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveSwitchAxisFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicPasteSummaryPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicPasteSummaryCurveFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicPasteSummaryCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicAsciiExportSummaryPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewGridTimeHistoryCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSelectSummaryPlotUI.cpp

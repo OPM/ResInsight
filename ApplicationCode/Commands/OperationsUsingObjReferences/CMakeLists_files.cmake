@@ -6,6 +6,7 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicCopyReferencesToClipboardFeature.h
+${CEE_CURRENT_LIST_DIR}RicCutReferencesToClipboardFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPasteFeatureImpl.h
 
 ${CEE_CURRENT_LIST_DIR}RicPasteEclipseCasesFeature.h
@@ -15,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RicPasteGeoMechViewsFeature.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCopyReferencesToClipboardFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCutReferencesToClipboardFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicPasteFeatureImpl.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicPasteEclipseCasesFeature.cpp

@@ -444,13 +444,15 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicWellPathImportCompletionsFileFeature";
         commandIds << "RicFlyToObjectFeature";
         commandIds << "RicExportCarfin";
+
+        commandIds << "RicPasteSummaryCaseFeature";
         commandIds << "RicReloadSummaryCaseFeature";
         commandIds << "RicCreateSummaryCaseCollectionFeature";
         commandIds << "Separator";
 		commandIds << "RicCloseSummaryCaseFeature";
         commandIds << "RicCloseSummaryCaseInCollectionFeature";
         commandIds << "RicDeleteSummaryCaseCollectionFeature";
-
+        commandIds << "RicCutReferencesToClipboardFeature";
 
         // Fracture commands
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES

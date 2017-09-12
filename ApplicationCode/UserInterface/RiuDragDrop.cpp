@@ -510,10 +510,11 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop(Qt::DropAction action, caf
             summaryCaseCollection->removeCase(summaryCase);
             summaryCaseDropTarget->addCase(summaryCase);
             summaryCaseCollection->updateConnectedEditors();
-            continue;
         }
     }
+
     summaryCaseDropTarget->updateConnectedEditors();
+    
     return true;
 }
 

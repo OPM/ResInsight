@@ -149,3 +149,14 @@ void RicPasteFeatureImpl::setIconAndShortcuts(QAction* action)
         action->setShortcuts(QKeySequence::Paste);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicPasteFeatureImpl::clearClipboard()
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    if (!clipboard) return;
+    
+    clipboard->setMimeData(nullptr);
+}

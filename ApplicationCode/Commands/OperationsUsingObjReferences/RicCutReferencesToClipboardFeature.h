@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,42 +19,25 @@
 
 #pragma once
 
+#include "cafCmdFeature.h"
 
-#include <vector>
-
-class QString;
-class QAction;
-
-class RimEclipseCase;
-class RimGeoMechCase;
-class RimIdenticalGridCaseGroup;
-
-namespace caf 
+namespace caf
 {
-    class PdmObjectGroup;
-    class PdmObjectHandle;
-} 
+    class PdmObject;
+}
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicPasteFeatureImpl
+class RicCutReferencesToClipboardFeature : public caf::CmdFeature
 {
-public:
-    static void findObjectsFromClipboardRefs(caf::PdmObjectGroup* objectGroup);
-
-    static RimIdenticalGridCaseGroup* findGridCaseGroup(caf::PdmObjectHandle* objectHandle);
-    static RimEclipseCase* findEclipseCase(caf::PdmObjectHandle* objectHandle);
-    static RimGeoMechCase* findGeoMechCase(caf::PdmObjectHandle* objectHandle);
-
-    static void setIconAndShortcuts(QAction* action);
-
-    static void clearClipboard();
+    CAF_CMD_HEADER_INIT;
 
 private:
-    static void populateObjectGroupFromReferences(const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup);
-    static void referencesFromClipboard(std::vector<QString>& referenceList);
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
+
+    static bool isAnyCuttableObjectSelected();
+    static bool isCuttingOfObjectSupported(caf::PdmObject* pdmObject);
 };
-
-
-
