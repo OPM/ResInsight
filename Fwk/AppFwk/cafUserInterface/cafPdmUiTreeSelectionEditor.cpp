@@ -47,6 +47,45 @@
 #include <algorithm>
 
 
+//==================================================================================================
+/// Helper class used to control height of size hint
+//==================================================================================================
+class QTreeViewHeightHint : public QTreeView
+{
+public:
+    explicit QTreeViewHeightHint(QWidget *parent = 0)
+        : m_heightHint(-1)
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual QSize sizeHint() const override
+    {
+        QSize mySize = QTreeView::sizeHint();
+
+        if (m_heightHint > 0)
+        {
+            mySize.setHeight(m_heightHint);
+        }
+
+        return mySize;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void setHeightHint(int heightHint)
+    {
+        m_heightHint = heightHint;
+    }
+
+private:
+    int m_heightHint;
+};
+
+
 namespace caf
 {
 
@@ -338,15 +377,18 @@ void PdmUiTreeSelectionEditor::setSelectionStateForIndices(const std::vector<int
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget * parent)
 {
-    m_treeView = new QTreeView(parent);
+    QTreeViewHeightHint* treeViewHeightHint = new QTreeViewHeightHint(parent);
+    treeViewHeightHint->setHeightHint(2000);
 
-    m_treeView->setHeaderHidden(true);
-    m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    treeViewHeightHint->setHeaderHidden(true);
+    treeViewHeightHint->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    treeViewHeightHint->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+    connect(treeViewHeightHint, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
-    return m_treeView;
+    m_treeView = treeViewHeightHint;
+
+    return treeViewHeightHint;
 }
 
 //--------------------------------------------------------------------------------------------------
