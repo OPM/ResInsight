@@ -919,7 +919,7 @@ RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
 {
     if (m_eclipseCase)
     {
-        return m_eclipseCase->results(cellResult->porosityModel());
+        return m_eclipseCase->resultsStorage(cellResult->porosityModel());
     }
 
     return NULL;

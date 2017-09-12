@@ -179,8 +179,8 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
          readerInterface = readerEclipseOutput; 
     }
 
-    results(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
-    results(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+    resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+    resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
 
     progInfo.incrementProgress();
 
@@ -262,8 +262,8 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
         readerInterface = readerEclipseOutput;
     }
 
-    results(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
-    results(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+    resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+    resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
 
     CVF_ASSERT(this->eclipseCaseData());
     CVF_ASSERT(readerInterface.notNull());
@@ -280,9 +280,9 @@ bool RimEclipseResultCase::openAndReadActiveCellData(RigEclipseCaseData* mainEcl
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::loadAndUpdateSourSimData()
 {
-    if (!results(RiaDefines::MATRIX_MODEL)) return;
+    if (!resultsStorage(RiaDefines::MATRIX_MODEL)) return;
 
-    results(RiaDefines::MATRIX_MODEL)->cellResults()->setHdf5Filename(m_sourSimFileName);
+    resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->setHdf5Filename(m_sourSimFileName);
 
     if (!hasSourSimFile())
     {

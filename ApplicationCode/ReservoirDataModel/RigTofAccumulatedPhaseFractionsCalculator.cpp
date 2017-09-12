@@ -46,7 +46,7 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
 {
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
     RiaDefines::PorosityModelType porosityModel = RiaDefines::MATRIX_MODEL;
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->resultsStorage(porosityModel);
 
     size_t scalarResultIndexSwat = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SWAT");
     size_t scalarResultIndexSoil = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");

@@ -235,7 +235,7 @@ cvf::ref<RigResultAccessor> RigEclipseToStimPlanCellTransmissibilityCalculator::
 {
     CVF_ASSERT(eclipseCase);
 
-    RimReservoirCellResultsStorage* gridCellResults = eclipseCase->results(porosityModel);
+    RimReservoirCellResultsStorage* gridCellResults = eclipseCase->resultsStorage(porosityModel);
 
     // Calling this function will force loading of result from file
     gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, uiResultName);

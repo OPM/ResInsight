@@ -185,7 +185,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     CVF_ASSERT(rigCaseData);
 
     RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
-    mainCase->results(poroModel)->cellResults()->createPlaceholderResultEntries();
+    mainCase->resultsStorage(poroModel)->cellResults()->createPlaceholderResultEntries();
 
 
     // Action A : Read active cell info
@@ -217,8 +217,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         RimEclipseCase* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
-        if (rimReservoir->results(RiaDefines::MATRIX_MODEL)->storedResultsCount() > 0 ||
-            rimReservoir->results(RiaDefines::FRACTURE_MODEL)->storedResultsCount() > 0)
+        if (rimReservoir->resultsStorage(RiaDefines::MATRIX_MODEL)->storedResultsCount() > 0 ||
+            rimReservoir->resultsStorage(RiaDefines::FRACTURE_MODEL)->storedResultsCount() > 0)
         {
             foundResultsInCache = true;
             break;
@@ -247,7 +247,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
             RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
             if (!rimReservoir) continue; // Input reservoir
 
-            RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->results(poroModel);
+            RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->resultsStorage(poroModel);
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
@@ -422,13 +422,13 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
-        if (rimStaticsCase->results(RiaDefines::MATRIX_MODEL)->cellResults())
+        if (rimStaticsCase->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults())
         {
-            rimStaticsCase->results(RiaDefines::MATRIX_MODEL)->cellResults()->clearAllResults();
+            rimStaticsCase->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->clearAllResults();
         }
-        if (rimStaticsCase->results(RiaDefines::FRACTURE_MODEL)->cellResults())
+        if (rimStaticsCase->resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults())
         {
-            rimStaticsCase->results(RiaDefines::FRACTURE_MODEL)->cellResults()->clearAllResults();
+            rimStaticsCase->resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->clearAllResults();
         }
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)

@@ -341,15 +341,15 @@ public:
             nncData->makeGeneratedConnectionScalarResult(propertyName, m_timeStepCountToRead);
         }
 
-        if (rimCase && rimCase->results(m_porosityModelEnum))
+        if (rimCase && rimCase->resultsStorage(m_porosityModelEnum))
         {
-            bool ok = createIJKCellResults(rimCase->results(m_porosityModelEnum), propertyName);
+            bool ok = createIJKCellResults(rimCase->resultsStorage(m_porosityModelEnum), propertyName);
             if (!ok)
             {
                 server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
                 return true;
             }
-            size_t scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(QString("%1IJK").arg(propertyName));
+            size_t scalarResultIndex = rimCase->resultsStorage(m_porosityModelEnum)->findOrLoadScalarResult(QString("%1IJK").arg(propertyName));
             nncData->setScalarResultIndex(propertyName, scalarResultIndex);
         }
 

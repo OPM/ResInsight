@@ -163,7 +163,7 @@ RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResul
 {
     if (!m_eclipseCase ) return nullptr;
 
-    return m_eclipseCase->results(m_porosityModel());
+    return m_eclipseCase->resultsStorage(m_porosityModel());
 }
 
 //--------------------------------------------------------------------------------------------------

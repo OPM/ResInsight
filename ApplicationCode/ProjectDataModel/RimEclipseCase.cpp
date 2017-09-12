@@ -483,7 +483,33 @@ cvf::Vec3d RimEclipseCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimEclipseCase::results(RiaDefines::PorosityModelType porosityModel)
+RigCaseCellResultsData* RimEclipseCase::results(RiaDefines::PorosityModelType porosityModel)
+{
+    if (m_rigEclipseCase.notNull()) 
+    {
+        return m_rigEclipseCase->results(porosityModel);
+    }
+    
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigCaseCellResultsData* RimEclipseCase::results(RiaDefines::PorosityModelType porosityModel) const
+{
+    if (m_rigEclipseCase.notNull()) 
+    {
+        return m_rigEclipseCase->results(porosityModel);
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage(RiaDefines::PorosityModelType porosityModel)
 {
     if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
@@ -496,7 +522,7 @@ RimReservoirCellResultsStorage* RimEclipseCase::results(RiaDefines::PorosityMode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimReservoirCellResultsStorage* RimEclipseCase::results(RiaDefines::PorosityModelType porosityModel) const
+const RimReservoirCellResultsStorage* RimEclipseCase::resultsStorage(RiaDefines::PorosityModelType porosityModel) const
 {
     if (porosityModel == RiaDefines::MATRIX_MODEL)
     {
@@ -550,7 +576,7 @@ bool RimEclipseCase::openReserviorCase()
     }
 
     {
-        RimReservoirCellResultsStorage* results = this->results(RiaDefines::MATRIX_MODEL);
+        RimReservoirCellResultsStorage* results = this->resultsStorage(RiaDefines::MATRIX_MODEL);
         if (results && results->cellResults())
         {
             results->cellResults()->createPlaceholderResultEntries();
@@ -581,7 +607,7 @@ bool RimEclipseCase::openReserviorCase()
     }
 
     {
-        RimReservoirCellResultsStorage* results = this->results(RiaDefines::FRACTURE_MODEL);
+        RimReservoirCellResultsStorage* results = this->resultsStorage(RiaDefines::FRACTURE_MODEL);
         if (results && results->cellResults())
         {
             results->cellResults()->createPlaceholderResultEntries();
@@ -613,7 +639,7 @@ QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    int timeStepCount = static_cast<int>(results(RiaDefines::MATRIX_MODEL)->cellResults()->maxTimeStepCount());
+    int timeStepCount = static_cast<int>(resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->maxTimeStepCount());
     for (int i = 0; i < timeStepCount; i++)
     {
         stringList += this->timeStepName(i);
@@ -715,5 +741,5 @@ double RimEclipseCase::characteristicCellSize() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
-    return results(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepDates();
+    return resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepDates();
 }

@@ -75,13 +75,13 @@ public:
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (rimCase && rimCase->results(porosityModelEnum))
+        if (rimCase && rimCase->resultsStorage(porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->resultsStorage(porosityModelEnum)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(rimCase->resultsStorage(porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
             }
 
         }
@@ -253,9 +253,9 @@ public:
         else
         {
             // Find the requested data
-            if (rimCase && rimCase->results(porosityModelEnum))
+            if (rimCase && rimCase->resultsStorage(porosityModelEnum))
             {
-                scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
+                scalarResultIndex = rimCase->resultsStorage(porosityModelEnum)->findOrLoadScalarResult(propertyName);
             }
         }
 
@@ -276,7 +276,7 @@ public:
         if (args.size() <= 5)
         {
             // Select all
-            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModelEnum)->cellResults()->timeStepCount(scalarResultIndex); ++tsIdx)
+            for (size_t tsIdx = 0; tsIdx < rimCase->resultsStorage(porosityModelEnum)->cellResults()->timeStepCount(scalarResultIndex); ++tsIdx)
             {
                 requestedTimesteps.push_back(tsIdx);
             }
@@ -409,24 +409,24 @@ public:
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (rimCase && rimCase->results(m_porosityModelEnum))
+        if (rimCase && rimCase->resultsStorage(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
+            scalarResultIndex = rimCase->resultsStorage(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
 
                 size_t scalarResWithMostTimeSteps = cvf::UNDEFINED_SIZE_T;
-                rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount(&scalarResWithMostTimeSteps);
-                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->results(m_porosityModelEnum)->cellResults()->timeStepInfos(scalarResWithMostTimeSteps);
-                rimCase->results(m_porosityModelEnum)->cellResults()->setTimeStepInfos(scalarResultIndex, timeStepInfos);
+                rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->maxTimeStepCount(&scalarResWithMostTimeSteps);
+                const std::vector<RigEclipseTimeStepInfo> timeStepInfos = rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->timeStepInfos(scalarResWithMostTimeSteps);
+                rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->setTimeStepInfos(scalarResultIndex, timeStepInfos);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
-                size_t timeStepCount = rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
+                scalarResultFrames = &(rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                size_t timeStepCount = rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
                 scalarResultFrames->resize(timeStepCount);
 
                 m_currentScalarIndex = scalarResultIndex;
@@ -660,7 +660,7 @@ public:
                     if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
                     {
                         std::vector< std::vector<double> >* scalarResultFrames = NULL;
-                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellResults()->cellScalarResults(m_currentScalarIndex));
+                        scalarResultFrames = &(m_currentReservoir->resultsStorage(m_porosityModelEnum)->cellResults()->cellScalarResults(m_currentScalarIndex));
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for (size_t i = 0; i < scalarResultFrames->size(); i++)
                         {
@@ -802,19 +802,19 @@ public:
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (rimCase && rimCase->results(m_porosityModelEnum))
+        if (rimCase && rimCase->resultsStorage(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
+            scalarResultIndex = rimCase->resultsStorage(m_porosityModelEnum)->findOrLoadScalarResult(RiaDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultIndex = rimCase->results(m_porosityModelEnum)->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
-                size_t timeStepCount = rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
+                scalarResultFrames = &(rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                size_t timeStepCount = rimCase->resultsStorage(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
                 scalarResultFrames->resize(timeStepCount);
 
                 m_currentScalarIndex = scalarResultIndex;
@@ -1023,7 +1023,7 @@ public:
                     if (m_requestedTimesteps.size() == 1 && m_currentScalarIndex != cvf::UNDEFINED_SIZE_T)
                     {
                         std::vector< std::vector<double> >* scalarResultFrames = NULL;
-                        scalarResultFrames = &(m_currentReservoir->results(m_porosityModelEnum)->cellResults()->cellScalarResults(m_currentScalarIndex));
+                        scalarResultFrames = &(m_currentReservoir->resultsStorage(m_porosityModelEnum)->cellResults()->cellScalarResults(m_currentScalarIndex));
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for (size_t i = 0; i < scalarResultFrames->size(); i++)
                         {
@@ -1194,16 +1194,16 @@ public:
         }
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-        if (rimCase && rimCase->results(porosityModel))
+        if (rimCase && rimCase->resultsStorage(porosityModel))
         {
-            scalarResultIndex = rimCase->results(porosityModel)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->resultsStorage(porosityModel)->findOrLoadScalarResult(propertyName);
         }
 
         std::vector<size_t> requestedTimesteps;
         if (args.size() < 5)
         {
             // Select all
-            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModel)->cellResults()->timeStepCount(scalarResultIndex); ++tsIdx)
+            for (size_t tsIdx = 0; tsIdx < rimCase->resultsStorage(porosityModel)->cellResults()->timeStepCount(scalarResultIndex); ++tsIdx)
             {
                 requestedTimesteps.push_back(tsIdx);
             }
@@ -1256,7 +1256,7 @@ public:
 
         for (size_t timeStep : requestedTimesteps)
         {
-            const std::vector<double>& scalarResults = rimCase->results(porosityModel)->cellResults()->cellScalarResults(scalarResultIndex, timeStep);
+            const std::vector<double>& scalarResults = rimCase->resultsStorage(porosityModel)->cellResults()->cellScalarResults(scalarResultIndex, timeStep);
 
 
             for (const std::pair<size_t, size_t> selectedCell : selectedCells)

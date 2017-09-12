@@ -79,7 +79,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
+    RimReservoirCellResultsStorage* gridCellResults = caseToApply->resultsStorage(RiaDefines::MATRIX_MODEL);
 
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     size_t resultCellCount    = actCellInfo->reservoirCellResultCount();
