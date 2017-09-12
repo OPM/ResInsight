@@ -105,7 +105,7 @@ RimSummaryPlot* RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCol
 
     if (summaryCase)
     {
-        newCurveFilter->createCurves(summaryCase, RiaApplication::instance()->preferences()->defaultCurveFilter());
+        newCurveFilter->createDefaultCurves(summaryCase, RiaApplication::instance()->preferences()->defaultCurveFilter());
     }
 
     plot->addCurveFilter(newCurveFilter);

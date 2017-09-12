@@ -129,17 +129,17 @@ RimSummaryCurveFilter::~RimSummaryCurveFilter()
     m_curves.deleteAllChildObjects();
 }
 
-//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------d
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::createCurves(RimSummaryCase* summaryCase, const QString& stringFilter)
+void RimSummaryCurveFilter::createDefaultCurves(RimSummaryCase* summaryCase, const QString& defaultCurveStringFilter)
 {
     if (summaryCase)
     {
         std::vector<RimSummaryCase*> selectedCases;
         selectedCases.push_back(summaryCase);
 
-        m_summaryFilter->setCompleteVarStringFilter(stringFilter);
+        m_summaryFilter->setCompleteVarStringFilter(defaultCurveStringFilter);
 
         std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
 

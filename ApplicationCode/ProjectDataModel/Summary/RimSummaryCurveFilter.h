@@ -57,7 +57,7 @@ public:
     RimSummaryCurveFilter();
     virtual ~RimSummaryCurveFilter();
 
-    void                                    createCurves(RimSummaryCase* summaryCase, const QString& stringFilter);
+    void                                    createDefaultCurves(RimSummaryCase* summaryCase, const QString& stringFilter);
     bool                                    isCurvesVisible();
 
     void                                    loadDataAndUpdate();
