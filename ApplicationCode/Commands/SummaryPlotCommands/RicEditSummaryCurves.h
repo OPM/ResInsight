@@ -40,6 +40,6 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup);
 
 private:
-	RicSummaryCurveCreator*		m_curveCreator;
-    caf::PdmUiPropertyViewDialog* m_dialog;
+// 	RicSummaryCurveCreator*		m_curveCreator;
+//     caf::PdmUiPropertyViewDialog* m_dialog;
 };

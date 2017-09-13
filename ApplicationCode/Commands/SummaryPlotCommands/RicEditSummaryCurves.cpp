@@ -49,6 +49,7 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
+/*
 	if (m_curveCreator == nullptr)
 	{
 		m_curveCreator = new RicSummaryCurveCreator();
@@ -56,9 +57,10 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
 	}
 	if(!m_dialog->isVisible())
 		m_dialog->show();
+*/
 
-
-    RicSummaryCurveCreatorUi summaryCurveCreator(nullptr, m_curveCreator);
+    RicSummaryCurveCreator curveCreator;
+    RicSummaryCurveCreatorUi summaryCurveCreator(nullptr, &curveCreator);
     summaryCurveCreator.exec();
 
 //    openSelector(summaryCase);

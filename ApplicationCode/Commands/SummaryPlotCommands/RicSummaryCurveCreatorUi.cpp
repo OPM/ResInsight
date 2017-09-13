@@ -32,7 +32,7 @@ RicSummaryCurveCreatorUi::RicSummaryCurveCreatorUi(QWidget* parent, RicSummaryCu
     m_summaryCurveCreator(summaryCurveCreator)
 {
     m_customObjectEditor = new RiuCustomObjectEditor;
-    m_customObjectEditor->defineGridLayout(4, 2);
+    m_customObjectEditor->defineGridLayout(2, 4);
 
     QWidget* propertyWidget = m_customObjectEditor->getOrCreateWidget(this);
 
