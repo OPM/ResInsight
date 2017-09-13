@@ -158,5 +158,5 @@ void RicPasteFeatureImpl::clearClipboard()
     QClipboard* clipboard = QApplication::clipboard();
     if (!clipboard) return;
     
-    clipboard->setMimeData(nullptr);
+    clipboard->clear();
 }
