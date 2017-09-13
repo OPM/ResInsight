@@ -18,6 +18,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 //==================================================================================================
 //
@@ -45,6 +46,18 @@ public:
         SUMMARY_WELL_SEGMENT,       
         SUMMARY_BLOCK,              
         SUMMARY_BLOCK_LGR,          
+    };
+
+    enum SummaryIdentifierType
+    {
+        INPUT_REGION_NUMBER,
+        INPUT_REGION2_NUMBER,
+        INPUT_WELL_NAME,
+        INPUT_WELL_GROUP_NAME,
+        INPUT_CELL_IJK,
+        INPUT_LGR_NAME,
+        INPUT_SEGMENT_NUMBER,
+        INPUT_VECTOR_NAME
     };
 
 public:
@@ -85,6 +98,9 @@ public:
     {
     }
 
+    RifEclipseSummaryAddress(SummaryVarCategory category,
+                             std::map<SummaryIdentifierType, std::string>& identifiers);
+    
     // Static specialized creation methods
 
     static RifEclipseSummaryAddress fieldVarAddress(const std::string& fieldVarName);

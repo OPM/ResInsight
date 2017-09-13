@@ -17,6 +17,89 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseSummaryAddress.h"
+#include "cvfAssert.h"
+
+// todo: Make class member
+std::tuple<int, int, int> ijkTupleFromString(const std::string &s)
+{
+    auto firstSep = s.find(',');
+    auto lastSep = s.find(',', firstSep + 1);
+    CVF_ASSERT(firstSep != std::string::npos && lastSep != std::string::npos);
+    auto textI = s.substr(0, firstSep);
+    auto textJ = s.substr(firstSep + 1, lastSep - firstSep - 1);
+    auto textK = s.substr(lastSep + 1);
+    return std::make_tuple(std::stoi(textI), std::stoi(textJ), std::stoi(textK));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
+                                                   std::map<SummaryIdentifierType, std::string>& identifiers) :
+    m_variableCategory(category),
+    m_regionNumber(-1),
+    m_regionNumber2(-1),
+    m_wellSegmentNumber(-1),
+    m_cellI(-1),
+    m_cellJ(-1),
+    m_cellK(-1)
+{
+    std::tuple<int, int, int> ijkTuple;
+    switch (category)
+    {
+    case SUMMARY_REGION:
+        m_regionNumber = std::stoi(identifiers[INPUT_REGION_NUMBER]);
+        break;
+    case SUMMARY_REGION_2_REGION:
+        m_regionNumber = std::stoi(identifiers[INPUT_REGION_NUMBER]);
+        m_regionNumber2 = std::stoi(identifiers[INPUT_REGION2_NUMBER]);
+        break;
+    case SUMMARY_WELL_GROUP:
+        m_wellGroupName = identifiers[INPUT_WELL_GROUP_NAME];
+        break;
+    case SUMMARY_WELL:
+        m_wellName = identifiers[INPUT_WELL_NAME];
+        break;
+    case SUMMARY_WELL_COMPLETION:
+        m_wellName = identifiers[INPUT_WELL_NAME];
+        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        m_cellI = std::get<0>(ijkTuple);
+        m_cellJ = std::get<1>(ijkTuple);
+        m_cellK = std::get<2>(ijkTuple);
+        break;
+    case SUMMARY_WELL_LGR:
+        m_lgrName = identifiers[INPUT_LGR_NAME];
+        m_wellName = identifiers[INPUT_WELL_NAME];
+        break;
+    case SUMMARY_WELL_COMPLETION_LGR:
+        m_lgrName = identifiers[INPUT_LGR_NAME];
+        m_wellName = identifiers[INPUT_WELL_NAME];
+        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        m_cellI = std::get<0>(ijkTuple);
+        m_cellJ = std::get<1>(ijkTuple);
+        m_cellK = std::get<2>(ijkTuple);
+        break;
+    case SUMMARY_WELL_SEGMENT:
+        m_wellName = identifiers[INPUT_WELL_NAME];
+        m_wellSegmentNumber = std::stoi(identifiers[INPUT_SEGMENT_NUMBER]);
+    case SUMMARY_BLOCK:
+        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        m_cellI = std::get<0>(ijkTuple);
+        m_cellJ = std::get<1>(ijkTuple);
+        m_cellK = std::get<2>(ijkTuple);
+        break;
+    case SUMMARY_BLOCK_LGR:
+        m_lgrName = identifiers[INPUT_LGR_NAME];
+        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        m_cellI = std::get<0>(ijkTuple);
+        m_cellJ = std::get<1>(ijkTuple);
+        m_cellK = std::get<2>(ijkTuple);
+        break;
+    }
+
+    // Set quantity for all categories
+    m_quantityName = identifiers[INPUT_VECTOR_NAME];
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
