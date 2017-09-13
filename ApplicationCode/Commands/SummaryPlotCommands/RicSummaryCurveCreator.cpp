@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include <sstream>
+#include <stack>
 #include "RicSummaryCurveCreator.h"
 
 #include "RiaApplication.h"
@@ -38,67 +39,66 @@ CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
 RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
 {
     { RifEclipseSummaryAddress::SUMMARY_FIELD, {
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_AQUIFER, {
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_NETWORK, {
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_MISC, {
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_REGION,{
-        { new SummaryIdentifierAndField(INPUT_REGION_NUMBER) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION_NUMBER) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,{
-        { new SummaryIdentifierAndField(INPUT_REGION_NUMBER) },
-        { new SummaryIdentifierAndField(INPUT_REGION2_NUMBER) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION_NUMBER) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_REGION2_NUMBER) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,{
-        { new SummaryIdentifierAndField(INPUT_WELL_GROUP_NAME) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_WELL,{
-        { new SummaryIdentifierAndField(INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,{
-        { new SummaryIdentifierAndField(INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR,{
-        { new SummaryIdentifierAndField(INPUT_LGR_NAME) },
-        { new SummaryIdentifierAndField(INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_WELL_LGR,{
-        { new SummaryIdentifierAndField(INPUT_LGR_NAME) },
-        { new SummaryIdentifierAndField(INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,{
-        { new SummaryIdentifierAndField(INPUT_WELL_NAME) },
-        { new SummaryIdentifierAndField(INPUT_SEGMENT_NUMBER) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_WELL_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_BLOCK,{
-        { new SummaryIdentifierAndField(INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } },
     { RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,{
-        { new SummaryIdentifierAndField(INPUT_LGR_NAME) },
-        { new SummaryIdentifierAndField(INPUT_CELL_IJK) },
-        { new SummaryIdentifierAndField(INPUT_VECTOR_NAME) }
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } }
 })
 {
-
     //CAF_PDM_InitObject("Curve Filter", ":/SummaryCurveFilter16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
@@ -149,7 +149,9 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedCurves, "Curves", "Curves", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_previewPlot, "Curves", "Curves", "", "", "");
+
+    m_previewPlot = new RimSummaryPlot();
 
     for (const auto& itemTypes : m_selectedIdentifiers)
     {
@@ -168,8 +170,8 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
     m_selectedSummaryCategory.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedSummaryCategory.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_selectedCurves.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    m_selectedCurves.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_previewPlot.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    //m_previewPlot.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -191,6 +193,12 @@ RicSummaryCurveCreator::~RicSummaryCurveCreator()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    // Lookup item type input field
+    auto identifierAndField = findIdentifierAndField(changedField);
+    if (identifierAndField != nullptr && identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME)
+    {
+        loadDataAndUpdatePlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,6 +219,10 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         {
             options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
+    }
+    else if (fieldNeedingOptions == &m_previewPlot)
+    {
+
     }
     else
     {
@@ -437,7 +449,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 
 
     caf::PdmUiGroup* curvesGroup = uiOrdering.addNewGroup("Curves");
-    curvesGroup->add(&m_selectedCurves);
+    curvesGroup->add(&m_previewPlot);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -449,7 +461,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
-    auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() == INPUT_VECTOR_NAME;
+    auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
     auto controllingIdentifierAndField = identifierAndField != nullptr ? lookupControllingField(identifierAndField) : nullptr;
     if (!isVectorField && controllingIdentifierAndField != nullptr && controllingIdentifierAndField->pdmField()->v().size() == 0)
         return addrUnion;
@@ -508,19 +520,19 @@ std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> RicSummaryCurveC
 //--------------------------------------------------------------------------------------------------
 /// Returns the stringified value for the specified value in the specfied address object
 //--------------------------------------------------------------------------------------------------
-QString RicSummaryCurveCreator::getIdentifierTextFromAddress(SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address)
+QString RicSummaryCurveCreator::getIdentifierTextFromAddress(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address)
 {
     switch (itemTypeInput)
     {
-    case INPUT_REGION_NUMBER: return QString("%1").arg(address.regionNumber());
-    case INPUT_REGION2_NUMBER: return QString("%1").arg(address.regionNumber2());
-    case INPUT_WELL_NAME: return QString::fromStdString(address.wellName());
-    case INPUT_WELL_GROUP_NAME: return QString::fromStdString(address.wellGroupName());
-    case INPUT_CELL_IJK: return QString("%1,%2,%3").arg(QString::number(address.cellI()),
+    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER: return QString("%1").arg(address.regionNumber());
+    case RifEclipseSummaryAddress::INPUT_REGION2_NUMBER: return QString("%1").arg(address.regionNumber2());
+    case RifEclipseSummaryAddress::INPUT_WELL_NAME: return QString::fromStdString(address.wellName());
+    case RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME: return QString::fromStdString(address.wellGroupName());
+    case RifEclipseSummaryAddress::INPUT_CELL_IJK: return QString("%1,%2,%3").arg(QString::number(address.cellI()),
         QString::number(address.cellJ()), QString::number(address.cellK()));
-    case INPUT_LGR_NAME: return QString::fromStdString(address.lgrName());
-    case INPUT_SEGMENT_NUMBER: return QString("%1").arg(address.wellSegmentNumber());
-    case INPUT_VECTOR_NAME: return QString::fromStdString(address.quantityName());
+    case RifEclipseSummaryAddress::INPUT_LGR_NAME: return QString::fromStdString(address.lgrName());
+    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return QString("%1").arg(address.wellSegmentNumber());
+    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return QString::fromStdString(address.quantityName());
     }
     return "";
 }
@@ -582,4 +594,126 @@ bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &a
             return false;
     }
     return true;
+}
+
+std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromSelections()
+{
+    std::set<RifEclipseSummaryAddress> addressSet;
+    for (const auto& identifierAndFieldList : m_selectedIdentifiers)
+    {
+        std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
+        addSelectionAddress(identifierAndFieldList.first, identifierAndFieldList.second.begin(), addressSet, selectionStack);
+    }
+    return addressSet;
+}
+
+void RicSummaryCurveCreator::addSelectionAddress(RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                 std::vector<SummaryIdentifierAndField*>::const_iterator& identifierAndFieldItr, 
+                                                 std::set<RifEclipseSummaryAddress>& addressSet,
+                                                 std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath)
+{
+    for (const auto& identifierText : (*identifierAndFieldItr)->pdmField()->v())
+    {
+        identifierPath.push_back(std::make_pair((*identifierAndFieldItr)->summaryIdentifier(), identifierText));
+        if ((*identifierAndFieldItr)->summaryIdentifier() != RifEclipseSummaryAddress::INPUT_VECTOR_NAME)
+        {
+            addSelectionAddress(category, std::next(identifierAndFieldItr, 1), addressSet, identifierPath);
+        }
+        else
+        {
+            std::map<RifEclipseSummaryAddress::SummaryIdentifierType, std::string> selectedIdentifiers;
+            for (const auto& identifier : identifierPath)
+            {
+                selectedIdentifiers.insert(std::make_pair(identifier.first, identifier.second.toStdString()));
+            }
+            auto address = RifEclipseSummaryAddress(category, selectedIdentifiers);
+            addressSet.insert(address);
+        }
+        identifierPath.pop_back();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::loadDataAndUpdatePlot()
+{
+    syncCurvesFromUiSelection();
+    //loadDataAndUpdate();
+
+    //RimSummaryPlot* plot = nullptr;
+    //firstAncestorOrThisOfType(plot);
+    //plot->updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::syncCurvesFromUiSelection()
+{
+    // Create a search map containing whats supposed to be curves
+
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
+
+    // Populate the newCurveDefinitions from the Gui
+
+    std::set<RifEclipseSummaryAddress> selectedAddresses = buildAddressListFromSelections();
+
+    // Todo: Move to separate method
+    std::set<RifEclipseSummaryAddress> addrUnion;
+    for (RimSummaryCase* currCase : m_selectedCases)
+    {
+        RifReaderEclipseSummary* reader = nullptr;
+        if (currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
+        if (reader)
+        {
+            const std::vector<RifEclipseSummaryAddress>& allAddresses = reader->allResultAddresses();
+            int addressCount = static_cast<int>(allAddresses.size());
+
+            for (int i = 0; i < addressCount; i++)
+            {
+                if (selectedAddresses.count(allAddresses[i]) > 0)
+                {
+                    addrUnion.insert(allAddresses[i]);
+                    newCurveDefinitions.insert(std::make_pair(currCase, allAddresses[i]));
+                }
+
+                // Todo: Add text filter
+                //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
+            }
+        }
+    }
+
+    for (const auto& curveDef : newCurveDefinitions)
+    {
+        RimSummaryCase* currentCase = curveDef.first;
+        RimSummaryCurve* curve = new RimSummaryCurve();
+        //curve->setParentQwtPlot(m_parentQwtPlot);
+        curve->setSummaryCase( currentCase);
+        curve->setSummaryAddress(curveDef.second);
+        //curve->setYAxis(m_plotAxis());
+        //curve->applyCurveAutoNameSettings();
+
+        m_previewPlot->addCurve(curve);
+    }
+
+    //for (RimSummaryCase* currentCase : m_selectedCases)
+    //{
+    //    if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
+
+    //    RifReaderEclipseSummary* reader = currentCase->caseData()->summaryReader();
+
+
+    //    for (const RifEclipseSummaryAddress& addr : m_uiFilterResultMultiSelection.v())
+    //    {
+    //        if (!reader->hasAddress(addr)) continue;
+    //        if (addrUnion.count(addr) == 0) continue; // Wash the possible "old" ui selection with new filter
+
+    //        newCurveDefinitions.insert(std::make_pair(currentCase, addr));
+    //    }
+    //}
+
+//    m_curves.deleteAllChildObjects();
+
+//    createCurvesFromCurveDefinitions(newCurveDefinitions);
 }

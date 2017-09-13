@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <stack>
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -29,6 +30,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
 
 class RimSummaryCase;
 
@@ -42,34 +44,23 @@ class RicSummaryCurveCreator : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SummaryIdentifierType
-    {
-        INPUT_REGION_NUMBER,
-        INPUT_REGION2_NUMBER,
-        INPUT_WELL_NAME,
-        INPUT_WELL_GROUP_NAME,
-        INPUT_CELL_IJK,
-        INPUT_LGR_NAME,
-        INPUT_SEGMENT_NUMBER,
-        INPUT_VECTOR_NAME
-    };
 
 private:
     class SummaryIdentifierAndField
     {
     public:
         SummaryIdentifierAndField() :
-            m_summaryIdentifier((SummaryIdentifierType)0),
+            m_summaryIdentifier((RifEclipseSummaryAddress::SummaryIdentifierType)0),
             m_pdmField(nullptr) {}
-        SummaryIdentifierAndField(SummaryIdentifierType summaryIdentifier) :
+        SummaryIdentifierAndField(RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier) :
             m_summaryIdentifier(summaryIdentifier),
             m_pdmField(new caf::PdmField<std::vector<QString>>()) {}
         virtual ~SummaryIdentifierAndField() { delete m_pdmField; }
 
-        SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
+        RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
         caf::PdmField<std::vector<QString>>* pdmField() { return m_pdmField; }
     private:
-        SummaryIdentifierType m_summaryIdentifier;
+        RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;
         caf::PdmField<std::vector<QString>> *m_pdmField;
     };
 
@@ -84,10 +75,15 @@ private:
 
     std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
     std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
-    QString getIdentifierTextFromAddress(SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address);
+    QString getIdentifierTextFromAddress(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address);
     SummaryIdentifierAndField* findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle);
     SummaryIdentifierAndField* lookupControllingField(const SummaryIdentifierAndField *identifierAndField);
     bool isAddressSelected(const RifEclipseSummaryAddress &address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
+    std::set<RifEclipseSummaryAddress> buildAddressListFromSelections();
+    void addSelectionAddress(RifEclipseSummaryAddress::SummaryVarCategory category, 
+                             std::vector<SummaryIdentifierAndField*>::const_iterator& identifierAndFieldItr,
+                             std::set<RifEclipseSummaryAddress>& addressSet,
+                             std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath);
 
     void loadDataAndUpdatePlot();
     void syncCurvesFromUiSelection();
@@ -96,5 +92,7 @@ private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_selectedIdentifiers;
-    caf::PdmChildArrayField<RimSummaryCurve*>                                                           m_selectedCurves;
+    //caf::PdmChildArrayField<RimSummaryCurve*>                                                           m_selectedCurves;
+    caf::PdmChildField<RimSummaryPlot*>                                                                 m_previewPlot;
+    //caf::PdmField<std::vector<QString>>                               m_selectedCurves;
 };
