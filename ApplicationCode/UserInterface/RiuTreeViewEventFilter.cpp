@@ -71,7 +71,7 @@ bool RiuTreeViewEventFilter::eventFilter(QObject *obj, QEvent *event)
             }
             else if (keyEvent->matches(QKeySequence::Cut))
             {
-                matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingSubString("Cut");
+                matches.push_back(caf::CmdFeatureManager::instance()->getCommandFeature("RicCutReferencesToClipboardFeature"));
             }
             else if (keyEvent->matches(QKeySequence::Paste))
             {
