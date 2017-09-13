@@ -132,6 +132,8 @@ QWidget* RiuCustomObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void RiuCustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem*>& topLevelUiItems, const QString& uiConfigName)
 {
+    if (!m_layout) return;
+
     resetCellId();
 
     QWidget* previousTabOrderWidget = NULL;

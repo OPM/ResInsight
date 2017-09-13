@@ -156,6 +156,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
         for (const auto& itemInputType : itemTypes.second)
         {
             itemInputType->pdmField()->uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
         }
     }
 

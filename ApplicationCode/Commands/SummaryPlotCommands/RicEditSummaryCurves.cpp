@@ -17,9 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicEditSummaryCurves.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RicSummaryCurveCreator.h"
+#include "RicSummaryCurveCreatorUi.h"
+
 #include "cafPdmUiPropertyViewDialog.h"
 
 #include <QAction>
@@ -52,6 +56,10 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
 	}
 	if(!m_dialog->isVisible())
 		m_dialog->show();
+
+
+    RicSummaryCurveCreatorUi summaryCurveCreator(nullptr, m_curveCreator);
+    summaryCurveCreator.exec();
 
 //    openSelector(summaryCase);
 }
