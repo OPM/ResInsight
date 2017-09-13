@@ -50,6 +50,7 @@ ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 ${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.h
 ${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.h
+${CEE_CURRENT_LIST_DIR}RiuCustomObjectEditor.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -97,6 +98,7 @@ ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.cpp
 ${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.cpp
+${CEE_CURRENT_LIST_DIR}RiuCustomObjectEditor.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -130,6 +132,7 @@ ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
+${CEE_CURRENT_LIST_DIR}RiuCustomObjectEditor.h
 )
 
 list(APPEND QT_UI_FILES
