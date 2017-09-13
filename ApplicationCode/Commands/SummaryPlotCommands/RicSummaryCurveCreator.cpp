@@ -187,10 +187,6 @@ RicSummaryCurveCreator::~RicSummaryCurveCreator()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_selectedCurves)
-    {
-        loadDataAndUpdatePlot();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,9 +266,8 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
-    auto isVectorField = identifierAndField->summaryIdentifier() == INPUT_VECTOR_NAME;
-    //auto applySelection = identifierAndField == NULL || identifierAndField->summaryIdentifier() == INPUT_VECTOR_NAME;
-    auto controllingIdentifierAndField = lookupControllingField(identifierAndField);
+    auto isVectorField = identifierAndField != nullptr && identifierAndField->summaryIdentifier() == INPUT_VECTOR_NAME;
+    auto controllingIdentifierAndField = identifierAndField != nullptr ? lookupControllingField(identifierAndField) : nullptr;
     if (!isVectorField && controllingIdentifierAndField != nullptr && controllingIdentifierAndField->pdmField()->v().size() == 0)
         return addrUnion;
 
@@ -285,8 +280,9 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
             const std::vector<RifEclipseSummaryAddress>& allAddresses = reader->allResultAddresses();
             int addressCount = static_cast<int>(allAddresses.size());
 
-            std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> selections;
-            if (!isVectorField && controllingIdentifierAndField != nullptr)
+            bool applySelections = identifierAndField == nullptr || (!isVectorField && controllingIdentifierAndField != nullptr);
+            std::vector<SummaryIdentifierAndField*> selections;
+            if (applySelections)
             {
                 // Build selections vector
                 selections = buildControllingFieldList(identifierAndField);
@@ -296,8 +292,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
             {
                 if (allAddresses[i].category() == m_selectedSummaryCategory())
                 {
-                    bool addressSelected = isVectorField || controllingIdentifierAndField != nullptr ? 
-                        isAddressSelected(allAddresses[i], selections) : true;
+                    bool addressSelected = applySelections ? isAddressSelected(allAddresses[i], selections) : true;
 
                     // Todo: Add text filter
                     //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
@@ -404,50 +399,4 @@ bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &a
             return false;
     }
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::loadDataAndUpdatePlot()
-{
-    //syncCurvesFromUiSelection();
-    //loadDataAndUpdate();
-
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType(plot);
-    plot->updateAxes();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::syncCurvesFromUiSelection()
-{
-    // Create a search map containing whats supposed to be curves
-
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
-
-    // Populate the newCurveDefinitions from the Gui
-
-    std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses(nullptr);
-
-    for (RimSummaryCase* currentCase : m_selectedCases)
-    {
-        if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
-
-        RifReaderEclipseSummary* reader = currentCase->caseData()->summaryReader();
-
-        //for (const RifEclipseSummaryAddress& addr : m_uiFilterResultMultiSelection.v())
-        //{
-        //    if (!reader->hasAddress(addr)) continue;
-        //    if (addrUnion.count(addr) == 0) continue; // Wash the possible "old" ui selection with new filter
-
-        //    newCurveDefinitions.insert(std::make_pair(currentCase, addr));
-        //}
-    }
-
-//    m_curves.deleteAllChildObjects();
-
-//    createCurvesFromCurveDefinitions(newCurveDefinitions);
 }

@@ -83,7 +83,7 @@ private:
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
     std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
-    std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
+    std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
     QString getIdentifierTextFromAddress(SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address);
     SummaryIdentifierAndField* findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle);
     SummaryIdentifierAndField* lookupControllingField(const SummaryIdentifierAndField *identifierAndField);
