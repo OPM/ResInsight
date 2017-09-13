@@ -258,7 +258,7 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView(const RimEclipseView* sourc
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::recalculateCompletionTypeAndRedrawAllViews()
 {
-    m_matrixModelResults->cellResults()->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
+    results(RiaDefines::MATRIX_MODEL)->clearScalarResult(RiaDefines::DYNAMIC_NATIVE, RiaDefines::completionTypeResultName());
 
     for (RimView* view : views())
     {
@@ -576,28 +576,28 @@ bool RimEclipseCase::openReserviorCase()
     }
 
     {
-        RimReservoirCellResultsStorage* results = this->resultsStorage(RiaDefines::MATRIX_MODEL);
-        if (results && results->cellResults())
+        RigCaseCellResultsData* results = this->results(RiaDefines::MATRIX_MODEL);
+        if (results )
         {
-            results->cellResults()->createPlaceholderResultEntries();
+            results->createPlaceholderResultEntries();
             // After the placeholder result for combined transmissibility is created, 
             // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
-            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+            size_t combinedTransResIdx = results->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
             if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(), combinedTransResIdx);
             }
-            size_t combinedWatFluxResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
+            size_t combinedWatFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
             if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(), combinedWatFluxResIdx);
             }
-            size_t combinedOilFluxResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
+            size_t combinedOilFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
             if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(), combinedOilFluxResIdx);
             }
-            size_t combinedGasFluxResIdx = results->cellResults()->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
+            size_t combinedGasFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
             if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
             {
                 eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(), combinedGasFluxResIdx);
@@ -607,10 +607,10 @@ bool RimEclipseCase::openReserviorCase()
     }
 
     {
-        RimReservoirCellResultsStorage* results = this->resultsStorage(RiaDefines::FRACTURE_MODEL);
-        if (results && results->cellResults())
+        RigCaseCellResultsData* results = this->results(RiaDefines::FRACTURE_MODEL);
+        if (results)
         {
-            results->cellResults()->createPlaceholderResultEntries();
+            results->createPlaceholderResultEntries();
         }
     }
 
@@ -639,7 +639,7 @@ QStringList RimEclipseCase::timeStepStrings() const
 {
     QStringList stringList;
 
-    int timeStepCount = static_cast<int>(resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->maxTimeStepCount());
+    int timeStepCount = static_cast<int>(results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount());
     for (int i = 0; i < timeStepCount; i++)
     {
         stringList += this->timeStepName(i);
@@ -741,5 +741,5 @@ double RimEclipseCase::characteristicCellSize() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RimEclipseCase::timeStepDates() const
 {
-    return resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepDates();
+    return results(RiaDefines::MATRIX_MODEL)->timeStepDates();
 }

@@ -243,11 +243,11 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
             {
                 if (m_statisticsTimeRange == ALL_TIMESTEPS)
                 {
-                    eclipseView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-                    eclipseView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-                    eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
-                    eclipseView->currentGridCellResults()->cellResults()->sumCellScalarValues(scalarIndex, sum);
-                    histogram = &(eclipseView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
+                    eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+                    eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+                    eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
+                    eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, sum);
+                    histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
                 }
                 else if (m_statisticsTimeRange == CURRENT_TIMESTEP )
                 {
@@ -257,11 +257,11 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                         currentTimeStep = 0;
                     }
 
-                    eclipseView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, min, max);
-                    eclipseView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, p10, p90);
-                    eclipseView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, mean);
-                    eclipseView->currentGridCellResults()->cellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, sum);
-                    histogram = &(eclipseView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
+                    eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, min, max);
+                    eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, p10, p90);
+                    eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, mean);
+                    eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, sum);
+                    histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
                 }
                 else
                 {
@@ -636,7 +636,7 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
             else
             {
                 size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
-                calc = new RigEclipseNativeVisibleCellsStatCalc(eclipseView->currentGridCellResults()->cellResults(),
+                calc = new RigEclipseNativeVisibleCellsStatCalc(eclipseView->currentGridCellResults(),
                                                                 scalarIndex,
                                                                 eclipseView->currentTotalCellVisibility().p());
             }

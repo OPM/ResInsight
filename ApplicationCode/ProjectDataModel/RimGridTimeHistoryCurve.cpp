@@ -168,12 +168,15 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         CVF_ASSERT(m_eclipseResultDefinition());
         m_eclipseResultDefinition->loadResult();
 
-        RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
-        RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
+        RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
 
         std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
 
-        values = RigTimeHistoryResultAccessor::timeHistoryValues(eclTopItem->eclipseCase()->eclipseCaseData(), m_eclipseResultDefinition(), gridIndex, cellIndex, timeStepDates.size());
+        values = RigTimeHistoryResultAccessor::timeHistoryValues(eclTopItem->eclipseCase()->eclipseCaseData(), 
+                                                                 m_eclipseResultDefinition(), 
+                                                                 gridIndex, 
+                                                                 cellIndex, 
+                                                                 timeStepDates.size());
     }
 
     if (geoMechGeomSelectionItem() && geoMechGeomSelectionItem()->geoMechCase())
@@ -366,8 +369,7 @@ std::vector<time_t> RimGridTimeHistoryCurve::timeStepValues() const
     RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if (eclTopItem && eclTopItem->eclipseCase())
     {
-        RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
-        RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
+        RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
 
         std::vector<QDateTime> timeStepDates = cellResultsData->timeStepDates();
 
@@ -415,8 +417,7 @@ std::vector<double> RimGridTimeHistoryCurve::daysSinceSimulationStart() const
     RimEclipseGeometrySelectionItem* eclTopItem = eclipseGeomSelectionItem();
     if (eclTopItem && eclTopItem->eclipseCase())
     {
-        RimReservoirCellResultsStorage* cellResStorage = m_eclipseResultDefinition->currentGridCellResults();
-        RigCaseCellResultsData* cellResultsData = cellResStorage->cellResults();
+        RigCaseCellResultsData* cellResultsData = m_eclipseResultDefinition->currentGridCellResults();
 
         daysSinceSimulationStart = cellResultsData->daysSinceSimulationStart();
     }

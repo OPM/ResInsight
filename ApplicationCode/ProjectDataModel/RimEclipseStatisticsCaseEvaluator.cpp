@@ -44,7 +44,7 @@ void RimEclipseStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* d
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->timeStepInfos(0);
+    std::vector<RigEclipseTimeStepInfo> sourceTimeStepInfos = m_sourceCases[0]->results(RiaDefines::MATRIX_MODEL)->timeStepInfos(0);
 
     size_t destinationScalarResultIndex = destinationCellResults->findOrCreateScalarResultIndex(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
@@ -161,7 +161,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
                     RimEclipseCase* sourceCase = m_sourceCases.at(caseIdx);
 
                     // Trigger loading of dataset
-                    sourceCase->resultsStorage(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
+                    sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
                     cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromNameAndType(sourceCase->eclipseCaseData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())
@@ -301,8 +301,8 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>&
 
             if (!eclipseCase->reservoirViews.size())
             {
-                eclipseCase->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->freeAllocatedResultsData();
-                eclipseCase->resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->freeAllocatedResultsData();
+                eclipseCase->results(RiaDefines::MATRIX_MODEL)->freeAllocatedResultsData();
+                eclipseCase->results(RiaDefines::FRACTURE_MODEL)->freeAllocatedResultsData();
             }
 
         }

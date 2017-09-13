@@ -159,11 +159,11 @@ void RimEclipseResultDefinition::setEclipseCase(RimEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimEclipseResultDefinition::currentGridCellResults() const
+RigCaseCellResultsData* RimEclipseResultDefinition::currentGridCellResults() const
 {
     if (!m_eclipseCase ) return nullptr;
 
-    return m_eclipseCase->resultsStorage(m_porosityModel());
+    return m_eclipseCase->results(m_porosityModel());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -553,10 +553,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if (fieldNeedingOptions == &m_selectedSouringTracersUiField)
         {
-            RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
-            if (cellResultsStorage && cellResultsStorage->cellResults())
+            RigCaseCellResultsData* cellResultsStorage = currentGridCellResults();
+            if (cellResultsStorage)
             {
-                QStringList dynamicResultNames = cellResultsStorage->cellResults()->resultNames(RiaDefines::DYNAMIC_NATIVE);
+                QStringList dynamicResultNames = cellResultsStorage->resultNames(RiaDefines::DYNAMIC_NATIVE);
 
                 for (const QString& resultName : dynamicResultNames)
                 {
@@ -694,13 +694,11 @@ QStringList RimEclipseResultDefinition::getResultNamesForCurrentUiResultType()
 {
     if ( m_resultTypeUiField() != RiaDefines::FLOW_DIAGNOSTICS )
     {
-        RimReservoirCellResultsStorage* cellResultsStorage = currentGridCellResults();
+        RigCaseCellResultsData* cellResultsStorage = currentGridCellResults();
 
         if ( !cellResultsStorage ) return QStringList();
 
-        if ( !cellResultsStorage->cellResults() ) return QStringList();
-
-        return cellResultsStorage->cellResults()->resultNames(m_resultTypeUiField());
+        return cellResultsStorage->resultNames(m_resultTypeUiField());
     }
     else
     {
@@ -722,10 +720,10 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 
     if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || m_resultType() == RiaDefines::INJECTION_FLOODING) return cvf::UNDEFINED_SIZE_T;
 
-    const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
-    if (gridCellResults && gridCellResults->cellResults())
+    const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
+    if (gridCellResults )
     {
-        gridScalarResultIndex = gridCellResults->cellResults()->findScalarResultIndex(m_resultType(), m_resultVariable());
+        gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
     }
 
     return gridScalarResultIndex;
@@ -889,7 +887,7 @@ void RimEclipseResultDefinition::loadResult()
 {
     if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING) return; // Will load automatically on access
 
-    RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
+    RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
         gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
@@ -905,10 +903,10 @@ bool RimEclipseResultDefinition::hasStaticResult() const
 {
     if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING) return false;
 
-    const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
+    const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     size_t gridScalarResultIndex = this->scalarResultIndex();
 
-    if (hasResult() && gridCellResults->cellResults()->timeStepCount(gridScalarResultIndex) == 1 )
+    if (hasResult() && gridCellResults->timeStepCount(gridScalarResultIndex) == 1 )
     {
         return true;
     }
@@ -927,9 +925,9 @@ bool RimEclipseResultDefinition::hasResult() const
     {
         if (m_flowSolution() && !m_resultVariable().isEmpty()) return true;
     }
-    else if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
+    else if (this->currentGridCellResults() )
     {
-        const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
+        const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
         size_t gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
         return gridScalarResultIndex != cvf::UNDEFINED_SIZE_T;
     }
@@ -962,9 +960,9 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
             return true;
         }
 
-        if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
+        if (this->currentGridCellResults())
         {
-            const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
+            const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             size_t gridScalarResultIndex = this->scalarResultIndex();
             if (gridCellResults->timeStepCount(gridScalarResultIndex) > 1 )
             {

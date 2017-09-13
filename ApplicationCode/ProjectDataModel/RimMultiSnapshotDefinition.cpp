@@ -123,7 +123,7 @@ QList<caf::PdmOptionItemInfo> RimMultiSnapshotDefinition::calculateValueOptions(
         if (rimEclipseView)
         {
             QStringList varList;
-            varList = rimEclipseView->currentGridCellResults()->cellResults()->resultNames(eclipseResultType());
+            varList = rimEclipseView->currentGridCellResults()->resultNames(eclipseResultType());
 
             options = toOptionList(varList);
         }

@@ -114,7 +114,7 @@ public:
     const RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection() const;
     void                                            setOverridePropertyFilterCollection(RimEclipsePropertyFilterCollection* pfc);
 
-    RimReservoirCellResultsStorage*                 currentGridCellResults();
+    RigCaseCellResultsData*                         currentGridCellResults();
     RigActiveCellInfo*                              currentActiveCellInfo();
     RimEclipseCellColors*                           currentFaultResultColors();
 

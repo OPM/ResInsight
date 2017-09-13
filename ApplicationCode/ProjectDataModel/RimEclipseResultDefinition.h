@@ -89,7 +89,7 @@ public:
     bool                            isCompletionTypeSelected() const;
     bool                            hasCategoryResult() const;
 
-    RimReservoirCellResultsStorage* currentGridCellResults() const;
+    RigCaseCellResultsData*         currentGridCellResults() const;
 
     void                            loadDataAndUpdate();
     void                            updateAnyFieldHasChanged();

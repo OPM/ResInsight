@@ -38,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 
 const std::vector<double>* getResultIndexableStaticResult(RigActiveCellInfo* actCellInfo, 
-                                                          RimReservoirCellResultsStorage* gridCellResults, 
+                                                          RigCaseCellResultsData* gridCellResults, 
                                                           QString porvResultName, 
                                                           std::vector<double> &activeCellsResultsTempContainer)
 {
@@ -49,9 +49,9 @@ const std::vector<double>* getResultIndexableStaticResult(RigActiveCellInfo* act
     
     if (scalarResultIndexPorv == cvf::UNDEFINED_SIZE_T) return nullptr;
 
-    const std::vector<double>* porvResults = &(gridCellResults->cellResults()->cellScalarResults(scalarResultIndexPorv, 0));
+    const std::vector<double>* porvResults = &(gridCellResults->cellScalarResults(scalarResultIndexPorv, 0));
 
-    if ( !gridCellResults->cellResults()->isUsingGlobalActiveIndex(scalarResultIndexPorv) )
+    if ( !gridCellResults->isUsingGlobalActiveIndex(scalarResultIndexPorv) )
     {
         // PORV is given for all cells
 
@@ -79,7 +79,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     RigMainGrid* mainGrid = caseToApply->eclipseCaseData()->mainGrid();
 
     RigEclipseCaseData* eclipseCaseData = caseToApply->eclipseCaseData();
-    RimReservoirCellResultsStorage* gridCellResults = caseToApply->resultsStorage(RiaDefines::MATRIX_MODEL);
+    RigCaseCellResultsData* gridCellResults = caseToApply->results(RiaDefines::MATRIX_MODEL);
 
     RigActiveCellInfo* actCellInfo = caseToApply->eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL);
     size_t resultCellCount    = actCellInfo->reservoirCellResultCount();

@@ -88,8 +88,8 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
     if (fileNames.contains(RiaDefines::mockModelBasicInputCase()))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(fileNames[0]);
-        resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
-        resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+        results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
         eclipseCaseData()->activeCellInfo(RiaDefines::MATRIX_MODEL)->computeDerivedData();
         eclipseCaseData()->activeCellInfo(RiaDefines::FRACTURE_MODEL)->computeDerivedData();
@@ -204,8 +204,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
         CVF_ASSERT(this->eclipseCaseData());
         CVF_ASSERT(readerInterface.notNull());
 
-        resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
-        resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->setReaderInterface(readerInterface.p());
+        results(RiaDefines::MATRIX_MODEL)->setReaderInterface(readerInterface.p());
+        results(RiaDefines::FRACTURE_MODEL)->setReaderInterface(readerInterface.p());
 
         this->eclipseCaseData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
         
@@ -217,11 +217,8 @@ bool RimEclipseInputCase::openEclipseGridFile()
     RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        RimReservoirCellResultsStorage* matrixResults = resultsStorage(RiaDefines::MATRIX_MODEL);
-        RimReservoirCellResultsStorage* fractureResults = resultsStorage(RiaDefines::FRACTURE_MODEL);
-
-        matrixResults->cellResults()->computeDepthRelatedResults();
-        fractureResults->cellResults()->computeDepthRelatedResults();
+        results(RiaDefines::MATRIX_MODEL)->computeDepthRelatedResults();
+        results(RiaDefines::FRACTURE_MODEL)->computeDepthRelatedResults();
     }
 
     return true;

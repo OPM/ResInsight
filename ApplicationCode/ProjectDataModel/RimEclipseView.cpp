@@ -179,11 +179,11 @@ RimEclipseView::~RimEclipseView()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseView::clampCurrentTimestep()
 {
-    if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults()) 
+    if (this->currentGridCellResults()) 
     {
-        if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()))
+        if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()))
         {
-            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()) -1;
+            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()) -1;
         }
     }
 
@@ -289,7 +289,7 @@ void RimEclipseView::createDisplayModel()
         CVF_ASSERT(currentGridCellResults());
 
         size_t i;
-        for (i = 0; i < currentGridCellResults()->cellResults()->maxTimeStepCount(); i++)
+        for (i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++)
         {
             timeStepIndices.push_back(i);
         }
@@ -915,11 +915,11 @@ void RimEclipseView::updateDisplayModelVisibility()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimEclipseView::currentGridCellResults()
+RigCaseCellResultsData* RimEclipseView::currentGridCellResults()
 {
     if (m_eclipseCase)
     {
-        return m_eclipseCase->resultsStorage(cellResult->porosityModel());
+        return m_eclipseCase->results(cellResult->porosityModel());
     }
 
     return NULL;
@@ -1098,7 +1098,7 @@ void RimEclipseView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, R
     size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
     if (resultColors->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
-        RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
+        RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
         {
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
             if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)

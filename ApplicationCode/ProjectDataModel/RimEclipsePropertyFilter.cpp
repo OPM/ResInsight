@@ -372,10 +372,10 @@ void RimEclipsePropertyFilter::computeResultValueRange()
         size_t scalarIndex = resultDefinition->scalarResultIndex();
         if ( scalarIndex != cvf::UNDEFINED_SIZE_T )
         {
-            RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
+            RigCaseCellResultsData* results = resultDefinition->currentGridCellResults();
             if ( results )
             {
-                results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+                results->minMaxCellScalarValues(scalarIndex, min, max);
 
                 if ( resultDefinition->hasCategoryResult() )
                 {
@@ -398,7 +398,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else
                     {
-                        setCategoryValues(results->cellResults()->uniqueCellScalarValues(scalarIndex));
+                        setCategoryValues(results->uniqueCellScalarValues(scalarIndex));
                     }
                 }
             }

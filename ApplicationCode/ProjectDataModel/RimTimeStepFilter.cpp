@@ -230,9 +230,9 @@ void RimTimeStepFilter::updateSelectedTimeStepIndices()
 std::vector<QDateTime> RimTimeStepFilter::allTimeSteps() const
 {
     RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
-    if (rimEclipseResultCase && rimEclipseResultCase->resultsStorage(RiaDefines::MATRIX_MODEL))
+    if (rimEclipseResultCase && rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL))
     {
-        return  rimEclipseResultCase->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->allTimeStepDatesFromEclipseReader();
+        return  rimEclipseResultCase->results(RiaDefines::MATRIX_MODEL)->allTimeStepDatesFromEclipseReader();
     }
 
     return m_timeStepsFromFile;

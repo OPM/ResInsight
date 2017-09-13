@@ -19,6 +19,7 @@
 #include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
 
 #include "RigActiveCellInfo.h"
+#include "RigCaseCellResultsData.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
 #include "RigFractureCell.h"
@@ -28,7 +29,6 @@
 #include "RigHexIntersectionTools.h"
 
 #include "RimEclipseCase.h"
-#include "RimReservoirCellResultsStorage.h"
 
 #include "cvfGeometryTools.h"
 
@@ -235,7 +235,7 @@ cvf::ref<RigResultAccessor> RigEclipseToStimPlanCellTransmissibilityCalculator::
 {
     CVF_ASSERT(eclipseCase);
 
-    RimReservoirCellResultsStorage* gridCellResults = eclipseCase->resultsStorage(porosityModel);
+    RigCaseCellResultsData* gridCellResults = eclipseCase->results(porosityModel);
 
     // Calling this function will force loading of result from file
     gridCellResults->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, uiResultName);

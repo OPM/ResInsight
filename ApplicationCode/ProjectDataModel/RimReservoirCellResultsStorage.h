@@ -46,14 +46,8 @@ public:
     virtual ~RimReservoirCellResultsStorage();
 
     void                            setCellResults(RigCaseCellResultsData* cellResults);
-    RigCaseCellResultsData*         cellResults()  { return m_cellResults; }
-    const RigCaseCellResultsData*   cellResults() const  { return m_cellResults; }
 
     size_t                          storedResultsCount();
-
-    size_t                          findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t                          findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName);
-    size_t                          findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
 
 protected:
     // Overridden methods from PdmObject

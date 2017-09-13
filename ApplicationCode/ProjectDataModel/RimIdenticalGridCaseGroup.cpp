@@ -185,7 +185,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     CVF_ASSERT(rigCaseData);
 
     RiaDefines::PorosityModelType poroModel = RiaDefines::MATRIX_MODEL;
-    mainCase->resultsStorage(poroModel)->cellResults()->createPlaceholderResultEntries();
+    mainCase->results(poroModel)->createPlaceholderResultEntries();
 
 
     // Action A : Read active cell info
@@ -247,7 +247,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
             RimEclipseResultCase* rimReservoir = dynamic_cast<RimEclipseResultCase*>(caseCollection()->reservoirs[i]);
             if (!rimReservoir) continue; // Input reservoir
 
-            RimReservoirCellResultsStorage* cellResultsStorage = rimReservoir->resultsStorage(poroModel);
+            RigCaseCellResultsData* cellResultsStorage = rimReservoir->results(poroModel);
 
             for (size_t resIdx = 0; resIdx < resultInfos.size(); resIdx++)
             {
@@ -256,21 +256,21 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
                 bool needsToBeStored = resultInfos[resIdx].m_needsToBeStored;
                 bool mustBeCalculated = resultInfos[resIdx].m_mustBeCalculated;
 
-                size_t scalarResultIndex = cellResultsStorage->cellResults()->findScalarResultIndex(resultType, resultName);
+                size_t scalarResultIndex = cellResultsStorage->findScalarResultIndex(resultType, resultName);
                 if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
                 {
-                    size_t scalarResultIndex = cellResultsStorage->cellResults()->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
+                    size_t scalarResultIndex = cellResultsStorage->findOrCreateScalarResultIndex(resultType, resultName, needsToBeStored);
                     
-                    if (mustBeCalculated) cellResultsStorage->cellResults()->setMustBeCalculated(scalarResultIndex);
+                    if (mustBeCalculated) cellResultsStorage->setMustBeCalculated(scalarResultIndex);
 
-                    cellResultsStorage->cellResults()->setTimeStepInfos(scalarResultIndex, timeStepInfos);
+                    cellResultsStorage->setTimeStepInfos(scalarResultIndex, timeStepInfos);
 
-                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellResults()->cellScalarResults(scalarResultIndex);
+                    std::vector< std::vector<double> >& dataValues = cellResultsStorage->cellScalarResults(scalarResultIndex);
                     dataValues.resize(timeStepInfos.size());
                 }
             }
 
-            cellResultsStorage->cellResults()->createPlaceholderResultEntries();
+            cellResultsStorage->createPlaceholderResultEntries();
         }
     }
 
@@ -422,13 +422,13 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimEclipseCase* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
         if (!rimStaticsCase) continue;
 
-        if (rimStaticsCase->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults())
+        if (rimStaticsCase->results(RiaDefines::MATRIX_MODEL))
         {
-            rimStaticsCase->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->clearAllResults();
+            rimStaticsCase->results(RiaDefines::MATRIX_MODEL)->clearAllResults();
         }
-        if (rimStaticsCase->resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults())
+        if (rimStaticsCase->results(RiaDefines::FRACTURE_MODEL))
         {
-            rimStaticsCase->resultsStorage(RiaDefines::FRACTURE_MODEL)->cellResults()->clearAllResults();
+            rimStaticsCase->results(RiaDefines::FRACTURE_MODEL)->clearAllResults();
         }
 
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)

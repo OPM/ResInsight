@@ -341,15 +341,15 @@ public:
             nncData->makeGeneratedConnectionScalarResult(propertyName, m_timeStepCountToRead);
         }
 
-        if (rimCase && rimCase->resultsStorage(m_porosityModelEnum))
+        if (rimCase && rimCase->results(m_porosityModelEnum))
         {
-            bool ok = createIJKCellResults(rimCase->resultsStorage(m_porosityModelEnum), propertyName);
+            bool ok = createIJKCellResults(rimCase->results(m_porosityModelEnum), propertyName);
             if (!ok)
             {
                 server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%2\"").arg(propertyName));
                 return true;
             }
-            size_t scalarResultIndex = rimCase->resultsStorage(m_porosityModelEnum)->findOrLoadScalarResult(QString("%1IJK").arg(propertyName));
+            size_t scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(QString("%1IJK").arg(propertyName));
             nncData->setScalarResultIndex(propertyName, scalarResultIndex);
         }
 
@@ -408,7 +408,7 @@ public:
         return false;
     }
 
-    static bool createIJKCellResults(RimReservoirCellResultsStorage* results, QString propertyName)
+    static bool createIJKCellResults(RigCaseCellResultsData* results, QString propertyName)
     {
         bool ok;
         ok = scalarResultExistsOrCreate(results, QString("%1IJK").arg(propertyName));
@@ -422,19 +422,19 @@ public:
         return ok;
     }
 
-    static bool scalarResultExistsOrCreate(RimReservoirCellResultsStorage* results, QString propertyName)
+    static bool scalarResultExistsOrCreate(RigCaseCellResultsData* results, QString propertyName)
     {
         size_t scalarResultIndex = results->findOrLoadScalarResult(propertyName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            scalarResultIndex = results->cellResults()->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
+            scalarResultIndex = results->findOrCreateScalarResultIndex(RiaDefines::GENERATED, propertyName, true);
         }
         
         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
         {
             std::vector< std::vector<double> >* scalarResultFrames = nullptr;
-            scalarResultFrames = &(results->cellResults()->cellScalarResults(scalarResultIndex));
-            size_t timeStepCount = results->cellResults()->maxTimeStepCount();
+            scalarResultFrames = &(results->cellScalarResults(scalarResultIndex));
+            size_t timeStepCount = results->maxTimeStepCount();
             scalarResultFrames->resize(timeStepCount);
             return true;
         }

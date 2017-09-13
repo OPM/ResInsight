@@ -218,15 +218,14 @@ void RimEclipseStatisticsCase::computeStatistics()
     getSourceCases(sourceCases);
 
     if (sourceCases.size() == 0
-        || !sourceCases.at(0)->resultsStorage(RiaDefines::MATRIX_MODEL)
-        || !sourceCases.at(0)->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults())
+        || !sourceCases.at(0)->results(RiaDefines::MATRIX_MODEL))
     {
         return;
     }
 
     // The first source has been read completely from disk, and contains grid and meta data
     // Use this information for all cases in the case group
-    size_t timeStepCount = sourceCases.at(0)->resultsStorage(RiaDefines::MATRIX_MODEL)->cellResults()->maxTimeStepCount();
+    size_t timeStepCount = sourceCases.at(0)->results(RiaDefines::MATRIX_MODEL)->maxTimeStepCount();
 
     RimStatisticsConfig statisticsConfig;
 

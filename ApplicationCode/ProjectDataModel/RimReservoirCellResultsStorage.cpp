@@ -211,32 +211,6 @@ QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
     return cacheDirPath;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
-{
-    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
-
-    return m_cellResults->findOrLoadScalarResult(resultName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RiaDefines::ResultCatType type, const QString& resultName)
-{
-    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
-
-    return m_cellResults->findOrLoadScalarResult(type, resultName);
-}
-
-size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RiaDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
-{
-    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
-
-    return m_cellResults->findOrLoadScalarResultForTimeStep(type, resultName, timeStepIndex);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

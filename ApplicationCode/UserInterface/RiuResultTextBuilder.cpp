@@ -386,7 +386,7 @@ void RiuResultTextBuilder::appendTextFromResultColors(RigEclipseCaseData* eclips
     RiaDefines::PorosityModelType porosityModel = resultColors->porosityModel();
     if (resultColors->isTernarySaturationSelected())
     {
-        RimReservoirCellResultsStorage* gridCellResults = resultColors->currentGridCellResults();
+        RigCaseCellResultsData* gridCellResults = resultColors->currentGridCellResults();
         if (gridCellResults)
         {
             size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
@@ -666,7 +666,7 @@ QString RiuResultTextBuilder::cellResultText(RimEclipseCellColors* resultColors)
 
         if (resultColors->isTernarySaturationSelected())
         {
-            RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
+            RigCaseCellResultsData* gridCellResults = m_reservoirView->cellResult()->currentGridCellResults();
             if (gridCellResults)
             {
                 size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RiaDefines::DYNAMIC_NATIVE, "SOIL");
