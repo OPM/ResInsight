@@ -68,9 +68,6 @@ void RicConvertFractureTemplateUnitFeature::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
-    //TODO: Add unit to text
-
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
     if (!pdmUiItem) return;
 
@@ -79,6 +76,7 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
 
     RimEllipseFractureTemplate* ellipseFractureTemplate = nullptr;
     objHandle->firstAncestorOrThisOfType(ellipseFractureTemplate);
+    if (!ellipseFractureTemplate) return;
 
     QString text = "Convert Values to ";
     if (ellipseFractureTemplate->fractureTemplateUnit == RiaEclipseUnitTools::UNITS_METRIC)
@@ -90,6 +88,9 @@ void RicConvertFractureTemplateUnitFeature::setupActionLook(QAction* actionToSet
         text += "Metric";
     }
     
+    actionToSetup->setIcon(QIcon(":/FractureTemplate16x16.png"));
+    //TODO: Add unit to text
+
     actionToSetup->setText(text);
 }
 
