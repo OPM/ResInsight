@@ -63,6 +63,7 @@ public:
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
     void                                            removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
+    void                                            deleteAllTopLevelCurves();
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
 
@@ -97,6 +98,14 @@ public:
 
     QString                                         asciiDataForPlotExport() const;
 
+    // RimViewWindow overrides
+public:
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
+
+private:
+    void                                            updateMdiWindowTitle() override;
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
@@ -119,11 +128,6 @@ private:
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
 
-    // RimViewWindow overrides
-
-    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
-    void                                            updateMdiWindowTitle() override;
-    virtual void                                    deleteViewWidget() override; 
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;

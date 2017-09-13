@@ -19,10 +19,14 @@
 #include "RicSummaryCurveCreatorUi.h"
 
 #include "RicSummaryCurveCreator.h"
-
 #include "RiuCustomObjectEditor.h"
 
+#include "cafPdmUiTreeView.h"
+
+#include "QMinimizePanel.h"
+
 #include <QBoxLayout>
+#include <QTreeView>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -42,6 +46,20 @@ RicSummaryCurveCreatorUi::RicSummaryCurveCreatorUi(QWidget* parent, RicSummaryCu
 
     m_customObjectEditor->setPdmObject(m_summaryCurveCreator);
     m_customObjectEditor->updateUi();
+    m_customObjectEditor->addWidget(m_summaryCurveCreator->previewPlot()->createViewWidget(this), 1, 1, 1, 3);
+    m_summaryCurveCreator->previewPlot()->viewWidget()->setFixedHeight(400);
+
+    QMinimizePanel* curvesPanel = new QMinimizePanel(this);
+    curvesPanel->setTitle("Curves");
+    QVBoxLayout* curvesLayout = new QVBoxLayout(curvesPanel->contentFrame());
+
+    caf::PdmUiTreeView* curveTreeView = new caf::PdmUiTreeView(curvesPanel->contentFrame());
+    curvesLayout->addWidget(curveTreeView);
+    curveTreeView->setPdmItem(m_summaryCurveCreator->previewPlot());
+    curveTreeView->treeView()->setHeaderHidden(true);
+
+    m_customObjectEditor->addWidget(curvesPanel, 1, 0, 1, 1);
+
 }
 
 //--------------------------------------------------------------------------------------------------

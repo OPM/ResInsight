@@ -49,19 +49,19 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-/*
+
 	if (m_curveCreator == nullptr)
 	{
 		m_curveCreator = new RicSummaryCurveCreator();
-		m_dialog = new caf::PdmUiPropertyViewDialog(nullptr, m_curveCreator, "Summary plots", "");
+		m_dialog = new RicSummaryCurveCreatorUi(nullptr, m_curveCreator);
 	}
 	if(!m_dialog->isVisible())
 		m_dialog->show();
-*/
 
-    RicSummaryCurveCreator curveCreator;
-    RicSummaryCurveCreatorUi summaryCurveCreator(nullptr, &curveCreator);
-    summaryCurveCreator.exec();
+
+   // RicSummaryCurveCreator curveCreator;
+   // RicSummaryCurveCreatorUi summaryCurveCreator(nullptr, &curveCreator);
+   // summaryCurveCreator.exec();
 
 //    openSelector(summaryCase);
 }
@@ -71,6 +71,6 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryCurves::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Edit summary curves in plot");
+    actionToSetup->setText("Edit Summary Curves");
     //actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }

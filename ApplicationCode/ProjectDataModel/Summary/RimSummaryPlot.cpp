@@ -808,6 +808,14 @@ void RimSummaryPlot::removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::deleteAllTopLevelCurves()
+{
+    m_summaryCurves.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
 {
     if(curveFilter)

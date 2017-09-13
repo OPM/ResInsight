@@ -142,7 +142,7 @@ void RiuCustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const s
     {
         if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
 
-        if (topLevelUiItems[i]->isUiGroup())
+        if (topLevelUiItems[i]->isUiGroup() && topLevelUiItems[i]->uiName() != "Blank")
         {
             caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
             QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);

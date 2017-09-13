@@ -19,9 +19,10 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-
+#include <QPointer>
 
 class RicSummaryCurveCreator;
+class RicSummaryCurveCreatorUi;
 namespace caf {
 	class PdmUiPropertyViewDialog;
 }
@@ -40,6 +41,6 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup);
 
 private:
-// 	RicSummaryCurveCreator*		m_curveCreator;
-//     caf::PdmUiPropertyViewDialog* m_dialog;
+ 	RicSummaryCurveCreator*		m_curveCreator;
+    QPointer<RicSummaryCurveCreatorUi> m_dialog;
 };
