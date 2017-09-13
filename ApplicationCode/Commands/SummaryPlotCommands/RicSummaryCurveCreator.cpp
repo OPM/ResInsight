@@ -149,7 +149,10 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_previewPlot, "Curves", "Curves", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_previewPlot, "PreviewPlot", "PreviewPlot", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedCurveTexts, "CurveTexts", "Selected Curves", "", "", "");
+    m_selectedCurveTexts.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_previewPlot = new RimSummaryPlot();
 
@@ -449,7 +452,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 
 
     caf::PdmUiGroup* curvesGroup = uiOrdering.addNewGroup("Curves");
-    curvesGroup->add(&m_previewPlot);
+    curvesGroup->add(&m_selectedCurveTexts);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -684,18 +687,21 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
         }
     }
 
+    std::vector<QString> curveTexts;
+
     for (const auto& curveDef : newCurveDefinitions)
     {
         RimSummaryCase* currentCase = curveDef.first;
         RimSummaryCurve* curve = new RimSummaryCurve();
-        //curve->setParentQwtPlot(m_parentQwtPlot);
         curve->setSummaryCase( currentCase);
         curve->setSummaryAddress(curveDef.second);
-        //curve->setYAxis(m_plotAxis());
-        //curve->applyCurveAutoNameSettings();
 
         m_previewPlot->addCurve(curve);
+
+        curveTexts.push_back(QString::fromStdString( curveDef.second.uiText()));
     }
+
+    m_selectedCurveTexts = curveTexts;
 
     //for (RimSummaryCase* currentCase : m_selectedCases)
     //{

@@ -94,5 +94,5 @@ private:
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_selectedIdentifiers;
     //caf::PdmChildArrayField<RimSummaryCurve*>                                                           m_selectedCurves;
     caf::PdmChildField<RimSummaryPlot*>                                                                 m_previewPlot;
-    //caf::PdmField<std::vector<QString>>                               m_selectedCurves;
+    caf::PdmField<std::vector<QString>>                                                                 m_selectedCurveTexts;
 };
