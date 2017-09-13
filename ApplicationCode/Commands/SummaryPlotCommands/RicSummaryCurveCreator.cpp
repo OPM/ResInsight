@@ -106,35 +106,35 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(), "AquiferVectors", "Aquifer vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField(), "AquiferVectors", "Aquifer Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(), "NetworkVectors", "Network vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField(), "NetworkVectors", "Network Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_MISC][0]->pdmField(), "MiscVectors", "Misc vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_MISC][0]->pdmField(), "MiscVectors", "Misc Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION][0]->pdmField(), "Regions", "Regions", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField(), "RegionsVectors", "Regions vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField(), "RegionsVectors", "Regions Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][0]->pdmField(), "Region2RegionRegions", "Regions", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][1]->pdmField(), "Region2RegionRegion2s", "Region2s", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][2]->pdmField(), "Region2RegionVectors", "Region2s vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][2]->pdmField(), "Region2RegionVectors", "Region2s Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField(), "WellGroupWellGroupNames", "Well groups", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(), "WellGroupVectors", "Well group vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(), "WellGroupVectors", "Well Group Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField(), "WellWellName", "Wells", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField(), "WellVectors", "Well Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField(), "WellCompletionWellName", "Wells", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][1]->pdmField(), "WellCompletionIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][2]->pdmField(), "WellCompletionVectors", "Well completion vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][2]->pdmField(), "WellCompletionVectors", "Well Completion Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(), "WellCompletionLgrLgrName", "Lgr names", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField(), "WellCompletionLgrLgrName", "LGR Names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField(), "WellCompletionLgrWellName", "Wells", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField(), "WellCompletionLgrIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(), "WellCompletionLgrVectors", "Well completion vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField(), "WellCompletionLgrVectors", "Well Completion Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField(), "WellLgrLgrName", "Lgr names", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField(), "WellLgrLgrName", "LGR Names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][1]->pdmField(), "WellLgrWellName", "Wells", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][2]->pdmField(), "WellLgrVectors", "Vectors", "", "", "");
 
@@ -143,11 +143,11 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][2]->pdmField(), "WellSegmentVectors", "Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK][0]->pdmField(), "BlockIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField(), "BlockVectors", "Block vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField(), "BlockVectors", "Block Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "Lgr names", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "LGR Names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
-    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block vectors", "", "", "");
+    CAF_PDM_InitFieldNoDefault(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_selectedCurves, "Curves", "Curves", "", "", "");
 
@@ -158,13 +158,16 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_selectedIdentifiers(
             itemInputType->pdmField()->uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
             itemInputType->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
         }
+        itemTypes.second.back()->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     }
 
     m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedCases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     m_selectedSummaryCategory.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedSummaryCategory.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     m_selectedCurves.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedCurves.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 }
@@ -241,7 +244,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroup("Sources");
     sourcesGroup->add(&m_selectedCases);
 
-    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroup("Items Types");
+    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroup("Identifier Types");
     itemTypesGroup->add(&m_selectedSummaryCategory);
 
 
@@ -253,7 +256,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField());
         }
     }
@@ -264,7 +267,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField());
         }
     }
@@ -275,7 +278,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_NETWORK][0]->pdmField());
         }
     }
@@ -286,7 +289,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_MISC][0]->pdmField());
         }
     }
@@ -298,7 +301,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField());
         }
     }
@@ -311,7 +314,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][2]->pdmField());
         }
     }
@@ -323,7 +326,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField());
         }
     }
@@ -335,60 +338,60 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField());
         }
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION)
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Wells");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Completions");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField());
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][1]->pdmField());
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][2]->pdmField());
         }
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR)
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Wells");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("LGR Completions");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField());
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField());
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField());
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][3]->pdmField());
         }
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_LGR)
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Wells");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("LGR Wells");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField());
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][1]->pdmField());
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][2]->pdmField());
         }
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT)
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Wells");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Well Segments");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][0]->pdmField());
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][1]->pdmField());
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][2]->pdmField());
         }
     }
@@ -400,20 +403,20 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK][1]->pdmField());
         }
     }
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR)
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Blocks");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("LGR Blocks");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField());
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField());
         }
 
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Vectors");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Properties");
             myGroup->add(m_selectedIdentifiers[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField());
         }
     }
