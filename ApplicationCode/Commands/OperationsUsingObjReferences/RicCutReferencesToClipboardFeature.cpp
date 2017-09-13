@@ -83,6 +83,7 @@ void RicCutReferencesToClipboardFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Cut");
     actionToSetup->setIcon(QIcon(":/Clipboard.png"));
+    actionToSetup->setShortcut(QKeySequence::Cut);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -106,6 +106,7 @@ void RicPasteSummaryCaseFeature::setupActionLook(QAction* action)
 {
     action->setText("Paste Summary Case");
     action->setIcon(QIcon(":/clipboard.png"));
+    action->setShortcut(QKeySequence::Paste);
 }
 
 //--------------------------------------------------------------------------------------------------
