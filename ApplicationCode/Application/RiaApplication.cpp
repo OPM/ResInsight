@@ -53,6 +53,7 @@
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
@@ -483,6 +484,11 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         }
         oilField->summaryCaseMainCollection()->createSummaryCasesFromRelevantEclipseResultCases();
         oilField->summaryCaseMainCollection()->loadAllSummaryCaseData();
+
+        if (!oilField->observedDataCollection())
+        {
+            oilField->observedDataCollection = new RimObservedDataCollection();
+        }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         oilField->fractureDefinitionCollection()->loadAndUpdateData();

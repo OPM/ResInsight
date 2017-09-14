@@ -47,6 +47,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiSnapshotDefinition.h"
+#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -867,7 +868,14 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->summaryCaseMainCollection())     uiTreeOrdering.add(oilField->summaryCaseMainCollection());
+            if (oilField->summaryCaseMainCollection())
+            {
+                uiTreeOrdering.add( oilField->summaryCaseMainCollection() );
+            }
+            if (oilField->observedDataCollection())
+            {
+                uiTreeOrdering.add( oilField->observedDataCollection() );
+            }
         }
 
         if (mainPlotCollection)

@@ -18,8 +18,12 @@
 
 #include "RimObservedData.h"
 
+CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
+
+
 RimObservedData::RimObservedData()
 {
+    CAF_PDM_InitObject("Observed data file", ":/Default.png", "", "");
 }
 
 RimObservedData::~RimObservedData()

@@ -16,12 +16,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-class RimObservedDataCollection
+#include "cafPdmObject.h"
+#include "cafPdmChildArrayField.h"
+
+class RimObservedData;
+
+class RimObservedDataCollection : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
     RimObservedDataCollection();
-    ~RimObservedDataCollection();
+    virtual ~RimObservedDataCollection();
 
 private:
-
+    caf::PdmChildArrayField<RimObservedData*> m_observedData;
 };

@@ -16,8 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-class RimObservedData
+#include "cafPdmObject.h"
+
+class RimObservedData : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
 public:
     RimObservedData();
     ~RimObservedData();
