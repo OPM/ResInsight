@@ -103,6 +103,8 @@ public:
                                                                   const QString& unitName, 
                                                                   size_t timeStepIndex) const;
     void                                      computeMinMax(const QString& resultName, const QString& unit, double* minValue, double* maxValue, double* posClosestToZero, double* negClosestToZero) const;
+
+    QString                                   conductivityResultName() const;
     
     // Setup                          
     void                                      reorderYgridToDepths();

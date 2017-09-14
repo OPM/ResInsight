@@ -140,18 +140,12 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
             if (dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate))
             {
                 RimStimPlanFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimStimPlanFractureTemplate*>(fracTemplate);
-                bool conductivityInFile = false;
-                for (auto parameterUnit : fracTemplateStimPlan->resultNamesWithUnit())
-                {
-                    if (parameterUnit.first == "CONDUCTIVITY") conductivityInFile = true;
-                }
-                if (!conductivityInFile)
+                if (!fracTemplateStimPlan->hasConductivity())
                 {
                     RiaLogging::error("Trying to export completion data for stimPlan fracture without conductivity data for " + fracture->name());
                     RiaLogging::error("No transmissibilities will be calculated for " + fracture->name());
 
                     continue;
-
                 }
             }
         }

@@ -217,7 +217,7 @@ void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
 {
-    //first option: Width
+    // first option: Width
     for (std::pair<QString, QString> property : resultNamesWithUnit())
     {
         if (property.first == "WIDTH")
@@ -226,16 +226,15 @@ bool RimStimPlanFractureTemplate::setBorderPolygonResultNameToDefault()
             return true;
         }
     }
-    //if width not found, use conductivity
-    for (std::pair<QString, QString> property : resultNamesWithUnit())
+    
+    // if width not found, use conductivity
+    if (hasConductivity())
     {
-        if (property.first == "CONDUCTIVITY")
-        {
-            m_borderPolygonResultName = property.first;
-            return true;
-        }
+        m_borderPolygonResultName = m_stimPlanFractureDefinitionData->conductivityResultName();
+        return true;
     }
-    //else: Set to first property
+
+    // else: Set to first property
     if (resultNamesWithUnit().size() > 0)
     {
         m_borderPolygonResultName = resultNamesWithUnit()[0].first;
@@ -389,6 +388,20 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues(const
 std::vector<double> RimStimPlanFractureTemplate::fractureGridResults(const QString& resultName, const QString& unitName, size_t timeStepIndex) const
 {
    return m_stimPlanFractureDefinitionData->fractureGridResults(resultName, unitName, timeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::hasConductivity() const
+{
+    if (m_stimPlanFractureDefinitionData.notNull() &&
+        !m_stimPlanFractureDefinitionData->conductivityResultName().isEmpty())
+    {
+        return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
