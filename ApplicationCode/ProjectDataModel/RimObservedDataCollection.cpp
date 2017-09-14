@@ -21,6 +21,9 @@
 
 CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::RimObservedDataCollection()
 {
     CAF_PDM_InitObject("Observed Data", ":/Folder.png", "", "");
@@ -30,6 +33,9 @@ RimObservedDataCollection::RimObservedDataCollection()
     m_observedData.uiCapability()->setUiHidden(true);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::~RimObservedDataCollection()
 {
     m_observedData.deleteAllChildObjects();
