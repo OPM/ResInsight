@@ -18,6 +18,7 @@
 
 #include <sstream>
 #include <stack>
+#include <algorithm>
 #include "RicSummaryCurveCreator.h"
 
 #include "RiaApplication.h"
