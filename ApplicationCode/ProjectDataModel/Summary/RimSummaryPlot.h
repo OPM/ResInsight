@@ -99,6 +99,8 @@ public:
 
     QString                                         asciiDataForPlotExport() const;
 
+    std::vector<RimSummaryCurve*>                   summaryCurves() const;
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 

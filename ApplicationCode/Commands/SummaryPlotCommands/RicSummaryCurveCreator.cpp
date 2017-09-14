@@ -687,7 +687,7 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
 {
     // Create a search map containing whats supposed to be curves
 
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > allCurveDefinitions;
 
     // Populate the newCurveDefinitions from the Gui
 
@@ -709,7 +709,7 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
                 if (selectedAddresses.count(allAddresses[i]) > 0)
                 {
                     addrUnion.insert(allAddresses[i]);
-                    newCurveDefinitions.insert(std::make_pair(currCase, allAddresses[i]));
+                    allCurveDefinitions.insert(std::make_pair(currCase, allAddresses[i]));
                 }
 
                 // Todo: Add text filter
@@ -718,17 +718,53 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
         }
     }
 
-    createCurvesFromCurveDefinitions(newCurveDefinitions);
+    std::vector<RimSummaryCurve*> currentCurvesInPlot = m_previewPlot->summaryCurves();
+    if (allCurveDefinitions.size() != currentCurvesInPlot.size())
+    {
+        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> currentCurveDefs;
+        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> newCurveDefs;
+        std::set<RimSummaryCurve*> deleteCurves;
+
+        for (const auto& curve : currentCurvesInPlot)
+        {
+            currentCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+        }
+        
+        if (allCurveDefinitions.size() < currentCurvesInPlot.size())
+        {
+            // Determine which curves to delete from plot
+            std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> deleteCurveDefs;
+            std::set_difference(currentCurveDefs.begin(), currentCurveDefs.end(),
+                                allCurveDefinitions.begin(), allCurveDefinitions.end(),
+                                std::inserter(deleteCurveDefs, deleteCurveDefs.end()));
+
+            for (const auto& curve : currentCurvesInPlot)
+            {
+                std::pair<RimSummaryCase*, RifEclipseSummaryAddress> curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
+                if (deleteCurveDefs.count(curveDef))
+                    deleteCurves.insert(curve);
+            }
+        }
+        else
+        {
+            // Determine which curves are new since last time
+            std::set_difference(allCurveDefinitions.begin(), allCurveDefinitions.end(),
+                                currentCurveDefs.begin(), currentCurveDefs.end(),
+                                std::inserter(newCurveDefs, newCurveDefs.end()));
+        }
+        createCurvesFromCurveDefinitions(newCurveDefs, deleteCurves);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& newCurveDefinitions)
+void RicSummaryCurveCreator::createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+                                                              const std::set<RimSummaryCurve*>& curvesToDelete)
 {
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
-    RimSummaryCurveAppearanceCalculator curveLookCalc(newCurveDefinitions, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefsToAdd, getAllSummaryCaseNames(), getAllSummaryWellNames());
 
     if (!m_useAutoAppearanceAssignment())
     {
@@ -759,9 +795,15 @@ void RicSummaryCurveCreator::createCurvesFromCurveDefinitions(const std::set<std
         m_regionAppearanceType = regiAppearance;
     }
 
+    // Delete curves
+    for (const auto& curve : curvesToDelete)
+    {
+        m_previewPlot->deleteCurve(curve);
+    }
+
     // Add new curves
-    m_previewPlot->deleteAllTopLevelCurves();
-    for (const auto& curveDef : newCurveDefinitions)
+    //m_previewPlot->deleteAllTopLevelCurves();
+    for (const auto& curveDef : curveDefsToAdd)
     {
         RimSummaryCase* currentCase = curveDef.first;
         RimSummaryCurve* curve = new RimSummaryCurve();

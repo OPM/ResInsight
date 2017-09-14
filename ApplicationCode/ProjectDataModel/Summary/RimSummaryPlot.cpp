@@ -451,6 +451,20 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryPlot::summaryCurves() const
+{
+    std::vector<RimSummaryCurve*> curves;
+    curves.reserve(m_summaryCurves.size());
+    for (const auto& curve : m_summaryCurves)
+    {
+        curves.push_back(curve);
+    }
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
