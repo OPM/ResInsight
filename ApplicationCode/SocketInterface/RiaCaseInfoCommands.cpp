@@ -603,7 +603,7 @@ public:
         {
             size_t i, j, k;
             size_t gridIndex;
-            size_t caseId;
+            int caseId;
             if (item->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);

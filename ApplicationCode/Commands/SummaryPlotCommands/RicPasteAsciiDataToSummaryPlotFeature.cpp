@@ -172,16 +172,16 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 
         QStringList columnHeaders = header.split('\t');
 
-        for (size_t i = 1; i < columnHeaders.size(); ++i)
+        for (int i = 1; i < columnHeaders.size(); ++i)
         {
-            headers.push_back(columnHeaders[static_cast<int>(i)]);
+            headers.push_back(columnHeaders[i]);
         }
 
         // No columns found
         if (headers.empty()) return curves;
     }
 
-    size_t numColumns = headers.size();
+    int numColumns = static_cast<int>(headers.size());
     std::vector<QDateTime> timeSteps;
     std::vector< std::vector<double> > values;
     values.resize(numColumns);
@@ -211,13 +211,13 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         }
         timeSteps.push_back(date);
 
-        for (size_t col = 1; col < columns.size(); ++col)
+        for (int col = 1; col < columns.size(); ++col)
         {
             bool ok;
-            values[col - 1].push_back(settings.decimalLocale().toDouble(columns[static_cast<int>(col)], &ok));
+            values[col - 1].push_back(settings.decimalLocale().toDouble(columns[col], &ok));
             if (!ok)
             {
-                RiaLogging::warning(QString("Could not parse value at row %1 column %2 as double: %3. Defaulting to 0.0").arg(row).arg(col).arg(columns[static_cast<int>(col)]));
+                RiaLogging::warning(QString("Could not parse value at row %1 column %2 as double: %3. Defaulting to 0.0").arg(row).arg(col).arg(columns[col]));
             }
         }
     }
@@ -249,7 +249,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
 
     for (auto& it : curveToTypeMap)
     {
-        for (int i = 0; i < it.second.size(); ++i)
+        for (int i = 0; i < static_cast<int>(it.second.size()); ++i)
         {
             cvf::Color3f color;
             switch (it.first)
