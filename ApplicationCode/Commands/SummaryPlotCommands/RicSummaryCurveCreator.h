@@ -92,7 +92,7 @@ private:
                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
     std::set<RifEclipseSummaryAddress>      buildAddressListFromSelections();
     void                                    addSelectionAddress(RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                std::vector<SummaryIdentifierAndField*>::const_iterator& identifierAndFieldItr,
+                                                                std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                 std::set<RifEclipseSummaryAddress>& addressSet,
                                                                 std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath);
 
