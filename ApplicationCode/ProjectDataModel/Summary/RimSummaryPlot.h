@@ -30,19 +30,19 @@
 
 #include <QPointer>
 
-class RiuSummaryQwtPlot;
-class RimSummaryCurve;
-class RimSummaryCase;
-class RimSummaryCurveFilter;
-class RimSummaryCurveCollection;
-class RimSummaryYAxisProperties;
-class RimSummaryTimeAxisProperties;
-class RimGridTimeHistoryCurve;
-class RimAsciiDataCurve;
 class PdmUiTreeOrdering;
+class RimAsciiDataCurve;
+class RimGridTimeHistoryCurve;
+class RimSummaryCase;
+class RimSummaryCurve;
+class RimSummaryCurveCollection;
+class RimSummaryCurveFilter;
+class RimSummaryTimeAxisProperties;
+class RimSummaryYAxisProperties;
+class RiuSummaryQwtPlot;
 
-class QwtPlotCurve;
 class QwtInterval;
+class QwtPlotCurve;
 
 //==================================================================================================
 ///  
@@ -62,7 +62,8 @@ public:
     void                                            addCurve(RimSummaryCurve* curve);
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
-    void                                            removeCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
+    void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
+    void                                            deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
     void                                            deleteAllTopLevelCurves();
 
     void                                            addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve);
@@ -137,7 +138,7 @@ private:
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves;
     caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters;
-	caf::PdmChildField<RimSummaryCurveCollection*>		m_curveCollection;
+	caf::PdmChildField<RimSummaryCurveCollection*>		m_summaryCurveCollection;
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
     caf::PdmField<bool>                                 m_isAutoZoom;

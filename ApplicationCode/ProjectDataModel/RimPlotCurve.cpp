@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimPlotCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
+
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "cafPdmUiComboBoxEditor.h"
@@ -185,6 +187,12 @@ void RimPlotCurve::updateCurveVisibility()
         RimSummaryCurveFilter* cFilter = nullptr;
         this->firstAncestorOrThisOfType(cFilter);
         if(cFilter) isVisibleInPossibleParent = cFilter->isCurvesVisible();
+    }
+    
+    {
+        RimSummaryCurveCollection* summaryCurveCollection = nullptr;
+        this->firstAncestorOrThisOfType(summaryCurveCollection);
+        if (summaryCurveCollection) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
     }
 
     if (m_showCurve() && m_parentQwtPlot && isVisibleInPossibleParent)

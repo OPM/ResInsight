@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,34 +19,24 @@
 
 #pragma once
 
-//#include "cafPdmField.h"
+
+#include "RiaDefines.h"
+
+#include "cafPdmChildArrayField.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
-//#include "cafPdmPointer.h"
-//#include "cafPdmPtrField.h"
-//#include "cafPdmChildField.h"
-//#include "cafPdmChildArrayField.h"
-//#include "cafAppEnum.h"
-//#include "cafPdmPtrArrayField.h"
-//
-//#include "RifEclipseSummaryAddress.h"
-//
-//#include "RiaDefines.h"
-//#include "RimSummaryCurveAppearanceCalculator.h"
-//
-//class QwtPlot;
-//class QwtPlotCurve;
-//class RifReaderEclipseSummary;
+#include "cafPdmPtrArrayField.h"
+
+#include "QPointer"
+#include "QList"
+
+class QwtPlot;
+class QwtPlotCurve;
 class RimSummaryCase;
-//class RimSummaryCurve;
-//class RimSummaryFilter;
-//class RiuLineSegmentQwtPlotCurve;
-//class RimSummaryCurveAutoName;
-//
-//
-//Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
+class RimSummaryCurve;
+class RiuLineSegmentQwtPlotCurve;
 
 //==================================================================================================
-///  
 ///  
 //==================================================================================================
 class RimSummaryCurveCollection : public caf::PdmObject
@@ -57,6 +47,31 @@ public:
     RimSummaryCurveCollection();
     virtual ~RimSummaryCurveCollection();
 
-    void createCurves(RimSummaryCase* summaryCase, const QString& stringFilter);
+    bool                                    isCurvesVisible();
+
+    void                                    loadDataAndUpdate();
+    void                                    setParentQwtPlot(QwtPlot* plot);
+    void                                    detachQwtCurves();
+
+    RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;
+
+    void                                    addCurve(RimSummaryCurve* curve);
+    void                                    deleteCurve(RimSummaryCurve* curve);
+
+    std::vector<RimSummaryCurve*>           curves();
+    void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
+
+    void                                    updateCaseNameHasChanged();
+
+private:
+    caf::PdmFieldHandle*                    objectToggleField();
+    
+
+private:
+    caf::PdmPtrArrayField<RimSummaryCase*>      m_selectedSummaryCases;
+
+    caf::PdmField<bool>                         m_showCurves;
+    caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
+
 };
 

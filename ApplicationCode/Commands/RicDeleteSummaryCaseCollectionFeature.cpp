@@ -49,7 +49,7 @@ void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(RimSumma
     {
         for (RimSummaryPlot* summaryPlot : summaryPlotColl->summaryPlots)
         {
-            summaryPlot->removeCurvesAssosiatedWithCase(summaryCase);
+            summaryPlot->deleteCurvesAssosiatedWithCase(summaryCase);
         }
     }
     

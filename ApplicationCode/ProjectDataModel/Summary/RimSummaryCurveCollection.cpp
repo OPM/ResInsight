@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016 Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,45 +18,19 @@
 
 #include "RimSummaryCurveCollection.h"
 
-//#include "RiaApplication.h"
-//
 #include "RifReaderEclipseSummary.h"
-//
-//#include "RigSummaryCaseData.h"
-//
-//#include "RiaDefines.h"
-//#include "RimEclipseResultCase.h"
-//#include "RimProject.h"
+
+#include "RigSummaryCaseData.h"
+
+#include "RiaApplication.h"
+#include "RimProject.h"
 #include "RimSummaryCase.h"
-//#include "RimSummaryCurve.h"
-//#include "RimSummaryCurveAppearanceCalculator.h"
-//#include "RimSummaryCurveAutoName.h"
-//#include "RimSummaryFilter.h"
-//#include "RimSummaryPlot.h"
-//#include "RimSummaryPlotCollection.h"
-//
-//#include "RiuLineSegmentQwtPlotCurve.h"
-//#include "RiuSummaryQwtPlot.h"
-//
-//#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
-//
-//#include "cafPdmUiListEditor.h"
-//#include "cafPdmUiPushButtonEditor.h"
-//
-//
-//QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
-//{
-//    CVF_ASSERT(false);
-//    return str;
-//}
-//
-//QTextStream& operator >> (QTextStream& str, std::vector<RifEclipseSummaryAddress>& sobj)
-//{
-//    CVF_ASSERT(false);
-//    return str;
-//}
-//
-//
+#include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
+
+#include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuSummaryQwtPlot.h"
+
 CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +38,14 @@ CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::RimSummaryCurveCollection()
 {
+    CAF_PDM_InitObject("Curve Collection", ":/SummaryCurveFilter16x16.png", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&m_curves, "CollectionCurves", "Collection Curves", "", "", "");
+    m_curves.uiCapability()->setUiHidden(true);
+    m_curves.uiCapability()->setUiTreeChildrenHidden(false);
+
+    CAF_PDM_InitField(&m_showCurves, "IsActive", true, "Show Curves", "", "", "");
+    m_showCurves.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,21 +53,145 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::~RimSummaryCurveCollection()
 {
+    m_curves.deleteAllChildObjects();
 }
 
-void RimSummaryCurveCollection::createCurves(RimSummaryCase* summaryCase, const QString& stringFilter)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCurveCollection::isCurvesVisible()
 {
-    if (summaryCase)
+    return m_showCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::loadDataAndUpdate()
+{
+    for (RimSummaryCurve* curve : m_curves)
     {
-        std::vector<RimSummaryCase*> selectedCases;
-        selectedCases.push_back(summaryCase);
-
-        //m_summaryFilter->setCompleteVarStringFilter(stringFilter);
-
-        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
-
-        //createSetOfCasesAndResultAdresses(selectedCases, *m_summaryFilter, &newCurveDefinitions);
-
-        //createCurvesFromCurveDefinitions(newCurveDefinitions);
+        curve->loadDataAndUpdate();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::setParentQwtPlot(QwtPlot* plot)
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->setParentQwtPlot(plot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::detachQwtCurves()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->detachQwtCurve();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
+{
+    for (RimSummaryCurve* rimCurve : m_curves)
+    {
+        if (rimCurve->qwtPlotCurve() == qwtCurve)
+        {
+            return rimCurve;
+        }
+    }
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::addCurve(RimSummaryCurve* curve)
+{
+    if (curve)
+    {
+        m_curves.push_back(curve);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::deleteCurve(RimSummaryCurve* curve)
+{
+    if (curve)
+    {
+        m_curves.removeChildObject(curve);
+        delete curve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves()
+{
+    std::vector<RimSummaryCurve*> myCurves;
+
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        myCurves.push_back(curve);
+    }
+
+    return myCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
+{
+    std::vector<RimSummaryCurve*> summaryCurvesToDelete;
+
+    for (RimSummaryCurve* summaryCurve : m_curves)
+    {
+        if (!summaryCurve) continue;
+        if (!summaryCurve->summaryCase()) continue;
+
+        if (summaryCurve->summaryCase() == summaryCase)
+        {
+            summaryCurvesToDelete.push_back(summaryCurve);
+        }
+    }
+    for (RimSummaryCurve* summaryCurve : summaryCurvesToDelete)
+    {
+        m_curves.removeChildObject(summaryCurve);
+        delete summaryCurve;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::updateCaseNameHasChanged()
+{
+    for (RimSummaryCurve* curve : m_curves)
+    {
+        curve->updateCurveName();
+        curve->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSummaryCurveCollection::objectToggleField()
+{
+    return &m_showCurves;
 }

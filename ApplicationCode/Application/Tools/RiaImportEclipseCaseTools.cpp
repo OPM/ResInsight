@@ -37,6 +37,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -156,6 +157,8 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                             RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
                             if (summaryCurve)
                             {
+                                //TODO: When removing curve filter functionality, move this to summaryCurveCollection
+                                //loop and update "if (parentCollection)"-block
                                 summaryCurve->setSummaryCase(newSumCase);
                                 summaryCurve->updateConnectedEditors();
 
@@ -176,6 +179,22 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                         {
                             curveFilter->loadDataAndUpdate();
                             curveFilter->updateConnectedEditors();
+                        }
+
+                        for (caf::PdmObjectHandle* objHandle : referringObjects)
+                        {
+                            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(objHandle);
+                            if (summaryCurve)
+                            {
+                                RimSummaryCurveCollection* parentCollection = nullptr;
+                                summaryCurve->firstAncestorOrThisOfType(parentCollection);
+                                if (parentCollection)
+                                {
+                                    parentCollection->loadDataAndUpdate();
+                                    parentCollection->updateConnectedEditors();
+                                    break;
+                                }
+                            }
                         }
 
                         sumCaseColl->removeCase(existingFileSummaryCase);
