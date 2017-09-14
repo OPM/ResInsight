@@ -31,6 +31,7 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 
 class RimSummaryCase;
 
@@ -43,9 +44,9 @@ class RicSummaryCurveCreator : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-public:
-
 private:
+    typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
+
     class SummaryIdentifierAndField
     {
     public:
@@ -98,6 +99,9 @@ private:
 
     void                                    loadDataAndUpdatePlot();
     void                                    syncCurvesFromUiSelection();
+    void                                    createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& newCurveDefinitions);
+    std::set<std::string>                   getAllSummaryCaseNames();
+    std::set<std::string>                   getAllSummaryWellNames();
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
@@ -105,5 +109,12 @@ private:
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
     caf::PdmChildField<RimSummaryPlot*>                                                                 m_previewPlot;
-    caf::PdmField<std::vector<QString>>                                                                 m_selectedCurveTexts;
+    //caf::PdmField<std::vector<QString>>                                                                 m_selectedCurveTexts;
+
+    caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
+    caf::PdmField< AppearanceTypeAppEnum >                                                              m_caseAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >                                                              m_variableAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >                                                              m_wellAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >                                                              m_groupAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >                                                              m_regionAppearanceType;
 };
