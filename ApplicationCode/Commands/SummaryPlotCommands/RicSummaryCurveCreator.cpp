@@ -198,7 +198,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
 {
     // Lookup item type input field
     auto identifierAndField = findIdentifierAndField(changedField);
-    if (identifierAndField != nullptr && identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME)
+    if (changedField == &m_selectedCases || identifierAndField != nullptr)
     {
         loadDataAndUpdatePlot();
     }
