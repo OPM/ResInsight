@@ -21,22 +21,24 @@
 #include "RiaApplication.h"
 
 #include "RicSummaryCurveCreatorUiKeywords.h"
-
 #include "RifReaderEclipseSummary.h"
-
 #include "RigSummaryCaseData.h"
 
+#include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmUiListEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <algorithm>
 #include <sstream>
 #include <stack>
+#include "RicSelectSummaryPlotUI.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -158,7 +160,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_previewPlot, "PreviewPlot", "PreviewPlot", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "TargetPlot", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "Target Plot", "", "", "");
 
     CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "");
@@ -191,6 +193,18 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
 
     m_previewPlot.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     //m_previewPlot.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
+    m_applyButtonField = false;
+    m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_applyButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitFieldNoDefault(&m_closeButtonField, "Close", "", "", "", "");
+    m_closeButtonField = false;
+    m_closeButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_closeButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    CAF_PDM_InitField(&m_createNewPlot, "CreateNewPlot", false, "Create New Plot", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,18 +239,31 @@ void RicSummaryCurveCreator::setTargetPlot(RimSummaryPlot* targetPlot)
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    // Lookup item type input field
-    auto identifierAndField = findIdentifierAndField(changedField);
-    if (changedField == &m_selectedCases ||
-        changedField == &m_useAutoAppearanceAssignment ||
-        changedField == &m_caseAppearanceType ||
-        changedField == &m_variableAppearanceType ||
-        changedField == &m_wellAppearanceType ||
-        changedField == &m_groupAppearanceType ||
-        changedField == &m_regionAppearanceType ||
-        identifierAndField != nullptr)
+    if (changedField == &m_applyButtonField)
     {
-        loadDataAndUpdatePlot();
+        m_applyButtonField = false;
+
+        updateTargetPlot();
+    }
+    else if (changedField == &m_closeButtonField)
+    {
+        m_closeButtonField = false;
+    }
+    else
+    {
+        // Lookup item type input field
+        auto identifierAndField = findIdentifierAndField(changedField);
+        if (changedField == &m_selectedCases ||
+            changedField == &m_useAutoAppearanceAssignment ||
+            changedField == &m_caseAppearanceType ||
+            changedField == &m_variableAppearanceType ||
+            changedField == &m_wellAppearanceType ||
+            changedField == &m_groupAppearanceType ||
+            changedField == &m_regionAppearanceType ||
+            identifierAndField != nullptr)
+        {
+            loadDataAndUpdatePlot();
+        }
     }
 }
 
@@ -257,6 +284,16 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         for (RimSummaryCase* rimCase : cases)
         {
             options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
+        }
+    }
+    else if (fieldNeedingOptions == &m_targetPlot)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        
+        RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
+        if (summaryPlotColl)
+        {
+            summaryPlotColl->summaryPlotItemInfos(&options);
         }
     }
     else
@@ -437,17 +474,13 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     }
 
 
-    // Dynamic item input editors
-/*
-    auto pdmFields = m_selectedIdentifiers[m_selectedSummaryCategory()];
-    if (pdmFields.size() > 0)
-    {
-        auto groupLabel = QString("%1 input").arg(m_selectedSummaryCategory().uiText());
-        caf::PdmUiGroup* itemInputGroup = uiOrdering.addNewGroup(groupLabel);
-        for (const auto& pdmField : pdmFields)
-            itemInputGroup->add(pdmField->pdmField());
-    }
-*/
+    // Fields to be displayed directly in UI
+    uiOrdering.add(&m_createNewPlot);
+    uiOrdering.add(&m_targetPlot);
+    uiOrdering.add(&m_applyButtonField);
+    uiOrdering.add(&m_closeButtonField);
+
+    m_targetPlot.uiCapability()->setUiReadOnly(m_createNewPlot);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -845,6 +878,29 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (&m_applyButtonField == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "Apply";
+        }
+    }
+    else if (&m_closeButtonField == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "Close";
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Populate curve creator from the given curve collection
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot)
@@ -886,7 +942,6 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     }
     m_previewPlot->updateConnectedEditors();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Copy curves from 

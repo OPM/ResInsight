@@ -83,6 +83,8 @@ private:
                                                              const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                                  caf::PdmUiEditorAttribute* attribute) override;
 
 
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
@@ -121,4 +123,8 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_wellAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_regionAppearanceType;
+
+    caf::PdmField<bool> m_createNewPlot;
+    caf::PdmField<bool> m_applyButtonField;
+    caf::PdmField<bool> m_closeButtonField;
 };
