@@ -23,7 +23,6 @@ ${CEE_CURRENT_LIST_DIR}RicPasteTimeHistoryCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicPasteAsciiDataCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurves.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.h
-${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUiKeywords.h
@@ -47,7 +46,6 @@ ${CEE_CURRENT_LIST_DIR}RicPasteTimeHistoryCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicPasteAsciiDataCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurves.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.cpp
-${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.cpp
 )
