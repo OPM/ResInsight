@@ -23,6 +23,7 @@
 #include "cafPdmPtrField.h"
 
 class RimSummaryPlot;
+class RimSummaryPlotCollection;
 
 //==================================================================================================
 /// 
@@ -47,7 +48,7 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    static std::vector<RimSummaryPlot*> summaryPlots();
+    static RimSummaryPlotCollection* summaryPlotCollection();
 
 private:
     caf::PdmPtrField<RimSummaryPlot*>   m_selectedSummaryPlot;

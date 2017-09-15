@@ -46,6 +46,9 @@ public:
     caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
 
     void updateSummaryNameHasChanged();
+
+    void summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const;
+
 private:
     RifReaderEclipseSummary* createSummaryFileReader(const QString& eclipseCaseFilePathBasename);
     RifReaderEclipseSummary* getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename);
