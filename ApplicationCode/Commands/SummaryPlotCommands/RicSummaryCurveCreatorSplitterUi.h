@@ -42,6 +42,8 @@ namespace caf {
 //==================================================================================================
 class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiWidgetBasedObjectEditor
 {
+    Q_OBJECT
+
 public:
     RicSummaryCurveCreatorSplitterUi(QWidget* parent);
     ~RicSummaryCurveCreatorSplitterUi();
@@ -63,6 +65,10 @@ private:
                                              QBoxLayout* layout,
                                              const std::vector<caf::PdmUiItem *>& topLevelUiItems,
                                              const QString& uiConfigName);
+
+signals:
+    void    signalCloseButtonPressed();
+
 
 private:
     QPointer<QVBoxLayout>       m_layout;

@@ -39,6 +39,8 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicS
 
     m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
     m_curveCreatorSplitterUi->updateUi();
+
+    connect(m_curveCreatorSplitterUi, SIGNAL(signalCloseButtonPressed()), this, SLOT(accept()));
 }
 
 //--------------------------------------------------------------------------------------------------

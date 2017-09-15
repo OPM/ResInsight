@@ -237,6 +237,22 @@ void RicSummaryCurveCreator::setTargetPlot(RimSummaryPlot* targetPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RicSummaryCurveCreator::isCloseButtonPressed() const
+{
+    return m_closeButtonField();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::clearCloseButton()
+{
+    m_closeButtonField = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &m_applyButtonField)
@@ -244,10 +260,6 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         m_applyButtonField = false;
 
         updateTargetPlot();
-    }
-    else if (changedField == &m_closeButtonField)
-    {
-        m_closeButtonField = false;
     }
     else
     {
@@ -899,6 +911,7 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
         }
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// Populate curve creator from the given curve collection

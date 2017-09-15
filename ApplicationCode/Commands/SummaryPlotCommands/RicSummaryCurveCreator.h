@@ -77,6 +77,9 @@ public:
     RimSummaryPlot*                         previewPlot() { return m_previewPlot;}
     void                                    setTargetPlot(RimSummaryPlot* targetPlot);
 
+    bool                                    isCloseButtonPressed() const;
+    void                                    clearCloseButton();
+
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                              const QVariant& oldValue, 

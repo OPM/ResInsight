@@ -54,6 +54,17 @@ RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
 {
+    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
+    if (sumCurveCreator)
+    {
+        if (sumCurveCreator->isCloseButtonPressed())
+        {
+            sumCurveCreator->clearCloseButton();
+
+            emit signalCloseButtonPressed();
+        }
+    }
+
     if (!m_layout) return;
 
     int splitterPositionIndex = 0;
