@@ -29,6 +29,7 @@
 #include <QAction>
 
 #include "cvfAssert.h"
+#include "cafSelectionManager.h"
 
 
 CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
@@ -57,6 +58,14 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
 
     if (!m_dialogWithSplitter->isVisible())
         m_dialogWithSplitter->show();
+
+    // Set target plot
+    std::vector<RimSummaryPlot*> plots;
+    caf::SelectionManager::instance()->objectsByType(&plots);
+    if (plots.size() == 1)
+    {
+        m_curveCreator->setTargetPlot(plots.front());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

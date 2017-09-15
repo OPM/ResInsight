@@ -158,6 +158,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_previewPlot, "PreviewPlot", "PreviewPlot", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "TargetPlot", "", "", "");
 
     CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "");
@@ -212,7 +213,11 @@ RicSummaryCurveCreator::~RicSummaryCurveCreator()
 void RicSummaryCurveCreator::setTargetPlot(RimSummaryPlot* targetPlot)
 {
     m_targetPlot = targetPlot;
-
+    if (targetPlot != nullptr)
+    {
+        populateCurveCreator(*targetPlot);
+        updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,7 +852,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
         // Select case if not already selected
-        if (std::find(m_selectedCases.begin(), m_selectedCases.end(), curve->summaryCase()) != m_selectedCases.end())
+        if (std::find(m_selectedCases.begin(), m_selectedCases.end(), curve->summaryCase()) == m_selectedCases.end())
         {
             m_selectedCases.push_back(curve->summaryCase());
         }
@@ -855,11 +860,31 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         auto identifierAndFieldList = m_identifierFieldsMap[curve->summaryAddress().category()];
         for (const auto& identifierAndField : identifierAndFieldList)
         {
-            auto& pdmField = *identifierAndField->pdmField();
-            auto currentSelections = pdmField();
-            currentSelections.push_back(QString::fromStdString(curve->summaryAddress().uiText(identifierAndField->summaryIdentifier())));
+            QString uiText = QString::fromStdString(curve->summaryAddress().uiText(identifierAndField->summaryIdentifier()));
+            const auto& currentSelectionVector = identifierAndField->pdmField()->v();
+            if (std::find(currentSelectionVector.begin(), currentSelectionVector.end(), uiText) == currentSelectionVector.end())
+            {
+                std::vector<QString> newSelectionVector(currentSelectionVector.begin(), currentSelectionVector.end());
+                newSelectionVector.push_back(uiText);
+                (*identifierAndField->pdmField()) = newSelectionVector;
+            }
         }
+
+        // Copy curve object to the preview plot
+        RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+        CVF_ASSERT(curveCopy);
+
+        m_previewPlot->addCurve(curveCopy);
+
+        // Resolve references after object has been inserted into the project data model
+        curveCopy->resolveReferencesRecursively();
+
+        // The curve creator is not a descendant of the project, and need to be set manually
+        curveCopy->setSummaryCase(curve->summaryCase());
+        curveCopy->initAfterReadRecursively();
+        curveCopy->loadDataAndUpdate();
     }
+    m_previewPlot->updateConnectedEditors();
 }
 
 
