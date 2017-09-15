@@ -21,6 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RicSummaryCurveCreatorUiKeywords.h"
+#include "RicSelectSummaryPlotUI.h"
+
 #include "RifReaderEclipseSummary.h"
 #include "RigSummaryCaseData.h"
 
@@ -31,14 +33,17 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuMainPlotWindow.h"
+
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <QInputDialog>
+
 #include <algorithm>
 #include <sstream>
 #include <stack>
-#include "RicSelectSummaryPlotUI.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -205,6 +210,8 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_closeButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&m_createNewPlot, "CreateNewPlot", false, "Create New Plot", "", "", "");
+    m_createNewPlot.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_createNewPlot.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,6 +267,43 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         m_applyButtonField = false;
 
         updateTargetPlot();
+    }
+    else if (changedField == &m_createNewPlot)
+    {
+        m_createNewPlot = false;
+
+        RimProject* proj = RiaApplication::instance()->project();
+
+        RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
+        if (summaryPlotColl)
+        {
+            QString summaryPlotName = QString("SummaryPlot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
+
+            bool ok = false;
+            summaryPlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, summaryPlotName, &ok);
+            if (ok)
+            {
+                RimSummaryPlot* plot = new RimSummaryPlot();
+                summaryPlotColl->summaryPlots().push_back(plot);
+
+                plot->setDescription(summaryPlotName);
+                plot->loadDataAndUpdate();
+
+                summaryPlotColl->updateConnectedEditors();
+
+                RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+                if (mainPlotWindow)
+                {
+                    mainPlotWindow->selectAsCurrentItem(plot);
+                    mainPlotWindow->setExpanded(plot, true);
+                }
+
+                m_createNewPlot = false;
+                m_targetPlot = plot;
+
+                updateTargetPlot();
+            }
+        }
     }
     else
     {
@@ -907,7 +951,15 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
         {
-            attrib->m_buttonText = "Close";
+            attrib->m_buttonText = "Cancel";
+        }
+    }
+    else if (&m_createNewPlot == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "New Plot";
         }
     }
 }
