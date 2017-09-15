@@ -100,7 +100,7 @@ public:
     QString                                         asciiDataForPlotExport() const;
 
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
-    void                                            deleteAllCurves();
+    void                                            deleteAllSummaryCurves();
 
     // RimViewWindow overrides
 public:

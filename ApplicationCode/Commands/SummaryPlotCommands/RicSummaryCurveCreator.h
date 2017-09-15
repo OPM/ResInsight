@@ -108,6 +108,7 @@ private:
 
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
+    void                                    copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot);
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;

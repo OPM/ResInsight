@@ -905,6 +905,7 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot)
 {
+    m_previewPlot->deleteAllSummaryCurves();
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
         // Select case if not already selected
@@ -927,35 +928,42 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         }
 
         // Copy curve object to the preview plot
-        RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
-        CVF_ASSERT(curveCopy);
-
-        m_previewPlot->addCurve(curveCopy);
-
-        // Resolve references after object has been inserted into the project data model
-        curveCopy->resolveReferencesRecursively();
-
-        // The curve creator is not a descendant of the project, and need to be set manually
-        curveCopy->setSummaryCase(curve->summaryCase());
-        curveCopy->initAfterReadRecursively();
-        curveCopy->loadDataAndUpdate();
+        copyCurveAndAddToPlot(curve, m_previewPlot);
     }
     m_previewPlot->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Copy curves from 
+/// Copy curves from preview plot to target plot
+// Todo: Do not copy curves already in target plot (?)
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateTargetPlot()
 {
-    // Q: What about hidden curves?
-
     if (m_targetPlot == nullptr)
         m_targetPlot = new RimSummaryPlot();
     
     for (const auto& curve : m_previewPlot->summaryCurves())
     {
-        m_targetPlot->addCurve(curve);
+        copyCurveAndAddToPlot(curve, m_targetPlot);
     }
-    m_targetPlot->loadDataAndUpdate();
+    m_targetPlot->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot)
+{
+    RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(curveCopy);
+
+    plot->addCurve(curveCopy);
+
+    // Resolve references after object has been inserted into the project data model
+    curveCopy->resolveReferencesRecursively();
+
+    // The curve creator is not a descendant of the project, and need to be set manually
+    curveCopy->setSummaryCase(curve->summaryCase());
+    curveCopy->initAfterReadRecursively();
+    curveCopy->loadDataAndUpdate();
 }

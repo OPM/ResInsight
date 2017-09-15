@@ -201,7 +201,7 @@ void RimSummaryCurve::setSummaryCase(RimSummaryCase* sumCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCurve::summaryCase()
+RimSummaryCase* RimSummaryCurve::summaryCase() const
 {
     return m_summaryCase();
 }
