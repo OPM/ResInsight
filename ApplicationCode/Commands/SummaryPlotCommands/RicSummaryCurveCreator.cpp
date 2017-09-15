@@ -197,13 +197,22 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::~RicSummaryCurveCreator()
 {
-    for (const auto& itemTypes : m_identifierFieldsMap)
+    for (const auto& identifierAndFieldList : m_identifierFieldsMap)
     {
-        for (const auto& itemTypeInput : itemTypes.second)
+        for (const auto& identifierAndField : identifierAndFieldList.second)
         {
-            delete itemTypeInput->pdmField();
+            delete identifierAndField->pdmField();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::setTargetPlot(RimSummaryPlot* targetPlot)
+{
+    m_targetPlot = targetPlot;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,10 +254,6 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
             options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
         }
     }
-    else if (fieldNeedingOptions == &m_previewPlot)
-    {
-
-    }
     else
     {
         // Lookup item type input field
@@ -262,7 +267,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
 
             for (const auto& address : addrUnion)
             {
-                auto name = getIdentifierTextFromAddress(identifierAndField->summaryIdentifier(), address);
+                auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
                 if (!name.isEmpty())
                     itemNames.insert(name);
             }
@@ -512,27 +517,6 @@ std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> RicSummaryCurveC
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the stringified value for the specified value in the specfied address object
-/// Todo: Move this method to RicElipseSummaryAddress class
-//--------------------------------------------------------------------------------------------------
-QString RicSummaryCurveCreator::getIdentifierTextFromAddress(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput, const RifEclipseSummaryAddress &address)
-{
-    switch (itemTypeInput)
-    {
-    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER: return QString("%1").arg(address.regionNumber());
-    case RifEclipseSummaryAddress::INPUT_REGION2_NUMBER: return QString("%1").arg(address.regionNumber2());
-    case RifEclipseSummaryAddress::INPUT_WELL_NAME: return QString::fromStdString(address.wellName());
-    case RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME: return QString::fromStdString(address.wellGroupName());
-    case RifEclipseSummaryAddress::INPUT_CELL_IJK: return QString("%1,%2,%3").arg(QString::number(address.cellI()),
-        QString::number(address.cellJ()), QString::number(address.cellK()));
-    case RifEclipseSummaryAddress::INPUT_LGR_NAME: return QString::fromStdString(address.lgrName());
-    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return QString("%1").arg(address.wellSegmentNumber());
-    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return QString::fromStdString(address.quantityName());
-    }
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Returns pdm field info from the specified pdm field
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle)
@@ -579,9 +563,9 @@ bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &a
     for (const auto& identifierAndField : identifierAndFieldList)
     {
         bool match = false;
-        for (const auto& selection : identifierAndField->pdmField()->v())
+        for (const auto& selectedText : identifierAndField->pdmField()->v())
         {
-            if (QString::compare(getIdentifierTextFromAddress(identifierAndField->summaryIdentifier(), address), selection) == 0)
+            if (QString::compare(QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier())), selectedText) == 0)
             {
                 match = true;
                 break;
@@ -853,4 +837,45 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
         }
     }
     return summaryWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Populate curve creator from the given curve collection
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot)
+{
+    for (const auto& curve : sourceSummaryPlot.summaryCurves())
+    {
+        // Select case if not already selected
+        if (std::find(m_selectedCases.begin(), m_selectedCases.end(), curve->summaryCase()) != m_selectedCases.end())
+        {
+            m_selectedCases.push_back(curve->summaryCase());
+        }
+
+        auto identifierAndFieldList = m_identifierFieldsMap[curve->summaryAddress().category()];
+        for (const auto& identifierAndField : identifierAndFieldList)
+        {
+            auto& pdmField = *identifierAndField->pdmField();
+            auto currentSelections = pdmField();
+            currentSelections.push_back(QString::fromStdString(curve->summaryAddress().uiText(identifierAndField->summaryIdentifier())));
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Copy curves from 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::updateTargetPlot()
+{
+    // Q: What about hidden curves?
+
+    if (m_targetPlot == nullptr)
+        m_targetPlot = new RimSummaryPlot();
+    
+    for (const auto& curve : m_previewPlot->summaryCurves())
+    {
+        m_targetPlot->addCurve(curve);
+    }
+    m_targetPlot->loadDataAndUpdate();
 }

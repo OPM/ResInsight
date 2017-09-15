@@ -75,6 +75,8 @@ public:
     virtual ~RicSummaryCurveCreator();
 
     RimSummaryPlot*                         previewPlot() { return m_previewPlot;}
+    void                                    setTargetPlot(RimSummaryPlot* targetPlot);
+
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                                                              const QVariant& oldValue, 
@@ -85,8 +87,6 @@ private:
 
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
     std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
-    QString                                 getIdentifierTextFromAddress(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput, 
-                                                                         const RifEclipseSummaryAddress &address);
     SummaryIdentifierAndField*              findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle);
     SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *identifierAndField);
     bool                                    isAddressSelected(const RifEclipseSummaryAddress &address, 
@@ -104,13 +104,16 @@ private:
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
 
+    void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
+    void                                    updateTargetPlot();
+
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
+    caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
     caf::PdmChildField<RimSummaryPlot*>                                                                 m_previewPlot;
-    //caf::PdmField<std::vector<QString>>                                                                 m_selectedCurveTexts;
 
     caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_caseAppearanceType;
