@@ -23,6 +23,10 @@
 class RicSummaryCurveCreatorSplitterUi;
 class RicSummaryCurveCreator;
 
+//==================================================================================================
+///  
+///  
+//==================================================================================================
 class RicSummaryCurveCreatorDialog : public QDialog
 {
 public:

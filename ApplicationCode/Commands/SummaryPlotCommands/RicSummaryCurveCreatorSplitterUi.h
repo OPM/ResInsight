@@ -24,17 +24,22 @@
 
 class RicSummaryCurveCreator;
 
-class QHBoxLayout;
 class QMinimizePanel;
 class QSplitter;
 class QString;
 class QVBoxLayout;
+class QHBoxLayout;
+class QBoxLayout;
 
 namespace caf {
     class PdmUiItem;
 }
 
 
+//==================================================================================================
+///  
+///  
+//==================================================================================================
 class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiWidgetBasedObjectEditor
 {
 public:
@@ -54,6 +59,11 @@ private:
                                                const QString& keyword,
                                                const QString& uiConfigName);
 
+    void            configureAndUpdateFields(int widgetStartIndex, 
+                                             QBoxLayout* layout,
+                                             const std::vector<caf::PdmUiItem *>& topLevelUiItems,
+                                             const QString& uiConfigName);
+
 private:
     QPointer<QVBoxLayout>       m_layout;
     QPointer<QSplitter>         m_firstColumnSplitter;
@@ -63,4 +73,6 @@ private:
     QPointer<QHBoxLayout>       m_firstRowLayout;
     QPointer<QHBoxLayout>       m_secondRowLayout;
     QPointer<QVBoxLayout>       m_lowerLeftLayout;
+
+    QPointer<QHBoxLayout>       m_bottomFieldLayout;
 };
