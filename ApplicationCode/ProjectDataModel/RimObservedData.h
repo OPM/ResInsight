@@ -23,7 +23,6 @@
 #include "cafPdmObject.h"
 #include "cvfObject.h"
 
-class RigObservedData;
 
 //==================================================================================================
 //
@@ -33,9 +32,4 @@ class RimObservedData : public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimObservedData();
-
-    void                   setSummaryHeaderFilename(const QString& fileName);
-    virtual QString        summaryHeaderFilename() const  override;
-    virtual QString        caseName() override;
-    virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 };

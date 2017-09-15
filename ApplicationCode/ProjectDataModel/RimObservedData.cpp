@@ -17,12 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimObservedData.h"
-#include "RimTools.h"
 
-#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -30,43 +27,4 @@ CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
 RimObservedData::RimObservedData()
 {
     m_isObservedData = true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimObservedData::summaryHeaderFilename() const
-{
-    return m_summaryHeaderFilename();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimObservedData::setSummaryHeaderFilename(const QString& fileName)
-{
-    m_summaryHeaderFilename = fileName;
-
-    this->updateAutoShortName();
-    this->updateTreeItemName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimObservedData::caseName()
-{
-    QFileInfo caseFileName(this->summaryHeaderFilename());
-
-    return caseFileName.completeBaseName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
-{
-    m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
