@@ -202,15 +202,18 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         {
             CAF_ASSERT(m_uiFieldHandle);
 
-            QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
-            QList<QVariant> valuesSelectedInField = fieldValue.toList();
-
-            for (QVariant v : valuesSelectedInField)
+            if (m_uiFieldHandle && m_uiFieldHandle->field())
             {
-                int indexInField = v.toInt();
-                if (indexInField == opIndex)
+                QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+                QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+                for (QVariant v : valuesSelectedInField)
                 {
-                    return Qt::Checked;
+                    int indexInField = v.toInt();
+                    if (indexInField == opIndex)
+                    {
+                        return Qt::Checked;
+                    }
                 }
             }
 
