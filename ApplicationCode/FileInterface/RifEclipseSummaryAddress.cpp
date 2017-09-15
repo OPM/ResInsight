@@ -19,18 +19,6 @@
 #include "RifEclipseSummaryAddress.h"
 #include "cvfAssert.h"
 
-// todo: Make class member
-std::tuple<int, int, int> ijkTupleFromString(const std::string &s)
-{
-    auto firstSep = s.find(',');
-    auto lastSep = s.find(',', firstSep + 1);
-    CVF_ASSERT(firstSep != std::string::npos && lastSep != std::string::npos);
-    auto textI = s.substr(0, firstSep);
-    auto textJ = s.substr(firstSep + 1, lastSep - firstSep - 1);
-    auto textK = s.substr(lastSep + 1);
-    return std::make_tuple(std::stoi(textI), std::stoi(textJ), std::stoi(textK));
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +50,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
         break;
     case SUMMARY_WELL_COMPLETION:
         m_wellName = identifiers[INPUT_WELL_NAME];
-        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        ijkTuple = ijkTupleFromUiText(identifiers[INPUT_CELL_IJK]);
         m_cellI = std::get<0>(ijkTuple);
         m_cellJ = std::get<1>(ijkTuple);
         m_cellK = std::get<2>(ijkTuple);
@@ -74,7 +62,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
     case SUMMARY_WELL_COMPLETION_LGR:
         m_lgrName = identifiers[INPUT_LGR_NAME];
         m_wellName = identifiers[INPUT_WELL_NAME];
-        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        ijkTuple = ijkTupleFromUiText(identifiers[INPUT_CELL_IJK]);
         m_cellI = std::get<0>(ijkTuple);
         m_cellJ = std::get<1>(ijkTuple);
         m_cellK = std::get<2>(ijkTuple);
@@ -83,14 +71,14 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
         m_wellName = identifiers[INPUT_WELL_NAME];
         m_wellSegmentNumber = std::stoi(identifiers[INPUT_SEGMENT_NUMBER]);
     case SUMMARY_BLOCK:
-        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        ijkTuple = ijkTupleFromUiText(identifiers[INPUT_CELL_IJK]);
         m_cellI = std::get<0>(ijkTuple);
         m_cellJ = std::get<1>(ijkTuple);
         m_cellK = std::get<2>(ijkTuple);
         break;
     case SUMMARY_BLOCK_LGR:
         m_lgrName = identifiers[INPUT_LGR_NAME];
-        ijkTuple = ijkTupleFromString(identifiers[INPUT_CELL_IJK]);
+        ijkTuple = ijkTupleFromUiText(identifiers[INPUT_CELL_IJK]);
         m_cellI = std::get<0>(ijkTuple);
         m_cellJ = std::get<1>(ijkTuple);
         m_cellK = std::get<2>(ijkTuple);
@@ -146,9 +134,7 @@ std::string RifEclipseSummaryAddress::uiText() const
         case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
         {
             text += ":" + this->wellName();
-            text += ":" + std::to_string(this->cellI()) + ", "
-                        + std::to_string(this->cellJ()) + ", "
-                        + std::to_string(this->cellK());
+            text += ":" + formatUiTextIJK();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
@@ -161,9 +147,7 @@ std::string RifEclipseSummaryAddress::uiText() const
         {
             text += ":" + this->lgrName();
             text += ":" + this->wellName();
-            text += ":" + std::to_string(this->cellI()) + ", " 
-                        + std::to_string(this->cellJ()) + ", " 
-                        + std::to_string(this->cellK());
+            text += ":" + formatUiTextIJK();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
@@ -174,22 +158,56 @@ std::string RifEclipseSummaryAddress::uiText() const
         break;
         case RifEclipseSummaryAddress::SUMMARY_BLOCK:
         {
-            text += ":" + std::to_string(this->cellI()) + ", "
-                        + std::to_string(this->cellJ()) + ", "
-                        + std::to_string(this->cellK());
+            text += ":" + formatUiTextIJK();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
         {
             text += ":" + this->lgrName();
-            text += ":" + std::to_string(this->cellI()) + ", "
-                        + std::to_string(this->cellJ()) + ", "
-                        + std::to_string(this->cellK());
+            text += ":" + formatUiTextIJK();
         }
         break;
     }
 
     return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the stringified value for the specified identifier type
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryIdentifierType identifierType) const
+{
+    switch (identifierType)
+    {
+    case RifEclipseSummaryAddress::INPUT_REGION_NUMBER: return std::to_string(regionNumber());
+    case RifEclipseSummaryAddress::INPUT_REGION2_NUMBER: return std::to_string(regionNumber2());
+    case RifEclipseSummaryAddress::INPUT_WELL_NAME: return wellName();
+    case RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME: return wellGroupName();
+    case RifEclipseSummaryAddress::INPUT_CELL_IJK: return formatUiTextIJK();
+    case RifEclipseSummaryAddress::INPUT_LGR_NAME: return lgrName();
+    case RifEclipseSummaryAddress::INPUT_SEGMENT_NUMBER: return std::to_string(wellSegmentNumber());
+    case RifEclipseSummaryAddress::INPUT_VECTOR_NAME: return quantityName();
+    }
+    return "";
+}
+
+std::string RifEclipseSummaryAddress::formatUiTextIJK() const
+{
+    return std::to_string(this->cellI()) + ", "
+        + std::to_string(this->cellJ()) + ", "
+        + std::to_string(this->cellK());
+}
+
+// todo: Make class member
+std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText(const std::string &s)
+{
+    auto firstSep = s.find(',');
+    auto lastSep = s.find(',', firstSep + 1);
+    CVF_ASSERT(firstSep != std::string::npos && lastSep != std::string::npos);
+    auto textI = s.substr(0, firstSep);
+    auto textJ = s.substr(firstSep + 1, lastSep - firstSep - 1);
+    auto textK = s.substr(lastSep + 1);
+    return std::make_tuple(std::stoi(textI), std::stoi(textJ), std::stoi(textK));
 }
 
 //--------------------------------------------------------------------------------------------------

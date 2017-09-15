@@ -123,9 +123,13 @@ public:
 
     // Derived properties
 
-    std::string         uiText() const;
+    std::string     uiText() const;
+    std::string     uiText(RifEclipseSummaryAddress::SummaryIdentifierType itemTypeInput) const;
 
 private:
+
+    std::string                 formatUiTextIJK() const;
+    std::tuple<int, int, int>   ijkTupleFromUiText(const std::string &s);
 
     SummaryVarCategory  m_variableCategory;
     std::string         m_quantityName;
