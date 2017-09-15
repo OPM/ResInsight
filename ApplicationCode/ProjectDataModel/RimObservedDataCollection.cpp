@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 #include "RimObservedDataCollection.h"
 #include "RimObservedData.h"
 
@@ -28,9 +30,9 @@ RimObservedDataCollection::RimObservedDataCollection()
 {
     CAF_PDM_InitObject("Observed Data", ":/Folder.png", "", "");
     
-    CAF_PDM_InitFieldNoDefault(&m_observedData, "ObservedData", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_observedDataArray, "ObservedDataArray", "", "", "", "");
 
-    m_observedData.uiCapability()->setUiHidden(true);
+    m_observedDataArray.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,5 +40,5 @@ RimObservedDataCollection::RimObservedDataCollection()
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::~RimObservedDataCollection()
 {
-    m_observedData.deleteAllChildObjects();
+    m_observedDataArray.deleteAllChildObjects();
 }

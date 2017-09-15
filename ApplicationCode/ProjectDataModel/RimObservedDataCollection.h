@@ -33,5 +33,5 @@ public:
     virtual ~RimObservedDataCollection();
 
 private:
-    caf::PdmChildArrayField<RimObservedData*> m_observedData;
+    caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;
 };
