@@ -24,6 +24,9 @@ ${CEE_CURRENT_LIST_DIR}RicPasteAsciiDataCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurves.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUi.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUiKeywords.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -45,6 +48,8 @@ ${CEE_CURRENT_LIST_DIR}RicPasteAsciiDataCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurves.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUi.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -56,6 +61,8 @@ ${SOURCE_GROUP_SOURCE_FILES}
 )
 
 list(APPEND QT_MOC_HEADERS
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
 )
 
 

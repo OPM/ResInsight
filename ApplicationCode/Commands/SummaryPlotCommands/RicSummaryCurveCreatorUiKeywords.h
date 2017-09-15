@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,32 +16,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+
 #pragma once
 
-#include "cafCmdFeature.h"
-#include <QPointer>
+#include <QString>
 
-class RicSummaryCurveCreator;
-class RicSummaryCurveCreatorDialog;
-
-namespace caf {
-	class PdmUiPropertyViewDialog;
-}
 
 //==================================================================================================
-/// 
+///  
+///  
 //==================================================================================================
-class RicEditSummaryCurves : public caf::CmdFeature
+class RicSummaryCurveCreatorUiKeywords
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook(QAction* actionToSetup);
-
-private:
- 	RicSummaryCurveCreator*		            m_curveCreator;
-    QPointer<RicSummaryCurveCreatorDialog>  m_dialogWithSplitter;
+public:
+    static QString sources()            { return "SourcesKeyword"; };
+    static QString summaryTypes()       { return "SummaryTypesKeyword"; };
+    static QString summaries()          { return "SummariesKeyword"; };
+    static QString regions()            { return "RegionsKeyword"; };
+    static QString region2region()      { return "Region2RegionKeyword"; };
+    static QString wellGroup()          { return "WellGroupKeyword"; };
+    static QString wells()              { return "WellsKeyword"; };
+    static QString completions()        { return "CompletionsKeyword"; };
+    static QString lgrWells()           { return "LgrWellsKeyword"; };
+    static QString wellSegments()       { return "WellSegmentsKeyword"; };
+    static QString appearance()         { return "AppearanceKeyword"; };
 };

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,17 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-#include <QPointer>
+#include <QDialog>
 
+class RicSummaryCurveCreatorSplitterUi;
 class RicSummaryCurveCreator;
-class RicSummaryCurveCreatorDialog;
 
-namespace caf {
-	class PdmUiPropertyViewDialog;
-}
-
-//==================================================================================================
-/// 
-//==================================================================================================
-class RicEditSummaryCurves : public caf::CmdFeature
+class RicSummaryCurveCreatorDialog : public QDialog
 {
-    CAF_CMD_HEADER_INIT;
-
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook(QAction* actionToSetup);
+public:
+    RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator);
+    ~RicSummaryCurveCreatorDialog();
 
 private:
- 	RicSummaryCurveCreator*		            m_curveCreator;
-    QPointer<RicSummaryCurveCreatorDialog>  m_dialogWithSplitter;
+    RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;
 };

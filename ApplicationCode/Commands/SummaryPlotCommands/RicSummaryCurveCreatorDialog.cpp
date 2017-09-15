@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,54 +16,35 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditSummaryCurves.h"
-
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-
-#include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
 
-#include "cafPdmUiPropertyViewDialog.h"
+#include "RicSummaryCurveCreator.h"
+#include "RicSummaryCurveCreatorSplitterUi.h"
 
-#include <QAction>
-
-#include "cvfAssert.h"
-
-
-CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
+#include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurves::isCommandEnabled()
+RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator)
+    : QDialog(parent)
 {
-    return true;
+    m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi(this);
+
+    QWidget* propertyWidget = m_curveCreatorSplitterUi->getOrCreateWidget(this);
+
+    QVBoxLayout* dummy = new QVBoxLayout(this);
+    dummy->setContentsMargins(0, 0, 0, 0);
+    dummy->addWidget(propertyWidget);
+
+    m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
+    m_curveCreatorSplitterUi->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::onActionTriggered(bool isChecked)
+RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
 
-	if (m_curveCreator == nullptr)
-	{
-		m_curveCreator = new RicSummaryCurveCreator();
-		m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, m_curveCreator);
-	}
-
-    if (!m_dialogWithSplitter->isVisible())
-        m_dialogWithSplitter->show();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::setupActionLook(QAction* actionToSetup)
-{
-    actionToSetup->setText("Edit Summary Curves");
-    //actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }
