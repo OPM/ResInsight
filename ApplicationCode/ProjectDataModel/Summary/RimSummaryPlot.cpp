@@ -455,7 +455,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::summaryCurves() const
 {
     std::vector<RimSummaryCurve*> curves;
     curves.reserve(m_summaryCurves.size());
-    for (const auto& curve : m_summaryCurves)
+    for (const auto& curve : m_summaryCurveCollection->curves())
     {
         curves.push_back(curve);
     }
