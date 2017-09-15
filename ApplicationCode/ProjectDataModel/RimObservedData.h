@@ -16,18 +16,26 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+#include "RimSummaryCase.h"
+
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cvfObject.h"
+
+class RigObservedData;
 
 //==================================================================================================
 //
 //==================================================================================================
-class RimObservedData : public caf::PdmObject
+class RimObservedData : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
 public:
     RimObservedData();
-    ~RimObservedData();
 
-private:
-
+    void                   setSummaryHeaderFilename(const QString& fileName);
+    virtual QString        summaryHeaderFilename() const  override;
+    virtual QString        caseName() override;
+    virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 };

@@ -17,20 +17,56 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimObservedData.h"
+#include "RimTools.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimObservedData::RimObservedData()
 {
-    CAF_PDM_InitObject("Observed data file", ":/Default.png", "", "");
+    m_isObservedData = true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimObservedData::summaryHeaderFilename() const
+{
+    return m_summaryHeaderFilename();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedData::setSummaryHeaderFilename(const QString& fileName)
+{
+    m_summaryHeaderFilename = fileName;
+
+    this->updateAutoShortName();
+    this->updateTreeItemName();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData::~RimObservedData()
+QString RimObservedData::caseName()
 {
+    QFileInfo caseFileName(this->summaryHeaderFilename());
+
+    return caseFileName.completeBaseName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
+{
+    m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }

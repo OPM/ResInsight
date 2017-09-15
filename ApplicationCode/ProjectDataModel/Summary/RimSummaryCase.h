@@ -51,6 +51,8 @@ public:
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
 
+    bool                isObservedData();
+
 protected:
     void                updateTreeItemName();
 
@@ -59,6 +61,7 @@ protected:
     caf::PdmField<QString>  m_summaryHeaderFilename;
 
     cvf::ref<RigSummaryCaseData> m_summaryCaseData;
+    caf::PdmField<bool>     m_isObservedData;
 
 private:
     // Overridden PDM methods
