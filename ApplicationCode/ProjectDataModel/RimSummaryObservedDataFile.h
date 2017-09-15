@@ -16,21 +16,22 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimAsciiObservedData.h"
+#pragma once
 
-CAF_PDM_SOURCE_INIT(RimAsciiObservedData, "AsciiObservedData");
+#include "RimObservedData.h"
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimAsciiObservedData::RimAsciiObservedData()
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include "cvfObject.h"
+
+
+//==================================================================================================
+//
+//==================================================================================================
+class RimSummaryObservedDataFile : public RimObservedData
 {
-    CAF_PDM_InitObject("Ascii file", ":/Default.png", "", "");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimAsciiObservedData::~RimAsciiObservedData()
-{
-}
+    CAF_PDM_HEADER_INIT;
+public:
+    RimSummaryObservedDataFile();
+    virtual ~RimSummaryObservedDataFile();
+};

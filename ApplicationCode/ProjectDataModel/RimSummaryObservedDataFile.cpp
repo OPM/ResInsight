@@ -16,25 +16,27 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RimSummaryObservedDataFile.h"
 
-#include "RimObservedData.h"
+#include "RigObservedData.h"
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
+#include "QFileInfo"
 
-//==================================================================================================
-//
-//==================================================================================================
-class RimAsciiObservedData : public RimObservedData
+CAF_PDM_SOURCE_INIT(RimSummaryObservedDataFile, "SummaryObservedDataFile");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 {
-    CAF_PDM_HEADER_INIT;
-public:
-    RimAsciiObservedData();
-    ~RimAsciiObservedData();
+    CAF_PDM_InitObject("Observed data file", ":/Default.png", "", "");
 
-protected:
+}
 
-private:
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
+{
 
-};
+}
