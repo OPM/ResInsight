@@ -99,7 +99,7 @@ private:
 
     void                                    loadDataAndUpdatePlot();
     void                                    syncCurvesFromUiSelection();
-    void                                    createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+    void                                    updateCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
                                                                              const std::set<RimSummaryCurve*>& curvesToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
