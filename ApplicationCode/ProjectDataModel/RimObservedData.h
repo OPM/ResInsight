@@ -32,4 +32,9 @@ class RimObservedData : public RimSummaryCase
     CAF_PDM_HEADER_INIT;
 public:
     RimObservedData();
+
+    virtual QString        summaryHeaderFilename() const  override;
+    virtual QString        caseName() override;
+    virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+
 };

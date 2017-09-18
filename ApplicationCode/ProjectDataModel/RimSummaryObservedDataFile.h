@@ -35,8 +35,5 @@ public:
     RimSummaryObservedDataFile();
     virtual ~RimSummaryObservedDataFile();
 
-    void                   setSummaryHeaderFilename(const QString& fileName);
-    virtual QString        summaryHeaderFilename() const  override;
-    virtual QString        caseName() override;
-    virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
+    void setSummaryHeaderFilename(const QString& fileName);
 };

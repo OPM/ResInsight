@@ -45,37 +45,10 @@ RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryObservedDataFile::summaryHeaderFilename() const
-{
-    return m_summaryHeaderFilename();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimSummaryObservedDataFile::setSummaryHeaderFilename(const QString& fileName)
 {
     m_summaryHeaderFilename = fileName;
 
     this->updateAutoShortName();
     this->updateTreeItemName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryObservedDataFile::caseName()
-{
-    QFileInfo caseFileName(this->summaryHeaderFilename());
-
-    return caseFileName.completeBaseName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryObservedDataFile::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
-{
-    m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
