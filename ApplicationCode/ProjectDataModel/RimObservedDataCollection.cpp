@@ -76,3 +76,15 @@ RimSummaryObservedDataFile* RimObservedDataCollection::createAndAddObservedDataF
     return newObservedData;
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimObservedData*> RimObservedDataCollection::allObservedData()
+{
+    std::vector<RimObservedData*> allObservedData;
+
+    allObservedData.insert(allObservedData.begin(), m_observedDataArray.begin(), m_observedDataArray.end());
+
+    return allObservedData;
+}

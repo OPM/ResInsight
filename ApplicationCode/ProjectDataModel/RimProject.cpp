@@ -552,6 +552,24 @@ void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimProject::allObservedData(std::vector<RimObservedData*>& observedData)
+{
+    for (RimOilField* oilField : oilFields)
+    {
+        if (!oilField) continue;
+        RimObservedDataCollection* observedDataCollection = oilField->observedDataCollection();
+        if (observedDataCollection)
+        {
+            observedData.clear();
+            std::vector<RimObservedData*> allObservedData = observedDataCollection->allObservedData();
+            observedData.insert(observedData.end(), allObservedData.begin(), allObservedData.end());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
 {
     std::vector<RimCase*> cases;

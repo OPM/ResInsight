@@ -36,6 +36,7 @@ public:
     void                            removeObservedData(RimObservedData* observedData);
     void                            addObservedData(RimObservedData* observedData);
     RimSummaryObservedDataFile*     createAndAddObservedDataFromFileName(const QString& fileName);
+    std::vector<RimObservedData*>   allObservedData();
 
 private:
     caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;
