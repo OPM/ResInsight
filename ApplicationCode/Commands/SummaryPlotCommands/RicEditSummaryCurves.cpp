@@ -37,6 +37,22 @@ CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicEditSummaryCurves::closeDialogAndResetTargetPlot()
+{
+    if (m_dialogWithSplitter && m_dialogWithSplitter->isVisible())
+    {
+        m_dialogWithSplitter->hide();
+    }
+
+    if (m_curveCreator)
+    {
+        m_curveCreator->updateFromSummaryPlot(nullptr);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicEditSummaryCurves::isCommandEnabled()
 {
     return true;
@@ -64,7 +80,7 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&plots);
     if (plots.size() == 1)
     {
-        m_curveCreator->setTargetPlot(plots.front());
+        m_curveCreator->updateFromSummaryPlot(plots.front());
     }
 }
 

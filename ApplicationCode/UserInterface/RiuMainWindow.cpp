@@ -59,6 +59,7 @@
 #include "cafUtils.h"
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
+#include "SummaryPlotCommands/RicEditSummaryCurves.h"
 
 #include "cvfTimer.h"
 
@@ -183,6 +184,12 @@ void RiuMainWindow::cleanupGuiCaseClose()
         }
     }
     m_processMonitor->startMonitorWorkProcess(NULL);
+
+    RicEditSummaryCurves* editSumCurves = dynamic_cast<RicEditSummaryCurves*>(caf::CmdFeatureManager::instance()->getCommandFeature("RicEditSummaryCurves"));
+    if (editSumCurves)
+    {
+        editSumCurves->closeDialogAndResetTargetPlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

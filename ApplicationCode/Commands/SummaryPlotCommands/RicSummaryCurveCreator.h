@@ -75,7 +75,7 @@ public:
     virtual ~RicSummaryCurveCreator();
 
     RimSummaryPlot*                         previewPlot() { return m_previewPlot;}
-    void                                    setTargetPlot(RimSummaryPlot* targetPlot);
+    void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot);
 
     bool                                    isCloseButtonPressed() const;
     void                                    clearCloseButton();
@@ -113,13 +113,16 @@ private:
     void                                    updateTargetPlot();
     void                                    copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot);
 
+    void                                    resetAllFields();
+
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
-    caf::PdmChildField<RimSummaryPlot*>                                                                 m_previewPlot;
+    
+    RimSummaryPlot*                                                                                     m_previewPlot;
 
     caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_caseAppearanceType;

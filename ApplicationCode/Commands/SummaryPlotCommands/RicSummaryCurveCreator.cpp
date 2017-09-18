@@ -164,7 +164,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_previewPlot, "PreviewPlot", "PreviewPlot", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "Target Plot", "", "", "");
 
     CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "");
@@ -196,9 +195,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_selectedSummaryCategory.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
     m_selectedSummaryCategory.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_previewPlot.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    //m_previewPlot.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
@@ -226,19 +222,29 @@ RicSummaryCurveCreator::~RicSummaryCurveCreator()
             delete identifierAndField->pdmField();
         }
     }
+
+    delete m_previewPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::setTargetPlot(RimSummaryPlot* targetPlot)
+void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
 {
-    m_targetPlot = targetPlot;
-    if (targetPlot != nullptr)
+    if (m_targetPlot != targetPlot)
     {
-        populateCurveCreator(*targetPlot);
-        updateConnectedEditors();
+        resetAllFields();
     }
+    
+    m_targetPlot = targetPlot;
+
+    if (m_targetPlot)
+    {
+        populateCurveCreator(*m_targetPlot);
+        loadDataAndUpdatePlot();
+    }
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1031,4 +1037,24 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     curveCopy->setSummaryCase(curve->summaryCase());
     curveCopy->initAfterReadRecursively();
     curveCopy->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::resetAllFields()
+{
+    m_selectedCases.clear();
+
+    m_previewPlot->deleteAllSummaryCurves();
+    m_targetPlot = nullptr;
+
+    // clear all state in fields
+    for (auto& identifierAndFieldList : m_identifierFieldsMap)
+    {
+        for (auto a : identifierAndFieldList.second)
+        {
+            a->pdmField()->v().clear();
+        }
+    }
 }
