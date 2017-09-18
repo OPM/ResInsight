@@ -27,17 +27,15 @@
 //
 //
 //==================================================================================================
-class RicImportObservedDataFeature : public caf::CmdFeature
+class RicImportObservedDataInMenuFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
-    RicImportObservedDataFeature();
-    static void selectObservedDataFileInDialog();
+    RicImportObservedDataInMenuFeature();
 
 private:
     virtual bool    isCommandEnabled() override;
     virtual void    onActionTriggered(bool isChecked) override;
     virtual void    setupActionLook(QAction* actionToSetup) override;
-    static bool            createAndAddObservedDataFromFile(const QString& fileName);
 };

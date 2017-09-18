@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017- Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,63 +16,52 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#include "RicImportObservedDataInMenuFeature.h"
+
+#include "RiaApplication.h"
+
+#include "RicImportObservedDataFeature.h"
 
 #include "RimObservedDataCollection.h"
-#include "RimObservedData.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
-CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
+#include <QAction>
+#include <QFileDialog>
+
+
+CAF_CMD_SOURCE_INIT(RicImportObservedDataInMenuFeature, "RicImportObservedDataInMenuFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedDataCollection::RimObservedDataCollection()
+RicImportObservedDataInMenuFeature::RicImportObservedDataInMenuFeature()
 {
-    CAF_PDM_InitObject("Observed Data", ":/Folder.png", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&m_observedDataArray, "ObservedDataArray", "", "", "", "");
-
-    m_observedDataArray.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedDataCollection::~RimObservedDataCollection()
+bool RicImportObservedDataInMenuFeature::isCommandEnabled()
 {
-    m_observedDataArray.deleteAllChildObjects();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::removeObservedData(RimObservedData* observedData)
+void RicImportObservedDataInMenuFeature::onActionTriggered(bool isChecked)
 {
-    m_observedDataArray.removeChildObject(observedData);
+    RicImportObservedDataFeature::selectObservedDataFileInDialog();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
+void RicImportObservedDataInMenuFeature::setupActionLook(QAction* actionToSetup)
 {
-    m_observedDataArray.push_back(observedData);
+    actionToSetup->setIcon(QIcon(":/Default.png"));
+    actionToSetup->setText("Import Observed Data");
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryObservedDataFile* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName)
-{
-    RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
-
-    this->m_observedDataArray.push_back(newObservedData);
-    newObservedData->setSummaryHeaderFilename(fileName);
-    newObservedData->updateOptionSensitivity();
-
-    this->updateConnectedEditors();
-
-    return newObservedData;
-
-}

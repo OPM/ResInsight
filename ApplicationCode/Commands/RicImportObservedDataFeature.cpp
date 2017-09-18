@@ -20,10 +20,13 @@
 
 #include "RiaApplication.h"
 
+#include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
+
+#include "cafSelectionManager.h"
 
 #include <QAction>
 #include <QFileDialog>
@@ -41,19 +44,11 @@ RicImportObservedDataFeature::RicImportObservedDataFeature()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportObservedDataFeature::isCommandEnabled()
-{
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
+void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(NULL, "Import Observed Data", defaultDir, "Observed Data File;;All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(NULL, "Import Observed Data", defaultDir, "All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
@@ -68,6 +63,28 @@ void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
     {
         RicImportObservedDataFeature::createAndAddObservedDataFromFile(fileName);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicImportObservedDataFeature::isCommandEnabled()
+{
+    std::vector<RimObservedDataCollection*> selectionObservedDataCollection;
+    caf::SelectionManager::instance()->objectsByType(&selectionObservedDataCollection);
+
+    std::vector<RimObservedData*> selectionObservedData;
+    caf::SelectionManager::instance()->objectsByType(&selectionObservedData);
+
+    return (selectionObservedDataCollection.size() > 0 || selectionObservedData.size() > 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
+{
+    RicImportObservedDataFeature::selectObservedDataFileInDialog();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -445,6 +445,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicFlyToObjectFeature";
         commandIds << "RicExportCarfin";
 
+        commandIds << "RicImportObservedDataFeature";
         commandIds << "RicPasteSummaryCaseFeature";
         commandIds << "RicReloadSummaryCaseFeature";
         commandIds << "RicCreateSummaryCaseCollectionFeature";
