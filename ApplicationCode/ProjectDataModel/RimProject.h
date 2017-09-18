@@ -101,8 +101,9 @@ public:
 
     void            computeUtmAreaOfInterest();
 
-    RimOilField*       activeOilField();
-    const RimOilField* activeOilField() const;
+    void                allOilFields(std::vector<RimOilField*>& oilFields);
+    RimOilField*        activeOilField();
+    const RimOilField*  activeOilField() const;
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
 

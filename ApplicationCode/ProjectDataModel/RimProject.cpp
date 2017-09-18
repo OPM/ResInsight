@@ -631,6 +631,18 @@ void RimProject::createDisplayModelAndRedrawAllViews()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allOilFields(std::vector<RimOilField*>& oilFields)
+{
+    oilFields.clear();
+    for (const auto& oilField : this->oilFields)
+    {
+        oilFields.push_back(oilField);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Currently there will be only one oil field in Resinsight, so return hardcoded first oil field
 /// from the RimOilField collection.
 //--------------------------------------------------------------------------------------------------

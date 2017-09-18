@@ -35,7 +35,8 @@ public:
     void                removeCase(RimSummaryCase* summaryCase);
     void                addCase(RimSummaryCase* summaryCase);
 
-    std::vector<RimSummaryCase*> allSummaryCases();
+    std::vector<RimSummaryCase*>    allSummaryCases();
+    QString                         name() const { return m_name; }
 
 private:
     virtual caf::PdmFieldHandle* userDescriptionField() override;

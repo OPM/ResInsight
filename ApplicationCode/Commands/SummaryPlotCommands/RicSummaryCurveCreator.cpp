@@ -44,6 +44,9 @@
 #include <algorithm>
 #include <sstream>
 #include <stack>
+#include "RimSummaryCaseMainCollection.h"
+#include "RimOilField.h"
+#include "RimSummaryCaseCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -339,13 +342,50 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
     if (fieldNeedingOptions == &m_selectedCases)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        std::vector<RimSummaryCase*> cases;
+        std::vector<RimSummaryCase*> topLevelCases;
+        std::vector<RimOilField*> oilFields;
 
-        proj->allSummaryCases(cases);
-
-        for (RimSummaryCase* rimCase : cases)
+        proj->allOilFields(oilFields);
+        for (RimOilField* oilField : oilFields)
         {
-            options.push_back(caf::PdmOptionItemInfo(rimCase->caseName(), rimCase));
+            RimSummaryCaseMainCollection* sumCaseMainColl = oilField->summaryCaseMainCollection();
+            if (sumCaseMainColl)
+            {
+                // Top level cases
+                for (const auto& sumCase : sumCaseMainColl->topLevelSummaryCases())
+                {
+                    options.push_back(caf::PdmOptionItemInfo(sumCase->caseName(), sumCase));
+                }
+
+                // Grouped cases
+                for (const auto& sumCaseColl : sumCaseMainColl->summaryCaseCollections())
+                {
+                    options.push_back(caf::PdmOptionItemInfo::createHeader(sumCaseColl->name(), true));
+
+                    for (const auto& sumCase : sumCaseColl->allSummaryCases())
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
+                        optionItem.setLevel(1);
+                        options.push_back(optionItem);
+                    }
+                }
+
+                // Observed cases
+
+                // Under construction...
+                //auto observedCases = sumCaseMainColl->topLevelSummaryCases/*observedCases*/();
+                //if (observedCases.size() > 0)
+                //{
+                //    options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Summary Cases", true));
+
+                //    for (const auto& sumCase : observedCases)
+                //    {
+                //        auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
+                //        optionItem.setLevel(1);
+                //        options.push_back(optionItem);
+                //    }
+                //}
+            }
         }
     }
     else if (fieldNeedingOptions == &m_targetPlot)
