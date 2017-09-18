@@ -92,26 +92,26 @@ private:
 
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
     std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
-    SummaryIdentifierAndField*              findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle);
-    SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *identifierAndField);
-    bool                                    isAddressSelected(const RifEclipseSummaryAddress &address, 
+    SummaryIdentifierAndField*              lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle);
+    SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *dependentField);
+    bool                                    isAddressCompatibleWithControllingFieldSelection(const RifEclipseSummaryAddress &address, 
                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
     std::set<RifEclipseSummaryAddress>      buildAddressListFromSelections();
-    void                                    addSelectionAddress(RifEclipseSummaryAddress::SummaryVarCategory category,
+    void                                    buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                 std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                 std::set<RifEclipseSummaryAddress>& addressSet,
                                                                 std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath);
 
     void                                    loadDataAndUpdatePlot();
-    void                                    syncCurvesFromUiSelection();
-    void                                    updateCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+    void                                    syncPreviewCurvesFromUiSelection();
+    void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
                                                                              const std::set<RimSummaryCurve*>& curvesToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
 
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
-    void                                    copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
+    static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
 
     void                                    resetAllFields();
 

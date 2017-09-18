@@ -314,7 +314,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
     else
     {
         // Lookup item type input field
-        auto identifierAndField = findIdentifierAndField(changedField);
+        auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(changedField);
         if (changedField == &m_selectedCases ||
             changedField == &m_useAutoAppearanceAssignment ||
             changedField == &m_caseAppearanceType ||
@@ -361,7 +361,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
     else
     {
         // Lookup item type input field
-        auto identifierAndField = findIdentifierAndField(fieldNeedingOptions);
+        auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(fieldNeedingOptions);
         if (identifierAndField != nullptr)
         {
             auto pdmField = identifierAndField->pdmField();
@@ -571,18 +571,18 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
             int addressCount = static_cast<int>(allAddresses.size());
 
             bool applySelections = identifierAndField == nullptr || (!isVectorField && controllingIdentifierAndField != nullptr);
-            std::vector<SummaryIdentifierAndField*> selections;
+            std::vector<SummaryIdentifierAndField*> controllingFields;
             if (applySelections)
             {
                 // Build selections vector
-                selections = buildControllingFieldList(identifierAndField);
+                controllingFields = buildControllingFieldList(identifierAndField);
             }
 
             for (int i = 0; i < addressCount; i++)
             {
                 if (allAddresses[i].category() == m_selectedSummaryCategory())
                 {
-                    bool addressSelected = applySelections ? isAddressSelected(allAddresses[i], selections) : true;
+                    bool addressSelected = applySelections ? isAddressCompatibleWithControllingFieldSelection(allAddresses[i], controllingFields) : true;
 
                     // Todo: Add text filter
                     //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
@@ -603,7 +603,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 //--------------------------------------------------------------------------------------------------
 std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> RicSummaryCurveCreator::buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField)
 {
-    std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> selections;
+    std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> controllingFields;
     auto identifierAndFieldList = m_identifierFieldsMap[m_selectedSummaryCategory()];
     for (const auto& identifierAndFieldItem : identifierAndFieldList)
     {
@@ -611,15 +611,15 @@ std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> RicSummaryCurveC
         {
             break;
         }
-        selections.push_back(identifierAndFieldItem);
+        controllingFields.push_back(identifierAndFieldItem);
     }
-    return selections;
+    return controllingFields;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns pdm field info from the specified pdm field
+/// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle)
+RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle)
 {
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -635,17 +635,18 @@ RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::findI
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the parent pdm field info for the specified pdm field info.
+/// Returns the Controlling pdm field info for the specified pdm field info.
+/// Controlling means the field controlling the dependent field
 /// If the specified pdm field info is the topmost (i.e. index is 0), null pointer is returned
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::lookupControllingField(const RicSummaryCurveCreator::SummaryIdentifierAndField *identifierAndField)
+RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::lookupControllingField(const RicSummaryCurveCreator::SummaryIdentifierAndField *dependentField)
 {
     for (const auto& identifierAndFieldList : m_identifierFieldsMap)
     {
         int index = 0;
         for (const auto& iaf : identifierAndFieldList.second)
         {
-            if (iaf == identifierAndField)
+            if (iaf == dependentField)
             {
                 return index > 0 ? identifierAndFieldList.second[index - 1] : nullptr;
             }
@@ -656,9 +657,9 @@ RicSummaryCurveCreator::SummaryIdentifierAndField* RicSummaryCurveCreator::looku
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns true if the specified address object matches the selections
+/// 
 //--------------------------------------------------------------------------------------------------
-bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList)
+bool RicSummaryCurveCreator::isAddressCompatibleWithControllingFieldSelection(const RifEclipseSummaryAddress &address, const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList)
 {
     for (const auto& identifierAndField : identifierAndFieldList)
     {
@@ -671,26 +672,34 @@ bool RicSummaryCurveCreator::isAddressSelected(const RifEclipseSummaryAddress &a
                 break;
             }
         }
+
         if (!match)
         {
             return false;
         }
     }
+
     return true;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromSelections()
 {
     std::set<RifEclipseSummaryAddress> addressSet;
     for (const auto& identifierAndFieldList : m_identifierFieldsMap)
     {
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
-        addSelectionAddress(identifierAndFieldList.first, identifierAndFieldList.second.begin(), addressSet, selectionStack);
+        buildAddressListForCategoryRecursively(identifierAndFieldList.first, identifierAndFieldList.second.begin(), addressSet, selectionStack);
     }
     return addressSet;
 }
 
-void RicSummaryCurveCreator::addSelectionAddress(RifEclipseSummaryAddress::SummaryVarCategory category,
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
                                                  std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr, 
                                                  std::set<RifEclipseSummaryAddress>& addressSet,
                                                  std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath)
@@ -700,7 +709,7 @@ void RicSummaryCurveCreator::addSelectionAddress(RifEclipseSummaryAddress::Summa
         identifierPath.push_back(std::make_pair((*identifierAndFieldItr)->summaryIdentifier(), identifierText));
         if ((*identifierAndFieldItr)->summaryIdentifier() != RifEclipseSummaryAddress::INPUT_VECTOR_NAME)
         {
-            addSelectionAddress(category, std::next(identifierAndFieldItr, 1), addressSet, identifierPath);
+            buildAddressListForCategoryRecursively(category, std::next(identifierAndFieldItr, 1), addressSet, identifierPath);
         }
         else
         {
@@ -721,7 +730,7 @@ void RicSummaryCurveCreator::addSelectionAddress(RifEclipseSummaryAddress::Summa
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::loadDataAndUpdatePlot()
 {
-    syncCurvesFromUiSelection();
+    syncPreviewCurvesFromUiSelection();
     //loadDataAndUpdate();
 
     //RimSummaryPlot* plot = nullptr;
@@ -732,7 +741,7 @@ void RicSummaryCurveCreator::loadDataAndUpdatePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::syncCurvesFromUiSelection()
+void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 {
     // Create a search map containing whats supposed to be curves
 
@@ -767,19 +776,19 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
         }
     }
 
-    std::vector<RimSummaryCurve*> currentCurvesInPlot = m_previewPlot->summaryCurves();
-    if (allCurveDefinitions.size() != currentCurvesInPlot.size())
+    std::vector<RimSummaryCurve*> currentCurvesInPreviewPlot = m_previewPlot->summaryCurves();
+    if (allCurveDefinitions.size() != currentCurvesInPreviewPlot.size())
     {
         std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> currentCurveDefs;
         std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> newCurveDefs;
-        std::set<RimSummaryCurve*> deleteCurves;
+        std::set<RimSummaryCurve*> curvesToDelete;
 
-        for (const auto& curve : currentCurvesInPlot)
+        for (const auto& curve : currentCurvesInPreviewPlot)
         {
             currentCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
         }
         
-        if (allCurveDefinitions.size() < currentCurvesInPlot.size())
+        if (allCurveDefinitions.size() < currentCurvesInPreviewPlot.size())
         {
             // Determine which curves to delete from plot
             std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> deleteCurveDefs;
@@ -787,11 +796,11 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
                                 allCurveDefinitions.begin(), allCurveDefinitions.end(),
                                 std::inserter(deleteCurveDefs, deleteCurveDefs.end()));
 
-            for (const auto& curve : currentCurvesInPlot)
+            for (const auto& curve : currentCurvesInPreviewPlot)
             {
                 std::pair<RimSummaryCase*, RifEclipseSummaryAddress> curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
                 if (deleteCurveDefs.count(curveDef) > 0)
-                    deleteCurves.insert(curve);
+                    curvesToDelete.insert(curve);
             }
         }
         else
@@ -801,15 +810,16 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
                                 currentCurveDefs.begin(), currentCurveDefs.end(),
                                 std::inserter(newCurveDefs, newCurveDefs.end()));
         }
-        updateCurvesFromCurveDefinitions(newCurveDefs, deleteCurves);
+
+        updatePreviewCurvesFromCurveDefinitions(newCurveDefs, curvesToDelete);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updateCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
-                                                              const std::set<RimSummaryCurve*>& curvesToDelete)
+void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+                                                                     const std::set<RimSummaryCurve*>& curvesToDelete)
 {
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
@@ -851,7 +861,6 @@ void RicSummaryCurveCreator::updateCurvesFromCurveDefinitions(const std::set<std
     }
 
     // Add new curves
-    //m_previewPlot->deleteAllTopLevelCurves();
     for (const auto& curveDef : curveDefsToAdd)
     {
         RimSummaryCase* currentCase = curveDef.first;
@@ -860,30 +869,11 @@ void RicSummaryCurveCreator::updateCurvesFromCurveDefinitions(const std::set<std
         curve->setSummaryAddress(curveDef.second);
         m_previewPlot->addCurve(curve);
         curveLookCalc.setupCurveLook(curve);
-        //m_currentCurvesInPlot.insert(std::make_pair(curveDef, curve));
-        //curveTexts.push_back(QString::fromStdString( curveDef.second.uiText()));
     }
 
-    //m_selectedCurveTexts = curveTexts;
     m_previewPlot->loadDataAndUpdate();
     m_previewPlot->updateConnectedEditors();
     m_previewPlot->zoomAll();
-
-    //for (auto& caseAddrPair : curveDefinitions)
-    //{
-    //    RimSummaryCase* currentCase = caseAddrPair.first;
-
-    //    RimSummaryCurve* curve = new RimSummaryCurve();
-    //    curve->setParentQwtPlot(m_parentQwtPlot);
-    //    curve->setSummaryCase(currentCase);
-    //    curve->setSummaryAddress(caseAddrPair.second);
-    //    curve->setYAxis(m_plotAxis());
-    //    curve->applyCurveAutoNameSettings(*m_curveNameConfig());
-
-    //    m_curves.push_back(curve);
-
-    //    curveLookCalc.setupCurveLook(curve);
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1001,6 +991,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         // Copy curve object to the preview plot
         copyCurveAndAddToPlot(curve, m_previewPlot, true);
     }
+
     m_previewPlot->updateConnectedEditors();
 }
 
@@ -1013,31 +1004,33 @@ void RicSummaryCurveCreator::updateTargetPlot()
         m_targetPlot = new RimSummaryPlot();
 
     std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> targetCurveDefs;
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> editedCurveDefs;
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> visiblePreviewCurveDefs;
+    
     for (const auto& curve : m_targetPlot->summaryCurves())
     {
         targetCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
     }
+
     for (const auto& curve : m_previewPlot->summaryCurves())
     {
         if (curve->isCurveVisible())
         {
-            editedCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+            visiblePreviewCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
         }
     }
 
     // First delete target plot curves that have been deleted or unchecked in the preview plot
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> deleteCurveDefs;
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> curveDefsToDelete;
     std::set_difference(targetCurveDefs.begin(), targetCurveDefs.end(),
-                        editedCurveDefs.begin(), editedCurveDefs.end(),
-                        std::inserter(deleteCurveDefs, deleteCurveDefs.end()));
+                        visiblePreviewCurveDefs.begin(), visiblePreviewCurveDefs.end(),
+                        std::inserter(curveDefsToDelete, curveDefsToDelete.end()));
 
-    if (deleteCurveDefs.size() > 0)
+    if (curveDefsToDelete.size() > 0)
     {
         for (const auto& curve : m_targetPlot->summaryCurves())
         {
             std::pair<RimSummaryCase*, RifEclipseSummaryAddress> curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
-            if (deleteCurveDefs.count(curveDef) > 0)
+            if (curveDefsToDelete.count(curveDef) > 0)
                 m_targetPlot->deleteCurve(curve);
         }
     }
