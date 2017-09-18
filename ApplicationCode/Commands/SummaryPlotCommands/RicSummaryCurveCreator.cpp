@@ -1032,6 +1032,20 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         copyCurveAndAddToPlot(curve, m_previewPlot, true);
     }
 
+    syncPreviewCurvesFromUiSelection();
+
+    // Set visibility for imported curves which were not checked in source plot
+    std::set <std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> sourceCurveDefs;
+    for (const auto& curve : sourceSummaryPlot.summaryCurves())
+    {
+        sourceCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+    }
+    for (const auto& curve : m_previewPlot->summaryCurves())
+    {
+        auto curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
+        if (sourceCurveDefs.count(curveDef) == 0)
+            curve->setCurveVisiblity(false);
+    }
     m_previewPlot->updateConnectedEditors();
 }
 
