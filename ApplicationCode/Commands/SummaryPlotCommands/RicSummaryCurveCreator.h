@@ -111,7 +111,7 @@ private:
 
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
-    void                                    copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot);
+    void                                    copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
 
     void                                    resetAllFields();
 

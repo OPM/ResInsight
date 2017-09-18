@@ -790,7 +790,7 @@ void RicSummaryCurveCreator::syncCurvesFromUiSelection()
             for (const auto& curve : currentCurvesInPlot)
             {
                 std::pair<RimSummaryCase*, RifEclipseSummaryAddress> curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
-                if (deleteCurveDefs.count(curveDef))
+                if (deleteCurveDefs.count(curveDef) > 0)
                     deleteCurves.insert(curve);
             }
         }
@@ -999,23 +999,72 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         }
 
         // Copy curve object to the preview plot
-        copyCurveAndAddToPlot(curve, m_previewPlot);
+        copyCurveAndAddToPlot(curve, m_previewPlot, true);
     }
     m_previewPlot->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Copy curves from preview plot to target plot
-// Todo: Do not copy curves already in target plot (?)
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateTargetPlot()
 {
     if (m_targetPlot == nullptr)
         m_targetPlot = new RimSummaryPlot();
-    
+
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> targetCurveDefs;
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> editedCurveDefs;
+    for (const auto& curve : m_targetPlot->summaryCurves())
+    {
+        targetCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+    }
     for (const auto& curve : m_previewPlot->summaryCurves())
     {
-        copyCurveAndAddToPlot(curve, m_targetPlot);
+        if (curve->isCurveVisible())
+        {
+            editedCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+        }
+    }
+
+    // First delete target plot curves that have been deleted or unchecked in the preview plot
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> deleteCurveDefs;
+    std::set_difference(targetCurveDefs.begin(), targetCurveDefs.end(),
+                        editedCurveDefs.begin(), editedCurveDefs.end(),
+                        std::inserter(deleteCurveDefs, deleteCurveDefs.end()));
+
+    if (deleteCurveDefs.size() > 0)
+    {
+        for (const auto& curve : m_targetPlot->summaryCurves())
+        {
+            std::pair<RimSummaryCase*, RifEclipseSummaryAddress> curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
+            if (deleteCurveDefs.count(curveDef) > 0)
+                m_targetPlot->deleteCurve(curve);
+        }
+    }
+
+    // Add edited curves to target plot, skipping curves that already exists in the plot
+    for (const auto& editedCurve : m_previewPlot->summaryCurves())
+    {
+        if (!editedCurve->isCurveVisible())
+        {
+            continue;
+        }
+
+        // Avoid duplicate curves in target plot
+        bool curveExistsInTargetPlot = false;
+        for (const auto& existingCurve : m_targetPlot->summaryCurves())
+        {
+            if (existingCurve->summaryCase() == editedCurve->summaryCase() &&
+                existingCurve->summaryAddress() == editedCurve->summaryAddress())
+            {
+                curveExistsInTargetPlot = true;
+                break;
+            }
+        }
+        if (!curveExistsInTargetPlot)
+        {
+            copyCurveAndAddToPlot(editedCurve, m_targetPlot);
+        }
     }
     m_targetPlot->updateConnectedEditors();
 }
@@ -1023,11 +1072,13 @@ void RicSummaryCurveCreator::updateTargetPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot)
+void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible)
 {
     RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(curveCopy);
 
+    if (forceVisible)
+        curveCopy->setCurveVisiblity(true);
     plot->addCurve(curveCopy);
 
     // Resolve references after object has been inserted into the project data model

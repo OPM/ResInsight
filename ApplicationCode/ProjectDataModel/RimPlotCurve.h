@@ -82,7 +82,8 @@ public:
     void                            setLineThickness(int thickness);
 
     bool                            isCurveVisible() const;
-    
+    void                            setCurveVisiblity(bool visible);
+
     void                            updateCurveName();
     QString                         curveName() const { return m_curveName; }
 
