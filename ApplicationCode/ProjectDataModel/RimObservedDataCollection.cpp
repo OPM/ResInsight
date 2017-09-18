@@ -20,6 +20,7 @@
 
 #include "RimObservedDataCollection.h"
 #include "RimObservedData.h"
+#include "RimSummaryObservedDataFile.h"
 
 CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
 
@@ -41,4 +42,35 @@ RimObservedDataCollection::RimObservedDataCollection()
 RimObservedDataCollection::~RimObservedDataCollection()
 {
     m_observedDataArray.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedDataCollection::removeObservedData(RimObservedData* observedData)
+{
+    m_observedDataArray.removeChildObject(observedData);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
+{
+    m_observedDataArray.push_back(observedData);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryObservedDataFile* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName)
+{
+    RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
+
+    this->m_observedDataArray.push_back(newObservedData);
+    newObservedData->setSummaryHeaderFilename(fileName);
+    newObservedData->updateOptionSensitivity();
+
+    return newObservedData;
+
 }

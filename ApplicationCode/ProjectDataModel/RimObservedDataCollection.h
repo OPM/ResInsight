@@ -20,6 +20,7 @@
 #include "cafPdmChildArrayField.h"
 
 class RimObservedData;
+class RimSummaryObservedDataFile;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -31,6 +32,10 @@ class RimObservedDataCollection : public caf::PdmObject
 public:
     RimObservedDataCollection();
     virtual ~RimObservedDataCollection();
+
+    void                            removeObservedData(RimObservedData* observedData);
+    void                            addObservedData(RimObservedData* observedData);
+    RimSummaryObservedDataFile*     createAndAddObservedDataFromFileName(const QString& fileName);
 
 private:
     caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;
