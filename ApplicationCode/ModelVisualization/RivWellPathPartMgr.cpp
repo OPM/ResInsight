@@ -200,19 +200,11 @@ void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewD
 
         if (currentViewDate.isValid() && !perforation->isActiveOnDate(currentViewDate)) continue;
 
-        std::vector<cvf::Vec3d> displayCoords;
-        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->startMD())));
-        for (size_t i = 0; i < wellPathGeometry->m_measuredDepths.size(); ++i)
-        {
-            double measuredDepth = wellPathGeometry->m_measuredDepths[i];
-            if (measuredDepth > perforation->startMD() && measuredDepth < perforation->endMD())
-            {
-                displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->m_wellPathPoints[i]));
-            }
-        }
-        displayCoords.push_back(displayCoordTransform->transformToDisplayCoord(wellPathGeometry->interpolatedPointAlongWellPath(perforation->endMD())));
-
+        std::vector<cvf::Vec3d> displayCoords = wellPathGeometry->clippedPointSubset(perforation->startMD(), perforation->endMD());
+ 
         if (displayCoords.size() < 2) continue;
+
+        for (cvf::Vec3d& point : displayCoords) point = displayCoordTransform->transformToDisplayCoord(point);
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
 

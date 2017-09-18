@@ -198,33 +198,17 @@ std::vector<cvf::Vec3d> RigWellPath::clippedPointSubset(double startMD, double e
     if (m_measuredDepths.empty()) return points;
     if (startMD > endMD) return points;
 
-    size_t i = 0;
-    // Skip points below startMD
-    while (i < m_measuredDepths.size() && m_measuredDepths[i] < startMD) ++i;
+    points.push_back(interpolatedPointAlongWellPath(startMD));
+    for (size_t i = 0; i < m_measuredDepths.size(); ++i)
+    {
+        double measuredDepth = m_measuredDepths[i];
+        if (measuredDepth > startMD && measuredDepth < endMD)
+        {
+            points.push_back(m_wellPathPoints[i]);
+        }
+    }
+    points.push_back(interpolatedPointAlongWellPath(endMD));
 
-    if (i == 0)
-    {
-        // If startMD is at or below the starting MD, use that point
-        points.push_back(m_wellPathPoints[0]);
-    }
-    else
-    {
-        double stepsize = (startMD - m_measuredDepths[i - 1]) / (m_measuredDepths[i] - m_measuredDepths[i - 1]);
-        points.push_back(m_wellPathPoints[i - 1] + stepsize * (m_wellPathPoints[i] - m_wellPathPoints[i - 1]));
-    }
-
-    while (i < m_measuredDepths.size() && m_measuredDepths[i] < endMD)
-    {
-        // Add all points between startMD and endMD
-        points.push_back(m_wellPathPoints[i]);
-        ++i;
-    }
-
-    if (i < m_measuredDepths.size() && m_measuredDepths[i] > endMD)
-    {
-      double stepsize = (endMD - m_measuredDepths[i - 1]) / (m_measuredDepths[i] - m_measuredDepths[i - 1]);
-      points.push_back(m_wellPathPoints[i - 1] + stepsize * (m_wellPathPoints[i] - m_wellPathPoints[i - 1]));
-    }
 
     return points;
 }
