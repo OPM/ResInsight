@@ -48,6 +48,8 @@ public:
     size_t                              m_hexIndex;
 };
 
+bool operator<( const HexIntersectionInfo& hi1, const HexIntersectionInfo& hi2);
+
 //--------------------------------------------------------------------------------------------------
 /// Specialized Line - Hex intersection
 //--------------------------------------------------------------------------------------------------

@@ -29,11 +29,15 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1, const cvf::Vec3d p2, const cvf::Vec3d hexCorners[8], const size_t hexIndex, std::vector<HexIntersectionInfo>* intersections)
+int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1, 
+                                                     const cvf::Vec3d p2, 
+                                                     const cvf::Vec3d hexCorners[8], 
+                                                     const size_t hexIndex, 
+                                                     std::vector<HexIntersectionInfo>* intersections)
 {
     CVF_ASSERT(intersections != NULL);
 
-    int intersectionCount = 0;
+    std::set<HexIntersectionInfo> uniqueIntersections;
 
     for ( int face = 0; face < 6 ; ++face )
     {
@@ -56,12 +60,18 @@ int RigHexIntersectionTools::lineHexCellIntersection(const cvf::Vec3d p1, const 
                                                                               &isEntering);
             if ( intsStatus == 1 )
             {
-                intersectionCount++;
-                intersections->push_back(HexIntersectionInfo(intersection,
-                                                             isEntering,
-                                                             static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
+                uniqueIntersections.insert(HexIntersectionInfo(intersection,
+                                                               isEntering,
+                                                               static_cast<cvf::StructGridInterface::FaceType>(face), hexIndex));
             }
         }
+    }
+
+    int intersectionCount = 0;
+    for ( const auto& intersection: uniqueIntersections)
+    {
+        intersections->push_back(intersection);
+        ++intersectionCount;
     }
 
     return intersectionCount;
@@ -152,4 +162,23 @@ bool RigHexIntersectionTools::planeHexIntersectionPolygons(std::array<cvf::Vec3d
     RigCellGeometryTools::createPolygonFromLineSegments(intersectionLineSegments, polygons);
 
     return isCellIntersected;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool operator<(const HexIntersectionInfo& hi1, const HexIntersectionInfo& hi2)
+{
+    const double tolerance = 1e-6;
+
+    if ( hi1.m_hexIndex != hi2.m_hexIndex ) return hi1.m_hexIndex < hi2.m_hexIndex;
+    if ( hi1.m_face != hi2.m_face ) return hi1.m_face < hi2.m_face;
+    if ( hi1.m_isIntersectionEntering != hi2.m_isIntersectionEntering ) return hi1.m_isIntersectionEntering < hi2.m_isIntersectionEntering;
+    if ( hi1.m_face != hi2.m_face ) return hi1.m_face < hi2.m_face;
+
+    if ( cvf::Math::abs(hi2.m_intersectionPoint.x() - hi1.m_intersectionPoint.x()) > tolerance ) return hi1.m_intersectionPoint.x() < hi2.m_intersectionPoint.x();
+    if ( cvf::Math::abs(hi2.m_intersectionPoint.y() - hi1.m_intersectionPoint.y()) > tolerance ) return hi1.m_intersectionPoint.y() < hi2.m_intersectionPoint.y();
+    if ( cvf::Math::abs(hi2.m_intersectionPoint.z() - hi1.m_intersectionPoint.z()) > tolerance ) return hi1.m_intersectionPoint.z() < hi2.m_intersectionPoint.z();
+
+    return false;
 }
