@@ -59,11 +59,13 @@ class PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     bool showTextFilter;
+    bool showToggleAllCheckbox;
 
 public:
     PdmUiTreeSelectionEditorAttribute()
     {
-        showTextFilter = false;
+        showTextFilter = true;
+        showToggleAllCheckbox = true;
     }
 };
 

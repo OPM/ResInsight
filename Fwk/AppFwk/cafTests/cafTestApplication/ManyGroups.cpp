@@ -162,3 +162,19 @@ void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOr
     }
 */
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ManyGroups::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_multiSelectList)
+    {
+        caf::PdmUiTreeSelectionEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            //myAttr->showTextFilter = false;
+            //myAttr->showToggleAllCheckbox = false;
+        }
+    }
+}
