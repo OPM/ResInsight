@@ -32,17 +32,18 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& pathCoords)
+std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
+                                                                                                   const std::vector<cvf::Vec3d>& pathCoords)
 {
-    std::vector<WellPathCellIntersectionInfo> intersectionInfo;
+    std::vector<WellPathCellIntersectionInfo> intersectionInfos;
     const RigMainGrid* grid = caseData->mainGrid();
 
-    if (pathCoords.size() < 2) return intersectionInfo;
+    if (pathCoords.size() < 2) return intersectionInfos;
 
     std::vector<HexIntersectionInfo> intersections = getIntersectedCells(grid, pathCoords);
     removeEnteringIntersections(&intersections);
 
-    if (intersections.empty()) return intersectionInfo;
+    if (intersections.empty()) return intersectionInfos;
 
     cvf::Vec3d            startPoint;
     cvf::Vec3d            endPoint;
@@ -59,7 +60,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     {
         endPoint = intersection->m_intersectionPoint;
         internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
+        intersectionInfos.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
     }
     else
     {
@@ -76,7 +77,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     {
         endPoint = intersection->m_intersectionPoint;
         internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
+        intersectionInfos.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
 
         startPoint = endPoint;
         cellIndex = intersection->m_hexIndex;
@@ -86,9 +87,9 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCell
     //end cell
     endPoint = pathCoords[pathCoords.size() - 1];
     internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-    intersectionInfo.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
+    intersectionInfos.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
 
-    return intersectionInfo;
+    return intersectionInfos;
 }
 
 //--------------------------------------------------------------------------------------------------

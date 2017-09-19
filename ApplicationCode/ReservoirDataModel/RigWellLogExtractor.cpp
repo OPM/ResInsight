@@ -40,8 +40,12 @@ RigWellLogExtractor::~RigWellLogExtractor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellLogExtractor::insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections, cvf::Vec3d p1, double md1, cvf::Vec3d p2, double md2, 
-                                                          std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > *uniqueIntersections)
+void RigWellLogExtractor::insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections, 
+                                                   cvf::Vec3d p1, 
+                                                   double md1, 
+                                                   cvf::Vec3d p2, 
+                                                   double md2, 
+                                                   std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo > *uniqueIntersections)
 {
     for (size_t intIdx = 0; intIdx < intersections.size(); ++intIdx)
     {

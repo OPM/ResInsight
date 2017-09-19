@@ -717,7 +717,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
         if (!interval->isActiveOnDate(settings.caseToApply->timeStepDates()[settings.timeStep])) continue;
 
         std::vector<cvf::Vec3d> perforationPoints = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
-        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), perforationPoints);
+        std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
+                                                                                                                              perforationPoints);
         for (auto& cell : intersectedCells)
         {
             bool cellIsActive = activeCellInfo->isActive(cell.cellIndex);
@@ -852,13 +853,17 @@ std::vector<WellSegmentLocation> RicWellPathExportCompletionDataFeature::findWel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const RimEclipseCase* caseToApply, WellSegmentLocation* location, int* branchNum, int* segmentNum)
+void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const RimEclipseCase* caseToApply, 
+                                                                           WellSegmentLocation* location, 
+                                                                           int* branchNum, 
+                                                                           int* segmentNum)
 {
     for (WellSegmentLateral& lateral : location->laterals)
     {
         lateral.branchNumber = ++(*branchNum);
         std::vector<cvf::Vec3d> lateralCoords = location->fishbonesSubs->coordsForLateral(location->subIndex, lateral.lateralIndex);
-        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), lateralCoords);
+        std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
+                                                                                                                           lateralCoords);
 
         auto intersection = intersections.cbegin();
         double length = 0;
@@ -873,7 +878,12 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
                 length += (intersection->endPoint - startPoint).length();
                 depth += intersection->endPoint.z() - startPoint.z();
 
-                WellSegmentLateralIntersection lateralIntersection(++(*segmentNum), attachedSegmentNumber, intersection->cellIndex, length, depth);
+                WellSegmentLateralIntersection lateralIntersection( ++(*segmentNum), 
+                                                                   attachedSegmentNumber, 
+                                                                   intersection->cellIndex, 
+                                                                   length, 
+                                                                   depth);
+
                 lateralIntersection.lengthsInCell = intersection->internalCellLengths;
                 lateral.intersections.push_back(lateralIntersection);
 
