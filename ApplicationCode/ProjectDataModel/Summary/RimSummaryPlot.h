@@ -101,7 +101,7 @@ public:
 
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
     void                                            deleteAllSummaryCurves();
-
+    RimSummaryCurveCollection*                      summaryCurveCollection() const;
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 

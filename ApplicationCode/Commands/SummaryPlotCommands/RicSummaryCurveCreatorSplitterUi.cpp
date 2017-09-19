@@ -32,7 +32,8 @@
 #include <QSplitter>
 #include <QFrame>
 #include <QTreeView>
-
+#include "RimSummaryPlot.h"
+#include "RimSummaryCurveCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -187,7 +188,8 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
         RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
         if (sumCurveCreator)
         {
-            curveTreeView->setPdmItem(sumCurveCreator->previewPlot());
+            RimSummaryCurveCollection* sumColl = sumCurveCreator->previewPlot()->summaryCurveCollection();
+            curveTreeView->setPdmItem(sumColl);
         }
 
         curveTreeView->treeView()->setHeaderHidden(true);

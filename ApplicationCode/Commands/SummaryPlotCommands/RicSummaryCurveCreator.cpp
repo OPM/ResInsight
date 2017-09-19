@@ -32,6 +32,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryCurveCollection.h"
 
 #include "RiuMainPlotWindow.h"
 
@@ -247,7 +248,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
         loadDataAndUpdatePlot();
     }
 
-    updateConnectedEditors();
+    caf::PdmUiItem::updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -912,8 +913,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
     }
 
     m_previewPlot->loadDataAndUpdate();
-    m_previewPlot->updateConnectedEditors();
     m_previewPlot->zoomAll();
+    updateEditorsConnectedToPreviewPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1046,7 +1047,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         if (sourceCurveDefs.count(curveDef) == 0)
             curve->setCurveVisiblity(false);
     }
-    m_previewPlot->updateConnectedEditors();
+    updateEditorsConnectedToPreviewPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1155,4 +1156,10 @@ void RicSummaryCurveCreator::resetAllFields()
             a->pdmField()->v().clear();
         }
     }
+}
+
+void RicSummaryCurveCreator::updateEditorsConnectedToPreviewPlot()
+{
+    m_previewPlot->updateConnectedEditors();
+    m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
 }

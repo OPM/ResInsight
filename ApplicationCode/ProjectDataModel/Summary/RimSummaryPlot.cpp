@@ -467,6 +467,14 @@ void RimSummaryPlot::deleteAllSummaryCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
+{
+    return m_summaryCurveCollection(); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;

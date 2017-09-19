@@ -114,6 +114,7 @@ private:
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
 
     void                                    resetAllFields();
+    void                                    updateEditorsConnectedToPreviewPlot();
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
