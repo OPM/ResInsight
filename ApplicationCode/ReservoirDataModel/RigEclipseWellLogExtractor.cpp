@@ -27,6 +27,7 @@
 
 #include "RigWellLogExtractionTools.h"
 #include "RigMainGrid.h"
+#include "RigWellPathIntersectionTools.h"
 
 //==================================================================================================
 /// 
@@ -129,6 +130,31 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
         (*values)[cpIdx] = resultAccessor->cellFaceScalarGlobIdx(cellIdx, cellFace);
     }
    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<WellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellIntersectionInfo()
+{
+    std::vector<WellPathCellIntersectionInfo> cellIntersectionInfos;
+    cellIntersectionInfos.reserve(m_intersections.size()-1);
+   
+    for (size_t cpIdx = 0; cpIdx < m_intersections.size()-1; ++cpIdx)
+    {
+        size_t cellIdx1 = m_intersectedCells[cpIdx];
+        size_t cellIdx2 = m_intersectedCells[cpIdx+1];
+
+        if (cellIdx1 == cellIdx2)
+        {
+            cvf::Vec3d internalCellLengths;
+            internalCellLengths = RigWellPathIntersectionTools::calculateLengthInCell( m_caseData->mainGrid(), cellIdx1, m_intersections[cpIdx], m_intersections[cpIdx+1] );
+
+            cellIntersectionInfos.push_back(WellPathCellIntersectionInfo(cellIdx1, m_intersections[cpIdx], m_intersections[cpIdx+1], internalCellLengths));
+        }
+    }   
+
+    return  cellIntersectionInfos;
 }
 
 //--------------------------------------------------------------------------------------------------

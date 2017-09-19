@@ -53,7 +53,9 @@ struct WellPathCellIntersectionInfo {
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, const std::vector<cvf::Vec3d>& pathCoords);
+    static std::vector<WellPathCellIntersectionInfo>   findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
+                                                                                  const std::vector<cvf::Vec3d>& pathCoords,
+                                                                                  const std::vector<double>& pathMds);
 
     static std::vector<HexIntersectionInfo>            getIntersectedCells(const RigMainGrid* grid, const std::vector<cvf::Vec3d>& coords);
 

@@ -200,16 +200,18 @@ void RivWellPathPartMgr::appendPerforationsToModel(const QDateTime& currentViewD
 
         if (currentViewDate.isValid() && !perforation->isActiveOnDate(currentViewDate)) continue;
 
-        std::vector<cvf::Vec3d> displayCoords = wellPathGeometry->clippedPointSubset(perforation->startMD(), perforation->endMD());
+        using namespace std;
+        pair<vector<cvf::Vec3d>, vector<double> >  displayCoordsAndMD = wellPathGeometry->clippedPointSubset(perforation->startMD(), 
+                                                                                                             perforation->endMD());
  
-        if (displayCoords.size() < 2) continue;
+        if (displayCoordsAndMD.first.size() < 2) continue;
 
-        for (cvf::Vec3d& point : displayCoords) point = displayCoordTransform->transformToDisplayCoord(point);
+        for (cvf::Vec3d& point : displayCoordsAndMD.first) point = displayCoordTransform->transformToDisplayCoord(point);
 
         cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo(perforation);
 
         cvf::Collection<cvf::Part> parts;
-        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoords, cvf::Color3f::GREEN, perforationRadius);
+        geoGenerator.cylinderWithCenterLineParts(&parts, displayCoordsAndMD.first, cvf::Color3f::GREEN, perforationRadius);
         for (auto part : parts)
         {
             part->setSourceInfo(objectSourceInfo.p());

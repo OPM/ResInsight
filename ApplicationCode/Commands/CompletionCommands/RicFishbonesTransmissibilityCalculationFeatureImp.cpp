@@ -179,7 +179,8 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
     for (const RimFishboneWellPath* fishbonesPath : wellPath->fishbonesCollection()->wellPathCollection()->wellPaths())
     {
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
-                                                                                                                              fishbonesPath->coordinates());
+                                                                                                                              fishbonesPath->coordinates(),
+                                                                                                                              fishbonesPath->measuredDepths());
         for (auto& cell : intersectedCells)
         {
             if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.cellIndex) != wellPathCells.end()) continue;
@@ -211,11 +212,12 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
     double wellPathEndMD = 0.0;
     if (wellPathMD.size() > 1) wellPathEndMD = wellPathMD.back();
 
-    std::vector<cvf::Vec3d> fishbonePerfWellPathCoords = wellPath->wellPathGeometry()->clippedPointSubset(wellPath->fishbonesCollection()->startMD(),
-                                                                                                          wellPathEndMD);
+    std::pair< std::vector<cvf::Vec3d>, std::vector<double> > fishbonePerfWellPathCoords = wellPath->wellPathGeometry()->clippedPointSubset(wellPath->fishbonesCollection()->startMD(),
+                                                                                                                                            wellPathEndMD);
 
     std::vector<WellPathCellIntersectionInfo> intersectedCellsIntersectionInfo = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(),
-                                                                                                                                          fishbonePerfWellPathCoords);
+                                                                                                                                          fishbonePerfWellPathCoords.first,
+                                                                                                                                          fishbonePerfWellPathCoords.second);
 
     for (auto& cell : intersectedCellsIntersectionInfo)
     {

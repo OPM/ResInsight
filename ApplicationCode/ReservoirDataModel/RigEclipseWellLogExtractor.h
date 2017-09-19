@@ -28,6 +28,7 @@
 
 #include <vector>
 #include "cvfStructGrid.h"
+#include "RigWellPathIntersectionTools.h"
 
 class RigEclipseCaseData;
 class RigWellPath;
@@ -47,6 +48,8 @@ public:
 
     void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigEclipseCaseData*          caseData()     { return m_caseData.p();}
+
+    std::vector<WellPathCellIntersectionInfo> cellIntersectionInfo();
 
 protected:
     void                        calculateIntersection();

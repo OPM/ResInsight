@@ -716,9 +716,11 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
     {
         if (!interval->isActiveOnDate(settings.caseToApply->timeStepDates()[settings.timeStep])) continue;
 
-        std::vector<cvf::Vec3d> perforationPoints = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
+        using namespace std;
+        pair<vector<cvf::Vec3d>, vector<double> > perforationPointsAndMD = wellPath->wellPathGeometry()->clippedPointSubset(interval->startMD(), interval->endMD());
         std::vector<WellPathCellIntersectionInfo> intersectedCells = RigWellPathIntersectionTools::findCellsIntersectedByPath(settings.caseToApply->eclipseCaseData(), 
-                                                                                                                              perforationPoints);
+                                                                                                                              perforationPointsAndMD.first,
+                                                                                                                              perforationPointsAndMD.second);
         for (auto& cell : intersectedCells)
         {
             bool cellIsActive = activeCellInfo->isActive(cell.cellIndex);
@@ -861,9 +863,24 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
     for (WellSegmentLateral& lateral : location->laterals)
     {
         lateral.branchNumber = ++(*branchNum);
-        std::vector<cvf::Vec3d> lateralCoords = location->fishbonesSubs->coordsForLateral(location->subIndex, lateral.lateralIndex);
+
+        std::vector<std::pair<cvf::Vec3d, double> > lateralCoordMDPairs = location->fishbonesSubs->coordsAndMDForLateral(location->subIndex, lateral.lateralIndex);
+        
+        std::vector<cvf::Vec3d> lateralCoords;
+        std::vector<double> lateralMDs;
+
+        lateralCoords.reserve(lateralCoordMDPairs.size());
+        lateralMDs.reserve(lateralCoordMDPairs.size());
+
+        for (auto& coordMD : lateralCoordMDPairs)
+        {
+            lateralCoords.push_back(coordMD.first);
+            lateralMDs.push_back(coordMD.second);
+        }
+
         std::vector<WellPathCellIntersectionInfo> intersections = RigWellPathIntersectionTools::findCellsIntersectedByPath(caseToApply->eclipseCaseData(), 
-                                                                                                                           lateralCoords);
+                                                                                                                           lateralCoords,
+                                                                                                                           lateralMDs);
 
         auto intersection = intersections.cbegin();
         double length = 0;

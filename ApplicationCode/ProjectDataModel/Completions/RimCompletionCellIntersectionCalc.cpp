@@ -148,9 +148,17 @@ void RimCompletionCellIntersectionCalc::calculateFishbonesIntersections(const Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const RimWellPath* wellPath, const RimPerforationInterval* perforationInterval, const RigMainGrid* grid, std::vector<double>& values)
+void RimCompletionCellIntersectionCalc::calculatePerforationIntersections(const RimWellPath* wellPath, 
+                                                                          const RimPerforationInterval* perforationInterval, 
+                                                                          const RigMainGrid* grid, 
+                                                                          std::vector<double>& values)
 {
-    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid, wellPath->wellPathGeometry()->clippedPointSubset(perforationInterval->startMD(), perforationInterval->endMD()));
+    using namespace std;
+    pair<vector<cvf::Vec3d>, vector<double> > clippedWellPathData =  wellPath->wellPathGeometry()->clippedPointSubset(perforationInterval->startMD(), 
+                                                                                                                      perforationInterval->endMD());
+
+    std::vector<HexIntersectionInfo> intersections = RigWellPathIntersectionTools::getIntersectedCells(grid,  
+                                                                                                       clippedWellPathData.first);
     for (auto& intersection : intersections)
     {
         values[intersection.m_hexIndex] = RiaDefines::PERFORATION_INTERVAL;

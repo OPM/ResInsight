@@ -192,25 +192,29 @@ void RigWellPath::twoClosestPoints(const cvf::Vec3d& position, cvf::Vec3d* p1, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigWellPath::clippedPointSubset(double startMD, double endMD) const
+std::pair<std::vector<cvf::Vec3d>, std::vector<double> > RigWellPath::clippedPointSubset(double startMD, double endMD) const
 {
-    std::vector<cvf::Vec3d> points;
-    if (m_measuredDepths.empty()) return points;
-    if (startMD > endMD) return points;
+    std::pair<std::vector<cvf::Vec3d>, std::vector<double> >  pointsAndMDs;
+    if (m_measuredDepths.empty()) return pointsAndMDs;
+    if (startMD > endMD) return pointsAndMDs;
 
-    points.push_back(interpolatedPointAlongWellPath(startMD));
+    pointsAndMDs.first.push_back(interpolatedPointAlongWellPath(startMD));
+    pointsAndMDs.second.push_back(startMD);
+
     for (size_t i = 0; i < m_measuredDepths.size(); ++i)
     {
         double measuredDepth = m_measuredDepths[i];
         if (measuredDepth > startMD && measuredDepth < endMD)
         {
-            points.push_back(m_wellPathPoints[i]);
+            pointsAndMDs.first.push_back(m_wellPathPoints[i]);
+            pointsAndMDs.second.push_back(measuredDepth);
         }
     }
-    points.push_back(interpolatedPointAlongWellPath(endMD));
+    pointsAndMDs.first.push_back(interpolatedPointAlongWellPath(endMD));
+    pointsAndMDs.second.push_back(endMD);
 
 
-    return points;
+    return pointsAndMDs;
 }
 
 //--------------------------------------------------------------------------------------------------

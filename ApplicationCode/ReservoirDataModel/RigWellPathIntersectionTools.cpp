@@ -28,68 +28,29 @@
 
 #include "cvfGeometryTools.h"
 #include "cvfMatrix3.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RimEclipseCase.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::findCellsIntersectedByPath(const RigEclipseCaseData* caseData, 
-                                                                                                   const std::vector<cvf::Vec3d>& pathCoords)
+                                                                                                   const std::vector<cvf::Vec3d>& pathCoords, 
+                                                                                                   const std::vector<double>& pathMds)
 {
     std::vector<WellPathCellIntersectionInfo> intersectionInfos;
     const RigMainGrid* grid = caseData->mainGrid();
 
     if (pathCoords.size() < 2) return intersectionInfos;
+    cvf::ref<RigWellPath> dummyWellPath = new RigWellPath;
+    dummyWellPath->m_wellPathPoints = pathCoords;
+    dummyWellPath->m_measuredDepths = pathMds;
 
-    std::vector<HexIntersectionInfo> intersections = getIntersectedCells(grid, pathCoords);
-    removeEnteringIntersections(&intersections);
+    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor(caseData, dummyWellPath.p(), caseData->ownerCase()->caseUserDescription().toStdString());
 
-    if (intersections.empty()) return intersectionInfos;
+    return extractor->cellIntersectionInfo();
 
-    cvf::Vec3d            startPoint;
-    cvf::Vec3d            endPoint;
-    size_t                cellIndex;
-    cvf::Vec3d            internalCellLengths;
-
-    auto intersection = intersections.cbegin();
-
-    //start cell
-    bool foundCell;
-    startPoint = pathCoords[0];
-    cellIndex = findCellFromCoords(grid, startPoint, &foundCell);
-    if (foundCell)
-    {
-        endPoint = intersection->m_intersectionPoint;
-        internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfos.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
-    }
-    else
-    {
-        RiaLogging::debug("Path starts outside valid cell");
-    }
-
-    //center cells
-    startPoint = intersection->m_intersectionPoint;
-    cellIndex = intersection->m_hexIndex;
-
-    ++intersection;
-
-    while (intersection != intersections.cend())
-    {
-        endPoint = intersection->m_intersectionPoint;
-        internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-        intersectionInfos.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
-
-        startPoint = endPoint;
-        cellIndex = intersection->m_hexIndex;
-        ++intersection;
-    }
-
-    //end cell
-    endPoint = pathCoords[pathCoords.size() - 1];
-    internalCellLengths = calculateLengthInCell(grid, cellIndex, startPoint, endPoint);
-    intersectionInfos.push_back(WellPathCellIntersectionInfo(cellIndex, startPoint, endPoint, internalCellLengths));
-
-    return intersectionInfos;
+ 
 }
 
 //--------------------------------------------------------------------------------------------------
