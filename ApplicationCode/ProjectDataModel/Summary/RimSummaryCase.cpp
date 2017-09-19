@@ -44,7 +44,7 @@ RimSummaryCase::RimSummaryCase()
     CAF_PDM_InitFieldNoDefault(&m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_isObservedData, "IsObservedData", false, "", "", "", "");
+    m_isObservedData = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ RigSummaryCaseData* RimSummaryCase::caseData()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCase::isObservedData()
 {
-    return m_isObservedData();
+    return m_isObservedData;
 }
 
 //--------------------------------------------------------------------------------------------------

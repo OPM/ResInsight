@@ -56,12 +56,11 @@ public:
 protected:
     void                updateTreeItemName();
 
-    caf::PdmField<QString>  m_shortName;
-    caf::PdmField<bool>     m_useAutoShortName;
-    caf::PdmField<QString>  m_summaryHeaderFilename;
-
-    cvf::ref<RigSummaryCaseData> m_summaryCaseData;
-    caf::PdmField<bool>     m_isObservedData;
+    caf::PdmField<QString>          m_shortName;
+    caf::PdmField<bool>             m_useAutoShortName;
+    caf::PdmField<QString>          m_summaryHeaderFilename;
+    cvf::ref<RigSummaryCaseData>    m_summaryCaseData;
+    bool                            m_isObservedData;
 
 private:
     // Overridden PDM methods
