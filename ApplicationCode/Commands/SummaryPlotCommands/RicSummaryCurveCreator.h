@@ -104,8 +104,9 @@ private:
 
     void                                    loadDataAndUpdatePlot();
     void                                    syncPreviewCurvesFromUiSelection();
-    void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
-                                                                             const std::set<RimSummaryCurve*>& curvesToDelete);
+    void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& allCurveDefsToDisplay, 
+                                                                                    const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+                                                                                    const std::set<RimSummaryCurve*>& curvesToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
 
@@ -115,7 +116,11 @@ private:
 
     void                                    resetAllFields();
     void                                    updateEditorsConnectedToPreviewPlot();
-
+    void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);
+    void                                    applyAppearanceToAllPreviewCurves();
+    void                                    updateAppearanceEditor();
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>>
+                                            allPreviewCurveDefs() const;
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
@@ -126,6 +131,7 @@ private:
     RimSummaryPlot*                                                                                     m_previewPlot;
 
     caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
+    caf::PdmField<bool>                                                                                 m_appearanceApplyButton;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_caseAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_variableAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_wellAppearanceType;

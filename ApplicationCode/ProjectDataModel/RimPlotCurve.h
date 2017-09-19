@@ -80,7 +80,7 @@ public:
     void                            setSymbol(PointSymbolEnum symbolStyle);
     void                            setSymbolSkipDinstance(float distance);
     void                            setLineThickness(int thickness);
-
+    void                            resetAppearance();
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 

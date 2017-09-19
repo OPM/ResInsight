@@ -483,6 +483,18 @@ void RimPlotCurve::setLineThickness(int thickness)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::resetAppearance()
+{
+    setColor(cvf::Color3f(cvf::Color3::BLACK));
+    setLineThickness(2);
+    setLineStyle(STYLE_SOLID);
+    setSymbol(SYMBOL_NONE);
+    setSymbolSkipDinstance(10);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::showLegend(bool show)
 {
     m_showLegend = show;

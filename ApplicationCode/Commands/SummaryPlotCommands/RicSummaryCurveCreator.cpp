@@ -171,6 +171,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "Target Plot", "", "", "");
 
     CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "");
+    CAF_PDM_InitField(&m_appearanceApplyButton, "AppearanceApplyButton", false, "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_variableAppearanceType, "VariableAppearanceType", "Vector", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_wellAppearanceType, "WellAppearanceType", "Well", "", "", "");
@@ -212,6 +213,10 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitField(&m_createNewPlot, "CreateNewPlot", false, "Create New Plot", "", "", "");
     m_createNewPlot.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_createNewPlot.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    m_appearanceApplyButton = false;
+    m_appearanceApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_appearanceApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,6 +246,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     }
     
     m_targetPlot = targetPlot;
+    m_useAutoAppearanceAssignment = true;
 
     if (m_targetPlot)
     {
@@ -315,17 +321,17 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
             }
         }
     }
+    else if (changedField == &m_appearanceApplyButton)
+    {
+        applyAppearanceToAllPreviewCurves();
+        m_previewPlot->loadDataAndUpdate();
+        m_appearanceApplyButton = false;
+    }
     else
     {
         // Lookup item type input field
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(changedField);
         if (changedField == &m_selectedCases ||
-            changedField == &m_useAutoAppearanceAssignment ||
-            changedField == &m_caseAppearanceType ||
-            changedField == &m_variableAppearanceType ||
-            changedField == &m_wellAppearanceType ||
-            changedField == &m_groupAppearanceType ||
-            changedField == &m_regionAppearanceType ||
             identifierAndField != nullptr)
         {
             loadDataAndUpdatePlot();
@@ -567,7 +573,8 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     appearanceGroup->add(&m_wellAppearanceType);
     appearanceGroup->add(&m_groupAppearanceType);
     appearanceGroup->add(&m_regionAppearanceType);
-    
+    appearanceGroup->add(&m_appearanceApplyButton);
+
     // Appearance option sensitivity
     {
         m_caseAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
@@ -772,11 +779,6 @@ void RicSummaryCurveCreator::buildAddressListForCategoryRecursively(RifEclipseSu
 void RicSummaryCurveCreator::loadDataAndUpdatePlot()
 {
     syncPreviewCurvesFromUiSelection();
-    //loadDataAndUpdate();
-
-    //RimSummaryPlot* plot = nullptr;
-    //firstAncestorOrThisOfType(plot);
-    //plot->updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -792,7 +794,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
     std::set<RifEclipseSummaryAddress> selectedAddresses = buildAddressListFromSelections();
 
-    // Todo: Move to separate method
+    // Find the addresses to display
     std::set<RifEclipseSummaryAddress> addrUnion;
     for (RimSummaryCase* currCase : m_selectedCases)
     {
@@ -810,9 +812,6 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
                     addrUnion.insert(allAddresses[i]);
                     allCurveDefinitions.insert(std::make_pair(currCase, allAddresses[i]));
                 }
-
-                // Todo: Add text filter
-                //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
             }
         }
     }
@@ -852,48 +851,22 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
                                 std::inserter(newCurveDefs, newCurveDefs.end()));
         }
 
-        updatePreviewCurvesFromCurveDefinitions(newCurveDefs, curvesToDelete);
+        updatePreviewCurvesFromCurveDefinitions(allCurveDefinitions, newCurveDefs, curvesToDelete);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& allCurveDefsToDisplay, 
+                                                                     const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
                                                                      const std::set<RimSummaryCurve*>& curvesToDelete)
 {
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
-    RimSummaryCurveAppearanceCalculator curveLookCalc(curveDefsToAdd, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefsToDisplay, getAllSummaryCaseNames(), getAllSummaryWellNames());
 
-    if (!m_useAutoAppearanceAssignment())
-    {
-        curveLookCalc.assignDimensions(m_caseAppearanceType(),
-                                       m_variableAppearanceType(),
-                                       m_wellAppearanceType(),
-                                       m_groupAppearanceType(),
-                                       m_regionAppearanceType());
-    }
-    else
-    {
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType caseAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType variAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType wellAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType gropAppearance;
-        RimSummaryCurveAppearanceCalculator::CurveAppearanceType regiAppearance;
-
-        curveLookCalc.getDimensions(&caseAppearance,
-                                    &variAppearance,
-                                    &wellAppearance,
-                                    &gropAppearance,
-                                    &regiAppearance);
-
-        m_caseAppearanceType = caseAppearance;
-        m_variableAppearanceType = variAppearance;
-        m_wellAppearanceType = wellAppearance;
-        m_groupAppearanceType = gropAppearance;
-        m_regionAppearanceType = regiAppearance;
-    }
+    initCurveAppearanceCalculator(curveLookCalc);
 
     // Delete curves
     for (const auto& curve : curvesToDelete)
@@ -999,6 +972,14 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
             attrib->m_buttonText = "New Plot";
         }
     }
+    else if (&m_appearanceApplyButton == field)
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->m_buttonText = "Apply";
+        }
+    }
 }
 
 
@@ -1048,6 +1029,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
             curve->setCurveVisiblity(false);
     }
     updateEditorsConnectedToPreviewPlot();
+    updateAppearanceEditor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,61 +1040,16 @@ void RicSummaryCurveCreator::updateTargetPlot()
     if (m_targetPlot == nullptr)
         m_targetPlot = new RimSummaryPlot();
 
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> targetCurveDefs;
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> visiblePreviewCurveDefs;
-    
-    for (const auto& curve : m_targetPlot->summaryCurves())
-    {
-        targetCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
-    }
+    m_targetPlot->deleteAllSummaryCurves();
 
-    for (const auto& curve : m_previewPlot->summaryCurves())
-    {
-        if (curve->isCurveVisible())
-        {
-            visiblePreviewCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
-        }
-    }
-
-    // First delete target plot curves that have been deleted or unchecked in the preview plot
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> curveDefsToDelete;
-    std::set_difference(targetCurveDefs.begin(), targetCurveDefs.end(),
-                        visiblePreviewCurveDefs.begin(), visiblePreviewCurveDefs.end(),
-                        std::inserter(curveDefsToDelete, curveDefsToDelete.end()));
-
-    if (curveDefsToDelete.size() > 0)
-    {
-        for (const auto& curve : m_targetPlot->summaryCurves())
-        {
-            std::pair<RimSummaryCase*, RifEclipseSummaryAddress> curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
-            if (curveDefsToDelete.count(curveDef) > 0)
-                m_targetPlot->deleteCurve(curve);
-        }
-    }
-
-    // Add edited curves to target plot, skipping curves that already exists in the plot
+    // Add edited curves to target plot
     for (const auto& editedCurve : m_previewPlot->summaryCurves())
     {
         if (!editedCurve->isCurveVisible())
         {
             continue;
         }
-
-        // Avoid duplicate curves in target plot
-        bool curveExistsInTargetPlot = false;
-        for (const auto& existingCurve : m_targetPlot->summaryCurves())
-        {
-            if (existingCurve->summaryCase() == editedCurve->summaryCase() &&
-                existingCurve->summaryAddress() == editedCurve->summaryAddress())
-            {
-                curveExistsInTargetPlot = true;
-                break;
-            }
-        }
-        if (!curveExistsInTargetPlot)
-        {
-            copyCurveAndAddToPlot(editedCurve, m_targetPlot);
-        }
+        copyCurveAndAddToPlot(editedCurve, m_targetPlot);
     }
     m_targetPlot->updateConnectedEditors();
 }
@@ -1158,8 +1095,88 @@ void RicSummaryCurveCreator::resetAllFields()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateEditorsConnectedToPreviewPlot()
 {
     m_previewPlot->updateConnectedEditors();
     m_previewPlot->summaryCurveCollection()->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc)
+{
+    if (!m_useAutoAppearanceAssignment())
+    {
+        curveAppearanceCalc.assignDimensions(m_caseAppearanceType(),
+                                             m_variableAppearanceType(),
+                                             m_wellAppearanceType(),
+                                             m_groupAppearanceType(),
+                                             m_regionAppearanceType());
+    }
+    else
+    {
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType caseAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType variAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType wellAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType gropAppearance;
+        RimSummaryCurveAppearanceCalculator::CurveAppearanceType regiAppearance;
+
+        curveAppearanceCalc.getDimensions(&caseAppearance,
+                                          &variAppearance,
+                                          &wellAppearance,
+                                          &gropAppearance,
+                                          &regiAppearance);
+
+        m_caseAppearanceType = caseAppearance;
+        m_variableAppearanceType = variAppearance;
+        m_wellAppearanceType = wellAppearance;
+        m_groupAppearanceType = gropAppearance;
+        m_regionAppearanceType = regiAppearance;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
+{
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> allCurveDefs = allPreviewCurveDefs();
+    
+    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    initCurveAppearanceCalculator(curveLookCalc);
+
+    for (auto& curve : m_previewPlot->summaryCurves())
+    {
+        curve->resetAppearance();
+        curveLookCalc.setupCurveLook(curve);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::updateAppearanceEditor()
+{
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> allCurveDefs = allPreviewCurveDefs();
+
+    RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefs, getAllSummaryCaseNames(), getAllSummaryWellNames());
+    initCurveAppearanceCalculator(curveLookCalc);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> RicSummaryCurveCreator::allPreviewCurveDefs() const
+{
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> allCurveDefs;
+
+    for (const auto& curve : m_previewPlot->summaryCurves())
+    {
+        allCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
+    }
+    return allCurveDefs;
 }
