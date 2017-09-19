@@ -36,8 +36,9 @@
 
 #include "cafPdmUiTreeSelectionQModel.h"
 
-#include "cafPdmUiTreeViewModel.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiCommandSystemProxy.h"
+#include "cafPdmUiTreeViewModel.h"
 
 #include <QAbstractItemModel>
 #include <QLabel>
@@ -50,29 +51,68 @@
 caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/) : QAbstractItemModel(parent)
 {
     m_uiFieldHandle = nullptr;
-    m_zeroLevelRowCount = 0;
+    m_tree = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options)
+caf::PdmUiTreeSelectionQModel::~PdmUiTreeSelectionQModel()
 {
-    bool itemCountHasChanged = false;
-    if (optionItemCount() != options.size())
+    m_uiFieldHandle = nullptr;
+
+    delete m_tree;
+    m_tree = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int caf::PdmUiTreeSelectionQModel::headingRole()
+{
+    return Qt::UserRole + 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexList& sourceModelIndices, bool checked)
+{
+    std::set<unsigned int> selectedIndices;
     {
-        itemCountHasChanged = true;
+        QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+        QList<QVariant> fieldValueSelection = fieldValue.toList();
+
+        for (auto v : fieldValueSelection)
+        {
+            selectedIndices.insert(v.toUInt());
+        }
     }
 
-    m_uiFieldHandle = field;
-    m_options = options;
-
-    computeOptionItemTreeData();
-
-    if (itemCountHasChanged)
+    if (checked)
     {
-        reset();
+        for (auto mi : sourceModelIndices)
+        {
+            selectedIndices.insert(static_cast<unsigned int>(optionIndex(mi)));
+        }
     }
+    else
+    {
+        for (auto mi : sourceModelIndices)
+        {
+            selectedIndices.erase(static_cast<unsigned int>(optionIndex(mi)));
+        }
+    }
+
+    QList<QVariant> fieldValueSelection;
+    for (auto v : selectedIndices)
+    {
+        fieldValueSelection.push_back(QVariant(v));
+    }
+
+    beginResetModel();
+    PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection);
+    endResetModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,16 +126,51 @@ int caf::PdmUiTreeSelectionQModel::optionItemCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options)
+{
+    m_uiFieldHandle = field;
+    
+    if (m_options.size() != options.size())
+    {
+        beginResetModel();
+
+        m_options = options;
+
+        if (m_tree)
+        {
+            delete m_tree;
+            m_tree = nullptr;
+        }
+
+        m_tree = new TreeItemType(nullptr, -1, 0);
+        buildOptionItemTree(0, m_tree);
+
+        endResetModel();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const caf::PdmOptionItemInfo* caf::PdmUiTreeSelectionQModel::optionItem(const QModelIndex &index) const
 {
-    if (index.isValid())
-    {
-        int opIndex = optionItemIndex(index);
+    int opIndex = optionIndex(index);
 
-        return &(m_options[opIndex]);
-    }
+    return &m_options[opIndex];
+}
 
-    return nullptr;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int caf::PdmUiTreeSelectionQModel::optionIndex(const QModelIndex &index) const
+{
+    CAF_ASSERT(index.isValid());
+
+    TreeItemType* item = static_cast<TreeItemType*>(index.internalPointer());
+
+    int optionIndex = item->dataObject();
+
+    return optionIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,13 +180,13 @@ Qt::ItemFlags caf::PdmUiTreeSelectionQModel::flags(const QModelIndex &index) con
 {
     if (index.isValid())
     {
-        int opIndex = optionItemIndex(index);
+        const caf::PdmOptionItemInfo* optionItemInfo = optionItem(index);
 
-        if (m_options[opIndex].isReadOnly())
+        if (optionItemInfo->isReadOnly())
         {
             return QAbstractItemModel::flags(index)^Qt::ItemIsEnabled;
         }
-        else if (!m_options[opIndex].isHeading())
+        else if (!optionItemInfo->isHeading())
         {
             return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
         }
@@ -128,23 +203,18 @@ QModelIndex caf::PdmUiTreeSelectionQModel::index(int row, int column, const QMod
     if (!hasIndex(row, column, parent))
         return QModelIndex();
 
-    if (m_zeroLevelRowToOptionIndex.size() == 0)
-        return QModelIndex();
+    TreeItemType* parentItem;
 
-    int opIndex = -1;
-    if (parent.isValid())
-    {
-        opIndex = optionItemIndex(parent) + row + 1;
-    }
+    if (!parent.isValid())
+        parentItem = m_tree;
     else
-    {
-        opIndex = m_zeroLevelRowToOptionIndex.at(row);
-    }
+        parentItem = static_cast<TreeItemType*>(parent.internalPointer());
 
-    CAF_ASSERT(opIndex > -1);
-    CAF_ASSERT(opIndex < m_options.size());
- 
-    return createIndex(row, column, opIndex);
+    TreeItemType* childItem = parentItem->child(row);
+    if (childItem)
+        return createIndex(row, column, childItem);
+    else
+        return QModelIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,12 +228,18 @@ int caf::PdmUiTreeSelectionQModel::columnCount(const QModelIndex &parent /*= QMo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::PdmUiTreeSelectionQModel::parent(const QModelIndex &child) const
+QModelIndex caf::PdmUiTreeSelectionQModel::parent(const QModelIndex &index) const
 {
-    if (!child.isValid())
+    if (!index.isValid())
         return QModelIndex();
 
-    return m_optionsTreeData[optionItemIndex(child)].parentModelIndex;
+    TreeItemType* childItem = static_cast<TreeItemType*>(index.internalPointer());
+    TreeItemType* parentItem = childItem->parent();
+
+    if (parentItem == m_tree)
+        return QModelIndex();
+
+    return createIndex(parentItem->row(), 0, parentItem);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,12 +247,18 @@ QModelIndex caf::PdmUiTreeSelectionQModel::parent(const QModelIndex &child) cons
 //--------------------------------------------------------------------------------------------------
 int caf::PdmUiTreeSelectionQModel::rowCount(const QModelIndex &parent /*= QModelIndex()*/) const
 {
-    if (!parent.isValid())
-    {
-        return m_zeroLevelRowCount;
-    }
+    if (!m_tree) return 0;
 
-    return m_optionsTreeData[optionItemIndex(parent)].childCount;
+    if (parent.column() > 0)
+        return 0;
+
+    TreeItemType* parentItem;
+    if (!parent.isValid())
+        parentItem = m_tree;
+    else
+        parentItem = static_cast<TreeItemType*>(parent.internalPointer());
+
+    return parentItem->childCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,19 +268,17 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
 {
     if (index.isValid())
     {
-        CAF_ASSERT(index.internalId() < m_options.size());
-
-        int opIndex = optionItemIndex(index);
+        const caf::PdmOptionItemInfo* optionItemInfo = optionItem(index);
 
         if (role == Qt::DisplayRole)
         {
-            return m_options[opIndex].optionUiText();
+            return optionItemInfo->optionUiText();
         }
         else if (role == Qt::DecorationRole)
         {
-            return m_options[opIndex].icon();
+            return optionItemInfo->icon();
         }
-        else if (role == Qt::CheckStateRole && !m_options[opIndex].isHeading())
+        else if (role == Qt::CheckStateRole && !optionItemInfo->isHeading())
         {
             CAF_ASSERT(m_uiFieldHandle);
 
@@ -206,6 +286,8 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
             {
                 QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
                 QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+                int opIndex = optionIndex(index);
 
                 for (QVariant v : valuesSelectedInField)
                 {
@@ -221,13 +303,17 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         }
         else if (role == Qt::FontRole)
         {
-            if (m_options[opIndex].isHeading())
+            if (optionItemInfo->isHeading())
             {
                 QFont font;
                 font.setBold(true);
 
                 return font;
             }
+        }
+        else if (role == headingRole())
+        {
+            return optionItemInfo->isHeading();
         }
     }
 
@@ -239,14 +325,54 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVariant &value, int role /*= Qt::EditRole*/)
 {
-    if (role == Qt::CheckStateRole)
-    {
-        bool isSelected = value.toBool();
+     if (role == Qt::CheckStateRole)
+     {
+        std::vector<unsigned int> selectedIndices;
+        {
+            QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+            QList<QVariant> fieldValueSelection = fieldValue.toList();
 
-        emit signalSelectionStateForIndexHasChanged(optionItemIndex(index), isSelected);
+            for (auto v : fieldValueSelection)
+            {
+                selectedIndices.push_back(v.toUInt());
+            }
+        }
 
-        return true;
-    }
+        bool setSelected = value.toBool();
+
+        unsigned int opIndex = static_cast<unsigned int>(optionIndex(index));
+
+        if (setSelected)
+        {
+            bool isIndexPresent = false;
+            for (auto indexInField : selectedIndices)
+            {
+                if (indexInField == opIndex)
+                {
+                    isIndexPresent = true;
+                }
+            }
+
+            if (!isIndexPresent)
+            {
+                selectedIndices.push_back(opIndex);
+            }
+        }
+        else
+        {
+            selectedIndices.erase(std::remove(selectedIndices.begin(), selectedIndices.end(), opIndex), selectedIndices.end());
+        }
+
+        QList<QVariant> fieldValueSelection;
+        for (auto v : selectedIndices)
+        {
+            fieldValueSelection.push_back(QVariant(v));
+        }
+
+         PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
+
+         return true;
+     }
 
     return false;
 }
@@ -254,106 +380,33 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int caf::PdmUiTreeSelectionQModel::optionItemIndex(const QModelIndex& modelIndex) const
+void caf::PdmUiTreeSelectionQModel::buildOptionItemTree(int parentOptionIndex, TreeItemType* parentNode)
 {
-    CAF_ASSERT(modelIndex.isValid());
-    CAF_ASSERT(modelIndex.internalId() < m_options.size());
-
-    return modelIndex.internalId();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<int> caf::PdmUiTreeSelectionQModel::allSubItemIndices(int headingIndex) const
-{
-    std::vector<int> children;
-
-    int parentLevel = m_options[headingIndex].level();
-
-    int currentIndex = headingIndex + 1;
-    while (currentIndex < m_options.size() && m_options[currentIndex].level() > parentLevel)
+    if (parentNode == m_tree)
     {
-        children.push_back(currentIndex);
-        currentIndex++;
+        for (int i = 0; i < m_options.size(); i++)
+        {
+            if (m_options[i].level() == 0)
+            {
+                TreeItemType* node = new TreeItemType(parentNode, -1, i);
+
+                buildOptionItemTree(i, node);
+            }
+        }
     }
-
-    return children;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void caf::PdmUiTreeSelectionQModel::computeOptionItemTreeData()
-{
-    m_optionsTreeData.clear();
-    m_zeroLevelRowToOptionIndex.clear();
-
-    if (m_options.size() == 0) return;
-
-    m_optionsTreeData.resize(m_options.size());
-
-    m_zeroLevelRowCount = 0;
-
-    for (int i = 0; i < m_options.size(); i++)
+    else
     {
-        if (m_options[i].level() == 0)
+        int currentOptionIndex = parentOptionIndex + 1;
+        while (currentOptionIndex < m_options.size() && m_options[currentOptionIndex].level() > m_options[parentNode->dataObject()].level())
         {
-            m_zeroLevelRowToOptionIndex[m_zeroLevelRowCount] = i;
-            
-            m_zeroLevelRowCount++;
-
-            m_optionsTreeData[i].parentModelIndex = QModelIndex();
-        }
-        else if (m_options[i].level() > 0)
-        {
-            // Compute parent model index
-
-            int childLevel = m_options[i].level();
-
-            int parentOptionIndex = i - 1;
-            while (parentOptionIndex > -1)
+            if (m_options[currentOptionIndex].level() == m_options[parentNode->dataObject()].level() + 1)
             {
-                if (m_options[parentOptionIndex].level() == childLevel - 1)
-                {
-                    int parentRow = 0;
+                TreeItemType* node = new TreeItemType(parentNode, -1, currentOptionIndex);
 
-                    int parentLevelOptionIndex = parentOptionIndex - 1;
-                    while (parentLevelOptionIndex > -1 && m_options[parentLevelOptionIndex].level() > childLevel - 2)
-                    {
-                        if (m_options[parentLevelOptionIndex].level() == childLevel - 1)
-                        {
-                            parentRow++;
-                        }
-
-                        parentLevelOptionIndex--;
-                    }
-
-                    m_optionsTreeData[i].parentModelIndex = createIndex(parentRow, 0, parentOptionIndex);
-                    break;
-                }
-
-                parentOptionIndex--;
+                buildOptionItemTree(currentOptionIndex, node);
             }
+            currentOptionIndex++;
         }
-
-        int childCount = 0;
-        {
-            int parentLevel = m_options[i].level();
-            int currentOptionIndex = i + 1;
-
-            while (currentOptionIndex < m_options.size() && m_options[currentOptionIndex].level() > parentLevel)
-            {
-                if (m_options[currentOptionIndex].level() == parentLevel + 1)
-                {
-                    childCount++;
-                }
-
-                currentOptionIndex++;
-            }
-        }
-
-        m_optionsTreeData[i].childCount = childCount;
     }
 }
 

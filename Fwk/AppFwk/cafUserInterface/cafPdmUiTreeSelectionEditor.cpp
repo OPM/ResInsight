@@ -40,8 +40,12 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeSelectionQModel.h"
 
+#include <QBoxLayout>
+#include <QCheckBox>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
 
 #include <algorithm>
@@ -99,6 +103,8 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiTreeSelectionEditor);
 /// 
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeSelectionEditor::PdmUiTreeSelectionEditor()
+    : m_model(nullptr),
+    m_proxyModel(nullptr)
 {
 }
 
@@ -124,39 +130,89 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     bool optionsOnly = true;
     QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
 
-    if (!m_treeView->model())
+    if (!m_model)
     {
-        caf::PdmUiTreeSelectionQModel* model = new caf::PdmUiTreeSelectionQModel(m_treeView);
-        m_treeView->setModel(model);
-        connect(model, SIGNAL(signalSelectionStateForIndexHasChanged(int, bool)), this, SLOT(slotSetSelectionStateForIndex(int, bool)));
+        m_model = new caf::PdmUiTreeSelectionQModel(m_treeView);
+        
+        m_proxyModel = new QSortFilterProxyModel;
+        m_proxyModel->setSourceModel(m_model);
+        m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+        
+        m_treeView->setModel(m_proxyModel);
     }
 
-    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
-    if (treeSelectionQModel)
+    bool itemCountHasChaged = false;
+    if (m_model->optionItemCount() != options.size()) itemCountHasChaged = true;
+
+    // TODO: If the count is different between incoming and current list of items,
+    // use cafQTreeViewStateSerializer to restore collapsed state
+    m_model->setOptions(this, options);
+
+    if (itemCountHasChaged)
     {
-        bool itemCountHasChaged = false;
-        if (treeSelectionQModel->optionItemCount() != options.size()) itemCountHasChaged = true;
+        m_treeView->expandAll();
+    }
 
-        // TODO: If the count is different between incoming and current list of items,
-        // use cafQTreeViewStateSerializer to restore collapsed state
-        treeSelectionQModel->setOptions(this, options);
-
-        if (itemCountHasChaged)
+    bool allItemsChecked = true;
+    QModelIndexList indices = allVisibleSourceModelIndices();
+    for (auto mi : indices)
+    {
+        if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
         {
-            m_treeView->expandAll();
+            allItemsChecked = false;
         }
     }
+
+    //m_toggleAllCheckBox->setChecked(allItemsChecked);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotSetSelectionStateForIndex(int index, bool setSelected)
+QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
 {
-    std::vector<int> indices;
-    indices.push_back(index);
+    QFrame* frame = new QFrame(parent);
+    QVBoxLayout* layout = new QVBoxLayout;
+    frame->setLayout(layout);
 
-    setSelectionStateForIndices(indices, setSelected);
+    {
+        QHBoxLayout* headerLayout = new QHBoxLayout;
+        layout->addLayout(headerLayout);
+
+//         m_toggleAllCheckBox = new QCheckBox();
+//         headerLayout->addWidget(m_toggleAllCheckBox);
+// 
+//         connect(m_toggleAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(slotToggleAll()));
+
+//         m_textFilterLineEdit = new QLineEdit();
+//         headerLayout->addWidget(m_textFilterLineEdit);
+// 
+//         connect(m_textFilterLineEdit, SIGNAL(textChanged(QString)), this, SLOT(slotTextFilterChanged()));
+    }
+
+    QTreeViewHeightHint* treeViewHeightHint = new QTreeViewHeightHint(parent);
+    treeViewHeightHint->setHeightHint(2000);
+
+    treeViewHeightHint->setHeaderHidden(true);
+    treeViewHeightHint->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    treeViewHeightHint->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(treeViewHeightHint, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+
+    m_treeView = treeViewHeightHint;
+
+    layout->addWidget(treeViewHeightHint);
+
+    return frame;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
+{
+    m_label = new QLabel(parent);
+    return m_label;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,43 +222,48 @@ void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
 {
     QMenu menu;
 
+    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes(); 
+
+    bool onlyHeadersInSelection = true;
+    for (auto mi : selectedIndexes)
     {
-        std::vector<int> items = selectedCheckableItems();
-        if (items.size() > 0)
+        QVariant v = m_proxyModel->data(mi, PdmUiTreeSelectionQModel::headingRole());
+        if (v.toBool() == false)
         {
-            {
-                QAction* act = new QAction("Set Selected On", this);
-                connect(act, SIGNAL(triggered()), SLOT(slotSetSelectedOn()));
-
-                menu.addAction(act);
-            }
-
-            {
-                QAction* act = new QAction("Set Selected Off", this);
-                connect(act, SIGNAL(triggered()), SLOT(slotSetSelectedOff()));
-
-                menu.addAction(act);
-            }
+            onlyHeadersInSelection = false;
         }
     }
 
+    if (onlyHeadersInSelection)
     {
-        std::vector<int> items = selectedHeaderItems();
-        if (items.size() > 0)
         {
-            {
-                QAction* act = new QAction("Set Sub Items On", this);
-                connect(act, SIGNAL(triggered()), SLOT(slotSetSubItemsOn()));
+            QAction* act = new QAction("Sub Items On", this);
+            connect(act, SIGNAL(triggered()), SLOT(slotSetSubItemsOn()));
 
-                menu.addAction(act);
-            }
+            menu.addAction(act);
+        }
 
-            {
-                QAction* act = new QAction("Set Sub Items Off", this);
-                connect(act, SIGNAL(triggered()), SLOT(slotSetSubItemsOff()));
+        {
+            QAction* act = new QAction("Sub Items Off", this);
+            connect(act, SIGNAL(triggered()), SLOT(slotSetSubItemsOff()));
 
-                menu.addAction(act);
-            }
+            menu.addAction(act);
+        }
+    }
+    else if (selectedIndexes.size() > 0)
+    {
+        {
+            QAction* act = new QAction("Set Selected On", this);
+            connect(act, SIGNAL(triggered()), SLOT(slotSetSelectedOn()));
+
+            menu.addAction(act);
+        }
+
+        {
+            QAction* act = new QAction("Set Selected Off", this);
+            connect(act, SIGNAL(triggered()), SLOT(slotSetSelectedOff()));
+
+            menu.addAction(act);
         }
     }
 
@@ -220,10 +281,12 @@ void PdmUiTreeSelectionEditor::customMenuRequested(const QPoint& pos)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSelectedOn()
 {
-    std::vector<int> items = selectedCheckableItems();
-    if (items.size() > 0)
+    if (!m_proxyModel) return;
+
+    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
+    for (auto mi : selectedIndexes)
     {
-        setSelectionStateForIndices(items, true);
+        m_proxyModel->setData(mi, true, Qt::CheckStateRole);
     }
 }
 
@@ -232,10 +295,12 @@ void PdmUiTreeSelectionEditor::slotSetSelectedOn()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSelectedOff()
 {
-    std::vector<int> items = selectedCheckableItems();
-    if (items.size() > 0)
+    if (!m_proxyModel) return;
+
+    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
+    for (auto mi : selectedIndexes)
     {
-        setSelectionStateForIndices(items, false);
+        m_proxyModel->setData(mi, false, Qt::CheckStateRole);
     }
 }
 
@@ -244,14 +309,14 @@ void PdmUiTreeSelectionEditor::slotSetSelectedOff()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSubItemsOn()
 {
-    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
-
-    std::vector<int> items = selectedHeaderItems();
-    for (auto i : items)
+    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
+    for (auto mi : selectedIndexes)
     {
-        std::vector<int> children = treeSelectionQModel->allSubItemIndices(i);
-
-        setSelectionStateForIndices(children, true);
+        for (int i = 0; i < m_proxyModel->rowCount(mi); i++)
+        {
+            QModelIndex childIndex = m_proxyModel->index(i, 0, mi);
+            m_proxyModel->setData(childIndex, true, Qt::CheckStateRole);
+        }
     }
 }
 
@@ -260,145 +325,99 @@ void PdmUiTreeSelectionEditor::slotSetSubItemsOn()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotSetSubItemsOff()
 {
-    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
-
-    std::vector<int> items = selectedHeaderItems();
-    for (auto i : items)
+    QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
+    for (auto mi : selectedIndexes)
     {
-        std::vector<int> children = treeSelectionQModel->allSubItemIndices(i);
-
-        setSelectionStateForIndices(children, false);
+        for (int i = 0; i < m_proxyModel->rowCount(mi); i++)
+        {
+            QModelIndex childIndex = m_proxyModel->index(i, 0, mi);
+            m_proxyModel->setData(childIndex, false, Qt::CheckStateRole);
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> PdmUiTreeSelectionEditor::selectedCheckableItems() const
+void PdmUiTreeSelectionEditor::slotToggleAll()
 {
-    std::vector<int> items;
-
-    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
-    if (treeSelectionQModel)
+    if (m_toggleAllCheckBox->isChecked())
     {
-        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
-
-        for (auto mi : selectedIndexes)
-        {
-            auto optionItem = treeSelectionQModel->optionItem(mi);
-            if (!optionItem->isHeading())
-            {
-                items.push_back(treeSelectionQModel->optionItemIndex(mi));
-            }
-        }
+        checkAllItems();
+    }
+    else
+    {
+        unCheckAllItems();
     }
 
-    return items;
+    // Set focus back to the tree view to trigger a redraw
+    m_treeView->setFocus();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<int> PdmUiTreeSelectionEditor::selectedHeaderItems() const
+void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 {
-    std::vector<int> items;
+    QString searchString = m_textFilterLineEdit->text();
+    searchString += "*";
 
-    caf::PdmUiTreeSelectionQModel* treeSelectionQModel = dynamic_cast<caf::PdmUiTreeSelectionQModel*>(m_treeView->model());
-    if (treeSelectionQModel)
-    {
-        QModelIndexList selectedIndexes = m_treeView->selectionModel()->selectedIndexes();
-
-        for (auto mi : selectedIndexes)
-        {
-            auto optionItem = treeSelectionQModel->optionItem(mi);
-            if (optionItem->isHeading())
-            {
-                items.push_back(treeSelectionQModel->optionItemIndex(mi));
-            }
-        }
-    }
-
-    return items;
+    m_proxyModel->setFilterWildcard(searchString);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::setSelectionStateForIndices(const std::vector<int>& indices, bool setSelected)
+void PdmUiTreeSelectionEditor::checkAllItems()
 {
-    std::vector<unsigned int> selectedIndices;
+    QModelIndexList indices = allVisibleSourceModelIndices();
+    
+    m_model->setCheckedStateForItems(indices, true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::unCheckAllItems()
+{
+    QModelIndexList indices = allVisibleSourceModelIndices();
+
+    m_model->setCheckedStateForItems(indices, false);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QModelIndexList PdmUiTreeSelectionEditor::allVisibleSourceModelIndices() const
+{
+    QModelIndexList indices;
+
+    recursiveAppendVisibleSourceModelIndices(QModelIndex(), &indices);
+
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::recursiveAppendVisibleSourceModelIndices(const QModelIndex& parent, QModelIndexList* sourceModelIndices) const
+{
+    for (int row = 0; row < m_proxyModel->rowCount(parent); row++)
     {
-        QVariant fieldValue = field()->uiValue();
-        QList<QVariant> fieldValueSelection = fieldValue.toList();
-
-        for (auto v : fieldValueSelection)
+        QModelIndex mi = m_proxyModel->index(row, 0, parent);
+        if (mi.isValid())
         {
-            selectedIndices.push_back(v.toUInt());
-        }
-    }
-
-    for (auto index : indices)
-    {
-        unsigned int unsignedIndex = static_cast<unsigned int>(index);
-
-        if (setSelected)
-        {
-            bool isIndexPresent = false;
-            for (auto indexInField : selectedIndices)
+            QVariant v = m_proxyModel->data(mi, PdmUiTreeSelectionQModel::headingRole());
+            if (v.toBool() == false)
             {
-                if (indexInField == unsignedIndex)
-                {
-                    isIndexPresent = true;
-                }
+                sourceModelIndices->push_back(m_proxyModel->mapToSource(mi));
             }
 
-            if (!isIndexPresent)
-            {
-                selectedIndices.push_back(unsignedIndex);
-            }
-        }
-        else
-        {
-            selectedIndices.erase(std::remove(selectedIndices.begin(), selectedIndices.end(), unsignedIndex), selectedIndices.end());
+            recursiveAppendVisibleSourceModelIndices(mi, sourceModelIndices);
         }
     }
-
-    QList<QVariant> fieldValueSelection;
-    for (auto v : selectedIndices)
-    {
-        fieldValueSelection.push_back(QVariant(v));
-    }
-
-    this->setValueToField(fieldValueSelection);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget * parent)
-{
-    QTreeViewHeightHint* treeViewHeightHint = new QTreeViewHeightHint(parent);
-    treeViewHeightHint->setHeightHint(2000);
-
-    treeViewHeightHint->setHeaderHidden(true);
-    treeViewHeightHint->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    treeViewHeightHint->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(treeViewHeightHint, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
-
-    m_treeView = treeViewHeightHint;
-
-    return treeViewHeightHint;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* PdmUiTreeSelectionEditor::createLabelWidget(QWidget * parent)
-{
-    m_label = new QLabel(parent);
-    return m_label;
-}
 
 
 } // end namespace caf

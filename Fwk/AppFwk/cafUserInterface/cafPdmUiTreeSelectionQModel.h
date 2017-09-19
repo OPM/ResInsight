@@ -37,6 +37,7 @@
 #pragma once
 
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiTreeItem.h"
 
 #include <QAbstractItemModel>
 
@@ -53,28 +54,19 @@ class PdmUiFieldHandle;
 //==================================================================================================
 /// 
 //==================================================================================================
-class OptionItemTreeData
-{
-public:
-    int             childCount;
-    QModelIndex     parentModelIndex;
-};
-
-//==================================================================================================
-/// 
-//==================================================================================================
 class PdmUiTreeSelectionQModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
     explicit PdmUiTreeSelectionQModel(QObject *parent = 0);
+    ~PdmUiTreeSelectionQModel();
 
-    void setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
+    static int              headingRole(); 
 
-    int                             optionItemCount() const;
-    const caf::PdmOptionItemInfo*   optionItem(const QModelIndex &index) const;
-    int                             optionItemIndex(const QModelIndex& modelIndex) const;
-    std::vector<int>                allSubItemIndices(int headingIndex) const;
+    void                    setCheckedStateForItems(const QModelIndexList& indices, bool checked);
+
+    int                     optionItemCount() const;
+    void                    setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
 
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const override;
     virtual QModelIndex     index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -84,19 +76,18 @@ public:
     virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-signals:
-    void                    signalSelectionStateForIndexHasChanged(int index, bool isSelected);
-
 private:
-    void                    computeOptionItemTreeData();
+    typedef caf::UiTreeItem<int> TreeItemType;
+
+    const caf::PdmOptionItemInfo*   optionItem(const QModelIndex &index) const;
+    int                             optionIndex(const QModelIndex &index) const;
+    void                            buildOptionItemTree(int optionIndex, TreeItemType* parentNode);
 
 private:
     QList<caf::PdmOptionItemInfo>   m_options;
     caf::PdmUiFieldEditorHandle*    m_uiFieldHandle;
 
-    std::vector<OptionItemTreeData> m_optionsTreeData;
-    int                             m_zeroLevelRowCount;
-    std::map<int, int>              m_zeroLevelRowToOptionIndex;
+    TreeItemType*                   m_tree;
 };
 
 

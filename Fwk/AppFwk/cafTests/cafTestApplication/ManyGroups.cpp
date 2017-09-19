@@ -121,6 +121,10 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFi
 //--------------------------------------------------------------------------------------------------
 void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_toggleField);
+    uiOrdering.add(&m_multiSelectList);
+    
+/*
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("First");
 
@@ -156,4 +160,5 @@ void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOr
 
         subGroup->add(&m_proxyDoubleField);
     }
+*/
 }
