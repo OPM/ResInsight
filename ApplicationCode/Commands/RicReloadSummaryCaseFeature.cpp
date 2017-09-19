@@ -43,7 +43,20 @@ bool RicReloadSummaryCaseFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
 
-    return (caseSelection.size() > 0 && !caseSelection[0]->isObservedData());
+    if (caseSelection.size() == 0)
+    {
+        return false;
+    }
+
+    for (RimSummaryCase* summaryCase : caseSelection)
+    {
+        if (summaryCase->isObservedData())
+        {
+            return false;
+        }
+    }
+    return true;
+
 }
 
 //--------------------------------------------------------------------------------------------------
