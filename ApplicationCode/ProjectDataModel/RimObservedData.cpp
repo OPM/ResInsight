@@ -29,6 +29,9 @@ CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
 RimObservedData::RimObservedData()
 {
     m_isObservedData = true;
+
+    CAF_PDM_InitFieldNoDefault(&m_identifierType, "identifierType", "Identifier Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_identifierName, "identifierName", "Identifier Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
