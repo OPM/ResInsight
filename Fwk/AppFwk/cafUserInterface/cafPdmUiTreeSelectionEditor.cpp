@@ -379,9 +379,6 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
     {
         unCheckAllItems();
     }
-
-    // Set focus back to the tree view to trigger a redraw
-    m_treeView->setFocus();
 }
 
 //--------------------------------------------------------------------------------------------------
