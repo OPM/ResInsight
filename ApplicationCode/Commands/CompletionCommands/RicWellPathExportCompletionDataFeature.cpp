@@ -1024,8 +1024,8 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
     double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
     double permx = permxAccessObject->cellScalarGlobIdx(cellIndex);
-    double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
-    double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
+    double permy = permyAccessObject->cellScalarGlobIdx(cellIndex);
+    double permz = permzAccessObject->cellScalarGlobIdx(cellIndex);
 
     double darcy = RiaEclipseUnitTools::darcysConstant(wellPath->unitSystem());
 
@@ -1073,8 +1073,8 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclips
     double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
     double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
     double permx = permxAccessObject->cellScalarGlobIdx(cellIndex);
-    double permy = permxAccessObject->cellScalarGlobIdx(cellIndex);
-    double permz = permxAccessObject->cellScalarGlobIdx(cellIndex);
+    double permy = permyAccessObject->cellScalarGlobIdx(cellIndex);
+    double permz = permzAccessObject->cellScalarGlobIdx(cellIndex);
 
     RiaEclipseUnitTools::UnitSystem units = eclipseCaseData->unitsType();
     double darcy = RiaEclipseUnitTools::darcysConstant(units);
