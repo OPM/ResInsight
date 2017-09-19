@@ -169,20 +169,26 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_toggleAllCheckBox->hide();
     }
-
-    if (m_toggleAllCheckBox)
+    else
     {
-        bool allItemsChecked = true;
-        QModelIndexList indices = allVisibleSourceModelIndices();
-        for (auto mi : indices)
+        if (options.size() == 0)
         {
-            if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
-            {
-                allItemsChecked = false;
-            }
+            m_toggleAllCheckBox->setChecked(false);
         }
+        else
+        {
+            bool allItemsChecked = true;
+            QModelIndexList indices = allVisibleSourceModelIndices();
+            for (auto mi : indices)
+            {
+                if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
+                {
+                    allItemsChecked = false;
+                }
+            }
 
-        m_toggleAllCheckBox->setChecked(allItemsChecked);
+            m_toggleAllCheckBox->setChecked(allItemsChecked);
+        }
     }
 }
 
@@ -193,10 +199,12 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
 {
     QFrame* frame = new QFrame(parent);
     QVBoxLayout* layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
     frame->setLayout(layout);
 
     {
         QHBoxLayout* headerLayout = new QHBoxLayout;
+        headerLayout->setContentsMargins(0, 0, 0, 0);
         layout->addLayout(headerLayout);
 
         PdmUiTreeSelectionEditorAttribute attrib;
