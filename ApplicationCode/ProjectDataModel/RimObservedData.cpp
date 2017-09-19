@@ -30,8 +30,8 @@ RimObservedData::RimObservedData()
 {
     m_isObservedData = true;
 
-    CAF_PDM_InitFieldNoDefault(&m_identifierType, "identifierType", "Identifier Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_identifierName, "identifierName", "Identifier Name", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_summaryCategory, "SummaryType", "Summary Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_identifierName, "IdentifierName", "Identifier Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

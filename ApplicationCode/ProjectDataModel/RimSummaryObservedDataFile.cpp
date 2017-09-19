@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT(RimSummaryObservedDataFile, "SummaryObservedDataFile");
 RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 {
     CAF_PDM_InitObject("Observed data file", ":/Default.png", "", "");
-
+    m_summaryHeaderFilename.uiCapability()->setUiName("File");
 }
 
 //--------------------------------------------------------------------------------------------------

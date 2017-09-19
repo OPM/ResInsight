@@ -17,7 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
 #include "RimSummaryCase.h"
+
+#include "RifEclipseSummaryAddress.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -38,6 +41,6 @@ public:
     virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
 private:
-    caf::PdmField<QString>  m_identifierType;
-    caf::PdmField<QString>  m_identifierName;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >  m_summaryCategory;
+    caf::PdmField<QString>                                                      m_identifierName;
 };
