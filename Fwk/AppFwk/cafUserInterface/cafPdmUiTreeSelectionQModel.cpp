@@ -80,6 +80,8 @@ int caf::PdmUiTreeSelectionQModel::headingRole()
 //--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexList& sourceModelIndices, bool checked)
 {
+    if (!m_uiFieldHandle || !m_uiFieldHandle->field()) return;
+
     std::set<unsigned int> selectedIndices;
     {
         QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
@@ -282,8 +284,6 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         }
         else if (role == Qt::CheckStateRole && !optionItemInfo->isHeading())
         {
-            CAF_ASSERT(m_uiFieldHandle);
-
             if (m_uiFieldHandle && m_uiFieldHandle->field())
             {
                 QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
@@ -327,8 +327,10 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
 //--------------------------------------------------------------------------------------------------
 bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVariant &value, int role /*= Qt::EditRole*/)
 {
-     if (role == Qt::CheckStateRole)
-     {
+    if (!m_uiFieldHandle || !m_uiFieldHandle->field()) return false;
+
+    if (role == Qt::CheckStateRole)
+    {
         std::vector<unsigned int> selectedIndices;
         {
             QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
@@ -371,10 +373,12 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
             fieldValueSelection.push_back(QVariant(v));
         }
 
-         PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
+        PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
 
-         return true;
-     }
+        emit dataChanged(index, index);
+
+        return true;
+    }
 
     return false;
 }
