@@ -110,9 +110,12 @@ bool RicCutReferencesToClipboardFeature::isAnyCuttableObjectSelected()
 //--------------------------------------------------------------------------------------------------
 bool RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported(caf::PdmObject* pdmObject)
 {
-    if (dynamic_cast<RimSummaryCase*>(pdmObject))
+    if (RimSummaryCase* summaryCase = dynamic_cast<RimSummaryCase*>(pdmObject))
     {
-        return true;
+        if (!summaryCase->isObservedData())
+        {
+            return true;
+        }
     }
 
     return false;

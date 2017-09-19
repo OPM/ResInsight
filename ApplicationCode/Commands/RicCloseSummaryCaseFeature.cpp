@@ -77,7 +77,7 @@ bool RicCloseSummaryCaseFeature::isCommandEnabled()
     std::vector<RimSummaryCase*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
 
-    return (selection.size() > 0);
+    return (selection.size() > 0 && !selection[0]->isObservedData());
 }
 
 //--------------------------------------------------------------------------------------------------

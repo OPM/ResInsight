@@ -55,7 +55,9 @@ bool RicPasteSummaryCaseFeature::isCommandEnabled()
         return false;
     }
 
-    return RicPasteSummaryCaseFeature::summaryCases().size() > 0;
+    std::vector<caf::PdmPointer<RimSummaryCase> > summaryCases = RicPasteSummaryCaseFeature::summaryCases();
+    
+    return (summaryCases.size() > 0 && !summaryCases[0]->isObservedData());
 }
 
 //--------------------------------------------------------------------------------------------------
