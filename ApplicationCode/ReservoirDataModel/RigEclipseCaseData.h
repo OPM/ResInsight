@@ -55,7 +55,7 @@ public:
     explicit RigEclipseCaseData(RimEclipseCase* ownerCase);
     ~RigEclipseCaseData();
 
-    RimEclipseCase*                             ownerCase() { return m_ownerCase; }
+    RimEclipseCase*                             ownerCase() const { return m_ownerCase; }
 
     RigMainGrid*                                mainGrid();
     const RigMainGrid*                          mainGrid() const;
