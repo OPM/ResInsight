@@ -163,7 +163,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-    //m_toggleAllCheckBox->setChecked(allItemsChecked);
+    m_toggleAllCheckBox->setChecked(allItemsChecked);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,10 +179,10 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
         QHBoxLayout* headerLayout = new QHBoxLayout;
         layout->addLayout(headerLayout);
 
-//         m_toggleAllCheckBox = new QCheckBox();
-//         headerLayout->addWidget(m_toggleAllCheckBox);
-// 
-//         connect(m_toggleAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(slotToggleAll()));
+        m_toggleAllCheckBox = new QCheckBox();
+        headerLayout->addWidget(m_toggleAllCheckBox);
+
+        connect(m_toggleAllCheckBox, SIGNAL(clicked(bool)), this, SLOT(slotToggleAll()));
 
 //         m_textFilterLineEdit = new QLineEdit();
 //         headerLayout->addWidget(m_textFilterLineEdit);
