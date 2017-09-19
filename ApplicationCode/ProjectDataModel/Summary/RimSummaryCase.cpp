@@ -19,13 +19,15 @@
 #include "RimSummaryCase.h"
 
 #include "RigSummaryCaseData.h"
+
 #include "RimEclipseCase.h"
+#include "RimMainPlotCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryPlotCollection.h"
 
 #include <QFileInfo>
-#include "RimProject.h"
-#include "RimSummaryPlotCollection.h"
-#include "RimMainPlotCollection.h"
 
 CAF_PDM_ABSTRACT_SOURCE_INIT(RimSummaryCase,"SummaryCase");
 
@@ -157,16 +159,16 @@ void RimSummaryCase::updateAutoShortName()
 {
     if(m_useAutoShortName)
     {
-        RimSummaryCaseMainCollection* summaryCaseMainCollection = NULL;
-        this->firstAncestorOrThisOfType(summaryCaseMainCollection);
-        CVF_ASSERT(summaryCaseMainCollection);
+        RimOilField* oilField = NULL;
+        this->firstAncestorOrThisOfType(oilField);
+        CVF_ASSERT(oilField);
 
-        m_shortName =  summaryCaseMainCollection->uniqueShortNameForCase(this);
-        updateTreeItemName();
+        m_shortName = oilField->uniqueShortNameForCase(this);
     }
     else if (m_shortName() == QString("Display Name"))
     {
         m_shortName =  caseName();
-        updateTreeItemName();
     }
+    
+    updateTreeItemName();
 }

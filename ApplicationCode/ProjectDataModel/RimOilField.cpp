@@ -28,7 +28,9 @@
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
 #include "RimGeoMechModels.h"
+#include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimWellPathCollection.h"
 
@@ -79,5 +81,73 @@ RimOilField::~RimOilField(void)
     if (summaryCaseMainCollection()) delete summaryCaseMainCollection();
     if (formationNamesCollection()) delete formationNamesCollection();
     if (observedDataCollection()) delete observedDataCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimOilField::uniqueShortNameForCase(RimSummaryCase* summaryCase)
+{
+    std::set<QString> allAutoShortNames;
+
+    std::vector<RimSummaryCase*> allCases = summaryCaseMainCollection->allSummaryCases();
+    std::vector<RimObservedData*> observedDataCases = observedDataCollection->allObservedData();
+    
+    for (RimObservedData* observedData : observedDataCases)
+    {
+        allCases.push_back(dynamic_cast<RimSummaryCase*>(observedData));
+    }
+    
+    for (RimSummaryCase* sumCase : allCases)
+    {
+        if (sumCase && sumCase != summaryCase)
+        {
+            allAutoShortNames.insert(sumCase->shortName());
+        }
+    }
+
+    bool foundUnique = false;
+
+    QString caseName = summaryCase->caseName();
+    QString shortName;
+
+    if (caseName.size() > 2)
+    {
+        QString candidate;
+        candidate += caseName[0];
+
+        for (int i = 1; i < caseName.size(); ++i)
+        {
+            if (allAutoShortNames.count(candidate + caseName[i]) == 0)
+            {
+                shortName = candidate + caseName[i];
+                foundUnique = true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        shortName = caseName.left(2);
+        if (allAutoShortNames.count(shortName) == 0)
+        {
+            foundUnique = true;
+        }
+    }
+
+    QString candidate = shortName;
+    int autoNumber = 0;
+
+    while (!foundUnique)
+    {
+        candidate = shortName + QString::number(autoNumber++);
+        if (allAutoShortNames.count(candidate) == 0)
+        {
+            shortName = candidate;
+            foundUnique = true;
+        }
+    }
+
+    return shortName;
 }
 

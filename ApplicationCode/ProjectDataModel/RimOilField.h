@@ -30,6 +30,7 @@ class RimFormationNamesCollection;
 class RimFractureTemplateCollection;
 class RimGeoMechModels;
 class RimObservedDataCollection;
+class RimSummaryCase;
 class RimSummaryCaseMainCollection;
 class RimWellPathCollection;
 
@@ -44,6 +45,8 @@ class RimOilField : public caf::PdmObject
 public:
     RimOilField(void);
     virtual ~RimOilField(void);
+
+    QString                                                 uniqueShortNameForCase(RimSummaryCase* summaryCase);
 
     caf::PdmChildField<RimEclipseCaseCollection*>           analysisModels;
     caf::PdmChildField<RimGeoMechModels*>                   geoMechModels;
