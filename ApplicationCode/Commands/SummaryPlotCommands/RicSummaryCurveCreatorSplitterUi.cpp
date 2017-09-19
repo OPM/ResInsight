@@ -92,19 +92,19 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
     }
 
 
+    m_lowerLeftLayout->insertWidget(0, getOrCreateCurveTreeWidget(), 1);
+
     {
         caf::PdmUiGroup* group = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::appearance(), uiConfigName);
 
         QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-        m_lowerLeftLayout->insertWidget(0, groupBox);
+        m_lowerLeftLayout->insertWidget(1, groupBox);
 
         const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
         recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
     }
 
-
-    m_lowerLeftLayout->insertWidget(1, getOrCreateCurveTreeWidget());
     
     m_secondRowLayout->insertWidget(1, getOrCreatePlotWidget());
 

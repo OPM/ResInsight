@@ -560,13 +560,14 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 
     // Appearance settings
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Appearance Settings", RicSummaryCurveCreatorUiKeywords::appearance());
-    //appearanceGroup->setCollapsedByDefault(true);
+    appearanceGroup->setCollapsedByDefault(true);
     appearanceGroup->add(&m_useAutoAppearanceAssignment);
     appearanceGroup->add(&m_caseAppearanceType);
     appearanceGroup->add(&m_variableAppearanceType);
     appearanceGroup->add(&m_wellAppearanceType);
     appearanceGroup->add(&m_groupAppearanceType);
     appearanceGroup->add(&m_regionAppearanceType);
+    
     // Appearance option sensitivity
     {
         m_caseAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
@@ -575,7 +576,6 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         m_groupAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
         m_regionAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
     }
-
 
     // Fields to be displayed directly in UI
     uiOrdering.add(&m_createNewPlot);
