@@ -450,10 +450,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicReloadSummaryCaseFeature";
         commandIds << "RicCreateSummaryCaseCollectionFeature";
         commandIds << "Separator";
+        commandIds << "RicCutReferencesToClipboardFeature";
+        commandIds << "Separator";
 		commandIds << "RicCloseSummaryCaseFeature";
         commandIds << "RicCloseSummaryCaseInCollectionFeature";
         commandIds << "RicDeleteSummaryCaseCollectionFeature";
-        commandIds << "RicCutReferencesToClipboardFeature";
 
         // Fracture commands
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
