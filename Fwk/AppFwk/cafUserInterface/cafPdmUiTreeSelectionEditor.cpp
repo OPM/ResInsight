@@ -409,13 +409,11 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    if (m_attributes.highLightField)
+    if (m_attributes.fieldToReceiveCurrentFieldValue)
     {
         QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());
 
-        //m_attributes.highLightField->fieldHandle()->setvalue();
-
-        PdmUiCommandSystemProxy::instance()->setUiValueToField(m_attributes.highLightField, v);
+        PdmUiCommandSystemProxy::instance()->setUiValueToField(m_attributes.fieldToReceiveCurrentFieldValue, v);
     }
 }
 
