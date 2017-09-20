@@ -319,15 +319,19 @@ bool operator != ( T value, const caf::AppEnum<T>& appEnum)
 //==================================================================================================
 
 template < typename T >
-void operator >> (QTextStream& str, caf::AppEnum<T>& appEnum)
+QTextStream& operator >> (QTextStream& str, caf::AppEnum<T>& appEnum)
 {
     QString text;
     str >> text;
     appEnum.setFromText(text);
+
+    return str;
 }
 
 template < typename T >
-void operator << (QTextStream& str, const caf::AppEnum<T>& appEnum)
+QTextStream& operator << (QTextStream& str, const caf::AppEnum<T>& appEnum)
 {
-    str << appEnum.text();  
+    str << appEnum.text();
+
+    return str;
 }

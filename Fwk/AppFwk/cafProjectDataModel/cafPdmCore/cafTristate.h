@@ -46,7 +46,7 @@ protected:
 //==================================================================================================
 // Overload of QTextStream for caf::Triplet
 //==================================================================================================
-void operator >> (QTextStream& str, caf::Tristate& triplet);
-void operator << (QTextStream& str, const caf::Tristate& triplet);
+QTextStream& operator >> (QTextStream& str, caf::Tristate& triplet);
+QTextStream& operator << (QTextStream& str, const caf::Tristate& triplet);
 
 Q_DECLARE_METATYPE(caf::Tristate);
