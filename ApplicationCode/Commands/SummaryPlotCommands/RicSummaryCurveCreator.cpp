@@ -439,7 +439,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", RicSummaryCurveCreatorUiKeywords::sources());
     sourcesGroup->add(&m_selectedCases);
 
-    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword("Identifier Types", RicSummaryCurveCreatorUiKeywords::summaryTypes());
+    caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword("Summary Types", RicSummaryCurveCreatorUiKeywords::summaryTypes());
     itemTypesGroup->add(&m_selectedSummaryCategory);
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
