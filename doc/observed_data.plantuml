@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+
+RigSummaryCaseData *-- "1" RifSummaryReaderInterface
+RimSummaryCase *-- "1" RigSummaryCaseData
+
+RifSummaryReaderInterface <|-- RifReaderEclipseSummary
+RifSummaryReaderInterface <|-- RifReaderObservedData
+
+RifReaderObservedData *-- "N" RifColumnBasedAsciiParser
+
+RimSummaryCase <|-- RimFileSummaryCase
+RimSummaryCase <|-- RimObservedData
+
+RimObservedData <|-- RimSummaryObservedDataFile
+
+
+@enduml
