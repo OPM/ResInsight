@@ -407,13 +407,17 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
+void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
 {
-    if (m_attributes.fieldToReceiveCurrentFieldValue)
+    if (m_attributes.fieldToReceiveCurrentItemValue)
     {
-        QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());
+        PdmUiFieldHandle* uiFieldHandle = m_attributes.fieldToReceiveCurrentItemValue->uiCapability();
+        if (uiFieldHandle)
+        {
+            QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());
 
-        PdmUiCommandSystemProxy::instance()->setUiValueToField(m_attributes.fieldToReceiveCurrentFieldValue, v);
+            PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, v);
+        }
     }
 }
 
