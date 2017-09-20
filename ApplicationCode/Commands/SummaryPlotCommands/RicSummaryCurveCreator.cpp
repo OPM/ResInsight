@@ -121,7 +121,9 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
 })
 {
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors", "", "", "");
 
@@ -194,8 +196,10 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_selectedCases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_currentSummaryCategory.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_currentSummaryCategory.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedSummaryCategories.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_selectedSummaryCategories.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    m_currentSummaryCategory.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
     m_applyButtonField = false;
@@ -400,6 +404,14 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
             summaryPlotColl->summaryPlotItemInfos(&options);
         }
     }
+    else if (fieldNeedingOptions == &m_selectedSummaryCategories)
+    {
+        for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiTextFromIndex(i),
+                                                     caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i)));
+        }
+    }
     else
     {
         // Lookup item type input field
@@ -434,7 +446,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     sourcesGroup->add(&m_selectedCases);
 
     caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword("Summary Types", RicSummaryCurveCreatorUiKeywords::summaryTypes());
-    itemTypesGroup->add(&m_currentSummaryCategory);
+    itemTypesGroup->add(&m_selectedSummaryCategories);
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
 
@@ -970,14 +982,29 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
             attrib->m_buttonText = "Apply";
         }
     }
+    else if (&m_selectedSummaryCategories == field)
+    {
+        caf::PdmUiTreeSelectionEditorAttribute* attrib = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->fieldToReceiveCurrentItemValue = &m_currentSummaryCategory;
+            attrib->showTextFilter = false;
+            attrib->showToggleAllCheckbox = false;
+        }
+    }
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Populate curve creator from the given curve collection
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot)
 {
+    m_selectedSummaryCategories.v().clear();
+    for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
+    {
+        m_selectedSummaryCategories.v().push_back(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i));
+    }
+
     m_previewPlot->deleteAllSummaryCurves();
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
