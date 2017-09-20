@@ -85,6 +85,14 @@ namespace caf
 ///    for (size_t i = 0; i < caf::AppEnum<SomeClass::SomeEnumType>::size(); ++i)
 ///        cout << caf::AppEnum<SomeClass::SomeEnumType>::text(caf::AppEnum<SomeClass::SomeEnumType>::fromIndex(i)) << endl;
 ///
+///
+///
+///   Create a list of OptionItemInfos from AppEnum
+///     QList<caf::PdmOptionItemInfo> options;
+///     for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
+///     {     
+///         options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i), caf::AppEnum<TestEnumType>::fromIndex(i)));
+///     }
 //==================================================================================================
 
 template <class T>
