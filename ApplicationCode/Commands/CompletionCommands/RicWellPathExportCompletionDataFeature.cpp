@@ -736,7 +736,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                                                                                                         cell.internalCellLengths,
                                                                                                         interval->skinFactor(),
                                                                                                         interval->diameter(unitSystem) / 2,
-                                                                                                        cell.cellIndex);
+                                                                                                        cell.cellIndex,
+                                                                                                        settings.useLateralNTG);
               
 
 
@@ -1001,6 +1002,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
                                                                          double skinFactor, 
                                                                          double wellRadius, 
                                                                          size_t cellIndex,
+                                                                         bool useLateralNTG,
                                                                          size_t volumeScaleConstant,
                                                                          CellDirection directionForVolumeScaling)
 {
@@ -1020,6 +1022,15 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
     cvf::ref<RigResultAccessor> permzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
 
+    double ntg = 1.0;
+    size_t ntgResIdx =  eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+    if (ntgResIdx != cvf::UNDEFINED_SIZE_T)
+    {
+        cvf::ref<RigResultAccessor> ntgAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
+        ntg = ntgAccessObject->cellScalarGlobIdx(cellIndex);
+    }
+    double latNtg = useLateralNTG ? ntg : 1.0;
+
     double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
     double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
     double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
@@ -1036,9 +1047,9 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibility(RimEcli
         if (directionForVolumeScaling == CellDirection::DIR_K) dz = dz / volumeScaleConstant;
     }
 
-    double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x(), permy, permz, dy, dz, wellRadius, skinFactor, darcy);
-    double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.y(), permx, permz, dx, dz, wellRadius, skinFactor, darcy);
-    double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.z(), permy, permx, dy, dx, wellRadius, skinFactor, darcy);
+    double transx = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.x() * latNtg, permy, permz, dy, dz, wellRadius, skinFactor, darcy);
+    double transy = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.y() * latNtg, permx, permz, dx, dz, wellRadius, skinFactor, darcy);
+    double transz = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(internalCellLengths.z() * ntg, permy, permx, dy, dx, wellRadius, skinFactor, darcy);
 
     return RigTransmissibilityEquations::totalConnectionFactor(transx, transy, transz);
 }
@@ -1069,6 +1080,14 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclips
     eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "PERMZ");
     cvf::ref<RigResultAccessor> permzAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "PERMZ");
 
+    double ntg = 1.0;
+    size_t ntgResIdx =  eclipseCase->results(RiaDefines::MATRIX_MODEL)->findOrLoadScalarResult(RiaDefines::STATIC_NATIVE, "NTG");
+    if (ntgResIdx != cvf::UNDEFINED_SIZE_T)
+    {
+        cvf::ref<RigResultAccessor> ntgAccessObject = RigResultAccessorFactory::createFromUiResultName(eclipseCaseData, 0, RiaDefines::MATRIX_MODEL, 0, "NTG");
+        ntg = ntgAccessObject->cellScalarGlobIdx(cellIndex);
+    }
+
     double dx = dxAccessObject->cellScalarGlobIdx(cellIndex);
     double dy = dyAccessObject->cellScalarGlobIdx(cellIndex);
     double dz = dzAccessObject->cellScalarGlobIdx(cellIndex);
@@ -1090,7 +1109,7 @@ double RicWellPathExportCompletionDataFeature::calculateTransmissibilityAsEclips
     }
     else if (direction == CellDirection::DIR_K)
     {
-        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(dz, permy, permx, dy, dx, wellRadius, skinFactor, darcy);
+        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent(dz * ntg, permy, permx, dy, dx, wellRadius, skinFactor, darcy);
     }
 
     return trans;

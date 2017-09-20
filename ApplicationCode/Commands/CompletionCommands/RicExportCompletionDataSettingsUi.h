@@ -60,7 +60,7 @@ public:
     caf::PdmField<WellSelectionType>        wellSelection;
     caf::PdmField<CompdatExportType>        compdatExport;
 
-
+    caf::PdmField<bool>                     useLateralNTG;
     caf::PdmField<bool>                     includePerforations;
     caf::PdmField<bool>                     includeFishbones;
 

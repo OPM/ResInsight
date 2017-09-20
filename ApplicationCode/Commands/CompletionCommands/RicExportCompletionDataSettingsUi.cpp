@@ -69,6 +69,8 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi(bool onlyWe
     CAF_PDM_InitFieldNoDefault(&compdatExport, "compdatExport", "Export", "", " ", "");
 
     CAF_PDM_InitField(&timeStep, "TimeStepIndex", 0, "Time Step", "", "", "");
+    
+    CAF_PDM_InitField(&useLateralNTG, "UseLateralNTG", false, "Use NTG Horizontally", "", "", "");
 
     CAF_PDM_InitField(&includePerforations, "IncludePerforations", true, "Include Perforations", "", "", "");
     CAF_PDM_InitField(&includeFishbones, "IncludeFishbones", true, "Include Fishbones", "", "", "");
@@ -167,7 +169,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering(QString uiConfigName, c
     generalExportSettings->add(&folder);
     generalExportSettings->add(&caseToApply);
     generalExportSettings->add(&compdatExport);
-    
+    generalExportSettings->add(&useLateralNTG);
+
     generalExportSettings->add(&wellSelection);
     if(!m_onlyWellPathCollectionSelected) wellSelection.setValue(SELECTED_WELLS);
 

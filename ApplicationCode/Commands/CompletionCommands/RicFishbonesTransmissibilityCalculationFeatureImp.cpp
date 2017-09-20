@@ -128,7 +128,8 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                                                             wellBorePart.lengthsInCell,
                                                                                                             wellBorePart.skinFactor,
                                                                                                             wellBorePart.wellRadius,
-                                                                                                            cellIndex);
+                                                                                                            cellIndex,
+                                                                                                            settings.useLateralNTG);
 
             }
             else
@@ -140,6 +141,7 @@ std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp
                                                                                                      wellBorePart.skinFactor,
                                                                                                      wellBorePart.wellRadius,
                                                                                                      cellIndex,
+                                                                                                     settings.useLateralNTG,
                                                                                                      numberOfLaterals,
                                                                                                      mainBoreDirection);
 

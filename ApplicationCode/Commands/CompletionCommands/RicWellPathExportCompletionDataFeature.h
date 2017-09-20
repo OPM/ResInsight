@@ -148,6 +148,7 @@ public:
                                                                            double skinFactor, 
                                                                            double wellRadius, 
                                                                            size_t cellIndex, 
+                                                                           bool useLateralNTG, 
                                                                            size_t volumeScaleConstant = 1, 
                                                                            CellDirection directionForVolumeScaling = CellDirection::DIR_I);
     static double                                calculateTransmissibilityAsEclipseDoes(RimEclipseCase* eclipseCase,
