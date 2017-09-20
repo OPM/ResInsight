@@ -33,11 +33,11 @@ double RigTransmissibilityEquations::peacemanRadius(double permeabilityNormalDir
                                                     double cellSizeNormalDirection2)
 {
     double numerator = cvf::Math::sqrt(
-                       pow(cellSizeNormalDirection2, 2) * pow(permeabilityNormalDirection1 / permeabilityNormalDirection2, 1 / 2)
-                     + pow(cellSizeNormalDirection1, 2) * pow(permeabilityNormalDirection2 / permeabilityNormalDirection1, 1 / 2));
+                       pow(cellSizeNormalDirection2, 2.0) * pow(permeabilityNormalDirection1 / permeabilityNormalDirection2, 0.5)
+                     + pow(cellSizeNormalDirection1, 2.0) * pow(permeabilityNormalDirection2 / permeabilityNormalDirection1, 0.5) );
 
-    double denominator = pow((permeabilityNormalDirection1 / permeabilityNormalDirection2), 1 / 4)
-                       + pow((permeabilityNormalDirection2 / permeabilityNormalDirection1), 1 / 4);
+    double denominator = pow((permeabilityNormalDirection1 / permeabilityNormalDirection2), 0.25 )
+                       + pow((permeabilityNormalDirection2 / permeabilityNormalDirection1), 0.25 );
 
     double r0 = 0.28 * numerator / denominator;
 
@@ -77,6 +77,6 @@ double RigTransmissibilityEquations::wellBoreTransmissibilityComponent(double ce
 double RigTransmissibilityEquations::totalConnectionFactor(double transX, double transY, double transZ)
 {
     return  cvf::Math::sqrt(
-        pow(transX, 2.0) + pow(transY, 2.0) + pow(transZ, 2));
+        pow(transX, 2.0) + pow(transY, 2.0) + pow(transZ, 2.0));
 }
 
