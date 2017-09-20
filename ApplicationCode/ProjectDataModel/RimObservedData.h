@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,41 +18,29 @@
 
 #pragma once
 
+#include "RimSummaryCase.h"
+
+#include "RifEclipseSummaryAddress.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
+#include "cvfObject.h"
 
-class RimSummaryPlot;
-class RimSummaryPlotCollection;
 
 //==================================================================================================
-/// 
+//
 //==================================================================================================
-class RicSelectSummaryPlotUI : public caf::PdmObject
+class RimObservedData : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
-
 public:
-    RicSelectSummaryPlotUI();
+    RimObservedData();
 
-    void            setDefaultSummaryPlot(RimSummaryPlot* summaryPlot);
-    void            setSuggestedPlotName(const QString& name);
-
-    RimSummaryPlot* selectedSummaryPlot() const;
-    bool            isCreateNewPlotChecked() const;
-    QString         newPlotName() const;
-    
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
-
-protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual QString        summaryHeaderFilename() const  override;
+    virtual QString        caseName() override;
+    virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
 private:
-    static RimSummaryPlotCollection* summaryPlotCollection();
-
-private:
-    caf::PdmPtrField<RimSummaryPlot*>   m_selectedSummaryPlot;
-    caf::PdmField<bool>                 m_createNewPlot;
-    caf::PdmField<QString>              m_newSummaryPlotName;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >  m_summaryCategory;
+    caf::PdmField<QString>                                                      m_identifierName;
 };
-

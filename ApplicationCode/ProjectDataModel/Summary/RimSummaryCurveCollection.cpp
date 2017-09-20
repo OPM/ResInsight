@@ -179,6 +179,14 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::deleteAllCurves()
+{
+    m_curves.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::updateCaseNameHasChanged()
 {
     for (RimSummaryCurve* curve : m_curves)

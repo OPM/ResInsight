@@ -453,21 +453,23 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryPlot::summaryCurves() const
 {
-    std::vector<RimSummaryCurve*> curves;
-    curves.reserve(m_summaryCurves.size());
-    for (const auto& curve : m_summaryCurveCollection->curves())
-    {
-        curves.push_back(curve);
-    }
-    return curves;
+    return m_summaryCurveCollection->curves();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::deleteAllCurves()
+void RimSummaryPlot::deleteAllSummaryCurves()
 {
-    m_summaryCurveCollection->curves().clear();
+    m_summaryCurveCollection->deleteAllCurves();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
+{
+    return m_summaryCurveCollection(); 
 }
 
 //--------------------------------------------------------------------------------------------------

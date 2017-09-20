@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,79 +16,46 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditSummaryCurves.h"
+#include "RimObservedData.h"
+#include "RimTools.h"
 
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
+#include <QFileInfo>
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
-
-#include "cafPdmUiPropertyViewDialog.h"
-
-#include <QAction>
-
-#include "cvfAssert.h"
-#include "cafSelectionManager.h"
-
-
-CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
+CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::closeDialogAndResetTargetPlot()
+RimObservedData::RimObservedData()
 {
-    if (m_dialogWithSplitter && m_dialogWithSplitter->isVisible())
-    {
-        m_dialogWithSplitter->hide();
-    }
+    m_isObservedData = true;
 
-    if (m_curveCreator)
-    {
-        m_curveCreator->updateFromSummaryPlot(nullptr);
-    }
+    CAF_PDM_InitFieldNoDefault(&m_summaryCategory, "SummaryType", "Summary Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_identifierName, "IdentifierName", "Identifier Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurves::isCommandEnabled()
+QString RimObservedData::summaryHeaderFilename() const
 {
-    return true;
+    return m_summaryHeaderFilename();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::onActionTriggered(bool isChecked)
+QString RimObservedData::caseName()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
+    QFileInfo caseFileName(this->summaryHeaderFilename());
 
-	if (m_curveCreator == nullptr)
-	{
-		m_curveCreator = new RicSummaryCurveCreator();
-		m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, m_curveCreator);
-	}
-
-    if (!m_dialogWithSplitter->isVisible())
-        m_dialogWithSplitter->show();
-
-    // Set target plot
-    std::vector<RimSummaryPlot*> plots;
-    caf::SelectionManager::instance()->objectsByType(&plots);
-    if (plots.size() == 1)
-    {
-        m_curveCreator->updateFromSummaryPlot(plots.front());
-    }
+    return caseFileName.completeBaseName();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::setupActionLook(QAction* actionToSetup)
+void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
 {
-    actionToSetup->setText("Edit Summary Curves");
-    //actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }

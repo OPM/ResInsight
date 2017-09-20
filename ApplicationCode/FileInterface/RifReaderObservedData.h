@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 
 #pragma once
 
@@ -35,11 +36,11 @@ class QDateTime;
 //
 //
 //==================================================================================================
-class RifReaderEclipseSummary : public RifSummaryReaderInterface
+class RifReaderObservedData : public RifSummaryReaderInterface
 {
 public:
-    RifReaderEclipseSummary();
-    ~RifReaderEclipseSummary();
+    RifReaderObservedData();
+    ~RifReaderObservedData();
 
     virtual bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames) override;
 
@@ -53,12 +54,6 @@ private:
 
     virtual void                                         buildMetaData() override;
 private:
-    // Taken from ecl_sum.h
-    typedef struct ecl_sum_struct    ecl_sum_type;
-    typedef struct ecl_smspec_struct ecl_smspec_type;
 
-    ecl_sum_type*               m_ecl_sum;
-    const ecl_smspec_type *     m_ecl_SmSpec;
-    std::vector<time_t>         m_timeSteps;
 };
 

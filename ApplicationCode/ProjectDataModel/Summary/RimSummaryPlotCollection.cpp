@@ -130,3 +130,17 @@ void RimSummaryPlotCollection::updateSummaryNameHasChanged()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotCollection::summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const
+{
+    for (RimSummaryPlot* plot : summaryPlots())
+    {
+        QIcon icon = plot->uiCapability()->uiIcon();
+        QString displayName = plot->description();
+
+        optionInfos->push_back(caf::PdmOptionItemInfo(displayName, plot, false, icon));
+    }
+}
+

@@ -80,9 +80,10 @@ public:
     void                            setSymbol(PointSymbolEnum symbolStyle);
     void                            setSymbolSkipDinstance(float distance);
     void                            setLineThickness(int thickness);
-
+    void                            resetAppearance();
     bool                            isCurveVisible() const;
-    
+    void                            setCurveVisiblity(bool visible);
+
     void                            updateCurveName();
     QString                         curveName() const { return m_curveName; }
 

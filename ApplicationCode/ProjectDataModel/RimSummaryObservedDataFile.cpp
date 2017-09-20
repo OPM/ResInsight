@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,37 +16,39 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RimSummaryObservedDataFile.h"
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorSplitterUi.h"
+#include "RigObservedData.h"
+#include "RimTools.h"
 
-#include <QVBoxLayout>
+#include <QFileInfo>
+
+CAF_PDM_SOURCE_INIT(RimSummaryObservedDataFile, "SummaryObservedDataFile");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator)
-    : QDialog(parent)
+RimSummaryObservedDataFile::RimSummaryObservedDataFile()
 {
-    m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi(this);
-
-    QWidget* propertyWidget = m_curveCreatorSplitterUi->getOrCreateWidget(this);
-
-    QVBoxLayout* dummy = new QVBoxLayout(this);
-    dummy->setContentsMargins(0, 0, 0, 0);
-    dummy->addWidget(propertyWidget);
-
-    m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
-    m_curveCreatorSplitterUi->updateUi();
-
-    connect(m_curveCreatorSplitterUi, SIGNAL(signalCloseButtonPressed()), this, SLOT(accept()));
+    CAF_PDM_InitObject("Observed data file", ":/Default.png", "", "");
+    m_summaryHeaderFilename.uiCapability()->setUiName("File");
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
+RimSummaryObservedDataFile::~RimSummaryObservedDataFile()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryObservedDataFile::setSummaryHeaderFilename(const QString& fileName)
+{
+    m_summaryHeaderFilename = fileName;
+
+    this->updateAutoShortName();
+    this->updateTreeItemName();
 }

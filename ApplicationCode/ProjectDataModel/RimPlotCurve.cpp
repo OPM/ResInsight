@@ -275,6 +275,14 @@ bool RimPlotCurve::isCurveVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setCurveVisiblity(bool visible)
+{
+    m_showCurve = visible;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveName()
 {
     if (m_isUsingAutoName)
@@ -470,6 +478,18 @@ void RimPlotCurve::setSymbolSkipDinstance(float distance)
 void RimPlotCurve::setLineThickness(int thickness)
 {
     m_curveThickness = thickness;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::resetAppearance()
+{
+    setColor(cvf::Color3f(cvf::Color3::BLACK));
+    setLineThickness(2);
+    setLineStyle(STYLE_SOLID);
+    setSymbol(SYMBOL_NONE);
+    setSymbolSkipDinstance(10);
 }
 
 //--------------------------------------------------------------------------------------------------

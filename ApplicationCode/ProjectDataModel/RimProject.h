@@ -38,7 +38,8 @@ class RimDialogData;
 class RimEclipseCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
-class RimMultiSnapshotDefinition;
+class RimMultiSnapshotDefinition; 
+class RimObservedData;
 class RimOilField;
 class RimScriptCollection;
 class RimSummaryCase;
@@ -94,6 +95,7 @@ public:
 
     void            allCases(std::vector<RimCase*>& cases);
     void            allSummaryCases(std::vector<RimSummaryCase*>& sumCases);
+    void            allObservedData(std::vector<RimObservedData*>& observedData);
     void            allNotLinkedViews(std::vector<RimView*>& views);
     void            allVisibleViews(std::vector<RimView*>& views);
 
@@ -101,8 +103,9 @@ public:
 
     void            computeUtmAreaOfInterest();
 
-    RimOilField*       activeOilField();
-    const RimOilField* activeOilField() const;
+    void                allOilFields(std::vector<RimOilField*>& oilFields);
+    RimOilField*        activeOilField();
+    const RimOilField*  activeOilField() const;
 
     void            actionsBasedOnSelection(QMenu& contextMenu);
 

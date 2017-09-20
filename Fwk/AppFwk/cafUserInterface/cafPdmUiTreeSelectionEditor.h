@@ -38,12 +38,45 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QAbstractItemModel>
+
 class QLabel;
 class QTreeView;
 class QAbstractItemModel;
+class QCheckBox;
+class QLineEdit;
+class QSortFilterProxyModel;
+class QModelIndex;
+class QItemSelection;
 
 namespace caf
 {
+class PdmUiTreeSelectionQModel;
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    bool showTextFilter;
+    bool showToggleAllCheckbox;
+
+    /// fieldToReceiveCurrentFieldValue is used to communicate the value of current item in the tree view
+    /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on 
+    /// the current item in the tree view
+    /// Make sure the type of the receiving field is of the same type as the field used in PdmUiTreeSelectionEditor
+    caf::PdmFieldHandle* fieldToReceiveCurrentItemValue;
+
+public:
+    PdmUiTreeSelectionEditorAttribute()
+    {
+        showTextFilter = true;
+        showToggleAllCheckbox = true;
+
+        fieldToReceiveCurrentItemValue = nullptr;
+    }
+};
 
 //==================================================================================================
 /// 
@@ -54,16 +87,15 @@ class PdmUiTreeSelectionEditor : public PdmUiFieldEditorHandle
     CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
 
 public:
-    PdmUiTreeSelectionEditor(); 
-    virtual ~PdmUiTreeSelectionEditor(); 
+    PdmUiTreeSelectionEditor();
+    virtual ~PdmUiTreeSelectionEditor();
 
 protected:
-    virtual QWidget*    createEditorWidget(QWidget * parent);
-    virtual QWidget*    createLabelWidget(QWidget * parent);
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    virtual QWidget*    createEditorWidget(QWidget* parent);
+    virtual QWidget*    createLabelWidget(QWidget* parent);
 
 private slots:
-    void                slotSetSelectionStateForIndex(int index, bool setSelected);
     void                customMenuRequested(const QPoint& pos);
 
     void                slotSetSelectedOn();
@@ -71,14 +103,30 @@ private slots:
     void                slotSetSubItemsOn();
     void                slotSetSubItemsOff();
 
-private:
-    std::vector<int>    selectedCheckableItems() const;
-    std::vector<int>    selectedHeaderItems() const;
-    void                setSelectionStateForIndices(const std::vector<int>& indices, bool setSelected);
+    void                slotToggleAll();
+
+    void                slotTextFilterChanged();
+
+    void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
 
 private:
-    QPointer<QTreeView> m_treeView;
-    QPointer<QLabel>    m_label;
+    void                checkAllItems();
+    void                unCheckAllItems();
+
+    QModelIndexList     allVisibleSourceModelIndices() const;
+    void                recursiveAppendVisibleSourceModelIndices(const QModelIndex& parent,
+                                                                 QModelIndexList* sourceModelIndices) const;
+
+private:
+    QPointer<QTreeView>         m_treeView;
+    QPointer<QLabel>            m_label;
+    QPointer<QCheckBox>         m_toggleAllCheckBox;
+    QPointer<QLineEdit>         m_textFilterLineEdit;
+
+    PdmUiTreeSelectionQModel*   m_model;
+    QSortFilterProxyModel*      m_proxyModel;
+
+    PdmUiTreeSelectionEditorAttribute m_attributes;
 };
 
 } // end namespace caf

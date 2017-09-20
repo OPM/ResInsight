@@ -60,7 +60,7 @@ public:
 
     std::vector<RimSummaryCurve*>           curves();
     void                                    deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase);
-
+    void                                    deleteAllCurves();
     void                                    updateCaseNameHasChanged();
 
 private:

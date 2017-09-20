@@ -191,6 +191,9 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
     return "";
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::formatUiTextIJK() const
 {
     return std::to_string(this->cellI()) + ", "
@@ -198,7 +201,9 @@ std::string RifEclipseSummaryAddress::formatUiTextIJK() const
         + std::to_string(this->cellK());
 }
 
-// todo: Make class member
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText(const std::string &s)
 {
     auto firstSep = s.find(',');

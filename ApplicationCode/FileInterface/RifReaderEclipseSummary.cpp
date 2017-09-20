@@ -234,16 +234,6 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode(const smspec_node_type * ertSu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RifEclipseSummaryAddress>& RifReaderEclipseSummary::allResultAddresses() 
-{
-    buildMetaData();
-
-    return m_allResultAddresses;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseSummary::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values)
 {
     assert(m_ecl_sum != NULL);
@@ -296,38 +286,6 @@ const std::vector<time_t>& RifReaderEclipseSummary::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RifReaderEclipseSummary::fromTimeT(const std::vector<time_t>& timeSteps)
-{
-    std::vector<QDateTime> a;
-
-    for (size_t i = 0; i < timeSteps.size(); i++)
-    {
-        QDateTime dt = QDateTime::fromTime_t(timeSteps[i]);
-        a.push_back(dt);
-    }
-
-    return a;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& resultAddress)
-{
-    this->buildMetaData();
-
-    auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
-    if (it != m_resultAddressToErtNodeIdx.end())
-    {
-        return it->second;
-    }
- 
-    return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::buildMetaData()
 {
     if(m_allResultAddresses.size() == 0 && m_ecl_SmSpec)
@@ -343,17 +301,6 @@ void RifReaderEclipseSummary::buildMetaData()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseSummary::hasAddress(const RifEclipseSummaryAddress& resultAddress)
-{
-    this->buildMetaData();
-
-    auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
-
-    return (it != m_resultAddressToErtNodeIdx.end());
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

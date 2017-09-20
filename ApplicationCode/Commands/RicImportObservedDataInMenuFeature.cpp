@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2017 Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,44 +16,34 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditSummaryCurves.h"
+#include "RicImportObservedDataInMenuFeature.h"
 
 #include "RiaApplication.h"
-#include "RiaPreferences.h"
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RicImportObservedDataFeature.h"
 
-#include "cafPdmUiPropertyViewDialog.h"
+#include "RimObservedDataCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSummaryObservedDataFile.h"
 
 #include <QAction>
-
-#include "cvfAssert.h"
-#include "cafSelectionManager.h"
+#include <QFileDialog>
 
 
-CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
+CAF_CMD_SOURCE_INIT(RicImportObservedDataInMenuFeature, "RicImportObservedDataInMenuFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::closeDialogAndResetTargetPlot()
+RicImportObservedDataInMenuFeature::RicImportObservedDataInMenuFeature()
 {
-    if (m_dialogWithSplitter && m_dialogWithSplitter->isVisible())
-    {
-        m_dialogWithSplitter->hide();
-    }
-
-    if (m_curveCreator)
-    {
-        m_curveCreator->updateFromSummaryPlot(nullptr);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurves::isCommandEnabled()
+bool RicImportObservedDataInMenuFeature::isCommandEnabled()
 {
     return true;
 }
@@ -61,34 +51,17 @@ bool RicEditSummaryCurves::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::onActionTriggered(bool isChecked)
+void RicImportObservedDataInMenuFeature::onActionTriggered(bool isChecked)
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-	if (m_curveCreator == nullptr)
-	{
-		m_curveCreator = new RicSummaryCurveCreator();
-		m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, m_curveCreator);
-	}
-
-    if (!m_dialogWithSplitter->isVisible())
-        m_dialogWithSplitter->show();
-
-    // Set target plot
-    std::vector<RimSummaryPlot*> plots;
-    caf::SelectionManager::instance()->objectsByType(&plots);
-    if (plots.size() == 1)
-    {
-        m_curveCreator->updateFromSummaryPlot(plots.front());
-    }
+    RicImportObservedDataFeature::selectObservedDataFileInDialog();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::setupActionLook(QAction* actionToSetup)
+void RicImportObservedDataInMenuFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Edit Summary Curves");
-    //actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setIcon(QIcon(":/Default.png"));
+    actionToSetup->setText("Import Observed Data");
 }
+

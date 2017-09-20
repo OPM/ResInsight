@@ -75,7 +75,10 @@ public:
     virtual ~RicSummaryCurveCreator();
 
     RimSummaryPlot*                         previewPlot() { return m_previewPlot;}
-    void                                    setTargetPlot(RimSummaryPlot* targetPlot);
+    void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot);
+
+    bool                                    isCloseButtonPressed() const;
+    void                                    clearCloseButton();
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
@@ -83,42 +86,62 @@ private:
                                                              const QVariant& newValue);
     virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                                  caf::PdmUiEditorAttribute* attribute) override;
 
 
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField);
     std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
-    SummaryIdentifierAndField*              findIdentifierAndField(const caf::PdmFieldHandle* pdmFieldHandle);
-    SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *identifierAndField);
-    bool                                    isAddressSelected(const RifEclipseSummaryAddress &address, 
+    SummaryIdentifierAndField*              lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle);
+    SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *dependentField);
+    bool                                    isAddressCompatibleWithControllingFieldSelection(const RifEclipseSummaryAddress &address, 
                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
     std::set<RifEclipseSummaryAddress>      buildAddressListFromSelections();
-    void                                    addSelectionAddress(RifEclipseSummaryAddress::SummaryVarCategory category,
+    void                                    buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                 std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                 std::set<RifEclipseSummaryAddress>& addressSet,
                                                                 std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath);
 
     void                                    loadDataAndUpdatePlot();
-    void                                    syncCurvesFromUiSelection();
-    void                                    updateCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
-                                                                             const std::set<RimSummaryCurve*>& curvesToDelete);
+    void                                    syncPreviewCurvesFromUiSelection();
+    void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& allCurveDefsToDisplay, 
+                                                                                    const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+                                                                                    const std::set<RimSummaryCurve*>& curvesToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
 
     void                                    populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot);
     void                                    updateTargetPlot();
+    static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
 
+    void                                    resetAllFields();
+    void                                    updateEditorsConnectedToPreviewPlot();
+    void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);
+    void                                    applyAppearanceToAllPreviewCurves();
+    void                                    updateAppearanceEditor();
+    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>>
+                                            allPreviewCurveDefs() const;
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
+
+    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>>              m_selectedSummaryCategories;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_currentSummaryCategory;
+    
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
-    caf::PdmChildField<RimSummaryPlot*>                                                                 m_previewPlot;
+    
+    RimSummaryPlot*                                                                                     m_previewPlot;
 
     caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
+    caf::PdmField<bool>                                                                                 m_appearanceApplyButton;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_caseAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_variableAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_wellAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_regionAppearanceType;
+
+    caf::PdmField<bool> m_createNewPlot;
+    caf::PdmField<bool> m_applyButtonField;
+    caf::PdmField<bool> m_closeButtonField;
 };

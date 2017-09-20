@@ -15,6 +15,8 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.h
 ${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
+${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.h
+${CEE_CURRENT_LIST_DIR}RifReaderObservedData.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.h
 ${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.h
 ${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
@@ -45,6 +47,8 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RifPerforationIntervalReader.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
+${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.cpp
+${CEE_CURRENT_LIST_DIR}RifReaderObservedData.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.cpp
 ${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderInterface.cpp

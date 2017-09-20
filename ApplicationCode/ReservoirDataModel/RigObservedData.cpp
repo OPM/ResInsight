@@ -16,37 +16,31 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCreatorDialog.h"
+#include "RigObservedData.h"
 
-#include "RicSummaryCurveCreator.h"
-#include "RicSummaryCurveCreatorSplitterUi.h"
-
-#include <QVBoxLayout>
+#include <QDir>
+#include <QString>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator)
-    : QDialog(parent)
+RigObservedData::RigObservedData(const QString& observedDataFileName)
 {
-    m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi(this);
-
-    QWidget* propertyWidget = m_curveCreatorSplitterUi->getOrCreateWidget(this);
-
-    QVBoxLayout* dummy = new QVBoxLayout(this);
-    dummy->setContentsMargins(0, 0, 0, 0);
-    dummy->addWidget(propertyWidget);
-
-    m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
-    m_curveCreatorSplitterUi->updateUi();
-
-    connect(m_curveCreatorSplitterUi, SIGNAL(signalCloseButtonPressed()), this, SLOT(accept()));
+    openOrReloadCase(observedDataFileName);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
+RigObservedData::~RigObservedData()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigObservedData::openOrReloadCase(const QString& observedDataFileName)
 {
 
 }

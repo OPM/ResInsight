@@ -35,9 +35,9 @@
 #include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFault.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
-#include "RimFlowCharacteristicsPlot.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
@@ -48,6 +48,7 @@
 #include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimIntersectionCollection.h"
+#include "RimObservedData.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -322,7 +323,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimSummaryCase*>(uiItem))
         {
-            commandIds << "RicNewSummaryPlotFeature";
+            if (!dynamic_cast<RimObservedData*>(uiItem))
+            {
+                commandIds << "RicNewSummaryPlotFeature";
+            }
         }
         else if (dynamic_cast<RimWellLogFileChannel*>(uiItem))
         {
@@ -445,14 +449,16 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicFlyToObjectFeature";
         commandIds << "RicExportCarfin";
 
+        commandIds << "RicImportObservedDataFeature";
         commandIds << "RicPasteSummaryCaseFeature";
         commandIds << "RicReloadSummaryCaseFeature";
         commandIds << "RicCreateSummaryCaseCollectionFeature";
         commandIds << "Separator";
+        commandIds << "RicCutReferencesToClipboardFeature";
+        commandIds << "Separator";
 		commandIds << "RicCloseSummaryCaseFeature";
         commandIds << "RicCloseSummaryCaseInCollectionFeature";
         commandIds << "RicDeleteSummaryCaseCollectionFeature";
-        commandIds << "RicCutReferencesToClipboardFeature";
 
         // Fracture commands
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES

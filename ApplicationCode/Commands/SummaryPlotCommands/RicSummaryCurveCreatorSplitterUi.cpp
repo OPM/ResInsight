@@ -20,6 +20,9 @@
 
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorUiKeywords.h"
+
+#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiTreeView.h"
 
@@ -29,7 +32,8 @@
 #include <QSplitter>
 #include <QFrame>
 #include <QTreeView>
-
+#include "RimSummaryPlot.h"
+#include "RimSummaryCurveCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -51,6 +55,17 @@ RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
 {
+    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
+    if (sumCurveCreator)
+    {
+        if (sumCurveCreator->isCloseButtonPressed())
+        {
+            sumCurveCreator->clearCloseButton();
+
+            emit signalCloseButtonPressed();
+        }
+    }
+
     if (!m_layout) return;
 
     int splitterPositionIndex = 0;
@@ -77,24 +92,26 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
     }
 
 
+    m_lowerLeftLayout->insertWidget(0, getOrCreateCurveTreeWidget(), 1);
+
     {
         caf::PdmUiGroup* group = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::appearance(), uiConfigName);
 
         QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
 
-        m_lowerLeftLayout->insertWidget(0, groupBox);
+        m_lowerLeftLayout->insertWidget(1, groupBox);
 
         const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
         recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
     }
 
-
-    m_lowerLeftLayout->insertWidget(1, getOrCreateCurveTreeWidget());
     
     m_secondRowLayout->insertWidget(1, getOrCreatePlotWidget());
 
-    // NB! Only groups at top level are handled, fields at top level are not added to layout
 
+    // Fields at bottom of dialog
+
+    configureAndUpdateFields(1, m_bottomFieldLayout, topLevelUiItems, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,6 +141,10 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
     m_firstColumnSplitter->insertWidget(1, secondRowFrame);
 
     m_layout->addWidget(m_firstColumnSplitter);
+
+    m_bottomFieldLayout = new QHBoxLayout;
+    m_layout->addLayout(m_bottomFieldLayout);
+    m_bottomFieldLayout->insertStretch(0, 1);
 
     return widget;
 }
@@ -167,7 +188,8 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
         RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
         if (sumCurveCreator)
         {
-            curveTreeView->setPdmItem(sumCurveCreator->previewPlot());
+            RimSummaryCurveCollection* sumColl = sumCurveCreator->previewPlot()->summaryCurveCollection();
+            curveTreeView->setPdmItem(sumColl);
         }
 
         curveTreeView->treeView()->setHeaderHidden(true);
@@ -192,3 +214,72 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreatePlotWidget()
     return nullptr;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorSplitterUi::configureAndUpdateFields(int widgetStartIndex, 
+                                                                QBoxLayout* layout,
+                                                                const std::vector<caf::PdmUiItem *>& uiItems,
+                                                                const QString& uiConfigName)
+{
+    int currentWidgetIndex = widgetStartIndex;
+
+    for (size_t i = 0; i < uiItems.size(); ++i)
+    {
+        if (uiItems[i]->isUiHidden(uiConfigName)) continue;
+        if (uiItems[i]->isUiGroup()) continue;
+
+        {
+            caf::PdmUiFieldHandle* field = dynamic_cast<caf::PdmUiFieldHandle*>(uiItems[i]);
+
+            caf::PdmUiFieldEditorHandle* fieldEditor = findOrCreateFieldEditor(this->widget(), field, uiConfigName);
+
+            if (fieldEditor)
+            {
+                fieldEditor->setField(field);
+
+                // Place the widget(s) into the correct parent and layout
+                QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();
+
+                if (fieldCombinedWidget)
+                {
+                    fieldCombinedWidget->setParent(this->widget());
+                    layout->insertWidget(currentWidgetIndex++, fieldCombinedWidget);
+                }
+                else
+                {
+                    caf::PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition(uiConfigName);
+
+                    QWidget* fieldEditorWidget = fieldEditor->editorWidget();
+
+                    if (labelPos != caf::PdmUiItemInfo::HIDDEN)
+                    {
+                        QWidget* fieldLabelWidget = fieldEditor->labelWidget();
+                        if (fieldLabelWidget)
+                        {
+                            fieldLabelWidget->setParent(this->widget());
+
+                            layout->insertWidget(currentWidgetIndex++, fieldLabelWidget);
+
+                            fieldLabelWidget->show();
+                        }
+                    }
+                    else
+                    {
+                        QWidget* fieldLabelWidget = fieldEditor->labelWidget();
+                        if (fieldLabelWidget) fieldLabelWidget->hide();
+                    }
+
+                    if (fieldEditorWidget)
+                    {
+                        fieldEditorWidget->setParent(this->widget()); // To make sure this widget has the current group box as parent.
+
+                        layout->insertWidget(currentWidgetIndex++, fieldEditorWidget);
+                    }
+                }
+
+                fieldEditor->updateUi(uiConfigName);
+            }
+        }
+    }
+}

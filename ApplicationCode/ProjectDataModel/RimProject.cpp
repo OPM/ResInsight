@@ -47,6 +47,7 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiSnapshotDefinition.h"
+#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -551,6 +552,24 @@ void RimProject::allSummaryCases(std::vector<RimSummaryCase*>& sumCases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimProject::allObservedData(std::vector<RimObservedData*>& observedData)
+{
+    for (RimOilField* oilField : oilFields)
+    {
+        if (!oilField) continue;
+        RimObservedDataCollection* observedDataCollection = oilField->observedDataCollection();
+        if (observedDataCollection)
+        {
+            observedData.clear();
+            std::vector<RimObservedData*> allObservedData = observedDataCollection->allObservedData();
+            observedData.insert(observedData.end(), allObservedData.begin(), allObservedData.end());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::allNotLinkedViews(std::vector<RimView*>& views)
 {
     std::vector<RimCase*> cases;
@@ -627,6 +646,18 @@ void RimProject::createDisplayModelAndRedrawAllViews()
         {
             views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allOilFields(std::vector<RimOilField*>& oilFields)
+{
+    oilFields.clear();
+    for (const auto& oilField : this->oilFields)
+    {
+        oilFields.push_back(oilField);
     }
 }
 
@@ -855,7 +886,14 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
         RimOilField* oilField = activeOilField();
         if (oilField)
         {
-            if (oilField->summaryCaseMainCollection())     uiTreeOrdering.add(oilField->summaryCaseMainCollection());
+            if (oilField->summaryCaseMainCollection())
+            {
+                uiTreeOrdering.add( oilField->summaryCaseMainCollection() );
+            }
+            if (oilField->observedDataCollection())
+            {
+                uiTreeOrdering.add( oilField->observedDataCollection() );
+            }
         }
 
         if (mainPlotCollection)

@@ -18,21 +18,18 @@
 
 #pragma once
 
-#include <QDialog>
+#include "cvfBase.h"
+#include "cvfObject.h"
 
-class RicSummaryCurveCreatorSplitterUi;
-class RicSummaryCurveCreator;
+class QString;
 
-//==================================================================================================
-///  
-///  
-//==================================================================================================
-class RicSummaryCurveCreatorDialog : public QDialog
+class RigObservedData: public cvf::Object
 {
 public:
-    RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator);
-    ~RicSummaryCurveCreatorDialog();
+    explicit RigObservedData(const QString& observedDataFileName );
+    ~RigObservedData();
+
+    void openOrReloadCase(const QString& observedDataFileName);
 
 private:
-    RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;
 };

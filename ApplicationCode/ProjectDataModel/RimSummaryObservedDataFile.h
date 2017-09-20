@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2017- Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,21 +18,22 @@
 
 #pragma once
 
-#include <QDialog>
+#include "RimObservedData.h"
 
-class RicSummaryCurveCreatorSplitterUi;
-class RicSummaryCurveCreator;
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include "cvfObject.h"
+
 
 //==================================================================================================
-///  
-///  
+//
 //==================================================================================================
-class RicSummaryCurveCreatorDialog : public QDialog
+class RimSummaryObservedDataFile : public RimObservedData
 {
+    CAF_PDM_HEADER_INIT;
 public:
-    RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator);
-    ~RicSummaryCurveCreatorDialog();
+    RimSummaryObservedDataFile();
+    virtual ~RimSummaryObservedDataFile();
 
-private:
-    RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;
+    void setSummaryHeaderFilename(const QString& fileName);
 };

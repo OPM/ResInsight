@@ -228,6 +228,32 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::topLevelSummaryCases() const
+{
+    std::vector<RimSummaryCase*> cases;
+    for (const auto& sumCase : m_cases)
+    {
+        cases.push_back(sumCase);
+    }
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCaseCollection*> RimSummaryCaseMainCollection::summaryCaseCollections() const
+{
+    std::vector<RimSummaryCaseCollection*> summaryCaseCollections;
+    for (const auto& caseColl : m_caseCollections)
+    {
+        summaryCaseCollections.push_back(caseColl);
+    }
+    return summaryCaseCollections;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
     for (RimSummaryCase* sumCase: allSummaryCases())

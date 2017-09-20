@@ -121,6 +121,10 @@ QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFi
 //--------------------------------------------------------------------------------------------------
 void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    uiOrdering.add(&m_toggleField);
+    uiOrdering.add(&m_multiSelectList);
+    
+/*
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup("First");
 
@@ -155,5 +159,22 @@ void ManyGroups::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOr
         caf::PdmUiGroup* subGroup = group->addNewGroup("Fifth_Content");
 
         subGroup->add(&m_proxyDoubleField);
+    }
+*/
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ManyGroups::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &m_multiSelectList)
+    {
+        caf::PdmUiTreeSelectionEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            //myAttr->showTextFilter = false;
+            //myAttr->showToggleAllCheckbox = false;
+        }
     }
 }

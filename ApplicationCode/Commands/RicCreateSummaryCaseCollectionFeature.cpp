@@ -35,9 +35,21 @@ CAF_CMD_SOURCE_INIT(RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCase
 bool RicCreateSummaryCaseCollectionFeature::isCommandEnabled()
 {
     std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection); 
+    caf::SelectionManager::instance()->objectsByType(&selection);
 
-    return (selection.size() > 0);
+    if (selection.size() == 0)
+    {
+        return false;
+    }
+
+    for (RimSummaryCase* summaryCase : selection)
+    {
+        if (summaryCase->isObservedData())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

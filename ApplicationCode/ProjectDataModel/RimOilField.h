@@ -26,11 +26,13 @@
 #include "cafPdmPointer.h"
 
 class RimEclipseCaseCollection;
-class RimGeoMechModels;
-class RimWellPathCollection;
-class RimFractureTemplateCollection;
-class RimSummaryCaseMainCollection;
 class RimFormationNamesCollection;
+class RimFractureTemplateCollection;
+class RimGeoMechModels;
+class RimObservedDataCollection;
+class RimSummaryCase;
+class RimSummaryCaseMainCollection;
+class RimWellPathCollection;
 
 //==================================================================================================
 ///  
@@ -44,11 +46,14 @@ public:
     RimOilField(void);
     virtual ~RimOilField(void);
 
+    QString                                                 uniqueShortNameForCase(RimSummaryCase* summaryCase);
+
     caf::PdmChildField<RimEclipseCaseCollection*>           analysisModels;
     caf::PdmChildField<RimGeoMechModels*>                   geoMechModels;
     caf::PdmChildField<RimWellPathCollection*>              wellPathCollection;
     caf::PdmChildField<RimFractureTemplateCollection*>      fractureDefinitionCollection;
     caf::PdmChildField<RimSummaryCaseMainCollection*>       summaryCaseMainCollection;
+    caf::PdmChildField<RimObservedDataCollection*>          observedDataCollection;
     caf::PdmChildField<RimFormationNamesCollection*>        formationNamesCollection;
 
 };

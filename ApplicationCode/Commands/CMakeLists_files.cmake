@@ -33,6 +33,8 @@ ${CEE_CURRENT_LIST_DIR}RicWellLogsImportFileFeature.h
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportObservedDataFeature.h
+${CEE_CURRENT_LIST_DIR}RicImportObservedDataInMenuFeature.h
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.h
 
 ${CEE_CURRENT_LIST_DIR}RicSelectOrCreateViewFeatureImpl.h
@@ -97,6 +99,8 @@ ${CEE_CURRENT_LIST_DIR}RicReloadFormationNamesFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicTogglePerspectiveViewFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportGeoMechCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicImportSummaryCaseFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportObservedDataFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicImportObservedDataInMenuFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicExportFeatureImpl.cpp
 
 ${CEE_CURRENT_LIST_DIR}RicSelectOrCreateViewFeatureImpl.cpp

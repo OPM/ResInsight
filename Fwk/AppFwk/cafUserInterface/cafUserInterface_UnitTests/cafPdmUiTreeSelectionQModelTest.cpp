@@ -44,6 +44,9 @@ QList<caf::PdmOptionItemInfo> createOptions()
     return options;
 }
 
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -53,6 +56,8 @@ TEST(PdmUiTreeSelectionQModelTest, BasicUsage)
 
     caf::PdmUiTreeSelectionQModel myModel;
     myModel.setOptions(nullptr, options);
+
+    EXPECT_EQ(options.size(), myModel.optionItemCount());
 
     EXPECT_EQ(4, myModel.rowCount(myModel.index(-1, -1)));
     
@@ -104,4 +109,25 @@ TEST(PdmUiTreeSelectionQModelTest, SetDataAndSignal)
     QModelIndex parentIndex = myModel.index(0, 0);
 
     myModel.setData(parentIndex, QVariant(true));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(PdmUiTreeSelectionQModelTest, SetCheckedStateForItems)
+{
+    QList<caf::PdmOptionItemInfo> options = createOptions();
+
+    caf::PdmUiTreeSelectionQModel myModel;
+    myModel.setOptions(nullptr, options);
+
+    QModelIndex parentIndex = myModel.index(1, 0);
+    QModelIndex firstChildIndex = myModel.index(0, 0, parentIndex);
+
+    QModelIndexList indices;
+    indices << firstChildIndex;
+
+    myModel.setCheckedStateForItems(indices, false);
+
+    // No test code for this behaviour, only making sure this runs without any errors
 }
