@@ -18,20 +18,22 @@
 
 #include "RifReaderObservedData.h"
 
+#include "RifColumnBasedAsciiParser.h"
+#include "RifEclipseSummaryAddress.h"
+
 #include "ert/ecl/ecl_sum.h"
 
 #include <string>
 #include <assert.h>
 
 #include <QDateTime>
-#include "ert/ecl/smspec_node.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RifReaderObservedData::RifReaderObservedData()
 {
-
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +49,13 @@ RifReaderObservedData::~RifReaderObservedData()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderObservedData::open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames)
 {
+
+    if (headerFileName.empty()) return false;
+    QString data = headerFileName.data();
+
     return false;
+    //RiaParseAsciiData::parseData(data, settings);
+    //m_asciiParser = RifColumnBasedAsciiParser(data)
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +71,11 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 //--------------------------------------------------------------------------------------------------
 int RifReaderObservedData::timeStepCount() const
 {
+    if (m_asciiParser)
+    {
+        return static_cast<int>(m_asciiParser->timeSteps().size());
+    }
+
     return 0;
 }
 
@@ -71,8 +84,18 @@ int RifReaderObservedData::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderObservedData::timeSteps() const
 {
-    std::vector<time_t> steps;
-    return steps;
+    std::vector<time_t> timeStepsTime_t;
+    
+    if (m_asciiParser)
+    {
+        for (QDateTime timeStep : m_asciiParser->timeSteps())
+        {
+            time_t t = timeStep.toTime_t();
+            timeStepsTime_t.push_back(t);
+        }
+    }
+
+    return timeStepsTime_t;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,9 +103,54 @@ const std::vector<time_t>& RifReaderObservedData::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 void RifReaderObservedData::buildMetaData()
 {
+    if (m_allResultAddresses.size() == 0)
+    {
 
+    }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifReaderObservedData::address(const AsciiData& asciiData, std::string identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategory)
+{
+    std::string        quantityName;
+    int                regionNumber(-1);
+    int                regionNumber2(-1);
+    std::string        wellGroupName;
+    std::string        wellName;
+    int                wellSegmentNumber(-1);
+    std::string        lgrName;
+    int                cellI(-1);
+    int                cellJ(-1);
+    int                cellK(-1);
+
+    switch (summaryCategory)
+    {
+    case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        wellGroupName = identifierName;
+        break;
+    case RifEclipseSummaryAddress::SUMMARY_WELL:
+        wellName = identifierName;
+        break;
+    case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
+        lgrName = identifierName;
+        break;
+    default:
+        break;
+    }
+
+    return RifEclipseSummaryAddress(summaryCategory,
+        quantityName,
+        regionNumber,
+        regionNumber2,
+        wellGroupName,
+        wellName,
+        wellSegmentNumber,
+        lgrName,
+        cellI, cellJ, cellK);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
 #include <string>
@@ -28,9 +27,10 @@
 
 #include "cvfObject.h"
 
-
+struct AsciiData;
 class QDateTime;
-
+class RifColumnBasedAsciiParser;
+class RifEclipseSummaryAddress;
 
 //==================================================================================================
 //
@@ -51,9 +51,10 @@ public:
 
 private:
     virtual int                                          timeStepCount() const override;
-
     virtual void                                         buildMetaData() override;
-private:
 
+    RifEclipseSummaryAddress                             address(const AsciiData& asciiData, std::string identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategor);
+private:
+    RifColumnBasedAsciiParser*                           m_asciiParser;
 };
 
