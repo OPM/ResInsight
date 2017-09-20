@@ -51,7 +51,7 @@ public:
     enum SummaryIdentifierType
     {
         INPUT_REGION_NUMBER,
-        INPUT_REGION2_NUMBER,
+        INPUT_REGION_2_REGION,
         INPUT_WELL_NAME,
         INPUT_WELL_GROUP_NAME,
         INPUT_CELL_IJK,
@@ -130,6 +130,8 @@ private:
 
     std::string                 formatUiTextIJK() const;
     std::tuple<int, int, int>   ijkTupleFromUiText(const std::string &s);
+    std::string                 formatUiTextRegionToRegion() const;
+    std::pair<int, int>         regionToRegionPairFromUiText(const std::string &s);
 
     SummaryVarCategory  m_variableCategory;
     std::string         m_quantityName;

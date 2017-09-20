@@ -33,14 +33,16 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
     m_cellK(-1)
 {
     std::tuple<int, int, int> ijkTuple;
+    std::pair<int, int> reg2regPair;
     switch (category)
     {
     case SUMMARY_REGION:
         m_regionNumber = std::stoi(identifiers[INPUT_REGION_NUMBER]);
         break;
     case SUMMARY_REGION_2_REGION:
-        m_regionNumber = std::stoi(identifiers[INPUT_REGION_NUMBER]);
-        m_regionNumber2 = std::stoi(identifiers[INPUT_REGION2_NUMBER]);
+        reg2regPair = regionToRegionPairFromUiText(identifiers[INPUT_REGION_2_REGION]);
+        m_regionNumber = reg2regPair.first;
+        m_regionNumber2 = reg2regPair.second;
         break;
     case SUMMARY_WELL_GROUP:
         m_wellGroupName = identifiers[INPUT_WELL_GROUP_NAME];
@@ -117,8 +119,7 @@ std::string RifEclipseSummaryAddress::uiText() const
         break;
         case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
         {
-            text += ":" + std::to_string(this->regionNumber());
-            text += "-" + std::to_string(this->regionNumber2());
+            text += ":" + formatUiTextRegionToRegion();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
@@ -180,7 +181,7 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
     switch (identifierType)
     {
     case RifEclipseSummaryAddress::INPUT_REGION_NUMBER: return std::to_string(regionNumber());
-    case RifEclipseSummaryAddress::INPUT_REGION2_NUMBER: return std::to_string(regionNumber2());
+    case RifEclipseSummaryAddress::INPUT_REGION_2_REGION: return formatUiTextRegionToRegion();
     case RifEclipseSummaryAddress::INPUT_WELL_NAME: return wellName();
     case RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME: return wellGroupName();
     case RifEclipseSummaryAddress::INPUT_CELL_IJK: return formatUiTextIJK();
@@ -213,6 +214,27 @@ std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText(const std
     auto textJ = s.substr(firstSep + 1, lastSep - firstSep - 1);
     auto textK = s.substr(lastSep + 1);
     return std::make_tuple(std::stoi(textI), std::stoi(textJ), std::stoi(textK));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RifEclipseSummaryAddress::formatUiTextRegionToRegion() const
+{
+    return std::to_string(this->regionNumber()) + " -> "
+        + std::to_string(this->regionNumber2());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText(const std::string &s)
+{
+    auto sep = s.find("->");
+    CVF_ASSERT(sep != std::string::npos );
+    auto textReg = s.substr(0, sep);
+    auto textReg2 = s.substr(sep + 2);
+    return std::make_pair(std::stoi(textReg), std::stoi(textReg2));
 }
 
 //--------------------------------------------------------------------------------------------------
