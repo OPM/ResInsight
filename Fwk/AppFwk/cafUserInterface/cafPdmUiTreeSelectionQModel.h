@@ -61,7 +61,8 @@ public:
     explicit PdmUiTreeSelectionQModel(QObject *parent = 0);
     ~PdmUiTreeSelectionQModel();
 
-    static int              headingRole(); 
+    static int              headingRole();
+    static int              optionItemValueRole();
 
     void                    setCheckedStateForItems(const QModelIndexList& indices, bool checked);
 
@@ -76,12 +77,17 @@ public:
     virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
+    // Consider moving these functions to PdmUiFieldHandle
+    static bool                            isSingleValueField(const QVariant& fieldValue);
+    static bool                            isMultipleValueField(const QVariant& fieldValue);
+
 private:
     typedef caf::UiTreeItem<int> TreeItemType;
 
     const caf::PdmOptionItemInfo*   optionItem(const QModelIndex &index) const;
     int                             optionIndex(const QModelIndex &index) const;
     void                            buildOptionItemTree(int optionIndex, TreeItemType* parentNode);
+
 
 private:
     QList<caf::PdmOptionItemInfo>   m_options;

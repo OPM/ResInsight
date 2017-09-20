@@ -38,6 +38,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiCommandSystemProxy.h"
 #include "cafPdmUiTreeSelectionQModel.h"
 
 #include <QBoxLayout>
@@ -125,11 +126,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     PdmUiFieldEditorHandle::updateLabelFromField(m_label, uiConfigName);
 
-    // Tree view
-
-    bool optionsOnly = true;
-    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
-
     if (!m_model)
     {
         m_model = new caf::PdmUiTreeSelectionQModel(m_treeView);
@@ -139,7 +135,13 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         
         m_treeView->setModel(m_proxyModel);
+
+        connect(m_treeView->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+                this, SLOT(slotCurrentChanged(QModelIndex, QModelIndex)));
     }
+
+    bool optionsOnly = true;
+    QList<PdmOptionItemInfo> options = field()->valueOptions(&optionsOnly);
 
     bool itemCountHasChaged = false;
     if (m_model->optionItemCount() != options.size()) itemCountHasChaged = true;
@@ -153,41 +155,54 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_treeView->expandAll();
     }
 
-    PdmUiTreeSelectionEditorAttribute attributes;
-    caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
-    if (uiObject)
-    {
-        uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
-    }
-
-    if (!attributes.showTextFilter)
+    QVariant fieldValue = field()->uiValue();
+    if (PdmUiTreeSelectionQModel::isSingleValueField(fieldValue))
     {
         m_textFilterLineEdit->hide();
-    }
-
-    if (!attributes.showToggleAllCheckbox)
-    {
         m_toggleAllCheckBox->hide();
     }
-    else
+    else if (PdmUiTreeSelectionQModel::isMultipleValueField(fieldValue))
     {
-        if (options.size() == 0)
+        m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
+        connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
+
+        caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+        if (uiObject)
         {
-            m_toggleAllCheckBox->setChecked(false);
+            uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
+        }
+
+        if (!m_attributes.showTextFilter)
+        {
+            m_textFilterLineEdit->hide();
+        }
+
+        if (!m_attributes.showToggleAllCheckbox)
+        {
+            m_toggleAllCheckBox->hide();
         }
         else
         {
-            bool allItemsChecked = true;
-            QModelIndexList indices = allVisibleSourceModelIndices();
-            for (auto mi : indices)
+            if (options.size() == 0)
             {
-                if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
-                {
-                    allItemsChecked = false;
-                }
+                m_toggleAllCheckBox->setChecked(false);
             }
+            else
+            {
+                bool allItemsChecked = true;
+                QModelIndexList indices = allVisibleSourceModelIndices();
+                for (auto mi : indices)
+                {
+                    if (m_model->data(mi, Qt::CheckStateRole).toBool() == false)
+                    {
+                        allItemsChecked = false;
+                    }
+                }
 
-            m_toggleAllCheckBox->setChecked(allItemsChecked);
+                m_toggleAllCheckBox->setChecked(allItemsChecked);
+            }
         }
     }
 }
@@ -222,13 +237,8 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget(QWidget* parent)
 
     QTreeViewHeightHint* treeViewHeightHint = new QTreeViewHeightHint(parent);
     treeViewHeightHint->setHeightHint(2000);
-
     treeViewHeightHint->setHeaderHidden(true);
-    treeViewHeightHint->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    treeViewHeightHint->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    connect(treeViewHeightHint, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
-
+   
     m_treeView = treeViewHeightHint;
 
     layout->addWidget(treeViewHeightHint);
@@ -392,6 +402,21 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
     m_proxyModel->setFilterWildcard(searchString);
 
     updateUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
+{
+    if (m_attributes.highLightField)
+    {
+        QVariant v = m_proxyModel->data(current, PdmUiTreeSelectionQModel::optionItemValueRole());
+
+        //m_attributes.highLightField->fieldHandle()->setvalue();
+
+        PdmUiCommandSystemProxy::instance()->setUiValueToField(m_attributes.highLightField, v);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

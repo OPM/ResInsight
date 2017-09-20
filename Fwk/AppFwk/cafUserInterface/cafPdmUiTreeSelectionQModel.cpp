@@ -78,6 +78,14 @@ int caf::PdmUiTreeSelectionQModel::headingRole()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int caf::PdmUiTreeSelectionQModel::optionItemValueRole()
+{
+    return Qt::UserRole + 2;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexList& sourceModelIndices, bool checked)
 {
     if (!m_uiFieldHandle || !m_uiFieldHandle->field()) return;
@@ -287,16 +295,28 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
             if (m_uiFieldHandle && m_uiFieldHandle->field())
             {
                 QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
-                QList<QVariant> valuesSelectedInField = fieldValue.toList();
-
-                int opIndex = optionIndex(index);
-
-                for (QVariant v : valuesSelectedInField)
+                if (isSingleValueField(fieldValue))
                 {
-                    int indexInField = v.toInt();
-                    if (indexInField == opIndex)
+                     int row = fieldValue.toInt();
+
+                     if (row == optionIndex(index))
+                     {
+                         return Qt::Checked;
+                     }
+                }
+                else if (isMultipleValueField(fieldValue))
+                {
+                    QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+                    int opIndex = optionIndex(index);
+
+                    for (QVariant v : valuesSelectedInField)
                     {
-                        return Qt::Checked;
+                        int indexInField = v.toInt();
+                        if (indexInField == opIndex)
+                        {
+                            return Qt::Checked;
+                        }
                     }
                 }
             }
@@ -317,6 +337,12 @@ QVariant caf::PdmUiTreeSelectionQModel::data(const QModelIndex &index, int role 
         {
             return optionItemInfo->isHeading();
         }
+        else if (role == optionItemValueRole())
+        {
+            QVariant v = optionItemInfo->value();
+
+            return v;
+        }
     }
 
     return QVariant();
@@ -331,53 +357,72 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
 
     if (role == Qt::CheckStateRole)
     {
-        std::vector<unsigned int> selectedIndices;
+        QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+        if (isSingleValueField(fieldValue))
         {
-            QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
-            QList<QVariant> fieldValueSelection = fieldValue.toList();
-
-            for (auto v : fieldValueSelection)
+            if (value.toBool() == true)
             {
-                selectedIndices.push_back(v.toUInt());
+                // Reset model to make sure other check boxes are invalidated
+                beginResetModel();
+
+                QVariant v = static_cast<unsigned int>(optionIndex(index));
+                PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), v);
+                
+                endResetModel();
+            
+                return true;
             }
         }
-
-        bool setSelected = value.toBool();
-
-        unsigned int opIndex = static_cast<unsigned int>(optionIndex(index));
-
-        if (setSelected)
+        else if (isMultipleValueField(fieldValue))
         {
-            bool isIndexPresent = false;
-            for (auto indexInField : selectedIndices)
+            std::vector<unsigned int> selectedIndices;
             {
-                if (indexInField == opIndex)
+                QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
+                QList<QVariant> fieldValueSelection = fieldValue.toList();
+
+                for (auto v : fieldValueSelection)
                 {
-                    isIndexPresent = true;
+                    selectedIndices.push_back(v.toUInt());
                 }
             }
 
-            if (!isIndexPresent)
+            bool setSelected = value.toBool();
+
+            unsigned int opIndex = static_cast<unsigned int>(optionIndex(index));
+
+            if (setSelected)
             {
-                selectedIndices.push_back(opIndex);
+                bool isIndexPresent = false;
+                for (auto indexInField : selectedIndices)
+                {
+                    if (indexInField == opIndex)
+                    {
+                        isIndexPresent = true;
+                    }
+                }
+
+                if (!isIndexPresent)
+                {
+                    selectedIndices.push_back(opIndex);
+                }
             }
+            else
+            {
+                selectedIndices.erase(std::remove(selectedIndices.begin(), selectedIndices.end(), opIndex), selectedIndices.end());
+            }
+
+            QList<QVariant> fieldValueSelection;
+            for (auto v : selectedIndices)
+            {
+                fieldValueSelection.push_back(QVariant(v));
+            }
+
+            PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
+
+            emit dataChanged(index, index);
+
+            return true;
         }
-        else
-        {
-            selectedIndices.erase(std::remove(selectedIndices.begin(), selectedIndices.end(), opIndex), selectedIndices.end());
-        }
-
-        QList<QVariant> fieldValueSelection;
-        for (auto v : selectedIndices)
-        {
-            fieldValueSelection.push_back(QVariant(v));
-        }
-
-        PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
-
-        emit dataChanged(index, index);
-
-        return true;
     }
 
     return false;
@@ -414,5 +459,31 @@ void caf::PdmUiTreeSelectionQModel::buildOptionItemTree(int parentOptionIndex, T
             currentOptionIndex++;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::PdmUiTreeSelectionQModel::isSingleValueField(const QVariant& fieldValue)
+{
+    if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::PdmUiTreeSelectionQModel::isMultipleValueField(const QVariant& fieldValue)
+{
+    if (fieldValue.type() == QVariant::List)
+    {
+        return true;
+    }
+
+    return false;
 }
 

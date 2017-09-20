@@ -47,6 +47,7 @@ class QCheckBox;
 class QLineEdit;
 class QSortFilterProxyModel;
 class QModelIndex;
+class QItemSelection;
 
 namespace caf
 {
@@ -61,11 +62,15 @@ public:
     bool showTextFilter;
     bool showToggleAllCheckbox;
 
+    caf::PdmUiFieldHandle* highLightField;
+
 public:
     PdmUiTreeSelectionEditorAttribute()
     {
         showTextFilter = true;
         showToggleAllCheckbox = true;
+
+        highLightField = nullptr;
     }
 };
 
@@ -98,6 +103,8 @@ private slots:
 
     void                slotTextFilterChanged();
 
+    void                slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
+
 private:
     void                checkAllItems();
     void                unCheckAllItems();
@@ -114,6 +121,8 @@ private:
 
     PdmUiTreeSelectionQModel*   m_model;
     QSortFilterProxyModel*      m_proxyModel;
+
+    PdmUiTreeSelectionEditorAttribute m_attributes;
 };
 
 } // end namespace caf
