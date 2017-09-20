@@ -330,7 +330,7 @@ protected:
             caf::PdmUiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
             if (attr)
             {
-                attr->fieldToReceiveCurrentFieldValue = &m_highlightedEnum;
+                attr->fieldToReceiveCurrentItemValue = &m_highlightedEnum;
             }
         }
     }
