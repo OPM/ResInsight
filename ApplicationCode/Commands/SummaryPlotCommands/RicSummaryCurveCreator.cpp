@@ -333,6 +333,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         // Lookup item type input field
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(changedField);
         if (changedField == &m_selectedCases ||
+            changedField == &m_selectedSummaryCategories ||
             identifierAndField != nullptr)
         {
             loadDataAndUpdatePlot();
@@ -785,10 +786,11 @@ bool RicSummaryCurveCreator::isAddressCompatibleWithControllingFieldSelection(co
 std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromSelections()
 {
     std::set<RifEclipseSummaryAddress> addressSet;
-    for (const auto& identifierAndFieldList : m_identifierFieldsMap)
+    for (const auto& category : m_selectedSummaryCategories())
     {
+        auto identifierAndFieldList = m_identifierFieldsMap[category];
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
-        buildAddressListForCategoryRecursively(identifierAndFieldList.first, identifierAndFieldList.second.begin(), addressSet, selectionStack);
+        buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), addressSet, selectionStack);
     }
     return addressSet;
 }
