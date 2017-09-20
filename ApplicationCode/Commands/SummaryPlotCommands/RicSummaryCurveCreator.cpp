@@ -121,7 +121,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
 })
 {
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCategory, "IdentifierTypes", "Identifier types", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField(), "FieldVectors", "Field vectors", "", "", "");
 
@@ -194,8 +194,8 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_selectedCases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedCases.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    m_selectedSummaryCategory.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    m_selectedSummaryCategory.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_currentSummaryCategory.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    m_currentSummaryCategory.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
     m_applyButtonField = false;
@@ -434,11 +434,11 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     sourcesGroup->add(&m_selectedCases);
 
     caf::PdmUiGroup* itemTypesGroup = uiOrdering.addNewGroupWithKeyword("Summary Types", RicSummaryCurveCreatorUiKeywords::summaryTypes());
-    itemTypesGroup->add(&m_selectedSummaryCategory);
+    itemTypesGroup->add(&m_currentSummaryCategory);
 
     caf::PdmField<std::vector<QString>>* summaryiesField = nullptr;
 
-    RifEclipseSummaryAddress::SummaryVarCategory sumCategory = m_selectedSummaryCategory();
+    RifEclipseSummaryAddress::SummaryVarCategory sumCategory = m_currentSummaryCategory();
     if (sumCategory == RifEclipseSummaryAddress::SUMMARY_FIELD)
     {
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_FIELD][0]->pdmField();
@@ -458,7 +458,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_REGION)
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroupWithKeyword("Regions", "RegionsKeyword");
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup("Regions");
             myGroup->add(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][0]->pdmField());
         }
 
@@ -622,7 +622,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 
             for (int i = 0; i < addressCount; i++)
             {
-                if (allAddresses[i].category() == m_selectedSummaryCategory())
+                if (allAddresses[i].category() == m_currentSummaryCategory())
                 {
                     bool addressSelected = applySelections ? isAddressCompatibleWithControllingFieldSelection(allAddresses[i], controllingFields) : true;
                     if (addressSelected)
@@ -642,7 +642,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> RicSummaryCurveCreator::buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RicSummaryCurveCreator::SummaryIdentifierAndField*> controllingFields;
-    auto identifierAndFieldList = m_identifierFieldsMap[m_selectedSummaryCategory()];
+    auto identifierAndFieldList = m_identifierFieldsMap[m_currentSummaryCategory()];
     for (const auto& identifierAndFieldItem : identifierAndFieldList)
     {
         if (identifierAndFieldItem == identifierAndField)

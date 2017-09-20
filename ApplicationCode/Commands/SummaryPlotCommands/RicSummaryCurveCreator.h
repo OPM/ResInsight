@@ -123,7 +123,9 @@ private:
                                             allPreviewCurveDefs() const;
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_selectedSummaryCategory;
+
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_currentSummaryCategory;
+    
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
 
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
