@@ -333,6 +333,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         // Lookup item type input field
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(changedField);
         if (changedField == &m_selectedCases ||
+            changedField == &m_selectedSummaryCategories ||
             identifierAndField != nullptr)
         {
             loadDataAndUpdatePlot();
@@ -418,19 +419,41 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(fieldNeedingOptions);
         if (identifierAndField != nullptr)
         {
+            enum {SUM_CASES, OBS_DATA};
+            bool includeObservedData = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+            std::set<RifEclipseSummaryAddress> addrUnion[2];
+            addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
+            addrUnion[OBS_DATA] = includeObservedData ?
+                findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField) : std::set<RifEclipseSummaryAddress>();
+
             auto pdmField = identifierAndField->pdmField();
-            std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses(identifierAndField);
             std::set<QString> itemNames;
 
-            for (const auto& address : addrUnion)
+            for(int i = 0; i < 2; i++)
             {
-                auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
-                if (!name.isEmpty())
-                    itemNames.insert(name);
-            }
-            for (const auto& iName : itemNames)
-            {
-                options.push_back(caf::PdmOptionItemInfo(iName, iName));
+                for (const auto& address : addrUnion[i])
+                {
+                    auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
+                    if (!name.isEmpty())
+                        itemNames.insert(name);
+                }
+
+                // Create headers only when observed data is selected
+                bool createHeaders = addrUnion[OBS_DATA].size() > 0;
+                if (createHeaders)
+                {
+                    auto headerText = i == SUM_CASES ? QString("Simulated Data") : QString("Observed Data");
+                    options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
+                }
+                for (const auto& iName : itemNames)
+                {
+                    auto optionItem = caf::PdmOptionItemInfo(iName, iName);
+                    if (createHeaders)
+                        optionItem.setLevel(1);
+                    options.push_back(optionItem);
+                }
+
+                if (!includeObservedData) break;
             }
         }
     }
@@ -601,10 +624,35 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.skipRemainingFields(true);
 }
 
+std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField)
+{
+    std::vector<RimSummaryCase*> cases;
+    for (const auto& sumCase: m_selectedCases)
+    {
+        if(typeid(sumCase) == typeid(RimObservedData)) continue;
+        cases.push_back(sumCase);
+    }
+    return findPossibleSummaryAddresses(cases, identifierAndField);
+}
+
+std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField)
+{
+    std::vector<RimSummaryCase*> obsData;
+    for (const auto& sumCase : m_selectedCases)
+    {
+        if (typeid(sumCase) == typeid(RimObservedData))
+        {
+            obsData.push_back(sumCase);
+        }
+    }
+    return findPossibleSummaryAddresses(obsData, identifierAndField);
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddresses(const SummaryIdentifierAndField *identifierAndField)
+std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddresses(const std::vector<RimSummaryCase*> &selectedCases, 
+                                                                                        const SummaryIdentifierAndField *identifierAndField)
 {
     std::set<RifEclipseSummaryAddress> addrUnion;
 
@@ -615,7 +663,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
         return addrUnion;
     }
 
-    for (RimSummaryCase* currCase : m_selectedCases)
+    for (RimSummaryCase* currCase : selectedCases)
     {
         RifReaderEclipseSummary* reader = nullptr;
         if (currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
@@ -738,10 +786,11 @@ bool RicSummaryCurveCreator::isAddressCompatibleWithControllingFieldSelection(co
 std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromSelections()
 {
     std::set<RifEclipseSummaryAddress> addressSet;
-    for (const auto& identifierAndFieldList : m_identifierFieldsMap)
+    for (const auto& category : m_selectedSummaryCategories())
     {
+        auto identifierAndFieldList = m_identifierFieldsMap[category];
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
-        buildAddressListForCategoryRecursively(identifierAndFieldList.first, identifierAndFieldList.second.begin(), addressSet, selectionStack);
+        buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), addressSet, selectionStack);
     }
     return addressSet;
 }
