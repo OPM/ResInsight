@@ -33,6 +33,8 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimObservedDataCollection.h"
+#include "RimObservedData.h"
 
 #include "RiuMainPlotWindow.h"
 
@@ -377,21 +379,19 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
                     }
                 }
 
-                // Observed cases
+                // Observed data
+                auto observedDataColl = oilField->observedDataCollection();
+                if (observedDataColl->allObservedData().size() > 0)
+                {
+                    options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Data", true));
 
-                // Under construction...
-                //auto observedCases = sumCaseMainColl->topLevelSummaryCases/*observedCases*/();
-                //if (observedCases.size() > 0)
-                //{
-                //    options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Summary Cases", true));
-
-                //    for (const auto& sumCase : observedCases)
-                //    {
-                //        auto optionItem = caf::PdmOptionItemInfo(sumCase->caseName(), sumCase);
-                //        optionItem.setLevel(1);
-                //        options.push_back(optionItem);
-                //    }
-                //}
+                    for (const auto& obsData : observedDataColl->allObservedData())
+                    {
+                        auto optionItem = caf::PdmOptionItemInfo(obsData->caseName(), obsData);
+                        optionItem.setLevel(1);
+                        options.push_back(optionItem);
+                    }
+                }
             }
         }
     }
