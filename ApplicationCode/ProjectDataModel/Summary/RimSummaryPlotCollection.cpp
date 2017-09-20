@@ -20,6 +20,7 @@
 
 #include "RifEclipseSummaryTools.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifSummaryReaderInterface.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimSummaryPlot.h"
@@ -62,7 +63,7 @@ RimSummaryPlotCollection::~RimSummaryPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename)
+RifSummaryReaderInterface* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename)
 {
     auto it = m_summaryFileReaders.find(eclipseCaseFilePathBasename);
     if (it != m_summaryFileReaders.end())
@@ -78,7 +79,7 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const RimEclipseResultCase* eclipseCase)
+RifSummaryReaderInterface* RimSummaryPlotCollection::getOrCreateSummaryFileReader(const RimEclipseResultCase* eclipseCase)
 {
     if (!eclipseCase) return NULL;
 
@@ -93,7 +94,7 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::getOrCreateSummaryFileReader(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const QString& eclipseCaseFilePathBasename)
+RifSummaryReaderInterface* RimSummaryPlotCollection::createSummaryFileReader(const QString& eclipseCaseFilePathBasename)
 {
     std::string headerFile;
     bool isFormatted = false;
@@ -105,7 +106,7 @@ RifReaderEclipseSummary* RimSummaryPlotCollection::createSummaryFileReader(const
 
     if (!dataFiles.size()) return nullptr;
 
-    RifReaderEclipseSummary* reader = new RifReaderEclipseSummary;
+    RifSummaryReaderInterface* reader = new RifReaderEclipseSummary;
     if (!reader->open(headerFile, dataFiles))
     {
         delete reader;

@@ -22,7 +22,7 @@
 #include "cvfObject.h"
 
 class QString;
-class RifReaderEclipseSummary;
+class RifSummaryReaderInterface;
 
 class RigSummaryCaseData: public cvf::Object
 {
@@ -32,8 +32,8 @@ public:
 
     void openOrReloadCase(const QString& summaryHeaderFileName);
 
-    RifReaderEclipseSummary* summaryReader();
+    RifSummaryReaderInterface* summaryReader();
 
 private:
-    cvf::ref<RifReaderEclipseSummary> m_summaryFileReader;
+    cvf::ref<RifSummaryReaderInterface> m_summaryFileReader;
 };

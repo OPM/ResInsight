@@ -28,6 +28,7 @@
 class RimSummaryPlot;
 class RicDropEnabledMainWindow;
 class RifReaderEclipseSummary;
+class RifSummaryReaderInterface;
 class RimEclipseResultCase;
 
 //==================================================================================================
@@ -41,7 +42,7 @@ public:
     RimSummaryPlotCollection();
     virtual ~RimSummaryPlotCollection();
 
-    RifReaderEclipseSummary* getOrCreateSummaryFileReader(const RimEclipseResultCase* eclipseCase);
+    RifSummaryReaderInterface* getOrCreateSummaryFileReader(const RimEclipseResultCase* eclipseCase);
 
     caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
 
@@ -50,10 +51,10 @@ public:
     void summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const;
 
 private:
-    RifReaderEclipseSummary* createSummaryFileReader(const QString& eclipseCaseFilePathBasename);
-    RifReaderEclipseSummary* getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename);
+    RifSummaryReaderInterface* createSummaryFileReader(const QString& eclipseCaseFilePathBasename);
+    RifSummaryReaderInterface* getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename);
 
 private:
     // Map from path to case to summary file reader objects
-    std::map<QString, RifReaderEclipseSummary*> m_summaryFileReaders;
+    std::map<QString, RifSummaryReaderInterface*> m_summaryFileReaders;
 };

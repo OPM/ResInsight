@@ -128,7 +128,7 @@ std::vector<std::string> RifEclipseSummaryTools::findSummaryDataFiles(const std:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::dumpMetaData(RifReaderEclipseSummary* readerEclipseSummary)
+void RifEclipseSummaryTools::dumpMetaData(RifSummaryReaderInterface* readerEclipseSummary)
 {
     std::vector<RifEclipseSummaryAddress> addresses = readerEclipseSummary->allResultAddresses();
 

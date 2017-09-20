@@ -61,7 +61,7 @@ void RigSummaryCaseData::openOrReloadCase(const QString& summaryHeaderFileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RigSummaryCaseData::summaryReader()
+RifSummaryReaderInterface* RigSummaryCaseData::summaryReader()
 {
     return m_summaryFileReader.p();
 }

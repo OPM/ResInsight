@@ -231,7 +231,7 @@ void RimSummaryCurve::setSummaryAddress(const RifEclipseSummaryAddress& address)
 //--------------------------------------------------------------------------------------------------
 std::string RimSummaryCurve::unitName()
 {
-    RifReaderEclipseSummary* reader = summaryReader();
+    RifSummaryReaderInterface* reader = summaryReader();
     if (reader) return reader->unitName(this->summaryAddress());
     return "";
 }
@@ -243,7 +243,7 @@ std::vector<double> RimSummaryCurve::yValues() const
 {
     std::vector<double> values;
 
-    RifReaderEclipseSummary* reader = summaryReader();
+    RifSummaryReaderInterface* reader = summaryReader();
 
     if ( !reader ) return values;
 
@@ -259,7 +259,7 @@ std::vector<double> RimSummaryCurve::yValues() const
 const std::vector<time_t>& RimSummaryCurve::timeSteps() const
 {
     static std::vector<time_t> emptyVector;
-    RifReaderEclipseSummary* reader = summaryReader();
+    RifSummaryReaderInterface* reader = summaryReader();
 
     if ( !reader ) return emptyVector;
 
@@ -312,7 +312,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
     {
         if(m_summaryCase)
         {
-            RifReaderEclipseSummary* reader = summaryReader();
+            RifSummaryReaderInterface* reader = summaryReader();
             int addressCount = 0;
             if(reader)
             {
@@ -370,7 +370,7 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 
     m_selectedVariableDisplayField = QString::fromStdString(m_curveVariable->address().uiText());
 
-    RifReaderEclipseSummary* reader = summaryReader();
+    RifSummaryReaderInterface* reader = summaryReader();
     if (reader)
     {
         const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
@@ -545,7 +545,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseSummary* RimSummaryCurve::summaryReader() const
+RifSummaryReaderInterface* RimSummaryCurve::summaryReader() const
 {
     if (!m_summaryCase()) return nullptr;
 
@@ -569,7 +569,7 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
 {
     CVF_ASSERT(timeSteps && values);
 
-    RifReaderEclipseSummary* reader = summaryReader();
+    RifSummaryReaderInterface* reader = summaryReader();
    
     if (!reader) return false;
 

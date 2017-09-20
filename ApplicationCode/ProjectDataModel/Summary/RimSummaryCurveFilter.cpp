@@ -363,7 +363,7 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
     {
         if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
 
-        RifReaderEclipseSummary* reader = currentCase->caseData()->summaryReader();
+        RifSummaryReaderInterface* reader = currentCase->caseData()->summaryReader();
 
         for(const RifEclipseSummaryAddress& addr: m_uiFilterResultMultiSelection.v())
         {
@@ -526,7 +526,7 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
     {
         if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
 
-        RifReaderEclipseSummary* reader = currentCase->caseData()->summaryReader();
+        RifSummaryReaderInterface* reader = currentCase->caseData()->summaryReader();
 
         const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
         int addressCount = static_cast<int>(allAddresses.size());
@@ -674,7 +674,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryCurveFilter::findPossibleSummaryAdd
 
     for(RimSummaryCase* currCase: m_selectedSummaryCases)
     {
-        RifReaderEclipseSummary* reader = nullptr;
+        RifSummaryReaderInterface* reader = nullptr;
         if(currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
 
         if(reader)
@@ -725,7 +725,7 @@ std::set<std::string> RimSummaryCurveFilter::getAllSummaryWellNames()
     proj->allSummaryCases(cases);
     for (RimSummaryCase* rimCase : cases)
     {
-        RifReaderEclipseSummary* reader = nullptr;
+        RifSummaryReaderInterface* reader = nullptr;
         if (rimCase && rimCase->caseData())
         {
             reader = rimCase->caseData()->summaryReader();

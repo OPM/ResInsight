@@ -662,7 +662,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 
     for (RimSummaryCase* currCase : selectedCases)
     {
-        RifReaderEclipseSummary* reader = nullptr;
+        RifSummaryReaderInterface* reader = nullptr;
         if (currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
         if (reader)
         {
@@ -846,7 +846,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
     std::set<RifEclipseSummaryAddress> addrUnion;
     for (RimSummaryCase* currCase : m_selectedCases)
     {
-        RifReaderEclipseSummary* reader = nullptr;
+        RifSummaryReaderInterface* reader = nullptr;
         if (currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
         if (reader)
         {
@@ -969,7 +969,7 @@ std::set<std::string> RicSummaryCurveCreator::getAllSummaryWellNames()
     proj->allSummaryCases(cases);
     for (RimSummaryCase* rimCase : cases)
     {
-        RifReaderEclipseSummary* reader = nullptr;
+        RifSummaryReaderInterface* reader = nullptr;
         if (rimCase && rimCase->caseData())
         {
             reader = rimCase->caseData()->summaryReader();

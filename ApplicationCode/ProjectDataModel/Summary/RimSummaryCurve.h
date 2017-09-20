@@ -32,7 +32,7 @@
 #include "cafAppEnum.h"
 
 
-class RifReaderEclipseSummary;
+class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
@@ -101,7 +101,7 @@ protected:
     virtual void                            onLoadDataAndUpdate() override;
 
 private:
-    RifReaderEclipseSummary*                summaryReader() const;
+    RifSummaryReaderInterface*              summaryReader() const;
     bool                                    curveData(std::vector<QDateTime>* timeSteps, std::vector<double>* values) const;
 
     void                                    calculateCurveInterpolationFromAddress();
