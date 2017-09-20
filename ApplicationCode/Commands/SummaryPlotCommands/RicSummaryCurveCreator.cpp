@@ -427,10 +427,10 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
                 findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField) : std::set<RifEclipseSummaryAddress>();
 
             auto pdmField = identifierAndField->pdmField();
-            std::set<QString> itemNames;
 
             for(int i = 0; i < 2; i++)
             {
+                std::set<QString> itemNames;
                 for (const auto& address : addrUnion[i])
                 {
                     auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
@@ -439,8 +439,8 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
                 }
 
                 // Create headers only when observed data is selected
-                bool createHeaders = addrUnion[OBS_DATA].size() > 0;
-                if (createHeaders)
+                bool hasObservedData = addrUnion[OBS_DATA].size() > 0;
+                if (hasObservedData)
                 {
                     auto headerText = i == SUM_CASES ? QString("Simulated Data") : QString("Observed Data");
                     options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
@@ -448,12 +448,12 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
                 for (const auto& iName : itemNames)
                 {
                     auto optionItem = caf::PdmOptionItemInfo(iName, iName);
-                    if (createHeaders)
+                    if (hasObservedData)
                         optionItem.setLevel(1);
                     options.push_back(optionItem);
                 }
 
-                if (!includeObservedData) break;
+                if (!hasObservedData) break;
             }
         }
     }
