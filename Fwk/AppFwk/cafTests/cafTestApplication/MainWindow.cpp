@@ -225,6 +225,11 @@ public:
         m_proxyEnumMember = T2;
 
         m_testEnumField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+
+        CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
+        m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+        CAF_PDM_InitFieldNoDefault(&m_highlightedEnum, "HighlightedEnum", "HighlightedEnum", "", "", "");
+        m_highlightedEnum.uiCapability()->setUiHidden(true);
     }
 
     caf::PdmField<double>  m_doubleField;
@@ -239,6 +244,9 @@ public:
     TestEnumType m_proxyEnumMember;
 
 
+    // vector of app enum
+    caf::PdmField< std::vector< caf::AppEnum<TestEnumType> > > m_multipleAppEnum;
+    caf::PdmField< caf::AppEnum<TestEnumType> > m_highlightedEnum;
 
     caf::PdmField<bool>     m_toggleField;
     virtual caf::PdmFieldHandle* objectToggleField() 
@@ -252,13 +260,16 @@ public:
         {
             std::cout << "Toggle Field changed" << std::endl;
         }
+        else if (changedField == &m_highlightedEnum)
+        {
+            std::cout << "Highlight value " << m_highlightedEnum() <<  std::endl;
+        }
     }
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
     {
         QList<caf::PdmOptionItemInfo> options;
        
-
         if (&m_ptrField == fieldNeedingOptions)
         {
             caf::PdmFieldHandle* field;
@@ -287,6 +298,13 @@ public:
                 }
             }
         }
+        else if (&m_multipleAppEnum == fieldNeedingOptions)
+        {
+            for (size_t i = 0; i < caf::AppEnum<TestEnumType>::size(); ++i)
+            {
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<TestEnumType>::uiTextFromIndex(i), caf::AppEnum<TestEnumType>::fromIndex(i)));
+            }
+        }
 
         if (useOptionsOnly) *useOptionsOnly = true;
 
@@ -299,6 +317,22 @@ public:
     virtual caf::PdmFieldHandle* userDescriptionField()
     {
         return &m_textField;
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    {
+        if (field == &m_multipleAppEnum)
+        {
+            caf::PdmUiTreeSelectionEditorAttribute* attr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->highLightField = m_highlightedEnum.uiCapability();
+            }
+        }
     }
 
 };
