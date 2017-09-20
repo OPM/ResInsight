@@ -120,8 +120,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     } }
 })
 {
-    //CAF_PDM_InitObject("Curve Filter", ":/SummaryCurveFilter16x16.png", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCategory, "IdentifierTypes", "Identifier types", "", "", "");
 
@@ -179,9 +177,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(&m_wellAppearanceType, "WellAppearanceType", "Well", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
-
-    //CAF_PDM_InitFieldNoDefault(&m_selectedCurveTexts, "CurveTexts", "Selected Curves", "", "", "");
-    //m_selectedCurveTexts.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_previewPlot = new RimSummaryPlot();
 
@@ -412,8 +407,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         if (identifierAndField != nullptr)
         {
             auto pdmField = identifierAndField->pdmField();
-            std::set<RifEclipseSummaryAddress> addrUnion = 
-                findPossibleSummaryAddresses(identifierAndField);
+            std::set<RifEclipseSummaryAddress> addrUnion = findPossibleSummaryAddresses(identifierAndField);
             std::set<QString> itemNames;
 
             for (const auto& address : addrUnion)
@@ -631,10 +625,6 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
                 if (allAddresses[i].category() == m_selectedSummaryCategory())
                 {
                     bool addressSelected = applySelections ? isAddressCompatibleWithControllingFieldSelection(allAddresses[i], controllingFields) : true;
-
-                    // Todo: Add text filter
-                    //if (!m_summaryFilter->isIncludedByFilter(allAddresses[i])) continue;
-
                     if (addressSelected)
                     {
                         addrUnion.insert(allAddresses[i]);
