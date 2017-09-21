@@ -50,7 +50,6 @@
 #include "qwt_plot_renderer.h"
 
 #include "vector"
-#include "SummaryPlotCommands\RicSummaryCurveCreator.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
