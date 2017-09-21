@@ -161,18 +161,15 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         return curves;
     }
 
-    int numColumns = static_cast<int>(parser.headers().size());
-
     std::map< CurveType, std::vector<RimAsciiDataCurve*> > curveToTypeMap;
 
     QString curvePrefix = settings.curvePrefix();
-    std::vector< std::vector<double> > values = parser.values();
 
-    for (size_t i = 0; i < parser.values().size(); ++i)
+    for (size_t i = 0; i < parser.headers().size(); i++)
     {
         RimAsciiDataCurve* curve = new RimAsciiDataCurve();
         curve->setTimeSteps(parser.timeSteps());
-        curve->setValues(parser.values()[i]);
+        curve->setValues(parser.columnValues(i));
         if (curvePrefix.isEmpty())
         {
             curve->setTitle(parser.headers()[i]);

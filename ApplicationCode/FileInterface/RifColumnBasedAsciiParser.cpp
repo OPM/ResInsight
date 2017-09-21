@@ -20,6 +20,8 @@
 
 #include "RiaLogging.h"
 
+#include "cvfAssert.h"
+
 #include <QString>
 #include <QStringList>
 #include <QTextStream>
@@ -51,31 +53,11 @@ const std::vector<QDateTime>& RifColumnBasedAsciiParser::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double> RifColumnBasedAsciiParser::columnValues(size_t columnIndex) const
+const std::vector<double>& RifColumnBasedAsciiParser::columnValues(size_t columnIndex) const
 {
-    if (m_data.m_values.size() <= columnIndex)
-    {
-        std::vector<double> dummy;
-        return dummy;
-    }
+    CVF_TIGHT_ASSERT(m_data.m_values.size() <= columnIndex);
 
     return m_data.m_values[columnIndex];
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<double> >& RifColumnBasedAsciiParser::values() const
-{
-    return m_data.m_values;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const size_t RifColumnBasedAsciiParser::columnCount() const
-{
-    return m_data.m_values.size();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -35,9 +35,7 @@ public:
 
     const std::vector<QString>&                     headers() const;
     const std::vector<QDateTime>&                   timeSteps() const;
-    const std::vector<double>                       columnValues(size_t columnIndex) const;
-    const std::vector<std::vector<double>>&         values() const;
-    const size_t                                    columnCount() const;
+    const std::vector<double>&                      columnValues(size_t columnIndex) const;
 
 private:
     void parseData(QString& data, QString dateFormat, QLocale decimalLocale, QString cellSeparator);
