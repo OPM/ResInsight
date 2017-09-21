@@ -82,7 +82,7 @@ int RifReaderObservedData::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderObservedData::timeSteps() const
+const std::vector<time_t>& RifReaderObservedData::timeSteps(size_t timeSeriesIndex) const
 {
     std::vector<time_t> timeStepsTime_t;
     

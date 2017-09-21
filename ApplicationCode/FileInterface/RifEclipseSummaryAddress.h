@@ -62,7 +62,7 @@ public:
 
 public:
 
-    RifEclipseSummaryAddress():
+    RifEclipseSummaryAddress() :
         m_variableCategory(RifEclipseSummaryAddress::SUMMARY_INVALID),
         m_regionNumber(-1),
         m_regionNumber2(-1),
@@ -83,7 +83,8 @@ public:
                              const std::string& lgrName,
                              int                cellI,
                              int                cellJ,
-                             int                cellK): 
+                             int                cellK,
+                             size_t             timeSeriesIndex = 0): 
         m_variableCategory(category),
         m_quantityName(quantityName),
         m_regionNumber(regionNumber),
@@ -94,7 +95,8 @@ public:
         m_lgrName(lgrName),
         m_cellI(cellI),
         m_cellJ(cellJ),
-        m_cellK(cellK)
+        m_cellK(cellK),
+        m_timeSeriesIndex(timeSeriesIndex)
     {
     }
 
@@ -107,19 +109,20 @@ public:
 
     // Access methods
 
-    SummaryVarCategory  category() const {  return m_variableCategory; }
-    const std::string&  quantityName() const {  return m_quantityName; }
+    SummaryVarCategory  category() const            { return m_variableCategory; }
+    const std::string&  quantityName() const        { return m_quantityName; }
 
-    int                 regionNumber() const  { return m_regionNumber; }
-    int                 regionNumber2() const { return m_regionNumber2; }
+    int                 regionNumber() const        { return m_regionNumber; }
+    int                 regionNumber2() const       { return m_regionNumber2; }
 
-    const std::string&  wellGroupName() const { return m_wellGroupName; }
-    const std::string&  wellName() const      { return m_wellName; }
-    int                 wellSegmentNumber() const { return m_wellSegmentNumber; }
-    const std::string&  lgrName() const       { return m_lgrName; }
-    int                 cellI() const         { return m_cellI; }
-    int                 cellJ() const         { return m_cellJ; }
-    int                 cellK() const         { return m_cellK; }
+    const std::string&  wellGroupName() const       { return m_wellGroupName; }
+    const std::string&  wellName() const            { return m_wellName; }
+    int                 wellSegmentNumber() const   { return m_wellSegmentNumber; }
+    const std::string&  lgrName() const             { return m_lgrName; }
+    int                 cellI() const               { return m_cellI; }
+    int                 cellJ() const               { return m_cellJ; }
+    int                 cellK() const               { return m_cellK; }
+    size_t              timeSeriesIndex() const     { return m_timeSeriesIndex; }
 
     // Derived properties
 
@@ -144,6 +147,7 @@ private:
     int                 m_cellI;
     int                 m_cellJ;
     int                 m_cellK;
+    size_t              m_timeSeriesIndex;
 };
 
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
