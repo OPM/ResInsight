@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditSummaryCurves.h"
+#include "RicEditSummaryPlotFeature.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
@@ -33,12 +33,12 @@
 #include "RicSummaryCurveCreatorFactoryImpl.h"
 
 
-CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
+CAF_CMD_SOURCE_INIT(RicEditSummaryPlotFeature, "RicEditSummaryPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicEditSummaryCurves::RicEditSummaryCurves()
+RicEditSummaryPlotFeature::RicEditSummaryPlotFeature()
 {
     m_curveCreatorFactory = RicSummaryCurveCreatorFactoryImpl::instance();
 }
@@ -46,7 +46,7 @@ RicEditSummaryCurves::RicEditSummaryCurves()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::closeDialogAndResetTargetPlot()
+void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 {
     auto dialog = m_curveCreatorFactory->dialog();
     auto curveCreator = m_curveCreatorFactory->curveCreator();
@@ -65,7 +65,7 @@ void RicEditSummaryCurves::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurves::isCommandEnabled()
+bool RicEditSummaryPlotFeature::isCommandEnabled()
 {
     return true;
 }
@@ -73,7 +73,7 @@ bool RicEditSummaryCurves::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::onActionTriggered(bool isChecked)
+void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
 {
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
@@ -96,8 +96,8 @@ void RicEditSummaryCurves::onActionTriggered(bool isChecked)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::setupActionLook(QAction* actionToSetup)
+void RicEditSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
-    actionToSetup->setText("Edit Summary Curves");
-    //actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    actionToSetup->setText("Edit Summary Plot");
+    actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
 }

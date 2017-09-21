@@ -293,15 +293,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteSummaryPlotFeature";
             commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
+            commandIds << "RicEditSummaryPlotFeature";
             commandIds << "RicNewSummaryPlotFeature";
-            commandIds << "RicNewSummaryCurveFilterFeature";
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "RicAsciiExportSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
             commandIds << "Separator";
             commandIds << "RicViewZoomAllFeature";
-			commandIds << "RicEditSummaryCurves";
         }
         else if (dynamic_cast<RimSummaryCurve*>(uiItem))
         {

@@ -30,10 +30,10 @@ namespace caf {
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEditSummaryCurves : public caf::CmdFeature
+class RicEditSummaryPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-    RicEditSummaryCurves();
+    RicEditSummaryPlotFeature();
 
 public:
     void closeDialogAndResetTargetPlot();
