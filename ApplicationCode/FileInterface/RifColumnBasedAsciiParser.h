@@ -24,12 +24,6 @@
 
 #include <vector>
 
-struct AsciiData
-{
-    std::vector<QString> m_headers;
-    std::vector<QDateTime> m_timeSteps;
-    std::vector< std::vector<double> > m_values;
-};
 
 //==================================================================================================
 /// 
@@ -39,13 +33,23 @@ class RifColumnBasedAsciiParser
 public:
     RifColumnBasedAsciiParser(QString& data, const QString dateFormat, QLocale decimalLocale, QString cellSeparator);
 
-    const std::vector<QString>&     headers() const;
-    const std::vector<QDateTime>&   timeSteps() const;
-    const std::vector<double>&      columnValues(size_t columnIndex) const;
+    const std::vector<QString>&                     headers() const;
+    const std::vector<QDateTime>&                   timeSteps() const;
+    const std::vector<double>                       columnValues(size_t columnIndex) const;
+    const std::vector<std::vector<double>>&         values() const;
+    const size_t                                    columnCount() const;
 
 private:
     void parseData(QString& data, QString dateFormat, QLocale decimalLocale, QString cellSeparator);
 
 private:
+    
+    struct AsciiData
+    {
+        std::vector<QString> m_headers;
+        std::vector<QDateTime> m_timeSteps;
+        std::vector< std::vector<double> > m_values;
+    };
+
     AsciiData m_data;
 };
