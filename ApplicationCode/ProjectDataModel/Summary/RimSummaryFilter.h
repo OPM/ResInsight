@@ -60,7 +60,6 @@ public:
 
 private:
     friend class RimSummaryCurve;
-    friend class RimSummaryCurveFilter;
 
     static bool     isSumVarTypeMatchingFilterType(SummaryFilterType sumFilterType, RifEclipseSummaryAddress::SummaryVarCategory sumVarType);
 

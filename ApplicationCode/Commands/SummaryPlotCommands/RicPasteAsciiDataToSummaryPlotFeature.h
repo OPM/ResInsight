@@ -27,7 +27,6 @@
 #include <QDateTime>
 
 class RimSummaryCurve;
-class RimSummaryCurveFilter;
 class RimAsciiDataCurve;
 class RicPasteAsciiDataToSummaryPlotFeatureUi;
 

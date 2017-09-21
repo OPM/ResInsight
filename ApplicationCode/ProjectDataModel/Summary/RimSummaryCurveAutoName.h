@@ -39,7 +39,6 @@ public:
 
 protected:
     friend class RimSummaryCurve;
-    friend class RimSummaryCurveFilter;
 
     virtual void    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 

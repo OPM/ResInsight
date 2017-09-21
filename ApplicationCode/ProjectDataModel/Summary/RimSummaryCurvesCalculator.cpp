@@ -22,7 +22,6 @@
 
 #include "RiaDefines.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryYAxisProperties.h"
 #include "RimAsciiDataCurve.h"
 

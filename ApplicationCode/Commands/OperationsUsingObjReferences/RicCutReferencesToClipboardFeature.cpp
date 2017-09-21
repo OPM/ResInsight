@@ -22,7 +22,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryCurveFilter.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiItem.h"

@@ -29,7 +29,6 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurveAutoName.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"

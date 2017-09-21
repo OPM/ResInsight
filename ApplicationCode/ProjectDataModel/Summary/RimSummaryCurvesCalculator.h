@@ -24,7 +24,6 @@
 
 class RimAsciiDataCurve;
 class RimSummaryCurve;
-class RimSummaryCurveFilter;
 class RimSummaryYAxisProperties;
 
 class RiuSummaryQwtPlot;
