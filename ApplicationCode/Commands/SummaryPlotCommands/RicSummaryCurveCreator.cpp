@@ -179,6 +179,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
     m_previewPlot = new RimSummaryPlot();
+    m_hasNewPlot = false;
 
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -209,9 +210,10 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_closeButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_closeButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&m_createNewPlot, "CreateNewPlot", false, "Create New Plot", "", "", "");
-    m_createNewPlot.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_createNewPlot.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    CAF_PDM_InitFieldNoDefault(&m_okButtonField, "OK", "", "", "", "");
+    m_okButtonField = false;
+    m_okButtonField.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_okButtonField.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_appearanceApplyButton = false;
     m_appearanceApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
@@ -246,11 +248,19 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     
     m_targetPlot = targetPlot;
     m_useAutoAppearanceAssignment = true;
+    m_hasNewPlot = targetPlot == nullptr;
 
     if (m_targetPlot)
     {
         populateCurveCreator(*m_targetPlot);
         loadDataAndUpdatePlot();
+    }
+
+    // Select all summary categories
+    m_selectedSummaryCategories.v().clear();
+    for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
+    {
+        m_selectedSummaryCategories.v().push_back(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i));
     }
 
     caf::PdmUiItem::updateConnectedEditors();
@@ -277,47 +287,22 @@ void RicSummaryCurveCreator::clearCloseButton()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_applyButtonField)
+    if (changedField == &m_applyButtonField || changedField == &m_okButtonField)
     {
         m_applyButtonField = false;
+        m_okButtonField = false;
+
+        if (m_targetPlot == nullptr)
+        {
+            createNewPlot();
+            m_hasNewPlot = false;
+        }
 
         updateTargetPlot();
-    }
-    else if (changedField == &m_createNewPlot)
-    {
-        m_createNewPlot = false;
 
-        RimProject* proj = RiaApplication::instance()->project();
-
-        RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-        if (summaryPlotColl)
+        if (changedField == &m_okButtonField)
         {
-            QString summaryPlotName = QString("SummaryPlot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
-
-            bool ok = false;
-            summaryPlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, summaryPlotName, &ok);
-            if (ok)
-            {
-                RimSummaryPlot* plot = new RimSummaryPlot();
-                summaryPlotColl->summaryPlots().push_back(plot);
-
-                plot->setDescription(summaryPlotName);
-                plot->loadDataAndUpdate();
-
-                summaryPlotColl->updateConnectedEditors();
-
-                RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-                if (mainPlotWindow)
-                {
-                    mainPlotWindow->selectAsCurrentItem(plot);
-                    mainPlotWindow->setExpanded(plot, true);
-                }
-
-                m_createNewPlot = false;
-                m_targetPlot = plot;
-
-                updateTargetPlot();
-            }
+            m_closeButtonField = true;
         }
     }
     else if (changedField == &m_appearanceApplyButton)
@@ -398,6 +383,12 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         RimProject* proj = RiaApplication::instance()->project();
         
         RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
+        if (m_hasNewPlot)
+        {
+            QString displayName = "( New Plot )";
+
+            options.push_back(caf::PdmOptionItemInfo(displayName, nullptr));
+        }
         if (summaryPlotColl)
         {
             summaryPlotColl->summaryPlotItemInfos(&options);
@@ -611,12 +602,10 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     }
 
     // Fields to be displayed directly in UI
-    uiOrdering.add(&m_createNewPlot);
     uiOrdering.add(&m_targetPlot);
+    uiOrdering.add(&m_okButtonField);
     uiOrdering.add(&m_applyButtonField);
     uiOrdering.add(&m_closeButtonField);
-
-    m_targetPlot.uiCapability()->setUiReadOnly(m_createNewPlot);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -1012,12 +1001,12 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
             attrib->m_buttonText = "Cancel";
         }
     }
-    else if (&m_createNewPlot == field)
+    else if (&m_okButtonField == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
         if (attrib)
         {
-            attrib->m_buttonText = "New Plot";
+            attrib->m_buttonText = "OK";
         }
     }
     else if (&m_appearanceApplyButton == field)
@@ -1045,12 +1034,6 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot)
 {
-    m_selectedSummaryCategories.v().clear();
-    for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
-    {
-        m_selectedSummaryCategories.v().push_back(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i));
-    }
-
     m_previewPlot->deleteAllSummaryCurves();
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
@@ -1242,4 +1225,41 @@ std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>> RicSummaryCurveCr
         allCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
     }
     return allCurveDefs;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::createNewPlot()
+{
+    RimProject* proj = RiaApplication::instance()->project();
+
+    RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
+    if (summaryPlotColl)
+    {
+        QString summaryPlotName = QString("SummaryPlot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
+
+        bool ok = false;
+        summaryPlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, summaryPlotName, &ok);
+        if (ok)
+        {
+            RimSummaryPlot* plot = new RimSummaryPlot();
+            summaryPlotColl->summaryPlots().push_back(plot);
+
+            plot->setDescription(summaryPlotName);
+            plot->loadDataAndUpdate();
+
+            summaryPlotColl->updateConnectedEditors();
+
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
+            if (mainPlotWindow)
+            {
+                mainPlotWindow->selectAsCurrentItem(plot);
+                mainPlotWindow->setExpanded(plot, true);
+            }
+
+            m_targetPlot = plot;
+            updateTargetPlot();
+        }
+    }
 }

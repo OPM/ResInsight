@@ -26,6 +26,7 @@ ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUiKeywords.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -48,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RicEditSummaryCurves.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -21,7 +21,8 @@
 #include "cafCmdFeature.h"
 #include <QPointer>
 
-class RicSummaryCurveCreatorFactoryImpl;
+class RicSummaryCurveCreator;
+class RicSummaryCurveCreatorDialog;
 
 namespace caf {
 	class PdmUiPropertyViewDialog;
@@ -30,20 +31,20 @@ namespace caf {
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicEditSummaryCurves : public caf::CmdFeature
+class RicSummaryCurveCreatorFactoryImpl
 {
-    CAF_CMD_HEADER_INIT;
-    RicEditSummaryCurves();
-
 public:
-    void closeDialogAndResetTargetPlot();
+    static RicSummaryCurveCreatorFactoryImpl* instance();
+    virtual ~RicSummaryCurveCreatorFactoryImpl();
 
-protected:
-    // Overrides
-    virtual bool isCommandEnabled();
-    virtual void onActionTriggered( bool isChecked );
-    virtual void setupActionLook(QAction* actionToSetup);
+    RicSummaryCurveCreator*         curveCreator();
+    RicSummaryCurveCreatorDialog*   dialog();
 
 private:
-    RicSummaryCurveCreatorFactoryImpl*      m_curveCreatorFactory;
+    RicSummaryCurveCreatorFactoryImpl();
+
+    RicSummaryCurveCreator*		            m_curveCreator;
+    QPointer<RicSummaryCurveCreatorDialog>  m_dialogWithSplitter;
+
+    static RicSummaryCurveCreatorFactoryImpl* ms_instance;
 };

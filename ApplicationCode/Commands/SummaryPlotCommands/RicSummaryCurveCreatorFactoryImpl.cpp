@@ -16,88 +16,59 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEditSummaryCurves.h"
-
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-
+#include "RicSummaryCurveCreatorFactoryImpl.h"
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
 
-#include "cafPdmUiPropertyViewDialog.h"
 
-#include <QAction>
-
-#include "cvfAssert.h"
-#include "cafSelectionManager.h"
-#include "RicSummaryCurveCreatorFactoryImpl.h"
-
-
-CAF_CMD_SOURCE_INIT(RicEditSummaryCurves, "RicEditSummaryCurves");
+RicSummaryCurveCreatorFactoryImpl* RicSummaryCurveCreatorFactoryImpl::ms_instance = nullptr;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicEditSummaryCurves::RicEditSummaryCurves()
+RicSummaryCurveCreatorFactoryImpl::RicSummaryCurveCreatorFactoryImpl()
 {
-    m_curveCreatorFactory = RicSummaryCurveCreatorFactoryImpl::instance();
+    m_curveCreator = new RicSummaryCurveCreator();
+    m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, m_curveCreator);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::closeDialogAndResetTargetPlot()
+RicSummaryCurveCreatorFactoryImpl::~RicSummaryCurveCreatorFactoryImpl()
 {
-    auto dialog = m_curveCreatorFactory->dialog();
-    auto curveCreator = m_curveCreatorFactory->curveCreator();
-
-    if (dialog && dialog->isVisible())
-    {
-        dialog->hide();
-    }
-
-    if (curveCreator)
-    {
-        curveCreator->updateFromSummaryPlot(nullptr);
-    }
+    if (m_dialogWithSplitter != nullptr)
+        delete m_dialogWithSplitter;
+    if (m_curveCreator != nullptr)
+        delete m_curveCreator;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicEditSummaryCurves::isCommandEnabled()
+RicSummaryCurveCreator* RicSummaryCurveCreatorFactoryImpl::curveCreator()
 {
-    return true;
+    if (m_curveCreator == nullptr)
+        m_curveCreator = new RicSummaryCurveCreator();
+    return m_curveCreator;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::onActionTriggered(bool isChecked)
+RicSummaryCurveCreatorDialog* RicSummaryCurveCreatorFactoryImpl::dialog()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    auto dialog = m_curveCreatorFactory->dialog();
-    auto curveCreator = m_curveCreatorFactory->curveCreator();
-
-    if (!dialog->isVisible())
-        dialog->show();
-
-    // Set target plot
-    std::vector<RimSummaryPlot*> plots;
-    caf::SelectionManager::instance()->objectsByType(&plots);
-    if (plots.size() == 1)
-    {
-        curveCreator->updateFromSummaryPlot(plots.front());
-    }
+    if (m_dialogWithSplitter == nullptr)
+        m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, curveCreator());
+    return m_dialogWithSplitter;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicEditSummaryCurves::setupActionLook(QAction* actionToSetup)
+RicSummaryCurveCreatorFactoryImpl* RicSummaryCurveCreatorFactoryImpl::instance()
 {
-    actionToSetup->setText("Edit Summary Curves");
-    //actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+    if (ms_instance == nullptr)
+        ms_instance = new RicSummaryCurveCreatorFactoryImpl();
+    return ms_instance;
 }

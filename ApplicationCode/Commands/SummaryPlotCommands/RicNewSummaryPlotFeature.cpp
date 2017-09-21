@@ -21,24 +21,27 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCurveFilter.h"
-#include "RimSummaryCurveCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
-
-#include "RiuMainPlotWindow.h"
-
-#include "cafSelectionManager.h"
 
 #include <QAction>
 
 #include "cvfAssert.h"
+#include "RicSummaryCurveCreatorFactoryImpl.h"
+#include "RicSummaryCurveCreator.h"
+#include "RicSummaryCurveCreatorDialog.h"
+#include "RimSummaryPlotCollection.h"
+#include "RimSummaryCurveFilter.h"
+#include "RiuMainPlotWindow.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicNewSummaryPlotFeature::RicNewSummaryPlotFeature()
+{
+    m_curveCreatorFactory = RicSummaryCurveCreatorFactoryImpl::instance();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -56,30 +59,13 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
+    auto dialog = m_curveCreatorFactory->dialog();
+    auto curveCreator = m_curveCreatorFactory->curveCreator();
 
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    if (!dialog->isVisible())
+        dialog->show();
 
-    RimSummaryCase* summaryCase = nullptr;
-    std::vector<RimSummaryCase*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    if (selection.size() == 1)
-    {
-        summaryCase = selection[0];
-    }
-    else
-    {
-        std::vector<RimSummaryCase*> cases;
-        project->allSummaryCases(cases);
-        if (cases.size() > 0)
-        {
-            summaryCase = cases[0];
-        }
-    }
-
-    createNewSummaryPlot(summaryPlotColl, summaryCase);
+    curveCreator->updateFromSummaryPlot(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,7 +78,7 @@ void RicNewSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// This method is not called from within this class, only by other classes
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase)
 {

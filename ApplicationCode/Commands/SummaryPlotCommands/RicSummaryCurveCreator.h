@@ -125,6 +125,8 @@ private:
     void                                    updateAppearanceEditor();
     std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>>
                                             allPreviewCurveDefs() const;
+    void                                    createNewPlot();
+
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
 
@@ -136,6 +138,7 @@ private:
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
     
     RimSummaryPlot*                                                                                     m_previewPlot;
+    bool                                                                                                m_hasNewPlot;
 
     caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
     caf::PdmField<bool>                                                                                 m_appearanceApplyButton;
@@ -145,7 +148,7 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_regionAppearanceType;
 
-    caf::PdmField<bool> m_createNewPlot;
+    caf::PdmField<bool> m_okButtonField;
     caf::PdmField<bool> m_applyButtonField;
     caf::PdmField<bool> m_closeButtonField;
 };
