@@ -63,7 +63,13 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     auto curveCreator = m_curveCreatorFactory->curveCreator();
 
     if (!dialog->isVisible())
+    {
         dialog->show();
+    }
+    else
+    {
+        dialog->raise();
+    }
 
     curveCreator->updateFromSummaryPlot(nullptr);
 }

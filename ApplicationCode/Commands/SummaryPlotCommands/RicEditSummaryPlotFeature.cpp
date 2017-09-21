@@ -82,7 +82,13 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
     auto curveCreator = m_curveCreatorFactory->curveCreator();
 
     if (!dialog->isVisible())
+    {
         dialog->show();
+    }
+    else
+    {
+        dialog->raise();
+    }
 
     // Set target plot
     std::vector<RimSummaryPlot*> plots;
