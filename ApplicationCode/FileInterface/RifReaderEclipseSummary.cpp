@@ -276,7 +276,7 @@ int RifReaderEclipseSummary::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(size_t timeSeriesIndex) const
+const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
     assert(m_ecl_sum != NULL);
 

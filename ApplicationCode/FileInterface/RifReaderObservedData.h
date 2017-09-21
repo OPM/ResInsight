@@ -44,7 +44,7 @@ public:
 
     virtual bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames) override;
 
-    virtual const std::vector<time_t>&                   timeSteps(size_t timeSeriesIndex = 0) const override;
+    virtual const std::vector<time_t>&                   timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
     virtual bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) override;
     std::string                                          unitName(const RifEclipseSummaryAddress& resultAddress) override;
@@ -55,5 +55,6 @@ private:
     RifEclipseSummaryAddress                             address(const AsciiData& asciiData, std::string identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategor);
 private:
     RifColumnBasedAsciiParser*                           m_asciiParser;
+    std::vector<time_t>                                  m_timeStepsTime_t;
 };
 

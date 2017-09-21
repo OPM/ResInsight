@@ -69,20 +69,18 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderObservedData::timeSteps(size_t timeSeriesIndex) const
+const std::vector<time_t>& RifReaderObservedData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    std::vector<time_t> timeStepsTime_t;
-    
-    if (m_asciiParser)
-    {
-        for (QDateTime timeStep : m_asciiParser->timeSteps())
-        {
-            time_t t = timeStep.toTime_t();
-            timeStepsTime_t.push_back(t);
-        }
-    }
+//     if (m_asciiParser)
+//     {
+//         for (QDateTime timeStep : m_asciiParser->timeSteps())
+//         {
+//             time_t t = timeStep.toTime_t();
+//             timeStepsTime_t.push_back(t);
+//         }
+//     }
 
-    return timeStepsTime_t;
+    return m_timeStepsTime_t;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -41,7 +41,7 @@ public:
 
     bool                                                 hasAddress(const RifEclipseSummaryAddress& resultAddress);
     const std::vector<RifEclipseSummaryAddress>&         allResultAddresses();
-    virtual const std::vector<time_t>&                   timeSteps(size_t timeSeriesIndex = 0) const = 0;
+    virtual const std::vector<time_t>&                   timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;
 
     virtual bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) = 0;
     virtual std::string                                  unitName(const RifEclipseSummaryAddress& resultAddress) = 0;

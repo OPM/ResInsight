@@ -262,7 +262,8 @@ const std::vector<time_t>& RimSummaryCurve::timeSteps() const
 
     if ( !reader ) return emptyVector;
 
-    return reader->timeSteps();
+    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    return reader->timeSteps(addr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,12 +573,13 @@ bool RimSummaryCurve::curveData(std::vector<QDateTime>* timeSteps, std::vector<d
    
     if (!reader) return false;
 
-    std::vector<time_t> times = reader->timeSteps();
+    RifEclipseSummaryAddress addr = m_curveVariable()->address();
+    
+    std::vector<time_t> times = reader->timeSteps(addr);
     *timeSteps = RifReaderEclipseSummary::fromTimeT(times);
 
     if (!times.size()) return false;
 
-    RifEclipseSummaryAddress addr = m_curveVariable()->address();
     return reader->values(addr, values);
 }
 
