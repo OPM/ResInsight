@@ -29,6 +29,8 @@
 #include "RimAsciiDataCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
 
+#include "RifColumnBasedAsciiParser.h"
+
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
@@ -156,94 +158,39 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings)
 {
     std::vector<RimAsciiDataCurve*> curves;
-    std::vector<QString> headers;
 
-    QTextStream tableData(&data);
-
+    RifColumnBasedAsciiParser parser = RifColumnBasedAsciiParser(data, settings.dateFormat(), settings.decimalLocale(), settings.cellSeparator());
+    
+    if (parser.headers().empty())
     {
-        QString header;
-
-        do {
-            header = tableData.readLine();
-        } while (header.isEmpty() && !tableData.atEnd());
-
-        // No header row found
-        if (header.isEmpty()) return curves;
-
-        QStringList columnHeaders = header.split(settings.cellSeparator());
-
-        for (int i = 1; i < columnHeaders.size(); ++i)
-        {
-            headers.push_back(columnHeaders[i]);
-        }
-
-        // No columns found
-        if (headers.empty()) return curves;
+        return curves;
     }
 
-    int numColumns = static_cast<int>(headers.size());
-    std::vector<QDateTime> timeSteps;
-    std::vector< std::vector<double> > values;
-    values.resize(numColumns);
-
-    size_t row = 0;
-    while (!tableData.atEnd())
-    {
-        ++row;
-        QString line = tableData.readLine();
-
-        // Skip empty lines
-        if (line.isEmpty()) continue;
-
-        QStringList columns = line.split(settings.cellSeparator());
-
-        if (columns.size() != numColumns + 1)
-        {
-            RiaLogging::warning(QString("Invalid number of columns in row %1").arg(row));
-            continue;
-        }
-
-        QDateTime date = QDateTime::fromString(columns[0], settings.dateFormat());
-        if (!date.isValid())
-        {
-            RiaLogging::warning(QString("First column of row %1 could not be parsed as a date: %2").arg(row).arg(columns[0]));
-            continue;
-        }
-        timeSteps.push_back(date);
-
-        for (int col = 1; col < columns.size(); ++col)
-        {
-            bool ok;
-            values[col - 1].push_back(settings.decimalLocale().toDouble(columns[col], &ok));
-            if (!ok)
-            {
-                RiaLogging::warning(QString("Could not parse value at row %1 column %2 as double: %3. Defaulting to 0.0").arg(row).arg(col).arg(columns[col]));
-            }
-        }
-    }
+    int numColumns = static_cast<int>(parser.headers().size());
 
     std::map< CurveType, std::vector<RimAsciiDataCurve*> > curveToTypeMap;
 
     QString curvePrefix = settings.curvePrefix();
+    std::vector< std::vector<double> > values = parser.values();
 
-    for (size_t i = 0; i < values.size(); ++i)
+    for (size_t i = 0; i < parser.values().size(); ++i)
     {
         RimAsciiDataCurve* curve = new RimAsciiDataCurve();
-        curve->setTimeSteps(timeSteps);
-        curve->setValues(values[i]);
+        curve->setTimeSteps(parser.timeSteps());
+        curve->setValues(parser.values()[i]);
         if (curvePrefix.isEmpty())
         {
-            curve->setTitle(headers[i]);
+            curve->setTitle(parser.headers()[i]);
         }
         else
         {
-            curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(headers[i]));
+            curve->setTitle(QString("%1: %2").arg(curvePrefix).arg(parser.headers()[i]));
         }
         // Appearance
         curve->setSymbol(settings.pointSymbol());
         curve->setLineStyle(settings.lineStyle());
         curve->setSymbolSkipDinstance(settings.symbolSkipDinstance());
-        curveToTypeMap[guessCurveType(headers[i])].push_back(curve);
+        curveToTypeMap[guessCurveType(parser.headers()[i])].push_back(curve);
         curves.push_back(curve);
     }
 
