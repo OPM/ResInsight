@@ -138,7 +138,6 @@ private:
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
     
     RimSummaryPlot*                                                                                     m_previewPlot;
-    bool                                                                                                m_hasNewPlot;
 
     caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
     caf::PdmField<bool>                                                                                 m_appearanceApplyButton;

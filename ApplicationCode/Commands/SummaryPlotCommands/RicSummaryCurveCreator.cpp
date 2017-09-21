@@ -179,7 +179,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
     m_previewPlot = new RimSummaryPlot();
-    m_hasNewPlot = false;
 
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -248,7 +247,6 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     
     m_targetPlot = targetPlot;
     m_useAutoAppearanceAssignment = true;
-    m_hasNewPlot = targetPlot == nullptr;
 
     if (m_targetPlot)
     {
@@ -295,7 +293,6 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         if (m_targetPlot == nullptr)
         {
             createNewPlot();
-            m_hasNewPlot = false;
         }
 
         updateTargetPlot();
@@ -383,12 +380,11 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         RimProject* proj = RiaApplication::instance()->project();
         
         RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-        if (m_hasNewPlot)
-        {
-            QString displayName = "( New Plot )";
 
-            options.push_back(caf::PdmOptionItemInfo(displayName, nullptr));
-        }
+        // Create New Plot item
+        QString displayName = "( New Plot )";
+        options.push_back(caf::PdmOptionItemInfo(displayName, nullptr));
+
         if (summaryPlotColl)
         {
             summaryPlotColl->summaryPlotItemInfos(&options);
@@ -1237,7 +1233,7 @@ void RicSummaryCurveCreator::createNewPlot()
     RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
     if (summaryPlotColl)
     {
-        QString summaryPlotName = QString("SummaryPlot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
+        QString summaryPlotName = QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots().size() + 1);
 
         bool ok = false;
         summaryPlotName = QInputDialog::getText(NULL, "New Summary Plot Name", "New Summary Plot Name", QLineEdit::Normal, summaryPlotName, &ok);
