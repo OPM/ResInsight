@@ -69,19 +69,6 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RifReaderObservedData::timeStepCount() const
-{
-    if (m_asciiParser)
-    {
-        return static_cast<int>(m_asciiParser->timeSteps().size());
-    }
-
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderObservedData::timeSteps(size_t timeSeriesIndex) const
 {
     std::vector<time_t> timeStepsTime_t;

@@ -286,6 +286,22 @@ const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(size_t timeSeriesI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& resultAddress)
+{
+    this->buildMetaData();
+
+    auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
+    if (it != m_resultAddressToErtNodeIdx.end())
+    {
+        return it->second;
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::buildMetaData()
 {
     if(m_allResultAddresses.size() == 0 && m_ecl_SmSpec)

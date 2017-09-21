@@ -49,7 +49,8 @@ public:
     std::string                                          unitName(const RifEclipseSummaryAddress& resultAddress) override;
 
 private:
-    virtual int                                          timeStepCount() const override;
+    virtual int                                          timeStepCount() const;
+    int                                                  indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
 
     virtual void                                         buildMetaData() override;
 private:
@@ -60,5 +61,7 @@ private:
     ecl_sum_type*               m_ecl_sum;
     const ecl_smspec_type *     m_ecl_SmSpec;
     std::vector<time_t>         m_timeSteps;
+
+    std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 };
 

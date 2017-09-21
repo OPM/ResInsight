@@ -50,7 +50,6 @@ public:
     std::string                                          unitName(const RifEclipseSummaryAddress& resultAddress) override;
 
 private:
-    virtual int                                          timeStepCount() const override;
     virtual void                                         buildMetaData() override;
 
     RifEclipseSummaryAddress                             address(const AsciiData& asciiData, std::string identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategor);

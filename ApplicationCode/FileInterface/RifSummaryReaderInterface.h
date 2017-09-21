@@ -50,14 +50,9 @@ public:
     static std::vector<QDateTime>                        fromTimeT(const std::vector<time_t>& timeSteps);
     
 protected:
-
-    virtual int                                          timeStepCount() const = 0;
-    int                                                  indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
-
     virtual void                                         buildMetaData() = 0;
 
 protected:
     std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
-    std::map<RifEclipseSummaryAddress, int> m_resultAddressToErtNodeIdx;
 };
 

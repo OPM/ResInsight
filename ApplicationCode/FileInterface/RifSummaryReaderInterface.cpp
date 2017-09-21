@@ -52,27 +52,17 @@ std::vector<QDateTime> RifSummaryReaderInterface::fromTimeT(const std::vector<ti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RifSummaryReaderInterface::indexFromAddress(const RifEclipseSummaryAddress& resultAddress)
-{
-    this->buildMetaData();
-
-    auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
-    if (it != m_resultAddressToErtNodeIdx.end())
-    {
-        return it->second;
-    }
-
-    return -1;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RifSummaryReaderInterface::hasAddress(const RifEclipseSummaryAddress& resultAddress)
 {
     this->buildMetaData();
 
-    auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
+    for (RifEclipseSummaryAddress summaryAddress : m_allResultAddresses)
+    {
+        if (summaryAddress == resultAddress)
+        {
+            return true;
+        }
+    }
 
-    return (it != m_resultAddressToErtNodeIdx.end());
+    return false;
 }
