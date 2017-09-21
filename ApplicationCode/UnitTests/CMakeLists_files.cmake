@@ -28,6 +28,7 @@ ${CEE_CURRENT_LIST_DIR}RigTofAccumulatedPhaseFractionsCalculator-Test.cpp
 ${CEE_CURRENT_LIST_DIR}HDF5FileReader-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools-Test.cpp
+${CEE_CURRENT_LIST_DIR}ObservedDataParser-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
