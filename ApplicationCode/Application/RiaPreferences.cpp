@@ -68,11 +68,8 @@ RiaPreferences::RiaPreferences(void)
     useShaders.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
     showHud.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "[System] Show Class Names", "", "", "");
+    CAF_PDM_InitField(&appendClassNameToUiText,         "appendClassNameToUiText", false, "Show Class Names", "", "", "");
     appendClassNameToUiText.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-#ifndef _DEBUG
-    appendClassNameToUiText.uiCapability()->setUiHidden(true);
-#endif
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.uiCapability()->setUiHidden(true);
@@ -95,6 +92,7 @@ RiaPreferences::RiaPreferences(void)
     m_tabNames << "Eclipse";
     m_tabNames << "Octave";
     m_tabNames << "Summary";
+    m_tabNames << "System";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +162,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         otherGroup->add(&ssihubAddress);
         otherGroup->add(&showLasCurveWithoutTvdWarning);
 
-        uiOrdering.add(&appendClassNameToUiText);
     }
     else if (uiConfigName == m_tabNames[1])
     {
@@ -188,6 +185,10 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         uiOrdering.add(&autoCreatePlotsOnImport);
         uiOrdering.add(&defaultCurveFilter);
+    }
+    else if (uiConfigName == m_tabNames[4])
+    {
+        uiOrdering.add(&appendClassNameToUiText);
     }
 
     uiOrdering.skipRemainingFields(true);
