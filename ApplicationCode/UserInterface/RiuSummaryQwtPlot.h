@@ -18,11 +18,13 @@
 
 #pragma once
 
-#include "qwt_plot.h"
+#include "RiuInterfaceToViewWindow.h"
+
 #include "cafPdmPointer.h"
 
+#include "qwt_plot.h"
+
 #include <QPointer>
-#include "RiuInterfaceToViewWindow.h"
 
 class QwtPlotCurve;
 class QwtPlotGrid;

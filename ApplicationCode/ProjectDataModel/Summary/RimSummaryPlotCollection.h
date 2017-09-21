@@ -19,17 +19,9 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include <QPointer>
-#include <QDockWidget>
-
 class RimSummaryPlot;
-class RicDropEnabledMainWindow;
-class RifReaderEclipseSummary;
-class RifSummaryReaderInterface;
-class RimEclipseResultCase;
 
 //==================================================================================================
 ///  
@@ -42,19 +34,8 @@ public:
     RimSummaryPlotCollection();
     virtual ~RimSummaryPlotCollection();
 
-    RifSummaryReaderInterface* getOrCreateSummaryFileReader(const RimEclipseResultCase* eclipseCase);
-
     caf::PdmChildArrayField<RimSummaryPlot*> summaryPlots;
 
     void updateSummaryNameHasChanged();
-
     void summaryPlotItemInfos(QList<caf::PdmOptionItemInfo>* optionInfos) const;
-
-private:
-    RifSummaryReaderInterface* createSummaryFileReader(const QString& eclipseCaseFilePathBasename);
-    RifSummaryReaderInterface* getOrCreateSummaryFileReader(const QString& eclipseCaseFilePathBasename);
-
-private:
-    // Map from path to case to summary file reader objects
-    std::map<QString, RifSummaryReaderInterface*> m_summaryFileReaders;
 };

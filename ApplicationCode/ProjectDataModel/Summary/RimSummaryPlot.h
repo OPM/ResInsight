@@ -19,11 +19,7 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
-#include "cafAppEnum.h"
-#include "cafPdmChildField.h"
 
 #include "RiaDefines.h"
 #include "RimViewWindow.h"

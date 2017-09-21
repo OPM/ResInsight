@@ -25,17 +25,20 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuQwtScalePicker.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
+#include "RiuQwtScalePicker.h"
 
 #include "cafSelectionManager.h"
 
-#include "qwt_date_scale_engine.h"
 #include "qwt_date_scale_draw.h"
+#include "qwt_date_scale_engine.h"
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
+#include "qwt_plot_magnifier.h"
 #include "qwt_plot_panner.h"
 #include "qwt_plot_zoomer.h"
 #include "qwt_scale_engine.h"
@@ -45,9 +48,6 @@
 #include <QWheelEvent>
 
 #include <float.h>
-#include "qwt_plot_magnifier.h"
-#include "RiuQwtPlotWheelZoomer.h"
-#include "RiuQwtPlotZoomer.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
