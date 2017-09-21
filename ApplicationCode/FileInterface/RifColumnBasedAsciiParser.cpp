@@ -63,26 +63,25 @@ void RifColumnBasedAsciiParser::parseData(QString& data, QString dateFormat, QLo
 {
     QTextStream tableData(&data);
 
+    QString header;
+
+    do {
+        header = tableData.readLine();
+    } while (header.isEmpty() && !tableData.atEnd());
+
+    // No header row found
+    if (header.isEmpty()) return;
+
+    QStringList columnHeaders = header.split(cellSeparator);
+
+    for (int i = 1; i < columnHeaders.size(); ++i)
     {
-        QString header;
-
-        do {
-            header = tableData.readLine();
-        } while (header.isEmpty() && !tableData.atEnd());
-
-        // No header row found
-        if (header.isEmpty()) return;
-
-        QStringList columnHeaders = header.split('\t');
-
-        for (int i = 1; i < columnHeaders.size(); ++i)
-        {
-            m_data.m_headers.push_back(columnHeaders[i]);
-        }
-
-        // No columns found
-        if (m_data.m_headers.empty()) return;
+        m_data.m_headers.push_back(columnHeaders[i]);
     }
+
+    // No columns found
+    if (m_data.m_headers.empty()) return;
+
 
     int numColumns = static_cast<int>(m_data.m_headers.size());
 

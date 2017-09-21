@@ -170,7 +170,7 @@ std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurv
         // No header row found
         if (header.isEmpty()) return curves;
 
-        QStringList columnHeaders = header.split('\t');
+        QStringList columnHeaders = header.split(settings.cellSeparator());
 
         for (int i = 1; i < columnHeaders.size(); ++i)
         {
