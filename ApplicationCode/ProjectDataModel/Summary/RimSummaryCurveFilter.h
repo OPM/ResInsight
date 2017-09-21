@@ -77,6 +77,7 @@ public:
     void                                    updateCompleteVariableStringFilterChanged();
     
     void                                    updateCurveNames();
+    void                                    clearCurvesWithoutDelete();
 
 private:
     void                                    syncCurvesFromUiSelection();

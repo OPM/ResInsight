@@ -50,6 +50,7 @@
 #include "qwt_plot_renderer.h"
 
 #include "vector"
+#include "SummaryPlotCommands\RicSummaryCurveCreator.h"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryPlot, "SummaryPlot");
@@ -67,14 +68,14 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Legend", "", "", "");
     m_showLegend.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitFieldNoDefault(&m_curveFilters, "SummaryCurveFilters", "", "", "", "");
-    m_curveFilters.uiCapability()->setUiTreeHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_curveFilters_OBSOLETE, "SummaryCurveFilters", "", "", "", "");
+    m_curveFilters_OBSOLETE.uiCapability()->setUiTreeHidden(true);
 
 	CAF_PDM_InitFieldNoDefault(&m_summaryCurveCollection, "SummaryCurveCollection", "", "", "", "");
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden(true);
 
-	CAF_PDM_InitFieldNoDefault(&m_summaryCurves, "SummaryCurves", "", "", "", "");
-    m_summaryCurves.uiCapability()->setUiTreeHidden(true);
+	CAF_PDM_InitFieldNoDefault(&m_summaryCurves_OBSOLETE, "SummaryCurves", "", "", "", "");
+    m_summaryCurves_OBSOLETE.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_gridTimeHistoryCurves, "GridTimeHistoryCurves", "", "", "", "");
     m_gridTimeHistoryCurves.uiCapability()->setUiTreeHidden(true);
@@ -116,8 +117,8 @@ RimSummaryPlot::~RimSummaryPlot()
 
     deleteViewWidget();
 
-    m_summaryCurves.deleteAllChildObjects();
-    m_curveFilters.deleteAllChildObjects();
+    m_summaryCurves_OBSOLETE.deleteAllChildObjects();
+    m_curveFilters_OBSOLETE.deleteAllChildObjects();
     delete m_summaryCurveCollection;
 }
 
@@ -177,7 +178,7 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
 {
     RimSummaryCurve * firstCurve = nullptr;
 
-    for (RimSummaryCurveFilter* curveFilter : m_curveFilters )
+    for (RimSummaryCurveFilter* curveFilter : m_curveFilters_OBSOLETE )
     {
         if (curveFilter)
         {
@@ -205,9 +206,9 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
     }
 
     size_t i = 0;
-    while (firstCurve == nullptr && i < m_summaryCurves.size())
+    while (firstCurve == nullptr && i < m_summaryCurves_OBSOLETE.size())
     {
-        firstCurve = m_summaryCurves[i];
+        firstCurve = m_summaryCurves_OBSOLETE[i];
         ++i;
     }
 
@@ -565,7 +566,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
 {
     std::vector<RimSummaryCurve*> curves;
 
-    for (RimSummaryCurve* curve : m_summaryCurves)
+    for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
         if (curve->isCurveVisible() && curve->yAxis() == plotAxis)
         {
@@ -573,7 +574,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis(RiaDef
         }
     }
 
-    for (RimSummaryCurveFilter * curveFilter : m_curveFilters)
+    for (RimSummaryCurveFilter * curveFilter : m_curveFilters_OBSOLETE)
     {
         if (curveFilter->isCurvesVisible())
         {
@@ -746,13 +747,13 @@ void RimSummaryPlot::updateTimeAxis()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateCaseNameHasChanged()
 {
-    for (RimSummaryCurve* curve : m_summaryCurves)
+    for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
         curve->updateCurveName();
         curve->updateConnectedEditors();
     }
 
-    for (RimSummaryCurveFilter* curveFilter : m_curveFilters)
+    for (RimSummaryCurveFilter* curveFilter : m_curveFilters_OBSOLETE)
     {
         curveFilter->updateCaseNameHasChanged();
     }
@@ -834,7 +835,7 @@ void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
         }
         else
         {
-            m_summaryCurves.removeChildObject(curve);
+            m_summaryCurves_OBSOLETE.removeChildObject(curve);
             delete curve;
         }
     }
@@ -845,7 +846,7 @@ void RimSummaryPlot::deleteCurve(RimSummaryCurve* curve)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 {
-    for (RimSummaryCurveFilter* summaryCurveFilter : m_curveFilters)
+    for (RimSummaryCurveFilter* summaryCurveFilter : m_curveFilters_OBSOLETE)
     {
         if (!summaryCurveFilter) continue;
         summaryCurveFilter->removeCurvesAssosiatedWithCase(summaryCase);
@@ -858,7 +859,7 @@ void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 
     std::vector<RimSummaryCurve*> summaryCurvesToDelete;
 
-    for (RimSummaryCurve* summaryCurve : m_summaryCurves)
+    for (RimSummaryCurve* summaryCurve : m_summaryCurves_OBSOLETE)
     {
         if (!summaryCurve) continue;
         if (!summaryCurve->summaryCase()) continue;
@@ -879,7 +880,7 @@ void RimSummaryPlot::deleteCurvesAssosiatedWithCase(RimSummaryCase* summaryCase)
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllTopLevelCurves()
 {
-    m_summaryCurves.deleteAllChildObjects();
+    m_summaryCurves_OBSOLETE.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -889,7 +890,7 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
 {
     if(curveFilter)
     {
-        m_curveFilters.push_back(curveFilter);
+        m_curveFilters_OBSOLETE.push_back(curveFilter);
         if(m_qwtPlot)
         {
             curveFilter->setParentQwtPlot(m_qwtPlot);
@@ -992,9 +993,9 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
     axisFolder->add(&m_leftYAxisProperties);
     axisFolder->add(&m_rightYAxisProperties);
 
-    uiTreeOrdering.add(&m_curveFilters);
+    uiTreeOrdering.add(&m_curveFilters_OBSOLETE);
     uiTreeOrdering.add(&m_summaryCurveCollection);
-    uiTreeOrdering.add(&m_summaryCurves);
+    uiTreeOrdering.add(&m_summaryCurves_OBSOLETE);
     uiTreeOrdering.add(&m_gridTimeHistoryCurves);
     uiTreeOrdering.add(&m_asciiDataCurves);
 
@@ -1008,7 +1009,7 @@ void RimSummaryPlot::loadDataAndUpdate()
 {
    updateMdiWindowVisibility();    
 
-    for (RimSummaryCurveFilter* curveFilter: m_curveFilters)
+    for (RimSummaryCurveFilter* curveFilter: m_curveFilters_OBSOLETE)
     {
         curveFilter->loadDataAndUpdate();
     }
@@ -1018,7 +1019,7 @@ void RimSummaryPlot::loadDataAndUpdate()
         m_summaryCurveCollection->loadDataAndUpdate();
     }
 
-    for (RimSummaryCurve* curve : m_summaryCurves)
+    for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
         curve->loadDataAndUpdate();
     }
@@ -1118,12 +1119,12 @@ QWidget* RimSummaryPlot::createViewWidget(QWidget* mainWindowParent)
     {
         m_qwtPlot = new RiuSummaryQwtPlot(this, mainWindowParent);
 
-        for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
+        for(RimSummaryCurveFilter* curveFilter: m_curveFilters_OBSOLETE)
         {
             curveFilter->setParentQwtPlot(m_qwtPlot);
         }
         
-        for (RimSummaryCurve* curve : m_summaryCurves)
+        for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
         {
             curve->setParentQwtPlot(m_qwtPlot);
         }
@@ -1164,6 +1165,31 @@ void RimSummaryPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::initAfterRead()
+{
+    // Move summary curves from obsolete storage to the new curve collection
+    std::vector<RimSummaryCurve*> curvesToMove;
+
+    for (auto& curveFilter : m_curveFilters_OBSOLETE)
+    {
+        const auto& tmpCurves = curveFilter->curves();
+        curvesToMove.insert(curvesToMove.end(), tmpCurves.begin(), tmpCurves.end());
+        curveFilter->clearCurvesWithoutDelete();
+    }
+    m_curveFilters_OBSOLETE.clear();
+
+    curvesToMove.insert(curvesToMove.end(), m_summaryCurves_OBSOLETE.begin(), m_summaryCurves_OBSOLETE.end());
+    m_summaryCurves_OBSOLETE.clear();
+
+    for (const auto& curve : curvesToMove)
+    {
+        m_summaryCurveCollection->addCurve(curve);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateMdiWindowTitle()
 {
     if (m_qwtPlot)
@@ -1198,7 +1224,7 @@ void RimSummaryPlot::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::detachAllCurves()
 {
-    for(RimSummaryCurveFilter* curveFilter: m_curveFilters)
+    for(RimSummaryCurveFilter* curveFilter: m_curveFilters_OBSOLETE)
     {
         curveFilter->detachQwtCurves();
     }
@@ -1208,7 +1234,7 @@ void RimSummaryPlot::detachAllCurves()
         m_summaryCurveCollection->detachQwtCurves();
     }
 
-    for(RimSummaryCurve* curve : m_summaryCurves)
+    for(RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
         curve->detachQwtCurve();
     }
@@ -1229,7 +1255,7 @@ void RimSummaryPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const
 {
-    for(RimSummaryCurve* curve : m_summaryCurves)
+    for(RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
         if(curve->qwtPlotCurve() == qwtCurve)
         {
@@ -1253,7 +1279,7 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
         }
     }
 
-    for (RimSummaryCurveFilter* curveFilter: m_curveFilters)
+    for (RimSummaryCurveFilter* curveFilter: m_curveFilters_OBSOLETE)
     {
         RimSummaryCurve* foundCurve = curveFilter->findRimCurveFromQwtCurve(qwtCurve);
         if (foundCurve) return foundCurve;
@@ -1273,7 +1299,7 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
 //--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::curveCount() const
 {
-    return m_summaryCurves.size() + m_gridTimeHistoryCurves.size() + m_asciiDataCurves.size();
+    return m_summaryCurves_OBSOLETE.size() + m_gridTimeHistoryCurves.size() + m_asciiDataCurves.size();
 }
 
 //--------------------------------------------------------------------------------------------------

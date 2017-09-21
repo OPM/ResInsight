@@ -106,6 +106,7 @@ public:
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+    virtual void                                    initAfterRead() override;
 
 private:
     void                                            updateMdiWindowTitle() override;
@@ -139,8 +140,6 @@ private:
     caf::PdmField<QString>                              m_userName;
     
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>   m_gridTimeHistoryCurves;
-    caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves;
-    caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters;
 	caf::PdmChildField<RimSummaryCurveCollection*>		m_summaryCurveCollection;
     caf::PdmChildArrayField<RimAsciiDataCurve*>         m_asciiDataCurves;
 
@@ -150,4 +149,7 @@ private:
     caf::PdmChildField<RimSummaryTimeAxisProperties*>   m_timeAxisProperties;
 
     QPointer<RiuSummaryQwtPlot>                         m_qwtPlot;
+
+    caf::PdmChildArrayField<RimSummaryCurve*>           m_summaryCurves_OBSOLETE;
+    caf::PdmChildArrayField<RimSummaryCurveFilter*>     m_curveFilters_OBSOLETE;
 };
