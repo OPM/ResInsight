@@ -156,6 +156,8 @@ void QMinimizePanel::initialize(const QString &title)
     m_collapseButton = new QPushButton( m_titleFrame);
     m_collapseButton->setFlat(true);
     m_collapseButton->setIcon(expandUpIcon());
+    m_collapseButton->setDefault(false);
+    m_collapseButton->setAutoDefault(false);
 
     m_contentFrame = new QFrame(this);
     m_contentFrame->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
