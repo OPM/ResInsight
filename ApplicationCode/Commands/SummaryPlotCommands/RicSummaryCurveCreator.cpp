@@ -309,6 +309,10 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
             m_closeButtonField = true;
         }
     }
+    else if (changedField == &m_useAutoAppearanceAssignment && m_useAutoAppearanceAssignment)
+    {
+        updateAppearanceEditor();
+    }
     else if (changedField == &m_appearanceApplyButton)
     {
         applyAppearanceToAllPreviewCurves();
