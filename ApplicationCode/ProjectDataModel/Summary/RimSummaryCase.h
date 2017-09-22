@@ -24,6 +24,7 @@
 #include "cafPdmPtrField.h"
 
 class RigSummaryCaseData;
+class RifSummaryReaderInterface;
 
 //==================================================================================================
 //
@@ -47,7 +48,7 @@ public:
 
     void                loadCase();
     void                reloadCase();
-    RigSummaryCaseData* caseData();
+    RifSummaryReaderInterface* summaryReader();
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
 

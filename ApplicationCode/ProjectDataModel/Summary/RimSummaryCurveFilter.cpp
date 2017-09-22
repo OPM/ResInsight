@@ -361,9 +361,9 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 
     for (RimSummaryCase* currentCase: m_selectedSummaryCases)
     {
-        if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
+        if (!currentCase || !currentCase->summaryReader()) continue;
 
-        RifSummaryReaderInterface* reader = currentCase->caseData()->summaryReader();
+        RifSummaryReaderInterface* reader = currentCase->summaryReader();
 
         for(const RifEclipseSummaryAddress& addr: m_uiFilterResultMultiSelection.v())
         {
@@ -524,9 +524,9 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
 {
     for (RimSummaryCase* currentCase : cases)
     {
-        if (!currentCase || !currentCase->caseData() || !currentCase->caseData()->summaryReader()) continue;
+        if (!currentCase || !currentCase->summaryReader()) continue;
 
-        RifSummaryReaderInterface* reader = currentCase->caseData()->summaryReader();
+        RifSummaryReaderInterface* reader = currentCase->summaryReader();
 
         const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
         int addressCount = static_cast<int>(allAddresses.size());
@@ -683,7 +683,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryCurveFilter::findPossibleSummaryAdd
     for(RimSummaryCase* currCase: m_selectedSummaryCases)
     {
         RifSummaryReaderInterface* reader = nullptr;
-        if(currCase && currCase->caseData()) reader = currCase->caseData()->summaryReader();
+        if(currCase) reader = currCase->summaryReader();
 
         if(reader)
         {
@@ -734,9 +734,9 @@ std::set<std::string> RimSummaryCurveFilter::getAllSummaryWellNames()
     for (RimSummaryCase* rimCase : cases)
     {
         RifSummaryReaderInterface* reader = nullptr;
-        if (rimCase && rimCase->caseData())
+        if (rimCase)
         {
-            reader = rimCase->caseData()->summaryReader();
+            reader = rimCase->summaryReader();
         }
 
         if (reader)

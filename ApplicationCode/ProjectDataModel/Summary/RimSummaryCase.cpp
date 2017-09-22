@@ -77,9 +77,14 @@ void RimSummaryCase::reloadCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigSummaryCaseData* RimSummaryCase::caseData()
+RifSummaryReaderInterface* RimSummaryCase::summaryReader()
 {
-    return m_summaryCaseData.p();
+    if (m_summaryCaseData.notNull())
+    {
+        return m_summaryCaseData->summaryReader();
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

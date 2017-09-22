@@ -549,9 +549,7 @@ RifSummaryReaderInterface* RimSummaryCurve::summaryReader() const
 {
     if (!m_summaryCase()) return nullptr;
 
-    if (!m_summaryCase->caseData()) return nullptr;
-
-    return m_summaryCase()->caseData()->summaryReader();
+    return m_summaryCase()->summaryReader();
 }
 
 //--------------------------------------------------------------------------------------------------
