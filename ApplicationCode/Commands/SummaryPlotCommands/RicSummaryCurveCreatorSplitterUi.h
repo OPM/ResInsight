@@ -66,6 +66,8 @@ private:
                                              const std::vector<caf::PdmUiItem *>& topLevelUiItems,
                                              const QString& uiConfigName);
 
+    QMinimizePanel*         createGroupBoxWithContent(caf::PdmUiGroup* group,
+                                                      const QString& uiConfigName);
 signals:
     void    signalCloseButtonPressed();
 

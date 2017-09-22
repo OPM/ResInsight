@@ -50,6 +50,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimOilField.h"
 #include "RimSummaryCaseCollection.h"
+#include "RimSummaryCurveAutoName.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -217,6 +218,12 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_appearanceApplyButton = false;
     m_appearanceApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_appearanceApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
+
+    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
+    m_curveNameConfig = new RimSummaryCurveAutoName();
+    m_curveNameConfig.uiCapability()->setUiHidden(true);
+    m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,6 +314,13 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         applyAppearanceToAllPreviewCurves();
         m_previewPlot->loadDataAndUpdate();
         m_appearanceApplyButton = false;
+    }
+    else if (changedField == &m_showLegend)
+    {
+        for (auto curve : m_previewPlot->summaryCurves())
+        {
+            curve->showLegend(m_showLegend());
+        }
     }
     else
     {
@@ -596,6 +610,12 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         m_groupAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
         m_regionAppearanceType.uiCapability()->setUiReadOnly(m_useAutoAppearanceAssignment);
     }
+
+    // Name config
+    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Curve Name Configuration", RicSummaryCurveCreatorUiKeywords::nameConfig());
+    autoNameGroup->setCollapsedByDefault(true);
+    autoNameGroup->add(&m_showLegend);
+    m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
     // Fields to be displayed directly in UI
     uiOrdering.add(&m_targetPlot);
@@ -914,6 +934,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         RimSummaryCurve* curve = new RimSummaryCurve();
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(curveDef.second);
+        curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         m_previewPlot->addCurve(curve);
         curveLookCalc.setupCurveLook(curve);
     }
@@ -1257,5 +1278,17 @@ void RicSummaryCurveCreator::createNewPlot()
             m_targetPlot = plot;
             updateTargetPlot();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreator::updateCurveNames()
+{
+    for (RimSummaryCurve* curve : m_previewPlot->summaryCurves())
+    {
+        curve->applyCurveAutoNameSettings(*m_curveNameConfig());
+        curve->updateCurveName();
     }
 }

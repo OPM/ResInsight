@@ -76,13 +76,9 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
         if (topLevelUiItems[i]->isUiGroup())
         {
             caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
-
-            QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
+            auto groupBox = createGroupBoxWithContent(group, uiConfigName);
 
             m_firstRowLayout->addWidget(groupBox);
-
-            const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
-            recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
 
             // Add group boxes until summaries are detected
 
@@ -94,17 +90,13 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
 
     m_lowerLeftLayout->insertWidget(0, getOrCreateCurveTreeWidget(), 1);
 
-    {
-        caf::PdmUiGroup* group = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::appearance(), uiConfigName);
+    caf::PdmUiGroup* appearanceGroup = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::nameConfig(), uiConfigName);
+    auto appearanceGroupBox = createGroupBoxWithContent(appearanceGroup, uiConfigName);
+    m_lowerLeftLayout->insertWidget(1, appearanceGroupBox);
 
-        QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
-
-        m_lowerLeftLayout->insertWidget(1, groupBox);
-
-        const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
-        recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
-    }
-
+    caf::PdmUiGroup* nameConfigGroup = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::nameConfig(), uiConfigName);
+    auto nameConfigGroupBox = createGroupBoxWithContent(nameConfigGroup, uiConfigName);
+    m_lowerLeftLayout->insertWidget(2, nameConfigGroupBox);
     
     m_secondRowLayout->insertWidget(1, getOrCreatePlotWidget());
 
@@ -282,4 +274,17 @@ void RicSummaryCurveCreatorSplitterUi::configureAndUpdateFields(int widgetStartI
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QMinimizePanel* RicSummaryCurveCreatorSplitterUi::createGroupBoxWithContent(caf::PdmUiGroup* group,
+                                                                            const QString& uiConfigName)
+{
+    QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
+
+    const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
+    recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
+    return groupBox;
 }

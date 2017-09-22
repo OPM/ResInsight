@@ -22,9 +22,9 @@
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCurveFilter.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "SummaryPlotCommands/RicSummaryCurveCreator.h"
 
 
 
@@ -245,11 +245,11 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
         summaryCurve->updateConnectedEditors();
     }
 
-    RimSummaryCurveFilter* summaryCurveFilter = dynamic_cast<RimSummaryCurveFilter*>(this->parentField()->ownerObject());
-    if (summaryCurveFilter)
+    RicSummaryCurveCreator* curveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->parentField()->ownerObject());
+    if (curveCreator)
     {
-        summaryCurveFilter->updateCurveNames();
-        summaryCurveFilter->updateConnectedEditors();
+        curveCreator->updateCurveNames();
+        curveCreator->updateConnectedEditors();
     }
 }
 
