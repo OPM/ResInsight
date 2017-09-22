@@ -20,8 +20,6 @@
 
 #include "RifReaderEclipseSummary.h"
 
-#include "RigSummaryCaseData.h"
-
 #include "RiaApplication.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"

@@ -18,8 +18,10 @@
 
 #include "RimGridSummaryCase.h"
 
-#include "RigSummaryCaseData.h"
+#include "RifReaderEclipseSummary.h"
+
 #include "RimEclipseCase.h"
+#include "RimFileSummaryCase.h"
 #include "RimProject.h"
 
 #include <QFileInfo>
@@ -59,6 +61,9 @@ RimGridSummaryCase::~RimGridSummaryCase()
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString summaryHeaderFilenameFromEclipseCase(RimEclipseCase* eclCase)
 {
     if (!eclCase) return QString();
@@ -70,6 +75,9 @@ QString summaryHeaderFilenameFromEclipseCase(RimEclipseCase* eclCase)
     return possibleSumHeaderFileName; 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString caseNameFromEclipseCase(RimEclipseCase* eclCase)
 {
     if (!eclCase) return QString();
@@ -160,5 +168,21 @@ QString RimGridSummaryCase::eclipseGridFileName() const
 void RimGridSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
 {
     // Shouldn't have to do anything
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimGridSummaryCase::createSummaryReaderInterface()
+{
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
+{
+    return m_summaryFileReader.p();
 }
 

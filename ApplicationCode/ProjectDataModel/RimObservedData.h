@@ -40,6 +40,12 @@ public:
     virtual QString        caseName() override;
     virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
+
+    virtual void            createSummaryReaderInterface() override;
+
+
+    virtual RifSummaryReaderInterface* summaryReader() override;
+
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >  m_summaryCategory;
     caf::PdmField<QString>                                                      m_identifierName;

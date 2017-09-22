@@ -24,7 +24,6 @@
 #include "RicSelectSummaryPlotUI.h"
 
 #include "RifReaderEclipseSummary.h"
-#include "RigSummaryCaseData.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"

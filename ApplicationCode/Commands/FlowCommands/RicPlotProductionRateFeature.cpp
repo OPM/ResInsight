@@ -25,7 +25,6 @@
 #include "RifReaderEclipseSummary.h"
 
 #include "RigSingleWellResultsData.h"
-#include "RigSummaryCaseData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseWell.h"

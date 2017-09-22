@@ -68,12 +68,12 @@ RimSummaryObservedDataFile* RimObservedDataCollection::createAndAddObservedDataF
 
     this->m_observedDataArray.push_back(newObservedData);
     newObservedData->setSummaryHeaderFilename(fileName);
+    newObservedData->createSummaryReaderInterface();
     newObservedData->updateOptionSensitivity();
 
     this->updateConnectedEditors();
 
     return newObservedData;
-
 }
 
 //--------------------------------------------------------------------------------------------------

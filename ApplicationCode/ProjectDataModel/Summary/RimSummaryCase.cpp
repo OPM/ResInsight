@@ -18,8 +18,6 @@
 
 #include "RimSummaryCase.h"
 
-#include "RigSummaryCaseData.h"
-
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -53,38 +51,6 @@ RimSummaryCase::RimSummaryCase()
 RimSummaryCase::~RimSummaryCase()
 {
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCase::loadCase()
-{
-    if (m_summaryCaseData.isNull()) m_summaryCaseData = new RigSummaryCaseData(this->summaryHeaderFilename());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCase::reloadCase()
-{
-    if (m_summaryCaseData.notNull())
-    {
-        m_summaryCaseData->openOrReloadCase(this->summaryHeaderFilename());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimSummaryCase::summaryReader()
-{
-    if (m_summaryCaseData.notNull())
-    {
-        return m_summaryCaseData->summaryReader();
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

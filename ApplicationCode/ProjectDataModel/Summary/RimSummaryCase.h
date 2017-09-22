@@ -23,7 +23,6 @@
 #include "cvfObject.h"
 #include "cafPdmPtrField.h"
 
-class RigSummaryCaseData;
 class RifSummaryReaderInterface;
 
 //==================================================================================================
@@ -46,9 +45,8 @@ public:
     void                updateAutoShortName();
     void                updateOptionSensitivity();
 
-    void                loadCase();
-    void                reloadCase();
-    RifSummaryReaderInterface* summaryReader();
+    virtual void        createSummaryReaderInterface() = 0;
+    virtual RifSummaryReaderInterface* summaryReader() = 0;
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
 
@@ -60,7 +58,6 @@ protected:
     caf::PdmField<QString>          m_shortName;
     caf::PdmField<bool>             m_useAutoShortName;
     caf::PdmField<QString>          m_summaryHeaderFilename;
-    cvf::ref<RigSummaryCaseData>    m_summaryCaseData;
     bool                            m_isObservedData;
 
 private:

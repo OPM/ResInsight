@@ -59,3 +59,21 @@ void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectP
 {
     m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedData::createSummaryReaderInterface()
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RimObservedData::summaryReader()
+{
+    throw std::logic_error("The method or operation is not implemented.");
+
+    return nullptr;
+}

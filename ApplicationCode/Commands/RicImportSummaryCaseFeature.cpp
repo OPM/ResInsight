@@ -101,8 +101,6 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     if (!sumCaseColl) return false;
 
     RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
-    newSumCase->loadCase();
-
 
     if (app->preferences()->autoCreatePlotsOnImport())
     {

@@ -22,6 +22,7 @@
 #include "cafPdmProxyValueField.h"
 
 class RimEclipseCase;
+class RifReaderEclipseSummary;
 
 //==================================================================================================
 //
@@ -29,7 +30,7 @@ class RimEclipseCase;
 //
 //==================================================================================================
 
-class RimGridSummaryCase: public RimSummaryCase
+class RimGridSummaryCase : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -43,6 +44,9 @@ public:
     virtual QString                 caseName() override;
     virtual void                    updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
+    virtual void                    createSummaryReaderInterface() override;
+    virtual RifSummaryReaderInterface* summaryReader() override;
+
 private:
     QString                         eclipseGridFileName() const;
 
@@ -50,7 +54,6 @@ private:
     caf::PdmPtrField<RimEclipseCase*>   m_eclipseCase;
     mutable caf::PdmField<QString>      m_cachedCaseName;
     caf::PdmProxyValueField<QString>    m_eclipseGridFileName;
-    //caf::PdmProxyValueField<QString>    m_eclipseSummaryFileName;
+
+    cvf::ref<RifReaderEclipseSummary>   m_summaryFileReader;
 };
-
-

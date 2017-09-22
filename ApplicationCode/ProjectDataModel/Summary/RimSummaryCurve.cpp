@@ -22,8 +22,6 @@
 
 #include "RifReaderEclipseSummary.h"
 
-#include "RigSummaryCaseData.h"
-
 #include "RiaDefines.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"

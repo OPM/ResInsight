@@ -256,9 +256,9 @@ std::vector<RimSummaryCaseCollection*> RimSummaryCaseMainCollection::summaryCase
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 {
-    for (RimSummaryCase* sumCase: allSummaryCases())
+    for (RimSummaryCase* sumCase : allSummaryCases())
     {
-        if (sumCase) sumCase->loadCase();
+        if (sumCase) sumCase->createSummaryReaderInterface();
     }
 }
 
@@ -273,6 +273,7 @@ RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromEclipse
         RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
         this->m_cases.push_back(newSumCase);
         newSumCase->setAssociatedEclipseCase(eclResCase);
+        newSumCase->createSummaryReaderInterface();
         newSumCase->updateOptionSensitivity();
         return newSumCase;
     }
@@ -288,6 +289,7 @@ RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromFileNam
 
     this->m_cases.push_back(newSumCase);
     newSumCase->setSummaryHeaderFilename(fileName);
+    newSumCase->createSummaryReaderInterface();
     newSumCase->updateOptionSensitivity();
 
     return newSumCase;

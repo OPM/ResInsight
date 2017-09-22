@@ -108,7 +108,6 @@ bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QStrin
     if (!observedDataCollection) return false;
 
     RimSummaryObservedDataFile* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName);
-    newObservedData->loadCase();
 
     return true;
 }

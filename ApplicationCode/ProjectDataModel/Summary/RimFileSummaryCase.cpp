@@ -20,6 +20,10 @@
 #include "RimTools.h"
 
 #include "QFileInfo"
+#include "RifReaderEclipseSummary.h"
+#include "QDir"
+#include "RifEclipseSummaryTools.h"
+#include "RiaLogging.h"
 
 
 //==================================================================================================
@@ -80,4 +84,43 @@ QString RimFileSummaryCase::caseName()
 void RimFileSummaryCase::updateFilePathsFromProjectPath(const QString & newProjectPath, const QString & oldProjectPath)
 {
     m_summaryHeaderFilename = RimTools::relocateFile(m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::createSummaryReaderInterface()
+{
+    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader(this->summaryHeaderFilename());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseSummary* RimFileSummaryCase::findRelatedFilesAndCreateReader(const QString& headerFileName)
+{
+    std::string headerFileNameStd;
+    std::vector<std::string> dataFileNames;
+    std::string nativeSumHeadFileName = QDir::toNativeSeparators(headerFileName).toStdString();
+    RifEclipseSummaryTools::findSummaryFiles(nativeSumHeadFileName, &headerFileNameStd, &dataFileNames);
+
+    RifReaderEclipseSummary* summaryFileReader = new RifReaderEclipseSummary;
+
+    if (!summaryFileReader->open(headerFileNameStd, dataFileNames))
+    {
+        RiaLogging::warning(QString("Failed to open summary file %1").arg(headerFileName));
+
+        delete summaryFileReader;
+        summaryFileReader = nullptr;
+    }
+
+    return summaryFileReader;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
+{
+    return m_summaryFileReader.p();
 }

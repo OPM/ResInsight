@@ -140,8 +140,6 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
                 if (newSumCase)
                 {
-                    newSumCase->loadCase();
-
                     RimSummaryCase* existingFileSummaryCase = sumCaseColl->findSummaryCaseFromFileName(newSumCase->summaryHeaderFilename());
                     if (existingFileSummaryCase)
                     {
