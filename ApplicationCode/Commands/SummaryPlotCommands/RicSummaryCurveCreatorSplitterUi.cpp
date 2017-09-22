@@ -90,7 +90,7 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
 
     m_lowerLeftLayout->insertWidget(0, getOrCreateCurveTreeWidget(), 1);
 
-    caf::PdmUiGroup* appearanceGroup = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::nameConfig(), uiConfigName);
+    caf::PdmUiGroup* appearanceGroup = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::appearance(), uiConfigName);
     auto appearanceGroupBox = createGroupBoxWithContent(appearanceGroup, uiConfigName);
     m_lowerLeftLayout->insertWidget(1, appearanceGroupBox);
 
