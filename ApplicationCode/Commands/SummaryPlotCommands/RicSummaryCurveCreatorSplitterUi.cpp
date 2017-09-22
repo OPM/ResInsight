@@ -87,22 +87,19 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
         }
     }
 
-
-    m_lowerLeftLayout->insertWidget(0, getOrCreateCurveTreeWidget(), 1);
-
     caf::PdmUiGroup* appearanceGroup = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::appearance(), uiConfigName);
     auto appearanceGroupBox = createGroupBoxWithContent(appearanceGroup, uiConfigName);
-    m_lowerLeftLayout->insertWidget(1, appearanceGroupBox);
+    m_lowerLeftLayout->insertWidget(0, appearanceGroupBox);
 
     caf::PdmUiGroup* nameConfigGroup = findGroupByKeyword(topLevelUiItems, RicSummaryCurveCreatorUiKeywords::nameConfig(), uiConfigName);
     auto nameConfigGroupBox = createGroupBoxWithContent(nameConfigGroup, uiConfigName);
-    m_lowerLeftLayout->insertWidget(2, nameConfigGroupBox);
-    
+    m_lowerLeftLayout->insertWidget(1, nameConfigGroupBox);
+
+    m_lowerLeftLayout->insertWidget(2, getOrCreateCurveTreeWidget(), 1);
+
     m_secondRowLayout->insertWidget(1, getOrCreatePlotWidget());
 
-
     // Fields at bottom of dialog
-
     configureAndUpdateFields(1, m_bottomFieldLayout, topLevelUiItems, uiConfigName);
 }
 

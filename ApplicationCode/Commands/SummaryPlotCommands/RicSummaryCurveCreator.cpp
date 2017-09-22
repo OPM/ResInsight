@@ -591,14 +591,15 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 
 
     // Appearance settings
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Appearance Settings", RicSummaryCurveCreatorUiKeywords::appearance());
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Curve Appearance Settings", RicSummaryCurveCreatorUiKeywords::appearance());
+    caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup("Appearance Type Assignment");
     appearanceGroup->setCollapsedByDefault(true);
-    appearanceGroup->add(&m_useAutoAppearanceAssignment);
-    appearanceGroup->add(&m_caseAppearanceType);
-    appearanceGroup->add(&m_variableAppearanceType);
-    appearanceGroup->add(&m_wellAppearanceType);
-    appearanceGroup->add(&m_groupAppearanceType);
-    appearanceGroup->add(&m_regionAppearanceType);
+    appearanceSubGroup->add(&m_useAutoAppearanceAssignment);
+    appearanceSubGroup->add(&m_caseAppearanceType);
+    appearanceSubGroup->add(&m_variableAppearanceType);
+    appearanceSubGroup->add(&m_wellAppearanceType);
+    appearanceSubGroup->add(&m_groupAppearanceType);
+    appearanceSubGroup->add(&m_regionAppearanceType);
     appearanceGroup->add(&m_appearanceApplyButton);
 
     // Appearance option sensitivity
