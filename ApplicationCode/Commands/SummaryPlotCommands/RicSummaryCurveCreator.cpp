@@ -263,13 +263,6 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
         loadDataAndUpdatePlot();
     }
 
-    // Select all summary categories
-    m_selectedSummaryCategories.v().clear();
-    for (size_t i = 0; i < caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::size(); ++i)
-    {
-        m_selectedSummaryCategories.v().push_back(caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::fromIndex(i));
-    }
-
     caf::PdmUiItem::updateConnectedEditors();
 }
 
@@ -1066,8 +1059,17 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
 void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSummaryPlot)
 {
     m_previewPlot->deleteAllSummaryCurves();
+    m_selectedSummaryCategories.v().clear();
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
+        // Select summary category if not already selected
+        auto& selectedCategories = m_selectedSummaryCategories();
+        if (std::find(selectedCategories.begin(), selectedCategories.end(),
+                      curve->summaryAddress().category()) == selectedCategories.end())
+        {
+            m_selectedSummaryCategories.v().push_back(curve->summaryAddress().category());
+        }
+
         // Select case if not already selected
         if (std::find(m_selectedCases.begin(), m_selectedCases.end(), curve->summaryCase()) == m_selectedCases.end())
         {
@@ -1158,6 +1160,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
 void RicSummaryCurveCreator::resetAllFields()
 {
     m_selectedCases.clear();
+    m_selectedSummaryCategories = std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>();
 
     m_previewPlot->deleteAllSummaryCurves();
     m_targetPlot = nullptr;
