@@ -20,15 +20,14 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "cvfObject.h"
+
 #include <string>
 #include <vector>
 #include <map>
 
-#include "cvfObject.h"
-
 
 class QDateTime;
-
 
 //==================================================================================================
 //
@@ -37,13 +36,15 @@ class QDateTime;
 class RifSummaryReaderInterface : public cvf::Object
 {
 public:
-    bool                                            hasAddress(const RifEclipseSummaryAddress& resultAddress);
-    const std::vector<RifEclipseSummaryAddress>&    allResultAddresses();
-    virtual const std::vector<time_t>&              timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;
-    virtual bool                                    values(const RifEclipseSummaryAddress& resultAddress,
-                                                           std::vector<double>* values) = 0;
+    bool                                            hasAddress(const RifEclipseSummaryAddress& resultAddress) const;
+    const std::vector<RifEclipseSummaryAddress>&    allResultAddresses() const;
 
-    virtual std::string                             unitName(const RifEclipseSummaryAddress& resultAddress) = 0;
+    virtual const std::vector<time_t>&              timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;
+    
+    virtual bool                                    values(const RifEclipseSummaryAddress& resultAddress,
+                                                           std::vector<double>* values) const = 0;
+
+    virtual std::string                             unitName(const RifEclipseSummaryAddress& resultAddress) const = 0;
 
     // TODO: Move this to a tools class with static members
     static std::vector<QDateTime>                        fromTimeT(const std::vector<time_t>& timeSteps);
@@ -51,4 +52,3 @@ public:
 protected:
     std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
 };
-

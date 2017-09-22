@@ -49,9 +49,9 @@ public:
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
     virtual bool                        values(const RifEclipseSummaryAddress& resultAddress,
-                                               std::vector<double>* values) override;
+                                               std::vector<double>* values) const override;
 
-    std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) override;
+    std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
     RifEclipseSummaryAddress            address(const QString& quantity,

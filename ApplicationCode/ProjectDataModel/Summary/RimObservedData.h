@@ -36,12 +36,13 @@ class RimObservedData : public RimSummaryCase
 public:
     RimObservedData();
 
-    virtual QString        summaryHeaderFilename() const  override;
+    virtual QString        summaryHeaderFilename() const override;
     virtual QString        caseName() override;
     virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;
 
     QString                                      identifierName() const;
     RifEclipseSummaryAddress::SummaryVarCategory summaryCategory() const;
+
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >  m_summaryCategory;
     caf::PdmField<QString>                                                      m_identifierName;

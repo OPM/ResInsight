@@ -40,12 +40,12 @@ public:
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) override;
-    std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) override;
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
     int                                 timeStepCount() const;
-    int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
+    int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress) const;
     void                                buildMetaData();
 
 private:

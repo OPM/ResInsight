@@ -65,7 +65,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual bool values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) override
+    virtual bool values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override
     {
         values->push_back(20);
         values->push_back(40);
@@ -79,7 +79,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    virtual std::string unitName(const RifEclipseSummaryAddress& resultAddress) override
+    virtual std::string unitName(const RifEclipseSummaryAddress& resultAddress) const override
     {
         return "Unknown unit";
     }
