@@ -18,12 +18,13 @@
 
 #include "RimSummaryCase.h"
 
-#include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
+
+#include "cvfAssert.h"
 
 #include <QFileInfo>
 

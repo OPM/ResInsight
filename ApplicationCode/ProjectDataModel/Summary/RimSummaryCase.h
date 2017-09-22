@@ -17,11 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
 #include "cafPdmField.h"
-#include "cvfObject.h"
-#include "cafPdmPtrField.h"
+#include "cafPdmObject.h"
 
 class RifSummaryReaderInterface;
 

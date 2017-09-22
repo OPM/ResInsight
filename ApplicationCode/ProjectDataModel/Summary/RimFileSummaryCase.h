@@ -19,6 +19,8 @@
 
 #include "RimSummaryCase.h"
 
+#include "cvfObject.h"
+
 
 class RifReaderEclipseSummary;
 

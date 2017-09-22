@@ -20,6 +20,9 @@
 #include "RimSummaryCase.h"
 
 #include "cafPdmProxyValueField.h"
+#include "cafPdmPtrField.h"
+
+#include "cvfObject.h"
 
 class RimEclipseCase;
 class RifReaderEclipseSummary;
