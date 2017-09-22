@@ -29,6 +29,8 @@
 class RimSummaryCurve;
 class RimAsciiDataCurve;
 class RicPasteAsciiDataToSummaryPlotFeatureUi;
+class RimSummaryPlotCollection;
+class RimSummaryPlot;
 
 //==================================================================================================
 /// 
@@ -58,4 +60,6 @@ private:
     static std::vector<RimAsciiDataCurve*> parseCurves(QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings);
 
     static CurveType                       guessCurveType(const QString& curveName);
+
+    static RimSummaryPlot*                 createSummaryPlotAndAddToPlotCollection(RimSummaryPlotCollection *plotCollection);
 };

@@ -96,12 +96,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered(bool isChecked)
         {
             return;
         }
-        summaryPlot = RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotCollection, nullptr);
-        if (!summaryPlot)
-        {
-            return;
-        }
-        summaryPlot->setDescription(pasteOptions.plotTitle());
+        summaryPlot = createSummaryPlotAndAddToPlotCollection(summaryPlotCollection);
     }
 
     caf::PdmSettings::writeFieldsToApplicationStore(&pasteOptions);
@@ -239,4 +234,17 @@ RicPasteAsciiDataToSummaryPlotFeature::CurveType RicPasteAsciiDataToSummaryPlotF
         return CURVE_GAS;
     }
     return CURVE_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection(RimSummaryPlotCollection *plotCollection)
+{
+    auto summaryPlot = new RimSummaryPlot();
+    summaryPlot->setDescription(QString("Summary Plot %1").arg(plotCollection->summaryPlots.size() + 1));
+    plotCollection->summaryPlots().push_back(summaryPlot);
+    plotCollection->updateConnectedEditors();
+    summaryPlot->loadDataAndUpdate();
+    return summaryPlot;
 }
