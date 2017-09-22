@@ -79,9 +79,9 @@ RimSummaryObservedDataFile* RimObservedDataCollection::createAndAddObservedDataF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimObservedData*> RimObservedDataCollection::allObservedData()
+std::vector<RimSummaryCase*> RimObservedDataCollection::allObservedData()
 {
-    std::vector<RimObservedData*> allObservedData;
+    std::vector<RimSummaryCase*> allObservedData;
 
     allObservedData.insert(allObservedData.begin(), m_observedDataArray.begin(), m_observedDataArray.end());
 

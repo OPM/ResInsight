@@ -22,6 +22,7 @@
 #include "RimTools.h"
 
 #include <QFileInfo>
+#include "RifReaderObservedData.h"
 
 CAF_PDM_SOURCE_INIT(RimSummaryObservedDataFile, "SummaryObservedDataFile");
 
@@ -51,4 +52,25 @@ void RimSummaryObservedDataFile::setSummaryHeaderFilename(const QString& fileNam
 
     this->updateAutoShortName();
     this->updateTreeItemName();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryObservedDataFile::createSummaryReaderInterface()
+{
+    m_summaryReader = new RifReaderObservedData;
+
+    if (!m_summaryReader->open(this->summaryHeaderFilename(), identifierName(), summaryCategory()))
+    {
+        m_summaryReader = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifSummaryReaderInterface* RimSummaryObservedDataFile::summaryReader()
+{
+    return m_summaryReader.p();
 }

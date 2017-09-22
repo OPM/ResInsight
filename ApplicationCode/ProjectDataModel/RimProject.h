@@ -95,7 +95,7 @@ public:
 
     void            allCases(std::vector<RimCase*>& cases);
     void            allSummaryCases(std::vector<RimSummaryCase*>& sumCases);
-    void            allObservedData(std::vector<RimObservedData*>& observedData);
+    void            allObservedData(std::vector<RimSummaryCase*>& observedData);
     void            allNotLinkedViews(std::vector<RimView*>& views);
     void            allVisibleViews(std::vector<RimView*>& views);
 

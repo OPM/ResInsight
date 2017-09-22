@@ -21,6 +21,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmChildArrayField.h"
 
+class RimSummaryCase;
 class RimObservedData;
 class RimSummaryObservedDataFile;
 
@@ -38,7 +39,7 @@ public:
     void                            removeObservedData(RimObservedData* observedData);
     void                            addObservedData(RimObservedData* observedData);
     RimSummaryObservedDataFile*     createAndAddObservedDataFromFileName(const QString& fileName);
-    std::vector<RimObservedData*>   allObservedData();
+    std::vector<RimSummaryCase*>   allObservedData();
 
 private:
     caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;

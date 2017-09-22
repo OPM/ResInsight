@@ -24,23 +24,25 @@
 #include "cafPdmField.h"
 #include "cvfObject.h"
 
-class RifReaderObservedData;
+class MyTestInterface;
 
 //==================================================================================================
 //
 //==================================================================================================
-class RimSummaryObservedDataFile : public RimObservedData
+class RimObservedRsmspecColumnBasedData : public RimObservedData
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimSummaryObservedDataFile();
-    virtual ~RimSummaryObservedDataFile();
+    RimObservedRsmspecColumnBasedData();
+    virtual ~RimObservedRsmspecColumnBasedData();
 
     void setSummaryHeaderFilename(const QString& fileName);
 
     virtual void createSummaryReaderInterface() override;
+
+
     virtual RifSummaryReaderInterface* summaryReader() override;
 
 private:
-    cvf::ref<RifReaderObservedData> m_summaryReader;
+    cvf::ref<MyTestInterface> m_summeryReader;
 };

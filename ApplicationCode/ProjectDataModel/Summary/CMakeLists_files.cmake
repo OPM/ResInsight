@@ -25,6 +25,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.h
 ${CEE_CURRENT_LIST_DIR}RimObservedData.h
 ${CEE_CURRENT_LIST_DIR}RimObservedDataCollection.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryObservedDataFile.h
+${CEE_CURRENT_LIST_DIR}RimObservedRsmspecColumnBasedData.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -48,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RimSummaryYAxisProperties.cpp
 ${CEE_CURRENT_LIST_DIR}RimObservedData.cpp
 ${CEE_CURRENT_LIST_DIR}RimObservedDataCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryObservedDataFile.cpp
+${CEE_CURRENT_LIST_DIR}RimObservedRsmspecColumnBasedData.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -21,12 +21,8 @@
 #include "RifColumnBasedAsciiParser.h"
 #include "RifEclipseSummaryAddress.h"
 
-#include "ert/ecl/ecl_sum.h"
-
-#include <string>
-#include <assert.h>
-
 #include <QDateTime>
+#include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -47,15 +43,44 @@ RifReaderObservedData::~RifReaderObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::open(const std::string& headerFileName)
+bool RifReaderObservedData::open(const QString& headerFileName,
+                                 const QString& identifierName,
+                                 RifEclipseSummaryAddress::SummaryVarCategory summaryCategory)
 {
+    QString dateFormat = "yyyy-MM-dd";
+    QString cellSeparator = "\t";
+    QLocale decimalLocale = QLocale::Norwegian;
 
-    if (headerFileName.empty()) return false;
-    QString data = headerFileName.data();
+    QString data;
+    QTextStream out(&data);
+    out << "Date" << "\t" << "Oil" << "\t" << "PW" << "\n";
+    out << "1993-02-23" << "\t" << "10" << "\t" << "1" << "\n";
+    out << "1993-06-15" << "\t" << "20" << "\t" << "2" << "\n";
+    out << "1994-02-26" << "\t" << "30" << "\t" << "3" << "\n";
+    out << "1994-05-23" << "\t" << "40" << "\t" << "4" << "\n";
 
-    return false;
-    //RiaParseAsciiData::parseData(data, settings);
-    //m_asciiParser = RifColumnBasedAsciiParser(data)
+
+    m_asciiParser = std::unique_ptr<RifColumnBasedAsciiParser>(new RifColumnBasedAsciiParser(data, dateFormat, decimalLocale, cellSeparator));
+
+    m_timeSteps.clear();
+    if (m_asciiParser)
+    {
+        for (QDateTime timeStep : m_asciiParser->timeSteps())
+        {
+            time_t t = timeStep.toTime_t();
+            m_timeSteps.push_back(t);
+        }
+
+        m_allResultAddresses.clear();
+        for (auto s : m_asciiParser->headers())
+        {
+            m_allResultAddresses.push_back(address(s, identifierName, summaryCategory));
+        }
+    }
+
+    if (!m_asciiParser) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +88,24 @@ bool RifReaderObservedData::open(const std::string& headerFileName)
 //--------------------------------------------------------------------------------------------------
 bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values)
 {
+    size_t columnIndex = m_allResultAddresses.size();
+
+    for (size_t i = 0; i < m_allResultAddresses.size(); i++)
+    {
+        if (resultAddress == m_allResultAddresses[i])
+        {
+            columnIndex = i;
+        }
+    }
+
+    if (columnIndex != m_allResultAddresses.size())
+    {
+        for (auto& v : m_asciiParser->columnValues(columnIndex))
+        {
+            values->push_back(v);
+        }
+    }
+
     return true;
 }
 
@@ -71,25 +114,17 @@ bool RifReaderObservedData::values(const RifEclipseSummaryAddress& resultAddress
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifReaderObservedData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-//     if (m_asciiParser)
-//     {
-//         for (QDateTime timeStep : m_asciiParser->timeSteps())
-//         {
-//             time_t t = timeStep.toTime_t();
-//             timeStepsTime_t.push_back(t);
-//         }
-//     }
-
-    return m_timeStepsTime_t;
+    return m_timeSteps;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifReaderObservedData::address(const AsciiData& asciiData, std::string identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategory)
+RifEclipseSummaryAddress RifReaderObservedData::address(const QString& quantity,
+                                                        const QString& identifierName, 
+                                                        RifEclipseSummaryAddress::SummaryVarCategory summaryCategory)
 {
-    std::string        quantityName;
+    std::string        quantityName = quantity.toStdString();
     int                regionNumber(-1);
     int                regionNumber2(-1);
     std::string        wellGroupName;
@@ -103,13 +138,13 @@ RifEclipseSummaryAddress RifReaderObservedData::address(const AsciiData& asciiDa
     switch (summaryCategory)
     {
     case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
-        wellGroupName = identifierName;
+        wellGroupName = identifierName.toStdString();
         break;
     case RifEclipseSummaryAddress::SUMMARY_WELL:
-        wellName = identifierName;
+        wellName = identifierName.toStdString();
         break;
     case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
-        lgrName = identifierName;
+        lgrName = identifierName.toStdString();
         break;
     default:
         break;

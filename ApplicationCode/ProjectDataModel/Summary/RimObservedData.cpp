@@ -21,7 +21,7 @@
 
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT(RimObservedData, "ObservedData");
+CAF_PDM_ABSTRACT_SOURCE_INIT(RimObservedData, "ObservedData");
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -63,17 +63,16 @@ void RimObservedData::updateFilePathsFromProjectPath(const QString & newProjectP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedData::createSummaryReaderInterface()
+QString RimObservedData::identifierName() const
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    return m_identifierName();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimObservedData::summaryReader()
+RifEclipseSummaryAddress::SummaryVarCategory RimObservedData::summaryCategory() const
 {
-    throw std::logic_error("The method or operation is not implemented.");
-
-    return nullptr;
+    return m_summaryCategory();
 }
+

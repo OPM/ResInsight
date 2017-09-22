@@ -488,6 +488,10 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         {
             oilField->observedDataCollection = new RimObservedDataCollection();
         }
+        for (auto observedCases : oilField->observedDataCollection()->allObservedData())
+        {
+            observedCases->createSummaryReaderInterface();
+        }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
         oilField->fractureDefinitionCollection()->loadAndUpdateData();
