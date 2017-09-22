@@ -36,18 +36,18 @@ public:
     RifReaderEclipseSummary();
     ~RifReaderEclipseSummary();
 
-    virtual bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames) override;
+    bool                                open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames);
 
-    virtual const std::vector<time_t>&                   timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
-    virtual bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) override;
-    std::string                                          unitName(const RifEclipseSummaryAddress& resultAddress) override;
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) override;
+    std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) override;
 
 private:
-    virtual int                                          timeStepCount() const;
-    int                                                  indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
+    int                                 timeStepCount() const;
+    int                                 indexFromAddress(const RifEclipseSummaryAddress& resultAddress);
+    void                                buildMetaData();
 
-    virtual void                                         buildMetaData() override;
 private:
     // Taken from ecl_sum.h
     typedef struct ecl_sum_struct    ecl_sum_type;

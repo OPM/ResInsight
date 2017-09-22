@@ -82,6 +82,8 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
             m_timeSteps.push_back(sim_time);
         }
 
+        buildMetaData();
+
         return true;
     }
 
@@ -288,8 +290,6 @@ const std::vector<time_t>& RifReaderEclipseSummary::timeSteps(const RifEclipseSu
 //--------------------------------------------------------------------------------------------------
 int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& resultAddress)
 {
-    this->buildMetaData();
-
     auto it = m_resultAddressToErtNodeIdx.find(resultAddress);
     if (it != m_resultAddressToErtNodeIdx.end())
     {
@@ -304,7 +304,10 @@ int RifReaderEclipseSummary::indexFromAddress(const RifEclipseSummaryAddress& re
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseSummary::buildMetaData()
 {
-    if(m_allResultAddresses.size() == 0 && m_ecl_SmSpec)
+    m_allResultAddresses.clear();
+    m_resultAddressToErtNodeIdx.clear();
+
+    if(m_ecl_SmSpec)
     {
         int varCount = ecl_smspec_num_nodes(m_ecl_SmSpec);
         for(int i = 0; i < varCount; i++)

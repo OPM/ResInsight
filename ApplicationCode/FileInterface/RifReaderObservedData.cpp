@@ -47,7 +47,7 @@ RifReaderObservedData::~RifReaderObservedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderObservedData::open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames)
+bool RifReaderObservedData::open(const std::string& headerFileName)
 {
 
     if (headerFileName.empty()) return false;
@@ -81,17 +81,6 @@ const std::vector<time_t>& RifReaderObservedData::timeSteps(const RifEclipseSumm
 //     }
 
     return m_timeStepsTime_t;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifReaderObservedData::buildMetaData()
-{
-    if (m_allResultAddresses.size() == 0)
-    {
-
-    }
 }
 
 

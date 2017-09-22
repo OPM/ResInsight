@@ -42,7 +42,7 @@ public:
     RifReaderObservedData();
     ~RifReaderObservedData();
 
-    virtual bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames) override;
+    bool                                                open(const std::string& headerFileName);
 
     virtual const std::vector<time_t>&                   timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
@@ -50,8 +50,6 @@ public:
     std::string                                          unitName(const RifEclipseSummaryAddress& resultAddress) override;
 
 private:
-    virtual void                                         buildMetaData() override;
-
     RifEclipseSummaryAddress                             address(const AsciiData& asciiData, std::string identifierName, RifEclipseSummaryAddress::SummaryVarCategory summaryCategor);
 private:
     RifColumnBasedAsciiParser*                           m_asciiParser;

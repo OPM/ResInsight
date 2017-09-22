@@ -28,8 +28,6 @@
 //--------------------------------------------------------------------------------------------------
 const std::vector<RifEclipseSummaryAddress>& RifSummaryReaderInterface::allResultAddresses()
 {
-    this->buildMetaData();
-
     return m_allResultAddresses;
 }
 
@@ -54,8 +52,6 @@ std::vector<QDateTime> RifSummaryReaderInterface::fromTimeT(const std::vector<ti
 //--------------------------------------------------------------------------------------------------
 bool RifSummaryReaderInterface::hasAddress(const RifEclipseSummaryAddress& resultAddress)
 {
-    this->buildMetaData();
-
     for (RifEclipseSummaryAddress summaryAddress : m_allResultAddresses)
     {
         if (summaryAddress == resultAddress)

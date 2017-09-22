@@ -37,21 +37,17 @@ class QDateTime;
 class RifSummaryReaderInterface : public cvf::Object
 {
 public:
-    virtual bool                                         open(const std::string& headerFileName, const std::vector<std::string>& dataFileNames) = 0;
+    bool                                            hasAddress(const RifEclipseSummaryAddress& resultAddress);
+    const std::vector<RifEclipseSummaryAddress>&    allResultAddresses();
+    virtual const std::vector<time_t>&              timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;
+    virtual bool                                    values(const RifEclipseSummaryAddress& resultAddress,
+                                                           std::vector<double>* values) = 0;
 
-    bool                                                 hasAddress(const RifEclipseSummaryAddress& resultAddress);
-    const std::vector<RifEclipseSummaryAddress>&         allResultAddresses();
-    virtual const std::vector<time_t>&                   timeSteps(const RifEclipseSummaryAddress& resultAddress) const = 0;
-
-    virtual bool                                         values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) = 0;
-    virtual std::string                                  unitName(const RifEclipseSummaryAddress& resultAddress) = 0;
+    virtual std::string                             unitName(const RifEclipseSummaryAddress& resultAddress) = 0;
 
     // TODO: Move this to a tools class with static members
     static std::vector<QDateTime>                        fromTimeT(const std::vector<time_t>& timeSteps);
     
-protected:
-    virtual void                                         buildMetaData() = 0;
-
 protected:
     std::vector<RifEclipseSummaryAddress> m_allResultAddresses;
 };
