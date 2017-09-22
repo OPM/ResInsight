@@ -55,7 +55,13 @@ namespace caf
 
 class PdmUiComboBoxEditorAttribute : public PdmUiEditorAttribute
 {
+public:
+    bool    adjustWidthToContents;
 
+    PdmUiComboBoxEditorAttribute()
+    {
+        adjustWidthToContents = false;
+    }
 };
 
 

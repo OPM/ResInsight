@@ -51,6 +51,7 @@
 #include "RimOilField.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurveAutoName.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -179,6 +180,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
+    //m_targetPlot
     m_previewPlot = new RimSummaryPlot();
 
     for (const auto& itemTypes : m_identifierFieldsMap)
@@ -1046,6 +1048,14 @@ void RicSummaryCurveCreator::defineEditorAttribute(const caf::PdmFieldHandle* fi
             attrib->fieldToReceiveCurrentItemValue = &m_currentSummaryCategory;
             attrib->showTextFilter = false;
             attrib->showToggleAllCheckbox = false;
+        }
+    }
+    else if (&m_targetPlot == field)
+    {
+        caf::PdmUiComboBoxEditorAttribute* attrib = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*> (attribute);
+        if (attrib)
+        {
+            attrib->adjustWidthToContents = true;
         }
     }
 }

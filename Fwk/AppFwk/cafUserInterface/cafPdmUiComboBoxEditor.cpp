@@ -86,6 +86,20 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
             m_comboBox->addItem(field()->uiValue().toString());
             m_comboBox->setCurrentIndex(0);
         }
+
+        // Handle attributes
+        PdmUiComboBoxEditorAttribute attributes;
+        caf::PdmUiObjectHandle* uiObject = uiObj(field()->fieldHandle()->ownerObject());
+        if (uiObject)
+        {
+            uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &attributes);
+        }
+
+        if (attributes.adjustWidthToContents)
+        {
+            m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        }
+
         m_comboBox->blockSignals(false);
     }
 }
