@@ -12,7 +12,10 @@ RifReaderObservedData *-- "N" RifColumnBasedAsciiParser
 RimSummaryCase <|-- RimFileSummaryCase
 RimSummaryCase <|-- RimObservedData
 
-RimObservedData <|-- RimSummaryObservedDataFile
+RimObservedData <|-- RimObservedAsciiColumnBasedData
+
+RimObservedData <|-- RimObservedRsmspecColumnBasedData
+RimObservedData <|-- RimObservedRsmspecKeywordBasedData
 
 
 @enduml
