@@ -25,18 +25,18 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmChildField.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressQMetaType.h"
 #include "RiaDefines.h"
 #include "RimPlotCurve.h"
 
 #include "cafAppEnum.h"
-
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
+
 
 class RimSummaryAddress: public caf::PdmObject
 {
@@ -124,5 +124,5 @@ private:
 
     // Filter fields
     caf::PdmChildField<RimSummaryFilter*>   m_summaryFilter;
-    caf::PdmField<int>                      m_uiFilterResultSelection;
+    caf::PdmField<RifEclipseSummaryAddress> m_uiFilterResultSelection;
 };

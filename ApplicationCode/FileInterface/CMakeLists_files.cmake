@@ -24,6 +24,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
 ${CEE_CURRENT_LIST_DIR}RifReaderSettings.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
+${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddressQMetaType.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
 

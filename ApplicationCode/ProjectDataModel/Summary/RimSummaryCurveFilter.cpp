@@ -41,6 +41,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
+// See also corresponding fake implementations in RimSummaryCurve
 
 QTextStream& operator << (QTextStream& str, const std::vector<RifEclipseSummaryAddress>& sobj)
 {

@@ -28,7 +28,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmPtrArrayField.h"
 
-#include "RifEclipseSummaryAddress.h"
+#include "RifEclipseSummaryAddressQMetaType.h"
 
 #include "RiaDefines.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
@@ -43,7 +43,7 @@ class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
 
 
-Q_DECLARE_METATYPE(RifEclipseSummaryAddress);
+
 
 //==================================================================================================
 ///  

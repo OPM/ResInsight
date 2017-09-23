@@ -40,6 +40,20 @@
 
 #include "qwt_date.h"
 
+// See also corresponding fake implementations in RimSummaryCurveFilter
+
+QTextStream& operator << (QTextStream& str, const RifEclipseSummaryAddress& sobj)
+{
+    CVF_ASSERT(false);
+    return str;
+}
+
+QTextStream& operator >> (QTextStream& str, RifEclipseSummaryAddress& sobj)
+{
+    CVF_ASSERT(false);
+    return str;
+}
+
 
 CAF_PDM_SOURCE_INIT(RimSummaryAddress, "SummaryAddress");
 
@@ -311,27 +325,21 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
         if(m_summaryCase)
         {
             RifSummaryReaderInterface* reader = summaryReader();
-            int addressCount = 0;
             if(reader)
             {
                 const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-                addressCount = static_cast<int>(allAddresses.size());
-                std::map<RifEclipseSummaryAddress, int> addrToIdxMap;
-                for(int i = 0; i <addressCount; i++)
-                {
-                    if (!m_summaryFilter->isIncludedByFilter(allAddresses[i] )) continue;
-                    addrToIdxMap[allAddresses[i]] = i;
-                }
 
-                for (const auto& addrIntPair: addrToIdxMap)
+                for(auto& address : allAddresses)
                 {
-                    std::string name = addrIntPair.first.uiText();
+                    if (!m_summaryFilter->isIncludedByFilter(address )) continue;
+
+                    std::string name = address.uiText();
                     QString s = QString::fromStdString(name);
-                    options.push_back(caf::PdmOptionItemInfo(s, addrIntPair.second));
+                    options.push_back(caf::PdmOptionItemInfo(s, QVariant::fromValue( address)));
                 }
             }
 
-            options.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), addressCount));
+            options.push_front(caf::PdmOptionItemInfo(RiaDefines::undefinedResultName(), QVariant::fromValue( RifEclipseSummaryAddress() )));
 
             if(useOptionsOnly) *useOptionsOnly = true;
         }
@@ -366,22 +374,12 @@ void RimSummaryCurve::onLoadDataAndUpdate()
 {
     this->RimPlotCurve::updateCurvePresentation();
 
+    updateCurveAppearance();
+
     m_selectedVariableDisplayField = QString::fromStdString(m_curveVariable->address().uiText());
 
-    RifSummaryReaderInterface* reader = summaryReader();
-    if (reader)
-    {
-        const std::vector<RifEclipseSummaryAddress> allAddresses = reader->allResultAddresses();
-
-        for (size_t i = 0; i < allAddresses.size(); i++)
-        {
-            if (allAddresses[i].uiText() == m_curveVariable->address().uiText())
-            {
-                m_uiFilterResultSelection = static_cast<int>(i);
-                updateConnectedEditors();
-            }
-        }
-    }
+    m_uiFilterResultSelection = m_curveVariable->address();
+    updateConnectedEditors();
 
     if (isCurveVisible())
     {
@@ -502,21 +500,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
 
     if(changedField == &m_uiFilterResultSelection)
     {
-		if (summaryReader())
-		{
-			if (0 <= m_uiFilterResultSelection() && static_cast<size_t>(m_uiFilterResultSelection()) < summaryReader()->allResultAddresses().size())
-			{
-				m_curveVariable->setAddress(summaryReader()->allResultAddresses()[m_uiFilterResultSelection()]);
-			}
-			else
-			{
-				m_curveVariable->setAddress(RifEclipseSummaryAddress());
-			}
-		}
-        else
-        {
-            m_curveVariable->setAddress(RifEclipseSummaryAddress());
-        }
+        m_curveVariable->setAddress(m_uiFilterResultSelection());
 
         this->calculateCurveInterpolationFromAddress();
         this->loadDataAndUpdate();
