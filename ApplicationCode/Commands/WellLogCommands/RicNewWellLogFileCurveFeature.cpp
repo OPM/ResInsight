@@ -174,7 +174,7 @@ void RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(RimWellLogTrac
         {
             plotCurve->setWellPath(wellPath);
             plotCurve->setWellLogChannelName(wellLogFileChannels[cIdx]->name());
-            plotCurve->loadDataAndUpdate();
+            plotCurve->loadDataAndUpdate(true);
             plotCurve->updateConnectedEditors();
         }
     }

@@ -98,7 +98,7 @@ QString RimWellFlowRateCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::onLoadDataAndUpdate()
+void RimWellFlowRateCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     RimWellLogCurve::updateCurvePresentation();
 

@@ -68,9 +68,10 @@ public:
     RimPlotCurve();
     virtual ~RimPlotCurve();
 
-    void                            loadDataAndUpdate();
+    void                            loadDataAndUpdate(bool updateParentPlot);
 
-    void                            setParentQwtPlot(QwtPlot* plot);
+    void                            setParentQwtPlotAndReplot(QwtPlot* plot);
+    void                            setParentQwtPlotNoReplot(QwtPlot* plot);
     void                            detachQwtCurve();
     QwtPlotCurve*                   qwtPlotCurve() const;
 
@@ -84,11 +85,14 @@ public:
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 
-    void                            updateCurveName();
+    void                            updateCurveNameAndUpdatePlotLegend();
+    void                            updateCurveNameNoLegendUpdate();
+
     QString                         curveName() const { return m_curveName; }
 
     void                            updateCurveVisibility();
-    void                            updateLegendVisibility();
+    void                            updateLegendEntryVisibilityAndPlotLegend();
+    void                            updateLegendEntryVisibilityNoPlotUpdate();
 
     void                            showLegend(bool show);
 
@@ -96,7 +100,7 @@ protected:
 
     virtual QString                 createCurveAutoName() = 0;
     virtual void                    updateZoomInParentPlot() = 0;
-    virtual void                    onLoadDataAndUpdate() = 0;
+    virtual void                    onLoadDataAndUpdate(bool updateParentPlot) = 0;
 
     void                            updateCurvePresentation();
     virtual void                    updateCurveAppearance();

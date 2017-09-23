@@ -49,8 +49,8 @@ public:
 
     bool                                    isCurvesVisible();
 
-    void                                    loadDataAndUpdate();
-    void                                    setParentQwtPlot(QwtPlot* plot);
+    void                                    loadDataAndUpdate(bool updateParentPlot);
+    void                                    setParentQwtPlotAndReplot(QwtPlot* plot);
     void                                    detachQwtCurves();
 
     RimSummaryCurve*                        findRimCurveFromQwtCurve(const QwtPlotCurve* qwtCurve) const;

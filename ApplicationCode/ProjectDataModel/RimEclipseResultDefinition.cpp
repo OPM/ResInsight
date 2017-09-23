@@ -429,7 +429,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     this->firstAncestorOrThisOfType(curve);
     if (curve)
     {
-        curve->loadDataAndUpdate();
+        curve->loadDataAndUpdate(true);
     }
 }
 

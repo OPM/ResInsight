@@ -278,6 +278,7 @@ void RimSummaryCurveFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         {
             curve->showLegend(m_showLegend());
         }
+        m_parentQwtPlot->updateLegend();
     }
     else
     {
@@ -309,13 +310,15 @@ void RimSummaryCurveFilter::loadDataAndUpdatePlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::setParentQwtPlot(QwtPlot* plot)
+void RimSummaryCurveFilter::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
     m_parentQwtPlot = plot;
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->setParentQwtPlot(plot);
+        curve->setParentQwtPlotNoReplot(plot);
     }
+
+    if (plot) plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -455,7 +458,7 @@ void RimSummaryCurveFilter::loadDataAndUpdate()
 {
     for (RimSummaryCurve* curve: m_curves)
     {
-        curve->loadDataAndUpdate();
+        curve->loadDataAndUpdate(true);
     }
 
     syncUiSelectionFromCurves();
@@ -582,7 +585,7 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
         RimSummaryCase* currentCase = caseAddrPair.first;
 
         RimSummaryCurve* curve = new RimSummaryCurve();
-        curve->setParentQwtPlot(m_parentQwtPlot);
+        curve->setParentQwtPlotNoReplot(m_parentQwtPlot);
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(caseAddrPair.second);
         curve->setYAxis(m_plotAxis());
@@ -601,7 +604,7 @@ void RimSummaryCurveFilter::updateCaseNameHasChanged()
 {
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->updateCurveName();
+        curve->updateCurveNameAndUpdatePlotLegend();
         curve->updateConnectedEditors();
     }
 }
@@ -644,7 +647,7 @@ void RimSummaryCurveFilter::updateCurveNames()
     for (RimSummaryCurve* curve : m_curves)
     {
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
-        curve->updateCurveName();
+        curve->updateCurveNameAndUpdatePlotLegend();
     }
 }
 

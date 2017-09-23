@@ -51,6 +51,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurveAutoName.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "RiuSummaryQwtPlot.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -934,7 +935,7 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         curve->setSummaryCase(currentCase);
         curve->setSummaryAddress(curveDef.second);
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
-        m_previewPlot->addCurve(curve);
+        m_previewPlot->addCurveNoUpdate(curve);
         curveLookCalc.setupCurveLook(curve);
     }
 
@@ -1141,9 +1142,12 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(curve->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
     CVF_ASSERT(curveCopy);
 
-    if (forceVisible)
+    if (forceVisible) 
+    {
         curveCopy->setCurveVisiblity(true);
-    plot->addCurve(curveCopy);
+    }
+
+    plot->addCurveNoUpdate(curveCopy);
 
     // Resolve references after object has been inserted into the project data model
     curveCopy->resolveReferencesRecursively();
@@ -1151,7 +1155,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCase(curve->summaryCase());
     curveCopy->initAfterReadRecursively();
-    curveCopy->loadDataAndUpdate();
+    curveCopy->loadDataAndUpdate(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1306,6 +1310,8 @@ void RicSummaryCurveCreator::updateCurveNames()
     for (RimSummaryCurve* curve : m_previewPlot->summaryCurves())
     {
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
-        curve->updateCurveName();
+        curve->updateCurveNameNoLegendUpdate();
     }
+
+   if (m_previewPlot && m_previewPlot->qwtPlot()) m_previewPlot->qwtPlot()->updateLegend();
 }

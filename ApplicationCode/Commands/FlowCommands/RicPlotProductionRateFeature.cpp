@@ -294,7 +294,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     }
 
     RimSummaryCurve* newCurve = new RimSummaryCurve();
-    plot->addCurve(newCurve);
+    plot->addCurveAndUpdate(newCurve);
 
     newCurve->setSummaryCase(gridSummaryCase);
     newCurve->setSummaryAddress(addr);

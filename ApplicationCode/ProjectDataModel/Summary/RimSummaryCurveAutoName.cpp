@@ -241,7 +241,7 @@ void RimSummaryCurveAutoName::fieldChangedByUi(const caf::PdmFieldHandle* change
     RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>(this->parentField()->ownerObject());
     if (summaryCurve)
     {
-        summaryCurve->updateCurveName();
+        summaryCurve->updateCurveNameAndUpdatePlotLegend();
         summaryCurve->updateConnectedEditors();
     }
 

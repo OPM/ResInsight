@@ -65,23 +65,37 @@ bool RimSummaryCurveCollection::isCurvesVisible()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::loadDataAndUpdate()
+void RimSummaryCurveCollection::loadDataAndUpdate(bool updateParentPlot)
 {
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->loadDataAndUpdate();
+        curve->loadDataAndUpdate(false);
+    }
+
+    if ( updateParentPlot )
+    {
+        RimSummaryPlot* parentPlot;
+        firstAncestorOrThisOfTypeAsserted(parentPlot);
+        if ( parentPlot->qwtPlot() )
+        {
+            parentPlot->qwtPlot()->updateLegend();
+            parentPlot->updateAxes();
+            parentPlot->updateZoomInQwt();
+        }
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::setParentQwtPlot(QwtPlot* plot)
+void RimSummaryCurveCollection::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->setParentQwtPlot(plot);
+        curve->setParentQwtPlotNoReplot(plot);
     }
+
+    if (plot) plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,9 +203,13 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
 {
     for (RimSummaryCurve* curve : m_curves)
     {
-        curve->updateCurveName();
+        curve->updateCurveNameNoLegendUpdate();
         curve->updateConnectedEditors();
     }
+
+    RimSummaryPlot* parentPlot;
+    firstAncestorOrThisOfTypeAsserted(parentPlot);
+    if (parentPlot->qwtPlot()) parentPlot->qwtPlot()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

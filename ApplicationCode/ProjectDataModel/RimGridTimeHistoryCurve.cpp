@@ -291,7 +291,7 @@ void RimGridTimeHistoryCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::onLoadDataAndUpdate()
+void RimGridTimeHistoryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     this->RimPlotCurve::updateCurvePresentation();
 

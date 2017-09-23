@@ -46,7 +46,7 @@ public:
 
 protected:
     virtual QString createCurveAutoName() override;
-    virtual void onLoadDataAndUpdate() override;
+    virtual void onLoadDataAndUpdate(bool updateParentPlot) override;
     virtual void updateCurveAppearance() override;
 
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;

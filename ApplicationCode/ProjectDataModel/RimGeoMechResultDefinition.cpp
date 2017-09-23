@@ -277,7 +277,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
             if (curve)
             {
-                curve->loadDataAndUpdate();
+                curve->loadDataAndUpdate(true);
             }
         }
     }

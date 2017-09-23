@@ -90,7 +90,7 @@ void RicPasteTimeHistoryCurveFeature::onActionTriggered(bool isChecked)
 
         newObject->initAfterReadRecursively();
 
-        newObject->loadDataAndUpdate();
+        newObject->loadDataAndUpdate(true);
         newObject->updateConnectedEditors();
 
         summaryPlot->updateConnectedEditors();

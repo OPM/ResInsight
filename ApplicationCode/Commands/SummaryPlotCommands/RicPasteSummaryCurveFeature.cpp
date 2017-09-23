@@ -74,7 +74,7 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
         RimSummaryCurve* newObject = dynamic_cast<RimSummaryCurve*>(sourceObjects[i]->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
         CVF_ASSERT(newObject);
 
-        summaryPlot->addCurve(newObject);
+        summaryPlot->addCurveAndUpdate(newObject);
 
         // Resolve references after object has been inserted into the project data model
         newObject->resolveReferencesRecursively();
@@ -85,7 +85,7 @@ void RicPasteSummaryCurveFeature::onActionTriggered(bool isChecked)
 
         newObject->initAfterReadRecursively();
 
-        newObject->loadDataAndUpdate();
+        newObject->loadDataAndUpdate(true);
         newObject->updateConnectedEditors();
 
         summaryPlot->updateConnectedEditors();

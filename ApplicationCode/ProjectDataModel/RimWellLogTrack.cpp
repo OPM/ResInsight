@@ -169,7 +169,7 @@ void RimWellLogTrack::addCurve(RimWellLogCurve* curve)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setParentQwtPlot(m_wellLogTrackPlotWidget);
+        curve->setParentQwtPlotAndReplot(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -183,7 +183,7 @@ void RimWellLogTrack::insertCurve(RimWellLogCurve* curve, size_t index)
 
     if (m_wellLogTrackPlotWidget)
     {
-        curve->setParentQwtPlot(m_wellLogTrackPlotWidget);
+        curve->setParentQwtPlotAndReplot(m_wellLogTrackPlotWidget);
     }
 }
 
@@ -257,7 +257,7 @@ void RimWellLogTrack::loadDataAndUpdate()
 
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
-        curves[cIdx]->loadDataAndUpdate();
+        curves[cIdx]->loadDataAndUpdate(true);
     }
 }
 
@@ -281,8 +281,10 @@ void RimWellLogTrack::recreateViewer()
 
         for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
         {
-            curves[cIdx]->setParentQwtPlot(this->m_wellLogTrackPlotWidget);
+            curves[cIdx]->setParentQwtPlotNoReplot(this->m_wellLogTrackPlotWidget);
         }
+
+        this->m_wellLogTrackPlotWidget->replot();
     }
 }
 

@@ -67,7 +67,7 @@ void RicChangeDataSourceFeature::onActionTriggered(bool isChecked)
             extractionCurve->setWellPath(featureUi.wellPathToApply);
             extractionCurve->setCase(featureUi.caseToApply);
 
-            extractionCurve->loadDataAndUpdate();
+            extractionCurve->loadDataAndUpdate(true);
         }
     }
 }

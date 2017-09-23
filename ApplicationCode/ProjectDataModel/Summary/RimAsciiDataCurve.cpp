@@ -128,7 +128,7 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimAsciiDataCurve::onLoadDataAndUpdate()
+void RimAsciiDataCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     this->RimPlotCurve::updateCurvePresentation();
 

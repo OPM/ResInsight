@@ -67,7 +67,7 @@ void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem(const RiuSe
 
     plot->addGridTimeHistoryCurve(newCurve);
 
-    newCurve->loadDataAndUpdate();
+    newCurve->loadDataAndUpdate(true);
 
     plot->updateConnectedEditors();
 

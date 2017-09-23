@@ -254,26 +254,26 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
 
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }    
     else if (changedField == &m_wellPath)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_simWellName)
     {
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_trajectoryType ||
              changedField == &m_branchIndex)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_timeStep)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
 
     if (changedField == &m_addCaseNameToCurveName ||
@@ -283,14 +283,14 @@ void RimWellLogExtractionCurve::fieldChangedByUi(const caf::PdmFieldHandle* chan
         changedField == &m_addDateToCurveName)
     {
         this->uiCapability()->updateConnectedEditors();
-        updateCurveName();
+        updateCurveNameAndUpdatePlotLegend();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::onLoadDataAndUpdate()
+void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     RimWellLogCurve::updateCurvePresentation();
 

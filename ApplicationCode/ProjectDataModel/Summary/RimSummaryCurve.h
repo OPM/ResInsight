@@ -98,7 +98,7 @@ protected:
 
     virtual QString                         createCurveAutoName() override;
     virtual void                            updateZoomInParentPlot() override;
-    virtual void                            onLoadDataAndUpdate() override;
+    virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
 private:
     RifSummaryReaderInterface*              summaryReader() const;

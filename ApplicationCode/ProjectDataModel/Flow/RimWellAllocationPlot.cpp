@@ -433,7 +433,7 @@ void RimWellAllocationPlot::addStackedCurve(const QString& tracerName,
 
     plotTrack->addCurve(curve);
 
-    curve->loadDataAndUpdate();
+    curve->loadDataAndUpdate(true);
 }
 
 //--------------------------------------------------------------------------------------------------

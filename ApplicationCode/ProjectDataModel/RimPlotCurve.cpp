@@ -136,12 +136,12 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
     if (changedField == &m_showCurve)
     {
         this->updateCurveVisibility();
-        if (m_showCurve()) loadDataAndUpdate();
+        if (m_showCurve()) loadDataAndUpdate(true);
     }
     else if (changedField == &m_curveName)
     {
         m_customCurveName = m_curveName;
-        updateCurveName();
+        updateCurveNameAndUpdatePlotLegend();
     }
     else if (&m_curveColor == changedField
              || &m_curveThickness == changedField
@@ -159,11 +159,11 @@ void RimPlotCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
             m_customCurveName = createCurveAutoName();
         }
 
-        updateCurveName();
+        updateCurveNameAndUpdatePlotLegend();
     }
     else if (changedField == &m_showLegend)
     {
-        updateLegendVisibility();
+        updateLegendEntryVisibilityAndPlotLegend();
     }
 
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
@@ -213,7 +213,7 @@ void RimPlotCurve::updateCurveVisibility()
 void RimPlotCurve::updateCurvePresentation()
 {
     this->updateCurveVisibility();
-    this->updateCurveName();
+    this->updateCurveNameAndUpdatePlotLegend();
 
     updateCurveAppearance();
     // Todo: Rest of the curve setup controlled from this class
@@ -222,13 +222,25 @@ void RimPlotCurve::updateCurvePresentation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setParentQwtPlot(QwtPlot* plot)
+void RimPlotCurve::setParentQwtPlotAndReplot(QwtPlot* plot)
 {
     m_parentQwtPlot = plot;
     if (m_showCurve && m_parentQwtPlot)
     {
         m_qwtPlotCurve->attach(m_parentQwtPlot);
         m_parentQwtPlot->replot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setParentQwtPlotNoReplot(QwtPlot* plot)
+{
+    m_parentQwtPlot = plot;
+    if (m_showCurve && m_parentQwtPlot)
+    {
+        m_qwtPlotCurve->attach(m_parentQwtPlot);
     }
 }
 
@@ -283,7 +295,7 @@ void RimPlotCurve::setCurveVisiblity(bool visible)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateCurveName()
+void RimPlotCurve::updateCurveNameAndUpdatePlotLegend()
 {
     if (m_isUsingAutoName)
     {
@@ -295,7 +307,25 @@ void RimPlotCurve::updateCurveName()
     }
 
     m_qwtPlotCurve->setTitle(m_curveName);
-    updateLegendVisibility();
+    updateLegendEntryVisibilityAndPlotLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCurveNameNoLegendUpdate()
+{
+    if (m_isUsingAutoName)
+    {
+        m_curveName = this->createCurveAutoName();
+    }
+    else
+    {
+        m_curveName = m_customCurveName;
+    }
+
+    m_qwtPlotCurve->setTitle(m_curveName);
+    updateLegendEntryVisibilityNoPlotUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,9 +473,9 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions(const caf::Pdm
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::loadDataAndUpdate()
+void RimPlotCurve::loadDataAndUpdate(bool updateParentPlot)
 {
-    this->onLoadDataAndUpdate();
+    this->onLoadDataAndUpdate(updateParentPlot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,13 +528,13 @@ void RimPlotCurve::resetAppearance()
 void RimPlotCurve::showLegend(bool show)
 {
     m_showLegend = show;
-    updateLegendVisibility();
+    updateLegendEntryVisibilityNoPlotUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateLegendVisibility()
+void RimPlotCurve::updateLegendEntryVisibilityAndPlotLegend()
 {
     if (m_showLegend()) {
         if (m_curveName().isEmpty())
@@ -524,5 +554,26 @@ void RimPlotCurve::updateLegendVisibility()
     if (m_parentQwtPlot != nullptr)
     {
         m_parentQwtPlot->updateLegend();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
+{
+    if (m_showLegend()) {
+        if (m_curveName().isEmpty())
+        {
+            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
+        }
+        else
+        {
+            m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, true);
+        }
+    }
+    else
+    {
+        m_qwtPlotCurve->setItemAttribute(QwtPlotItem::Legend, false);
     }
 }

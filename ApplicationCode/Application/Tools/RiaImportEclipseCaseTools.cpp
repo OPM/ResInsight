@@ -188,7 +188,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                                 summaryCurve->firstAncestorOrThisOfType(parentCollection);
                                 if (parentCollection)
                                 {
-                                    parentCollection->loadDataAndUpdate();
+                                    parentCollection->loadDataAndUpdate(true);
                                     parentCollection->updateConnectedEditors();
                                     break;
                                 }

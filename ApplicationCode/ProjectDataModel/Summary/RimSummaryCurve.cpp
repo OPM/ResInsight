@@ -370,9 +370,17 @@ void RimSummaryCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::onLoadDataAndUpdate()
+void RimSummaryCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
-    this->RimPlotCurve::updateCurvePresentation();
+    this->updateCurveVisibility();
+    if (updateParentPlot)
+    {
+        this->updateCurveNameAndUpdatePlotLegend();
+    }
+    else
+    {
+        this->updateCurveNameNoLegendUpdate();
+    }
 
     updateCurveAppearance();
 
@@ -419,12 +427,14 @@ void RimSummaryCurve::onLoadDataAndUpdate()
             m_qwtPlotCurve->setSamplesFromTimeTAndValues(std::vector<time_t>(), std::vector<double>(), isLogCurve);
         }
 
-        updateZoomInParentPlot();
-
-        if (m_parentQwtPlot) m_parentQwtPlot->replot();
+        if ( updateParentPlot && m_parentQwtPlot)
+        {
+            updateZoomInParentPlot();
+            m_parentQwtPlot->replot();
+        }
     }
 
-    updateQwtPlotAxis();
+    if (updateParentPlot) updateQwtPlotAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,7 +513,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         m_curveVariable->setAddress(m_uiFilterResultSelection());
 
         this->calculateCurveInterpolationFromAddress();
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
 
         plot->updateAxes();
     } 
@@ -520,7 +530,7 @@ void RimSummaryCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_summaryCase)
     {
         plot->updateCaseNameHasChanged();
-        this->onLoadDataAndUpdate();
+        this->onLoadDataAndUpdate(true);
     }
 }
 

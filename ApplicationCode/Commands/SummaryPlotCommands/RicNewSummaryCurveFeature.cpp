@@ -70,7 +70,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
         cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plot->curveCount());
         newCurve->setColor(curveColor);
 
-        plot->addCurve(newCurve);
+        plot->addCurveAndUpdate(newCurve);
 
         RimSummaryCase* defaultCase = nullptr; 
         if (project->activeOilField()->summaryCaseMainCollection()->summaryCaseCount() > 0)
@@ -80,7 +80,7 @@ void RicNewSummaryCurveFeature::onActionTriggered(bool isChecked)
 
             newCurve->setSummaryAddress(RifEclipseSummaryAddress::fieldVarAddress("FOPT"));
 
-            newCurve->loadDataAndUpdate();
+            newCurve->loadDataAndUpdate(true);
         }
         
         plot->updateConnectedEditors();

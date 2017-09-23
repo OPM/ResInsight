@@ -55,7 +55,9 @@ public:
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    void                                            addCurve(RimSummaryCurve* curve);
+    void                                            addCurveAndUpdate(RimSummaryCurve* curve);
+    void                                            addCurveNoUpdate(RimSummaryCurve* curve);
+
     void                                            deleteCurve(RimSummaryCurve* curve);
     void                                            addCurveFilter(RimSummaryCurveFilter* curveFilter);
     void                                            setCurveCollection(RimSummaryCurveCollection* curveCollection);
@@ -98,6 +100,8 @@ public:
     std::vector<RimSummaryCurve*>                   summaryCurves() const;
     void                                            deleteAllSummaryCurves();
     RimSummaryCurveCollection*                      summaryCurveCollection() const;
+    RiuSummaryQwtPlot*                              qwtPlot() const;
+
     // RimViewWindow overrides
 public:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 

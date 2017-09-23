@@ -475,6 +475,14 @@ RimSummaryCurveCollection* RimSummaryPlot::summaryCurveCollection() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RiuSummaryQwtPlot* RimSummaryPlot::qwtPlot() const
+{
+    return m_qwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxis(RiaDefines::PlotAxis plotAxis)
 {
     if (!m_qwtPlot) return;
@@ -748,7 +756,7 @@ void RimSummaryPlot::updateCaseNameHasChanged()
 {
     for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
-        curve->updateCurveName();
+        curve->updateCurveNameAndUpdatePlotLegend();
         curve->updateConnectedEditors();
     }
 
@@ -807,7 +815,7 @@ void RimSummaryPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
+void RimSummaryPlot::addCurveAndUpdate(RimSummaryCurve* curve)
 {
     if (curve)
     {
@@ -815,11 +823,28 @@ void RimSummaryPlot::addCurve(RimSummaryCurve* curve)
 
         if (m_qwtPlot)
         {
-            curve->setParentQwtPlot(m_qwtPlot);
+            curve->setParentQwtPlotAndReplot(m_qwtPlot);
             this->updateAxes();
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addCurveNoUpdate(RimSummaryCurve* curve)
+{
+    if (curve)
+    {
+        m_summaryCurveCollection->addCurve(curve);
+
+        if (m_qwtPlot)
+        {
+            curve->setParentQwtPlotNoReplot(m_qwtPlot);
+        }
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -892,7 +917,7 @@ void RimSummaryPlot::addCurveFilter(RimSummaryCurveFilter* curveFilter)
         m_curveFilters_OBSOLETE.push_back(curveFilter);
         if(m_qwtPlot)
         {
-            curveFilter->setParentQwtPlot(m_qwtPlot);
+            curveFilter->setParentQwtPlotAndReplot(m_qwtPlot);
             this->updateAxes();
         }
     }
@@ -908,7 +933,7 @@ void RimSummaryPlot::setCurveCollection(RimSummaryCurveCollection* curveCollecti
         m_summaryCurveCollection = curveCollection;
         if (m_qwtPlot)
         {
-            m_summaryCurveCollection->setParentQwtPlot(m_qwtPlot);
+            m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
             this->updateAxes();
         }
     }
@@ -924,7 +949,7 @@ void RimSummaryPlot::addGridTimeHistoryCurve(RimGridTimeHistoryCurve* curve)
     m_gridTimeHistoryCurves.push_back(curve);
     if (m_qwtPlot)
     {
-        curve->setParentQwtPlot(m_qwtPlot);
+        curve->setParentQwtPlotAndReplot(m_qwtPlot);
         this->updateAxes();
     }
 }
@@ -939,7 +964,7 @@ void RimSummaryPlot::addAsciiDataCruve(RimAsciiDataCurve* curve)
     m_asciiDataCurves.push_back(curve);
     if (m_qwtPlot)
     {
-        curve->setParentQwtPlot(m_qwtPlot);
+        curve->setParentQwtPlotAndReplot(m_qwtPlot);
         this->updateAxes();
     }
 }
@@ -1015,26 +1040,26 @@ void RimSummaryPlot::loadDataAndUpdate()
 
     if (m_summaryCurveCollection)
     {
-        m_summaryCurveCollection->loadDataAndUpdate();
+        m_summaryCurveCollection->loadDataAndUpdate(false);
     }
 
     for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
     {
-        curve->loadDataAndUpdate();
+        curve->loadDataAndUpdate(true);
     }
  
     for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
     {
-        curve->loadDataAndUpdate();
+        curve->loadDataAndUpdate(true);
     }
 
     for (RimAsciiDataCurve* curve : m_asciiDataCurves)
     {
-        curve->loadDataAndUpdate();
+        curve->loadDataAndUpdate(true);
     }
 
+    if (m_qwtPlot) m_qwtPlot->updateLegend();
     this->updateAxes();
-
     updateZoomInQwt();
 }
 
@@ -1120,29 +1145,29 @@ QWidget* RimSummaryPlot::createViewWidget(QWidget* mainWindowParent)
 
         for(RimSummaryCurveFilter* curveFilter: m_curveFilters_OBSOLETE)
         {
-            curveFilter->setParentQwtPlot(m_qwtPlot);
+            curveFilter->setParentQwtPlotAndReplot(m_qwtPlot);
         }
         
         for (RimSummaryCurve* curve : m_summaryCurves_OBSOLETE)
         {
-            curve->setParentQwtPlot(m_qwtPlot);
+            curve->setParentQwtPlotAndReplot(m_qwtPlot);
         }
 
-        if(m_summaryCurveCollection)
+        for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
-        	m_summaryCurveCollection->setParentQwtPlot(m_qwtPlot);
-        }
-
-        for (RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves)
-        {
-            curve->setParentQwtPlot(m_qwtPlot);
+            curve->setParentQwtPlotNoReplot(m_qwtPlot);
         }
 
         for (RimAsciiDataCurve* curve : m_asciiDataCurves)
         {
-            curve->setParentQwtPlot(m_qwtPlot);
+            curve->setParentQwtPlotNoReplot(m_qwtPlot);
         }
-    }
+
+        if ( m_summaryCurveCollection )
+        {
+        	m_summaryCurveCollection->setParentQwtPlotAndReplot(m_qwtPlot);
+        }
+   }
 
     return m_qwtPlot;
 }

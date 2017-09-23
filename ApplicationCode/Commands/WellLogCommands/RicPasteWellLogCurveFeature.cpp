@@ -88,7 +88,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered(bool isChecked)
             newObject->resolveReferencesRecursively();
             newObject->initAfterReadRecursively();
 
-            newObject->loadDataAndUpdate();
+            newObject->loadDataAndUpdate(true);
 
             wellLogTrack->updateConnectedEditors();
         }
@@ -105,7 +105,7 @@ void RicPasteWellLogCurveFeature::onActionTriggered(bool isChecked)
             newObject->resolveReferencesRecursively();
             newObject->initAfterReadRecursively();
 
-            newObject->loadDataAndUpdate();
+            newObject->loadDataAndUpdate(true);
 
             wellLogTrack->updateConnectedEditors();
         }

@@ -51,7 +51,7 @@ public:
 protected:
     // Overrides from RimWellLogPlotCurve
     virtual QString createCurveAutoName();
-    virtual void onLoadDataAndUpdate();
+    virtual void onLoadDataAndUpdate(bool updateParentPlot);
 
     // Pdm overrrides
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

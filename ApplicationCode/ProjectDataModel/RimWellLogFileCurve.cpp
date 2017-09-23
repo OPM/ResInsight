@@ -68,7 +68,7 @@ RimWellLogFileCurve::~RimWellLogFileCurve()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::onLoadDataAndUpdate()
+void RimWellLogFileCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     RimWellLogCurve::updateCurvePresentation();
 
@@ -154,11 +154,11 @@ void RimWellLogFileCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 
     if (changedField == &m_wellPath)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_wellLogChannnelName)
     {
-        this->loadDataAndUpdate();
+        this->loadDataAndUpdate(true);
     }
 
     if (m_parentQwtPlot) m_parentQwtPlot->replot();
