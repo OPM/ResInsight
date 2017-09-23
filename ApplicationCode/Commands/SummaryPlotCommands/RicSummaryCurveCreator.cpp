@@ -443,6 +443,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
                     auto headerText = i == SUM_CASES ? QString("Simulated Data") : QString("Observed Data");
                     options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
                 }
+
                 for (const auto& iName : itemNames)
                 {
                     auto optionItem = caf::PdmOptionItemInfo(iName, iName);
@@ -455,6 +456,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
             }
         }
     }
+
     return options;
 }
 
@@ -1102,12 +1104,14 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     {
         sourceCurveDefs.insert(std::make_pair(curve->summaryCase(), curve->summaryAddress()));
     }
+
     for (const auto& curve : m_previewPlot->summaryCurves())
     {
         auto curveDef = std::make_pair(curve->summaryCase(), curve->summaryAddress());
         if (sourceCurveDefs.count(curveDef) == 0)
             curve->setCurveVisiblity(false);
     }
+
     updateEditorsConnectedToPreviewPlot();
     updateAppearanceEditor();
 }
@@ -1117,8 +1121,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateTargetPlot()
 {
-    if (m_targetPlot == nullptr)
-        m_targetPlot = new RimSummaryPlot();
+    if (m_targetPlot == nullptr)  m_targetPlot = new RimSummaryPlot();
 
     m_targetPlot->deleteAllSummaryCurves();
 
@@ -1131,6 +1134,8 @@ void RicSummaryCurveCreator::updateTargetPlot()
         }
         copyCurveAndAddToPlot(editedCurve, m_targetPlot);
     }
+
+    m_targetPlot->loadDataAndUpdate();
     m_targetPlot->updateConnectedEditors();
 }
 
@@ -1155,7 +1160,7 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
     // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCase(curve->summaryCase());
     curveCopy->initAfterReadRecursively();
-    curveCopy->loadDataAndUpdate(true);
+    curveCopy->loadDataAndUpdate(false);
 }
 
 //--------------------------------------------------------------------------------------------------
