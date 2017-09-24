@@ -1,7 +1,9 @@
 #include "gtest/gtest.h"
 
 #include "RifColumnBasedAsciiParser.h"
+#include "RifColumnBasedRsmspecParser.h"
 
+#include <vector>
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
@@ -194,4 +196,75 @@ TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
     EXPECT_EQ(2.33, pwValues[1]);
     EXPECT_EQ(3.09, pwValues[2]);
     EXPECT_EQ(4.44, pwValues[3]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, smallTest)
+{
+
+    QString data;
+    QTextStream out(&data);
+
+    out << "1\n";
+    out << "---------------------------------------\n";
+    out << "SUMMARY OF RUN SIP USER FILE DATA VECTORS\n";
+    out << "---------------------------------------\n";
+    out << "TIME     WLVP       WPLT      WTEST      WFOFF      WBUP\n";
+    out << "DAYS      BARSA       BARSA     BARSA     BARSA    BARSA\n";
+    out << "\n";
+    out << "    P-15P   P-15P   P-15P   P-15P   P-15P  \n";
+    out << "   1   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   2   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   3   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   4   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   5   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   6   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   7  0.0  0.0  282  0.0  0.0\n";
+    out << "   8  0.0  0.0  279  0.0  0.0\n";
+    out << "   9   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   10   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   11   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   12   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   13   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   14   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   15   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   16   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   17   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   18   0.0   0.0   0.0   0.0   0.0\n";
+    out << "1\n";
+    out << "---------------------------------------\n";
+    out << "SUMMARY OF RUN SIP USER FILE DATA VECTORS\n";
+    out << "---------------------------------------\n";
+    out << "TIME     WLVP       WPLT      WTEST      WFOFF      WBUP\n";
+    out << "DAYS      BARSA       BARSA     BARSA     BARSA    BARSA\n";
+    out << "\n";
+    out << "    P-9P   P-9P   P-9P   P-9P   P-9P  \n";
+    out << "   1   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   2   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   3   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   4  0.0  0.0  370  0.0  0.0\n";
+    out << "\n";
+
+    RifColumnBasedRsmspecParser parser = RifColumnBasedRsmspecParser(data);
+
+    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    ASSERT_EQ(tables.size(), 2);
+    
+    ASSERT_EQ(tables.at(0).size(), 6);
+    ASSERT_EQ(tables.at(1).size(), 6);
+
+    ASSERT_EQ(18, tables.at(0).at(0).values.size());
+    ASSERT_EQ(4, tables.at(1).at(0).values.size());
+
+    EXPECT_EQ(0.0, tables.at(0).at(1).values.at(6));
+    EXPECT_EQ(282, tables.at(0).at(3).values.at(6));
+
+    EXPECT_EQ(3, tables.at(1).at(0).values.at(2));
+    EXPECT_EQ(370, tables.at(1).at(3).values.at(3));
+
+    EXPECT_EQ("WLVP", tables.at(0).at(1).quantityName);
+    EXPECT_EQ("P-9P", tables.at(1).at(1).wellName);
+    EXPECT_NE("P-9P", tables.at(1).at(0).wellName);
 }
