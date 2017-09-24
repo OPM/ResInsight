@@ -17,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
 ${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedAsciiParser.h
+${CEE_CURRENT_LIST_DIR}RifColumnBasedRsmspecParser.h
 ${CEE_CURRENT_LIST_DIR}RifReaderObservedData.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.h
 ${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.h
@@ -51,6 +52,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
 ${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.cpp
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedAsciiParser.cpp
+${CEE_CURRENT_LIST_DIR}RifColumnBasedRsmspecParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderObservedData.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.cpp
 ${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.cpp
