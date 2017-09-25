@@ -180,15 +180,17 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
-    //m_targetPlot
     m_previewPlot = new RimSummaryPlot();
+    m_previewPlot->setShowDescription(false);
 
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
         for (const auto& itemInputType : itemTypes.second)
         {
             itemInputType->pdmField()->uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+
+            itemInputType->pdmField()->uiCapability()->setUiLabelPosition(itemTypes.second.size() > 2 ?
+                                                                          caf::PdmUiItemInfo::TOP : caf::PdmUiItemInfo::HIDDEN);
         }
         itemTypes.second.back()->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     }
@@ -593,7 +595,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 
 
     // Appearance settings
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Curve Appearance Settings", RicSummaryCurveCreatorUiKeywords::appearance());
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroupWithKeyword("Curve Appearance Assignment", RicSummaryCurveCreatorUiKeywords::appearance());
     caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup("Appearance Type Assignment");
     appearanceGroup->setCollapsedByDefault(true);
     appearanceSubGroup->add(&m_useAutoAppearanceAssignment);

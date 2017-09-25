@@ -54,6 +54,7 @@ public:
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;
+    void                                            setShowDescription(bool showDescription);
 
     void                                            addCurveAndUpdate(RimSummaryCurve* curve);
     void                                            addCurveNoUpdate(RimSummaryCurve* curve);
@@ -132,7 +133,6 @@ private:
 
     void                                            updateTimeAxis();
     void                                            setZoomIntervalsInQwtPlot();
-
 
 private:
     caf::PdmField<bool>                                 m_showPlotTitle;
