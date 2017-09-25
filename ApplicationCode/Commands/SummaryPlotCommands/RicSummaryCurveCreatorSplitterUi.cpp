@@ -78,7 +78,21 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
             caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
             auto groupBox = createGroupBoxWithContent(group, uiConfigName);
 
-            m_firstRowLayout->addWidget(groupBox);
+            bool isSources = group->keyword() == RicSummaryCurveCreatorUiKeywords::sources();
+            bool isSummaryTypes = group->keyword() == RicSummaryCurveCreatorUiKeywords::summaryTypes();
+            bool isSummaries = group->keyword() == RicSummaryCurveCreatorUiKeywords::summaries();
+            bool isDynamicGroup = !isSources && !isSummaryTypes && !isSummaries;
+            bool leftColumn = isSources || isSummaryTypes;
+
+            if (isSummaryTypes || isDynamicGroup)
+            {
+                groupBox->setFixedWidth(170);
+            }
+
+            if(leftColumn)
+                m_firstRowLeftLayout->addWidget(groupBox);
+            else
+                m_firstRowRightLayout->addWidget(groupBox);
 
             // Add group boxes until summaries are detected
 
@@ -111,27 +125,56 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
     QWidget* widget = new QWidget(parent);
 
     m_layout = new QVBoxLayout();
-    m_layout->setContentsMargins(0, 0, 0, 0);
+    m_layout->setContentsMargins(5, 5, 5, 5);
     widget->setLayout(m_layout);
 
     QFrame* firstRowFrame = new QFrame(widget);
     m_firstRowLayout = new QHBoxLayout;
+    m_firstRowLayout->setContentsMargins(0, 0, 0, 0);
     firstRowFrame->setLayout(m_firstRowLayout);
+
+    QFrame* firstRowLeftFrame = new QFrame(widget);
+    m_firstRowLeftLayout = new QHBoxLayout;
+    m_firstRowLeftLayout->setContentsMargins(0, 0, 0, 0);
+    firstRowLeftFrame->setLayout(m_firstRowLeftLayout);
+
+    QFrame* firstRowRightFrame = new QFrame(widget);
+    m_firstRowRightLayout = new QHBoxLayout;
+    m_firstRowRightLayout->setContentsMargins(0, 0, 0, 0);
+    firstRowRightFrame->setLayout(m_firstRowRightLayout);
+
+    m_firstRowSplitter = new QSplitter(Qt::Horizontal);
+    m_firstRowSplitter->setContentsMargins(0, 0, 0, 0);
+    m_firstRowSplitter->setHandleWidth(6);
+    m_firstRowSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterV.png); }");
+    m_firstRowSplitter->insertWidget(0, firstRowLeftFrame);
+    m_firstRowSplitter->insertWidget(1, firstRowRightFrame);
+    m_firstRowSplitter->setSizes(QList<int>() << 1 << 1);
+    m_firstRowLayout->addWidget(m_firstRowSplitter);
 
     QFrame* secondRowFrame = new QFrame(widget);
     m_secondRowLayout = new QHBoxLayout;
+    m_secondRowLayout->setContentsMargins(0, 0, 0, 0);
     secondRowFrame->setLayout(m_secondRowLayout);
 
     m_lowerLeftLayout = new QVBoxLayout;
+    m_lowerLeftLayout->setContentsMargins(0, 0, 0, 0);
     m_secondRowLayout->addLayout(m_lowerLeftLayout);
 
     m_firstColumnSplitter = new QSplitter(Qt::Vertical);
+    m_firstColumnSplitter->setContentsMargins(0, 0, 0, 0);
+
+    m_firstColumnSplitter->setHandleWidth(6);
+    m_firstColumnSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterH.png); }");
+
     m_firstColumnSplitter->insertWidget(0, firstRowFrame);
     m_firstColumnSplitter->insertWidget(1, secondRowFrame);
+    m_firstColumnSplitter->setSizes(QList<int>() << 1 << 2);
 
     m_layout->addWidget(m_firstColumnSplitter);
 
     m_bottomFieldLayout = new QHBoxLayout;
+    m_bottomFieldLayout->setContentsMargins(0, 0, 0, 0);
     m_layout->addLayout(m_bottomFieldLayout);
     m_bottomFieldLayout->insertStretch(0, 1);
 

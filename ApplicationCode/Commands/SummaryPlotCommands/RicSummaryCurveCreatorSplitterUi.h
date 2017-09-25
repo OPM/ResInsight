@@ -19,7 +19,6 @@
 #pragma once
 
 #include "cafPdmUiWidgetBasedObjectEditor.h"
-
 #include <vector>
 
 class RicSummaryCurveCreator;
@@ -43,7 +42,7 @@ namespace caf {
 class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiWidgetBasedObjectEditor
 {
     Q_OBJECT
-
+        
 public:
     RicSummaryCurveCreatorSplitterUi(QWidget* parent);
     ~RicSummaryCurveCreatorSplitterUi();
@@ -75,10 +74,13 @@ signals:
 private:
     QPointer<QVBoxLayout>       m_layout;
     QPointer<QSplitter>         m_firstColumnSplitter;
+    QPointer<QSplitter>         m_firstRowSplitter;
 
     QPointer<QMinimizePanel>    m_curvesPanel;
 
     QPointer<QHBoxLayout>       m_firstRowLayout;
+    QPointer<QHBoxLayout>       m_firstRowLeftLayout;
+    QPointer<QHBoxLayout>       m_firstRowRightLayout;
     QPointer<QHBoxLayout>       m_secondRowLayout;
     QPointer<QVBoxLayout>       m_lowerLeftLayout;
 
