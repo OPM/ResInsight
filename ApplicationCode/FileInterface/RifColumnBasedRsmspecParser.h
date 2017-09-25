@@ -24,28 +24,11 @@
 #include <QLocale>
 #include <QString>
 
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
-struct ColumnInfo
-{
-    bool                                            isAVector = false;
-    RifEclipseSummaryAddress::SummaryVarCategory    category;
-    std::string                                     quantityName;
-    std::string                                     scaleFactor;
-    int                                             regionNumber;
-    int                                             regionNumber2;
-    std::string                                     wellGroupName;
-    std::string                                     wellName;
-    int                                             wellSegmentNumber;
-    std::string                                     lgrName;
-    int                                             cellI;
-    int                                             cellJ;
-    int                                             cellK;
-    std::string                                     unitName;
-    std::vector<double>                             values;
-};
+struct ColumnInfo;
 
 //==================================================================================================
 /// 
@@ -57,14 +40,7 @@ public:
     const std::vector< std::vector<ColumnInfo> >& tables() const;
 
 private:
-    static bool                     isLineSkippable(const std::string& line);
-    static std::vector<std::string> splitLine(const std::string& line);
-    static bool                     isAMnemonic(const std::string& word);
-    static                          RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
-    bool                            splitLineToDoubles(const std::string& line, std::vector<double>& values);
-    static std::vector<ColumnInfo>  columnInfoForTable(std::stringstream& data, std::string& line);
-
-    void                            parseData(const QString& data);
+    void parseData(const QString& data);
 
 private:
     std::vector< std::vector<ColumnInfo> > m_tables;
