@@ -35,7 +35,7 @@ bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
     {
         return true;
     }
-    else if (line[0] == '-')
+    else if (line.size() > 1 && line[0] == '-' && line[1] == '-')
     {
         return true;
     }
@@ -243,4 +243,35 @@ void RifRsmspecParserTools::splitLineToDoubles(const std::string& line, std::vec
         iss >> d;
         values.push_back(d);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifRsmspecParserTools::isANumber(const std::string& line)
+{
+    try
+    {
+        std::stod(line);
+    }
+    catch (...)
+    {
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifRsmspecParserTools::headerReader(std::stringstream& streamData, std::string& line)
+{
+    std::vector<std::string> header;
+
+    while (!isANumber(line) && !streamData.eof())
+    {
+        header.push_back(line);
+        std::getline(streamData, line);
+    }
+    return header;
 }

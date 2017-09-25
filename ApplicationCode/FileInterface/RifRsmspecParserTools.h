@@ -59,4 +59,6 @@ public:
     static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static void                                         splitLineToDoubles(const std::string& line, std::vector<double>& values);
     static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data, std::string& line);
+    static bool                                         isANumber(const std::string& line);
+    static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);
 };
