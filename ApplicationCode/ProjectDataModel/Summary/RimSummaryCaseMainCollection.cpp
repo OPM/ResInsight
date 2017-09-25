@@ -288,7 +288,7 @@ RimSummaryCase* RimSummaryCaseMainCollection::createAndAddSummaryCaseFromFileNam
     RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
 
     this->m_cases.push_back(newSumCase);
-    newSumCase->setSummaryHeaderFilename(fileName);
+    newSumCase->setSummaryHeaderFileName(fileName);
     newSumCase->createSummaryReaderInterface();
     newSumCase->updateOptionSensitivity();
 

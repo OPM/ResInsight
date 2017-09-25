@@ -24,7 +24,7 @@
 #include "cafPdmField.h"
 #include "cvfObject.h"
 
-class MyTestInterface;
+class RifReaderRmspecColumnBasedData;
 
 //==================================================================================================
 //
@@ -36,13 +36,10 @@ public:
     RimObservedRsmspecColumnBasedData();
     virtual ~RimObservedRsmspecColumnBasedData();
 
-    void setSummaryHeaderFilename(const QString& fileName);
-
     virtual void createSummaryReaderInterface() override;
-
 
     virtual RifSummaryReaderInterface* summaryReader() override;
 
 private:
-    cvf::ref<MyTestInterface> m_summeryReader;
+    cvf::ref<RifReaderRmspecColumnBasedData> m_summeryReader;
 };

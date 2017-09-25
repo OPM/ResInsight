@@ -18,7 +18,9 @@
 
 
 #include "RimObservedDataCollection.h"
+
 #include "RimObservedData.h"
+#include "RimObservedRsmspecColumnBasedData.h"
 #include "RimSummaryObservedDataFile.h"
 
 CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
@@ -62,18 +64,34 @@ void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryObservedDataFile* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName)
+RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName)
 {
-    RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
+    RimObservedData* observedData = nullptr;
 
-    this->m_observedDataArray.push_back(newObservedData);
-    newObservedData->setSummaryHeaderFilename(fileName);
-    newObservedData->createSummaryReaderInterface();
-    newObservedData->updateOptionSensitivity();
+    if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
+    {
+        RimObservedRsmspecColumnBasedData* rsmspecColumnBasedData = new RimObservedRsmspecColumnBasedData();
 
-    this->updateConnectedEditors();
+        observedData = rsmspecColumnBasedData;
+    }
+    else
+    {
+        RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
 
-    return newObservedData;
+        observedData = newObservedData;
+    }
+
+    if (observedData)
+    {
+        this->m_observedDataArray.push_back(observedData);
+        observedData->setSummaryHeaderFileName(fileName);
+        observedData->createSummaryReaderInterface();
+        observedData->updateOptionSensitivity();
+
+        this->updateConnectedEditors();
+    }
+
+    return observedData;
 }
 
 //--------------------------------------------------------------------------------------------------

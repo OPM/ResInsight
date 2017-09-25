@@ -23,7 +23,6 @@
 
 class RimSummaryCase;
 class RimObservedData;
-class RimSummaryObservedDataFile;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -38,8 +37,8 @@ public:
 
     void                            removeObservedData(RimObservedData* observedData);
     void                            addObservedData(RimObservedData* observedData);
-    RimSummaryObservedDataFile*     createAndAddObservedDataFromFileName(const QString& fileName);
-    std::vector<RimSummaryCase*>   allObservedData();
+    RimObservedData*                createAndAddObservedDataFromFileName(const QString& fileName);
+    std::vector<RimSummaryCase*>    allObservedData();
 
 private:
     caf::PdmChildArrayField<RimObservedData*> m_observedDataArray;

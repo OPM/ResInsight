@@ -29,6 +29,7 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddressQMetaType.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
+${CEE_CURRENT_LIST_DIR}RifReaderRmspecColumnBasedData.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
@@ -64,6 +65,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.cpp
+${CEE_CURRENT_LIST_DIR}RifReaderRmspecColumnBasedData.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp

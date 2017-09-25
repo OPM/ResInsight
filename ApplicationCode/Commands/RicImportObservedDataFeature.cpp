@@ -107,7 +107,7 @@ bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QStrin
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return false;
 
-    RimSummaryObservedDataFile* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName);
+    RimObservedData* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName);
 
     return true;
 }

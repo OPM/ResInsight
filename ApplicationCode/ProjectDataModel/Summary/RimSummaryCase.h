@@ -35,7 +35,7 @@ public:
     RimSummaryCase();
     virtual ~RimSummaryCase();
     
-    virtual QString     summaryHeaderFilename() const = 0; 
+    virtual QString     summaryHeaderFilename() const; 
     virtual QString     caseName() = 0; 
     QString             shortName() const;
 
@@ -46,6 +46,8 @@ public:
     virtual RifSummaryReaderInterface* summaryReader() = 0;
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
+
+    void                setSummaryHeaderFileName(const QString& fileName);
 
     bool                isObservedData();
 

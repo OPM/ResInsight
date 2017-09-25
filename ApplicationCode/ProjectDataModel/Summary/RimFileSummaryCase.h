@@ -36,7 +36,6 @@ public:
     RimFileSummaryCase();
     virtual ~RimFileSummaryCase();
 
-    void                   setSummaryHeaderFilename(const QString& fileName);
     virtual QString        summaryHeaderFilename() const  override;
     virtual QString        caseName() override;
     virtual void           updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) override;

@@ -52,17 +52,6 @@ RimFileSummaryCase::~RimFileSummaryCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::setSummaryHeaderFilename(const QString& fileName)
-{
-    m_summaryHeaderFilename = fileName;
-
-    this->updateAutoShortName();
-    this->updateTreeItemName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QString RimFileSummaryCase::summaryHeaderFilename() const
 {
     return m_summaryHeaderFilename();

@@ -17,103 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimObservedRsmspecColumnBasedData.h"
+
+#include "RifColumnBasedRsmspecParser.h"
+#include "RifReaderRmspecColumnBasedData.h"
 #include "RifSummaryReaderInterface.h"
+
+#include "cafUtils.h"
 
 CAF_PDM_SOURCE_INIT(RimObservedRsmspecColumnBasedData, "RimObservedRsmspecColumnBasedData");
 
 
-class MyTestInterface : public RifSummaryReaderInterface
-{
-
-public:
-    MyTestInterface()
-    {
-        m_timeSteps.push_back(1000);
-        m_timeSteps.push_back(1010);
-        m_timeSteps.push_back(1020);
-        m_timeSteps.push_back(1030);
-        m_timeSteps.push_back(1040);
-
-        m_headers.push_back("sdflkj");
-        m_headers.push_back("sdf");
-        m_headers.push_back("sdfffff");
-        m_headers.push_back("qwqwqw");
-        m_headers.push_back("aaaaa");
-        m_headers.push_back("absc");
-
-    }
-//     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >  m_summaryCategory;
-//     caf::PdmField<QString>                                                      m_identifierName;
-
-    void setMetaData(RifEclipseSummaryAddress::SummaryVarCategory summaryCategory, const QString& identifierName)
-    {
-        m_category = summaryCategory;
-        m_identifierName = identifierName;
-
-        buildMetaData();
-    }
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    virtual const std::vector<time_t>& timeSteps(const RifEclipseSummaryAddress& resultAddress) const override
-    {
-        return m_timeSteps;
-    }
-
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    virtual bool values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override
-    {
-        values->push_back(20);
-        values->push_back(40);
-        values->push_back(50);
-        values->push_back(40);
-
-        return true;
-    }
-
-
-    //--------------------------------------------------------------------------------------------------
-    /// 
-    //--------------------------------------------------------------------------------------------------
-    virtual std::string unitName(const RifEclipseSummaryAddress& resultAddress) const override
-    {
-        return "Unknown unit";
-    }
-
-private:
-    void buildMetaData()
-    {
-        m_allResultAddresses.clear();
-
-        for (size_t i = 0; i < m_headers.size(); i++)
-        {
-            RifEclipseSummaryAddress addr(m_category,
-                                            m_headers[i].toStdString(),
-                                            -1,
-                                            -1,
-                                            "",
-                                            "",
-                                            -1,
-                                            "",
-                                            -1,
-                                            -1,
-                                            -1);
-
-            m_allResultAddresses.push_back(addr);
-        }
-    }
-
-private:
-    std::vector<time_t> m_timeSteps;
-    std::vector<QString> m_headers;
-
-    RifEclipseSummaryAddress::SummaryVarCategory m_category;
-    QString m_identifierName;
-};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -135,20 +48,20 @@ RimObservedRsmspecColumnBasedData::~RimObservedRsmspecColumnBasedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedRsmspecColumnBasedData::setSummaryHeaderFilename(const QString& fileName)
-{
-    m_summaryHeaderFilename = fileName;
-
-    this->updateAutoShortName();
-    this->updateTreeItemName();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimObservedRsmspecColumnBasedData::createSummaryReaderInterface()
 {
-    m_summeryReader = new MyTestInterface;
+    if (caf::Utils::fileExists(this->summaryHeaderFilename()))
+    {
+        m_summeryReader = new RifReaderRmspecColumnBasedData();
+        if (!m_summeryReader->open(this->summaryHeaderFilename()))
+        {
+            m_summeryReader = nullptr;
+        }
+    }
+    else
+    {
+        m_summeryReader = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
