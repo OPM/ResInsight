@@ -2,6 +2,7 @@
 
 #include "RifColumnBasedAsciiParser.h"
 #include "RifColumnBasedRsmspecParser.h"
+#include "RifRsmspecParserTools.h"
 
 #include <vector>
 #include <QTextStream>
@@ -201,7 +202,7 @@ TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, smallTest)
+TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
 {
 
     QString data;
@@ -267,4 +268,47 @@ TEST(RifColumnBasedRsmspecParserTest, smallTest)
     EXPECT_EQ("WLVP", tables.at(0).at(1).quantityName);
     EXPECT_EQ("P-9P", tables.at(1).at(1).wellName);
     EXPECT_NE("P-9P", tables.at(1).at(0).wellName);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
+{
+
+    QString data;
+    QTextStream out(&data);
+
+    out << "   1   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   2   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   3   0.0   0.0   0.0   0.0   0.0 \n";
+    out << "   4   0.0   0.0   0.0   0.0   0.0  --note\n";
+    out << "   5   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   6   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   7  0.0  0.0  282  0.0  0.0 -- This is a test \n";
+    out << "   8  0.0  0.0  279  0.0  0.0\n";
+    out << "   9   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   10   0.0   0.0   0.0   0.0   0.0\n";
+
+    RifRsmspecParserTools parserTool;
+    std::stringstream streamData;
+    streamData.str(data.toStdString());
+    std::string line;
+    
+    std::vector< std::vector<double> > table;
+    
+    while (std::getline(streamData, line))
+    {
+        std::vector<double> values;
+        parserTool.splitLineToDoubles(line, values);
+        table.push_back(values);
+    }
+
+    ASSERT_EQ(10, table.size());
+    ASSERT_EQ(6, table[0].size());
+
+    EXPECT_EQ(1, table[0][0]);
+    EXPECT_EQ(0.0, table[5][2]);
+    EXPECT_EQ(279, table[7][3]);
 }
