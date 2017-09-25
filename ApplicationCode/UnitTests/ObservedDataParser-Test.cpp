@@ -2,6 +2,7 @@
 
 #include "RifColumnBasedAsciiParser.h"
 #include "RifColumnBasedRsmspecParser.h"
+#include "RifKeywordVectorParser.h"
 #include "RifRsmspecParserTools.h"
 
 #include <vector>
@@ -311,4 +312,109 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
     EXPECT_EQ(1, table[0][0]);
     EXPECT_EQ(0.0, table[5][2]);
     EXPECT_EQ(279, table[7][3]);
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues)
+{
+    QString data;
+    QTextStream out(&data);
+
+    out << "----------------------------------------------\n";
+    out << "-- GOR data S-1AH\n";
+    out << "-- Based on well tests\n";
+    out << "----------------------------------------------\n";
+    out << "VECTOR S-1AH-GOR\n";
+    out << "UNITS SM3/SM3\n";
+    out << "ORIGIN GORS-1AH\n";
+    out << "330.6601\n";
+    out << "257.7500\n";
+    out << "335.9894\n";
+    out << "301.4388\n";
+    out << "260.4193\n";
+    out << "306.0298\n";
+    out << "280.2883\n";
+    out << "\n";
+    out << "VECTOR YEARX\n";
+    out << "ORIGIN GORS-1AH\n";
+    out << "UNITS YEAR\n";
+    out << "1999.7902\n";
+    out << "1999.8446\n";
+    out << "1999.9285\n";
+    out << "2000.0391\n";
+    out << "2000.0800\n";
+    out << "2000.0862\n";
+    out << "2000.1285\n";
+    out << "---sjekk dato\n";
+    out << "\n";
+    out << "\n";
+    out << "\n";
+    out << "----------------------------------------------\n";
+    out << "-- GOR data S-2H\n";
+    out << "-- Based on well tests\n";
+    out << "----------------------------------------------\n";
+    out << "VECTOR S-2H-GOR\n";
+    out << "UNITS SM3/SM3\n";
+    out << "ORIGIN GORS-2H\n";
+    out << "293.8103\n";
+    out << "293.1634\n";
+    out << "304.0000\n";
+    out << "334.5932\n";
+    out << "306.4610\n";
+    out << "293.7571\n";
+    out << "305.2013\n";
+    out << "\n";
+    out << "VECTOR YEARX\n";
+    out << "ORIGIN GORS-2H\n";
+    out << "UNITS YEAR\n";
+    out << "1999.8255\n";
+    out << "2000.1274\n";
+    out << "2000.2075\n";
+    out << "2000.2367\n";
+    out << "2000.4033\n";
+    out << "2000.4966\n";
+    out << "2000.6832\n";
+    out << "\n";
+    out << "\n";
+
+    RifKeywordVectorParser parser(data);
+
+    std::vector<KeywordBasedVector> vectors = parser.keywordBasedVectors();
+
+    EXPECT_TRUE(RifKeywordVectorParser::canBeParsed(data));
+
+    ASSERT_EQ(4, vectors.size());
+
+    ASSERT_LE(1, vectors[0].header.size());
+    EXPECT_EQ("VECTOR S-1AH-GOR", vectors[0].header.at(0));
+
+    ASSERT_LE(3, vectors[0].values.size());
+    EXPECT_EQ(335.9894, vectors[0].values[2]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifKeywordBasedRsmspecParserTest, TestCannotBeParsed)
+{
+    QString data;
+    QTextStream out(&data);
+
+    out << "----------------------------------------------\n";
+    out << "-- GOR data S-1AH\n";
+    out << "----------------------------------------------\n";
+    out << "UNITS SM3/SM3\n";
+    out << "ORIGIN GORS-1AH\n";
+    out << "330.6601\n";
+    out << "335.9894\n";
+
+    RifKeywordVectorParser parser(data);
+
+    std::vector<KeywordBasedVector> vectors = parser.keywordBasedVectors();
+
+    EXPECT_FALSE(RifKeywordVectorParser::canBeParsed(data));
 }
