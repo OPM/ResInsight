@@ -108,10 +108,11 @@ protected:
     //--------------------------------------------------------------------------------------------------
     virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
     {
-        QModelIndex index0 = sourceModel()->index(source_row, 0, source_parent);
+        QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
 
-        if (sourceModel()->hasChildren(index0))
+        if (sourceModel()->hasChildren(index))
         {
+            // Always include node if node has children
             return true;
         }
 

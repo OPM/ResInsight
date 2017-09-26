@@ -122,9 +122,7 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexLis
         fieldValueSelection.push_back(QVariant(v));
     }
 
-    beginResetModel();
     PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection);
-    endResetModel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +156,12 @@ void caf::PdmUiTreeSelectionQModel::setOptions(caf::PdmUiFieldEditorHandle* fiel
         buildOptionItemTree(0, m_tree);
 
         endResetModel();
+    }
+    else
+    {
+        // Notify changed for all items in the model as UI can change even if the option item count is identical
+        // It is possible to use beginResetModel and endResetModel, but this will also invalidate tree expand state
+        notifyChangedForAllModelIndices();
     }
 }
 
@@ -362,13 +366,8 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
         {
             if (value.toBool() == true)
             {
-                // Reset model to make sure other check boxes are invalidated
-                beginResetModel();
-
                 QVariant v = static_cast<unsigned int>(optionIndex(index));
                 PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), v);
-                
-                endResetModel();
             
                 return true;
             }
@@ -419,8 +418,6 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
 
             PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection); 
 
-            emit dataChanged(index, index);
-
             return true;
         }
     }
@@ -458,6 +455,31 @@ void caf::PdmUiTreeSelectionQModel::buildOptionItemTree(int parentOptionIndex, T
             }
             currentOptionIndex++;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::notifyChangedForAllModelIndices()
+{
+    recursiveNotifyChildren(QModelIndex());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::recursiveNotifyChildren(const QModelIndex& index)
+{
+    for (int r = 0; r < rowCount(index); r++)
+    {
+        QModelIndex mi = this->index(r, 0, index);
+        recursiveNotifyChildren(mi);
+    }
+
+    if (index.isValid())
+    {
+        emit dataChanged(index, index);
     }
 }
 

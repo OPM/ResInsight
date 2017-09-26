@@ -88,6 +88,9 @@ private:
     int                             optionIndex(const QModelIndex &index) const;
     void                            buildOptionItemTree(int optionIndex, TreeItemType* parentNode);
 
+    void                            notifyChangedForAllModelIndices();
+    void                            recursiveNotifyChildren(const QModelIndex& index);
+
 
 private:
     QList<caf::PdmOptionItemInfo>   m_options;
