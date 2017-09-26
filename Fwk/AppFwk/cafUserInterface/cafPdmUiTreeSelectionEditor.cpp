@@ -91,6 +91,35 @@ private:
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
+class FilterLeafNodesOnlyProxyModel : public QSortFilterProxyModel
+{
+public:
+    FilterLeafNodesOnlyProxyModel(QObject *parent = 0)
+        : QSortFilterProxyModel(parent)
+    {
+    }
+
+protected:
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override
+    {
+        QModelIndex index0 = sourceModel()->index(source_row, 0, source_parent);
+
+        if (sourceModel()->hasChildren(index0))
+        {
+            return true;
+        }
+
+        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+    }
+};
+
+
 namespace caf
 {
 
@@ -130,7 +159,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     {
         m_model = new caf::PdmUiTreeSelectionQModel(m_treeView);
         
-        m_proxyModel = new QSortFilterProxyModel;
+        m_proxyModel = new FilterLeafNodesOnlyProxyModel;
         m_proxyModel->setSourceModel(m_model);
         m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
         
