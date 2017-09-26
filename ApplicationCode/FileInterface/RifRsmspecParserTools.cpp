@@ -199,15 +199,15 @@ size_t RifRsmspecParserTools::findFirstNonEmptyEntryIndex(std::vector<std::strin
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn)
 {
-    int                                             regionNumber = -1;
-    int                                             regionNumber2 = -1;
-    std::string                                     wellGroupName = "";
-    std::string                                     wellName = "";
-    int                                             wellSegmentNumber = -1;
-    std::string                                     lgrName = "";
-    int                                             cellI = -1;
-    int                                             cellJ = -1;
-    int                                             cellK = -1;
+    int         regionNumber = -1;
+    int         regionNumber2 = -1;
+    std::string wellGroupName = "";
+    std::string wellName = "";
+    int         wellSegmentNumber = -1;
+    std::string lgrName = "";
+    int         cellI = -1;
+    int         cellJ = -1;
+    int         cellK = -1;
 
     RifEclipseSummaryAddress::SummaryVarCategory category = identifyCategory(quantityName);
 
@@ -270,13 +270,17 @@ RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string q
 //--------------------------------------------------------------------------------------------------
 std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstream& streamData, std::string& line)
 {
-    size_t columnCount = 0;
-
     std::vector<ColumnInfo> table;
+
+    std::string origin = "";
+    std::string dateFormat = "";
+    std::string startDate  = "";
+
 
     while (isLineSkippable(line))
     {
         if (!streamData.good()) return table;
+
         std::getline(streamData, line);
     }
 
@@ -287,7 +291,7 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
     std::vector<std::string> scaleFactors = splitLineAndRemoveComments(line);
     
     std::vector<RifEclipseSummaryAddress::SummaryVarCategory> categories;
-    columnCount = quantityNames.size();
+    size_t columnCount = quantityNames.size();
 
     for (std::string unit : unitNames)
     {
@@ -323,9 +327,13 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
             header = false;
             break;
         }
+        else if (words.size() > columnCount)
+        {
+            continue;
+        }
         else
         {
-            int diff = columnCount - words.size();
+            size_t diff = columnCount - words.size();
             
             if (diff == columnCount)
             {
