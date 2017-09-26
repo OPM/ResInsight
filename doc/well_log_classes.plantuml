@@ -7,12 +7,19 @@ RimViewWindow <|-- RimWellLogPlot
 RimViewWindow <|-- RimSummaryPlot
 
 PdmObject <|-- RimWellLogTrack
+
+RimViewWindow <|-- RimWellAllocationPlot
+RimWellAllocationPlot *--> RimWellLogPlot
+
 }
 package curve {
 
 PdmObject <|---- RimPlotCurve
 RimPlotCurve <|-- RimWellLogCurve
 RimPlotCurve <|-- RimSummaryCurve
+RimWellLogCurve <|-- RimWellFlowRateCurve
+RimWellLogCurve <|-- RimWellLogExtractionCurve
+RimWellLogCurve <|-- RimWellLogFileCurve
 }
 }
 
@@ -36,12 +43,15 @@ package Qwt {
 QWidget <|--- RiuWellLogPlot
 QWidget <|-- QwtPlot
 QwtPlot <|--- RiuWellLogTrack
-QwtPlot <|--- RiuQwtResultPlot
+QwtPlot <|--- RiuSummaryQwtPlot
 
-RiuWellLogPlot *---- "n" RiuWellLogTrack
-QwtPlot *-- "n" QwtPlotCurve
+RiuWellLogPlot *----> "n" RiuWellLogTrack
+QwtPlot *--> "n" QwtPlotCurve
 QwtPlotCurve <|-- RiuLineSegmentQwtPlotCurve
 RiuWellLogTrack --[hidden]> RiuLineSegmentQwtPlotCurve
+
+class RiuWellAllocationPlot{
+}
 }
 
 class RiuWellLogPlot {
@@ -52,16 +62,16 @@ class RiuWellLogPlot {
 class RiuWellLogTrack {
   PdmPointer<RimWellLogTrack> m_plotTrackDefinition;
 }
-RimWellLogPlot *--- "n" RimWellLogTrack
-RimWellLogTrack *--- "n" RimWellLogCurve
+RimWellLogPlot *---> "n" RimWellLogTrack
+RimWellLogTrack *---> "n" RimWellLogCurve
 
-RimSummaryPlot *--- "n" RimSummaryCurve
+RimSummaryPlot *---> "n" RimSummaryCurve
 
 RimWellLogPlot -r-> RiuWellLogPlot
 RimWellLogTrack -r-> RiuWellLogTrack
 RimPlotCurve -r-> RiuLineSegmentQwtPlotCurve
-RimSummaryPlot -r-> RiuQwtResultPlot
-
-
+RimSummaryPlot -r-> RiuSummaryQwtPlot
+RimWellAllocationPlot *-> RiuWellAllocationPlot
+RiuWellAllocationPlot ....> RiuWellLogPlot
 
 @enduml
