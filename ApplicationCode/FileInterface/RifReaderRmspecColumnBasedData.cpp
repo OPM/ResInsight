@@ -112,7 +112,7 @@ bool RifReaderRmspecColumnBasedData::open(const QString& headerFileName)
                 const ColumnInfo& ci = m_parser->tables()[tableIndex][columIndex];
                 if (ci.isAVector)
                 {
-                    RifEclipseSummaryAddress sumAddress = address(ci);
+                    RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
                     m_allResultAddresses.push_back(sumAddress);
 
                     m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;
@@ -159,25 +159,6 @@ const std::vector<time_t>& RifReaderRmspecColumnBasedData::timeSteps(const RifEc
     static std::vector<time_t> emptyVector;
     
     return emptyVector;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifReaderRmspecColumnBasedData::address(const ColumnInfo& columnInfo)
-{
-    return RifEclipseSummaryAddress(columnInfo.category,
-                                    columnInfo.quantityName,
-                                    columnInfo.regionNumber,
-                                    columnInfo.regionNumber2,
-                                    columnInfo.wellGroupName,
-                                    columnInfo.wellName,
-                                    columnInfo.wellSegmentNumber,
-                                    columnInfo.lgrName,
-                                    columnInfo.cellI,
-                                    columnInfo.cellJ,
-                                    columnInfo.cellK);
-
 }
 
 //--------------------------------------------------------------------------------------------------

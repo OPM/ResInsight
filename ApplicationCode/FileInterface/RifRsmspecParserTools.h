@@ -31,18 +31,7 @@
 struct ColumnInfo
 {
     bool                                            isAVector = false;
-    RifEclipseSummaryAddress::SummaryVarCategory    category;
-    std::string                                     quantityName;
-    std::string                                     scaleFactor;
-    int                                             regionNumber;
-    int                                             regionNumber2;
-    std::string                                     wellGroupName;
-    std::string                                     wellName;
-    int                                             wellSegmentNumber;
-    std::string                                     lgrName;
-    int                                             cellI;
-    int                                             cellJ;
-    int                                             cellK;
+    RifEclipseSummaryAddress                        summaryAddress;
     std::string                                     unitName;
     std::vector<double>                             values;
 };
@@ -55,9 +44,13 @@ class RifRsmspecParserTools
 public:
     static bool                                         isLineSkippable(const std::string& line);
     static std::vector<std::string>                     splitLine(const std::string& line);
-    static bool                                         isAMnemonic(const std::string& word);
+    static bool                                         isAComment(const std::string& word);
+    static std::vector<std::string>                     splitLineAndRemoveComments(const std::string& line);
+    static bool                                         canBeAMnemonic(const std::string& word);
     static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static void                                         splitLineToDoubles(const std::string& line, std::vector<double>& values);
+    static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
+    static  RifEclipseSummaryAddress                    makeAndFillAddress(std::string scaleFactor, std::string quantityName, std::vector< std::string > headerColumn);
     static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data, std::string& line);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);

@@ -266,9 +266,9 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     EXPECT_EQ(3, tables.at(1).at(0).values.at(2));
     EXPECT_EQ(370, tables.at(1).at(3).values.at(3));
 
-    EXPECT_EQ("WLVP", tables.at(0).at(1).quantityName);
-    EXPECT_EQ("P-9P", tables.at(1).at(1).wellName);
-    EXPECT_NE("P-9P", tables.at(1).at(0).wellName);
+    EXPECT_EQ("WLVP", tables.at(0).at(1).summaryAddress.quantityName());
+    EXPECT_EQ("P-9P", tables.at(1).at(1).summaryAddress.wellName());
+    EXPECT_NE("P-9P", tables.at(1).at(0).summaryAddress.wellName());
 }
 
 

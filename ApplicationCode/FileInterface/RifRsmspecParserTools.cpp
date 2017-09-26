@@ -67,7 +67,40 @@ std::vector<std::string> RifRsmspecParserTools::splitLine(const std::string& lin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifRsmspecParserTools::isAMnemonic(const std::string& word)
+bool RifRsmspecParserTools::isAComment(const std::string& word)
+{
+    if (word.size() > 1 && word[0] == '-' && word[1] == '-')
+    {
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RifRsmspecParserTools::splitLineAndRemoveComments(const std::string& line)
+{
+    std::istringstream iss(line);
+    std::vector<std::string> words{ std::istream_iterator<std::string>{iss},
+        std::istream_iterator<std::string>{} };
+
+    for(auto wordsIterator = words.begin(); wordsIterator != words.end(); ++wordsIterator)
+    {
+        if (isAComment(*wordsIterator))
+        {
+            words.erase(wordsIterator, words.end());
+            break;
+        }
+    }
+
+    return words;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifRsmspecParserTools::canBeAMnemonic(const std::string& word)
 {
     if (word.size() < 1) return false;
 
@@ -140,6 +173,91 @@ RifEclipseSummaryAddress::SummaryVarCategory RifRsmspecParserTools::identifyCate
     return RifEclipseSummaryAddress::SUMMARY_INVALID;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RifRsmspecParserTools::findFirstNonEmptyEntryIndex(std::vector<std::string>& list)
+{
+    for (size_t i = 0; i < list.size(); i++)
+    {
+        if (!list[i].empty())
+        {
+            return i;
+        }
+    }
+    return list.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string scaleFactor, std::string quantityName, std::vector< std::string > headerColumn)
+{
+    int                                             regionNumber = -1;
+    int                                             regionNumber2 = -1;
+    std::string                                     wellGroupName = "";
+    std::string                                     wellName = "";
+    int                                             wellSegmentNumber = -1;
+    std::string                                     lgrName = "";
+    int                                             cellI = -1;
+    int                                             cellJ = -1;
+    int                                             cellK = -1;
+
+    RifEclipseSummaryAddress::SummaryVarCategory category = identifyCategory(quantityName);
+
+    switch (category) //TODO: More categories
+    {
+    case (RifEclipseSummaryAddress::SUMMARY_INVALID):
+    {
+        break;
+    }
+    case (RifEclipseSummaryAddress::SUMMARY_WELL):
+    {
+        size_t index = findFirstNonEmptyEntryIndex(headerColumn);
+        if (index < headerColumn.size())
+        {
+            wellName = headerColumn[index];
+        }
+	    break;
+    }
+    case (RifEclipseSummaryAddress::SUMMARY_WELL_GROUP):
+    {
+        size_t index = findFirstNonEmptyEntryIndex(headerColumn);
+        if (index < headerColumn.size())
+        {
+            wellGroupName = headerColumn[index];
+        }
+        break;
+    }
+    case (RifEclipseSummaryAddress::SUMMARY_REGION):
+    {
+        size_t index = findFirstNonEmptyEntryIndex(headerColumn);
+        if (index < headerColumn.size())
+        {
+            try
+            {
+                regionNumber = std::stoi(headerColumn[index]);
+            }
+            catch (...){}
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    return RifEclipseSummaryAddress(category,
+        quantityName,
+        regionNumber,
+        regionNumber2,
+        wellGroupName,
+        wellName,
+        wellSegmentNumber,
+        lgrName,
+        cellI,
+        cellJ,
+        cellK);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -147,83 +265,80 @@ RifEclipseSummaryAddress::SummaryVarCategory RifRsmspecParserTools::identifyCate
 std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstream& streamData, std::string& line)
 {
     size_t columnCount = 0;
-    size_t vectorCount = 0;
 
     std::vector<ColumnInfo> table;
+
+    while (isLineSkippable(line))
+    {
+        if (!streamData.good()) return table;
+        std::getline(streamData, line);
+    }
+
+    std::vector<std::string> quantityNames = splitLineAndRemoveComments(line);
+    std::getline(streamData, line);
+    std::vector<std::string> unitNames = splitLineAndRemoveComments(line);
+    std::getline(streamData, line);
+    std::vector<std::string> scaleFactors = splitLineAndRemoveComments(line);
+    
+    std::vector<RifEclipseSummaryAddress::SummaryVarCategory> categories;
+    columnCount = quantityNames.size();
+
+    for (std::string unit : unitNames)
+    {
+        ColumnInfo columnInfo;
+        columnInfo.unitName = unit;
+        table.push_back(columnInfo);
+    }
+
+    if (scaleFactors.size() < columnCount)
+    {
+        int diff = columnCount - scaleFactors.size();
+        for (int i = 0; i < diff; i++)
+        {
+            scaleFactors.push_back("1.0");
+        }
+    }
+
+    std::vector< std::vector< std::string > > restOfHeader;
+
     bool header = true;
     while (header)
     {
-        while (isLineSkippable(line))
-        {
-            if (!streamData.good()) return table;
-            std::getline(streamData, line);
-        }
-
-        std::vector<std::string> words = splitLine(line);
-        if (!words.empty())
-        {
-            if (words[0] == "TIME")
-            {
-                for (std::string word : words)
-                {
-                    ColumnInfo columnInfo;
-                    if (isAMnemonic(word))
-                    {
-                        columnInfo.isAVector = true;
-                        columnInfo.category = identifyCategory(word);
-                        ++vectorCount;
-                    }
-                    columnInfo.quantityName = word;
-                    table.push_back(columnInfo);
-                }
-                columnCount = table.size();
-            }
-            else if (words[0] == "DAYS")
-            {
-                if (words.size() == columnCount)
-                {
-                    for (int i = 0; i < words.size(); i++)
-                    {
-                        table[i].unitName = words[i];
-                    }
-                }
-            }
-            else if (words.size() == vectorCount)
-            {
-                for (int i = 0; i < words.size(); i++)
-                {
-                    switch (table[i].category) //TODO: More categories
-                    {
-                    case (RifEclipseSummaryAddress::SUMMARY_INVALID):
-                        break;
-                    case (RifEclipseSummaryAddress::SUMMARY_WELL):
-                        table[i].wellName = words[i];
-                        break;
-                    case (RifEclipseSummaryAddress::SUMMARY_WELL_GROUP):
-                        table[i].wellGroupName = words[i];
-                        break;
-                    case (RifEclipseSummaryAddress::SUMMARY_REGION):
-                        table[i].regionNumber = std::stoi(words[i]);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
-            else if (words.size() == columnCount)
-            {
-                /* TODO: Scale factor
-                for (int i = 0; i < words.size(); i++)
-                {
-                table[i].scaleFactor = words[i];
-                }*/
-
-                header = false;
-                break;
-            }
-        }
-
         std::getline(streamData, line);
+
+        std::vector<std::string> words = splitLineAndRemoveComments(line);
+
+        if (words.size() == columnCount)
+        {
+            header = false;
+            break;
+        }
+        else
+        {
+            int diff = columnCount - words.size();
+            
+            if (diff == columnCount)
+            {
+                std::vector< std::string > vectorOfEmptyStrings(columnCount, "");
+                restOfHeader.push_back(vectorOfEmptyStrings);
+            }
+            else
+            {
+                std::vector< std::string > wordsWithEmptyStrings(diff, "");
+                wordsWithEmptyStrings.insert(wordsWithEmptyStrings.begin(), words.begin(), words.end());
+                restOfHeader.push_back(wordsWithEmptyStrings);
+            }
+        }
+    }
+    
+    for (size_t i = 0; i < columnCount; i++)
+    {
+        std::vector< std::string > restOfHeaderColumn;
+        for (std::vector< std::string > restOfHeaderRow : restOfHeader)
+        {
+            restOfHeaderColumn.push_back(restOfHeaderRow.at(i));
+        }
+        table[i].summaryAddress = makeAndFillAddress(scaleFactors.at(i), quantityNames.at(i), restOfHeaderColumn);
     }
 
     return table;

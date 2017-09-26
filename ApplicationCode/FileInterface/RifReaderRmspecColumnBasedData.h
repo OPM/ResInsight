@@ -32,10 +32,6 @@ class QString;
 class RifColumnBasedRsmspecParser;
 class RifEclipseSummaryAddress;
 
-struct ColumnInfo;
-
-
-
 //==================================================================================================
 //
 //
@@ -54,9 +50,6 @@ public:
                                                std::vector<double>* values) const override;
 
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
-
-private:
-    static RifEclipseSummaryAddress     address(const ColumnInfo& columnInfo);
 
 private:
     std::unique_ptr<RifColumnBasedRsmspecParser>    m_parser;
