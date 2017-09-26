@@ -20,13 +20,7 @@
 
 #include "RifRsmspecParserTools.h"
 
-#include "RiaLogging.h"
-
 #include "cvfAssert.h"
-
-#include <QString>
-#include <QStringList>
-#include <QTextStream>
 
 
 //--------------------------------------------------------------------------------------------------

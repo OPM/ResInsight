@@ -18,14 +18,8 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
-#include <QDateTime>
-#include <QLocale>
 #include <QString>
 
-#include <sstream>
-#include <string>
 #include <vector>
 
 struct KeywordBasedVector
