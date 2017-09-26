@@ -50,6 +50,12 @@ bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
     {
         return true;
     }
+
+    if (str.find("PAGE") < str.size())
+    {
+        return true;
+    }
+
     return false;
 }
 
@@ -191,7 +197,7 @@ size_t RifRsmspecParserTools::findFirstNonEmptyEntryIndex(std::vector<std::strin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string scaleFactor, std::string quantityName, std::vector< std::string > headerColumn)
+RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn)
 {
     int                                             regionNumber = -1;
     int                                             regionNumber2 = -1;
@@ -290,13 +296,17 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
         table.push_back(columnInfo);
     }
 
-    if (scaleFactors.size() < columnCount)
+    if (scaleFactors.empty())
     {
-        int diff = columnCount - scaleFactors.size();
-        for (int i = 0; i < diff; i++)
+        for (size_t i = 0; i < table.size(); i++)
         {
-            scaleFactors.push_back("1.0");
+            scaleFactors.push_back("1");
         }
+    }
+
+    for (size_t i = 0; i < table.size(); i++)
+    {
+        table[i].scaleFactor = scaleFactors[i];
     }
 
     std::vector< std::vector< std::string > > restOfHeader;
@@ -338,7 +348,7 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
         {
             restOfHeaderColumn.push_back(restOfHeaderRow.at(i));
         }
-        table[i].summaryAddress = makeAndFillAddress(scaleFactors.at(i), quantityNames.at(i), restOfHeaderColumn);
+        table[i].summaryAddress = makeAndFillAddress(quantityNames.at(i), restOfHeaderColumn);
     }
 
     return table;

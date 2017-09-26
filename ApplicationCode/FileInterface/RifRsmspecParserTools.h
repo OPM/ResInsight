@@ -33,7 +33,10 @@ struct ColumnInfo
     bool                                            isAVector = false;
     RifEclipseSummaryAddress                        summaryAddress;
     std::string                                     unitName;
+    std::string                                     scaleFactor;
     std::vector<double>                             values;
+    std::string                                     dateFormat;
+    std::string                                     origin;
 };
 
 //==================================================================================================
@@ -50,7 +53,7 @@ public:
     static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static void                                         splitLineToDoubles(const std::string& line, std::vector<double>& values);
     static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
-    static  RifEclipseSummaryAddress                    makeAndFillAddress(std::string scaleFactor, std::string quantityName, std::vector< std::string > headerColumn);
+    static  RifEclipseSummaryAddress                    makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn);
     static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data, std::string& line);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);
