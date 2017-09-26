@@ -51,7 +51,7 @@ bool RifKeywordVectorParser::canBeParsed(const QString& data)
 
     while (streamData.good())
     {
-        if (line.size() > 1 && line[0] == '-' && line[1] == '-')
+        if (RifRsmspecParserTools::isAComment(line))
         {
             std::getline(streamData, line);
         }

@@ -63,14 +63,18 @@ void RifColumnBasedRsmspecParser::parseData(const QString& data)
 
         std::vector<double> values;
 
+        QString qLine;
         do
         {
-            RifRsmspecParserTools::splitLineToDoubles(line, values);
-            if (values.size() != columnCount) break;
+            qLine = QString::fromStdString(line);
+            QStringList entries = qLine.split(" ", QString::SkipEmptyParts);
+
+            if (entries.size() < columnCount) break;
 
             for (size_t i = 0; i < columnCount; i++)
             {
-                table[i].values.push_back(values[i]);
+                double entry = entries.at(i).toDouble();
+                table[i].values.push_back(entry);
             }
         } while (std::getline(streamData, line));
 

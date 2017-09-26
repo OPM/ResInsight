@@ -67,7 +67,7 @@ bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
 //--------------------------------------------------------------------------------------------------
 bool RifRsmspecParserTools::isAComment(const std::string& word)
 {
-    if (word.size() > 1 && word[0] == '-' && word[1] == '-')
+    if (word.size() > 1 && word.substr(0, 2) == "--")
     {
         return true;
     }
