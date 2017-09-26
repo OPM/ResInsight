@@ -898,14 +898,14 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
 
         if (mainPlotCollection)
         {
-            if (mainPlotCollection->wellLogPlotCollection())
-            {
-                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
-            }
-            
-            if (mainPlotCollection->summaryPlotCollection())
+           if (mainPlotCollection->summaryPlotCollection())
             {
                 uiTreeOrdering.add(mainPlotCollection->summaryPlotCollection());
+            }
+
+           if (mainPlotCollection->wellLogPlotCollection())
+            {
+                uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
             }
 
             if (mainPlotCollection->flowPlotCollection())
