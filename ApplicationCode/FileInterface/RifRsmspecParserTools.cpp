@@ -270,6 +270,12 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
     std::vector<RifEclipseSummaryAddress::SummaryVarCategory> categories;
     size_t columnCount = quantityNames.size();
 
+    if (unitNames.size() != columnCount)
+    {
+        size_t diff = columnCount - unitNames.size();
+        unitNames.insert(unitNames.end(), diff, "");
+    }
+
     for (std::string unit : unitNames)
     {
         ColumnInfo columnInfo;

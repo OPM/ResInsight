@@ -246,7 +246,7 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestKeywords)
+TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
 {
 
     QString data;
@@ -258,7 +258,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywords)
     out << "DATEFORMAT        DD/MM/YY\n";
     out << "\n";
     out << "TIME    YEARX    WGT1    WGT2    WGT4    WR12    WR22    WR42    \n";
-    out << "DAYS    YEARS    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    \n";
+    out << "DAYS    YEARS    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3        \n";
     out << "1    1    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    \n";
     out << "        OP-1    OP-1    OP-1    OP-1    OP-1    OP-1    \n";
     out << "\n";
@@ -298,6 +298,8 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywords)
     EXPECT_EQ("112000", tables[1].at(0).startDate);
     EXPECT_EQ("OP-2_TR", tables[1].at(0).origin);
     EXPECT_EQ("DD/MM/YY", tables[1].at(0).dateFormat);
+
+    EXPECT_EQ("", tables[0].at(7).unitName);
 
     ASSERT_EQ(8, tables.at(0).size());
     EXPECT_EQ(1.0E-12, tables.at(0).at(4).values[0]);
