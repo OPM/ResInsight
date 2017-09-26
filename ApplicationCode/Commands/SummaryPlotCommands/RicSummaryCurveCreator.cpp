@@ -52,6 +52,7 @@
 #include "RimSummaryCurveAutoName.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "RiuSummaryQwtPlot.h"
+#include "RimObservedData.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -635,7 +636,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
     std::vector<RimSummaryCase*> cases;
     for (const auto& sumCase: m_selectedCases)
     {
-        if(typeid(sumCase) == typeid(RimObservedData)) continue;
+        if(dynamic_cast<RimObservedData*>(sumCase.p()) != nullptr) continue;
         cases.push_back(sumCase);
     }
     return findPossibleSummaryAddresses(cases, identifierAndField);
@@ -646,7 +647,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
     std::vector<RimSummaryCase*> obsData;
     for (const auto& sumCase : m_selectedCases)
     {
-        if (typeid(sumCase) == typeid(RimObservedData))
+        if (dynamic_cast<RimObservedData*>(sumCase.p()) != nullptr)
         {
             obsData.push_back(sumCase);
         }
