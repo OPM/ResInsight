@@ -19,7 +19,9 @@
 
 #pragma once
 
-#include <stack>
+#include "RifEclipseSummaryAddress.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -28,13 +30,9 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
-#include "RifEclipseSummaryAddress.h"
-#include "RimSummaryCurve.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryCurveAppearanceCalculator.h"
-
 class RimSummaryCase;
 class RimSummaryCurveAutoName;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///  

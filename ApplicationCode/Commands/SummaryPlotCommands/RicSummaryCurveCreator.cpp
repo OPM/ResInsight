@@ -20,23 +20,29 @@
 
 #include "RiaApplication.h"
 
-#include "RicSummaryCurveCreatorUiKeywords.h"
 #include "RicSelectSummaryPlotUI.h"
+#include "RicSummaryCurveCreatorUiKeywords.h"
 
 #include "RifReaderEclipseSummary.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimObservedData.h"
+#include "RimObservedDataCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+#include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryCurve.h"
+#include "RimSummaryCurveAutoName.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimSummaryCurveCollection.h"
-#include "RimObservedDataCollection.h"
-#include "RimObservedData.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuSummaryQwtPlot.h"
 
+#include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -45,14 +51,6 @@
 
 #include <algorithm>
 #include <sstream>
-#include <stack>
-#include "RimSummaryCaseMainCollection.h"
-#include "RimOilField.h"
-#include "RimSummaryCaseCollection.h"
-#include "RimSummaryCurveAutoName.h"
-#include "cafPdmUiComboBoxEditor.h"
-#include "RiuSummaryQwtPlot.h"
-#include "RimObservedData.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -631,6 +629,9 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.skipRemainingFields(true);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RimSummaryCase*> cases;
@@ -642,6 +643,9 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
     return findPossibleSummaryAddresses(cases, identifierAndField);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RimSummaryCase*> obsData;
