@@ -26,12 +26,15 @@
 #include <QStringList>
 #include <QTextStream>
 
+#include <algorithm>
+#include <numeric>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
 {
-    if (line.size() == 0)
+    if (std::all_of(line.begin(), line.end(), isspace))
     {
         return true;
     }
@@ -62,17 +65,6 @@ bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifRsmspecParserTools::splitLine(const std::string& line)
-{
-    std::istringstream iss(line);
-    std::vector<std::string> words{ std::istream_iterator<std::string>{iss},
-                               std::istream_iterator<std::string>{} };
-    return words;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RifRsmspecParserTools::isAComment(const std::string& word)
 {
     if (word.size() > 1 && word[0] == '-' && word[1] == '-')
@@ -85,7 +77,7 @@ bool RifRsmspecParserTools::isAComment(const std::string& word)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifRsmspecParserTools::splitLineAndRemoveComments(const std::string& line)
+std::vector<std::string> RifRsmspecParserTools::splitLineAndRemoveComments(std::string line)
 {
     std::istringstream iss(line);
     std::vector<std::string> words{ std::istream_iterator<std::string>{iss},
@@ -101,44 +93,6 @@ std::vector<std::string> RifRsmspecParserTools::splitLineAndRemoveComments(const
     }
 
     return words;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RifRsmspecParserTools::canBeAMnemonic(const std::string& word)
-{
-    if (word.size() < 1) return false;
-
-    char firstLetter = word.at(0);
-
-    if (firstLetter == 'A' ||
-        firstLetter == 'B' ||
-        firstLetter == 'C' ||
-        firstLetter == 'F' ||
-        firstLetter == 'G' ||
-        firstLetter == 'N' ||
-        firstLetter == 'R' ||
-        firstLetter == 'S' ||
-        firstLetter == 'W' )
-    {
-        return true;
-    }
-
-    if (word.size() < 2) return false;
-    
-    std::string firstTwoLetters;
-    firstTwoLetters.push_back(word.at(0));
-    firstTwoLetters.push_back(word.at(1));
-
-    if (firstTwoLetters == "LB" ||
-        firstTwoLetters == "LC" ||
-        firstTwoLetters == "LW" )
-    {
-        return true;
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,6 +219,30 @@ RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string q
         cellK);
 }
 
+bool RifRsmspecParserTools::keywordParser(std::string line, std::string& origin, std::string& dateFormat, std::string& startDate)
+{
+    std::vector<std::string> words = splitLineAndRemoveComments(line);
+    if (words.size() < 2) return false;
+
+    if (words[0] == "ORIGIN")
+    {
+        origin = words[1];
+        return true;
+    }
+    else if (words[0] == "STARTDATE")
+    {
+        words.erase(words.begin());
+        startDate = std::accumulate(words.begin(), words.end(), std::string(""));
+        return true;
+    }
+    else if (words[0] == "DATEFORMAT")
+    {
+        dateFormat = words[1];
+        return true;
+    }
+    return false;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -277,10 +255,9 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
     std::string startDate  = "";
 
 
-    while (isLineSkippable(line))
+    while (isLineSkippable(line) || keywordParser(line, origin, dateFormat, startDate))
     {
         if (!streamData.good()) return table;
-
         std::getline(streamData, line);
     }
 
@@ -297,6 +274,9 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
     {
         ColumnInfo columnInfo;
         columnInfo.unitName = unit;
+        columnInfo.origin = origin;
+        columnInfo.dateFormat = dateFormat;
+        columnInfo.startDate = startDate;
         table.push_back(columnInfo);
     }
 
@@ -370,10 +350,9 @@ void RifRsmspecParserTools::splitLineToDoubles(const std::string& line, std::vec
     std::istringstream iss(line);
     values.clear();
     
-    while (iss.good())
+    double d;
+    while (iss >> d)
     {
-        double d;
-        iss >> d;
         values.push_back(d);
     }
 }

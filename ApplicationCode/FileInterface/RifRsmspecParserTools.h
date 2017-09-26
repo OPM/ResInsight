@@ -24,9 +24,9 @@
 #include <QLocale>
 #include <QString>
 
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
 
 struct ColumnInfo
 {
@@ -36,6 +36,7 @@ struct ColumnInfo
     std::string                                     scaleFactor;
     std::vector<double>                             values;
     std::string                                     dateFormat;
+    std::string                                     startDate;
     std::string                                     origin;
 };
 
@@ -46,14 +47,13 @@ class RifRsmspecParserTools
 {
 public:
     static bool                                         isLineSkippable(const std::string& line);
-    static std::vector<std::string>                     splitLine(const std::string& line);
     static bool                                         isAComment(const std::string& word);
-    static std::vector<std::string>                     splitLineAndRemoveComments(const std::string& line);
-    static bool                                         canBeAMnemonic(const std::string& word);
+    static std::vector<std::string>                     splitLineAndRemoveComments(std::string line);
     static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static void                                         splitLineToDoubles(const std::string& line, std::vector<double>& values);
     static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
     static  RifEclipseSummaryAddress                    makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn);
+    static bool                                         keywordParser(std::string line, std::string& origin, std::string& dateFormat, std::string& startDate);
     static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data, std::string& line);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);

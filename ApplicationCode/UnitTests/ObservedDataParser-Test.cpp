@@ -203,6 +203,110 @@ TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
+{
+
+    QString data;
+    QTextStream out(&data);
+
+    out << "   1   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   2   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   3   0.0   0.0   0.0   0.0   0.0 \n";
+    out << "   4   0.0   0.0   0.0   0.0   0.0  --note\n";
+    out << "   5   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   6   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   7  0.0  0.0  282  0.0  0.0 -- This is a test \n";
+    out << "   8  0.0  0.0  279  0.0  0.0\n";
+    out << "   9   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   10   0.0   0.0   0.0   0.0   0.0\n";
+
+    RifRsmspecParserTools parserTool;
+    std::stringstream streamData;
+    streamData.str(data.toStdString());
+    std::string line;
+
+    std::vector< std::vector<double> > table;
+
+    while (std::getline(streamData, line))
+    {
+        std::vector<double> values;
+        parserTool.splitLineToDoubles(line, values);
+        table.push_back(values);
+    }
+
+    ASSERT_EQ(10, table.size());
+    ASSERT_EQ(6, table[0].size());
+    ASSERT_EQ(6, table[3].size());
+
+    EXPECT_EQ(1, table[0][0]);
+    EXPECT_EQ(0.0, table[5][2]);
+    EXPECT_EQ(279, table[7][3]);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, TestKeywords)
+{
+
+    QString data;
+    QTextStream out(&data);
+
+    out << "PAGE 1\n";
+    out << "ORIGIN    OP-1_TR\n";
+    out << "STARTDATE    1 1 2000\n";
+    out << "DATEFORMAT        DD/MM/YY\n";
+    out << "\n";
+    out << "TIME    YEARX    WGT1    WGT2    WGT4    WR12    WR22    WR42    \n";
+    out << "DAYS    YEARS    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    \n";
+    out << "1    1    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    \n";
+    out << "        OP-1    OP-1    OP-1    OP-1    OP-1    OP-1    \n";
+    out << "\n";
+    out << "\n";
+    out << "1386    2003.170    1.0E-12	   1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12  --comment \n";
+    out << "1436    2003.307    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12 --comment\n";
+    out << "1574    2003.685    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "1636    2003.855    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "1709    2004.055    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "\n";
+    out << "\n";
+    out << "PAGE 2\n";
+    out << "ORIGIN    OP-2_TR    \n";
+    out << "STARTDATE    1 1 2000\n";
+    out << "DATEFORMAT        DD/MM/YY\n";
+    out << "\n";
+    out << "TIME    YEARX    WGT1    WGT2    WGT4    WR12    WR22    WR42    WR31\n";
+    out << "DAYS    YEARS    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3\n";
+    out << "1    1    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+00\n";
+    out << "        OP-2    OP-2    OP-2    OP-2    OP-2    OP-2    OP-2\n";
+    out << "\n";
+    out << "1436    2003.307    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "1508    2003.504    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "1574    2003.685    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "1636    2003.855    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "1709    2004.055    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
+    out << "\n";
+
+    RifColumnBasedRsmspecParser parser = RifColumnBasedRsmspecParser(data);
+
+    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    ASSERT_EQ(2, tables.size());
+    EXPECT_EQ("112000", tables[0].at(0).startDate);
+    EXPECT_EQ("OP-1_TR", tables[0].at(0).origin);
+    EXPECT_EQ("DD/MM/YY", tables[0].at(0).dateFormat);
+
+    EXPECT_EQ("112000", tables[1].at(0).startDate);
+    EXPECT_EQ("OP-2_TR", tables[1].at(0).origin);
+    EXPECT_EQ("DD/MM/YY", tables[1].at(0).dateFormat);
+
+    ASSERT_EQ(8, tables.at(0).size());
+    EXPECT_EQ(1.0E-12, tables.at(0).at(4).values[0]);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
 {
 
@@ -270,51 +374,6 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     EXPECT_EQ("P-9P", tables.at(1).at(1).summaryAddress.wellName());
     EXPECT_NE("P-9P", tables.at(1).at(0).summaryAddress.wellName());
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
-{
-
-    QString data;
-    QTextStream out(&data);
-
-    out << "   1   0.0   0.0   0.0   0.0   0.0\n";
-    out << "   2   0.0   0.0   0.0   0.0   0.0\n";
-    out << "   3   0.0   0.0   0.0   0.0   0.0 \n";
-    out << "   4   0.0   0.0   0.0   0.0   0.0  --note\n";
-    out << "   5   0.0   0.0   0.0   0.0   0.0\n";
-    out << "   6   0.0   0.0   0.0   0.0   0.0\n";
-    out << "   7  0.0  0.0  282  0.0  0.0 -- This is a test \n";
-    out << "   8  0.0  0.0  279  0.0  0.0\n";
-    out << "   9   0.0   0.0   0.0   0.0   0.0\n";
-    out << "   10   0.0   0.0   0.0   0.0   0.0\n";
-
-    RifRsmspecParserTools parserTool;
-    std::stringstream streamData;
-    streamData.str(data.toStdString());
-    std::string line;
-    
-    std::vector< std::vector<double> > table;
-    
-    while (std::getline(streamData, line))
-    {
-        std::vector<double> values;
-        parserTool.splitLineToDoubles(line, values);
-        table.push_back(values);
-    }
-
-    ASSERT_EQ(10, table.size());
-    ASSERT_EQ(6, table[0].size());
-
-    EXPECT_EQ(1, table[0][0]);
-    EXPECT_EQ(0.0, table[5][2]);
-    EXPECT_EQ(279, table[7][3]);
-}
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
