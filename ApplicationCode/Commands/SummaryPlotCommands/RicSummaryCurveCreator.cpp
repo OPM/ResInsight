@@ -190,6 +190,8 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
 
             itemInputType->pdmField()->uiCapability()->setUiLabelPosition(itemTypes.second.size() > 2 ?
                                                                           caf::PdmUiItemInfo::TOP : caf::PdmUiItemInfo::HIDDEN);
+
+            itemInputType->pdmField()->uiCapability()->setAutoAddingOptionFromValue(false);
         }
         itemTypes.second.back()->pdmField()->uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     }
@@ -419,41 +421,52 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         if (identifierAndField != nullptr)
         {
             enum {SUM_CASES, OBS_DATA};
-            bool includeObservedData = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
             std::set<RifEclipseSummaryAddress> addrUnion[2];
             addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
-            addrUnion[OBS_DATA] = includeObservedData ?
-                findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField) : std::set<RifEclipseSummaryAddress>();
+            addrUnion[OBS_DATA] =  findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField);
 
-            auto pdmField = identifierAndField->pdmField();
-
-            for(int i = 0; i < 2; i++)
+            std::set<QString> itemNames[2];
+            for (int i = 0; i < 2; i++)
             {
-                std::set<QString> itemNames;
                 for (const auto& address : addrUnion[i])
                 {
                     auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
                     if (!name.isEmpty())
-                        itemNames.insert(name);
+                        itemNames[i].insert(name);
                 }
+            }
 
-                // Create headers only when observed data is selected
-                bool hasObservedData = addrUnion[OBS_DATA].size() > 0;
-                if (hasObservedData)
+            bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+
+            // Merge sets for all other fields than vector fields
+            if (!isVectorField)
+            {
+                itemNames[SUM_CASES].insert(itemNames[OBS_DATA].begin(), itemNames[OBS_DATA].end());
+                itemNames[OBS_DATA].clear();
+            }
+
+            auto pdmField = identifierAndField->pdmField();
+            for(int i = 0; i < 2; i++)
+            {
+                // Create headers only for vector fields when observed data is selected
+                bool hasObservedData = itemNames[OBS_DATA].size() > 0;
+                bool groupItems = isVectorField && hasObservedData;
+                if (groupItems)
                 {
                     auto headerText = i == SUM_CASES ? QString("Simulated Data") : QString("Observed Data");
                     options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
                 }
 
-                for (const auto& iName : itemNames)
+                auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
+                for (const auto& iName : itemNames[i])
                 {
-                    auto optionItem = caf::PdmOptionItemInfo(iName, iName);
-                    if (hasObservedData)
+                    auto optionItem = caf::PdmOptionItemInfo(iName, iName + itemPostfix);
+                    if (groupItems)
                         optionItem.setLevel(1);
                     options.push_back(optionItem);
                 }
 
-                if (!hasObservedData) break;
+                if (itemNames[OBS_DATA].size() == 0) break;
             }
         }
     }
@@ -801,7 +814,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromS
     {
         auto identifierAndFieldList = m_identifierFieldsMap[category];
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
-        buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), addressSet, selectionStack);
+        buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), selectionStack, addressSet);
     }
     return addressSet;
 }
@@ -810,16 +823,19 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromS
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                 std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr, 
-                                                 std::set<RifEclipseSummaryAddress>& addressSet,
-                                                 std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath)
+                                                                    std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
+                                                                    std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
+                                                                    std::set<RifEclipseSummaryAddress>& addressSet)
+
 {
     for (const auto& identifierText : (*identifierAndFieldItr)->pdmField()->v())
     {
-        identifierPath.push_back(std::make_pair((*identifierAndFieldItr)->summaryIdentifier(), identifierText));
+        auto idText = identifierText;
+        idText.remove(OBSERVED_DATA_AVALUE_POSTFIX);
+        identifierPath.push_back(std::make_pair((*identifierAndFieldItr)->summaryIdentifier(), idText));
         if ((*identifierAndFieldItr)->summaryIdentifier() != RifEclipseSummaryAddress::INPUT_VECTOR_NAME)
         {
-            buildAddressListForCategoryRecursively(category, std::next(identifierAndFieldItr, 1), addressSet, identifierPath);
+            buildAddressListForCategoryRecursively(category, std::next(identifierAndFieldItr, 1), identifierPath, addressSet);
         }
         else
         {
@@ -869,6 +885,11 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
             for (int i = 0; i < addressCount; i++)
             {
+                auto qName = allAddresses[i].quantityName();
+                if (qName.find(OBSERVED_DATA_AVALUE_POSTFIX) != qName.npos)
+                {
+                    int i = 0;
+                }
                 if (selectedAddresses.count(allAddresses[i]) > 0)
                 {
                     addrUnion.insert(allAddresses[i]);

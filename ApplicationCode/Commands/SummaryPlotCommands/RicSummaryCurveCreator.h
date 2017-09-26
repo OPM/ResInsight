@@ -30,6 +30,9 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
+
+#define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
+
 class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
@@ -101,9 +104,9 @@ private:
                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
     std::set<RifEclipseSummaryAddress>      buildAddressListFromSelections();
     void                                    buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
-                                                                std::set<RifEclipseSummaryAddress>& addressSet,
-                                                                std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath);
+                                                                                   std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
+                                                                                   std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
+                                                                                   std::set<RifEclipseSummaryAddress>& addressSet);
 
     void                                    loadDataAndUpdatePlot();
     void                                    syncPreviewCurvesFromUiSelection();
