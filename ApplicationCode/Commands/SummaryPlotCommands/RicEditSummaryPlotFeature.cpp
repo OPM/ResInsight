@@ -23,14 +23,15 @@
 
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
+#include "RicSummaryCurveCreatorFactoryImpl.h"
+
+#include "RimSummaryPlot.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
+#include "cafSelectionManager.h"
+#include "cvfAssert.h"
 
 #include <QAction>
-
-#include "cvfAssert.h"
-#include "cafSelectionManager.h"
-#include "RicSummaryCurveCreatorFactoryImpl.h"
 
 
 CAF_CMD_SOURCE_INIT(RicEditSummaryPlotFeature, "RicEditSummaryPlotFeature");

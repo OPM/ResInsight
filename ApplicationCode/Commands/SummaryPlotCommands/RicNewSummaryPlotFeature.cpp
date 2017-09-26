@@ -21,16 +21,19 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
-
-#include <QAction>
-
-#include "cvfAssert.h"
-#include "RicSummaryCurveCreatorFactoryImpl.h"
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
-#include "RimSummaryPlotCollection.h"
+#include "RicSummaryCurveCreatorFactoryImpl.h"
+
 #include "RimSummaryCurveFilter.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
+
 #include "RiuMainPlotWindow.h"
+
+#include "cvfAssert.h"
+
+#include <QAction>
 
 
 CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
