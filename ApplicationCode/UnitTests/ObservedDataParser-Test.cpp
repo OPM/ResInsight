@@ -366,6 +366,9 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     ASSERT_EQ(18, tables.at(0).at(0).values.size());
     ASSERT_EQ(4, tables.at(1).at(0).values.size());
 
+    EXPECT_TRUE(tables.at(0).at(2).isAVector);
+    EXPECT_FALSE(tables.at(1).at(0).isAVector);
+
     EXPECT_EQ(0.0, tables.at(0).at(1).values.at(6));
     EXPECT_EQ(282, tables.at(0).at(3).values.at(6));
 

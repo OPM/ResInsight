@@ -345,6 +345,14 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
         table[i].summaryAddress = makeAndFillAddress(quantityNames.at(i), restOfHeaderColumn);
     }
 
+    for (ColumnInfo& column : table)
+    {
+        if (column.summaryAddress.category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
+        {
+            column.isAVector = true;
+        }
+    }
+
     return table;
 }
 
