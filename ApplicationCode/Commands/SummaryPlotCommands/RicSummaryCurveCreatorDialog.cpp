@@ -18,8 +18,12 @@
 
 #include "RicSummaryCurveCreatorDialog.h"
 
+#include "RiaApplication.h"
+
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorSplitterUi.h"
+
+#include "RiuMainPlotWindow.h"
 
 #include <QVBoxLayout>
 
@@ -43,6 +47,8 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicS
     setWindowTitle("ResInsight: Plot Editor");
     resize(1200, 800);
     connect(m_curveCreatorSplitterUi, SIGNAL(signalCloseButtonPressed()), this, SLOT(accept()));
+    
+    connect(this, SIGNAL(finished(int)), this, SLOT(slotDialogFinished()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,5 +56,16 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicS
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
 {
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorDialog::slotDialogFinished()
+{
+    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
+    if (plotwindow)
+    {
+        plotwindow->cleanUpTemporaryWidgets();
+    }
 }

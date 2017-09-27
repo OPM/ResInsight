@@ -29,9 +29,13 @@ class RicSummaryCurveCreator;
 //==================================================================================================
 class RicSummaryCurveCreatorDialog : public QDialog
 {
+    Q_OBJECT
 public:
     RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator);
     ~RicSummaryCurveCreatorDialog();
+
+private slots:
+    void slotDialogFinished();
 
 private:
     RicSummaryCurveCreatorSplitterUi* m_curveCreatorSplitterUi;

@@ -119,6 +119,16 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
         m_pdmUiPropertyView->showProperties(NULL);
     }
 
+    cleanUpTemporaryWidgets();
+
+    setWindowTitle("Plots - ResInsight");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainPlotWindow::cleanUpTemporaryWidgets()
+{
     for (QWidget* w : m_temporaryWidgets)
     {
         w->close();
@@ -126,8 +136,6 @@ void RiuMainPlotWindow::cleanupGuiBeforeProjectClose()
     }
 
     m_temporaryWidgets.clear();
-
-    setWindowTitle("Plots - ResInsight");
 }
 
 //--------------------------------------------------------------------------------------------------

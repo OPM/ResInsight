@@ -57,6 +57,7 @@ public:
     
     void                initializeGuiNewProjectLoaded();
     void                cleanupGuiBeforeProjectClose();
+    void                cleanUpTemporaryWidgets();
 
     void                removeViewer( QWidget* viewer ) override;
     void                addViewer(QWidget* viewer, const RimMdiWindowGeometry& windowsGeometry) override;
