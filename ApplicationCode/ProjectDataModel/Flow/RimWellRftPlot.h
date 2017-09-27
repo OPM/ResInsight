@@ -71,9 +71,7 @@ public:
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
-    RimWellLogPlot*                                 accumulatedWellFlowPlot();
-    RimTotalWellAllocationPlot*                     totalWellFlowPlot();
-    RimTofAccumulatedPhaseFractionsPlot*            tofAccumulatedPhaseFractionsPlot();
+    RimWellLogPlot*                                 wellLogPlot() const;
     caf::PdmObject*                                 plotLegend();
     RimEclipseResultCase*                           rimCase();
     int                                             timeStep();
@@ -131,10 +129,8 @@ private:
     caf::PdmField<double>                           m_smallContributionsThreshold;
     caf::PdmField<caf::AppEnum<FlowType> >          m_flowType;
 
-    QPointer<RiuWellRftPlot>                 m_WellRftPlotWidget;
+    QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 
-    caf::PdmChildField<RimWellLogPlot*>             m_accumulatedWellFlowPlot;
-    caf::PdmChildField<RimTotalWellAllocationPlot*> m_totalWellAllocationPlot;
-    caf::PdmChildField<RimWellRftPlotLegend*> m_WellRftPlotLegend;
-    caf::PdmChildField<RimTofAccumulatedPhaseFractionsPlot*> m_tofAccumulatedPhaseFractionsPlot;
+    caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
+    caf::PdmChildField<RimWellRftPlotLegend*>       m_rftPlotLegend;
 };

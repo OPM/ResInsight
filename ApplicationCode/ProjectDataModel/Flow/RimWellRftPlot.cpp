@@ -87,25 +87,29 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitFieldNoDefault(&m_flowType,                "FlowType",                                     "Flow Type",                 "", "", "");
     CAF_PDM_InitField(&m_groupSmallContributions,          "GroupSmallContributions",     true,            "Group Small Contributions", "", "", "");
     CAF_PDM_InitField(&m_smallContributionsThreshold,      "SmallContributionsThreshold", 0.005,           "Threshold",                 "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
-    m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
-    m_accumulatedWellFlowPlot = new RimWellLogPlot;
-    m_accumulatedWellFlowPlot->setDepthUnit(RiaDefines::UNIT_NONE);
-    m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
-    m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
-    m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));
+    //CAF_PDM_InitFieldNoDefault(&m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot",                      "Accumulated Well Flow",     "", "", "");
+    //m_accumulatedWellFlowPlot.uiCapability()->setUiHidden(true);
+    //m_accumulatedWellFlowPlot = new RimWellLogPlot;
+    //m_accumulatedWellFlowPlot->setDepthUnit(RiaDefines::UNIT_NONE);
+    //m_accumulatedWellFlowPlot->setDepthType(RimWellLogPlot::CONNECTION_NUMBER);
+    //m_accumulatedWellFlowPlot->setTrackLegendsVisible(false);
+    //m_accumulatedWellFlowPlot->uiCapability()->setUiIcon(QIcon(":/WellFlowPlot16x16.png"));
 
-    CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
-    m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
-    m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
+    //CAF_PDM_InitFieldNoDefault(&m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "");
+    //m_totalWellAllocationPlot.uiCapability()->setUiHidden(true);
+    //m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
 
-    CAF_PDM_InitFieldNoDefault(&m_WellRftPlotLegend, "WellAllocLegend", "Legend", "", "", "");
-    m_WellRftPlotLegend.uiCapability()->setUiHidden(true);
-    m_WellRftPlotLegend = new RimWellRftPlotLegend;
+    CAF_PDM_InitFieldNoDefault(&m_wellLogPlot, "WellLog", "WellLog", "", "", "");
+    m_wellLogPlot.uiCapability()->setUiHidden(true);
+    m_wellLogPlot = new RimWellLogPlot();
 
-    CAF_PDM_InitFieldNoDefault(&m_tofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot", "TOF Accumulated Phase Fractions", "", "", "");
-    m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiHidden(true);
-    m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
+    CAF_PDM_InitFieldNoDefault(&m_rftPlotLegend, "WellLogLegend", "Legend", "", "", "");
+    m_rftPlotLegend.uiCapability()->setUiHidden(true);
+    m_rftPlotLegend = new RimWellRftPlotLegend();
+
+    //CAF_PDM_InitFieldNoDefault(&m_tofAccumulatedPhaseFractionsPlot, "TofAccumulatedPhaseFractionsPlot", "TOF Accumulated Phase Fractions", "", "", "");
+    //m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiHidden(true);
+    //m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
     this->setAsPlotMdiWindow();
 }
@@ -116,10 +120,6 @@ RimWellRftPlot::RimWellRftPlot()
 RimWellRftPlot::~RimWellRftPlot()
 {
     removeMdiWindowFromMdiArea();
-    
-    delete m_accumulatedWellFlowPlot();
-    delete m_totalWellAllocationPlot();
-    delete m_tofAccumulatedPhaseFractionsPlot();
 
     deleteViewWidget();
 }
@@ -153,10 +153,10 @@ void RimWellRftPlot::setFromSimulationWell(RimEclipseWell* simWell)
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::deleteViewWidget()
 {
-    if (m_WellRftPlotWidget)
+    if (m_wellLogPlotWidget)
     {
-        m_WellRftPlotWidget->deleteLater();
-        m_WellRftPlotWidget = nullptr;
+        m_wellLogPlotWidget->deleteLater();
+        m_wellLogPlotWidget = nullptr;
     }
 }
 
@@ -168,22 +168,22 @@ void RimWellRftPlot::updateFromWell()
     // Delete existing tracks
     {
         std::vector<RimWellLogTrack*> tracks;
-        accumulatedWellFlowPlot()->descendantsIncludingThisOfType(tracks);
+        wellLogPlot()->descendantsIncludingThisOfType(tracks);
 
         for (RimWellLogTrack* t : tracks)
         {
-            accumulatedWellFlowPlot()->removeTrack(t);
+            wellLogPlot()->removeTrack(t);
             delete t;
         }
     }
 
-    CVF_ASSERT(accumulatedWellFlowPlot()->trackCount() == 0);
+    CVF_ASSERT(wellLogPlot()->trackCount() == 0);
 
     QString description;
-    if (m_flowType() == ACCUMULATED)  description = "Accumulated Flow";
+    if (m_flowType() == ACCUMULATED)  description = "Well Log";
     if (m_flowType() == INFLOW)  description = "Inflow Rates";
 
-    accumulatedWellFlowPlot()->setDescription(description + " (" + m_wellName + ")");
+    wellLogPlot()->setDescription(description + " (" + m_wellName + ")");
 
     if (!m_case) return;
 
@@ -233,7 +233,7 @@ void RimWellRftPlot::updateFromWell()
         }
     }
 
-    auto depthType = accumulatedWellFlowPlot()->depthType();
+    auto depthType = wellLogPlot()->depthType();
 
     if (   depthType == RimWellLogPlot::MEASURED_DEPTH ) return;
 
@@ -249,7 +249,7 @@ void RimWellRftPlot::updateFromWell()
 
         plotTrack->setDescription(QString("Branch %1").arg(brIdx + 1));
 
-        accumulatedWellFlowPlot()->addTrack(plotTrack);
+        wellLogPlot()->addTrack(plotTrack);
 
         const std::vector<double>& depthValues = depthType == RimWellLogPlot::CONNECTION_NUMBER ? wfCalculator->connectionNumbersFromTop(brIdx) :
                                                  depthType == RimWellLogPlot::PSEUDO_LENGTH ? wfCalculator->pseudoLengthFromTop(brIdx) :
@@ -291,37 +291,37 @@ void RimWellRftPlot::updateFromWell()
  
     /// Pie chart
 
-    m_totalWellAllocationPlot->clearSlices();
-    if (m_WellRftPlotWidget) m_WellRftPlotWidget->clearLegend();
+    //m_totalWellAllocationPlot->clearSlices();
+    //if (m_wellLogPlotWidget) m_WellRftPlotWidget->clearLegend();
 
-    if (wfCalculator)
-    {
-        std::vector<std::pair<QString, double> > totalTracerFractions = wfCalculator->totalTracerFractions() ;
+    //if (wfCalculator)
+    //{
+    //    std::vector<std::pair<QString, double> > totalTracerFractions = wfCalculator->totalTracerFractions() ;
 
-        for ( const auto& tracerVal : totalTracerFractions )
-        {
-            cvf::Color3f color;
-            if (m_flowDiagSolution)
-                color = m_flowDiagSolution->tracerColor(tracerVal.first);
-            else
-                color = getTracerColor(tracerVal.first);
+    //    for ( const auto& tracerVal : totalTracerFractions )
+    //    {
+    //        cvf::Color3f color;
+    //        if (m_flowDiagSolution)
+    //            color = m_flowDiagSolution->tracerColor(tracerVal.first);
+    //        else
+    //            color = getTracerColor(tracerVal.first);
 
-            double tracerPercent = 100*tracerVal.second;
+    //        double tracerPercent = 100*tracerVal.second;
 
-            m_totalWellAllocationPlot->addSlice(tracerVal.first, color, tracerPercent);
-            if ( m_WellRftPlotWidget ) m_WellRftPlotWidget->addLegendItem(tracerVal.first, color, tracerPercent);
-        }
-    }
+    //        m_totalWellAllocationPlot->addSlice(tracerVal.first, color, tracerPercent);
+    //        if ( m_WellRftPlotWidget ) m_WellRftPlotWidget->addLegendItem(tracerVal.first, color, tracerPercent);
+    //    }
+    //}
 
-    if (m_WellRftPlotWidget) m_WellRftPlotWidget->showLegend(m_WellRftPlotLegend->isShowingLegend());
-    m_totalWellAllocationPlot->updateConnectedEditors();
+    //if (m_WellRftPlotWidget) m_WellRftPlotWidget->showLegend(m_WellRftPlotLegend->isShowingLegend());
+    //m_totalWellAllocationPlot->updateConnectedEditors();
 
-    accumulatedWellFlowPlot()->updateConnectedEditors();
+    //accumulatedWellFlowPlot()->updateConnectedEditors();
 
-    m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
-    m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
+    //m_tofAccumulatedPhaseFractionsPlot->reloadFromWell();
+    //m_tofAccumulatedPhaseFractionsPlot->updateConnectedEditors();
 
-    if (m_WellRftPlotWidget) m_WellRftPlotWidget->updateGeometry();
+    //if (m_WellRftPlotWidget) m_WellRftPlotWidget->updateGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,15 +443,15 @@ void RimWellRftPlot::updateWidgetTitleWindowTitle()
 {
     updateMdiWindowTitle();
 
-    if (m_WellRftPlotWidget)
+    if (m_wellLogPlotWidget)
     {
         if (m_showPlotTitle)
         {
-            m_WellRftPlotWidget->showTitle(m_userName);
+            m_wellLogPlotWidget->showTitle(m_userName);
         }
         else
         {
-            m_WellRftPlotWidget->hideTitle();
+            m_wellLogPlotWidget->hideTitle();
         }
     }
 }
@@ -506,7 +506,7 @@ QString RimWellRftPlot::wellStatusTextForTimeStep(const QString& wellName, const
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellRftPlot::viewWidget()
 {
-    return m_WellRftPlotWidget;
+    return m_wellLogPlotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,31 +514,36 @@ QWidget* RimWellRftPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::zoomAll()
 {
-    m_accumulatedWellFlowPlot()->zoomAll();
+    m_wellLogPlot()->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RimWellRftPlot::accumulatedWellFlowPlot()
-{
-    return m_accumulatedWellFlowPlot();
-}
+//RimWellLogPlot* RimWellRftPlot::accumulatedWellFlowPlot()
+//{
+//    return m_accumulatedWellFlowPlot();
+//}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimTotalWellAllocationPlot* RimWellRftPlot::totalWellFlowPlot()
-{
-    return m_totalWellAllocationPlot();
-}
+//RimTotalWellAllocationPlot* RimWellRftPlot::totalWellFlowPlot()
+//{
+//    return m_totalWellAllocationPlot();
+//}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimTofAccumulatedPhaseFractionsPlot * RimWellRftPlot::tofAccumulatedPhaseFractionsPlot()
+//RimTofAccumulatedPhaseFractionsPlot * RimWellRftPlot::tofAccumulatedPhaseFractionsPlot()
+//{
+//    return m_tofAccumulatedPhaseFractionsPlot();
+//}
+
+RimWellLogPlot* RimWellRftPlot::wellLogPlot() const 
 {
-    return m_tofAccumulatedPhaseFractionsPlot();
+    return m_wellLogPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -546,7 +551,7 @@ RimTofAccumulatedPhaseFractionsPlot * RimWellRftPlot::tofAccumulatedPhaseFractio
 //--------------------------------------------------------------------------------------------------
 caf::PdmObject* RimWellRftPlot::plotLegend()
 {
-    return m_WellRftPlotLegend;
+    return m_rftPlotLegend;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -661,7 +666,7 @@ void RimWellRftPlot::removeFromMdiAreaAndDeleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::showPlotLegend(bool doShow)
 {
-    if (m_WellRftPlotWidget) m_WellRftPlotWidget->showLegend(doShow);
+    if (m_wellLogPlotWidget) m_wellLogPlotWidget->showLegend(doShow);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -736,9 +741,9 @@ QImage RimWellRftPlot::snapshotWindowContent()
 {
     QImage image;
 
-    if (m_WellRftPlotWidget)
+    if (m_wellLogPlotWidget)
     {
-        QPixmap pix = QPixmap::grabWidget(m_WellRftPlotWidget);
+        QPixmap pix = QPixmap::grabWidget(m_wellLogPlotWidget);
         image = pix.toImage();
     }
 
@@ -791,7 +796,7 @@ void RimWellRftPlot::loadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateFromWell();
-    m_accumulatedWellFlowPlot->loadDataAndUpdate();
+    m_wellLogPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -799,8 +804,8 @@ void RimWellRftPlot::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 QWidget* RimWellRftPlot::createViewWidget(QWidget* mainWindowParent)
 {
-    m_WellRftPlotWidget = new RiuWellRftPlot(this, mainWindowParent);
-    return m_WellRftPlotWidget;
+    m_wellLogPlotWidget = new RiuWellRftPlot(this, mainWindowParent);
+    return m_wellLogPlotWidget;
 }
 
 //--------------------------------------------------------------------------------------------------

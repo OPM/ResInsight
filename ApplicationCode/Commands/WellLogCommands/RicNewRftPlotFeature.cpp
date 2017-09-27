@@ -101,21 +101,6 @@ void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method is not called from within this class, only by other classes
-//--------------------------------------------------------------------------------------------------
-RimWellRftPlot* RicNewRftPlotFeature::createNewRftPlot(RimRftPlotCollection* rftPlotColl)
-{
-    auto plot = new RimWellRftPlot();
-    rftPlotColl->rftPlots().push_back(plot);
-
-    plot->setDescription(QString("RFT Plot %1").arg(rftPlotColl->rftPlots.size() + 1));
-
-    rftPlotColl->updateConnectedEditors();
-    plot->loadDataAndUpdate();
-    return plot;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimWellLogTrack* RicNewRftPlotFeature::selectedWellLogPlotTrack() const

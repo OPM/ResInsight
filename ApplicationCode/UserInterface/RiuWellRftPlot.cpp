@@ -55,7 +55,7 @@ RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
     this->layout()->setSpacing(2);
 
     m_titleLabel = new QLabel(this);
-    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->accumulatedWellFlowPlot());
+    new RiuPlotObjectPicker(m_titleLabel, m_plotDefinition->wellLogPlot());
 
     QFont font = m_titleLabel->font();
     font.setPointSize(14);
@@ -86,15 +86,15 @@ RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
     rightColumnLayout->addWidget(m_legendWidget);
     m_legendWidget->showPie(false);
 
-    QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
-    new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
-    new RiuContextMenuLauncher(totalFlowAllocationWidget, commandIds);
+    //QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
+    //new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
+    //new RiuContextMenuLauncher(totalFlowAllocationWidget, commandIds);
 
-    rightColumnLayout->addWidget(totalFlowAllocationWidget, Qt::AlignTop);
-    rightColumnLayout->addWidget(m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget(this), Qt::AlignTop);
-    rightColumnLayout->addStretch();
+    //rightColumnLayout->addWidget(totalFlowAllocationWidget, Qt::AlignTop);
+    //rightColumnLayout->addWidget(m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget(this), Qt::AlignTop);
+    //rightColumnLayout->addStretch();
 
-    QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createViewWidget(this);
+    QWidget* wellFlowWidget = m_plotDefinition->wellLogPlot()->createViewWidget(this);
 
     plotWidgetsLayout->addWidget(wellFlowWidget);
 }

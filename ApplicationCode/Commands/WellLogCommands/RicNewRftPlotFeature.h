@@ -43,7 +43,6 @@ protected:
     virtual void setupActionLook( QAction* actionToSetup );
 
 private:
-    RimWellRftPlot*     createNewRftPlot(RimRftPlotCollection* rftPlotColl);
     RimWellLogTrack*    selectedWellLogPlotTrack() const;
     RimWellPath*        selectedWellPath() const;
     RimEclipseWell*     selectedSimulationWell(int * branchIndex) const;
