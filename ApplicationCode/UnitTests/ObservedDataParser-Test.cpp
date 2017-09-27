@@ -220,7 +220,6 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
     out << "   9   0.0   0.0   0.0   0.0   0.0\n";
     out << "   10   0.0   0.0   0.0   0.0   0.0\n";
 
-    RifRsmspecParserTools parserTool;
     std::stringstream streamData;
     streamData.str(data.toStdString());
     std::string line;
@@ -230,7 +229,7 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
     while (std::getline(streamData, line))
     {
         std::vector<double> values;
-        parserTool.splitLineToDoubles(line, values);
+        RifRsmspecParserTools::splitLineToDoubles(line, values);
         table.push_back(values);
     }
 

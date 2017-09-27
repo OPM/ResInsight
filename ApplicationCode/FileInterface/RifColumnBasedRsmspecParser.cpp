@@ -73,7 +73,7 @@ void RifColumnBasedRsmspecParser::parseData(const QString& data)
 
             for (size_t i = 0; i < columnCount; i++)
             {
-                double entry = entries.at(i).toDouble();
+                double entry = entries.at(static_cast<int>(i)).toDouble();
                 table[i].values.push_back(entry);
             }
         } while (std::getline(streamData, line));
