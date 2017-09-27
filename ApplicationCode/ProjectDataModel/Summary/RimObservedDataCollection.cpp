@@ -74,12 +74,12 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
 
         observedData = columnBasedUserData;
     }
-    else
-    {
-        RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
-
-        observedData = newObservedData;
-    }
+//     else
+//     {
+//         RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
+// 
+//         observedData = newObservedData;
+//     }
 
     if (observedData)
     {
