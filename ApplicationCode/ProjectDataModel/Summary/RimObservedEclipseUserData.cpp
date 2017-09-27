@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimColumnBasedUserData.h"
+#include "RimObservedEclipseUserData.h"
 
 #include "RiaLogging.h"
 
@@ -30,14 +30,14 @@
 
 #include <QFile>
 
-CAF_PDM_SOURCE_INIT(RimColumnBasedUserData, "RimColumnBasedUserData");
+CAF_PDM_SOURCE_INIT(RimObservedEclipseUserData, "RimObservedEclipseUserData");
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimColumnBasedUserData::RimColumnBasedUserData()
+RimObservedEclipseUserData::RimObservedEclipseUserData()
 {
     CAF_PDM_InitObject("Observed RSMSPEC Column Based Data File", ":/Default.png", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiName("File");
@@ -46,7 +46,7 @@ RimColumnBasedUserData::RimColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimColumnBasedUserData::~RimColumnBasedUserData()
+RimObservedEclipseUserData::~RimObservedEclipseUserData()
 {
 
 }
@@ -54,7 +54,7 @@ RimColumnBasedUserData::~RimColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimColumnBasedUserData::createSummaryReaderInterface()
+void RimObservedEclipseUserData::createSummaryReaderInterface()
 {
     m_summeryReader = nullptr;
 
@@ -101,7 +101,7 @@ void RimColumnBasedUserData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimColumnBasedUserData::summaryReader()
+RifSummaryReaderInterface* RimObservedEclipseUserData::summaryReader()
 {
     return m_summeryReader.p();
 }

@@ -23,7 +23,7 @@
 
 #include "RifKeywordVectorParser.h"
 
-#include "RimColumnBasedUserData.h"
+#include "RimObservedEclipseUserData.h"
 #include "RimObservedData.h"
 #include "RimSummaryObservedDataFile.h"
 
@@ -102,7 +102,7 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
 
         if (eclipseUserData)
         {
-            RimColumnBasedUserData* columnBasedUserData = new RimColumnBasedUserData();
+            RimObservedEclipseUserData* columnBasedUserData = new RimObservedEclipseUserData();
 
             observedData = columnBasedUserData;
         }

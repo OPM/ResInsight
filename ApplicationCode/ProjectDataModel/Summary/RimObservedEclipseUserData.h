@@ -29,12 +29,12 @@ class RifSummaryReaderInterface;
 //==================================================================================================
 //
 //==================================================================================================
-class RimColumnBasedUserData : public RimObservedData
+class RimObservedEclipseUserData : public RimObservedData
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimColumnBasedUserData();
-    virtual ~RimColumnBasedUserData();
+    RimObservedEclipseUserData();
+    virtual ~RimObservedEclipseUserData();
 
     virtual void createSummaryReaderInterface() override;
 
