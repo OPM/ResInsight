@@ -19,22 +19,16 @@
 
 #pragma once
 
-
-#include "RiaDefines.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
-#include "QPointer"
-#include "QList"
 
 class QwtPlot;
 class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
-class RiuLineSegmentQwtPlotCurve;
 
 //==================================================================================================
 ///  
