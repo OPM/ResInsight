@@ -1320,7 +1320,13 @@ caf::PdmObject* RimSummaryPlot::findRimCurveFromQwtCurve(const QwtPlotCurve* qwt
     if (m_summaryCurveCollection)
     {
         RimSummaryCurve* foundCurve = m_summaryCurveCollection->findRimCurveFromQwtCurve(qwtCurve);
-        if (foundCurve) return foundCurve;
+        
+        if (foundCurve)
+        {
+            m_summaryCurveCollection->setCurrentSummaryCurve(foundCurve);
+
+            return foundCurve;
+        }
     }
 
     return NULL;

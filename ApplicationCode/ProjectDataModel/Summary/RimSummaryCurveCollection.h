@@ -57,9 +57,12 @@ public:
     void                                    deleteAllCurves();
     void                                    updateCaseNameHasChanged();
 
+    void                                    setCurrentSummaryCurve(RimSummaryCurve* curve);
+
 private:
     caf::PdmFieldHandle*                    objectToggleField();
-    
+    virtual void                            defineObjectEditorAttribute(QString uiConfigName, 
+                                                                        caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>      m_selectedSummaryCases;
@@ -67,5 +70,6 @@ private:
     caf::PdmField<bool>                         m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
+    caf::PdmPointer<RimSummaryCurve>            m_currentSummaryCurve;
 };
 

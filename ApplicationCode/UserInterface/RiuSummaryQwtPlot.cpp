@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimProject.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 
@@ -316,8 +317,6 @@ bool RiuSummaryQwtPlot::eventFilter(QObject* watched, QEvent* event)
     return QwtPlot::eventFilter(watched, event);
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +344,11 @@ void RiuSummaryQwtPlot::selectClosestCurve(const QPoint& pos)
     if(closestCurve && distMin < 20)
     {
         caf::PdmObject* selectedCurve = m_plotDefinition->findRimCurveFromQwtCurve(closestCurve);
-        if(selectedCurve)
+        
+        RimProject* proj = nullptr;
+        selectedCurve->firstAncestorOrThisOfType(proj);
+
+        if(proj && selectedCurve)
         {
             RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(selectedCurve);
         }

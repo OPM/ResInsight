@@ -29,6 +29,8 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 #include "RiuSummaryQwtPlot.h"
 
+#include "cafPdmUiTreeViewEditor.h"
+
 CAF_PDM_SOURCE_INIT(RimSummaryCurveCollection, "RimSummaryCurveCollection");
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +111,6 @@ void RimSummaryCurveCollection::detachQwtCurves()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -186,6 +187,7 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase(RimSummaryCase* s
         m_curves.removeChildObject(summaryCurve);
         delete summaryCurve;
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +217,29 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::setCurrentSummaryCurve(RimSummaryCurve* curve)
+{
+    m_currentSummaryCurve = curve;
+
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryCurveCollection::objectToggleField()
 {
     return &m_showCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
+    if (myAttr && m_currentSummaryCurve.notNull())
+    {
+        myAttr->currentObject = m_currentSummaryCurve.p();
+    }
 }
