@@ -89,11 +89,23 @@ bool RifColumnBasedUserData::parse(const QString& data)
 
             m_timeSteps.resize(m_timeSteps.size() + 1);
 
+            double scaleFactor = 1.0;
+
+            QString unitText = QString::fromStdString(ci.unitName);
+            if (unitText.compare("DAYS", Qt::CaseInsensitive) == 0)
+            {
+                scaleFactor = 60.0 * 60.0 * 24.0;
+            }
+            else if (unitText.compare("YEARS", Qt::CaseInsensitive) == 0)
+            {
+                scaleFactor = 60.0 * 60.0 * 24.0 * 365.0;
+            }
+
             std::vector<time_t>& timeSteps = m_timeSteps.back();
             {
                 for (auto v : ci.values)
                 {
-                    timeSteps.push_back(v);
+                    timeSteps.push_back(v * scaleFactor);
                 }
             }
 
