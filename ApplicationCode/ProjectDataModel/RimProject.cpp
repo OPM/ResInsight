@@ -56,6 +56,7 @@
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimRftPlotCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
 
@@ -908,7 +909,12 @@ void RimProject::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QS
                 uiTreeOrdering.add(mainPlotCollection->wellLogPlotCollection());
             }
 
-            if (mainPlotCollection->flowPlotCollection())
+           if (mainPlotCollection->rftPlotCollection())
+           {
+               uiTreeOrdering.add(mainPlotCollection->rftPlotCollection());
+           }
+           
+           if (mainPlotCollection->flowPlotCollection())
             {
                 uiTreeOrdering.add(mainPlotCollection->flowPlotCollection());
             }

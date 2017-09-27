@@ -28,6 +28,7 @@
 
 
 class RimWellLogPlotCollection;
+class RimRftPlotCollection;
 class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RifReaderEclipseSummary;
@@ -47,6 +48,7 @@ public:
     virtual ~RimMainPlotCollection();
 
     RimWellLogPlotCollection*   wellLogPlotCollection();
+    RimRftPlotCollection*       rftPlotCollection();
     RimSummaryPlotCollection*   summaryPlotCollection();
     RimFlowPlotCollection*      flowPlotCollection();
 
@@ -60,6 +62,7 @@ protected:
     virtual void                 fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     caf::PdmChildField<RimWellLogPlotCollection*> m_wellLogPlotCollection;
+    caf::PdmChildField<RimRftPlotCollection*>     m_rftPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*> m_summaryPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>    m_flowPlotCollection;
 

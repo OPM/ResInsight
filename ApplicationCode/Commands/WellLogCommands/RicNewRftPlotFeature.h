@@ -19,20 +19,33 @@
 
 #pragma once
 
-#include "cafPdmFieldCvfColor.h"
+#include "cafCmdFeature.h"
 
-class RimWellLogCurve;
-class RimWellAllocationPlot;
+class RimEclipseWell;
+class RimView;
+class RimWellLogExtractionCurve;
+class RimWellLogTrack;
+class RimWellPath;
+class RimRftPlotCollection;
 class RimWellRftPlot;
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RicWellLogPlotCurveFeatureImpl
+class RicNewRftPlotFeature : public caf::CmdFeature
 {
-public:
-    static cvf::Color3f curveColorFromTable(size_t index);
-    static std::vector<RimWellLogCurve*> selectedWellLogCurves();
-    static RimWellAllocationPlot* parentWellAllocationPlot();
-    static RimWellRftPlot* parentWellRftPlot();
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    // Overrides
+    virtual bool isCommandEnabled();
+    virtual void onActionTriggered( bool isChecked );
+    virtual void setupActionLook( QAction* actionToSetup );
+
+private:
+    RimWellRftPlot*     createNewRftPlot(RimRftPlotCollection* rftPlotColl);
+    RimWellLogTrack*    selectedWellLogPlotTrack() const;
+    RimWellPath*        selectedWellPath() const;
+    RimEclipseWell*     selectedSimulationWell(int * branchIndex) const;
+    bool                caseAvailable() const;
 };

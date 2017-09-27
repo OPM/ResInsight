@@ -45,6 +45,7 @@ ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RiuEditPerforationCollectionWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
+${CEE_CURRENT_LIST_DIR}RiuWellRftPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
@@ -92,6 +93,7 @@ ${CEE_CURRENT_LIST_DIR}RiuFemTimeHistoryResultAccessor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuEditPerforationCollectionWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.cpp
+${CEE_CURRENT_LIST_DIR}RiuWellRftPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
@@ -127,6 +129,7 @@ ${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuEditPerforationCollectionWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuExportMultipleSnapshotsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuWellAllocationPlot.h
+${CEE_CURRENT_LIST_DIR}RiuWellRftPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h

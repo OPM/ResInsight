@@ -22,6 +22,7 @@
 #include "RiaColorTables.h"
 
 #include "RimWellAllocationPlot.h"
+#include "RimWellRftPlot.h"
 #include "RimWellLogCurve.h"
 
 #include "cafSelectionManager.h"
@@ -85,4 +86,18 @@ RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot(
     destinationObject->firstAncestorOrThisOfType(wellAllocationPlot);
 
     return wellAllocationPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellRftPlot* RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()
+{
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
+    if (!destinationObject) return nullptr;
+
+    RimWellRftPlot* wellRftPlot = nullptr;
+    destinationObject->firstAncestorOrThisOfType(wellRftPlot);
+
+    return wellRftPlot;
 }
