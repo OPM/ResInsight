@@ -376,6 +376,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     EXPECT_EQ(370, tables.at(1).at(3).values.at(3));
 
     EXPECT_EQ("WLVP", tables.at(0).at(1).summaryAddress.quantityName());
+    EXPECT_EQ("P-15P", tables.at(0).at(5).summaryAddress.wellName());
     EXPECT_EQ("P-9P", tables.at(1).at(1).summaryAddress.wellName());
     EXPECT_NE("P-9P", tables.at(1).at(0).summaryAddress.wellName());
 }
@@ -481,4 +482,63 @@ TEST(RifKeywordBasedRsmspecParserTest, TestCannotBeParsed)
     std::vector<KeywordBasedVector> vectors = parser.keywordBasedVectors();
 
     EXPECT_FALSE(RifKeywordVectorParser::canBeParsed(data));
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
+{
+    QString data;
+    QTextStream out(&data);
+
+    out << "-- Created running the command shutin_pressures\n";
+    out << "\n";
+    out << "PAGE 1\n";
+    out << "ORIGIN       OP-1_WBP9L\n";
+    out << "STARTDATE    01 01 2004     -- DD MM YYYY\n";
+    out << "\n";
+    out << "TIME     YEARX      WBP9L\n";
+    out << "DAYS     YEARS      BARSA\n";
+    out << "1        1          1\n";
+    out << "                    OP-1\n";
+    out << "\n";
+    out << "\n";
+    out << "3043     2014.32    52.5     -- Extrapolated\n";
+    out << "3046     2014.32    208.8    -- Measured\n";
+    out << "3070     2014.39    197.6    -- Measured\n";
+    out << "3081     2014.42    200.3    -- Measured\n";
+    out << "3128     2014.55    203.3    -- Measured\n";
+    out << "3141     2014.59    198.0    -- Measured\n";
+    out << "3196     2014.73    197.2    -- Measured\n";
+    out << "3222     2014.81    196.9    -- Extrapolated\n";
+    out << "3225     2014.82    199.6    -- Extrapolated\n";
+    out << "3226     2014.82    200.0    -- Extrapolated\n";
+    out << "3247     2014.87    201.8    -- Extrapolated\n";
+    out << "3282     2014.97    51.7     -- Extrapolated\n";
+    out << "3282     2014.97    201.6    -- Measured\n";
+    out << "3304     2015.03    206.1    -- Extrapolated\n";
+    out << "3324     2015.09    170.2    -- Measured\n";
+    out << "3359     2015.18    207.0    -- Extrapolated\n";
+    out << "3481     2015.52    151.0    -- Measured\n";
+    out << "3493     2015.55    219.0    -- Measured\n";
+    out << "\n";
+
+
+
+    RifColumnBasedRsmspecParser parser = RifColumnBasedRsmspecParser(data);
+
+    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    ASSERT_EQ(1, tables.size());
+    ASSERT_EQ(3, tables.at(0).size());
+    ASSERT_EQ(18, tables.at(0).at(2).values.size());
+
+    EXPECT_EQ(2014.39, tables.at(0).at(1).values[2]);
+
+    EXPECT_EQ("WBP9L", tables.at(0).at(2).summaryAddress.quantityName());
+
+    EXPECT_EQ("OP-1", tables.at(0).at(2).summaryAddress.wellName());
+    EXPECT_NE("OP-1", tables.at(0).at(1).summaryAddress.wellName());
+
 }

@@ -58,7 +58,11 @@ bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
     {
         return true;
     }
-
+    
+    if (str.find("NULL") < str.size())
+    {
+        return true;
+    }
     return false;
 }
 
@@ -286,12 +290,10 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
         table.push_back(columnInfo);
     }
 
-    if (scaleFactors.empty())
+    if (scaleFactors.size() < columnCount)
     {
-        for (size_t i = 0; i < table.size(); i++)
-        {
-            scaleFactors.push_back("1");
-        }
+        size_t diff = columnCount - scaleFactors.size();
+        scaleFactors.insert(scaleFactors.end(), diff, "1");
     }
 
     for (size_t i = 0; i < table.size(); i++)
@@ -328,9 +330,8 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
             }
             else
             {
-                std::vector< std::string > wordsWithEmptyStrings(diff, "");
-                wordsWithEmptyStrings.insert(wordsWithEmptyStrings.begin(), words.begin(), words.end());
-                restOfHeader.push_back(wordsWithEmptyStrings);
+                words.insert(words.begin(), diff, "");
+                restOfHeader.push_back(words);
             }
         }
     }
