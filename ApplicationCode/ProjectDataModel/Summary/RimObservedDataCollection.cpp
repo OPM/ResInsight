@@ -19,9 +19,17 @@
 
 #include "RimObservedDataCollection.h"
 
-#include "RimObservedData.h"
+#include "RiaLogging.h"
+
+#include "RifKeywordVectorParser.h"
+
 #include "RimColumnBasedUserData.h"
+#include "RimObservedData.h"
 #include "RimSummaryObservedDataFile.h"
+
+#include "cafUtils.h"
+
+#include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
 
@@ -68,27 +76,46 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
 {
     RimObservedData* observedData = nullptr;
 
-    if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
+    if (caf::Utils::fileExists(fileName))
     {
-        RimColumnBasedUserData* columnBasedUserData = new RimColumnBasedUserData();
+        QFile file(fileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            RiaLogging::error(QString("Failed to open %1").arg(fileName));
 
-        observedData = columnBasedUserData;
-    }
-//     else
-//     {
-//         RimSummaryObservedDataFile* newObservedData = new RimSummaryObservedDataFile();
-// 
-//         observedData = newObservedData;
-//     }
+            return nullptr;
+        }
 
-    if (observedData)
-    {
-        this->m_observedDataArray.push_back(observedData);
-        observedData->setSummaryHeaderFileName(fileName);
-        observedData->createSummaryReaderInterface();
-        observedData->updateOptionSensitivity();
+        QTextStream in(&file);
+        QString fileContents = in.readAll();
 
-        this->updateConnectedEditors();
+        bool eclipseUserData = false;
+        if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
+        {
+            eclipseUserData = true;
+        }
+
+        if (RifKeywordVectorParser::canBeParsed(fileContents))
+        {
+            eclipseUserData = true;
+        }
+
+        if (eclipseUserData)
+        {
+            RimColumnBasedUserData* columnBasedUserData = new RimColumnBasedUserData();
+
+            observedData = columnBasedUserData;
+        }
+
+        if (observedData)
+        {
+            this->m_observedDataArray.push_back(observedData);
+            observedData->setSummaryHeaderFileName(fileName);
+            observedData->createSummaryReaderInterface();
+            observedData->updateOptionSensitivity();
+
+            this->updateConnectedEditors();
+        }
     }
 
     return observedData;

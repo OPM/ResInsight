@@ -29,18 +29,18 @@
 class QDateTime;
 class QString;
 
-class RifColumnBasedUserDataParser;
+class RifKeywordVectorParser;
 class RifEclipseSummaryAddress;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifColumnBasedUserData : public RifSummaryReaderInterface
+class RifKeywordVectorUserData : public RifSummaryReaderInterface
 {
 public:
-    RifColumnBasedUserData();
-    ~RifColumnBasedUserData();
+    RifKeywordVectorUserData();
+    ~RifKeywordVectorUserData();
 
     bool                                parse(const QString& data);
 
@@ -52,9 +52,18 @@ public:
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
-    std::unique_ptr<RifColumnBasedUserDataParser>    m_parser;
-    std::vector< std::vector<time_t> >              m_timeSteps;
+    static bool                         isTimeHeader(const std::map<QString, QString>& header);
+    static bool                         isVectorHeader(const std::map<QString, QString>& header);
+    static QString                      valueForKey(const std::map<QString, QString>& header, const QString& key);
 
-    std::map<RifEclipseSummaryAddress, size_t >                     m_mapFromAddressToTimeStepIndex;
-    std::map<RifEclipseSummaryAddress, std::pair<size_t, size_t> >  m_mapFromAddressToResultIndex;
+    static double                       secondsSinceEpochForYear(double year);
+
+private:
+    std::unique_ptr<RifKeywordVectorParser>     m_parser;
+
+    std::vector< std::vector<time_t> >          m_timeSteps;
+    
+    std::map<QString, size_t>                   m_mapFromOriginToTimeStepIndex;
+    std::map<RifEclipseSummaryAddress, size_t>  m_mapFromAddressToVectorIndex;
+    std::map<RifEclipseSummaryAddress, size_t>  m_mapFromAddressToTimeIndex;
 };

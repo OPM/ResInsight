@@ -24,7 +24,7 @@
 #include "cafPdmField.h"
 #include "cvfObject.h"
 
-class RifColumnBasedUserData;
+class RifSummaryReaderInterface;
 
 //==================================================================================================
 //
@@ -41,5 +41,5 @@ public:
     virtual RifSummaryReaderInterface* summaryReader() override;
 
 private:
-    cvf::ref<RifColumnBasedUserData> m_summeryReader;
+    cvf::ref<RifSummaryReaderInterface> m_summeryReader;
 };

@@ -18,11 +18,17 @@
 
 #include "RimColumnBasedUserData.h"
 
-#include "RifColumnBasedUserDataParser.h"
+#include "RiaLogging.h"
+
 #include "RifColumnBasedUserData.h"
+#include "RifColumnBasedUserDataParser.h"
+#include "RifKeywordVectorParser.h"
+#include "RifKeywordVectorUserData.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "cafUtils.h"
+
+#include <QFile>
 
 CAF_PDM_SOURCE_INIT(RimColumnBasedUserData, "RimColumnBasedUserData");
 
@@ -50,12 +56,40 @@ RimColumnBasedUserData::~RimColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 void RimColumnBasedUserData::createSummaryReaderInterface()
 {
+    m_summeryReader = nullptr;
+
     if (caf::Utils::fileExists(this->summaryHeaderFilename()))
     {
-        m_summeryReader = new RifColumnBasedUserData();
-        if (!m_summeryReader->open(this->summaryHeaderFilename()))
+        QFile file(this->summaryHeaderFilename());
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            m_summeryReader = nullptr;
+            RiaLogging::error(QString("Failed to open %1").arg(this->summaryHeaderFilename()));
+
+            return;
+        }
+
+        QTextStream in(&file);
+        QString fileContents = in.readAll();
+
+        if (RifKeywordVectorParser::canBeParsed(fileContents))
+        {
+            RifKeywordVectorUserData* keywordVectorUserData = new RifKeywordVectorUserData();
+            if (keywordVectorUserData->parse(fileContents))
+            {
+                m_summeryReader = keywordVectorUserData;
+            }
+        }
+        else
+        {
+            RifColumnBasedUserData* columnBaseUserData = new RifColumnBasedUserData();
+            if (!columnBaseUserData->parse(fileContents))
+            {
+                columnBaseUserData = nullptr;
+            }
+            else
+            {
+                m_summeryReader = columnBaseUserData;
+            }
         }
     }
     else

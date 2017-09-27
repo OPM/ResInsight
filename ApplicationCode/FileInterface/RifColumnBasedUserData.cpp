@@ -48,30 +48,20 @@ RifColumnBasedUserData::~RifColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifColumnBasedUserData::open(const QString& headerFileName)
+bool RifColumnBasedUserData::parse(const QString& data)
 {
-    if (!caf::Utils::fileExists(headerFileName)) return false;
+    m_allResultAddresses.clear();
+    m_timeSteps.clear();
+    m_mapFromAddressToTimeStepIndex.clear();
+    m_mapFromAddressToResultIndex.clear();
 
-    QFile file(headerFileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        RiaLogging::error(QString("Failed to open %1").arg(headerFileName));
-        
-        return false;
-    }
-
-    QTextStream in(&file);
-    QString fileContents = in.readAll();
-
-    m_parser = std::unique_ptr<RifColumnBasedUserDataParser>(new RifColumnBasedUserDataParser(fileContents));
+    m_parser = std::unique_ptr<RifColumnBasedUserDataParser>(new RifColumnBasedUserDataParser(data));
     if (!m_parser)
     {
-        RiaLogging::error(QString("Failed to parse file %1").arg(headerFileName));
+        RiaLogging::error(QString("Failed to parse file"));
 
         return false;
     }
-
-    m_allResultAddresses.clear();
 
     for (size_t tableIndex = 0; tableIndex < m_parser->tables().size(); tableIndex++)
     {
@@ -90,7 +80,7 @@ bool RifColumnBasedUserData::open(const QString& headerFileName)
 
         if (timeColumnIndex == m_parser->tables()[tableIndex].size())
         {
-            RiaLogging::warning(QString("Failed to find time data for table %1 in file %2").arg(tableIndex).arg(headerFileName));
+            RiaLogging::warning(QString("Failed to find time data for table %1 in file %2").arg(tableIndex));
             RiaLogging::warning(QString("No data for this table is imported"));
         }
         else
@@ -106,7 +96,7 @@ bool RifColumnBasedUserData::open(const QString& headerFileName)
                     timeSteps.push_back(v);
                 }
             }
-                
+
             for (size_t columIndex = 0; columIndex < m_parser->tables()[tableIndex].size(); columIndex++)
             {
                 const ColumnInfo& ci = m_parser->tables()[tableIndex][columIndex];
@@ -123,6 +113,7 @@ bool RifColumnBasedUserData::open(const QString& headerFileName)
     }
 
     return true;
+
 }
 
 //--------------------------------------------------------------------------------------------------
