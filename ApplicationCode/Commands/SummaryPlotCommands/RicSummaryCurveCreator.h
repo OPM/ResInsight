@@ -128,6 +128,7 @@ private:
     std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>>
                                             allPreviewCurveDefs() const;
     void                                    createNewPlot();
+    bool                                    isObservedData(RimSummaryCase *sumCase) const;
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;

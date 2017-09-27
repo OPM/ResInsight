@@ -650,7 +650,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
     std::vector<RimSummaryCase*> cases;
     for (const auto& sumCase: m_selectedCases)
     {
-        if(dynamic_cast<RimObservedData*>(sumCase.p()) != nullptr) continue;
+        if(isObservedData(sumCase)) continue;
         cases.push_back(sumCase);
     }
     return findPossibleSummaryAddresses(cases, identifierAndField);
@@ -664,7 +664,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
     std::vector<RimSummaryCase*> obsData;
     for (const auto& sumCase : m_selectedCases)
     {
-        if (dynamic_cast<RimObservedData*>(sumCase.p()) != nullptr)
+        if (isObservedData(sumCase))
         {
             obsData.push_back(sumCase);
         }
@@ -946,7 +946,6 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
                                                                      const std::set<RimSummaryCurve*>& curvesToDelete)
 {
     RimSummaryCase* prevCase = nullptr;
-    RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
     RimSummaryCurveAppearanceCalculator curveLookCalc(allCurveDefsToDisplay, getAllSummaryCaseNames(), getAllSummaryWellNames());
 
     initCurveAppearanceCalculator(curveLookCalc);
@@ -967,6 +966,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         m_previewPlot->addCurveNoUpdate(curve);
         curveLookCalc.setupCurveLook(curve);
+        if(isObservedData(currentCase))
+            curve->setLineStyle(RimPlotCurve::STYLE_NONE);
     }
 
     m_previewPlot->loadDataAndUpdate();
@@ -1347,4 +1348,12 @@ void RicSummaryCurveCreator::updateCurveNames()
     }
 
    if (m_previewPlot && m_previewPlot->qwtPlot()) m_previewPlot->qwtPlot()->updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RicSummaryCurveCreator::isObservedData(RimSummaryCase *sumCase) const
+{
+    return dynamic_cast<RimObservedData*>(sumCase) != nullptr;
 }
