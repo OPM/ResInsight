@@ -144,7 +144,14 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 {
     QClipboard* clipboard = QApplication::clipboard();
     const QMimeData* mimeData = clipboard->mimeData();
-    return mimeData->hasText();
+    if (mimeData->hasText() && mimeData->text().size() > 12)
+    {
+        QString text = mimeData->text();
+
+        if (text.size() > 12) return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
