@@ -961,8 +961,8 @@ void RicSummaryCurveCreator::updatePreviewCurvesFromCurveDefinitions(const std::
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
         m_previewPlot->addCurveNoUpdate(curve);
         curveLookCalc.setupCurveLook(curve);
-        if(isObservedData(currentCase))
-            curve->setLineStyle(RimPlotCurve::STYLE_NONE);
+        //if(isObservedData(currentCase))
+        //    curve->setLineStyle(RimPlotCurve::STYLE_NONE);
     }
 
     m_previewPlot->loadDataAndUpdate();
@@ -1266,8 +1266,8 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
     {
         curve->resetAppearance();
         curveLookCalc.setupCurveLook(curve);
-        if (isObservedData(curve->summaryCase()))
-            curve->setLineStyle(RimPlotCurve::STYLE_NONE);
+       // if (isObservedData(curve->summaryCase()))
+       //     curve->setLineStyle(RimPlotCurve::STYLE_NONE);
     }
 }
 
