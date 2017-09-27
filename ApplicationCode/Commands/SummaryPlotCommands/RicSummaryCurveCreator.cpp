@@ -885,11 +885,6 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
             for (int i = 0; i < addressCount; i++)
             {
-                auto qName = allAddresses[i].quantityName();
-                if (qName.find(OBSERVED_DATA_AVALUE_POSTFIX) != qName.npos)
-                {
-                    int i = 0;
-                }
                 if (selectedAddresses.count(allAddresses[i]) > 0)
                 {
                     addrUnion.insert(allAddresses[i]);
@@ -1271,6 +1266,8 @@ void RicSummaryCurveCreator::applyAppearanceToAllPreviewCurves()
     {
         curve->resetAppearance();
         curveLookCalc.setupCurveLook(curve);
+        if (isObservedData(curve->summaryCase()))
+            curve->setLineStyle(RimPlotCurve::STYLE_NONE);
     }
 }
 
