@@ -8,6 +8,7 @@ set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseInCollectionFeature.h
+${CEE_CURRENT_LIST_DIR}RicCloseObservedDataFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCreateSummaryCaseCollectionFeature.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.h
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.h
@@ -77,6 +78,7 @@ set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseInCollectionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicCloseObservedDataFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCreateSummaryCaseCollectionFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterFeatureImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicGeoMechPropertyFilterInsertFeature.cpp

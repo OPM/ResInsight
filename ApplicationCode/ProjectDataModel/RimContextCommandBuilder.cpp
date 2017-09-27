@@ -458,6 +458,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
 		commandIds << "RicCloseSummaryCaseFeature";
         commandIds << "RicCloseSummaryCaseInCollectionFeature";
         commandIds << "RicDeleteSummaryCaseCollectionFeature";
+        commandIds << "RicCloseObservedDataFeature";
 
         // Fracture commands
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
