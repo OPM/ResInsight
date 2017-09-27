@@ -29,18 +29,18 @@
 class QDateTime;
 class QString;
 
-class RifColumnBasedRsmspecParser;
+class RifColumnBasedUserDataParser;
 class RifEclipseSummaryAddress;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifReaderRmspecColumnBasedData : public RifSummaryReaderInterface
+class RifColumnBasedUserData : public RifSummaryReaderInterface
 {
 public:
-    RifReaderRmspecColumnBasedData();
-    ~RifReaderRmspecColumnBasedData();
+    RifColumnBasedUserData();
+    ~RifColumnBasedUserData();
 
     bool                                open(const QString& headerFileName);
 
@@ -52,7 +52,7 @@ public:
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
-    std::unique_ptr<RifColumnBasedRsmspecParser>    m_parser;
+    std::unique_ptr<RifColumnBasedUserDataParser>    m_parser;
     std::vector< std::vector<time_t> >              m_timeSteps;
 
     std::map<RifEclipseSummaryAddress, size_t >                     m_mapFromAddressToTimeStepIndex;

@@ -18,7 +18,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
 ${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedAsciiParser.h
 ${CEE_CURRENT_LIST_DIR}RifRsmspecParserTools.h
-${CEE_CURRENT_LIST_DIR}RifColumnBasedRsmspecParser.h
+${CEE_CURRENT_LIST_DIR}RifColumnBasedUserDataParser.h
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorParser.h
 ${CEE_CURRENT_LIST_DIR}RifReaderObservedData.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.h
@@ -30,7 +30,7 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddressQMetaType.h
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
-${CEE_CURRENT_LIST_DIR}RifReaderRmspecColumnBasedData.h
+${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
@@ -56,7 +56,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
 ${CEE_CURRENT_LIST_DIR}RifSummaryReaderInterface.cpp
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedAsciiParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifRsmspecParserTools.cpp
-${CEE_CURRENT_LIST_DIR}RifColumnBasedRsmspecParser.cpp
+${CEE_CURRENT_LIST_DIR}RifColumnBasedUserDataParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorParser.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderObservedData.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseSummary.cpp
@@ -67,7 +67,7 @@ ${CEE_CURRENT_LIST_DIR}RifReaderSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseSummaryAddress.cpp
 ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.cpp
-${CEE_CURRENT_LIST_DIR}RifReaderRmspecColumnBasedData.cpp
+${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.cpp
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.cpp

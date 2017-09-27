@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifColumnBasedRsmspecParser.h"
+#include "RifColumnBasedUserDataParser.h"
 
 #include "RifRsmspecParserTools.h"
 
@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifColumnBasedRsmspecParser::RifColumnBasedRsmspecParser(const QString& data)
+RifColumnBasedUserDataParser::RifColumnBasedUserDataParser(const QString& data)
 {
     parseData(data);
 }
@@ -40,7 +40,7 @@ RifColumnBasedRsmspecParser::RifColumnBasedRsmspecParser(const QString& data)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<ColumnInfo> >& RifColumnBasedRsmspecParser::tables() const
+const std::vector< std::vector<ColumnInfo> >& RifColumnBasedUserDataParser::tables() const
 {
     return m_tables;
 }
@@ -48,7 +48,7 @@ const std::vector< std::vector<ColumnInfo> >& RifColumnBasedRsmspecParser::table
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifColumnBasedRsmspecParser::parseData(const QString& data)
+void RifColumnBasedUserDataParser::parseData(const QString& data)
 {
     std::stringstream streamData;
     streamData.str(data.toStdString());

@@ -1,21 +1,29 @@
 @startuml
 left to right direction
 
-RigSummaryCaseData *-- "1" RifSummaryReaderInterface
-RimSummaryCase *-- "1" RigSummaryCaseData
 
-RifSummaryReaderInterface <|-- RifReaderEclipseSummary
-RifSummaryReaderInterface <|-- RifReaderObservedData
+RifSummaryReaderInterface <|- RifReaderEclipseSummary
+RifSummaryReaderInterface <|- RifColumnBasedAsciiData
+RifSummaryReaderInterface <|- RifColumnBasedUserData
+RifSummaryReaderInterface <|- RifKeywordVectorUserData
 
-RifReaderObservedData *-- "N" RifColumnBasedAsciiParser
+RifColumnBasedAsciiData *-- "N" RifColumnBasedAsciiDataParser
+RifColumnBasedUserData *-- "1" RifColumnBasedUserDataParser
+RifKeywordVectorUserData *-- "1" RifKeywordVectorUserDataParser
 
 RimSummaryCase <|-- RimFileSummaryCase
+RimSummaryCase <|-- RimGridSummaryCase
 RimSummaryCase <|-- RimObservedData
 
-RimObservedData <|-- RimObservedAsciiColumnBasedData
+RimObservedData <|-- RimAsciiColumnBasedData
+RimObservedData <|-- RimColumnBasedUserData
+RimObservedData <|-- RimKeywordVectorBasedUserData
 
-RimObservedData <|-- RimObservedRsmspecColumnBasedData
-RimObservedData <|-- RimObservedRsmspecKeywordBasedData
+RimColumnBasedUserData *--> RifColumnBasedUserData
+RimKeywordVectorBasedUserData *--> RifKeywordVectorUserData
+RimAsciiColumnBasedData *--> RifColumnBasedAsciiData
+RimFileSummaryCase *--> RifReaderEclipseSummary
+RimGridSummaryCase *--> RifReaderEclipseSummary
 
 
 @enduml

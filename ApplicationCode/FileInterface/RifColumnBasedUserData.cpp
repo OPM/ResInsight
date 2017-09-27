@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifReaderRmspecColumnBasedData.h"
+#include "RifColumnBasedUserData.h"
 
 #include "RiaLogging.h"
 
-#include "RifColumnBasedRsmspecParser.h"
+#include "RifColumnBasedUserDataParser.h"
 #include "RifRsmspecParserTools.h"
 
 #include "cafUtils.h"
@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderRmspecColumnBasedData::RifReaderRmspecColumnBasedData()
+RifColumnBasedUserData::RifColumnBasedUserData()
 {
     
 }
@@ -40,7 +40,7 @@ RifReaderRmspecColumnBasedData::RifReaderRmspecColumnBasedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderRmspecColumnBasedData::~RifReaderRmspecColumnBasedData()
+RifColumnBasedUserData::~RifColumnBasedUserData()
 {
 
 }
@@ -48,7 +48,7 @@ RifReaderRmspecColumnBasedData::~RifReaderRmspecColumnBasedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderRmspecColumnBasedData::open(const QString& headerFileName)
+bool RifColumnBasedUserData::open(const QString& headerFileName)
 {
     if (!caf::Utils::fileExists(headerFileName)) return false;
 
@@ -63,7 +63,7 @@ bool RifReaderRmspecColumnBasedData::open(const QString& headerFileName)
     QTextStream in(&file);
     QString fileContents = in.readAll();
 
-    m_parser = std::unique_ptr<RifColumnBasedRsmspecParser>(new RifColumnBasedRsmspecParser(fileContents));
+    m_parser = std::unique_ptr<RifColumnBasedUserDataParser>(new RifColumnBasedUserDataParser(fileContents));
     if (!m_parser)
     {
         RiaLogging::error(QString("Failed to parse file %1").arg(headerFileName));
@@ -128,7 +128,7 @@ bool RifReaderRmspecColumnBasedData::open(const QString& headerFileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderRmspecColumnBasedData::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
+bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
     auto search = m_mapFromAddressToResultIndex.find(resultAddress);
     if (search != m_mapFromAddressToResultIndex.end())
@@ -148,7 +148,7 @@ bool RifReaderRmspecColumnBasedData::values(const RifEclipseSummaryAddress& resu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderRmspecColumnBasedData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
+const std::vector<time_t>& RifColumnBasedUserData::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
     auto search = m_mapFromAddressToTimeStepIndex.find(resultAddress);
     if (search != m_mapFromAddressToTimeStepIndex.end())
@@ -164,7 +164,7 @@ const std::vector<time_t>& RifReaderRmspecColumnBasedData::timeSteps(const RifEc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RifReaderRmspecColumnBasedData::unitName(const RifEclipseSummaryAddress& resultAddress) const
+std::string RifColumnBasedUserData::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
     auto search = m_mapFromAddressToResultIndex.find(resultAddress);
     if (search != m_mapFromAddressToResultIndex.end())

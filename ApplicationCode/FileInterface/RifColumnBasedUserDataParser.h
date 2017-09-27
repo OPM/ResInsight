@@ -33,10 +33,10 @@ struct ColumnInfo;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RifColumnBasedRsmspecParser
+class RifColumnBasedUserDataParser
 {
 public:
-    RifColumnBasedRsmspecParser(const QString& data);
+    RifColumnBasedUserDataParser(const QString& data);
     const std::vector< std::vector<ColumnInfo> >& tables() const;
 
 private:

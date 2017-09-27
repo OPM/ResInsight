@@ -20,7 +20,7 @@
 #include "RimObservedDataCollection.h"
 
 #include "RimObservedData.h"
-#include "RimObservedRsmspecColumnBasedData.h"
+#include "RimColumnBasedUserData.h"
 #include "RimSummaryObservedDataFile.h"
 
 CAF_PDM_SOURCE_INIT(RimObservedDataCollection, "ObservedDataCollection");
@@ -70,9 +70,9 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
 
     if (fileName.endsWith(".rsm", Qt::CaseInsensitive))
     {
-        RimObservedRsmspecColumnBasedData* rsmspecColumnBasedData = new RimObservedRsmspecColumnBasedData();
+        RimColumnBasedUserData* columnBasedUserData = new RimColumnBasedUserData();
 
-        observedData = rsmspecColumnBasedData;
+        observedData = columnBasedUserData;
     }
     else
     {

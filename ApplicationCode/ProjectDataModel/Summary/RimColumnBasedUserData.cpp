@@ -16,22 +16,22 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimObservedRsmspecColumnBasedData.h"
+#include "RimColumnBasedUserData.h"
 
-#include "RifColumnBasedRsmspecParser.h"
-#include "RifReaderRmspecColumnBasedData.h"
+#include "RifColumnBasedUserDataParser.h"
+#include "RifColumnBasedUserData.h"
 #include "RifSummaryReaderInterface.h"
 
 #include "cafUtils.h"
 
-CAF_PDM_SOURCE_INIT(RimObservedRsmspecColumnBasedData, "RimObservedRsmspecColumnBasedData");
+CAF_PDM_SOURCE_INIT(RimColumnBasedUserData, "RimColumnBasedUserData");
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedRsmspecColumnBasedData::RimObservedRsmspecColumnBasedData()
+RimColumnBasedUserData::RimColumnBasedUserData()
 {
     CAF_PDM_InitObject("Observed RSMSPEC Column Based Data File", ":/Default.png", "", "");
     m_summaryHeaderFilename.uiCapability()->setUiName("File");
@@ -40,7 +40,7 @@ RimObservedRsmspecColumnBasedData::RimObservedRsmspecColumnBasedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedRsmspecColumnBasedData::~RimObservedRsmspecColumnBasedData()
+RimColumnBasedUserData::~RimColumnBasedUserData()
 {
 
 }
@@ -48,11 +48,11 @@ RimObservedRsmspecColumnBasedData::~RimObservedRsmspecColumnBasedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimObservedRsmspecColumnBasedData::createSummaryReaderInterface()
+void RimColumnBasedUserData::createSummaryReaderInterface()
 {
     if (caf::Utils::fileExists(this->summaryHeaderFilename()))
     {
-        m_summeryReader = new RifReaderRmspecColumnBasedData();
+        m_summeryReader = new RifColumnBasedUserData();
         if (!m_summeryReader->open(this->summaryHeaderFilename()))
         {
             m_summeryReader = nullptr;
@@ -67,7 +67,7 @@ void RimObservedRsmspecColumnBasedData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimObservedRsmspecColumnBasedData::summaryReader()
+RifSummaryReaderInterface* RimColumnBasedUserData::summaryReader()
 {
     return m_summeryReader.p();
 }

@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RifColumnBasedAsciiParser.h"
-#include "RifColumnBasedRsmspecParser.h"
+#include "RifColumnBasedUserDataParser.h"
 #include "RifKeywordVectorParser.h"
 #include "RifRsmspecParserTools.h"
 
@@ -286,7 +286,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
     out << "1709    2004.055    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12    1.0E-12\n";
     out << "\n";
 
-    RifColumnBasedRsmspecParser parser = RifColumnBasedRsmspecParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     std::vector< std::vector<ColumnInfo> > tables = parser.tables();
     ASSERT_EQ(2, tables.size());
@@ -354,7 +354,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     out << "   4  0.0  0.0  370  0.0  0.0\n";
     out << "\n";
 
-    RifColumnBasedRsmspecParser parser = RifColumnBasedRsmspecParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     std::vector< std::vector<ColumnInfo> > tables = parser.tables();
     ASSERT_EQ(tables.size(), 2);
@@ -526,7 +526,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
 
 
 
-    RifColumnBasedRsmspecParser parser = RifColumnBasedRsmspecParser(data);
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     std::vector< std::vector<ColumnInfo> > tables = parser.tables();
     ASSERT_EQ(1, tables.size());
