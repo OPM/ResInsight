@@ -123,8 +123,6 @@ private slots:
     void                slotOnSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 private:
-    void                uiItemsFromModelIndexList(const QModelIndexList& modelIndexList, std::vector<PdmUiItem*>& objects);
-    
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
     void                updateSelectionManager();
