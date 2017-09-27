@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RimProject.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
@@ -242,7 +243,7 @@ void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString&
     RiuMainPlotWindow* plotwindow = RiaApplication::instance()->mainPlotWindow();
     CVF_ASSERT(plotwindow);
 
-    RicTextWidget* textWiget = new RicTextWidget(plotwindow);
+    RicTextWidget* textWiget = new RicTextWidget();
     textWiget->setMinimumSize(400, 600);
 
     textWiget->setWindowTitle(title);
@@ -252,13 +253,3 @@ void RicShowPlotDataFeature::showTextWindow(const QString& title, const QString&
 
     plotwindow->addToTemporaryWidgets(textWiget);
 }
-
-
-
-
-
-
-
-
-
-
