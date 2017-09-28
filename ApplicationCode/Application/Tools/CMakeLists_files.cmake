@@ -15,6 +15,7 @@ ${CEE_CURRENT_LIST_DIR}RiaLogging.h
 ${CEE_CURRENT_LIST_DIR}RiaProjectModifier.h
 ${CEE_CURRENT_LIST_DIR}RiaRegressionTest.h
 ${CEE_CURRENT_LIST_DIR}RiaImportEclipseCaseTools.h
+${CEE_CURRENT_LIST_DIR}RiaDateTimeTools.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -27,6 +28,7 @@ ${CEE_CURRENT_LIST_DIR}RiaLogging.cpp
 ${CEE_CURRENT_LIST_DIR}RiaProjectModifier.cpp
 ${CEE_CURRENT_LIST_DIR}RiaRegressionTest.cpp
 ${CEE_CURRENT_LIST_DIR}RiaImportEclipseCaseTools.cpp
+${CEE_CURRENT_LIST_DIR}RiaDateTimeTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

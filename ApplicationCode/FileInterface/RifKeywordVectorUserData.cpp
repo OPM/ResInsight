@@ -18,6 +18,7 @@
 
 #include "RifKeywordVectorUserData.h"
 
+#include "RiaDateTimeTools.h"
 #include "RiaLogging.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -93,21 +94,19 @@ bool RifKeywordVectorUserData::parse(const QString& data)
         if (isTimeHeader(keyValuePairs))
         {
             QString unitText = valueForKey(keyValuePairs, "UNITS");
-            if (unitText.compare("YEAR", Qt::CaseInsensitive) == 0)
+            quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(unitText.toStdString());
+
+            std::vector<time_t> ts;
+            for (const auto& year : m_parser->keywordBasedVectors()[i].values)
             {
-                std::vector<time_t> ts;
-
-                for (const auto& year : m_parser->keywordBasedVectors()[i].values)
-                {
-                    ts.push_back(secondsSinceEpochForYear(year));
-                }
-
-                m_timeSteps.push_back(ts);
-
-                QString originText = valueForKey(keyValuePairs, "ORIGIN");
-
-                m_mapFromOriginToTimeStepIndex[originText] = m_timeSteps.size() - 1;
+                ts.push_back(scaleFactor * year);
             }
+
+            m_timeSteps.push_back(ts);
+
+            QString originText = valueForKey(keyValuePairs, "ORIGIN");
+
+            m_mapFromOriginToTimeStepIndex[originText] = m_timeSteps.size() - 1;
         }
     }
 
@@ -236,19 +235,5 @@ QString RifKeywordVectorUserData::valueForKey(const std::map<QString, QString>& 
     }
 
     return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RifKeywordVectorUserData::secondsSinceEpochForYear(double year)
-{
-    static double secondsPerDay = 60.0 * 60.0* 24.0;
-    static double secondsPerYear = secondsPerDay * 365.0;
-
-    double yearsSinceEphoch = year - 1970.0;
-    double secondsSinceEpoch = yearsSinceEphoch * secondsPerYear;
-
-    return secondsSinceEpoch;
 }
 
