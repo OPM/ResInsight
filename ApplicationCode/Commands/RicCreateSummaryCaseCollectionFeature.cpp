@@ -18,9 +18,13 @@
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 
+#include "RiaApplication.h"
+
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+
+#include "RiuMainPlotWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -66,6 +70,8 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered(bool isChecked)
 
     summaryCaseMainCollection->addCaseCollection(selection);
     summaryCaseMainCollection->updateConnectedEditors();
+    
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(summaryCaseMainCollection->summaryCaseCollections().back()->allSummaryCases().front());
 }
 
 //--------------------------------------------------------------------------------------------------
