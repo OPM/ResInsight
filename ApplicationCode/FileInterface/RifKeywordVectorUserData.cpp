@@ -93,13 +93,41 @@ bool RifKeywordVectorUserData::parse(const QString& data)
 
         if (isTimeHeader(keyValuePairs))
         {
-            QString unitText = valueForKey(keyValuePairs, "UNITS");
-            quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(unitText.toStdString());
-
             std::vector<time_t> ts;
-            for (const auto& year : m_parser->keywordBasedVectors()[i].values)
+
             {
-                ts.push_back(scaleFactor * year);
+                QDateTime startDate;
+                QString startDateString = valueForKey(keyValuePairs, "STARTDATE");
+                if (!startDateString.isEmpty())
+                {
+                    QString dateFormatString = valueForKey(keyValuePairs, "DATEFORMAT");
+                    if (dateFormatString.isEmpty())
+                    {
+                        dateFormatString = "DD MM YYYY";
+                    }
+
+                    startDate = QDateTime::fromString(startDateString, dateFormatString);
+                }
+
+                QString unitText = valueForKey(keyValuePairs, "UNITS");
+                quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(unitText.toStdString());
+
+                if (startDate.isValid())
+                {
+                    for (const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values)
+                    {
+                        QDateTime dateTime = startDate.addSecs(scaleFactor * timeStepValue);
+
+                        ts.push_back(dateTime.toTime_t());
+                    }
+                }
+                else
+                {
+                    for (const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values)
+                    {
+                        ts.push_back(scaleFactor * timeStepValue);
+                    }
+                }
             }
 
             m_timeSteps.push_back(ts);

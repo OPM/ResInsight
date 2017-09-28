@@ -29,11 +29,11 @@ quint64 RiaDateTimeTools::secondsFromUnit(const std::string& unit)
 {
     QString str = QString::fromStdString(unit).trimmed().toUpper();
 
-    if (str == "DAYS")
+    if (str == "DAYS" || str == "DAY")
     {
         return RiaDateTimeTools::secondsInDay();
     }
-    else if (str == "YEARS")
+    else if (str == "YEARS" || str == "YEAR")
     {
         return RiaDateTimeTools::secondsInYear();
     }

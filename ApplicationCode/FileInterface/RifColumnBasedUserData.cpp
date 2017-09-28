@@ -87,15 +87,34 @@ bool RifColumnBasedUserData::parse(const QString& data)
         else
         {
             const ColumnInfo& ci = m_parser->tables()[tableIndex][timeColumnIndex];
+            QDateTime startDate;
+            QString startDateString = QString::fromStdString(ci.startDate);
+            if (!startDateString.isEmpty())
+            {
+                QString dateFormatString = "ddMMyyyy";
+
+                startDate = QDateTime::fromString(startDateString, dateFormatString);
+            }
 
             m_timeSteps.resize(m_timeSteps.size() + 1);
 
             quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(ci.unitName);
             std::vector<time_t>& timeSteps = m_timeSteps.back();
+
+            if (startDate.isValid())
             {
-                for (auto v : ci.values)
+                for (const auto& timeStepValue : ci.values)
                 {
-                    timeSteps.push_back(v * scaleFactor);
+                    QDateTime dateTime = startDate.addSecs(scaleFactor * timeStepValue);
+
+                    timeSteps.push_back(dateTime.toTime_t());
+                }
+            }
+            else
+            {
+                for (const auto& timeStepValue : ci.values)
+                {
+                    timeSteps.push_back(scaleFactor * timeStepValue);
                 }
             }
 
