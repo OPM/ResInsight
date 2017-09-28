@@ -15,12 +15,11 @@ RimSummaryCase <|-- RimFileSummaryCase
 RimSummaryCase <|-- RimGridSummaryCase
 RimSummaryCase <|-- RimObservedData
 
+RimObservedData <|-- RimObservedEclipseUserData
 RimObservedData <|-- RimAsciiColumnBasedData
-RimObservedData <|-- RimColumnBasedUserData
-RimObservedData <|-- RimKeywordVectorBasedUserData
 
-RimColumnBasedUserData *--> RifColumnBasedUserData
-RimKeywordVectorBasedUserData *--> RifKeywordVectorUserData
+RimObservedEclipseUserData *--> RifSummaryReaderInterface
+
 RimAsciiColumnBasedData *--> RifColumnBasedAsciiData
 RimFileSummaryCase *--> RifReaderEclipseSummary
 RimGridSummaryCase *--> RifReaderEclipseSummary
