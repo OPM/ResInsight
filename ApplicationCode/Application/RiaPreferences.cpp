@@ -83,15 +83,9 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&m_readerSettings,        "readerSettings", "Reader Settings", "", "", "");
     m_readerSettings = new RifReaderSettings;
 
-    CAF_PDM_InitField(&autoCreatePlotsOnImport,         "AutoCreatePlotsOnImport", true, "Automatically Create Summary Plots On Import", "", "", "");
-    autoCreatePlotsOnImport.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    
-    CAF_PDM_InitField(&defaultCurveFilter,              "DefaultCurveFilter", QString("F*PT"), "Default Vector Selection Filter", "", "", "");
-
     m_tabNames << "General";
     m_tabNames << "Eclipse";
     m_tabNames << "Octave";
-    m_tabNames << "Summary";
     m_tabNames << "System";
 }
 
@@ -125,8 +119,7 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             field == &useShaders ||
             field == &showHud ||
             field == &appendClassNameToUiText ||
-            field == &showLasCurveWithoutTvdWarning ||
-            field == &autoCreatePlotsOnImport)
+            field == &showLasCurveWithoutTvdWarning)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -182,11 +175,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
         scriptGroup->add(&scriptEditorExecutable);
     }
     else if (uiConfigName == m_tabNames[3])
-    {
-        uiOrdering.add(&autoCreatePlotsOnImport);
-        uiOrdering.add(&defaultCurveFilter);
-    }
-    else if (uiConfigName == m_tabNames[4])
     {
         uiOrdering.add(&appendClassNameToUiText);
     }

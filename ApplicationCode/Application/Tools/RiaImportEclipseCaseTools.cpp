@@ -200,16 +200,6 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
                         delete existingFileSummaryCase;
 
                     }
-                    else
-                    {
-                        if (app->preferences()->autoCreatePlotsOnImport())
-                        {
-                            RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-                            RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-
-                            RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
-                        }
-                    }
 
                     sumCaseColl->updateConnectedEditors();
                 }

@@ -100,16 +100,7 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    RimSummaryCase* newSumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
-
-    if (app->preferences()->autoCreatePlotsOnImport())
-    {
-        RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
-        RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-
-        RicNewSummaryPlotFeature::createNewSummaryPlot(summaryPlotColl, newSumCase);
-    }
-
+    sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
     sumCaseColl->updateConnectedEditors();
     app->addToRecentFiles(fileName);
 

@@ -96,24 +96,8 @@ RimSummaryPlot* RicNewSummaryPlotFeature::createNewSummaryPlot(RimSummaryPlotCol
 
     plot->setDescription(QString("Summary Plot %1").arg(summaryPlotColl->summaryPlots.size()));
 
-    RimSummaryCurveFilter* newCurveFilter = new RimSummaryCurveFilter();
-
-    if (summaryCase)
-    {
-        newCurveFilter->createDefaultCurves(summaryCase, RiaApplication::instance()->preferences()->defaultCurveFilter());
-    }
-
-    plot->addCurveFilter(newCurveFilter);
-
     summaryPlotColl->updateConnectedEditors();
     plot->loadDataAndUpdate();
-
-    RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-    if (mainPlotWindow)
-    {
-        mainPlotWindow->selectAsCurrentItem(newCurveFilter);
-        mainPlotWindow->setExpanded(newCurveFilter, true);
-    }
 
     return plot;
 }
