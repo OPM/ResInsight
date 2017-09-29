@@ -286,7 +286,11 @@ LasWell::ParseWellToken(const std::string & token,
     if(value.empty() == false)
       SetWellName(value);
   }
-
+  else if (token == "DATE")
+  {
+    if (value.empty() == false)
+      SetDate(value);
+  }
   else if(token == "STRT" || token == "STOP" || token == "STEP" ||
           token == "NULL" || token == "XWELL" || token == "YWELL")
   {

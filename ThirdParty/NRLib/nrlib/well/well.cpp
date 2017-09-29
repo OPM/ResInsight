@@ -244,6 +244,10 @@ void Well::SetWellName(const std::string& wellname)
   well_name_ = wellname;
 }
 
+void Well::SetDate(const std::string& date)
+{
+    date_ = date;
+}
 
 bool Well::IsMissing(double x)const
 {
