@@ -48,7 +48,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(NULL, "Import Observed Data", defaultDir, "All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(NULL, "Import Observed Time History Data", defaultDir, "All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
@@ -93,7 +93,7 @@ void RicImportObservedDataFeature::onActionTriggered(bool isChecked)
 void RicImportObservedDataFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/Default.png"));
-    actionToSetup->setText("Import Observed Data");
+    actionToSetup->setText("Import Observed Time History Data");
 }
 
 //--------------------------------------------------------------------------------------------------

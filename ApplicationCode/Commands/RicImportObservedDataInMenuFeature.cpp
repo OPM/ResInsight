@@ -62,6 +62,6 @@ void RicImportObservedDataInMenuFeature::onActionTriggered(bool isChecked)
 void RicImportObservedDataInMenuFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setIcon(QIcon(":/Default.png"));
-    actionToSetup->setText("Import Observed Data");
+    actionToSetup->setText("Import Observed Time History Data");
 }
 
