@@ -76,8 +76,8 @@ RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
     mainLayout->addLayout(plotWidgetsLayout);
     plotWidgetsLayout->addLayout(rightColumnLayout);
     
-    m_legendWidget = new RiuNightchartsWidget(this);
-    new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
+    //m_legendWidget = new RiuNightchartsWidget(this);
+    //new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
 
     QStringList commandIds;
     commandIds << "RicShowTotalAllocationDataFeature";

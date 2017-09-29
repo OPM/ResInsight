@@ -31,7 +31,6 @@ class RimEclipseResultCase;
 class RimEclipseWell;
 class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
-class RimWellRftPlotLegend;
 class RimWellLogPlot;
 class RiuWellRftPlot;
 class RimWellLogTrack;
@@ -61,8 +60,6 @@ public:
     RimWellRftPlot();
     virtual ~RimWellRftPlot();
 
-    void                                            setFromSimulationWell(RimEclipseWell* simWell);
-
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
@@ -72,21 +69,16 @@ public:
     virtual void                                    zoomAll() override;
 
     RimWellLogPlot*                                 wellLogPlot() const;
-    caf::PdmObject*                                 plotLegend();
-    RimEclipseResultCase*                           rimCase();
-    int                                             timeStep();
 
-    QString                                         wellName() const;
+    void                                            setCurrentWellName(const QString& currWellName);
+    QString                                         currentWellName() const;
 
-    void                                            removeFromMdiAreaAndDeleteViewWidget();
-
-    void                                            showPlotLegend(bool doShow);
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    std::set<QString>                               findSortedWellNames();
+    //std::set<QString>                               findSortedWellNames();
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
@@ -96,19 +88,10 @@ protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options);
     void                                            updateFromWell();
-
-    std::map<QString, const std::vector<double> *>  findRelevantTracerCellFractions(const RigSingleWellResultsData* wellResults);
-
-    void                                            updateWellFlowPlotXAxisTitle(RimWellLogTrack* plotTrack);
-
-    void                                            addStackedCurve(const QString& tracerName, 
-                                                                    const std::vector<double>& depthValues, 
-                                                                    const std::vector<double>& accFlow, 
-                                                                    RimWellLogTrack* plotTrack);
-    
     void                                            updateWidgetTitleWindowTitle();
-    static QString                                  wellStatusTextForTimeStep(const QString& wellName, const RimEclipseResultCase* eclipseResultCase, size_t timeStep);
 
     // RimViewWindow overrides
 
@@ -121,16 +104,11 @@ private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
-    caf::PdmPtrField<RimEclipseResultCase*>         m_case;
     caf::PdmField<QString>                          m_wellName;
-    caf::PdmField<int>                              m_timeStep;
-    caf::PdmPtrField<RimFlowDiagSolution*>          m_flowDiagSolution;
-    caf::PdmField<bool>                             m_groupSmallContributions;
-    caf::PdmField<double>                           m_smallContributionsThreshold;
-    caf::PdmField<caf::AppEnum<FlowType> >          m_flowType;
+    caf::PdmField<std::vector<QString>>             m_selectedSources;
+    caf::PdmField<std::vector<QString>>             m_selectedTimeSteps;
 
     QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
-    caf::PdmChildField<RimWellRftPlotLegend*>       m_rftPlotLegend;
 };

@@ -305,6 +305,14 @@ void RimWellPath::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellLogFile* RimWellPath::wellLogFile() const
+{
+    return m_wellLogFile;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellPath::objectToggleField()
 {
     return &showWellPath;
@@ -533,4 +541,19 @@ void RimWellPath::setLogFileInfo(RimWellLogFile* logFileInfo)
     m_wellLogFile->uiCapability()->setUiHidden(true);
 
     setName(m_wellLogFile->wellName());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellPath::fromFilePath(QString filePath)
+{
+    RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);
+    if (logFileInfo)
+    {
+        auto wellPath = new RimWellPath();
+        wellPath->setLogFileInfo(logFileInfo);
+        return wellPath;
+    }
+    return nullptr;
 }

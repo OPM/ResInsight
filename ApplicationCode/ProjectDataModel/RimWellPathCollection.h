@@ -93,6 +93,7 @@ public:
     void                                deleteAllWellPaths();
 
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
+    void                                addWellPaths(const std::vector<RimWellPath*> wellPaths);
     void                                addWellLogs(const QStringList& filePaths);
 
     void                                scheduleRedrawAffectedViews();

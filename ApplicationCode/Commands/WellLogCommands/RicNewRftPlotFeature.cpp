@@ -54,6 +54,7 @@ CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+    return true;
     int branchIndex;
     return (selectedWellLogPlotTrack() != nullptr || selectedWellPath() != nullptr || selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
 }
@@ -70,12 +71,17 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
     auto rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
     if (rftPlotColl)
     {
-        RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
-        RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
-        QString plotName = QString("RFT: %1").arg(simWellSelItem != nullptr ? simWellSelItem->m_simWell->name : QString("(Unknown)"));
+        std::vector<caf::PdmUiItem*> selectedItems;
+        caf::SelectionManager::instance()->selectedItems(selectedItems);
+
+        // Todo: support other classes as well
+        RimWellPath* simWellPath = dynamic_cast<RimWellPath*>(selectedItems.front());
+
+        QString plotName = QString("RFT: %1").arg(simWellPath != nullptr ? simWellPath->name() : QString("(Unknown)"));
 
         auto plot = new RimWellRftPlot();
-        rftPlotColl->rftPlots().push_back(plot);
+        plot->setCurrentWellName(simWellPath->name());
+        rftPlotColl->addPlot(plot);
 
         plot->setDescription(plotName);
         plot->loadDataAndUpdate();

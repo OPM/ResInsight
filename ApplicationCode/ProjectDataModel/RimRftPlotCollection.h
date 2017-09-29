@@ -59,8 +59,13 @@ public:
     void removeExtractors(const RigEclipseCaseData* caseData);
     void removeExtractors(const RigGeoMechCaseData* caseData);
 
-    caf::PdmChildArrayField<RimWellRftPlot*> rftPlots;
+    const std::vector<RimWellRftPlot*>  rftPlots() const;
+    void                                addPlot(RimWellRftPlot* newPlot);
+    void                                removePlot(RimWellRftPlot* plot);
+    void                                deleteAllPlots();
+
 private:
+    caf::PdmChildArrayField<RimWellRftPlot*> m_rftPlots;
     cvf::Collection<RigEclipseWellLogExtractor> m_extractors;
     cvf::Collection<RigGeoMechWellLogExtractor> m_geomExtractors;
 };

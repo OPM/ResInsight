@@ -271,6 +271,17 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
     this->sortWellsByName();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::addWellPaths(const std::vector<RimWellPath*> wellPaths)
+{
+    for(const auto& wellPath : wellPaths)
+    {
+        this->wellPaths.push_back(wellPath);
+    }
+    this->sortWellsByName();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

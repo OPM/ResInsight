@@ -41,8 +41,8 @@ RimRftPlotCollection::RimRftPlotCollection()
 {
     CAF_PDM_InitObject("RFT Plots", ":/WellLogPlots16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&rftPlots, "RftPlots", "",  "", "", "");
-    rftPlots.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_rftPlots, "RftPlots", "",  "", "", "");
+    m_rftPlots.uiCapability()->setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ RimRftPlotCollection::RimRftPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimRftPlotCollection::~RimRftPlotCollection()
 {
-    rftPlots.deleteAllChildObjects();
+    m_rftPlots.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,4 +183,43 @@ void RimRftPlotCollection::removeExtractors(const RigGeoMechCaseData* caseData)
             m_geomExtractors.eraseAt(eIdx);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RimWellRftPlot*> RimRftPlotCollection::rftPlots() const
+{
+    std::vector<RimWellRftPlot*> plots;
+    for (const auto& plot : m_rftPlots)
+    {
+        plots.push_back(plot);
+    }
+    return plots;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimRftPlotCollection::addPlot(RimWellRftPlot* newPlot)
+{
+    m_rftPlots.push_back(newPlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimRftPlotCollection::removePlot(RimWellRftPlot* plot)
+{
+    size_t index = m_rftPlots.index(plot);
+    if (index < m_rftPlots.size())
+        m_rftPlots.erase(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimRftPlotCollection::deleteAllPlots()
+{
+    m_rftPlots.deleteAllChildObjects();
 }

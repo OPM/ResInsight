@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +19,18 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-//==================================================================================================
-///  
-///  
-//==================================================================================================
+#include "cafCmdFeature.h"
 
-class RimWellRftPlotLegend : public caf::PdmObject
+//==================================================================================================
+/// 
+//==================================================================================================
+class RicDeleteRftPlotFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimWellRftPlotLegend();
-    virtual ~RimWellRftPlotLegend();
-
-    bool isShowingLegend() { return m_showLegend();}
-
+    CAF_CMD_HEADER_INIT;
 protected:
 
-    virtual caf::PdmFieldHandle* objectToggleField() override;
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-
-private:
-    caf::PdmField<bool>                             m_showLegend;
-
+    // Overrides
+    virtual bool isCommandEnabled() override;
+    virtual void onActionTriggered( bool isChecked ) override;
+    virtual void setupActionLook( QAction* actionToSetup ) override;
 };
-

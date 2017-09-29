@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2015-     Statoil ASA
+//  Copyright (C) 2015-     Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,48 +17,63 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellRftPlotLegend.h"
+#include "RicDeleteRftPlotFeature.h"
+
+#include "RimRftPlotCollection.h"
 #include "RimWellRftPlot.h"
+#include "cafSelectionManager.h"
 
-CAF_PDM_SOURCE_INIT(RimWellRftPlotLegend, "WellRftPlotLegend");
+#include <QAction>
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellRftPlotLegend::RimWellRftPlotLegend()
-{
-    CAF_PDM_InitObject("Legend", ":/WellAllocLegend16x16.png", "", "");
-    CAF_PDM_InitField(&m_showLegend, "ShowPlotLegend", true, "Show Plot Legend", "", "", "");
-
-}
+CAF_CMD_SOURCE_INIT(RicDeleteRftPlotFeature, "RicDeleteRftPlotFeature");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellRftPlotLegend::~RimWellRftPlotLegend()
+bool RicDeleteRftPlotFeature::isCommandEnabled()
 {
+    std::vector<RimWellRftPlot*> objects;
+    caf::SelectionManager::instance()->objectsByType(&objects);
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimWellRftPlotLegend::objectToggleField()
-{
-    return &m_showLegend;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellRftPlotLegend::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-    if (changedField == &m_showLegend)
+    if (objects.size() > 0)
     {
-        RimWellRftPlot* walp;
-        firstAncestorOrThisOfType(walp);
-
-        if (walp) walp->showPlotLegend(m_showLegend());
+        return true;
     }
+
+    return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicDeleteRftPlotFeature::onActionTriggered(bool isChecked)
+{
+    std::vector<RimWellRftPlot*> selectedPlots;
+    caf::SelectionManager::instance()->objectsByType(&selectedPlots);
+
+    if (selectedPlots.size() == 0) return;
+
+    RimWellRftPlot* firstPlot = selectedPlots[0];
+
+    RimRftPlotCollection* rftPlotCollection = nullptr;
+    firstPlot->firstAncestorOrThisOfType(rftPlotCollection);
+    if (!rftPlotCollection) return;
+
+    for (RimWellRftPlot* plot : selectedPlots)
+    {
+        rftPlotCollection->removePlot(plot);
+        delete plot;
+    }
+
+    rftPlotCollection->uiCapability()->updateConnectedEditors();
+    //rftPlotCollection->scheduleRedrawAffectedViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicDeleteRftPlotFeature::setupActionLook(QAction* actionToSetup)
+{
+    actionToSetup->setText("Delete RFT Plot");
+    actionToSetup->setIcon(QIcon(":/Erase.png"));
+}

@@ -71,6 +71,8 @@ public:
     QString                             name() const;
     void                                setName(const QString& name);
   
+    RimWellLogFile*                     wellLogFile() const;
+
     caf::PdmField<QString>              filepath;
     caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
 
@@ -104,6 +106,7 @@ public:
 
     void                                setUnitSystem(RiaEclipseUnitTools::UnitSystem unitSystem);
     RiaEclipseUnitTools::UnitSystem     unitSystem() const;
+    static RimWellPath*                 fromFilePath(QString filePath);
 
 private:
 
