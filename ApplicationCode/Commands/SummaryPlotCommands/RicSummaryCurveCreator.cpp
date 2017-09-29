@@ -224,7 +224,6 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     m_appearanceApplyButton.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_appearanceApplyButton.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::LEFT);
 
-    CAF_PDM_InitField(&m_showLegend, "ShowLegend", true, "Contribute To Legend", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "");
     m_curveNameConfig = new RimSummaryCurveAutoName();
     m_curveNameConfig.uiCapability()->setUiHidden(true);
@@ -320,13 +319,6 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         applyAppearanceToAllPreviewCurves();
         m_previewPlot->loadDataAndUpdate();
         m_appearanceApplyButton = false;
-    }
-    else if (changedField == &m_showLegend)
-    {
-        for (auto curve : m_previewPlot->summaryCurves())
-        {
-            curve->showLegend(m_showLegend());
-        }
     }
     else
     {
@@ -634,7 +626,6 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     // Name config
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword("Curve Name Configuration", RicSummaryCurveCreatorUiKeywords::nameConfig());
     autoNameGroup->setCollapsedByDefault(true);
-    autoNameGroup->add(&m_showLegend);
     m_curveNameConfig->uiOrdering(uiConfigName, *autoNameGroup);
 
     // Fields to be displayed directly in UI

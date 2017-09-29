@@ -150,7 +150,6 @@ private:
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_groupAppearanceType;
     caf::PdmField< AppearanceTypeAppEnum >                                                              m_regionAppearanceType;
 
-    caf::PdmField<bool>                                                                                 m_showLegend;
     caf::PdmChildField<RimSummaryCurveAutoName*>                                                        m_curveNameConfig;
 
     caf::PdmField<bool> m_okButtonField;
