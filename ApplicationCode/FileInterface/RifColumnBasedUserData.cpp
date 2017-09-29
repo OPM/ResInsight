@@ -97,7 +97,7 @@ bool RifColumnBasedUserData::parse(const QString& data)
             }
             else
             {
-                startDate.setDate(QDate(01, 01, 1970));
+                startDate.setDate(QDate(1970, 1, 1));
             }
 
             m_timeSteps.resize(m_timeSteps.size() + 1);
