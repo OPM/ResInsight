@@ -30,6 +30,7 @@
 #include <QColor>
 
 #include <algorithm>
+#include <cmath>
 
 namespace caf {
     template<>

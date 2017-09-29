@@ -72,6 +72,7 @@
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfqtUtils.h"
 
+#include <cmath>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QInputEvent>

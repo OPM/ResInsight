@@ -30,6 +30,7 @@
 #include "cvfBoundingBox.h"
 
 #include <cstdlib>
+#include <cmath>
 
 
 CAF_PDM_SOURCE_INIT(RimFishbonesMultipleSubs, "FishbonesMultipleSubs");
