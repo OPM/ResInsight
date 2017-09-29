@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "RifColumnBasedAsciiParser.h"
+#include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
 #include "RifKeywordVectorParser.h"
 #include "RifRsmspecParserTools.h"
@@ -539,5 +540,71 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
 
     EXPECT_EQ("OP-1", tables.at(0).at(2).summaryAddress.wellName());
     EXPECT_NE("OP-1", tables.at(0).at(1).summaryAddress.wellName());
+}
 
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
+{
+    QString data;
+    QTextStream out(&data);
+
+    out << "-- Created running the command shutin_pressures\n";
+    out << "\n";
+    out << "PAGE 1\n";
+    out << "ORIGIN       OP-1_WBP9L\n";
+    out << "STARTDATE    01 01 2004     -- DD MM YYYY\n";
+    out << "\n";
+    out << "TIME     YEARX      WBP9L\n";
+    out << "DAYS     YEARS      BARSA\n";
+    out << "1        1          1\n";
+    out << "                    OP-1\n";
+    out << "\n";
+    out << "\n";
+    out << "3043     2014.32    52.5     -- Extrapolated\n";
+    out << "3046     2014.32    208.8    -- Measured\n";
+    out << "3070     2014.39    197.6    -- Measured\n";
+    out << "3081     2014.42    200.3    -- Measured\n";
+    out << "3128     2014.55    203.3    -- Measured\n";
+    out << "3141     2014.59    198.0    -- Measured\n";
+    out << "3196     2014.73    197.2    -- Measured\n";
+    out << "3222     2014.81    196.9    -- Extrapolated\n";
+    out << "3225     2014.82    199.6    -- Extrapolated\n";
+    out << "3226     2014.82    200.0    -- Extrapolated\n";
+    out << "3247     2014.87    201.8    -- Extrapolated\n";
+    out << "3282     2014.97    51.7     -- Extrapolated\n";
+    out << "3282     2014.97    201.6    -- Measured\n";
+    out << "3304     2015.03    206.1    -- Extrapolated\n";
+    out << "3324     2015.09    170.2    -- Measured\n";
+    out << "3359     2015.18    207.0    -- Extrapolated\n";
+    out << "3481     2015.52    151.0    -- Measured\n";
+    out << "3493     2015.55    219.0    -- Measured\n";
+    out << "\n";
+
+    std::string quantityName = "WBP9L";
+    std::vector< std::string > headerColumn;
+    headerColumn.push_back("OP-1");
+
+    RifEclipseSummaryAddress address = RifRsmspecParserTools::makeAndFillAddress(quantityName, headerColumn);
+
+    RifColumnBasedUserData columnBasedUserdata;
+
+    columnBasedUserdata.parse(data);
+    std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps(address);
+
+    QDateTime startDate = QDateTime::fromString("01012004", "ddMMyyyy");
+    startDate.setTimeSpec(Qt::UTC);
+    
+    QDateTime qDay1 = startDate.addDays(3043);
+    time_t day1 = qDay1.toTime_t();
+
+    ASSERT_EQ(18, timeSteps.size());
+
+    EXPECT_EQ("Tue May  1 00:00:00 2012\n", (std::string)asctime(gmtime(&day1)));
+    EXPECT_EQ("Tue May  1 00:00:00 2012\n", (std::string)asctime(gmtime(&timeSteps[0])));
+
+    EXPECT_EQ(day1, timeSteps[0]);
 }

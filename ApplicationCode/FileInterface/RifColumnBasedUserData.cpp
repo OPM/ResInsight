@@ -95,29 +95,37 @@ bool RifColumnBasedUserData::parse(const QString& data)
 
                 startDate = QDateTime::fromString(startDateString, dateFormatString);
             }
+            else
+            {
+                startDate.setDate(QDate(01, 01, 1970));
+            }
 
             m_timeSteps.resize(m_timeSteps.size() + 1);
 
             quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(ci.unitName);
             std::vector<time_t>& timeSteps = m_timeSteps.back();
 
-            if (startDate.isValid())
+            QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
+
+            if (unit == "DAY" || unit == "DAYS")
             {
                 for (const auto& timeStepValue : ci.values)
                 {
-                    QDateTime dateTime = startDate.addSecs(scaleFactor * timeStepValue);
-
+                    QDateTime dateTime = startDate.addDays((int)timeStepValue);
+                    dateTime.setTimeSpec(Qt::UTC);
                     timeSteps.push_back(dateTime.toTime_t());
                 }
             }
-            else
+            else if (unit == "YEAR" || unit == "YEARS")
             {
                 for (const auto& timeStepValue : ci.values)
                 {
-                    timeSteps.push_back(scaleFactor * timeStepValue);
+                    QDateTime dateTime = startDate.addYears((int)timeStepValue);
+                    dateTime.setTimeSpec(Qt::UTC);
+                    timeSteps.push_back(dateTime.toTime_t());
                 }
             }
-
+            
             for (size_t columIndex = 0; columIndex < m_parser->tables()[tableIndex].size(); columIndex++)
             {
                 const ColumnInfo& ci = m_parser->tables()[tableIndex][columIndex];
