@@ -18,7 +18,7 @@
 
 #include "RifColumnBasedUserDataParser.h"
 
-#include "RifRsmspecParserTools.h"
+#include "RifEclipseUserDataParserTools.h"
 
 #include "RiaLogging.h"
 
@@ -57,7 +57,7 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
 
     do 
     {
-        std::vector<ColumnInfo> table = RifRsmspecParserTools::columnInfoForTable(streamData, line);
+        std::vector<ColumnInfo> table = RifEclipseUserDataParserTools::columnInfoForTable(streamData, line);
         size_t columnCount = table.size();
         if (columnCount == 0) break;
 

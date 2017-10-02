@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RifRsmspecParserTools.h"
+#include "RifEclipseUserDataParserTools.h"
 
 #include "RiaLogging.h"
 
@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
+bool RifEclipseUserDataParserTools::isLineSkippable(const std::string& line)
 {
     if (std::all_of(line.begin(), line.end(), isspace))
     {
@@ -69,7 +69,7 @@ bool RifRsmspecParserTools::isLineSkippable(const std::string& line)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifRsmspecParserTools::isAComment(const std::string& word)
+bool RifEclipseUserDataParserTools::isAComment(const std::string& word)
 {
     if (word.size() > 1 && word.substr(0, 2) == "--")
     {
@@ -81,7 +81,7 @@ bool RifRsmspecParserTools::isAComment(const std::string& word)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifRsmspecParserTools::splitLineAndRemoveComments(std::string line)
+std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveComments(std::string line)
 {
     std::istringstream iss(line);
     std::vector<std::string> words{ std::istream_iterator<std::string>{iss},
@@ -102,7 +102,7 @@ std::vector<std::string> RifRsmspecParserTools::splitLineAndRemoveComments(std::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RifRsmspecParserTools::identifyCategory(const std::string& word)
+RifEclipseSummaryAddress::SummaryVarCategory RifEclipseUserDataParserTools::identifyCategory(const std::string& word)
 {
     if (word.size() == 0) return RifEclipseSummaryAddress::SUMMARY_INVALID;
 
@@ -140,7 +140,7 @@ RifEclipseSummaryAddress::SummaryVarCategory RifRsmspecParserTools::identifyCate
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RifRsmspecParserTools::findFirstNonEmptyEntryIndex(std::vector<std::string>& list)
+size_t RifEclipseUserDataParserTools::findFirstNonEmptyEntryIndex(std::vector<std::string>& list)
 {
     for (size_t i = 0; i < list.size(); i++)
     {
@@ -155,7 +155,7 @@ size_t RifRsmspecParserTools::findFirstNonEmptyEntryIndex(std::vector<std::strin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn)
+RifEclipseSummaryAddress RifEclipseUserDataParserTools::makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn)
 {
     int         regionNumber = -1;
     int         regionNumber2 = -1;
@@ -223,7 +223,7 @@ RifEclipseSummaryAddress RifRsmspecParserTools::makeAndFillAddress(std::string q
         cellK);
 }
 
-bool RifRsmspecParserTools::keywordParser(std::string line, std::string& origin, std::string& dateFormat, std::string& startDate)
+bool RifEclipseUserDataParserTools::keywordParser(std::string line, std::string& origin, std::string& dateFormat, std::string& startDate)
 {
     std::vector<std::string> words = splitLineAndRemoveComments(line);
     if (words.size() < 2) return false;
@@ -250,7 +250,7 @@ bool RifRsmspecParserTools::keywordParser(std::string line, std::string& origin,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstream& streamData, std::string& line)
+std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::stringstream& streamData, std::string& line)
 {
     std::vector<ColumnInfo> table;
 
@@ -360,7 +360,7 @@ std::vector<ColumnInfo> RifRsmspecParserTools::columnInfoForTable(std::stringstr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifRsmspecParserTools::splitLineToDoubles(const std::string& line, std::vector<double>& values)
+void RifEclipseUserDataParserTools::splitLineToDoubles(const std::string& line, std::vector<double>& values)
 {
     std::istringstream iss(line);
     values.clear();
@@ -375,7 +375,7 @@ void RifRsmspecParserTools::splitLineToDoubles(const std::string& line, std::vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifRsmspecParserTools::isANumber(const std::string& line)
+bool RifEclipseUserDataParserTools::isANumber(const std::string& line)
 {
     try
     {
@@ -391,7 +391,7 @@ bool RifRsmspecParserTools::isANumber(const std::string& line)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifRsmspecParserTools::headerReader(std::stringstream& streamData, std::string& line)
+std::vector<std::string> RifEclipseUserDataParserTools::headerReader(std::stringstream& streamData, std::string& line)
 {
     std::vector<std::string> header;
 

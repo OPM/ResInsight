@@ -22,7 +22,7 @@
 #include "RiaLogging.h"
 
 #include "RifColumnBasedUserDataParser.h"
-#include "RifRsmspecParserTools.h"
+#include "RifEclipseUserDataParserTools.h"
 
 #include "cafUtils.h"
 

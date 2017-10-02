@@ -43,7 +43,7 @@ struct ColumnInfo
 //==================================================================================================
 /// 
 //==================================================================================================
-class RifRsmspecParserTools
+class RifEclipseUserDataParserTools
 {
 public:
     static bool                                         isLineSkippable(const std::string& line);

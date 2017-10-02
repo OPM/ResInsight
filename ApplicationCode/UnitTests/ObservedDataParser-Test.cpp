@@ -4,7 +4,7 @@
 #include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
 #include "RifKeywordVectorParser.h"
-#include "RifRsmspecParserTools.h"
+#include "RifEclipseUserDataParserTools.h"
 
 #include <vector>
 #include <QTextStream>
@@ -230,7 +230,7 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
     while (std::getline(streamData, line))
     {
         std::vector<double> values;
-        RifRsmspecParserTools::splitLineToDoubles(line, values);
+        RifEclipseUserDataParserTools::splitLineToDoubles(line, values);
         table.push_back(values);
     }
 
@@ -588,7 +588,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     std::vector< std::string > headerColumn;
     headerColumn.push_back("OP-1");
 
-    RifEclipseSummaryAddress address = RifRsmspecParserTools::makeAndFillAddress(quantityName, headerColumn);
+    RifEclipseSummaryAddress address = RifEclipseUserDataParserTools::makeAndFillAddress(quantityName, headerColumn);
 
     RifColumnBasedUserData columnBasedUserdata;
 

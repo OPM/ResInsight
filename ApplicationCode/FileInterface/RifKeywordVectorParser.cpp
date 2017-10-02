@@ -18,7 +18,7 @@
 
 #include "RifKeywordVectorParser.h"
 
-#include "RifRsmspecParserTools.h"
+#include "RifEclipseUserDataParserTools.h"
 
 #include "cvfAssert.h"
 
@@ -51,7 +51,7 @@ bool RifKeywordVectorParser::canBeParsed(const QString& data)
 
     while (streamData.good())
     {
-        if (RifRsmspecParserTools::isAComment(line))
+        if (RifEclipseUserDataParserTools::isAComment(line))
         {
             std::getline(streamData, line);
         }
@@ -79,16 +79,16 @@ void RifKeywordVectorParser::parseData(const QString& data)
 
     do 
     {
-        while (RifRsmspecParserTools::isLineSkippable(line) && !streamData.eof())
+        while (RifEclipseUserDataParserTools::isLineSkippable(line) && !streamData.eof())
         {
             std::getline(streamData, line);
         }
 
         KeywordBasedVector keywordBasedVector;
-        keywordBasedVector.header = RifRsmspecParserTools::headerReader(streamData, line);
+        keywordBasedVector.header = RifEclipseUserDataParserTools::headerReader(streamData, line);
         if (keywordBasedVector.header.empty()) break;
 
-        while (RifRsmspecParserTools::isANumber(line))
+        while (RifEclipseUserDataParserTools::isANumber(line))
         {
             keywordBasedVector.values.push_back(std::stod(line));
             std::getline(streamData, line);

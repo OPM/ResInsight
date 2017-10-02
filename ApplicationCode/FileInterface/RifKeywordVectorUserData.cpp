@@ -23,7 +23,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifKeywordVectorParser.h"
-#include "RifRsmspecParserTools.h"
+#include "RifEclipseUserDataParserTools.h"
 
 #include "cafUtils.h"
 
