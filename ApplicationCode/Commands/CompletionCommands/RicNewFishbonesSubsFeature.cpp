@@ -36,6 +36,8 @@
 #include <QAction>
 #include <QMessageBox>
 
+#include <cmath>
+
 
 CAF_CMD_SOURCE_INIT(RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature");
 

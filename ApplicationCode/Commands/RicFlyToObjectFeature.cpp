@@ -34,6 +34,7 @@
 #include <QAction>
 
 #include <algorithm>
+#include <cmath>
 
 CAF_CMD_SOURCE_INIT(RicFlyToObjectFeature, "RicFlyToObjectFeature");
 
