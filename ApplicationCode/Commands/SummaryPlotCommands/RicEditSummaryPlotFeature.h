@@ -22,6 +22,7 @@
 #include <QPointer>
 
 class RicSummaryCurveCreatorFactoryImpl;
+class RimSummaryPlot;
 
 namespace caf {
 	class PdmUiPropertyViewDialog;
@@ -43,6 +44,9 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook(QAction* actionToSetup);
+
+private:
+    RimSummaryPlot* selectedSummaryPlot() const;
 
 private:
     RicSummaryCurveCreatorFactoryImpl*      m_curveCreatorFactory;

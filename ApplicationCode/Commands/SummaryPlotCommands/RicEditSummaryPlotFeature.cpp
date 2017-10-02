@@ -68,7 +68,9 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 bool RicEditSummaryPlotFeature::isCommandEnabled()
 {
-    return true;
+    if (selectedSummaryPlot()) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,11 +94,9 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
     }
 
     // Set target plot
-    std::vector<RimSummaryPlot*> plots;
-    caf::SelectionManager::instance()->objectsByType(&plots);
-    if (plots.size() == 1)
+    if (selectedSummaryPlot())
     {
-        curveCreator->updateFromSummaryPlot(plots.front());
+        curveCreator->updateFromSummaryPlot(selectedSummaryPlot());
     }
 }
 
@@ -107,4 +107,20 @@ void RicEditSummaryPlotFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("Edit Summary Plot");
     actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot() const
+{
+    RimSummaryPlot* sumPlot = nullptr;
+
+    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
+    if (selObj)
+    {
+        selObj->firstAncestorOrThisOfType(sumPlot);
+    }
+
+    return sumPlot;
 }

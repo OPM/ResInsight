@@ -103,9 +103,13 @@ void RicNewSummaryCurveFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicNewSummaryCurveFeature::selectedSummaryPlot() const
 {
+    RimSummaryPlot* sumPlot = nullptr;
+
     caf::PdmObject* selObj =  dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
-    RimSummaryPlot * sumPlot;
-    selObj->firstAncestorOrThisOfType(sumPlot);
+    if (selObj)
+    {
+        selObj->firstAncestorOrThisOfType(sumPlot);
+    }
 
     return sumPlot;
 }
