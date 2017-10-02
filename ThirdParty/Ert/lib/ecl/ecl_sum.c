@@ -172,13 +172,7 @@ static bool ecl_sum_fread_data( ecl_sum_type * ecl_sum , const stringlist_type *
     ecl_sum_free_data( ecl_sum );
 
   ecl_sum->data = ecl_sum_data_alloc( ecl_sum->smspec );
-  if (ecl_sum_data_fread( ecl_sum->data , data_files )) {
-    if (include_restart) {
-
-    }
-    return true;
-  } else
-    return false;
+  return ecl_sum_data_fread( ecl_sum->data , data_files);
 }
 
 
@@ -248,9 +242,12 @@ static bool ecl_sum_fread_case( ecl_sum_type * ecl_sum , bool include_restart) {
 */
 
 
-ecl_sum_type * ecl_sum_fread_alloc(const char *header_file , const stringlist_type *data_files , const char * key_join_string) {
+ecl_sum_type * ecl_sum_fread_alloc(const char *header_file , const stringlist_type *data_files , const char * key_join_string, bool include_restart) {
   ecl_sum_type * ecl_sum = ecl_sum_alloc__( header_file , key_join_string );
-  ecl_sum_fread( ecl_sum , header_file , data_files , false );
+  if (!ecl_sum_fread( ecl_sum , header_file , data_files , include_restart)) {
+    ecl_sum_free( ecl_sum );
+    ecl_sum = NULL;
+  }
   return ecl_sum;
 }
 
@@ -665,6 +662,9 @@ double ecl_sum_get_general_var(const ecl_sum_type * ecl_sum , int time_index , c
   return ecl_sum_data_iget( ecl_sum->data , time_index  , params_index);
 }
 
+void ecl_sum_get_interp_vector(const ecl_sum_type * ecl_sum, time_t sim_time, const ecl_sum_vector_type * key_words, double_vector_type * data){
+  ecl_sum_data_get_interp_vector(ecl_sum->data, sim_time, key_words, data);
+}
 
 void ecl_sum_fwrite_interp_csv_line(const ecl_sum_type * ecl_sum, time_t sim_time, const ecl_sum_vector_type * key_words, FILE *fp){
   ecl_sum_data_fwrite_interp_csv_line(ecl_sum->data, sim_time, key_words, fp);

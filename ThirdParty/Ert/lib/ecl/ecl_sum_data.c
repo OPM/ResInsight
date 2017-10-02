@@ -1017,9 +1017,9 @@ static bool ecl_sum_data_fread__( ecl_sum_data_type * data , time_t load_end , c
           }
           ecl_file_close( ecl_file );
         }
-      } else
-        util_abort("%s: invalid file type:%s \n",__func__ , ecl_util_file_type_name(file_type ));
+      }
     }
+
 
     if (ecl_sum_data_get_length( data ) > 0) {
       ecl_sum_data_build_index( data );
@@ -1180,6 +1180,23 @@ double ecl_sum_data_interp_get(const ecl_sum_data_type * data , int time_index1 
 }
 
 
+static double ecl_sum_data_vector_iget(const ecl_sum_data_type * data,  time_t sim_time, const ecl_sum_vector_type * keylist, int key_index,
+                                       int time_index1 , int time_index2 , double weight1 , double weight2 ) {
+
+  int params_index = ecl_sum_vector_iget_param_index(keylist, key_index);
+  double value = 0.0;
+  bool is_rate = ecl_sum_vector_iget_is_rate(keylist, key_index);
+  if (is_rate) {
+    int time_index = ecl_sum_data_get_index_from_sim_time(data, sim_time);
+    // uses step function since it is a rate
+    value = ecl_sum_data_iget(data, time_index, params_index);
+  } else {
+    // uses interpolation between timesteps
+    value = ecl_sum_data_interp_get(data, time_index1, time_index2, weight1, weight2, params_index);
+  }
+  return value;
+}
+
 void ecl_sum_data_fwrite_interp_csv_line(const ecl_sum_data_type * data, time_t sim_time, const ecl_sum_vector_type * keylist, FILE *fp){
   int num_keywords = ecl_sum_vector_get_size(keylist);
   double weight1, weight2;
@@ -1188,18 +1205,7 @@ void ecl_sum_data_fwrite_interp_csv_line(const ecl_sum_data_type * data, time_t 
   ecl_sum_data_init_interp_from_sim_time(data, sim_time, &time_index1, &time_index2, &weight1, &weight2);
 
   for (int i = 0; i < num_keywords; i++) {
-    int params_index = ecl_sum_vector_iget_param_index(keylist, i);
-
-    double value = 0.0;
-    bool is_rate = ecl_sum_vector_iget_is_rate(keylist, i);
-    if (is_rate) {
-      int time_index = ecl_sum_data_get_index_from_sim_time(data, sim_time);
-      // uses step function since it is a rate
-      value = ecl_sum_data_iget(data, time_index, params_index);
-    } else {
-      // uses interpolation between timesteps
-      value = ecl_sum_data_interp_get(data, time_index1, time_index2, weight1, weight2, params_index);
-    }
+    double value = ecl_sum_data_vector_iget( data, sim_time, keylist , i , time_index1, time_index2, weight1, weight2);
 
     if (i == 0)
       fprintf(fp, "%f", value);
@@ -1208,8 +1214,18 @@ void ecl_sum_data_fwrite_interp_csv_line(const ecl_sum_data_type * data, time_t 
   }
 }
 
+void ecl_sum_data_get_interp_vector( const ecl_sum_data_type * data , time_t sim_time, const ecl_sum_vector_type * keylist, double_vector_type * results){
+  int num_keywords = ecl_sum_vector_get_size(keylist);
+  double weight1, weight2;
+  int    time_index1, time_index2;
 
-
+  ecl_sum_data_init_interp_from_sim_time(data, sim_time, &time_index1, &time_index2, &weight1, &weight2);
+  double_vector_reset( results );
+  for (int i = 0; i < num_keywords; i++) {
+    double value = ecl_sum_data_vector_iget( data, sim_time, keylist , i , time_index1, time_index2, weight1, weight2);
+    double_vector_iset( results, i , value );
+  }
+}
 
 double ecl_sum_data_get_from_sim_time( const ecl_sum_data_type * data , time_t sim_time , const smspec_node_type * smspec_node) {
   int params_index = smspec_node_get_params_index( smspec_node );

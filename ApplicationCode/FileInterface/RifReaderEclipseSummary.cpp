@@ -67,7 +67,7 @@ bool RifReaderEclipseSummary::open(const std::string& headerFileName, const std:
     }
 
     std::string itemSeparatorInVariableNames = ":";
-    m_ecl_sum = ecl_sum_fread_alloc(headerFileName.data(), dataFiles, itemSeparatorInVariableNames.data());
+    m_ecl_sum = ecl_sum_fread_alloc(headerFileName.data(), dataFiles, itemSeparatorInVariableNames.data(), false);
 
     stringlist_free(dataFiles);
 

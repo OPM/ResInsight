@@ -5500,3 +5500,22 @@ int util_chdir(const char * path) {
 }
 
 #endif
+
+
+
+bool util_chdir_file( const char * filename ) {
+  if (!util_is_file( filename ))
+    return false;
+
+  bool chdir_OK = false;
+  char * path;
+  char * abs_path;
+  util_alloc_file_components( filename , &path, NULL , NULL );
+  abs_path = util_alloc_abs_path( path );
+  if (util_is_directory( abs_path ))
+    chdir_OK = (0 == util_chdir( abs_path ));
+
+  free( abs_path );
+  free( path );
+  return chdir_OK;
+}

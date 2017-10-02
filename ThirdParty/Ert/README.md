@@ -25,8 +25,8 @@ functionality.
 *libecl* uses CMake as build system:
 
 ```bash
-git clone https://github.com/Statoil/*libecl*.git
-cd *libecl*
+git clone https://github.com/Statoil/libecl.git
+cd libecl
 mkdir build
 cd build
 cmake ..

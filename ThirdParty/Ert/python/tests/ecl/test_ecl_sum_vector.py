@@ -33,7 +33,6 @@ class EclSumVectorTest(ExtendedTestCase):
         self.test_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.SMSPEC")
         self.ecl_sum = EclSum(self.test_file)
 
-
     def test_reportOnly_warns(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")

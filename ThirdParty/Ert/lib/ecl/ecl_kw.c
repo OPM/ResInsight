@@ -1321,9 +1321,11 @@ ecl_read_status_enum ecl_kw_fread_header(ecl_kw_type *ecl_kw , fortio_type * for
 
     int read_count = fscanf(stream , "%d" , &size);
     if (read_count != 1)
-      util_abort("%s: reading failed - at end of file?\n",__func__);
+      return ECL_KW_READ_FAIL;
 
-    ecl_kw_fscanf_qstring(ecl_type_str , "%4c" , 4 , stream);
+    if (!ecl_kw_fscanf_qstring(ecl_type_str , "%4c" , 4 , stream))
+      return ECL_KW_READ_FAIL;
+
     fgetc(stream);             /* Reading the trailing newline ... */
   }
   else {

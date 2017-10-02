@@ -208,6 +208,7 @@ endif()
 
 if (ERT_USE_OPENMP)
     target_compile_options(ecl PUBLIC ${OpenMP_C_FLAGS})
+    set_property(TARGET ecl APPEND PROPERTY LINK_FLAGS ${OpenMP_C_FLAGS})
     target_link_libraries( ecl PUBLIC ${OpenMP_EXE_LINKER_FLAGS})
 endif ()
 
@@ -215,32 +216,30 @@ set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
 
-if (INSTALL_ERT)
-    install(TARGETS ecl
-            EXPORT  ecl-config
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-    install(DIRECTORY include/
-            DESTINATION include
-            PATTERN *.h
-    )
-    install(DIRECTORY include/
-            DESTINATION include
-            PATTERN *.hpp EXCLUDE
-    )
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
-            DESTINATION include
-            PATTERN *.h
-    )
+install(TARGETS ecl
+        EXPORT  ecl-config
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY include/
+        DESTINATION include
+        PATTERN *.h
+)
+install(DIRECTORY include/
+        DESTINATION include
+        PATTERN *.hpp EXCLUDE
+)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/include/
+        DESTINATION include
+        PATTERN *.h
+)
 
-    if (ERT_BUILD_CXX)
-        install(DIRECTORY include/
-                DESTINATION include
-                PATTERN *.hpp
-    )
-    endif ()
-endif()
+if (ERT_BUILD_CXX)
+    install(DIRECTORY include/
+            DESTINATION include
+            PATTERN *.hpp
+)
+endif ()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -253,6 +252,7 @@ foreach (name   ert_util_alloc_file_components
                 ert_util_binary_split
                 ert_util_buffer
                 ert_util_clamp
+                ert_util_chdir
                 ert_util_filename
                 ert_util_hash_test
                 ert_util_logh
@@ -385,6 +385,7 @@ foreach (name   ecl_alloc_cpgrid
                 ecl_rft_cell
                 ecl_file_view
                 test_ecl_file_index
+                test_transactions
                 ecl_rst_file
                 ecl_sum_writer
                 ecl_util_make_date_no_shift

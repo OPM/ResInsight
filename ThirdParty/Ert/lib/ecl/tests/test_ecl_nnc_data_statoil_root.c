@@ -41,7 +41,7 @@ int find_index(ecl_nnc_geometry_type * nnc_geo, int grid1, int grid2, int indx1,
    int index = -1;
    int nnc_size = ecl_nnc_geometry_size( nnc_geo );
    for (int n = 0; n < nnc_size; n++) {
-      ecl_nnc_pair_type * pair = ecl_nnc_geometry_iget( nnc_geo, n );
+      const ecl_nnc_pair_type * pair = ecl_nnc_geometry_iget( nnc_geo, n );
       if (pair->grid_nr1 == grid1 && pair->grid_nr2 == grid2)
           if (pair->global_index1 == indx1 && pair->global_index2 ==indx2) {
           index = n;

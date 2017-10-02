@@ -13,6 +13,12 @@ uid_t util_get_entry_uid( const char * file ) {
   return buffer.st_uid;
 }
 
+mode_t util_getmode( const char * file ) {
+  stat_type buffer;
+  util_stat( file , &buffer);
+  return buffer.st_mode;
+}
+
 
 
 bool util_chmod_if_owner( const char * filename , mode_t new_mode) {

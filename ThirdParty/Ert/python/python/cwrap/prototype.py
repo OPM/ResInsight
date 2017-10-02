@@ -71,7 +71,7 @@ class PrototypeError(Exception):
 class Prototype(object):
     pattern = re.compile(PROTOTYPE_PATTERN)
 
-    def __init__(self, lib, prototype, bind=False):
+    def __init__(self, lib, prototype, bind=False, allow_attribute_error=False):
         super(Prototype, self).__init__()
         self._lib = lib
         self._prototype = prototype
@@ -79,6 +79,8 @@ class Prototype(object):
         self._func = None
         self.__name__ = prototype
         self._resolved = False
+        self._allow_attribute_error = allow_attribute_error
+
 
 
     def _parseType(self, type_name):
@@ -107,6 +109,8 @@ class Prototype(object):
             try:
                 func = getattr(self._lib, function_name)
             except AttributeError:
+                if self._allow_attribute_error:
+                    return
                 raise PrototypeError("Can not find function: %s in library: %s" % (function_name , self._lib))
 
             if not restype in REGISTERED_TYPES or not REGISTERED_TYPES[restype].is_return_type:
@@ -148,7 +152,11 @@ class Prototype(object):
             self._resolved = True
 
         if self._func is None:
-            raise PrototypeError("Prototype has not been properly resolved!")
+            if self._allow_attribute_error:
+                raise NotImplementedError("Function:%s has not been properly resolved - missing library symbol?" % self.__name__)
+            else:
+                raise PrototypeError("Prototype has not been properly resolved")
+
         return self._func(*args)
 
     def __repr__(self):

@@ -30,14 +30,85 @@ extern "C" {
     The external lapack routines
 */
 /*****************************************************************/
-void  dgesv_(int * n, int * nrhs , double * A , int * lda , long int * ipivot , double * B , int * ldb , int * info);
-void  dgesvd_(char * jobu , char * jobvt , int * m , int * n , double * A, int * lda , double * S , double * U , int * ldu , double * VT , int * ldvt, double * work , int * worksize , int * info);
-void  dsyevx_(char * jobz, char * range , char * uplo , int *n , double * A , int * lda , double * vl , double * vu , int * il , int * iu , double * abstol , int * m , double * w , double *z , int * ldz , double * work, int * lwork , int * iwork , int * ifail , int * info);
-void  dgeqrf_(int * m , int * n , double * A , int * lda , double * tau , double * work , int * lwork, int * info);
-void  dorgqr_(int * m, int * n , int * k , double * A , int * lda , double * tau , double * work , int * lwork, int * info);
-void  dgetrf_(int * M , int * n , double * A , int * lda , int * ipiv, int * info);
-void  dgedi_(double * A , int * lda , int * n , int * ipiv , double * det , double * work , int * job);
-void  dgetri_( int * n , double * A , int * lda , int * ipiv , double * work , int * work_size , int * info);
+void  dgesv_(int * n,
+             int * nrhs,
+             double * A,
+             int * lda,
+             long int * ipivot,
+             double * B,
+             int * ldb,
+             int * info);
+void  dgesvd_(char * jobu,
+              char * jobvt,
+              int * m,
+              int * n,
+              double * A,
+              int * lda,
+              double * S,
+              double * U,
+              int * ldu,
+              double * VT,
+              int * ldvt,
+              double * work,
+              int * worksize,
+              int * info);
+void  dsyevx_(char * jobz,
+              char * range,
+              char * uplo,
+              int *n,
+              double * A,
+              int * lda,
+              double * vl,
+              double * vu,
+              int * il,
+              int * iu,
+              double * abstol,
+              int * m,
+              double * w,
+              double *z,
+              int * ldz,
+              double * work,
+              int * lwork,
+              int * iwork,
+              int * ifail,
+              int * info);
+void  dgeqrf_(int * m,
+              int * n,
+              double * A,
+              int * lda,
+              double * tau,
+              double * work,
+              int * lwork,
+              int * info);
+void  dorgqr_(int * m,
+              int * n,
+              int * k,
+              double * A,
+              int * lda,
+              double * tau,
+              double * work,
+              int * lwork,
+              int * info);
+void  dgetrf_(int * M,
+              int * n,
+              double * A,
+              int * lda,
+              int * ipiv,
+              int * info);
+void  dgedi_(double * A,
+             int * lda,
+             int * n,
+             int * ipiv,
+             double * det,
+             double * work,
+             int * job);
+void  dgetri_(int * n,
+              double * A,
+              int * lda,
+              int * ipiv,
+              double * work,
+              int * work_size,
+              int * info);
 /*****************************************************************/
 
 

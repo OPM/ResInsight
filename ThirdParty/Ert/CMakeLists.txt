@@ -10,7 +10,7 @@ endif()
 #-----------------------------------------------------------------
 
 set( ECL_VERSION_MAJOR 2 )   # Remember to update release notes whenever
-set( ECL_VERSION_MINOR 2 )   # you change the ERT_VERSION_MINOR or MAJOR
+set( ECL_VERSION_MINOR 3 )   # you change the ERT_VERSION_MINOR or MAJOR
 set( ECL_VERSION_MICRO git ) # with "new in Ert Version X.X.X"!
 
 # If the micro version is not integer, that should be interpreted as a
@@ -357,9 +357,6 @@ if (BUILD_PYTHON)
    endif()
 endif()
 
-if (INSTALL_ERT)
-    install(EXPORT ecl-config DESTINATION share/cmake/ecl)
-endif()
-
+install(EXPORT ecl-config DESTINATION share/cmake/ecl)
 export(TARGETS ecl FILE eclConfig.cmake)
 export(PACKAGE ecl)

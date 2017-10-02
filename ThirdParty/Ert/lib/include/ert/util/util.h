@@ -197,6 +197,7 @@ typedef enum {left_pad   = 0,
 
 #ifdef ERT_HAVE_GETUID
   uid_t        util_get_entry_uid( const char * file );
+  mode_t       util_getmode( const char * filename);
   bool         util_addmode_if_owner( const char * filename , mode_t add_mode );
   bool         util_delmode_if_owner( const char * filename , mode_t del_mode);
   bool         util_chmod_if_owner( const char * filename , mode_t new_mode);
@@ -390,7 +391,7 @@ typedef enum {left_pad   = 0,
   char       * util_alloc_envvar( const char * value );
   bool         util_is_link(const char * );  // Will always return false on windows
   int          util_chdir(const char * path);
-
+  bool         util_chdir_file( const char * filename );
 
 #define UTIL_FWRITE_SCALAR(s,stream) { if (fwrite(&s , sizeof s , 1 , stream) != 1) util_abort("%s: write failed: %s\n",__func__ , strerror(errno)); }
 

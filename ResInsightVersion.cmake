@@ -8,8 +8,7 @@ set(RESINSIGHT_INCREMENT_VERSION "2-dev.06")
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 
 
 # https://github.com/Statoil/libecl
-set(ERT_GITHUB_SHA "b17c5ffbf2f82594b01037d39ca9440252a10536") 
-# Not completely shure this is the correct one. it might be db2b7317c instead or ... 
+set(ERT_GITHUB_SHA "2e36798b43daf18c112b91aa3febbf2fccd4a95f") 
 
 # https://github.com/OPM/opm-flowdiagnostics
 set(OPM_FLOWDIAGNOSTICS_SHA "b6e59ddcd2feba450c8612a7402c9239e442c0d4")

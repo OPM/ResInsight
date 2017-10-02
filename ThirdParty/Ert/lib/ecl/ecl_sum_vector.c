@@ -33,6 +33,7 @@ struct ecl_sum_vector_struct {
   UTIL_TYPE_ID_DECLARATION;
   int_vector_type * node_index_list;
   bool_vector_type * is_rate_list;
+  stringlist_type * key_list;
   const ecl_sum_type * ecl_sum;
 };
 
@@ -40,6 +41,7 @@ struct ecl_sum_vector_struct {
 void ecl_sum_vector_free( ecl_sum_vector_type * ecl_sum_vector ){
     int_vector_free(ecl_sum_vector->node_index_list);
     bool_vector_free(ecl_sum_vector->is_rate_list);
+    stringlist_free(ecl_sum_vector->key_list);
 }
 
 
@@ -52,6 +54,7 @@ ecl_sum_vector_type * ecl_sum_vector_alloc(const ecl_sum_type * ecl_sum){
     ecl_sum_vector->ecl_sum  = ecl_sum;
     ecl_sum_vector->node_index_list = int_vector_alloc(0,0);
     ecl_sum_vector->is_rate_list  = bool_vector_alloc(0,false);
+    ecl_sum_vector->key_list = stringlist_alloc_new( );
     return ecl_sum_vector;
 }
 
@@ -64,6 +67,7 @@ bool ecl_sum_vector_add_key( ecl_sum_vector_type * ecl_sum_vector, const char * 
 
     int_vector_append(ecl_sum_vector->node_index_list, params_index);
     bool_vector_append(ecl_sum_vector->is_rate_list, is_rate_key);
+    stringlist_append_copy( ecl_sum_vector->key_list, key );
     return true;
   } else
     return false;
@@ -84,6 +88,7 @@ void ecl_sum_vector_add_keys( ecl_sum_vector_type * ecl_sum_vector, const char *
 
         int_vector_append(ecl_sum_vector->node_index_list, params_index);
         bool_vector_append(ecl_sum_vector->is_rate_list, is_rate_key);
+        stringlist_append_copy( ecl_sum_vector->key_list, key );
     }
     stringlist_free(keylist);
 }
@@ -98,4 +103,9 @@ bool ecl_sum_vector_iget_is_rate(const ecl_sum_vector_type * ecl_sum_vector, int
 
 int ecl_sum_vector_iget_param_index(const ecl_sum_vector_type * ecl_sum_vector, int index){
     return int_vector_iget(ecl_sum_vector->node_index_list, index);
+}
+
+
+const char* ecl_sum_vector_iget_key(const ecl_sum_vector_type * ecl_sum_vector, int index){
+  return stringlist_iget( ecl_sum_vector->key_list , index);
 }

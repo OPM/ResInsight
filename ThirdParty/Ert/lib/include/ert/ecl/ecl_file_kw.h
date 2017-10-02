@@ -42,7 +42,7 @@ typedef struct inv_map_struct inv_map_type;
   void               ecl_file_kw_free( ecl_file_kw_type * file_kw );
   void               ecl_file_kw_free__( void * arg );
   ecl_kw_type      * ecl_file_kw_get_kw( ecl_file_kw_type * file_kw , fortio_type * fortio, inv_map_type * inv_map);
-  ecl_kw_type      * ecl_file_kw_get_kw_ptr( ecl_file_kw_type * file_kw , fortio_type * fortio , inv_map_type * inv_map );
+  ecl_kw_type      * ecl_file_kw_get_kw_ptr( ecl_file_kw_type * file_kw );
   ecl_file_kw_type * ecl_file_kw_alloc_copy( const ecl_file_kw_type * src );
   const char       * ecl_file_kw_get_header( const ecl_file_kw_type * file_kw );
   int                ecl_file_kw_get_size( const ecl_file_kw_type * file_kw );
@@ -56,7 +56,10 @@ typedef struct inv_map_struct inv_map_type;
   void                ecl_file_kw_fwrite( const ecl_file_kw_type * file_kw , FILE * stream );
   ecl_file_kw_type ** ecl_file_kw_fread_alloc_multiple( FILE * stream , int num);
   ecl_file_kw_type *  ecl_file_kw_fread_alloc( FILE * stream );
- 
+
+  void                ecl_file_kw_start_transaction(const ecl_file_kw_type * file_kw, int * ref_count);
+  void                ecl_file_kw_end_transaction(ecl_file_kw_type * file_kw, int ref_count);
+
 #ifdef __cplusplus
 }
 #endif

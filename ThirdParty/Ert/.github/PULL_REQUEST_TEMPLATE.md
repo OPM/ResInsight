@@ -8,4 +8,3 @@ _Short description of the approach_
 
 **Pre un-WIP checklist**
 - [ ] Statoil tests pass locally
-- [ ] Have completed graphical integration test steps

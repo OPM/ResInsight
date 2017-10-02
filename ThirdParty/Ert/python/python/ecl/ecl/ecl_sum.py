@@ -86,7 +86,8 @@ def date2num(dt):
 
 class EclSum(BaseCClass):
     TYPE_NAME = "ecl_sum"
-    _fread_alloc                   = EclPrototype("void*     ecl_sum_fread_alloc_case__(char*, char*, bool)", bind=False)
+    _fread_alloc_case              = EclPrototype("void*     ecl_sum_fread_alloc_case__(char*, char*, bool)", bind=False)
+    _fread_alloc                   = EclPrototype("void*     ecl_sum_fread_alloc(char*, stringlist, char*, bool)", bind=False)
     _create_restart_writer         = EclPrototype("ecl_sum_obj  ecl_sum_alloc_restart_writer(char*, char*, bool, bool, char*, time_t, bool, int, int, int)", bind = False)
     _iiget                         = EclPrototype("double   ecl_sum_iget(ecl_sum, int, int)")
     _free                          = EclPrototype("void     ecl_sum_free(ecl_sum)")
@@ -159,14 +160,32 @@ class EclSum(BaseCClass):
         """
         if not load_case:
             raise ValueError('load_case must be the basename of the simulation')
-        c_pointer = self._fread_alloc(load_case, join_string, include_restart)
+        c_pointer = self._fread_alloc_case(load_case, join_string, include_restart)
         if c_pointer is None:
             raise IOError("Failed to create summary instance from argument:%s" % load_case)
-        else:
-            super(EclSum, self).__init__(c_pointer)
-            self.__private_init()
+
+        super(EclSum, self).__init__(c_pointer)
+        self.__private_init()
         self._load_case = load_case
 
+
+    @classmethod
+    def load(cls, smspec_file, unsmry_file, key_join_string = ":", include_restart = True):
+        if not os.path.isfile( smspec_file ):
+            raise IOError("No such file: %s" % smspec_file)
+
+        if not os.path.isfile( unsmry_file ):
+            raise IOError("No such file: %s" % unsmry_file )
+
+        data_files = StringList( )
+        data_files.append( unsmry_file )
+        c_ptr = cls._fread_alloc(smspec_file, data_files, key_join_string, include_restart)
+        if c_ptr is None:
+            raise IOError("Failed to create summary instance")
+
+        ecl_sum = cls.createPythonObject( c_ptr )
+        ecl_sum._load_case = smspec_file
+        return ecl_sum
 
 
     @classmethod
@@ -517,6 +536,13 @@ class EclSum(BaseCClass):
                 raise ValueError("days:%s is outside range of simulation: [%g,%g]" % (days, self.first_day, self.sim_length))
         else:
             raise ValueError("Must supply either days or date")
+
+
+    def get_interp_row(self, key_list, sim_time):
+        ctime = CTime(sim_time)
+        data = DoubleVector( initial_size = len(key_list) )
+        EclSum._get_interp_vector(self, ctime, key_list, data)
+        return data
 
 
     def time_range(self, start=None, end=None, interval="1Y", extend_end=True):
@@ -1227,6 +1253,7 @@ class EclSum(BaseCClass):
         EclSum._dump_csv_line(self, ctime, keywords, cfile)
 
 
+
     def export_csv(self, filename, keys=None, date_format="%Y-%m-%d", sep=";"):
         """Will create a CSV file with summary data.
 
@@ -1254,6 +1281,7 @@ class EclSum(BaseCClass):
 
 import ecl.ecl.ecl_sum_keyword_vector
 EclSum._dump_csv_line = EclPrototype("void  ecl_sum_fwrite_interp_csv_line(ecl_sum, time_t, ecl_sum_vector, FILE)", bind=False)
+EclSum._get_interp_vector = EclPrototype("void  ecl_sum_get_interp_vector(ecl_sum, time_t, ecl_sum_vector, double_vector)", bind=False)
 
 monkey_the_camel(EclSum, 'varType', EclSum.var_type, classmethod)
 monkey_the_camel(EclSum, 'addVariable', EclSum.add_variable)

@@ -1,17 +1,5 @@
-ert.ecl (1.0-4) precise; urgency=low
+ecl (2017.09-test1-1~xenial) xenial; urgency=low
 
-  * Unmark -dev package as architecture independent due to library symlink
+  * New release
 
  -- Arne Morten Kvarving <arne.morten.kvarving@sintef.no>  Wed, 03 Apr 2013 17:49:24 +0200
-
-ert.ecl (1.0-2) precise; urgency=low
-
-  * Mark -dev package as architecture independent
-
- -- Arne Morten Kvarving <arne.morten.kvarving@sintef.no>  Tue, 19 Feb 2013 10:03:04 +0100
-
-ert.ecl (1.0-1) unstable; urgency=low
-
-  * Initial release
-
- -- Arne Morten Kvarving <arne.morten.kvarving@sintef.no>  Wed, 16 Jan 2013 11:21:17 +0100

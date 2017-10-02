@@ -16,13 +16,15 @@ env:
   global:
     - ERT_SHOW_BACKTRACE=1
   matrix:
-    - PYTHON_VERSION=2.7; TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
-    - PYTHON_VERSION=2.7; TEST_SUITE="-L SLOW_1" # Run all tests labeled as SLOW in group 1
-    - PYTHON_VERSION=2.7; TEST_SUITE="-L SLOW_2" # Run all tests labeled as SLOW in group 2
-    - PYTHON_VERSION=3.6; TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
+    - PYTHON_VERSION=2.7 TEST_SUITE="-LE SLOW"  # Run all tests not labeled as slow
+    - PYTHON_VERSION=2.7 TEST_SUITE="-L SLOW_1" # Run all tests labeled as SLOW in group 1
+    - PYTHON_VERSION=2.7 TEST_SUITE="-L SLOW_2" # Run all tests labeled as SLOW in group 2
+    - PYTHON_VERSION=3.6                        # Run all tests
 
 matrix:
   fast_finish: true
+  allow_failures:
+    - env: PYTHON_VERSION=3.6
   exclude:
     - os: osx
       compiler: gcc

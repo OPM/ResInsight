@@ -179,6 +179,15 @@ class EclFileTest(ExtendedTestCase):
                 self.assertEqual( kw1, kw2 )
 
 
+    def test_broken_file(self):
+        with TestAreaContext("test_broken_file"):
+            with open("CASE.FINIT", "w") as f:
+                f.write("This - is not a ECLISPE file\nsdlcblhcdbjlwhc\naschscbasjhcasc\nascasck c s s aiasic asc")
+
+
+            with self.assertRaises(IOError):
+                f = EclFile("CASE.FINIT")
+
 
     def test_block_view(self):
         with TestAreaContext("python/ecl_file/view"):

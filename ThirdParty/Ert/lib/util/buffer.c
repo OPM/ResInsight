@@ -816,6 +816,59 @@ void buffer_fwrite_string(buffer_type * buffer , const char * string) {
   buffer_fwrite(buffer , string , 1 , strlen( string ) + 1);   /* Writing the string content ** WITH ** the terminating \0 */
 }
 
+/*
+  This is function mainly created for debugging. It will write
+  elements from the buffer according to the fmt string where:
+
+    'c' : char
+    'i' : int
+    't' : time_t
+    'd' : double
+
+  Will write elements from the beginning of the buffer until either
+  the buffer or the fmt string is exhausted.
+*/
+
+#define buffer_fprintf_scalar(T,format) {               \
+   T value;                                             \
+   memcpy(&value, &buffer->data[offset], sizeof value); \
+   offset += sizeof value;                              \
+                                                        \
+   fprintf(stream, format, value);                      \
+}                                                       \
+
+
+void buffer_fprintf(const buffer_type * buffer, const char * fmt, FILE * stream) {
+  int index=0;
+  size_t offset = 0;
+  while (true) {
+    char fmt_char = fmt[index];
+    switch (fmt_char) {
+    case('d'):
+      buffer_fprintf_scalar( double, "%g ");
+      break;
+    case('i'):
+      buffer_fprintf_scalar( int, "%d ");
+      break;
+    case('c'):
+      buffer_fprintf_scalar( char, "%c ");
+      break;
+    case('t'):
+      buffer_fprintf_scalar( time_t, "%ld ");
+      break;
+    default:
+      util_abort("%s: format character: %c not recognized \n",__func__, fmt_char );
+    }
+
+    index++;
+    if (index == strlen(fmt))
+      break;
+
+    if (offset >= buffer->content_size)
+      break;
+  }
+}
+
 #ifdef ERT_HAVE_ZLIB
 #include <zlib.h>
 

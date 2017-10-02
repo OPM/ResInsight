@@ -91,7 +91,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   void             ecl_sum_free_data(ecl_sum_type * );
   void             ecl_sum_free__(void * );
   void             ecl_sum_free(ecl_sum_type * );
-  ecl_sum_type   * ecl_sum_fread_alloc(const char * , const stringlist_type * data_files, const char * key_join_string);
+  ecl_sum_type   * ecl_sum_fread_alloc(const char * , const stringlist_type * data_files, const char * key_join_string, bool include_restart);
   ecl_sum_type   * ecl_sum_fread_alloc_case(const char *  , const char * key_join_string);
   ecl_sum_type   * ecl_sum_fread_alloc_case__(const char *  , const char * key_join_string , bool include_restart);
   bool             ecl_sum_case_exists( const char * input_file );
@@ -156,7 +156,10 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   double ecl_sum_iget_general_var(const ecl_sum_type * ecl_sum , int internal_index , const char * lookup_kw);
 
 
-  void                 ecl_sum_init_data_vector( const ecl_sum_type * ecl_sum , double_vector_type * data_vector , int data_index , bool report_only );
+  void                 ecl_sum_init_data_vector(const ecl_sum_type * ecl_sum ,
+                                                double_vector_type * data_vector ,
+                                                int data_index ,
+                                                bool report_only );
   double_vector_type * ecl_sum_alloc_data_vector( const ecl_sum_type * ecl_sum  , int data_index , bool report_only);
   time_t_vector_type * ecl_sum_alloc_time_vector( const ecl_sum_type * ecl_sum  , bool report_only);
   time_t       ecl_sum_get_data_start( const ecl_sum_type * ecl_sum );
@@ -170,8 +173,14 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   const char * ecl_sum_get_case(const ecl_sum_type * );
   bool         ecl_sum_same_case( const ecl_sum_type * ecl_sum , const char * input_file );
 
-  void ecl_sum_resample_from_sim_days( const ecl_sum_type * ecl_sum , const double_vector_type * sim_days , double_vector_type * value , const char * gen_key);
-  void ecl_sum_resample_from_sim_time( const ecl_sum_type * ecl_sum , const time_t_vector_type * sim_time , double_vector_type * value , const char * gen_key);
+  void ecl_sum_resample_from_sim_days(const ecl_sum_type * ecl_sum ,
+                                      const double_vector_type * sim_days ,
+                                      double_vector_type * value ,
+                                      const char * gen_key);
+  void ecl_sum_resample_from_sim_time(const ecl_sum_type * ecl_sum ,
+                                      const time_t_vector_type * sim_time ,
+                                      double_vector_type * value ,
+                                      const char * gen_key);
   time_t ecl_sum_time_from_days( const ecl_sum_type * ecl_sum , double sim_days );
   double ecl_sum_days_from_time( const ecl_sum_type * ecl_sum , time_t sim_time );
   double                ecl_sum_get_sim_length( const ecl_sum_type * ecl_sum ) ;
@@ -192,14 +201,40 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   int                   ecl_sum_iget_report_end( const ecl_sum_type * ecl_sum , int report_step );
   int                   ecl_sum_iget_report_start( const ecl_sum_type * ecl_sum , int report_step );
 
-  ecl_sum_type * ecl_sum_alloc_restart_writer( const char * ecl_case , const char * restart_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz);
-  ecl_sum_type        * ecl_sum_alloc_writer( const char * ecl_case , bool fmt_output , bool unified , const char * key_join_string , time_t sim_start , bool time_in_days , int nx , int ny , int nz);
+  ecl_sum_type * ecl_sum_alloc_restart_writer(const char * ecl_case ,
+                                              const char * restart_case ,
+                                              bool fmt_output ,
+                                              bool unified ,
+                                              const char * key_join_string ,
+                                              time_t sim_start ,
+                                              bool time_in_days ,
+                                              int nx ,
+                                              int ny ,
+                                              int nz);
+  ecl_sum_type        * ecl_sum_alloc_writer(const char * ecl_case ,
+                                             bool fmt_output ,
+                                             bool unified ,
+                                             const char * key_join_string ,
+                                             time_t sim_start ,
+                                             bool time_in_days ,
+                                             int nx , int ny , int nz);
   void                  ecl_sum_set_case( ecl_sum_type * ecl_sum , const char * ecl_case);
   void                  ecl_sum_fwrite( const ecl_sum_type * ecl_sum );
   void                  ecl_sum_fwrite_smspec( const ecl_sum_type * ecl_sum );
-  smspec_node_type    * ecl_sum_add_var( ecl_sum_type * ecl_sum , const char * keyword , const char * wgname , int num , const char * unit , float default_value);
-  smspec_node_type    * ecl_sum_add_blank_var( ecl_sum_type * ecl_sum , float default_value);
-  void                  ecl_sum_init_var( ecl_sum_type * ecl_sum , smspec_node_type * smspec_node , const char * keyword , const char * wgname , int num , const char * unit);
+  smspec_node_type    * ecl_sum_add_var(ecl_sum_type * ecl_sum ,
+                                        const char * keyword ,
+                                        const char * wgname ,
+                                        int num ,
+                                        const char * unit ,
+                                        float default_value);
+  smspec_node_type    * ecl_sum_add_blank_var(ecl_sum_type * ecl_sum ,
+                                              float default_value);
+  void                  ecl_sum_init_var(ecl_sum_type * ecl_sum ,
+                                         smspec_node_type * smspec_node ,
+                                         const char * keyword ,
+                                         const char * wgname ,
+                                         int num ,
+                                         const char * unit);
   ecl_sum_tstep_type  * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_seconds);
   void                  ecl_sum_update_wgname( ecl_sum_type * ecl_sum , smspec_node_type * node , const char * wgname );
 
@@ -207,7 +242,11 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   char                * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keyword , const char * wgname);
   bool                  ecl_sum_report_step_equal( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
   bool                  ecl_sum_report_step_compatible( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
-  void                  ecl_sum_export_csv(const ecl_sum_type * ecl_sum , const char * filename  , const stringlist_type * var_list , const char * date_format , const char * sep);
+  void                  ecl_sum_export_csv(const ecl_sum_type * ecl_sum ,
+                                           const char * filename  ,
+                                           const stringlist_type * var_list ,
+                                           const char * date_format ,
+                                           const char * sep);
 
 
   double_vector_type * ecl_sum_alloc_seconds_solution( const ecl_sum_type * ecl_sum , const char * gen_key , double cmp_value , bool rates_clamp_lower);

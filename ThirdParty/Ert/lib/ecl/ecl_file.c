@@ -527,10 +527,8 @@ static bool ecl_file_scan( ecl_file_type * ecl_file ) {
       {
         offset_type current_offset = fortio_ftell( ecl_file->fortio );
         ecl_read_status_enum read_status = ecl_kw_fread_header( work_kw , ecl_file->fortio);
-        if (read_status == ECL_KW_READ_FAIL) {
-          printf("Skipping on read:%s \n", ecl_kw_get_header( work_kw ));
+        if (read_status == ECL_KW_READ_FAIL)
           break;
-        }
 
         if (read_status == ECL_KW_READ_OK) {
           ecl_file_kw_type * file_kw = ecl_file_kw_alloc( work_kw , current_offset);

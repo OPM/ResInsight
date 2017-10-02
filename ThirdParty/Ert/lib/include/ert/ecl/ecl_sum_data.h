@@ -66,7 +66,7 @@ typedef struct ecl_sum_data_struct ecl_sum_data_type ;
 
   double                   ecl_sum_data_iget_sim_days( const ecl_sum_data_type *  , int );
   time_t                   ecl_sum_data_iget_sim_time( const ecl_sum_data_type *  , int );
-
+  void                     ecl_sum_data_get_interp_vector( const ecl_sum_data_type * data , time_t sim_time, const ecl_sum_vector_type * keylist, double_vector_type * results);
 
   bool                     ecl_sum_data_has_report_step(const ecl_sum_data_type *  , int );
 

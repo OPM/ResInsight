@@ -790,6 +790,25 @@ int stringlist_append_matching_elements(stringlist_type * target , const stringl
   return stringlist_append_matching_elements( target , src , pattern );
 }
 
+bool stringlist_unique(const stringlist_type * stringlist )
+{
+  bool unique = true;
+  stringlist_type * cpy = stringlist_alloc_shallow_copy(stringlist);
+
+  stringlist_sort(cpy, strcmp);
+  for (int i = 0; i < stringlist_get_size(cpy) - 1; i++) {
+    const char* s1 = stringlist_iget(cpy, i);
+    const char* s2 = stringlist_iget(cpy, i+1);
+    if (strcmp(s1,s2) == 0) {
+      unique = false;
+      break;
+    }
+  }
+  stringlist_free(cpy);
+  return unique;
+}
+
+
 #ifdef __cplusplus
 }
 #endif

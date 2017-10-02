@@ -438,13 +438,14 @@ static void well_state_add_global_connections( well_state_type * well_state ,
   well_state_add_connections__( well_state , rst_view , ECL_GRID_GLOBAL_GRID , 0 , well_nr );
 }
 
-static void well_state_add_LGR_connections( well_state_type * well_state , const ecl_grid_type * grid , ecl_file_view_type * file_view , int global_well_nr ) {
+static void well_state_add_LGR_connections(well_state_type * well_state,
+                                           const ecl_grid_type * grid,
+                                           ecl_file_view_type * file_view) {
   // Go through all the LGRs and add connections; both in the bulk
   // grid and as wellhead.
 
   int num_lgr = ecl_grid_get_num_lgr( grid );
-  int lgr_index;
-  for (lgr_index = 0; lgr_index < num_lgr; lgr_index++) {
+  for (int lgr_index = 0; lgr_index < num_lgr; lgr_index++) {
     ecl_file_view_type * lgr_view = ecl_file_view_add_blockview(file_view , LGR_KW , lgr_index);
     const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_index );
     int well_nr = well_state_get_lgr_well_nr( well_state , lgr_view );
@@ -471,7 +472,7 @@ void well_state_add_connections2( well_state_type * well_state ,
                                  int well_nr) {
 
   well_state_add_global_connections( well_state , rst_view , well_nr );
-  well_state_add_LGR_connections( well_state , grid , rst_view , well_nr );
+  well_state_add_LGR_connections( well_state , grid , rst_view);
 
 }
 
@@ -669,10 +670,6 @@ const char * well_state_get_name( const well_state_type * well_state ) {
 
 /*****************************************************************/
 
-void well_state_summarize( const well_state_type * well_state , FILE * stream ) {
-}
-
-
 const well_conn_collection_type * well_state_get_grid_connections( const well_state_type * well_state , const char * grid_name) {
   if (hash_has_key( well_state->connections , grid_name))
     return hash_get( well_state->connections , grid_name);
@@ -707,4 +704,3 @@ well_segment_collection_type * well_state_get_segments( const well_state_type * 
 well_branch_collection_type * well_state_get_branches( const well_state_type * well_state ) {
   return well_state->branches;
 }
-

@@ -36,11 +36,20 @@ class EclSumKeyWordVector(BaseCClass):
     _add            = EclPrototype("bool ecl_sum_vector_add_key(ecl_sum_vector,  char*)")
     _add_multiple   = EclPrototype("void ecl_sum_vector_add_keys(ecl_sum_vector,  char*)")
     _get_size       = EclPrototype("int ecl_sum_vector_get_size(ecl_sum_vector)")
-
+    _iget_key       = EclPrototype("char* ecl_sum_vector_iget_key(ecl_sum_vector, int)")
 
     def __init__(self, ecl_sum):
         c_pointer = self._alloc(ecl_sum)
         super(EclSumKeyWordVector, self).__init__(c_pointer)
+
+    def __getitem__(self, index):
+        if index < 0:
+            index += len(self)
+
+        if index >= len(self):
+            raise IndexError("Out of range")
+
+        return self._iget_key( index )
 
     def __len__(self):
         return self._get_size()

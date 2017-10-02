@@ -1,19 +1,19 @@
 
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
-#  The file 'matrix.py' is part of ERT - Ensemble based Reservoir Tool. 
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
+#  The file 'matrix.py' is part of ERT - Ensemble based Reservoir Tool.
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+#  for more details.
 
 
 # The Matrix class implemented here wraps the C matrix implementation
@@ -53,10 +53,12 @@ class Matrix(BaseCClass):
     _fprint            = UtilPrototype("void matrix_fprintf(matrix, char*, FILE)")
     _random_init       = UtilPrototype("void matrix_random_init(matrix, rng)")
     _dump_csv          = UtilPrototype("void matrix_dump_csv(matrix, char*)")
-    
-    # Requires BLAS!
-    _alloc_matmul      = UtilPrototype("matrix_obj  matrix_alloc_matmul(matrix, matrix)" , bind = False)
 
+    # Requires BLAS. If the library does not have the
+    # matrix_alloc_matmul() function the prototype will have _func =
+    # None, and NotImplementedError( ) will be raised int the
+    # __call__() method if we try to use this function.
+    _alloc_matmul      = UtilPrototype("matrix_obj  matrix_alloc_matmul(matrix, matrix)" , bind = False, allow_attribute_error = True)
 
     # Requires BLAS!
     @classmethod
@@ -67,9 +69,9 @@ class Matrix(BaseCClass):
         if m1.columns( ) == m2.rows( ):
             return cls._alloc_matmul( m1, m2)
         else:
-            raise ValueError("Matrix size mismathc")
-        
-    
+            raise ValueError("Matrix size mismatch")
+
+
     def __init__(self, rows, columns, value=0):
         c_ptr = self._matrix_alloc(rows, columns)
         super(Matrix, self).__init__(c_ptr)
@@ -100,7 +102,7 @@ class Matrix(BaseCClass):
 
         return self._sub_copy( row_offset , column_offset , rows , columns)
 
-    
+
     def __str__(self):
         s = ""
         for i in range(self.rows()):
@@ -145,7 +147,7 @@ class Matrix(BaseCClass):
             return self
         else:
             return self._alloc_transpose( )
-    
+
 
     def columns(self):
         """ @rtype: int """
@@ -183,7 +185,7 @@ class Matrix(BaseCClass):
 
     def dumpCSV(self , filename):
         self._dump_csv( filename )
-        
+
 
     def prettyPrint(self, name, fmt="%6.3g"):
         self._pretty_print(name, fmt)
@@ -201,22 +203,25 @@ class Matrix(BaseCClass):
                   [6 7 8]
 
         The code:
-    
+
         with open("matrix.txt" , "w") as f:
            m.fprintf( f )
 
          The file 'matrix.txt' will look like:
 
-         0 1 2 
+         0 1 2
          3 4 5
          6 7 8
 
         """
         self._fprint( fmt , CFILE( fileH))
 
-        
+
     def randomInit(self, rng):
         self._random_init(rng)
 
     def free(self):
         self._free()
+
+
+

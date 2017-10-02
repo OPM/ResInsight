@@ -21,11 +21,18 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <ert/util/stringlist.h>
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
 #include <ert/util/rng.h>
 #include <ert/util/test_work_area.h>
 #include <ert/util/thread_pool.h>
+
+
+static const char * stdout_msg = "stdout_xxx";
+static const char * stderr_msg = "stderr_123";
+
+
 
 void make_script(const char * name , const char * stdout_msg, const char * stderr_msg) {
   FILE * stream = util_fopen(name , "w");
@@ -37,17 +44,29 @@ void make_script(const char * name , const char * stdout_msg, const char * stder
   fprintf(stream,"sys.stderr.flush()\n");
   fclose( stream );
 
-  util_addmode_if_owner( name , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
-
-  usleep(100000); // Seems to be required to ensure that the script is actually found on disk. NFS?
+  // Check that the file is actually there (may take a while before it appears on some file systems)
+  for(int attempt = 0; attempt < 10; ++attempt) {
+    if(util_file_exists(name))
+      break;
+    usleep(1 * 1e6);
+  }
 }
 
+/// Check that the given script exists and is executable
+bool check_script(const char* script) {
+   if( ! util_file_exists(script) )
+      return false;
+   mode_t mode = util_getmode( script );
+   return (mode & S_IXUSR) && (mode & S_IXGRP) && (mode & S_IXOTH);
+}
 
 void test_spawn_no_redirect() {
   test_work_area_type * test_area = test_work_area_alloc("spawn1");
   {
     int status;
-    make_script("script" , "stdout" , "stderr");
+    make_script("script" , stdout_msg , stderr_msg);
+    util_addmode_if_owner( "script" , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
+    test_assert_true(check_script("script"));
 
     /* Blocking */
     status = util_spawn_blocking("script" , 0 , NULL , NULL , NULL);
@@ -65,9 +84,6 @@ void test_spawn_no_redirect() {
 
 
 void * test_spawn_redirect__( void * path ) {
-  const char * stdout_msg = "stdout_xxx";
-  const char * stderr_msg = "stderr_123";
-
   char * stdout_file;
   char * stderr_file;
   char * script;
@@ -81,8 +97,6 @@ void * test_spawn_redirect__( void * path ) {
     stderr_file = util_alloc_string_copy("stderr.txt");
     script = util_alloc_string_copy("script");
   }
-
-  make_script(script , stdout_msg , stderr_msg);
 
   /* Blocking */
   while (true) {
@@ -116,9 +130,9 @@ void * test_spawn_redirect__( void * path ) {
   test_assert_file_content( stdout_file , stdout_msg );
   test_assert_file_content( stderr_file , stderr_msg );
 
-  free( stdout_file );
-  free( stderr_file );
-  free( script );
+  util_free( stdout_file );
+  util_free( stderr_file );
+  util_free( script );
   return NULL;
 }
 
@@ -126,26 +140,63 @@ void * test_spawn_redirect__( void * path ) {
 void test_spawn_redirect() {
   test_work_area_type * test_area = test_work_area_alloc("spawn1");
   {
+    make_script("script" , stdout_msg , stderr_msg);
+    util_addmode_if_owner( "script" , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
+    test_assert_true(check_script("script"));
+
     test_spawn_redirect__( NULL );
   }
   test_work_area_free( test_area );
 }
 
- void test_spawn_redirect_threaded() {
+void test_spawn_redirect_threaded() {
    rng_type * rng = rng_alloc( MZRAN , INIT_DEFAULT );
    const int num = 128;
+
+   // Generate the scripts on disk first
    test_work_area_type * test_area = test_work_area_alloc("spawn1_threaded");
-   thread_pool_type * tp = thread_pool_alloc( 8 , true );
+   int * path_codes = (int *)util_calloc(num, sizeof *path_codes);
+   stringlist_type * script_fullpaths = stringlist_alloc_new();
    for (int i=0; i < num; i++) {
-     char * path = util_alloc_sprintf("%06d" , rng_get_int( rng , 1000000));
-     util_make_path( path );
-     thread_pool_add_job( tp , test_spawn_redirect__ , path );
+      path_codes[i] = rng_get_int( rng , 1000000);
+
+      char * path = util_alloc_sprintf("%06d" , path_codes[i]);
+      util_make_path( path );
+      char * script = util_alloc_filename( path , "script" , NULL);
+      make_script(script, stdout_msg, stderr_msg);
+      stringlist_append_owned_ref(script_fullpaths, script);
+      util_free(path);
+   }
+
+   // Set file access permissions
+   for(int i = 0; i < num; i++) {
+      char const * script = stringlist_iget(script_fullpaths, i);
+      util_addmode_if_owner( script , S_IRUSR + S_IWUSR + S_IXUSR + S_IRGRP + S_IWGRP + S_IXGRP + S_IROTH + S_IXOTH);  /* u:rwx  g:rwx  o:rx */
+   }
+
+   // Double check that the scripts are present and executable
+   for(int i = 0; i < num; i++) {
+      char const * script = stringlist_iget(script_fullpaths, i);
+      test_assert_true(check_script(script));
+   }
+
+   // Run the scripts in parallel
+   stringlist_type * script_paths = stringlist_alloc_new(); // free the paths after threads have completed
+   thread_pool_type * tp = thread_pool_alloc( 8 , true );
+   for(int i = 0; i < num; i++) {
+      char * path = util_alloc_sprintf("%06d" , path_codes[i]);
+      stringlist_append_owned_ref(script_paths, path);
+      thread_pool_add_job( tp , test_spawn_redirect__ , path );
    }
    thread_pool_join( tp );
    thread_pool_free( tp );
+   stringlist_free(script_paths);
+
+   stringlist_free(script_fullpaths);
+   util_free(path_codes);
    test_work_area_free( test_area );
    rng_free( rng );
- }
+}
 
 
 

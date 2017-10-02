@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2011  Statoil ASA, Norway. 
-    
-   The file 'stringlist.h' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2011  Statoil ASA, Norway.
+
+   The file 'stringlist.h' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 
 #ifndef ERT_STRINGLIST_H
@@ -40,18 +40,19 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   void              stringlist_deep_copy( stringlist_type * target , const stringlist_type * src);
   stringlist_type * stringlist_alloc_deep_copy_with_limits(const stringlist_type * src , int offset, int num_strings);
   stringlist_type * stringlist_alloc_deep_copy_with_offset(const stringlist_type * src , int offset);
-  stringlist_type * stringlist_alloc_deep_copy( const stringlist_type * src ); 
+  stringlist_type * stringlist_alloc_deep_copy( const stringlist_type * src );
 
   stringlist_type * stringlist_alloc_new(void);
   void              stringlist_free__(void * );
   void              stringlist_free(stringlist_type *);
   void              stringlist_clear(stringlist_type * );
-  
+
   void              stringlist_append_copy(stringlist_type * , const char *);
   void              stringlist_append_ref(stringlist_type * , const char *);
   void              stringlist_append_owned_ref(stringlist_type * , const char *);
-  
+
   const      char * stringlist_safe_iget( const stringlist_type * stringlist , int index);
+  bool              stringlist_unique(const stringlist_type * stringlist );
   bool              stringlist_iequal( const stringlist_type * stringlist , int index, const char * s );
   const      char * stringlist_iget(const stringlist_type * , int);
   int               stringlist_iget_as_int( const stringlist_type * stringlist , int index , bool * valid);
@@ -64,21 +65,21 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   const char * stringlist_back(const stringlist_type * stringlist);
 
 
-  
+
   void              stringlist_iset_copy(stringlist_type *, int index , const char *);
   void              stringlist_iset_ref(stringlist_type *, int index , const char *);
   void              stringlist_iset_owned_ref(stringlist_type *, int index , const char *);
-  
+
   void              stringlist_insert_copy(stringlist_type *, int index , const char *);
   void              stringlist_insert_ref(stringlist_type *, int index , const char *);
   void              stringlist_insert_owned_ref(stringlist_type *, int index , const char *);
-  
+
   void              stringlist_idel(stringlist_type * stringlist , int index);
-  
+
   int               stringlist_get_size(const stringlist_type * );
   void              stringlist_fprintf(const stringlist_type * , const char * , FILE *);
   void              stringlist_fprintf_fmt(const stringlist_type * stringlist, const stringlist_type * fmt_list , FILE * stream);
-  
+
 
   stringlist_type * stringlist_alloc_argv_copy(const char **      , int );
   stringlist_type * stringlist_alloc_argv_ref (const char **      , int );
@@ -87,12 +88,12 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   stringlist_type * stringlist_alloc_shallow_copy_with_offset(const stringlist_type * stringlist, int offset);
   stringlist_type * stringlist_alloc_shallow_copy_with_limits(const stringlist_type * stringlist, int offset , int num_strings);
   stringlist_type * stringlist_alloc_from_split( const char * input_string , const char * sep );
-  stringlist_type * stringlist_fread_alloc(FILE * ); 
-  
+  stringlist_type * stringlist_fread_alloc(FILE * );
+
   void              stringlist_append_stringlist_copy(stringlist_type *  , const stringlist_type * );
   void              stringlist_append_stringlist_ref(stringlist_type *   , const stringlist_type * );
   void              stringlist_insert_stringlist_copy(stringlist_type *  , const stringlist_type *, int);
-  
+
   bool              stringlist_equal(const stringlist_type *  , const stringlist_type *);
   bool              stringlist_contains(const stringlist_type *  , const char * );
   int_vector_type * stringlist_find(const stringlist_type *, const char *);
@@ -107,7 +108,7 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   void              stringlist_sort(stringlist_type * , string_cmp_ftype * string_cmp);
   void              stringlist_reverse( stringlist_type * s );
   void              stringlist_python_sort( stringlist_type * s , int cmp_flag);
-  
+
 #ifdef ERT_HAVE_GLOB
   int               stringlist_select_matching(stringlist_type * names , const char * pattern);
 #endif
@@ -119,4 +120,4 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
 #ifdef __cplusplus
 }
 #endif
-#endif 
+#endif

@@ -91,6 +91,7 @@ extern "C" {
   void               buffer_stream_fread( buffer_type * buffer , size_t byte_size , FILE * stream);
   buffer_type      * buffer_fread_alloc(const char * filename);
   void               buffer_fread_realloc(buffer_type * buffer , const char * filename);
+  void               buffer_fprintf(const buffer_type * buffer, const char * fmt, FILE * stream);
 
 #ifdef ERT_HAVE_ZLIB
   size_t             buffer_fwrite_compressed(buffer_type * buffer, const void * ptr , size_t byte_size);

@@ -1,19 +1,19 @@
 /*
-   Copyright (C) 2012  Statoil ASA, Norway. 
-    
-   The file 'ert_util_stringlist_test.c' is part of ERT - Ensemble based Reservoir Tool. 
-    
-   ERT is free software: you can redistribute it and/or modify 
-   it under the terms of the GNU General Public License as published by 
-   the Free Software Foundation, either version 3 of the License, or 
-   (at your option) any later version. 
-    
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-   FITNESS FOR A PARTICULAR PURPOSE.   
-    
-   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-   for more details. 
+   Copyright (C) 2012  Statoil ASA, Norway.
+
+   The file 'ert_util_stringlist_test.c' is part of ERT - Ensemble based Reservoir Tool.
+
+   ERT is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or
+   FITNESS FOR A PARTICULAR PURPOSE.
+
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+   for more details.
 */
 #include <stdlib.h>
 #include <stdbool.h>
@@ -102,7 +102,7 @@ void test_reverse() {
   const char *s0 = "AAA";
   const char *s1 = "BBB";
   const char *s2 = "CCC";
-  
+
   stringlist_type * s = stringlist_alloc_new();
   stringlist_append_ref( s , s0 );
   stringlist_append_ref( s , s1 );
@@ -129,7 +129,7 @@ void test_iget_as_int() {
     value = stringlist_iget_as_int( s , 0 , &valid);
     test_assert_int_equal( value , 1000);
     test_assert_true( valid );
-    
+
     value = stringlist_iget_as_int( s , 1 , &valid);
     test_assert_int_equal( value , -1);
     test_assert_false( valid );
@@ -268,7 +268,7 @@ void test_split() {
   test_assert_string_equal( "Hove" , stringlist_iget( s1  , 4 ));
   stringlist_free( s1 );
 
-  
+
   s1 = stringlist_alloc_from_split("StringWithNoSPlit" , " ");
   test_assert_int_equal( 1 , stringlist_get_size( s1 ));
   test_assert_string_equal( "StringWithNoSPlit" , stringlist_iget( s1 , 0 ));
@@ -314,7 +314,7 @@ void test_matching() {
   test_assert_string_equal( "ABC" , stringlist_iget( s2 , 1 ));
   test_assert_string_equal( "123" , stringlist_iget( s2 , 2 ));
   test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 3 ));
- 
+
 
   stringlist_append_matching_elements( s2 , s1 , "*");
   test_assert_int_equal( 8 , stringlist_get_size( s2 ));
@@ -327,7 +327,7 @@ void test_matching() {
   test_assert_string_equal( "ABC" , stringlist_iget( s2 , 5 ));
   test_assert_string_equal( "123" , stringlist_iget( s2 , 6 ));
   test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 7 ));
-  
+
   stringlist_select_matching_elements( s2 , s1 , "*B*");
   test_assert_int_equal( 2 , stringlist_get_size( s2 ));
   test_assert_string_equal( "ABC" , stringlist_iget( s2 , 0 ));
@@ -337,6 +337,22 @@ void test_matching() {
   stringlist_free( s1 );
 }
 
+
+
+void test_unique() {
+  stringlist_type * s = stringlist_alloc_new();
+
+  test_assert_true( stringlist_unique( s ));
+
+  stringlist_append_ref( s, "S1");
+  test_assert_true( stringlist_unique( s ));
+
+  stringlist_append_ref( s, "S2");
+  test_assert_true( stringlist_unique( s ));
+
+  stringlist_append_ref( s, "S2");
+  test_assert_false( stringlist_unique( s ));
+}
 
 int main( int argc , char ** argv) {
   test_empty();
@@ -348,5 +364,6 @@ int main( int argc , char ** argv) {
   test_iget_as_double();
   test_split();
   test_matching();
+  test_unique();
   exit(0);
 }
