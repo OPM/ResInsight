@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicSummaryCurveCreator* summaryCurveCreator)
+RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent)
     : QDialog(parent)
 {
     m_curveCreatorSplitterUi = new RicSummaryCurveCreatorSplitterUi(this);
@@ -40,9 +40,6 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicS
     QVBoxLayout* dummy = new QVBoxLayout(this);
     dummy->setContentsMargins(0, 0, 0, 0);
     dummy->addWidget(propertyWidget);
-
-    m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
-    m_curveCreatorSplitterUi->updateUi();
 
     setWindowTitle("ResInsight: Plot Editor");
     resize(1200, 800);
@@ -56,6 +53,15 @@ RicSummaryCurveCreatorDialog::RicSummaryCurveCreatorDialog(QWidget* parent, RicS
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorDialog::setCurveCreator(RicSummaryCurveCreator* summaryCurveCreator)
+{
+    m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
+    m_curveCreatorSplitterUi->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------

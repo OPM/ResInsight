@@ -28,8 +28,8 @@ RicSummaryCurveCreatorFactoryImpl* RicSummaryCurveCreatorFactoryImpl::ms_instanc
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorFactoryImpl::RicSummaryCurveCreatorFactoryImpl()
 {
-    m_curveCreator = new RicSummaryCurveCreator();
-    m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, m_curveCreator);
+    m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr);
+    m_curveCreator = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,8 +48,20 @@ RicSummaryCurveCreatorFactoryImpl::~RicSummaryCurveCreatorFactoryImpl()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator* RicSummaryCurveCreatorFactoryImpl::curveCreator()
 {
-    if (m_curveCreator == nullptr)
-        m_curveCreator = new RicSummaryCurveCreator();
+    if (m_curveCreator)
+    {
+        delete m_curveCreator;
+        m_curveCreator = nullptr;
+    }
+
+    // Recreate curve creator to make sure initialization is stable
+    m_curveCreator = new RicSummaryCurveCreator();
+
+    if (m_dialogWithSplitter)
+    {
+        m_dialogWithSplitter->setCurveCreator(m_curveCreator);
+    }
+
     return m_curveCreator;
 }
 
@@ -59,7 +71,8 @@ RicSummaryCurveCreator* RicSummaryCurveCreatorFactoryImpl::curveCreator()
 RicSummaryCurveCreatorDialog* RicSummaryCurveCreatorFactoryImpl::dialog()
 {
     if (m_dialogWithSplitter == nullptr)
-        m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr, curveCreator());
+        m_dialogWithSplitter = new RicSummaryCurveCreatorDialog(nullptr);
+
     return m_dialogWithSplitter;
 }
 
