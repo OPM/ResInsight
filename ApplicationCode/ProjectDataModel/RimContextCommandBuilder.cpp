@@ -52,6 +52,7 @@
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -310,6 +311,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
+        }
+        else if (dynamic_cast<RimSummaryCurveCollection*>(uiItem))
+        {
+            commandIds << "RicEditSummaryPlotFeature";
         }
         else if(dynamic_cast<RimSummaryCurveFilter*>(uiItem))
         {
