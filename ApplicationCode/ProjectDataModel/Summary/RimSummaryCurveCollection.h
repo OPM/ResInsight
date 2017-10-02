@@ -63,6 +63,9 @@ private:
     caf::PdmFieldHandle*                    objectToggleField();
     virtual void                            defineObjectEditorAttribute(QString uiConfigName, 
                                                                         caf::PdmUiEditorAttribute* attribute) override;
+    
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField,
+                                                             const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>      m_selectedSummaryCases;
