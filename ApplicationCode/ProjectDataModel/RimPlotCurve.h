@@ -79,9 +79,11 @@ public:
     cvf::Color3f                    color() const { return m_curveColor; }
     void                            setLineStyle(LineStyleEnum lineStyle);
     void                            setSymbol(PointSymbolEnum symbolStyle);
+    PointSymbolEnum                 symbol();
     void                            setSymbolSkipDinstance(float distance);
     void                            setLineThickness(int thickness);
     void                            resetAppearance();
+
     bool                            isCurveVisible() const;
     void                            setCurveVisiblity(bool visible);
 

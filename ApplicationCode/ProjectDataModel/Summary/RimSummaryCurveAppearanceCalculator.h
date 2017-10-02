@@ -31,7 +31,9 @@ class RifEclipseSummaryAddress;
 class RimSummaryCurveAppearanceCalculator
 {
 public:
-    explicit RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions, const std::set<std::string> allSummaryCaseNames, const std::set<std::string> allSummaryWellNames);
+    explicit RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions, 
+                                                 const std::set<std::string> allSummaryCaseNames, 
+                                                 const std::set<std::string> allSummaryWellNames);
     enum CurveAppearanceType
     {
         NONE,
@@ -42,25 +44,25 @@ public:
         LINE_THICKNESS
     };
 
-    void                          assignDimensions(CurveAppearanceType caseAppearance,
-                                                   CurveAppearanceType variAppearance,
-                                                   CurveAppearanceType wellAppearance,
-                                                   CurveAppearanceType gropAppearance,
-                                                   CurveAppearanceType regiAppearance);
-    void                          getDimensions(CurveAppearanceType* caseAppearance,
-                                                CurveAppearanceType* variAppearance,
-                                                CurveAppearanceType* wellAppearance,
-                                                CurveAppearanceType* gropAppearance,
-                                                CurveAppearanceType* regiAppearance) const;
+    void                           assignDimensions(CurveAppearanceType caseAppearance,
+                                                    CurveAppearanceType variAppearance,
+                                                    CurveAppearanceType wellAppearance,
+                                                    CurveAppearanceType gropAppearance,
+                                                    CurveAppearanceType regiAppearance);
+    void                           getDimensions(CurveAppearanceType* caseAppearance,
+                                                 CurveAppearanceType* variAppearance,
+                                                 CurveAppearanceType* wellAppearance,
+                                                 CurveAppearanceType* gropAppearance,
+                                                 CurveAppearanceType* regiAppearance) const;
 
-    void                          setupCurveLook(RimSummaryCurve* curve);
+    void                           setupCurveLook(RimSummaryCurve* curve);
 
-    static cvf::Color3f             cycledPaletteColor(int colorIndex);
-    static cvf::Color3f             cycledNoneRGBBrColor(int colorIndex);
-    static cvf::Color3f             cycledGreenColor(int colorIndex);
-    static cvf::Color3f             cycledBlueColor(int colorIndex);
-    static cvf::Color3f             cycledRedColor(int colorIndex);
-    static cvf::Color3f             cycledBrownColor(int colorIndex);
+    static cvf::Color3f            cycledPaletteColor(int colorIndex);
+    static cvf::Color3f            cycledNoneRGBBrColor(int colorIndex);
+    static cvf::Color3f            cycledGreenColor(int colorIndex);
+    static cvf::Color3f            cycledBlueColor(int colorIndex);
+    static cvf::Color3f            cycledRedColor(int colorIndex);
+    static cvf::Color3f            cycledBrownColor(int colorIndex);
 
 private:
     void                           setOneCurveAppearance(CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve);

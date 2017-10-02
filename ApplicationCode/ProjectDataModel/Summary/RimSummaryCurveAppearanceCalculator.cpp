@@ -338,6 +338,16 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook(RimSummaryCurve* curve)
     }
     
     curve->setColor(gradeColor(m_currentCurveBaseColor, m_currentCurveGradient));
+
+    if ( curve->summaryCase()->isObservedData() )
+    {
+        curve->setLineStyle(RimPlotCurve::STYLE_NONE);
+
+        if ( curve->symbol() == RimPlotCurve::SYMBOL_NONE )
+        {
+            curve->setSymbol(RimPlotCurve::SYMBOL_XCROSS);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -497,6 +497,14 @@ void RimPlotCurve::setSymbol(PointSymbolEnum symbolStyle)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimPlotCurve::PointSymbolEnum RimPlotCurve::symbol()
+{
+    return m_pointSymbol();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSymbolSkipDinstance(float distance)
 {
     m_symbolSkipPixelDistance = distance;
