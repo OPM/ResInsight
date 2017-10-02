@@ -32,6 +32,7 @@ class QBoxLayout;
 
 namespace caf {
     class PdmUiItem;
+    class PdmUiTreeView;
 }
 
 
@@ -85,4 +86,6 @@ private:
     QPointer<QVBoxLayout>       m_lowerLeftLayout;
 
     QPointer<QHBoxLayout>       m_bottomFieldLayout;
+
+    QPointer<caf::PdmUiTreeView> m_curveTreeView;
 };

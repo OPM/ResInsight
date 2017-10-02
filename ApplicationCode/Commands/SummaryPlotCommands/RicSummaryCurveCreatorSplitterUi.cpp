@@ -214,17 +214,17 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
         m_curvesPanel->setTitle("Curves");
         QVBoxLayout* curvesLayout = new QVBoxLayout(m_curvesPanel->contentFrame());
 
-        caf::PdmUiTreeView* curveTreeView = new caf::PdmUiTreeView(m_curvesPanel->contentFrame());
-        curvesLayout->addWidget(curveTreeView);
+        m_curveTreeView = new caf::PdmUiTreeView(m_curvesPanel->contentFrame());
+        curvesLayout->addWidget(m_curveTreeView);
+        
+        m_curveTreeView->treeView()->setHeaderHidden(true);
+    }
 
-        RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-        if (sumCurveCreator)
-        {
-            RimSummaryCurveCollection* sumColl = sumCurveCreator->previewPlot()->summaryCurveCollection();
-            curveTreeView->setPdmItem(sumColl);
-        }
-
-        curveTreeView->treeView()->setHeaderHidden(true);
+    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
+    if (sumCurveCreator)
+    {
+        RimSummaryCurveCollection* sumColl = sumCurveCreator->previewPlot()->summaryCurveCollection();
+        m_curveTreeView->setPdmItem(sumColl);
     }
 
     return m_curvesPanel;
