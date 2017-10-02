@@ -150,6 +150,15 @@ QString RigWellLogFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RigWellLogFile::date() const
+{
+    CVF_ASSERT(m_wellLogFile);
+    return QString::fromStdString(m_wellLogFile->GetDate());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QStringList RigWellLogFile::wellLogChannelNames() const
 {
     return m_wellLogChannelNames;

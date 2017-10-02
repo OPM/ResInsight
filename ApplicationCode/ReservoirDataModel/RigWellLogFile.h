@@ -46,6 +46,7 @@ public:
     bool open(const QString& fileName, QString* errorMessage);
 
     QString     wellName() const;
+    QString     date() const;
     QStringList wellLogChannelNames() const;
 
     std::vector<double> depthValues() const;

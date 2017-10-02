@@ -79,12 +79,12 @@ RiuWellRftPlot::RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent)
     //m_legendWidget = new RiuNightchartsWidget(this);
     //new RiuPlotObjectPicker(m_legendWidget, m_plotDefinition->plotLegend());
 
-    QStringList commandIds;
-    commandIds << "RicShowTotalAllocationDataFeature";
-    new RiuContextMenuLauncher(m_legendWidget, commandIds);
+    //QStringList commandIds;
+    //commandIds << "RicShowTotalAllocationDataFeature";
+    //new RiuContextMenuLauncher(m_legendWidget, commandIds);
 
-    rightColumnLayout->addWidget(m_legendWidget);
-    m_legendWidget->showPie(false);
+    //rightColumnLayout->addWidget(m_legendWidget);
+    //m_legendWidget->showPie(false);
 
     //QWidget* totalFlowAllocationWidget = m_plotDefinition->totalWellFlowPlot()->createViewWidget(this);
     //new RiuPlotObjectPicker(totalFlowAllocationWidget, m_plotDefinition->totalWellFlowPlot());
@@ -148,35 +148,35 @@ void RiuWellRftPlot::hideTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellRftPlot::showLegend(bool doShow)
-{
-    if (doShow)
-        m_legendWidget->show();
-    else
-        m_legendWidget->hide();
-}
+//void RiuWellRftPlot::showLegend(bool doShow)
+//{
+//    if (doShow)
+//        m_legendWidget->show();
+//    else
+//        m_legendWidget->hide();
+//}
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellRftPlot::addLegendItem(const QString& name, const cvf::Color3f& color, float value)
-{
-    QColor sliceColor(color.rByte(), color.gByte(), color.bByte());
-
-    m_legendWidget->addItem(name, sliceColor, value);
-    m_legendWidget->updateGeometry();
-    m_legendWidget->update();
-}
+//void RiuWellRftPlot::addLegendItem(const QString& name, const cvf::Color3f& color, float value)
+//{
+//    QColor sliceColor(color.rByte(), color.gByte(), color.bByte());
+//
+//    m_legendWidget->addItem(name, sliceColor, value);
+//    m_legendWidget->updateGeometry();
+//    m_legendWidget->update();
+//}
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellRftPlot::clearLegend()
-{
-    m_legendWidget->clear();
-}
+//void RiuWellRftPlot::clearLegend()
+//{
+//    m_legendWidget->clear();
+//}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -192,17 +192,17 @@ QSize RiuWellRftPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuWellRftPlot::contextMenuEvent(QContextMenuEvent* event)
 {
-    QMenu menu;
-    QStringList commandIds;
+    //QMenu menu;
+    //QStringList commandIds;
 
-    commandIds << "RicShowContributingWellsFromPlotFeature";
+    //commandIds << "RicShowContributingWellsFromPlotFeature";
 
-    RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
+    //RimContextCommandBuilder::appendCommandsToMenu(commandIds, &menu);
 
-    if (menu.actions().size() > 0)
-    {
-        menu.exec(event->globalPos());
-    }
+    //if (menu.actions().size() > 0)
+    //{
+    //    menu.exec(event->globalPos());
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------

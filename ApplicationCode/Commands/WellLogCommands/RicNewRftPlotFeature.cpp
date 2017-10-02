@@ -30,6 +30,7 @@
 #include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellRftPlot.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimRftPlotCollection.h"
@@ -74,26 +75,39 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         std::vector<caf::PdmUiItem*> selectedItems;
         caf::SelectionManager::instance()->selectedItems(selectedItems);
 
-        // Todo: support other classes as well
-        RimWellPath* simWellPath = dynamic_cast<RimWellPath*>(selectedItems.front());
+        QString wellName = "(unknown well name)";
+        RimWellPath* wellPath = nullptr;
+        RimEclipseWell* eclipseWell = nullptr;
+        if ((wellPath = dynamic_cast<RimWellPath*>(selectedItems.front())) != nullptr)
+        {
+            wellName = wellPath->name();
+        }
+        else if ((eclipseWell = dynamic_cast<RimEclipseWell*>(selectedItems.front())) != nullptr)
+        {
+            wellName = eclipseWell->name();
+        }
 
-        QString plotName = QString("RFT: %1").arg(simWellPath != nullptr ? simWellPath->name() : QString("(Unknown)"));
+        QString plotName = QString("RFT: %1").arg(wellName);
 
-        auto plot = new RimWellRftPlot();
-        plot->setCurrentWellName(simWellPath->name());
-        rftPlotColl->addPlot(plot);
+        auto rftPlot = new RimWellRftPlot();
+        rftPlot->setCurrentWellName(wellName);
 
-        plot->setDescription(plotName);
-        plot->loadDataAndUpdate();
+        auto plotTrack = new RimWellLogTrack();
+        rftPlot->wellLogPlot()->addTrack(plotTrack);
+        plotTrack->setDescription(QString("Track %1").arg(rftPlot->wellLogPlot()->trackCount()));
 
-        rftPlotColl->updateConnectedEditors();
+        rftPlotColl->addPlot(rftPlot);
+        rftPlot->setDescription(plotName);
 
         RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
-            mainPlotWindow->selectAsCurrentItem(plot);
-            mainPlotWindow->setExpanded(plot, true);
+            mainPlotWindow->selectAsCurrentItem(rftPlot);
+            mainPlotWindow->setExpanded(rftPlot, true);
         }
+
+        rftPlot->loadDataAndUpdate();
+        rftPlotColl->updateConnectedEditors();
     }
 }
 

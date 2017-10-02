@@ -89,7 +89,9 @@ protected:
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options, int level);
+    void                                            calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options);
+
     void                                            updateFromWell();
     void                                            updateWidgetTitleWindowTitle();
 

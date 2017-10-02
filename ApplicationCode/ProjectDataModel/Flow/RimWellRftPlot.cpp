@@ -101,7 +101,8 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.xmlCapability()->setIOReadable(false);
     m_selectedTimeSteps.xmlCapability()->setIOWritable(false);
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    //this->setAsPlotMdiWindow();
+
+    this->setAsPlotMdiWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,13 +207,16 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedSources)
     {
-        calculateValueOptionsForObservedData(options);
+        options.push_back(caf::PdmOptionItemInfo::createHeader("RFT Cases", true));
+        options.push_back(caf::PdmOptionItemInfo::createHeader("Grid Cases", true));
+
+        options.push_back(caf::PdmOptionItemInfo::createHeader("Observed Data", true));
+        calculateValueOptionsForObservedData(options, 1);
 
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
-        options.push_back(caf::PdmOptionItemInfo("TimeStep 1", "TimeStep 1"));
-        options.push_back(caf::PdmOptionItemInfo("TimeStep 2", "TimeStep 2"));
+        calculateValueOptionsForTimeSteps(options);
     }
 
     return options;
@@ -223,7 +227,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    //RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
+    RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
     //if (changedField == &m_userName ||
     //    changedField == &m_showPlotTitle)
@@ -317,7 +321,7 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options)
+void RimWellRftPlot::calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options, int level)
 {
     auto project = RiaApplication::instance()->project();
 
@@ -333,9 +337,43 @@ void RimWellRftPlot::calculateValueOptionsForObservedData(QList<caf::PdmOptionIt
             {
                 auto name = channel->name();
 
-                if (QString::compare(name, "GR") == 0)  // Test code
+                if (QString::compare(name, "PRESSURE") == 0)  // Todo: Move constant to config/defines
                 {
-                    options.push_back(caf::PdmOptionItemInfo(name, name));
+                    auto item = caf::PdmOptionItemInfo(name, name);
+                    if (level > 0)
+                    {
+                        item.setLevel(level);
+                    }
+                    options.push_back(item);
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options)
+{
+    auto project = RiaApplication::instance()->project();
+
+    for (RimOilField* oilField : project->oilFields)
+    {
+        auto wellPathColl = oilField->wellPathCollection();
+        for (const auto& wellPath : wellPathColl->wellPaths)
+        {
+            const auto& wellLogFile = wellPath->wellLogFile();
+            const auto& channels = wellLogFile->wellLogChannelNames();
+
+            for (const auto& channel : *channels)
+            {
+                auto name = channel->name();
+
+                if (QString::compare(name, "PRESSURE") == 0)  // Todo: Move constant to config/defines
+                {
+                    auto item = caf::PdmOptionItemInfo(wellLogFile->date(), name);
+                    options.push_back(item);
                 }
             }
         }

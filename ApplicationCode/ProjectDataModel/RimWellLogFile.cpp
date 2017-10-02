@@ -45,6 +45,11 @@ RimWellLogFile::RimWellLogFile()
     m_wellName.uiCapability()->setUiHidden(true);
     m_wellName.xmlCapability()->setIOWritable(false);
 
+    CAF_PDM_InitFieldNoDefault(&m_date, "Date", "", "", "", "");
+    m_date.uiCapability()->setUiReadOnly(true);
+    m_date.uiCapability()->setUiHidden(true);
+    m_date.xmlCapability()->setIOWritable(false);
+
     CAF_PDM_InitFieldNoDefault(&m_fileName, "FileName", "Filename",  "", "", "");
     m_fileName.uiCapability()->setUiReadOnly(true);
 
@@ -131,6 +136,7 @@ bool RimWellLogFile::readFile(QString* errorMessage)
     }
 
     m_wellName = m_wellLogDataFile->wellName();
+    m_date = m_wellLogDataFile->date();
 
     m_wellLogChannelNames.deleteAllChildObjects();
 
@@ -161,4 +167,12 @@ bool RimWellLogFile::readFile(QString* errorMessage)
 QString RimWellLogFile::wellName() const
 {
     return m_wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogFile::date() const
+{
+    return m_date;
 }

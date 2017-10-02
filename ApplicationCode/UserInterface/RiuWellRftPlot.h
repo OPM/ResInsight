@@ -48,14 +48,14 @@ public:
     RiuWellRftPlot(RimWellRftPlot* plotDefinition, QWidget* parent = NULL);
     virtual ~RiuWellRftPlot();
 
-    RimWellRftPlot*          ownerPlotDefinition();
+    RimWellRftPlot*                 ownerPlotDefinition();
     virtual RimViewWindow*          ownerViewWindow() const override;
 
     void                            showTitle(const QString& title);
     void                            hideTitle();
-    void                            showLegend(bool doShow);
-    void                            addLegendItem(const QString& name, const cvf::Color3f& color, float value);
-    void                            clearLegend();
+//    void                            showLegend(bool doShow);
+//    void                            addLegendItem(const QString& name, const cvf::Color3f& color, float value);
+//    void                            clearLegend();
 
 
 protected:
@@ -69,6 +69,5 @@ private:
 
 private:
     caf::PdmPointer<RimWellRftPlot> m_plotDefinition;
-    QPointer<RiuNightchartsWidget> m_legendWidget;
     QPointer<QLabel> m_titleLabel;
 };

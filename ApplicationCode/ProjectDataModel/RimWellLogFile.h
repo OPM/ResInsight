@@ -52,6 +52,7 @@ public:
     bool readFile(QString* errorMessage);
     
     QString wellName() const;
+    QString date() const;
     virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
 
     RigWellLogFile* wellLogFile() { return m_wellLogDataFile.p(); }
@@ -66,4 +67,5 @@ private:
     caf::PdmField<QString>      m_wellName;
     caf::PdmField<QString>      m_fileName;
     caf::PdmField<QString>      m_name;
+    caf::PdmField<QString>      m_date;
 };
