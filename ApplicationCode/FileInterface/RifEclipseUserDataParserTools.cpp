@@ -259,7 +259,7 @@ bool RifEclipseUserDataParserTools::keywordParser(std::string line, std::string&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::stringstream& streamData, std::string& line)
+std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::stringstream& streamData)
 {
     std::vector<ColumnInfo> table;
 
@@ -267,10 +267,13 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
     std::string dateFormat = "";
     std::string startDate  = "";
 
+    std::string line;
+    std::getline(streamData, line);
 
     while (isLineSkippable(line) || keywordParser(line, origin, dateFormat, startDate))
     {
         if (!streamData.good()) return table;
+        
         std::getline(streamData, line);
     }
 
@@ -312,9 +315,13 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
 
     std::vector< std::vector< std::string > > restOfHeader;
 
+    std::stringstream::pos_type posAtStartOfLine = streamData.tellg();
+
     bool header = true;
     while (header)
     {
+        posAtStartOfLine = streamData.tellg();
+
         std::getline(streamData, line);
 
         std::vector<std::string> words = splitLineAndRemoveComments(line);
@@ -344,6 +351,8 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
             }
         }
     }
+
+    streamData.seekg(posAtStartOfLine);
     
     for (size_t i = 0; i < columnCount; i++)
     {

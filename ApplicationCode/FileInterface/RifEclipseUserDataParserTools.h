@@ -54,7 +54,7 @@ public:
     static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
     static  RifEclipseSummaryAddress                    makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn);
     static bool                                         keywordParser(std::string line, std::string& origin, std::string& dateFormat, std::string& startDate);
-    static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data, std::string& line);
+    static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);
 };

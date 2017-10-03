@@ -52,17 +52,17 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
 {
     std::stringstream streamData;
     streamData.str(data.toStdString());
-    std::string line;
-    std::getline(streamData, line);
 
     do 
     {
-        std::vector<ColumnInfo> table = RifEclipseUserDataParserTools::columnInfoForTable(streamData, line);
+        std::vector<ColumnInfo> table = RifEclipseUserDataParserTools::columnInfoForTable(streamData);
         size_t columnCount = table.size();
         if (columnCount == 0) break;
+    
+        std::string line;
+        std::getline(streamData, line);
 
         std::vector<double> values;
-
         QString qLine;
         do
         {
