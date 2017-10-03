@@ -18,7 +18,7 @@
 
 #include "RifKeywordVectorUserData.h"
 
-#include "RiaDateTimeTools.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaLogging.h"
 
 #include "RifEclipseSummaryAddress.h"
@@ -106,26 +106,28 @@ bool RifKeywordVectorUserData::parse(const QString& data)
                         dateFormatString = "DD MM YYYY";
                     }
 
-                    startDate = QDateTime::fromString(startDateString, dateFormatString);
-                }
-
-                QString unitText = valueForKey(keyValuePairs, "UNITS");
-                quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(unitText.toStdString());
-
-                if (startDate.isValid())
-                {
-                    for (const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values)
-                    {
-                        QDateTime dateTime = startDate.addSecs(scaleFactor * timeStepValue);
-
-                        ts.push_back(dateTime.toTime_t());
-                    }
+                    startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
                 }
                 else
                 {
+                    startDate = RiaQDateTimeTools::epoch();
+                }
+
+                QString unitText = valueForKey(keyValuePairs, "UNITS");
+                if (unitText == "DAY" || unitText == "DAYS")
+                {
                     for (const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values)
                     {
-                        ts.push_back(scaleFactor * timeStepValue);
+                        QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
+                        ts.push_back(dateTime.toTime_t());
+                    }
+                }
+                else if (unitText == "YEAR" || unitText == "YEARS")
+                {
+                    for (const auto& timeStepValue : m_parser->keywordBasedVectors()[i].values)
+                    {
+                        QDateTime dateTime = RiaQDateTimeTools::fromYears(timeStepValue);
+                        ts.push_back(dateTime.toTime_t());
                     }
                 }
             }

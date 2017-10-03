@@ -69,7 +69,7 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
             qLine = QString::fromStdString(line);
             QStringList entries = qLine.split(" ", QString::SkipEmptyParts);
 
-            if (entries.size() < columnCount) break;
+            if (entries.size() < static_cast<int>(columnCount)) break;
 
             for (size_t i = 0; i < columnCount; i++)
             {

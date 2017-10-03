@@ -18,7 +18,7 @@
 
 #include "RifColumnBasedUserData.h"
 
-#include "RiaDateTimeTools.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaLogging.h"
 
 #include "RifColumnBasedUserDataParser.h"
@@ -93,16 +93,15 @@ bool RifColumnBasedUserData::parse(const QString& data)
             {
                 QString dateFormatString = "ddMMyyyy";
 
-                startDate = QDateTime::fromString(startDateString, dateFormatString);
+                startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
             }
             else
             {
-                startDate.setDate(QDate(1970, 1, 1));
+                startDate = RiaQDateTimeTools::epoch();
             }
 
             m_timeSteps.resize(m_timeSteps.size() + 1);
 
-            quint64 scaleFactor = RiaDateTimeTools::secondsFromUnit(ci.unitName);
             std::vector<time_t>& timeSteps = m_timeSteps.back();
 
             QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
@@ -111,8 +110,7 @@ bool RifColumnBasedUserData::parse(const QString& data)
             {
                 for (const auto& timeStepValue : ci.values)
                 {
-                    QDateTime dateTime = startDate.addDays((int)timeStepValue);
-                    dateTime.setTimeSpec(Qt::UTC);
+                    QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
                     timeSteps.push_back(dateTime.toTime_t());
                 }
             }
@@ -120,8 +118,7 @@ bool RifColumnBasedUserData::parse(const QString& data)
             {
                 for (const auto& timeStepValue : ci.values)
                 {
-                    QDateTime dateTime = startDate.addYears((int)timeStepValue);
-                    dateTime.setTimeSpec(Qt::UTC);
+                    QDateTime dateTime = RiaQDateTimeTools::addYears(startDate, timeStepValue);
                     timeSteps.push_back(dateTime.toTime_t());
                 }
             }

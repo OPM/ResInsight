@@ -22,21 +22,23 @@
 
 #include <string>
 
+class QDateTime;
+
 //==================================================================================================
 // 
 //==================================================================================================
-class RiaDateTimeTools
+class RiaQDateTimeTools
 {
 public:
-    static quint64  secondsInMinute()        { return 60;                   }
-    static quint64  secondsInHour()          { return 60 * 60;              }
-    static quint64  secondsInDay()           { return 60 * 60 * 24;         }
-    static quint64  secondsInYear()          { return 60 * 60 * 24 * 365;   }
+    static QDateTime fromString(const QString& dateString, const QString& format);
+    static QDateTime fromYears(double years);
+    
+    static QDateTime addDays(const QDateTime& dt, double days);
+    static QDateTime addYears(const QDateTime& dt, double years);
 
-    static quint64  secondsFromUnit(const std::string& unit);
-
-    static time_t   createFromSecondsSinceEpoch(quint64 secondsSinceEpoch);
+    static QDateTime epoch();
 
 private:
+    static quint64  secondsInDay();
+    static quint64  secondsInYear();
 };
-
