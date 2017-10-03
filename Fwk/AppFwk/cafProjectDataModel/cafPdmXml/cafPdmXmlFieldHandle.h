@@ -30,6 +30,8 @@ public:
 
     bool            isIOReadable() const                { return m_isIOReadable; }
     bool            isIOWritable() const                { return m_isIOWritable; }
+    
+    void            disableIO();
     void            setIOWritable(bool isWritable)      { m_isIOWritable = isWritable; }
     void            setIOReadable(bool isReadable)      { m_isIOReadable = isReadable; }
 
