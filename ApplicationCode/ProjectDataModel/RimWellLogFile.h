@@ -59,6 +59,8 @@ public:
 
     const caf::PdmChildArrayField<RimWellLogFileChannel*>* wellLogChannelNames() const { return &m_wellLogChannelNames; }
 
+    std::vector<RimWellLogFileChannel*>  wellLogChannels() const;
+
 private:
     caf::PdmChildArrayField<RimWellLogFileChannel*>  m_wellLogChannelNames;
 

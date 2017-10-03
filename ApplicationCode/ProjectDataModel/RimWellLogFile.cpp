@@ -176,3 +176,16 @@ QString RimWellLogFile::date() const
 {
     return m_date;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
+{
+    std::vector<RimWellLogFileChannel*> channels;
+    for (const auto& channel : m_wellLogChannelNames)
+    {
+        channels.push_back(channel);
+    }
+    return channels;
+}

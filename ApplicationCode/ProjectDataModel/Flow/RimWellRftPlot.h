@@ -40,8 +40,7 @@ class RimWellLogTrack;
 class RimTofAccumulatedPhaseFractionsPlot;
 class RigSingleWellResultsData;
 class RimWellLogFileChannel;
-class RimWellLogFile;
-//class RimWellRftAddress;
+class RimWellPath;
 
 namespace cvf {
     class Color3f;
@@ -97,7 +96,7 @@ protected:
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options, int level);
+    void                                            calculateValueOptionsForObservedData(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 
     void                                            updateFromWell();
     void                                            updateWidgetTitleWindowTitle();
@@ -105,8 +104,12 @@ private:
     void                                            loadDataAndUpdatePlot();
 
     static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
-    std::vector<RimWellLogFile*>                    getWellLogFilesWithPressure() const;
-    std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellLogFile(const RimWellLogFile* wellLogFile) const;
+    std::vector<RimWellPath*>                       getWellPathsWithPressure(const QString& wellName) const;
+    std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
+    
+    RimWellPath*                                    wellPath(const QString& wellName, const QDateTime& date) const;
+
+    std::vector < std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
 
     // RimViewWindow overrides
 
@@ -122,7 +125,7 @@ private:
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<std::vector<RimWellRftAddress>>   m_selectedSources;
     
-    caf::PdmField<std::vector<QString>>             m_selectedTimeSteps;
+    caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 
     QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 

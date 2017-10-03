@@ -18,8 +18,9 @@
 
 #pragma once
 
+#include <string>
 #include <QString>
-#include <QDate>
+#include <QDateTime>
 
 //==================================================================================================
 //
@@ -29,7 +30,7 @@
 class RiaDateStringParser
 {
 public:
-    static QDate parseDateString(const std::string& dateString);
+    static QDateTime parseDateString(const QString& dateString);
 
 private:
     static bool tryParseYearFirst(const std::string& s, int& year, int& month, int& day);

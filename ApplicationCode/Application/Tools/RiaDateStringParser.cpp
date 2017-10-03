@@ -19,7 +19,6 @@
 #include "RiaDateStringParser.h"
 
 #include <algorithm>
-#include <vector>
 
 const std::string MONTH_NAMES[] =
 {
@@ -40,14 +39,15 @@ const std::string MONTH_NAMES[] =
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDate RiaDateStringParser::parseDateString(const std::string& dateString)
+QDateTime RiaDateStringParser::parseDateString(const QString& dateString)
 {
     int year, month, day;
+    std::string s = dateString.toStdString();
     bool parsedOk = 
-        tryParseYearFirst(dateString, year, month, day) ||
-        tryParseDayFirst(dateString, year, month, day);
+        tryParseYearFirst(s, year, month, day) ||
+        tryParseDayFirst(s, year, month, day);
 
-    return parsedOk ? QDate(year, month, day) : QDate();
+    return parsedOk ? QDateTime(QDate(year, month, day)) : QDateTime();
 }
 
 //--------------------------------------------------------------------------------------------------
