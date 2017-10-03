@@ -18,6 +18,7 @@
 
 #include "RiaDateStringParser.h"
 
+#include <algorithm>
 #include <vector>
 
 const std::string MONTH_NAMES[] =
