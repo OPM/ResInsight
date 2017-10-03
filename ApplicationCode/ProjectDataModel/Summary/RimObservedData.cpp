@@ -34,13 +34,14 @@ RimObservedData::RimObservedData()
 {
     m_isObservedData = true;
 
-    CAF_PDM_InitFieldNoDefault(&m_summaryCategory, "SummaryType", "Summary Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_identifierName, "IdentifierName", "Identifier Name", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data", "", "", "");
     m_importedSummaryData.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
     m_importedSummaryData.uiCapability()->setUiReadOnly(true);
     m_importedSummaryData.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_useCustomIdentifier, "UseCustomIdentifier", "Use Custom Identifier", "", "", "");
+    CAF_PDM_InitField(&m_summaryCategory, "SummaryType", caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>(RifEclipseSummaryAddress::SUMMARY_WELL), "Summary Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_identifierName, "IdentifierName", "Identifier Name", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,4 +96,68 @@ void RimObservedData::updateMetaData()
     }
     
     m_importedSummaryData = QString::fromStdString(metaDataString);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimObservedData::customWellName() const
+{
+    if (m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddress::SUMMARY_WELL)
+    {
+        return m_identifierName();
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimObservedData::customWellGroupName() const
+{
+    if (m_useCustomIdentifier() && m_summaryCategory() == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP)
+    {
+        return m_identifierName();
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimObservedData::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    if (fieldNeedingOptions == &m_summaryCategory)
+    {
+        QList<caf::PdmOptionItemInfo> options;
+
+        using AddressAppEnum = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>;
+        options.push_back(caf::PdmOptionItemInfo(AddressAppEnum::uiText(RifEclipseSummaryAddress::SUMMARY_WELL), RifEclipseSummaryAddress::SUMMARY_WELL));
+        options.push_back(caf::PdmOptionItemInfo(AddressAppEnum::uiText(RifEclipseSummaryAddress::SUMMARY_WELL_GROUP), RifEclipseSummaryAddress::SUMMARY_WELL_GROUP));
+
+        return options;
+    }
+       
+    return RimSummaryCase::calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedData::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &m_useCustomIdentifier ||
+        changedField == &m_summaryCategory ||
+        changedField == &m_identifierName)
+    {
+        createSummaryReaderInterface();
+            
+        updateMetaData();
+
+        return;
+    }
+
+    RimSummaryCase::fieldChangedByUi(changedField, oldValue, newValue);
 }

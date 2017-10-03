@@ -42,7 +42,7 @@ public:
     RifKeywordVectorUserData();
     ~RifKeywordVectorUserData();
 
-    bool                                parse(const QString& data);
+    bool                                parse(const QString& data, const QString& customWellName);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 
@@ -61,7 +61,6 @@ private:
 
     std::vector< std::vector<time_t> >          m_timeSteps;
     
-    std::map<QString, size_t>                   m_mapFromOriginToTimeStepIndex;
     std::map<RifEclipseSummaryAddress, size_t>  m_mapFromAddressToVectorIndex;
     std::map<RifEclipseSummaryAddress, size_t>  m_mapFromAddressToTimeIndex;
 };

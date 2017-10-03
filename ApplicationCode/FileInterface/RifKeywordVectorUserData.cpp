@@ -53,7 +53,7 @@ RifKeywordVectorUserData::~RifKeywordVectorUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifKeywordVectorUserData::parse(const QString& data)
+bool RifKeywordVectorUserData::parse(const QString& data, const QString& customWellName)
 {
     m_allResultAddresses.clear();
     m_timeSteps.clear();
@@ -86,6 +86,9 @@ bool RifKeywordVectorUserData::parse(const QString& data)
     }
 
     // Find all time vectors
+
+    std::map<QString, size_t> mapFromOriginToTimeStepIndex;
+
 
     for (size_t i = 0; i < keyValuePairVector.size(); i++)
     {
@@ -136,7 +139,7 @@ bool RifKeywordVectorUserData::parse(const QString& data)
 
             QString originText = valueForKey(keyValuePairs, "ORIGIN");
 
-            m_mapFromOriginToTimeStepIndex[originText] = m_timeSteps.size() - 1;
+            mapFromOriginToTimeStepIndex[originText] = m_timeSteps.size() - 1;
         }
     }
 
@@ -151,17 +154,23 @@ bool RifKeywordVectorUserData::parse(const QString& data)
             if (isVectorHeader(keyValuePairs))
             {
                 QString originText = valueForKey(keyValuePairs, "ORIGIN");
-                auto timeStepIndexIterator = m_mapFromOriginToTimeStepIndex.find(originText);
-                if (timeStepIndexIterator != m_mapFromOriginToTimeStepIndex.end())
+                auto timeStepIndexIterator = mapFromOriginToTimeStepIndex.find(originText);
+                if (timeStepIndexIterator != mapFromOriginToTimeStepIndex.end())
                 {
                     QString vectorText = valueForKey(keyValuePairs, "VECTOR");
+
+                    QString wellName = originText;
+                    if (customWellName.size() > 0)
+                    {
+                        wellName = customWellName;
+                    }
 
                     RifEclipseSummaryAddress addr(RifEclipseSummaryAddress::SUMMARY_WELL,
                                                   vectorText.toStdString(),
                                                   -1,
                                                   -1,
                                                   "",
-                                                  originText.toStdString(),
+                                                  wellName.toStdString(),
                                                   -1,
                                                   "",
                                                   -1,

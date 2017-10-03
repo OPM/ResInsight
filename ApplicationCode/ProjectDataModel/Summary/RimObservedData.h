@@ -44,9 +44,18 @@ public:
 
     void                    updateMetaData();
 
+protected:
+    QString                 customWellName() const;
+    QString                 customWellGroupName() const;
+
+private:
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory> >  m_summaryCategory;
     caf::PdmField<QString>                                                      m_identifierName;
+    caf::PdmField<bool>                                                         m_useCustomIdentifier;
 
     caf::PdmField<QString>                                                      m_importedSummaryData;
 };

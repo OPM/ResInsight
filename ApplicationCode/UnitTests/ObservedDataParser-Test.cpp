@@ -644,7 +644,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
 
     RifColumnBasedUserData columnBasedUserdata;
 
-    columnBasedUserdata.parse(data);
+    columnBasedUserdata.parse(data, "", "");
     std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps(address);
 
     QDateTime startDate = QDateTime::fromString("01012004", "ddMMyyyy");

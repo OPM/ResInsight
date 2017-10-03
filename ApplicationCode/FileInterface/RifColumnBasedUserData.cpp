@@ -49,7 +49,7 @@ RifColumnBasedUserData::~RifColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifColumnBasedUserData::parse(const QString& data)
+bool RifColumnBasedUserData::parse(const QString& data, const QString& customWellName, const QString& customWellGroupName)
 {
     m_allResultAddresses.clear();
     m_timeSteps.clear();
@@ -129,6 +129,17 @@ bool RifColumnBasedUserData::parse(const QString& data)
                 if (ci.isAVector)
                 {
                     RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
+
+                    if (customWellName.size() > 0)
+                    {
+                        sumAddress.setWellName(customWellName.toStdString());
+                    }
+
+                    if (customWellGroupName.size() > 0)
+                    {
+                        sumAddress.setWellGroupName(customWellGroupName.toStdString());
+                    }
+
                     m_allResultAddresses.push_back(sumAddress);
 
                     m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;

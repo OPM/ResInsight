@@ -74,7 +74,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
         if (RifKeywordVectorParser::canBeParsed(fileContents))
         {
             RifKeywordVectorUserData* keywordVectorUserData = new RifKeywordVectorUserData();
-            if (keywordVectorUserData->parse(fileContents))
+            if (keywordVectorUserData->parse(fileContents, customWellName()))
             {
                 m_summeryReader = keywordVectorUserData;
             }
@@ -82,7 +82,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
         else
         {
             RifColumnBasedUserData* columnBaseUserData = new RifColumnBasedUserData();
-            if (!columnBaseUserData->parse(fileContents))
+            if (!columnBaseUserData->parse(fileContents, customWellName(), customWellGroupName()))
             {
                 columnBaseUserData = nullptr;
             }

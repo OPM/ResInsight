@@ -52,6 +52,7 @@ public:
     bool                isObservedData();
 
 protected:
+    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     void                updateTreeItemName();
 
     caf::PdmField<QString>          m_shortName;
@@ -60,7 +61,5 @@ protected:
     bool                            m_isObservedData;
 
 private:
-    // Overridden PDM methods
-    virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void        initAfterRead() override;
 };
