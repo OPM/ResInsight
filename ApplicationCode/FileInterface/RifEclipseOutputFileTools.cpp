@@ -122,7 +122,10 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
 {
     if (!ecl_file) return;
 
-    CVF_ASSERT(timeSteps);
+    CVF_ASSERT(timeSteps && daysSinceSimulationStart);
+
+    timeSteps->clear();
+    daysSinceSimulationStart->clear();
 
     // Get the number of occurrences of the INTEHEAD keyword
     int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
@@ -145,6 +148,8 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         }
     }
 
+    std::set<QDateTime> existingTimesteps;
+
     for (int i = 0; i < numINTEHEAD; i++)
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
@@ -162,8 +167,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         double milliseconds = dayFraction * 24.0 * 60.0 * 60.0 * 1000.0;
 
         reportDateTime = reportDateTime.addMSecs(milliseconds);
-
-        if (std::find(timeSteps->begin(), timeSteps->end(), reportDateTime) == timeSteps->end())
+        if (existingTimesteps.insert(reportDateTime).second)
         {
             timeSteps->push_back(reportDateTime);
             daysSinceSimulationStart->push_back(dayValue);
