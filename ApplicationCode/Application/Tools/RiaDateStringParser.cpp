@@ -107,10 +107,10 @@ bool RiaDateStringParser::tryParseDayFirst(const std::string& s, int& year, int&
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseYear(const std::string& s, int &year)
 {
-    auto today = QDate::currentDate();
     if (containsAlphabetic(s)) return false;
     try
     {
+        auto today = QDate::currentDate();
         int y = std::stoi(s);
         if (y > 1970 && y <= today.year())
         {
