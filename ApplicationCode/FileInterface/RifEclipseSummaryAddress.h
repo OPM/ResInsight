@@ -83,8 +83,7 @@ public:
                              const std::string& lgrName,
                              int                cellI,
                              int                cellJ,
-                             int                cellK,
-                             size_t             timeSeriesIndex = 0): 
+                             int                cellK): 
         m_variableCategory(category),
         m_quantityName(quantityName),
         m_regionNumber(regionNumber),
@@ -95,8 +94,7 @@ public:
         m_lgrName(lgrName),
         m_cellI(cellI),
         m_cellJ(cellJ),
-        m_cellK(cellK),
-        m_timeSeriesIndex(timeSeriesIndex)
+        m_cellK(cellK)
     {
     }
 
@@ -122,7 +120,6 @@ public:
     int                 cellI() const               { return m_cellI; }
     int                 cellJ() const               { return m_cellJ; }
     int                 cellK() const               { return m_cellK; }
-    size_t              timeSeriesIndex() const     { return m_timeSeriesIndex; }
 
     // Derived properties
 
@@ -151,7 +148,6 @@ private:
     int                 m_cellI;
     int                 m_cellJ;
     int                 m_cellK;
-    size_t              m_timeSeriesIndex;
 };
 
 bool operator==(const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second);
