@@ -18,7 +18,10 @@
 
 #include "RimObservedData.h"
 
+#include "RifSummaryReaderInterface.h"
 #include "RimTools.h"
+
+#include "cafPdmUiTextEditor.h"
 
 #include <QFileInfo>
 
@@ -33,6 +36,11 @@ RimObservedData::RimObservedData()
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCategory, "SummaryType", "Summary Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_identifierName, "IdentifierName", "Identifier Name", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data", "", "", "");
+    m_importedSummaryData.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_importedSummaryData.uiCapability()->setUiReadOnly(true);
+    m_importedSummaryData.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,3 +77,22 @@ RifEclipseSummaryAddress::SummaryVarCategory RimObservedData::summaryCategory() 
     return m_summaryCategory();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimObservedData::updateMetaData()
+{
+    std::string metaDataString;
+
+    RifSummaryReaderInterface* readerInterface = summaryReader();
+    if (readerInterface)
+    {
+        for (const auto& a : readerInterface->allResultAddresses())
+        {
+            metaDataString += a.uiText();
+            metaDataString += "\n";
+        }
+    }
+    
+    m_importedSummaryData = QString::fromStdString(metaDataString);
+}

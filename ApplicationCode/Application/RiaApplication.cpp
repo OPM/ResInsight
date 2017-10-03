@@ -34,25 +34,26 @@
 #include "RigGridManager.h"
 #include "RigEclipseCaseData.h"
 
+
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimFaultCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
-
-#include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
+#include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -63,7 +64,6 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "cafQTreeViewStateSerializer.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellAllocationPlot.h"
@@ -492,6 +492,12 @@ bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadActi
         for (auto observedCases : oilField->observedDataCollection()->allObservedData())
         {
             observedCases->createSummaryReaderInterface();
+
+            RimObservedData* rimObservedData = dynamic_cast<RimObservedData*>(observedCases);
+            if (rimObservedData)
+            {
+                rimObservedData->updateMetaData();
+            }
         }
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
