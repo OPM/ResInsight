@@ -290,7 +290,7 @@ QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& 
         }
     }
 
-    QString formatString = "dd.MMM yyyy";
+    QString formatString = dateFormatString();
     if (hasHoursAndMinutesInTimesteps)
     {
         formatString += " - hh:mm";
@@ -305,4 +305,12 @@ QString RimTools::createTimeFormatStringFromDates(const std::vector<QDateTime>& 
     }
 
     return formatString;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimTools::dateFormatString()
+{
+    return "dd.MMM yyyy";
 }

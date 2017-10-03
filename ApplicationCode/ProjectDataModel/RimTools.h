@@ -45,4 +45,6 @@ public:
     static void caseOptionItems(QList<caf::PdmOptionItemInfo>* options);
 
     static QString createTimeFormatStringFromDates(const std::vector<QDateTime>& dates);
+
+    static QString dateFormatString();
 };
