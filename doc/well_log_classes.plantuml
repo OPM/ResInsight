@@ -9,8 +9,9 @@ RimViewWindow <|-- RimSummaryPlot
 PdmObject <|-- RimWellLogTrack
 
 RimViewWindow <|-- RimWellAllocationPlot
+RimViewWindow <|-- RimWellRftPlot
 RimWellAllocationPlot *--> RimWellLogPlot
-
+RimWellRftPlot *--> RimWellLogPlot
 }
 package curve {
 
@@ -20,6 +21,7 @@ RimPlotCurve <|-- RimSummaryCurve
 RimWellLogCurve <|-- RimWellFlowRateCurve
 RimWellLogCurve <|-- RimWellLogExtractionCurve
 RimWellLogCurve <|-- RimWellLogFileCurve
+RimWellLogCurve *--> RigWellLogCurveData
 }
 }
 
@@ -52,6 +54,8 @@ RiuWellLogTrack --[hidden]> RiuLineSegmentQwtPlotCurve
 
 class RiuWellAllocationPlot{
 }
+class RiuWellRftPlot{
+}
 }
 
 class RiuWellLogPlot {
@@ -72,6 +76,8 @@ RimWellLogTrack -r-> RiuWellLogTrack
 RimPlotCurve -r-> RiuLineSegmentQwtPlotCurve
 RimSummaryPlot -r-> RiuSummaryQwtPlot
 RimWellAllocationPlot *-> RiuWellAllocationPlot
+RimWellRftPlot *-> RiuWellRftPlot
 RiuWellAllocationPlot ....> RiuWellLogPlot
+RiuWellRftPlot ....> RiuWellLogPlot
 
 @enduml
