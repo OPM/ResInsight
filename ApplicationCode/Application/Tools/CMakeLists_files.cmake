@@ -7,6 +7,7 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RiaArgumentParser.h
+${CEE_CURRENT_LIST_DIR}RiaDateStringParser.h
 ${CEE_CURRENT_LIST_DIR}RiaColorTables.h
 ${CEE_CURRENT_LIST_DIR}RiaEclipseUnitTools.h
 ${CEE_CURRENT_LIST_DIR}RiaImageCompareReporter.h
@@ -20,6 +21,7 @@ ${CEE_CURRENT_LIST_DIR}RiaDateTimeTools.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RiaArgumentParser.cpp
+${CEE_CURRENT_LIST_DIR}RiaDateStringParser.cpp
 ${CEE_CURRENT_LIST_DIR}RiaColorTables.cpp
 ${CEE_CURRENT_LIST_DIR}RiaEclipseUnitTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaImageCompareReporter.cpp
