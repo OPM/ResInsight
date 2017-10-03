@@ -47,6 +47,9 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
+#include "RimRftPlotCollection.h"
+
+#include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
@@ -71,6 +74,8 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimRftPlotCollection.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -615,6 +620,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimWellLogPlotCollection* wlpColl = nullptr;
     RimSummaryPlotCollection* spColl = nullptr;
     RimFlowPlotCollection* flowColl = nullptr;
+    RimRftPlotCollection* rftColl = nullptr;
 
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
     {
@@ -628,11 +634,16 @@ void RiaApplication::loadAndUpdatePlotData()
     {
         flowColl = m_project->mainPlotCollection()->flowPlotCollection();
     }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->rftPlotCollection())
+    {
+        rftColl = m_project->mainPlotCollection()->rftPlotCollection();
+    }
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
     plotCount += spColl ? spColl->summaryPlots().size() : 0;
     plotCount += flowColl ? flowColl->plotCount() : 0;
+    plotCount += rftColl ? rftColl->rftPlots().size() : 0;
 
     caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
     if (wlpColl)
@@ -658,6 +669,15 @@ void RiaApplication::loadAndUpdatePlotData()
         plotProgress.setNextProgressIncrement(flowColl->plotCount());
         flowColl->loadDataAndUpdate();
         plotProgress.incrementProgress();
+    }
+
+    if (rftColl)
+    {
+        for (const auto& rftPlot : rftColl->rftPlots())
+        {
+            rftPlot->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
     }
 }
 

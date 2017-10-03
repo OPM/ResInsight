@@ -24,8 +24,11 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "RimWellRftAddress.h"
 
 #include <QPointer>
+#include <QDate>
+#include <QMetaType>
 
 class RimEclipseResultCase;
 class RimEclipseWell;
@@ -36,6 +39,9 @@ class RiuWellRftPlot;
 class RimWellLogTrack;
 class RimTofAccumulatedPhaseFractionsPlot;
 class RigSingleWellResultsData;
+class RimWellLogFileChannel;
+class RimWellLogFile;
+//class RimWellRftAddress;
 
 namespace cvf {
     class Color3f;
@@ -86,14 +92,21 @@ protected:
 
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                                  caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForObservedData(QList<caf::PdmOptionItemInfo>& options, int level);
-    void                                            calculateValueOptionsForTimeSteps(QList<caf::PdmOptionItemInfo>& options);
 
     void                                            updateFromWell();
     void                                            updateWidgetTitleWindowTitle();
+
+    void                                            loadDataAndUpdatePlot();
+
+    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
+    std::vector<RimWellLogFile*>                    getWellLogFilesWithPressure() const;
+    std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellLogFile(const RimWellLogFile* wellLogFile) const;
 
     // RimViewWindow overrides
 
@@ -107,7 +120,8 @@ private:
     caf::PdmField<QString>                          m_userName;
 
     caf::PdmField<QString>                          m_wellName;
-    caf::PdmField<std::vector<QString>>             m_selectedSources;
+    caf::PdmField<std::vector<RimWellRftAddress>>   m_selectedSources;
+    
     caf::PdmField<std::vector<QString>>             m_selectedTimeSteps;
 
     QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
