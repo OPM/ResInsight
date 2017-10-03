@@ -35,6 +35,7 @@
 #include "cafUtils.h"
 
 #include <QFileInfo>
+// #include "cvfTrace.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -144,10 +145,46 @@ bool RifEclipseUnifiedRestartFileAccess::useResultIndexFile() const
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseUnifiedRestartFileAccess::extractTimestepsFromEclipse()
+{
+    m_timeSteps.clear();
+    m_daysSinceSimulationStart.clear();
+    m_reportNr.clear();
+
+    if ( openFile() )
+    {
+        RifEclipseOutputFileTools::timeSteps(m_ecl_file, &m_timeSteps, &m_daysSinceSimulationStart);
+
+        // Taken from well_info_add_UNRST_wells
+
+        int num_blocks = ecl_file_get_num_named_kw(m_ecl_file, SEQNUM_KW);
+        int block_nr;
+        for (block_nr = 0; block_nr < num_blocks; block_nr++) {
+            ecl_file_push_block(m_ecl_file);      // <-------------------------------------------------------
+            {                                                                                               //
+                ecl_file_subselect_block(m_ecl_file, SEQNUM_KW, block_nr);                                  //  Ensure that the status
+                {                                                                                             //  is not changed as a side
+                    const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);          //  effect.
+                    int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                           //
+
+                    m_reportNr.push_back(report_nr);
+                }                                                                                             //
+            }                                                                                               //
+            ecl_file_pop_block(m_ecl_file);       // <-------------------------------------------------------
+        }
+
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Close file
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::close()
 {
+    m_timeSteps.clear();
+    m_daysSinceSimulationStart.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,16 +192,12 @@ void RifEclipseUnifiedRestartFileAccess::close()
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 {
-    if (!openFile())
+    if (m_timeSteps.size() == 0)
     {
-        return 0;
+        extractTimestepsFromEclipse();
     }
-    std::vector<QDateTime> timeSteps;
-    std::vector<double> daysSinceSimulationStart;
-
-    this->timeSteps(&timeSteps, &daysSinceSimulationStart);
-
-    return timeSteps.size();
+   
+    return m_timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,10 +205,13 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::timeSteps(std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart)
 {
-    if (openFile())
+    if ( m_timeSteps.size() == 0 )
     {
-        RifEclipseOutputFileTools::timeSteps(m_ecl_file, timeSteps, daysSinceSimulationStart);
+        extractTimestepsFromEclipse();
     }
+
+    *timeSteps = m_timeSteps;
+    *daysSinceSimulationStart = m_daysSinceSimulationStart;
 }
 
 
@@ -275,7 +311,9 @@ void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info,
 
     if (openFile())
     {
+       // cvf::Trace::show("well_info_add_UNRST_wells Start");
         well_info_add_UNRST_wells(well_info, m_ecl_file, importCompleteMswData);
+       // cvf::Trace::show("well_info_add_UNRST_wells End");
     }
 }
 
@@ -302,29 +340,11 @@ int RifEclipseUnifiedRestartFileAccess::readUnitsType()
 //--------------------------------------------------------------------------------------------------
 std::vector<int> RifEclipseUnifiedRestartFileAccess::reportNumbers()
 {
-    std::vector<int> reportNr;
-
-    if (openFile())
+    if (m_timeSteps.size() ==  0)
     {
-        // Taken from well_info_add_UNRST_wells
-
-        int num_blocks = ecl_file_get_num_named_kw(m_ecl_file, SEQNUM_KW);
-        int block_nr;
-        for (block_nr = 0; block_nr < num_blocks; block_nr++) {
-            ecl_file_push_block(m_ecl_file);      // <-------------------------------------------------------
-            {                                                                                               //
-                ecl_file_subselect_block(m_ecl_file, SEQNUM_KW, block_nr);                                  //  Ensure that the status
-                {                                                                                             //  is not changed as a side
-                    const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);          //  effect.
-                    int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                           //
-
-                    reportNr.push_back(report_nr);
-                }                                                                                             //
-            }                                                                                               //
-            ecl_file_pop_block(m_ecl_file);       // <-------------------------------------------------------
-        }
+        extractTimestepsFromEclipse();
     }
 
-    return reportNr;
+    return m_reportNr;
 }
 
