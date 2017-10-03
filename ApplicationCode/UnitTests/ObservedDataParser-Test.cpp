@@ -384,6 +384,57 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
+{
+    QString data;
+    QTextStream out(&data);
+
+    out << "1\n";
+    out << " -----------------------------------------\n";
+    out << " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 EC\n";
+    out << " -----------------------------------------\n";
+    out << " DATE         YEARS        WBHP           \n";
+    out << "              YEARS        BARSA          \n";
+    out << "                           B-1H           \n";
+    out << "                                          \n";
+    out << " -----------------------------------------\n";
+    out << "  6-NOV-1997         0           0        \n";
+    out << "  7-NOV-1997  0.002738           0        \n";
+    out << "  8-NOV-1997  0.006556           0        \n";
+    out << "  9-NOV-1997  0.009231           0        \n";
+    out << " 10-NOV-1997  0.011462           0        \n";
+    out << " 11-NOV-1997  0.013710           0        \n";
+    out << " 11-NOV-1997  0.015950           0        \n";
+    out << " 12-NOV-1997  0.018477           0        \n";
+    out << " 13-NOV-1997  0.020190           0        \n";
+    out << " 14-NOV-1997  0.021903           0        \n";
+    out << " 14-NOV-1997  0.024232           0        \n";
+    out << " 17-NOV-1997  0.030838           0        \n";
+    out << " 19-NOV-1997  0.037060           0        \n";
+    out << " 21-NOV-1997  0.042841           0        \n";
+    out << " 23-NOV-1997  0.049239           0        \n";
+    out << " 25-NOV-1997  0.054613           0        \n";
+    out << " 28-NOV-1997  0.061135           0        \n";
+    out << " 29-NOV-1997  0.064791           0        \n";
+    out << "  1-DEC-1997  0.068446           0        \n";
+    out << "  2-DEC-1997  0.073016           0        \n";
+    out << "  4-DEC-1997  0.078727           0        \n";
+    out << "  7-DEC-1997  0.085750           0        \n";
+    out << " 10-DEC-1997  0.093124           0        \n";
+    out << " 13-DEC-1997  0.101750           0        \n";
+    out << " 15-DEC-1997  0.107001           0        \n";
+    out << " 17-DEC-1997  0.112252           0        \n";
+    
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+
+    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    ASSERT_EQ(tables.size(), 1);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues)
 {
     QString data;

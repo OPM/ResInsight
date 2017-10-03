@@ -34,16 +34,25 @@
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isLineSkippable(const std::string& line)
 {
-    if (std::all_of(line.begin(), line.end(), isspace))
+    std::size_t found = line.find_first_not_of(" ");
+    if (found == std::string::npos)
     {
+        // Line with only spaces
+
         return true;
     }
-    else if (line.size() > 1 && line[0] == '-' && line[1] == '-')
+
+    if (line[found] == '-')
     {
+        // Comments start with -
+
         return true;
     }
-    else if (line.size() == 1 && line[0] == '1')
+    
+    if (line[0] == '1')
     {
+        // Single 1 at start of file
+
         return true;
     }
 
