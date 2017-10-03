@@ -195,6 +195,72 @@ std::string RifEclipseSummaryAddress::uiText(RifEclipseSummaryAddress::SummaryId
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isValid() const
+{
+    switch (category())
+    {
+    case SUMMARY_REGION:
+        if (m_regionNumber == -1) return false;
+        return true;
+
+    case SUMMARY_REGION_2_REGION:
+        if (m_regionNumber == -1) return false;
+        if (m_regionNumber2 == -1) return false;
+        return true;
+
+    case SUMMARY_WELL_GROUP:
+        if (m_wellGroupName.size() == 0) return false;
+        return true;
+
+    case SUMMARY_WELL:
+        if (m_wellName.size() == 0) return false;
+        return true;
+
+    case SUMMARY_WELL_COMPLETION:
+        if (m_wellName.size() == 0) return false;
+        if (m_cellI == -1) return false;
+        if (m_cellJ == -1) return false;
+        if (m_cellK == -1) return false;
+        return true;
+
+    case SUMMARY_WELL_LGR:
+        if (m_lgrName.size() == 0) return false;
+        if (m_wellName.size() == 0) return false;
+        return true;
+
+    case SUMMARY_WELL_COMPLETION_LGR:
+        if (m_lgrName.size() == 0) return false;
+        if (m_wellName.size() == 0) return false;
+        if (m_cellI == -1) return false;
+        if (m_cellJ == -1) return false;
+        if (m_cellK == -1) return false;
+        return true;
+
+    case SUMMARY_WELL_SEGMENT:
+        if (m_wellName.size() == 0) return false;
+        if (m_wellSegmentNumber == -1) return false;
+        return true;
+
+    case SUMMARY_BLOCK:
+        if (m_cellI == -1) return false;
+        if (m_cellJ == -1) return false;
+        if (m_cellK == -1) return false;
+        return true;
+
+    case SUMMARY_BLOCK_LGR:
+        if (m_lgrName.size() == 0) return false;
+        if (m_cellI == -1) return false;
+        if (m_cellJ == -1) return false;
+        if (m_cellK == -1) return false;
+        return true;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::formatUiTextIJK() const
 {
     return std::to_string(this->cellI()) + ", "
