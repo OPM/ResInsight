@@ -299,7 +299,8 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
     EXPECT_EQ("OP-2_TR", tables[1].at(0).origin);
     EXPECT_EQ("DD/MM/YY", tables[1].at(0).dateFormat);
 
-    EXPECT_EQ("", tables[0].at(7).unitName);
+    // Assume missing units at start of row
+    EXPECT_EQ("", tables[0].at(0).unitName);
 
     ASSERT_EQ(8, tables.at(0).size());
     EXPECT_EQ(1.0E-12, tables.at(0).at(4).values[0]);

@@ -90,7 +90,7 @@ bool RifEclipseUserDataParserTools::isAComment(const std::string& word)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveComments(std::string line)
+std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveComments(const std::string& line)
 {
     std::istringstream iss(line);
     std::vector<std::string> words{ std::istream_iterator<std::string>{iss},
@@ -232,7 +232,10 @@ RifEclipseSummaryAddress RifEclipseUserDataParserTools::makeAndFillAddress(std::
         cellK);
 }
 
-bool RifEclipseUserDataParserTools::keywordParser(std::string line, std::string& origin, std::string& dateFormat, std::string& startDate)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate)
 {
     std::vector<std::string> words = splitLineAndRemoveComments(line);
     if (words.size() < 2) return false;
@@ -278,21 +281,100 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
     }
 
     std::vector<std::string> quantityNames = splitLineAndRemoveComments(line);
-    std::getline(streamData, line);
-    std::vector<std::string> unitNames = splitLineAndRemoveComments(line);
-    std::getline(streamData, line);
-    std::vector<std::string> scaleFactors = splitLineAndRemoveComments(line);
-    
-    std::vector<RifEclipseSummaryAddress::SummaryVarCategory> categories;
     size_t columnCount = quantityNames.size();
 
-    if (unitNames.size() != columnCount)
+    std::vector< std::vector< std::string > > allHeaderRows;
+
     {
-        size_t diff = columnCount - unitNames.size();
-        unitNames.insert(unitNames.end(), diff, "");
+        std::stringstream::pos_type posAtStartOfLine = streamData.tellg();
+
+        std::string secondLine;
+        std::getline(streamData, line);
+    
+        std::stringstream::pos_type posAtStartOfSecondLine = streamData.tellg();
+        std::getline(streamData, secondLine);
+
+        bool header = true;
+        while (header)
+        {
+            std::vector<std::string> words = splitLineAndRemoveComments(line);
+            std::vector<std::string> wordsSecondLine = splitLineAndRemoveComments(secondLine);
+
+            if (words.size() == columnCount &&
+                wordsSecondLine.size() == columnCount &&
+                hasOnlyValidDoubleValues(words) &&
+                hasOnlyValidDoubleValues(wordsSecondLine))
+            {
+                header = false;
+                break;
+            }
+            else if (words.size() > columnCount)
+            {
+                continue;
+            }
+            else
+            {
+                size_t diff = columnCount - words.size();
+
+                if (diff == columnCount)
+                {
+                    std::vector< std::string > vectorOfEmptyStrings(columnCount, "");
+                    allHeaderRows.push_back(vectorOfEmptyStrings);
+                }
+                else
+                {
+                    words.insert(words.begin(), diff, "");
+                    allHeaderRows.push_back(words);
+                }
+            }
+
+            posAtStartOfLine = posAtStartOfSecondLine;
+            line = secondLine;
+
+            posAtStartOfSecondLine = streamData.tellg();
+            std::getline(streamData, secondLine);
+        }
+
+        streamData.seekg(posAtStartOfLine);
     }
 
-    for (std::string unit : unitNames)
+    std::vector<std::string> unitNames;
+    std::vector<double> scaleFactors;
+    std::vector< std::vector< std::string > > restOfHeaderRows;
+
+    for (const auto& wordsForRow : allHeaderRows)
+    {
+        bool excludeFromHeader = false;
+        if (unitNames.size() == 0)
+        {
+            for (const std::string& word : wordsForRow)
+            {
+                if (hasTimeUnit(word))
+                {
+                    unitNames = wordsForRow;
+                    excludeFromHeader = true;
+                }
+            }
+        }
+
+        if (scaleFactors.size() == 0)
+        {
+            std::vector<double> values;
+
+            if (hasOnlyValidDoubleValues(wordsForRow, &values))
+            {
+                scaleFactors = values;
+                excludeFromHeader = true;
+            }
+        }
+
+        if (!excludeFromHeader)
+        {
+            restOfHeaderRows.push_back(wordsForRow);
+        }
+    }
+
+    for (const std::string& unit : unitNames)
     {
         ColumnInfo columnInfo;
         columnInfo.unitName = unit;
@@ -302,62 +384,22 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
         table.push_back(columnInfo);
     }
 
-    if (scaleFactors.size() < columnCount)
-    {
-        size_t diff = columnCount - scaleFactors.size();
-        scaleFactors.insert(scaleFactors.end(), diff, "1");
-    }
-
     for (size_t i = 0; i < table.size(); i++)
     {
-        table[i].scaleFactor = scaleFactors[i];
-    }
-
-    std::vector< std::vector< std::string > > restOfHeader;
-
-    std::stringstream::pos_type posAtStartOfLine = streamData.tellg();
-
-    bool header = true;
-    while (header)
-    {
-        posAtStartOfLine = streamData.tellg();
-
-        std::getline(streamData, line);
-
-        std::vector<std::string> words = splitLineAndRemoveComments(line);
-
-        if (words.size() == columnCount)
+        if (scaleFactors.size() == table.size())
         {
-            header = false;
-            break;
-        }
-        else if (words.size() > columnCount)
-        {
-            continue;
+            table[i].scaleFactor = scaleFactors[i];
         }
         else
         {
-            size_t diff = columnCount - words.size();
-            
-            if (diff == columnCount)
-            {
-                std::vector< std::string > vectorOfEmptyStrings(columnCount, "");
-                restOfHeader.push_back(vectorOfEmptyStrings);
-            }
-            else
-            {
-                words.insert(words.begin(), diff, "");
-                restOfHeader.push_back(words);
-            }
+            table[i].scaleFactor = 1.0;
         }
     }
-
-    streamData.seekg(posAtStartOfLine);
     
-    for (size_t i = 0; i < columnCount; i++)
+    for (size_t i = 0; i < table.size(); i++)
     {
         std::vector< std::string > restOfHeaderColumn;
-        for (std::vector< std::string > restOfHeaderRow : restOfHeader)
+        for (std::vector< std::string > restOfHeaderRow : restOfHeaderRows)
         {
             restOfHeaderColumn.push_back(restOfHeaderRow.at(i));
         }
@@ -419,4 +461,44 @@ std::vector<std::string> RifEclipseUserDataParserTools::headerReader(std::string
         std::getline(streamData, line);
     }
     return header;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataParserTools::hasTimeUnit(const std::string& line)
+{
+    if (line == "DAYS" ||
+        line == "DAY" ||
+        line == "YEARS" ||
+        line == "YEAR")
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<std::string>& words, std::vector<double>* doubleValues)
+{
+    char* end;
+
+    for (const auto& word : words)
+    {
+        double doubleVal = strtod(word.data(), &end);
+        if (end == word.data())
+        {
+            return false;
+        }
+
+        if (doubleValues)
+        {
+            doubleValues->push_back(doubleVal);
+        }
+    }
+
+    return true;
 }
