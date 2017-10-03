@@ -24,7 +24,6 @@
 
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "cafQTreeViewStateSerializer.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
@@ -40,6 +39,7 @@
 #include "cafCmdFeatureManager.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiTreeView.h"
+#include "cafQTreeViewStateSerializer.h"
 
 #include <QCloseEvent>
 #include <QDockWidget>

@@ -33,7 +33,6 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
-#include "cafQTreeViewStateSerializer.h"
 #include "RimView.h"
 
 #include "RiuDragDrop.h"
@@ -55,6 +54,7 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiTreeView.h"
+#include "cafQTreeViewStateSerializer.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 

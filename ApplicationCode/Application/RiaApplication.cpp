@@ -109,6 +109,7 @@
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafPdmUiTreeView.h"
 #include "cafProgressInfo.h"
+#include "cafQTreeViewStateSerializer.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
