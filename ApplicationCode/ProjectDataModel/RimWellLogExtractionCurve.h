@@ -63,7 +63,10 @@ public:
     QString         caseName() const;
     double          rkbDiff() const;
 
-    int             currentTimeStep() const;
+    int currentTimeStep() const;
+    void setCurrentTimeStep(int timeStep);
+
+    void setEclipseResultDefinition(const RimEclipseResultDefinition* def);
 
 protected:
     virtual QString                                createCurveAutoName();

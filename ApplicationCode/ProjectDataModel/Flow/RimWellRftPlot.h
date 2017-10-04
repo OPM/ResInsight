@@ -58,6 +58,9 @@ namespace caf {
 class RimWellRftPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
+
+    static const char PRESSURE_DATA_NAME[];
+
 public:
     enum FlowType { ACCUMULATED, INFLOW};
 
@@ -83,33 +86,33 @@ protected:
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
-    //std::set<QString>                               findSortedWellNames();
-
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual QImage                                  snapshotWindowContent() override;
 
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
-                                                                  caf::PdmUiEditorAttribute* attribute) override;
 
 private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
-    void                                            calculateValueOptionsForObservedData(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 
     void                                            updateFromWell();
     void                                            updateWidgetTitleWindowTitle();
 
     void                                            loadDataAndUpdatePlot();
 
-    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
-    std::vector<RimWellPath*>                       getWellPathsWithPressure(const QString& wellName) const;
+    static bool                                     hasPressureData(RimWellLogFileChannel* channel);
+    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
+    std::vector<RimWellPath*>                       wellPathsContainingPressure(const QString& wellName) const;
     std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
     
-    RimWellPath*                                    wellPath(const QString& wellName, const QDateTime& date) const;
+    RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
 
-    std::vector < std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
+    std::vector<RimEclipseResultCase*>              gridCasesContainingPressure(const QString& wellName) const;
+    std::vector<QDateTime>                          timeStepsFromGridCase(RimEclipseResultCase* gridCase) const;
+
+    std::vector<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
 
     // RimViewWindow overrides
 
@@ -123,6 +126,7 @@ private:
     caf::PdmField<QString>                          m_userName;
 
     caf::PdmField<QString>                          m_wellName;
+    caf::PdmField<int>                              m_branchIndex;  // Temp field
     caf::PdmField<std::vector<RimWellRftAddress>>   m_selectedSources;
     
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;

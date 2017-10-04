@@ -56,25 +56,21 @@
 #include "RiaDateStringParser.h"
 #include "RimTools.h"
 #include "RimWellLogFileCurve.h"
+#include "RimEclipseCaseCollection.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
+#include "RigEclipseCaseData.h"
+#include "RigCaseCellResultsData.h"
+#include "RimWellLogExtractionCurve.h"
+#include "RiaColorTables.h"
+
 
 CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-
-//namespace caf
-//{
-//
-//template<>
-//void AppEnum<RimWellRftPlot::FlowType>::setUp()
-//{
-//    addItem(RimWellRftPlot::ACCUMULATED, "ACCUMULATED", "Accumulated");
-//    addItem(RimWellRftPlot::INFLOW, "INFLOW", "Inflow Rates");
-//    setDefault(RimWellRftPlot::ACCUMULATED);
-//
-//}
-//}
+const char RimWellRftPlot::PRESSURE_DATA_NAME[] = "PRESSURE";
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -93,6 +89,8 @@ RimWellRftPlot::RimWellRftPlot()
     m_wellLogPlot = new RimWellLogPlot();
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "WellName", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_branchIndex, "BranchIndex", "BranchIndex", "", "", "");
+    m_branchIndex = 0;
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "Sources", "Sources", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -165,19 +163,55 @@ void RimWellRftPlot::loadDataAndUpdatePlot()
 {
     auto track = m_wellLogPlot->trackByIndex(0);
     track->detachAllCurves();
-    
+
+    // Observed data
     for (const auto& selectedCurveDef : selectedCurveDefs())
     {
-        auto wPath = wellPath(m_wellName, selectedCurveDef.second);
-        if (wPath != nullptr)
+        if (selectedCurveDef.first.sourceType() == RftSourceType::RFT)
         {
-            auto wellLogFile = wPath->wellLogFile();
-            auto pressureChannels = getPressureChannelsFromWellPath(wPath);
-            auto curve = new RimWellLogFileCurve();
+
+        }
+        else if (selectedCurveDef.first.sourceType() == RftSourceType::GRID)
+        {
+            auto curve = new RimWellLogExtractionCurve();
             track->addCurve(curve);
-            curve->setWellPath(wPath);
-            curve->setWellLogChannelName(pressureChannels.front()->name());
-            curve->loadDataAndUpdate(true);
+
+            cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(track->curveCount());
+            curve->setColor(curveColor);
+            
+            curve->setFromSimulationWellName(m_wellName, m_branchIndex);
+
+            // Fetch cases and time steps
+            auto gridCase = gridCasesContainingPressure(m_wellName).front();                  // todo: fix
+            auto timeSteps = timeStepsFromGridCase(gridCase);
+
+            curve->setCase(gridCase);
+
+            // Result definition
+            RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition();
+            //resultDef->setEclipseCase(gridCase);
+            resultDef->setResultVariable(PRESSURE_DATA_NAME);
+            curve->setEclipseResultDefinition(resultDef);
+
+            // Time step index
+            auto currentTimeStepIt = std::find(timeSteps.begin(), timeSteps.end(), selectedCurveDef.second);
+            auto currentTimeStep = std::distance(timeSteps.begin(), currentTimeStepIt);
+            curve->setCurrentTimeStep(currentTimeStep);
+            curve->loadDataAndUpdate(false);
+        }
+        else if (selectedCurveDef.first.sourceType() == RftSourceType::OBSERVED)
+        {
+            auto wellPath = wellPathForObservedData(m_wellName, selectedCurveDef.second);
+            if (wellPath != nullptr)
+            {
+                auto wellLogFile = wellPath->wellLogFile();
+                auto pressureChannels = getPressureChannelsFromWellPath(wellPath);
+                auto curve = new RimWellLogFileCurve();
+                track->addCurve(curve);
+                curve->setWellPath(wellPath);
+                curve->setWellLogChannelName(pressureChannels.front()->name());
+                curve->loadDataAndUpdate(true);
+            }
         }
     }
 }
@@ -185,16 +219,27 @@ void RimWellRftPlot::loadDataAndUpdatePlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellRftPlot::isPressureChannel(RimWellLogFileChannel* channel)
+bool RimWellRftPlot::hasPressureData(RimWellLogFileChannel* channel)
 {
     // Todo: read pressure channel names from config/defines
-    return QString::compare(channel->name(), "PRESSURE") == 0;
+    return QString::compare(channel->name(), PRESSURE_DATA_NAME) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellRftPlot::getWellPathsWithPressure(const QString& wellName) const
+bool RimWellRftPlot::hasPressureData(RimEclipseResultCase* gridCase)
+{
+    auto eclipseCaseData = gridCase->eclipseCaseData();
+    size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
+        findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME);
+    return resultIndex != cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimWellRftPlot::wellPathsContainingPressure(const QString& wellName) const
 {
     std::vector<RimWellPath*> wellPaths;
     auto project = RiaApplication::instance()->project();
@@ -213,7 +258,7 @@ std::vector<RimWellPath*> RimWellRftPlot::getWellPathsWithPressure(const QString
             for (const auto& wellLogChannel : *wellLogChannels)
             {
                 // Todo: add more criterias
-                if (isPressureChannel(wellLogChannel))
+                if (hasPressureData(wellLogChannel))
                 {
                     hasPressure = true;
                     break;
@@ -237,7 +282,7 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
     for (const auto& channel : wellLogFile->wellLogChannels())
     {
         // Todo: add more criterias
-        if (isPressureChannel(channel))
+        if (hasPressureData(channel))
         {
             channels.push_back(channel);
         }
@@ -248,9 +293,9 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellPath* RimWellRftPlot::wellPath(const QString& wellName, const QDateTime& date) const
+RimWellPath* RimWellRftPlot::wellPathForObservedData(const QString& wellName, const QDateTime& date) const
 {
-    auto wellPaths = getWellPathsWithPressure(wellName);
+    auto wellPaths = wellPathsContainingPressure(wellName);
     for (const auto& wellPath : wellPaths)
     {
         auto wellLogFile = wellPath->wellLogFile();
@@ -267,9 +312,53 @@ RimWellPath* RimWellRftPlot::wellPath(const QString& wellName, const QDateTime& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseResultCase*> RimWellRftPlot::gridCasesContainingPressure(const QString& wellName) const
+{
+    std::vector<RimEclipseResultCase*> cases;
+    auto project = RiaApplication::instance()->project();
+
+    for (RimOilField* oilField : project->oilFields)
+    {
+        auto gridCaseColl = oilField->analysisModels();
+        for (RimEclipseCase* gCase : gridCaseColl->cases())
+        {
+            auto gridCase = dynamic_cast<RimEclipseResultCase*>(gCase);
+            if (gridCase != nullptr && hasPressureData(gridCase))
+            {
+                auto eclipseCaseData = gridCase->eclipseCaseData();
+                for (const auto& wellResult : eclipseCaseData->wellResults())
+                {
+                    if (QString::compare(wellResult->m_wellName, wellName) == 0)
+                    {
+                        cases.push_back(gridCase);
+                    }
+                }
+            }
+        }
+    }
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(RimEclipseResultCase* gridCase) const
+{
+    auto eclipseCaseData = gridCase->eclipseCaseData();
+    size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
+        findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME);
+    return eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurveDefs() const
 {
     std::vector<std::pair<RimWellRftAddress, QDateTime>> curveDefs;
+    // auto rftCases = 
+    auto gridCases = gridCasesContainingPressure(m_wellName);
+    auto wellPaths = wellPathsContainingPressure(m_wellName);
 
     for (const auto& selectedDate : m_selectedTimeSteps())
     {
@@ -281,11 +370,17 @@ std::vector < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedC
             }
             else if (rftAddr.sourceType() == RftSourceType::GRID)
             {
-
+                for (const auto& gridCase : gridCases)
+                {
+                    const auto& timeSteps = timeStepsFromGridCase(gridCase);
+                    if (std::find(timeSteps.begin(), timeSteps.end(), selectedDate) != timeSteps.end())
+                    {
+                        curveDefs.push_back(std::make_pair(rftAddr, selectedDate));
+                    }
+                }
             }
             else if (rftAddr.sourceType() == RftSourceType::OBSERVED)
             {
-                auto wellPaths = getWellPathsWithPressure(m_wellName);
                 for (const auto& wellPath : wellPaths)
                 {
                     auto wellLogFile = wellPath->wellLogFile();
@@ -355,32 +450,31 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     {
         options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::RFT), true));
 
-        options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::GRID), true));
+        // ...
 
-        options.push_back(caf::PdmOptionItemInfo("Dummy", "Dummy"));
+        options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::GRID), true));
+        auto gridCases = gridCasesContainingPressure(m_wellName);
+        for (const auto& gridCase : gridCases)
+        {
+            auto addr = RimWellRftAddress(RftSourceType::GRID, gridCase->caseId);
+            auto item = caf::PdmOptionItemInfo(gridCase->caseUserDescription(), QVariant::fromValue(addr));
+            item.setLevel(1);
+            options.push_back(item);
+        }
+
 
         options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::OBSERVED), true));
-        calculateValueOptionsForObservedData(m_wellName, options);
-
+        if (wellPathsContainingPressure(m_wellName).size() > 0)
+        {
+            auto addr = RimWellRftAddress(RftSourceType::OBSERVED);
+            auto item = caf::PdmOptionItemInfo(addr.uiText(), QVariant::fromValue(addr));
+            item.setLevel(1);
+            options.push_back(item);
+        }
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
     {
-        for (const auto& selection : m_selectedSources())
-        {
-            if (selection == RimWellRftAddress(RftSourceType::OBSERVED))
-            {
-                for (const auto& wellPath : getWellPathsWithPressure(m_wellName))
-                {
-                    auto wellLogFile = wellPath->wellLogFile();
-                    auto date = RiaDateStringParser::parseDateString(wellLogFile->date());
-                    if(date.isValid())
-                    {
-                        auto item = caf::PdmOptionItemInfo(date.toString(RimTools::dateFormatString()), date);
-                        options.push_back(item);
-                    }
-                }
-            }
-        }
+        calculateValueOptionsForTimeSteps(m_wellName, options);
     }
 
     return options;
@@ -426,6 +520,7 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellName);
+    uiOrdering.add(&m_branchIndex);
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", "Sources");
     sourcesGroup->add(&m_selectedSources);
@@ -439,38 +534,88 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options)
 {
+    std::set<QString> wellNames;
     auto project = RiaApplication::instance()->project();
 
     for (RimOilField* oilField : project->oilFields)
     {
+        // RFT/Grid wells
+        auto gridCaseColl = oilField->analysisModels();
+        for (RimEclipseCase* gCase : gridCaseColl->cases())
+        {
+            auto gridCase = dynamic_cast<RimEclipseResultCase*>(gCase);
+            if (gridCase != nullptr)
+            {
+                auto eclipseCaseData = gridCase->eclipseCaseData();
+                for (const auto& wellResult : eclipseCaseData->wellResults())
+                {
+                    wellNames.insert(wellResult->m_wellName);
+                }
+            }
+        }
+
+        // Observed wells
         auto wellPathColl = oilField->wellPathCollection();
         for (const auto& wellPath : wellPathColl->wellPaths)
         {
-            options.push_back(caf::PdmOptionItemInfo(wellPath->name(), wellPath->name()));
+            wellNames.insert(wellPath->name());
         }
+    }
+
+    for (const auto& wellName : wellNames)
+    {
+        options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::calculateValueOptionsForObservedData(const QString& wellName, QList<caf::PdmOptionItemInfo>& options)
+void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options)
 {
-    if (getWellPathsWithPressure(wellName).size() > 0)
+    std::set<QDateTime> dates;
+    //auto rftCases = 
+    auto gridCases = gridCasesContainingPressure(wellName);
+    auto observedWellPaths = wellPathsContainingPressure(m_wellName);
+
+    for (const auto& selection : m_selectedSources())
     {
-        auto addr = RimWellRftAddress(RftSourceType::OBSERVED);
-        auto item = caf::PdmOptionItemInfo(addr.uiText(), QVariant::fromValue(addr));
-        item.setLevel(1);
-        options.push_back(item);
+        if (selection.sourceType() == RimWellRftAddress(RftSourceType::RFT))
+        {
+
+        }
+        else if (selection.sourceType() == RimWellRftAddress(RftSourceType::GRID))
+        {
+            for (const auto& gridCase : gridCases)
+            {
+                for (const auto& date : timeStepsFromGridCase(gridCase))
+                {
+                    if (date.isValid())
+                    {
+                        dates.insert(date);
+                    }
+                }
+            }
+        }
+        else if (selection.sourceType() == RimWellRftAddress(RftSourceType::OBSERVED))
+        {
+            for (const auto& wellPath : observedWellPaths)
+            {
+                auto wellLogFile = wellPath->wellLogFile();
+                auto date = RiaDateStringParser::parseDateString(wellLogFile->date());
+                if (date.isValid())
+                {
+                    dates.insert(date);
+                }
+            }
+        }
+    }
+
+    for (const auto& date : dates)
+    {
+        options.push_back(caf::PdmOptionItemInfo(date.toString(RimTools::dateFormatString()), date));
     }
 }
 

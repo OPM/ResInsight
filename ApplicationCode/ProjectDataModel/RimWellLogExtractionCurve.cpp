@@ -306,8 +306,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         updateGeneratedSimulationWellpath();
         clampBranchIndex();
 
-        RimWellLogPlotCollection* wellLogCollection;
-        this->firstAncestorOrThisOfTypeAsserted(wellLogCollection);
+        RimMainPlotCollection* mainPlotCollection;
+        this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
+
+        RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
 
         cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
         if ( m_trajectoryType == WELL_PATH )
@@ -905,4 +907,20 @@ double RimWellLogExtractionCurve::rkbDiff() const
 int RimWellLogExtractionCurve::currentTimeStep() const
 {
     return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setCurrentTimeStep(int timeStep)
+{
+    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setEclipseResultDefinition(const RimEclipseResultDefinition* def)
+{
+    m_eclipseResultDefinition->simpleCopy(def);
 }
