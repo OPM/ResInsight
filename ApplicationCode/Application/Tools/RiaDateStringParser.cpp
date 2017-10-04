@@ -58,12 +58,14 @@ QDate RiaDateStringParser::parseDateString(const std::string& dateString)
 /// 'yyyy_MMM_dd'
 /// 'yyyy-mm-dd'
 /// 'yyyy-MMM-dd'
+/// 'yyyy.MMM.dd'
+/// 'yyyy.MMM.dd'
 /// MMM is month name (shortened)
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseYearFirst(const std::string& s, int& year, int& month, int& day)
 {
-    auto firstSep = s.find_first_of(" -_");
-    auto lastSep = s.find_first_of(" -_", firstSep + 1);
+    auto firstSep = s.find_first_of(" -_.");
+    auto lastSep = s.find_first_of(" -_.", firstSep + 1);
 
     if (firstSep == std::string::npos || lastSep == std::string::npos) return false;
 
@@ -82,12 +84,14 @@ bool RiaDateStringParser::tryParseYearFirst(const std::string& s, int& year, int
 /// 'dd_MMM_yyyy'
 /// 'dd-mm-yyyy'
 /// 'dd-MMM-yyyy'
+/// 'dd.mm.yyyy'
+/// 'dd.MMM.yyyy'
 /// MMM is month name (shortened)
 //--------------------------------------------------------------------------------------------------
 bool RiaDateStringParser::tryParseDayFirst(const std::string& s, int& year, int& month, int& day)
 {
-    auto firstSep = s.find_first_of(" -_");
-    auto lastSep = s.find_first_of(" -_", firstSep + 1);
+    auto firstSep = s.find_first_of(" -_.");
+    auto lastSep = s.find_first_of(" -_.", firstSep + 1);
 
     if (firstSep == std::string::npos || lastSep == std::string::npos) return false;
 
