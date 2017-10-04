@@ -31,27 +31,22 @@ class RifEclipseRftAddress;
 class RifReaderEclipseRft
 {
 public:
-    RifReaderEclipseRft();
+    RifReaderEclipseRft(const std::string& fileName);
     ~RifReaderEclipseRft();
 
-    bool open(const std::string& fileName);
 
-    const std::vector<RifEclipseRftAddress>& eclipseRftAddresses() const;
-    void values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values) const;
-    
-    /*const std::vector<std::string>& wellNames() const;
-    std::vector<time_t> timeSteps();*/
-    //void values(const std::string& wellName, size_t timeStepIndex, std::vector<double>* values) const;
+    const std::vector<RifEclipseRftAddress>& eclipseRftAddresses();
+    void values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
 
 private:
-    int indexFromAddress(const RifEclipseRftAddress& rftAddress) const;
+    void open();
+    int  indexFromAddress(const RifEclipseRftAddress& rftAddress) const;
 
 private:
-
     // Taken from ecl_rft_file.h and ecl_rft_node.h
     typedef struct ecl_rft_file_struct ecl_rft_file_type;
-    typedef struct ecl_rft_node_struct ecl_rft_node_type;
 
+    std::string                         m_fileName;
     ecl_rft_file_type*                  m_ecl_rft_file;
     std::vector<RifEclipseRftAddress>   m_eclipseRftAddresses;
     std::map<RifEclipseRftAddress, int> m_rftAddressToLibeclNodeIdx;

@@ -12,9 +12,8 @@
 TEST(DISABLED_RifReaderEclipseRftTest, TestRifEclipseRftAddress)
 {
     std::string filename = "C:\\Users\\Rebecca Cox\\Dropbox\\norne\\norne\\NORNE_ATW2013.RFT";
-    RifReaderEclipseRft reader;
-    bool ok = reader.open(filename);
-    ASSERT_TRUE(ok);
+    
+    RifReaderEclipseRft reader(filename);
 
     std::vector<RifEclipseRftAddress> addresses = reader.eclipseRftAddresses();
 

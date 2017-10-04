@@ -25,7 +25,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseRft::RifReaderEclipseRft()
+RifReaderEclipseRft::RifReaderEclipseRft(const std::string& fileName):
+    m_fileName(fileName), m_ecl_rft_file(nullptr)
 {
 }
 
@@ -39,13 +40,13 @@ RifReaderEclipseRft::~RifReaderEclipseRft()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseRft::open(const std::string& fileName)
+void RifReaderEclipseRft::open()
 {
-    if (fileName.empty()) return false;
+    if (m_fileName.empty()) return;
 
-    m_ecl_rft_file = ecl_rft_file_alloc_case(fileName.data());
+    m_ecl_rft_file = ecl_rft_file_alloc_case(m_fileName.data());
 
-    if (m_ecl_rft_file == NULL) return false;
+    if (m_ecl_rft_file == NULL) return;
 
     int fileSize = ecl_rft_file_get_size(m_ecl_rft_file);
 
@@ -97,22 +98,32 @@ bool RifReaderEclipseRft::open(const std::string& fileName)
         }
     }
 
-    return true;
+    return;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<RifEclipseRftAddress>& RifReaderEclipseRft::eclipseRftAddresses() const
+const std::vector<RifEclipseRftAddress>& RifReaderEclipseRft::eclipseRftAddresses()
 {
+    if (!m_ecl_rft_file)
+    {
+        open();
+    }
+
     return m_eclipseRftAddresses;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values) const
+void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values)
 {
+    if (!m_ecl_rft_file)
+    {
+        open();
+    }
+
     int index = indexFromAddress(rftAddress);
     if (index < 0) return;
 
