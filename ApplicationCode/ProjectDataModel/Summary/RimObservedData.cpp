@@ -39,7 +39,7 @@ RimObservedData::RimObservedData()
     m_importedSummaryData.uiCapability()->setUiReadOnly(true);
     m_importedSummaryData.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault(&m_useCustomIdentifier, "UseCustomIdentifier", "Use Custom Identifier", "", "", "");
+    CAF_PDM_InitField(&m_useCustomIdentifier, "UseCustomIdentifier", false, "Use Custom Identifier", "", "", "");
     CAF_PDM_InitField(&m_summaryCategory, "SummaryType", caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>(RifEclipseSummaryAddress::SUMMARY_WELL), "Summary Type", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_identifierName, "IdentifierName", "Identifier Name", "", "", "");
 }

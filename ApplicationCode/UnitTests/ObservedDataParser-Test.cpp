@@ -385,6 +385,48 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, TestTableMissingWellNames)
+{
+
+    QString data;
+    QTextStream out(&data);
+
+    out << "1\n";
+    out << "---------------------------------------\n";
+    out << "SUMMARY OF RUN SIP USER FILE DATA VECTORS\n";
+    out << "---------------------------------------\n";
+    out << "TIME     WLVP       WPLT      WTEST      WFOFF      WBUP\n";
+    out << "DAYS      BARSA       BARSA     BARSA     BARSA    BARSA\n";
+    out << "\n";
+    out << "   1   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   2   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   3   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   4   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   5   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   6   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   7  0.0  0.0  282  0.0  0.0\n";
+    out << "   8  0.0  0.0  279  0.0  0.0\n";
+    out << "   9   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   10   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   11   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   12   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   13   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   14   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   15   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   16   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   17   0.0   0.0   0.0   0.0   0.0\n";
+    out << "   18   0.0   0.0   0.0   0.0   0.0\n";
+
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+
+    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    ASSERT_EQ(tables.size(), 1);
+    ASSERT_EQ(tables.at(0).size(), 6);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
 {
     QString data;

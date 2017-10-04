@@ -19,13 +19,16 @@
 
 #include "RimObservedDataCollection.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RifKeywordVectorParser.h"
 
-#include "RimObservedEclipseUserData.h"
 #include "RimObservedData.h"
+#include "RimObservedEclipseUserData.h"
 #include "RimSummaryObservedDataFile.h"
+
+#include "RiuMainPlotWindow.h"
 
 #include "cafUtils.h"
 
@@ -114,6 +117,13 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
             observedData->createSummaryReaderInterface();
             observedData->updateMetaData();
             observedData->updateOptionSensitivity();
+
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+            if (mainPlotWindow)
+            {
+                mainPlotWindow->selectAsCurrentItem(observedData);
+                mainPlotWindow->setExpanded(observedData, true);
+            }
 
             this->updateConnectedEditors();
         }
