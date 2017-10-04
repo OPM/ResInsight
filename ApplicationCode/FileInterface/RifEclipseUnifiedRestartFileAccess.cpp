@@ -165,12 +165,12 @@ void RifEclipseUnifiedRestartFileAccess::extractTimestepsFromEclipse()
             ecl_file_push_block(m_ecl_file);      // <-------------------------------------------------------
             {                                                                                               //
                 ecl_file_subselect_block(m_ecl_file, SEQNUM_KW, block_nr);                                  //  Ensure that the status
-                {                                                                                             //  is not changed as a side
-                    const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);          //  effect.
-                    int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                           //
+                {                                                                                           //  is not changed as a side
+                    const ecl_kw_type * seqnum_kw = ecl_file_iget_named_kw(m_ecl_file, SEQNUM_KW, 0);       //  effect.
+                    int report_nr = ecl_kw_iget_int(seqnum_kw, 0);                                          //
 
                     m_reportNr.push_back(report_nr);
-                }                                                                                             //
+                }                                                                                           //
             }                                                                                               //
             ecl_file_pop_block(m_ecl_file);       // <-------------------------------------------------------
         }
@@ -311,9 +311,9 @@ void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info,
 
     if (openFile())
     {
-       // cvf::Trace::show("well_info_add_UNRST_wells Start");
+       // cvf::Trace::show("well_info_add_UNRST_wells Start"); // Use for profiling
         well_info_add_UNRST_wells(well_info, m_ecl_file, importCompleteMswData);
-       // cvf::Trace::show("well_info_add_UNRST_wells End");
+       // cvf::Trace::show("well_info_add_UNRST_wells End");   // Use for profiling
     }
 }
 

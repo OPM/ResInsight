@@ -60,12 +60,12 @@ public:
 private:
     bool                        openFile();
     bool                        useResultIndexFile() const;
+    void                        extractTimestepsFromEclipse();
 
 private:
     QString                     m_filename;
     ecl_file_type*              m_ecl_file;
 
-    void                        extractTimestepsFromEclipse();
     std::vector<QDateTime>      m_timeSteps;
     std::vector<double>         m_daysSinceSimulationStart;
     std::vector<int>            m_reportNr;
