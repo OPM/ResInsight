@@ -26,6 +26,7 @@ class RifReaderInterface;
 class RigMainGrid;
 class RimFlowDiagSolution;
 class RigFlowDiagSolverInterface;
+class RifReaderEclipseRft;
 
 //==================================================================================================
 //
@@ -62,6 +63,8 @@ public:
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
+    RifReaderEclipseRft*        rftReader();
+
 protected:
     virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -77,6 +80,8 @@ private:
     virtual void                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     cvf::ref<RigFlowDiagSolverInterface>        m_flowDagSolverInterface;
+
+    cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
 
     // Fields:                        
     caf::PdmField<QString>      caseFileName;

@@ -62,6 +62,11 @@ void RifReaderEclipseRft::open()
         m_eclipseRftAddresses.push_back(addressPressure);
         m_rftAddressToLibeclNodeIdx[addressPressure] = i;
 
+        wellLogChannelName = "DEPTH";
+        RifEclipseRftAddress addressDepth(wellName, timeStep, wellLogChannelName);
+        m_eclipseRftAddresses.push_back(addressDepth);
+        m_rftAddressToLibeclNodeIdx[addressDepth] = i;
+
         if (ecl_rft_node_is_RFT(node))
         {
             wellLogChannelName = "SWAT";
@@ -131,7 +136,14 @@ void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::ve
     
     std::string wellLogChannelName = rftAddress.wellLogChannelName();
 
-    if (wellLogChannelName == "PRESSURE")
+    if (wellLogChannelName == "DEPTH")
+    {
+        for (int i = 0; i < ecl_rft_node_get_size(node); i++)
+        {
+            values->push_back(ecl_rft_node_iget_depth(node, i));
+        }
+    }
+    else if (wellLogChannelName == "PRESSURE")
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {

@@ -22,13 +22,16 @@
 #include <string>
 #include <vector>
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+
 class RifEclipseRftAddress;
 
 //==================================================================================================
 //
 //
 //==================================================================================================
-class RifReaderEclipseRft
+class RifReaderEclipseRft : public cvf::Object
 {
 public:
     RifReaderEclipseRft(const std::string& fileName);

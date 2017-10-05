@@ -75,6 +75,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFile.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.h
+${CEE_CURRENT_LIST_DIR}RimWellLogRftCurve.h
 ${CEE_CURRENT_LIST_DIR}RimIntersection.h
 ${CEE_CURRENT_LIST_DIR}RimIntersectionCollection.h
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.h
@@ -171,6 +172,7 @@ ${CEE_CURRENT_LIST_DIR}RimWellLogExtractionCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFile.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileChannel.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogFileCurve.cpp
+${CEE_CURRENT_LIST_DIR}RimWellLogRftCurve.cpp
 ${CEE_CURRENT_LIST_DIR}RimIntersection.cpp
 ${CEE_CURRENT_LIST_DIR}RimIntersectionCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimContextCommandBuilder.cpp

@@ -24,6 +24,7 @@
 
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
+#include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderSettings.h"
 
@@ -50,6 +51,10 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <string>
+#include <fstream>
+
+
 
 CAF_PDM_SOURCE_INIT(RimEclipseResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -194,6 +199,14 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
     m_activeCellInfoIsReadFromFile = true;
 
     m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
+
+    QString rftFile = caseFileName() + ".RFT";
+    std::string rftFileStdString = rftFile.toStdString();
+    if (std::ifstream(rftFileStdString.c_str()))
+    {
+        m_readerEclipseRft = new RifReaderEclipseRft(rftFileStdString);
+    }
+
 
     if (m_flowDiagSolutions.size() == 0)
     {
@@ -496,6 +509,14 @@ std::vector<RimFlowDiagSolution*> RimEclipseResultCase::flowDiagSolutions()
 RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
 {
     return m_flowDagSolverInterface.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderEclipseRft* RimEclipseResultCase::rftReader()
+{
+    return m_readerEclipseRft.p();
 }
 
 //--------------------------------------------------------------------------------------------------
