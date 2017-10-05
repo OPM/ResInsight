@@ -108,7 +108,6 @@ private:
                                                                                    std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
                                                                                    std::set<RifEclipseSummaryAddress>& addressSet);
 
-    void                                    loadDataAndUpdatePlot();
     void                                    syncPreviewCurvesFromUiSelection();
     void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& allCurveDefsToDisplay, 
                                                                                     const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,

@@ -262,7 +262,7 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     if (m_targetPlot)
     {
         populateCurveCreator(*m_targetPlot);
-        loadDataAndUpdatePlot();
+        syncPreviewCurvesFromUiSelection();
     }
 
     caf::PdmUiItem::updateConnectedEditors();
@@ -328,7 +328,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
             changedField == &m_selectedSummaryCategories ||
             identifierAndField != nullptr)
         {
-            loadDataAndUpdatePlot();
+            syncPreviewCurvesFromUiSelection();
         }
     }
 }
@@ -844,14 +844,6 @@ void RicSummaryCurveCreator::buildAddressListForCategoryRecursively(RifEclipseSu
         }
         identifierPath.pop_back();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::loadDataAndUpdatePlot()
-{
-    syncPreviewCurvesFromUiSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
