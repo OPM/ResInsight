@@ -45,53 +45,51 @@ public:
     
     enum TrajectoryType { WELL_PATH, SIMULATION_WELL};
 
-    void setWellPath(RimWellPath* wellPath);
-    RimWellPath* wellPath() const;
+    void            setWellPath(RimWellPath* wellPath);
+    RimWellPath*    wellPath() const;
 
-    void setFromSimulationWellName(const QString& simWellName, int branchIndex);
+    void            setFromSimulationWellName(const QString& simWellName, int branchIndex);
 
-    void setCase(RimCase* rimCase);
-    RimCase* rimCase() const;
+    void            setCase(RimCase* rimCase);
+    RimCase*        rimCase() const;
 
-    void setPropertiesFromView(RimView* view);
+    void            setPropertiesFromView(RimView* view);
 
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
     virtual QString wellDate() const;
 
-    bool isEclipseCurve() const;
-    QString caseName() const;
-    double rkbDiff() const;
+    bool            isEclipseCurve() const;
+    QString         caseName() const;
+    double          rkbDiff() const;
 
-    int currentTimeStep() const;
+    int             currentTimeStep() const;
 
 protected:
-    virtual QString createCurveAutoName();
-    virtual void onLoadDataAndUpdate(bool updateParentPlot);
+    virtual QString                                createCurveAutoName();
+    virtual void                                   onLoadDataAndUpdate(bool updateParentPlot);
 
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
-
-    virtual void initAfterRead();
-
-    virtual void defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual void                                   fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                                   defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual void                                   defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "");
+    virtual QList<caf::PdmOptionItemInfo>          calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    virtual void                                   initAfterRead();
 
 private:
-    void setLogScaleFromSelectedResult();
-    void clampTimestep();
-    void clampBranchIndex();
-    std::set<QString> findSortedWellNames();
-    void updateGeneratedSimulationWellpath();
-    void clearGeneratedSimWellPaths();
+    void                                           setLogScaleFromSelectedResult();
+    void                                           clampTimestep();
+    void                                           clampBranchIndex();
+    std::set<QString>                              findSortedWellNames();
+    void                                           updateGeneratedSimulationWellpath();
+    void                                           clearGeneratedSimWellPaths();
 
 private:
-    caf::PdmPtrField<RimWellPath*>                  m_wellPath;
+    caf::PdmPtrField<RimCase*>                      m_case;
     caf::PdmField<caf::AppEnum<TrajectoryType> >    m_trajectoryType;
+    caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmField<QString>                          m_simWellName;
     caf::PdmField<int>                              m_branchIndex;
-    caf::PdmPtrField<RimCase*>                      m_case;
+
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
     caf::PdmField<int>                              m_timeStep;
