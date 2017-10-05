@@ -59,4 +59,27 @@ double RiaEclipseUnitTools::darcysConstant(UnitSystem unitSystem)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit(UnitSystem unit)
+{
+    switch (unit)
+    {
+    case RiaEclipseUnitTools::UNITS_METRIC:
+        return RiaDefines::UNIT_METER;
+        break;
+    case RiaEclipseUnitTools::UNITS_FIELD:
+        return RiaDefines::UNIT_FEET;
+        break;
+    case RiaEclipseUnitTools::UNITS_LAB:
+        return RiaDefines::UNIT_NONE;
+        break;
+    case RiaEclipseUnitTools::UNITS_UNKNOWN:
+        return RiaDefines::UNIT_NONE;
+        break;
+    default:
+        break;
+    }
+}
 
