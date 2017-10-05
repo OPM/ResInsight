@@ -291,13 +291,13 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
 
     std::vector< std::vector<ColumnInfo> > tables = parser.tables();
     ASSERT_EQ(2, tables.size());
-    EXPECT_EQ("112000", tables[0].at(0).startDate);
+    EXPECT_EQ("112000", tables[0].at(0).startDateString);
     EXPECT_EQ("OP-1_TR", tables[0].at(0).origin);
-    EXPECT_EQ("DD/MM/YY", tables[0].at(0).dateFormat);
+    EXPECT_EQ("DD/MM/YY", tables[0].at(0).dateFormatString);
 
-    EXPECT_EQ("112000", tables[1].at(0).startDate);
+    EXPECT_EQ("112000", tables[1].at(0).startDateString);
     EXPECT_EQ("OP-2_TR", tables[1].at(0).origin);
-    EXPECT_EQ("DD/MM/YY", tables[1].at(0).dateFormat);
+    EXPECT_EQ("DD/MM/YY", tables[1].at(0).dateFormatString);
 
     // Assume missing units at start of row
     EXPECT_EQ("", tables[0].at(0).unitName);

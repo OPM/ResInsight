@@ -20,6 +20,7 @@
 
 #include "RifEclipseUserDataParserTools.h"
 
+#include "RiaDateStringParser.h"
 #include "RiaLogging.h"
 
 #include "cvfAssert.h"
@@ -62,6 +63,21 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
         std::string line;
         std::getline(streamData, line);
 
+        size_t dateColumnIndex = table.size();
+        for (size_t i = 0; i < columnCount; i++)
+        {
+            if (table[i].summaryAddress.quantityName() == "DATE" ||
+                table[i].summaryAddress.quantityName() == "DATES")
+            {
+                dateColumnIndex = i;
+            }
+        }
+
+        // If a DATE column is present, use the first date as the start date of the samples
+        // This date is then used as basis for times defined by days or years given as double values
+        QDateTime startDate;
+        startDate.setTimeSpec(Qt::UTC);
+
         std::vector<double> values;
         QString qLine;
         do
@@ -73,12 +89,30 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
 
             for (size_t i = 0; i < columnCount; i++)
             {
+                if (dateColumnIndex < columnCount && !startDate.isValid())
+                {
+                    QDate candidate = RiaDateStringParser::parseDateString(entries[static_cast<int>(dateColumnIndex)].toStdString());
+                    if (candidate.isValid())
+                    {
+                        startDate.setDate(candidate);
+                    }
+                }
+
                 double entry = entries.at(static_cast<int>(i)).toDouble();
                 table[i].values.push_back(entry);
             }
         } while (std::getline(streamData, line));
 
+        if (startDate.isValid())
+        {
+            for (auto& ci : table)
+            {
+                ci.startQDateTime = startDate;
+            }
+        }
+
         m_tables.push_back(table);
 
     } while (streamData.good());
+
 }

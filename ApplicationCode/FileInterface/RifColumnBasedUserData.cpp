@@ -66,17 +66,40 @@ bool RifColumnBasedUserData::parse(const QString& data, const QString& customWel
 
     for (size_t tableIndex = 0; tableIndex < m_parser->tables().size(); tableIndex++)
     {
-        size_t timeColumnIndex = m_parser->tables()[tableIndex].size();
-
         // Find time index
+        size_t dateColumnIndex = m_parser->tables()[tableIndex].size();
+        size_t dayOrYearColumnIndex = m_parser->tables()[tableIndex].size();
+
         for (size_t columIndex = 0; columIndex < m_parser->tables()[tableIndex].size(); columIndex++)
         {
             const ColumnInfo& ci = m_parser->tables()[tableIndex][columIndex];
             if (!ci.isAVector)
             {
-                timeColumnIndex = columIndex;
-                break;
+                QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
+                if (unit == "DATE" ||
+                    unit == "DATES")
+                {
+                    dateColumnIndex = columIndex;
+                }
+                else if (unit == "DAY" ||
+                         unit == "DAYS" ||
+                         unit == "YEAR" ||
+                         unit == "YEARS")
+                {
+                    dayOrYearColumnIndex = columIndex;
+                    break;
+                }
             }
+        }
+
+        size_t timeColumnIndex = m_parser->tables()[tableIndex].size();
+        if (dayOrYearColumnIndex < m_parser->tables()[tableIndex].size())
+        {
+            timeColumnIndex = dayOrYearColumnIndex;
+        }
+        else if (dateColumnIndex < m_parser->tables()[tableIndex].size())
+        {
+            timeColumnIndex = dateColumnIndex;
         }
 
         if (timeColumnIndex == m_parser->tables()[tableIndex].size())
@@ -88,16 +111,23 @@ bool RifColumnBasedUserData::parse(const QString& data, const QString& customWel
         {
             const ColumnInfo& ci = m_parser->tables()[tableIndex][timeColumnIndex];
             QDateTime startDate;
-            QString startDateString = QString::fromStdString(ci.startDate);
-            if (!startDateString.isEmpty())
+            if (ci.startQDateTime.isValid())
             {
-                QString dateFormatString = "ddMMyyyy";
-
-                startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
+                startDate = ci.startQDateTime;
             }
             else
             {
-                startDate = RiaQDateTimeTools::epoch();
+                QString startDateString = QString::fromStdString(ci.startDateString);
+                if (!startDateString.isEmpty())
+                {
+                    QString dateFormatString = "ddMMyyyy";
+
+                    startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
+                }
+                else
+                {
+                    startDate = RiaQDateTimeTools::epoch();
+                }
             }
 
             m_timeSteps.resize(m_timeSteps.size() + 1);

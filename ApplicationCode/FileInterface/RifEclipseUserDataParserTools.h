@@ -35,9 +35,10 @@ struct ColumnInfo
     std::string                                     unitName;
     double                                          scaleFactor;
     std::vector<double>                             values;
-    std::string                                     dateFormat;
-    std::string                                     startDate;
     std::string                                     origin;
+    std::string                                     dateFormatString;
+    std::string                                     startDateString;
+    QDateTime                                       startQDateTime;
 };
 
 //==================================================================================================

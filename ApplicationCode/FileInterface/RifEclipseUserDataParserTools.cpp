@@ -379,8 +379,8 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
         ColumnInfo columnInfo;
         columnInfo.unitName = unit;
         columnInfo.origin = origin;
-        columnInfo.dateFormat = dateFormat;
-        columnInfo.startDate = startDate;
+        columnInfo.dateFormatString = dateFormat;
+        columnInfo.startDateString = startDate;
         table.push_back(columnInfo);
     }
 
