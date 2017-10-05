@@ -478,6 +478,56 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, TestTableDateOnly)
+{
+    QString data;
+    QTextStream out(&data);
+
+    out << "1\n";
+    out << " -----------------------------------------\n";
+    out << " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 EC\n";
+    out << " -----------------------------------------\n";
+    out << " DATE        WBHP           \n";
+    out << " DATE        BARSA          \n";
+    out << "             B-1H           \n";
+    out << "                            \n";
+    out << " ---------------------------\n";
+    out << "  6-NOV-1997       0        \n";
+    out << "  7-NOV-1997       0        \n";
+    out << "  8-NOV-1997       0        \n";
+    out << "  9-NOV-1997       0        \n";
+    out << " 10-NOV-1997       0        \n";
+    out << " 11-NOV-1997       0        \n";
+    out << " 11-NOV-1997       0        \n";
+    out << " 12-NOV-1997       0        \n";
+    out << " 13-NOV-1997       0        \n";
+    out << " 14-NOV-1997       0        \n";
+    out << " 14-NOV-1997       0        \n";
+    out << " 17-NOV-1997       0        \n";
+    out << " 19-NOV-1997       0        \n";
+    out << " 21-NOV-1997       0        \n";
+    out << " 23-NOV-1997       0        \n";
+    out << " 25-NOV-1997       0        \n";
+    out << " 28-NOV-1997       0        \n";
+    out << " 29-NOV-1997       0        \n";
+    out << "  1-DEC-1997       0        \n";
+    out << "  2-DEC-1997       0        \n";
+    out << "  4-DEC-1997       0        \n";
+    out << "  7-DEC-1997       0        \n";
+    out << " 10-DEC-1997       0        \n";
+    out << " 13-DEC-1997       0        \n";
+    out << " 15-DEC-1997       0        \n";
+    out << " 17-DEC-1997       0        \n";
+
+    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+
+    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    ASSERT_EQ(tables.size(), 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues)
 {
     QString data;

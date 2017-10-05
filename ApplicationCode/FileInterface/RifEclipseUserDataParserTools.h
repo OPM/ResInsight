@@ -39,6 +39,7 @@ struct ColumnInfo
     std::string                                     dateFormatString;
     std::string                                     startDateString;
     QDateTime                                       startQDateTime;
+    std::vector<QDateTime>                          observationDateTimes;
 };
 
 //==================================================================================================

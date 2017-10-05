@@ -109,47 +109,57 @@ bool RifColumnBasedUserData::parse(const QString& data, const QString& customWel
         }
         else
         {
+            m_timeSteps.resize(m_timeSteps.size() + 1);
+            std::vector<time_t>& timeSteps = m_timeSteps.back();
+
             const ColumnInfo& ci = m_parser->tables()[tableIndex][timeColumnIndex];
-            QDateTime startDate;
-            if (ci.startQDateTime.isValid())
+            
+            if (timeColumnIndex == dateColumnIndex)
             {
-                startDate = ci.startQDateTime;
+                for (const auto& timeStepValue : ci.observationDateTimes)
+                {
+                    timeSteps.push_back(timeStepValue.toTime_t());
+                }
             }
             else
             {
-                QString startDateString = QString::fromStdString(ci.startDateString);
-                if (!startDateString.isEmpty())
+                QDateTime startDate;
+                if (ci.startQDateTime.isValid())
                 {
-                    QString dateFormatString = "ddMMyyyy";
-
-                    startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
+                    startDate = ci.startQDateTime;
                 }
                 else
                 {
-                    startDate = RiaQDateTimeTools::epoch();
+                    QString startDateString = QString::fromStdString(ci.startDateString);
+                    if (!startDateString.isEmpty())
+                    {
+                        QString dateFormatString = "ddMMyyyy";
+
+                        startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
+                    }
+                    else
+                    {
+                        startDate = RiaQDateTimeTools::epoch();
+                    }
                 }
-            }
 
-            m_timeSteps.resize(m_timeSteps.size() + 1);
+                QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
 
-            std::vector<time_t>& timeSteps = m_timeSteps.back();
-
-            QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
-
-            if (unit == "DAY" || unit == "DAYS")
-            {
-                for (const auto& timeStepValue : ci.values)
+                if (unit == "DAY" || unit == "DAYS")
                 {
-                    QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
-                    timeSteps.push_back(dateTime.toTime_t());
+                    for (const auto& timeStepValue : ci.values)
+                    {
+                        QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
+                        timeSteps.push_back(dateTime.toTime_t());
+                    }
                 }
-            }
-            else if (unit == "YEAR" || unit == "YEARS")
-            {
-                for (const auto& timeStepValue : ci.values)
+                else if (unit == "YEAR" || unit == "YEARS")
                 {
-                    QDateTime dateTime = RiaQDateTimeTools::addYears(startDate, timeStepValue);
-                    timeSteps.push_back(dateTime.toTime_t());
+                    for (const auto& timeStepValue : ci.values)
+                    {
+                        QDateTime dateTime = RiaQDateTimeTools::addYears(startDate, timeStepValue);
+                        timeSteps.push_back(dateTime.toTime_t());
+                    }
                 }
             }
             

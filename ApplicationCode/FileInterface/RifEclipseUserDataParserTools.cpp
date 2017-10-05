@@ -466,12 +466,14 @@ std::vector<std::string> RifEclipseUserDataParserTools::headerReader(std::string
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::hasTimeUnit(const std::string& line)
+bool RifEclipseUserDataParserTools::hasTimeUnit(const std::string& word)
 {
-    if (line == "DAYS" ||
-        line == "DAY" ||
-        line == "YEARS" ||
-        line == "YEAR")
+    if (word == "DAYS" ||
+        word == "DAY" ||
+        word == "YEARS" ||
+        word == "YEAR" ||
+        word == "DATE" ||
+        word == "DATES")
     {
         return true;
     }

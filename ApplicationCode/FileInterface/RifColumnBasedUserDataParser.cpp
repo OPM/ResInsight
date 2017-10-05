@@ -89,13 +89,16 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
 
             for (size_t i = 0; i < columnCount; i++)
             {
-                if (dateColumnIndex < columnCount && !startDate.isValid())
+                if (dateColumnIndex < columnCount)
                 {
-                    QDate candidate = RiaDateStringParser::parseDateString(entries[static_cast<int>(dateColumnIndex)].toStdString());
-                    if (candidate.isValid())
+                    QDate observationDate = RiaDateStringParser::parseDateString(entries[static_cast<int>(dateColumnIndex)].toStdString());
+
+                    if (observationDate.isValid() && !startDate.isValid())
                     {
-                        startDate.setDate(candidate);
+                        startDate.setDate(observationDate);
                     }
+
+                    table[i].observationDateTimes.push_back(QDateTime(observationDate));
                 }
 
                 double entry = entries.at(static_cast<int>(i)).toDouble();
@@ -114,5 +117,4 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
         m_tables.push_back(table);
 
     } while (streamData.good());
-
 }
