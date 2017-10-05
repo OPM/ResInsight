@@ -19,8 +19,18 @@
 
 #include "RimWellLogRftCurve.h"
 
+#include "RiaEclipseUnitTools.h"
+
+#include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
+#include "RimWellLogFile.h"
+#include "RimWellLogPlot.h"
+
+#include "RigEclipseCaseData.h"
+#include "RigWellLogCurveData.h"
+
+#include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "RifReaderEclipseRft.h"
 
@@ -59,7 +69,6 @@ RimWellLogRftCurve::~RimWellLogRftCurve()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellName() const
 {
-    //return QString(m_eclipseRftAddress->wellName().c_str());
     return m_wellName;
 }
 
@@ -68,14 +77,13 @@ QString RimWellLogRftCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellLogChannelName() const
 {
-    //return QString(m_eclipseRftAddress->wellLogChannelName().c_str());
     return m_wellLogChannelName;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::yValues()
+std::vector<double> RimWellLogRftCurve::xValues()
 {
     RifReaderEclipseRft* reader = rftReader();
     std::vector<double> values;
@@ -92,7 +100,7 @@ std::vector<double> RimWellLogRftCurve::yValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::xValues()
+std::vector<double> RimWellLogRftCurve::depthValues()
 {
     RifReaderEclipseRft* reader = rftReader();
     std::vector<double> values;
@@ -146,7 +154,35 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
+    RimWellLogCurve::updateCurvePresentation();
 
+    if (isCurveVisible())
+    {
+        m_curveData = new RigWellLogCurveData;
+
+        RimWellLogPlot* wellLogPlot;
+        firstAncestorOrThisOfType(wellLogPlot);
+        CVF_ASSERT(wellLogPlot);
+
+        std::vector<double> values = xValues();
+        std::vector<double> depthVector = depthValues();
+
+        if (values.size() == depthVector.size())
+        {
+            m_curveData->setValuesAndMD(values, depthVector, RiaEclipseUnitTools::depthUnit(m_eclipseResultCase->eclipseCaseData()->unitsType()), false);
+        }
+
+        RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
+        if (wellLogPlot)
+        {
+            displayUnit = wellLogPlot->depthUnit();
+        }
+
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
+
+        updateZoomInParentPlot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

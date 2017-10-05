@@ -29,7 +29,7 @@
 
 class RimEclipseResultCase;
 class RifReaderEclipseRft;
-
+class RiuLineSegmentQwtPlotCurve;
 //==================================================================================================
 ///  
 ///  
@@ -45,8 +45,8 @@ public:
     virtual QString                 wellName() const override;
     virtual QString                 wellLogChannelName() const override;
 
-    std::vector<double>             yValues();
     std::vector<double>             xValues();
+    std::vector<double>             depthValues();
 
     int currentTimeStep() const;
 
@@ -64,6 +64,8 @@ private:
     RifReaderEclipseRft* rftReader() const;
 
 private:
+    RiuLineSegmentQwtPlotCurve*                     m_qwtPlotCurve;
+
     caf::PdmPtrField<RimEclipseResultCase*>         m_eclipseResultCase;
     caf::PdmField<time_t>                           m_timeStep;
     caf::PdmField<QString>                          m_wellName;
