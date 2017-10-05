@@ -41,6 +41,7 @@ class RimTofAccumulatedPhaseFractionsPlot;
 class RigSingleWellResultsData;
 class RimWellLogFileChannel;
 class RimWellPath;
+class RimWellLogCurve;
 
 namespace cvf {
     class Color3f;
@@ -97,7 +98,7 @@ private:
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 
-    void                                            updateFromWell();
+    void                                            updateEditorsFromCurves();
     void                                            updateWidgetTitleWindowTitle();
 
     void                                            loadDataAndUpdatePlot();
@@ -106,14 +107,19 @@ private:
     static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
     std::vector<RimWellPath*>                       wellPathsContainingPressure(const QString& wellName) const;
     std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
-    
+    RimEclipseResultCase*                           gridCaseFromCaseId(int caseId);
+
     RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
 
     std::vector<RimEclipseResultCase*>              gridCasesContainingPressure(const QString& wellName) const;
-    std::vector<QDateTime>                          timeStepsFromGridCase(RimEclipseResultCase* gridCase) const;
+    std::vector<QDateTime>                          timeStepsFromGridCase(const RimEclipseResultCase* gridCase) const;
 
-    std::vector<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
-
+    std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
+    std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
+    std::pair<RimWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
+    void                                            updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& allCurveDefs,
+                                                                       const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefsToAdd,
+                                                                       const std::set<RimWellLogCurve*>& curvesToDelete);
     // RimViewWindow overrides
 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 

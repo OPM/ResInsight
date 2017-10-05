@@ -42,6 +42,7 @@ public:
     virtual ~RimWellLogFileCurve();
 
     void setWellPath(RimWellPath* wellPath);
+    RimWellPath* wellPath() const;
     void setWellLogChannelName(const QString& name);
     
     // Overrides from RimWellLogPlotCurve

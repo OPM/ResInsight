@@ -72,6 +72,7 @@ public:
     static QString sourceTypeUiText(RftSourceType sourceType);
 
     friend QTextStream& operator >> (QTextStream& str, RimWellRftAddress& addr);
+    friend bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);
 
 private:
     RftSourceType   m_sourceType;
@@ -83,3 +84,4 @@ Q_DECLARE_METATYPE(RimWellRftAddress);
 bool operator==(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);
 QTextStream& operator <<(QTextStream& str, const RimWellRftAddress& addr);
 QTextStream& operator >> (QTextStream& str, RimWellRftAddress& addr);
+bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);

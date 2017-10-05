@@ -94,15 +94,15 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "Sources", "Sources", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-    m_selectedSources.xmlCapability()->setIOReadable(false);
-    m_selectedSources.xmlCapability()->setIOWritable(false);
+    m_selectedSources.xmlCapability()->disableIO();
     m_selectedSources.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedSources.uiCapability()->setAutoAddingOptionFromValue(false);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "TimeSteps", "TimeSteps", "", "", "");
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
-    m_selectedTimeSteps.xmlCapability()->setIOReadable(false);
-    m_selectedTimeSteps.xmlCapability()->setIOWritable(false);
+    m_selectedTimeSteps.xmlCapability()->disableIO();
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
     this->setAsPlotMdiWindow();
 }
@@ -132,8 +132,20 @@ void RimWellRftPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::updateFromWell()
+void RimWellRftPlot::updateEditorsFromCurves()
 {
+    std::set<RimWellRftAddress> selectedSources;
+    std::set<QDateTime>         selectedTimeSteps;
+
+    const auto& curveDefs = curveDefsFromCurves();
+    for (const auto& curveDef : curveDefs)
+    {
+        selectedSources.insert(curveDef.first);
+        selectedTimeSteps.insert(curveDef.second);
+    }
+
+    m_selectedSources = std::vector<RimWellRftAddress>(selectedSources.begin(), selectedSources.end());
+    m_selectedTimeSteps = std::vector<QDateTime>(selectedTimeSteps.begin(), selectedTimeSteps.end());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,59 +173,35 @@ void RimWellRftPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::loadDataAndUpdatePlot()
 {
-    auto track = m_wellLogPlot->trackByIndex(0);
-    track->detachAllCurves();
+    auto plotTrack = m_wellLogPlot->trackByIndex(0);
+    const auto& allCurveDefs = selectedCurveDefs();
+    const auto& curveDefsInPlot = curveDefsFromCurves();
+    std::set<RimWellLogCurve*> curvesToDelete;
+    std::set<std::pair<RimWellRftAddress, QDateTime>> newCurveDefs;
 
-    // Observed data
-    for (const auto& selectedCurveDef : selectedCurveDefs())
+    if (allCurveDefs.size() < curveDefsInPlot.size())
     {
-        if (selectedCurveDef.first.sourceType() == RftSourceType::RFT)
+        // Determine which curves to delete from plot
+        std::set<std::pair<RimWellRftAddress, QDateTime>> deleteCurveDefs;
+        std::set_difference(curveDefsInPlot.begin(), curveDefsInPlot.end(),
+                            allCurveDefs.begin(), allCurveDefs.end(),
+                            std::inserter(deleteCurveDefs, deleteCurveDefs.end()));
+
+        for (const auto& curve : plotTrack->curvesVector())
         {
-
-        }
-        else if (selectedCurveDef.first.sourceType() == RftSourceType::GRID)
-        {
-            auto curve = new RimWellLogExtractionCurve();
-            track->addCurve(curve);
-
-            cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(track->curveCount());
-            curve->setColor(curveColor);
-            
-            curve->setFromSimulationWellName(m_wellName, m_branchIndex);
-
-            // Fetch cases and time steps
-            auto gridCase = gridCasesContainingPressure(m_wellName).front();                  // todo: fix
-            auto timeSteps = timeStepsFromGridCase(gridCase);
-
-            curve->setCase(gridCase);
-
-            // Result definition
-            RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition();
-            //resultDef->setEclipseCase(gridCase);
-            resultDef->setResultVariable(PRESSURE_DATA_NAME);
-            curve->setEclipseResultDefinition(resultDef);
-
-            // Time step index
-            auto currentTimeStepIt = std::find(timeSteps.begin(), timeSteps.end(), selectedCurveDef.second);
-            auto currentTimeStep = std::distance(timeSteps.begin(), currentTimeStepIt);
-            curve->setCurrentTimeStep(currentTimeStep);
-            curve->loadDataAndUpdate(false);
-        }
-        else if (selectedCurveDef.first.sourceType() == RftSourceType::OBSERVED)
-        {
-            auto wellPath = wellPathForObservedData(m_wellName, selectedCurveDef.second);
-            if (wellPath != nullptr)
-            {
-                auto wellLogFile = wellPath->wellLogFile();
-                auto pressureChannels = getPressureChannelsFromWellPath(wellPath);
-                auto curve = new RimWellLogFileCurve();
-                track->addCurve(curve);
-                curve->setWellPath(wellPath);
-                curve->setWellLogChannelName(pressureChannels.front()->name());
-                curve->loadDataAndUpdate(true);
-            }
+            std::pair<RimWellRftAddress, QDateTime> curveDef = curveDefFromCurve(curve);
+            if (deleteCurveDefs.count(curveDef) > 0)
+                curvesToDelete.insert(curve);
         }
     }
+    else
+    {
+        // Determine which curves are new since last time
+        std::set_difference(allCurveDefs.begin(), allCurveDefs.end(),
+                            curveDefsInPlot.begin(), curveDefsInPlot.end(),
+                            std::inserter(newCurveDefs, newCurveDefs.end()));
+    }
+    updateCurvesInPlot(allCurveDefs, newCurveDefs, curvesToDelete);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,7 +245,6 @@ std::vector<RimWellPath*> RimWellRftPlot::wellPathsContainingPressure(const QStr
 
             for (const auto& wellLogChannel : *wellLogChannels)
             {
-                // Todo: add more criterias
                 if (hasPressureData(wellLogChannel))
                 {
                     hasPressure = true;
@@ -288,6 +275,17 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
         }
     }
     return channels;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimEclipseResultCase* RimWellRftPlot::gridCaseFromCaseId(int caseId)
+{
+    const auto& allGridCases = gridCasesContainingPressure(m_wellName);
+    auto gridCaseItr = std::find_if(allGridCases.begin(), allGridCases.end(), 
+                                 [caseId](RimEclipseResultCase* rimCase) { return  rimCase->caseId == caseId; });
+    return gridCaseItr != allGridCases.end() ? *gridCaseItr : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,7 +340,7 @@ std::vector<RimEclipseResultCase*> RimWellRftPlot::gridCasesContainingPressure(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(RimEclipseResultCase* gridCase) const
+std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(const RimEclipseResultCase* gridCase) const
 {
     auto eclipseCaseData = gridCase->eclipseCaseData();
     size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
@@ -353,9 +351,9 @@ std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(RimEclipseResultCas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurveDefs() const
+std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurveDefs() const
 {
-    std::vector<std::pair<RimWellRftAddress, QDateTime>> curveDefs;
+    std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefs;
     // auto rftCases = 
     auto gridCases = gridCasesContainingPressure(m_wellName);
     auto wellPaths = wellPathsContainingPressure(m_wellName);
@@ -375,7 +373,7 @@ std::vector < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedC
                     const auto& timeSteps = timeStepsFromGridCase(gridCase);
                     if (std::find(timeSteps.begin(), timeSteps.end(), selectedDate) != timeSteps.end())
                     {
-                        curveDefs.push_back(std::make_pair(rftAddr, selectedDate));
+                        curveDefs.insert(std::make_pair(rftAddr, selectedDate));
                     }
                 }
             }
@@ -386,13 +384,133 @@ std::vector < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedC
                     auto wellLogFile = wellPath->wellLogFile();
                     if (RiaDateStringParser::parseDateString(wellLogFile->date()) == selectedDate)
                     {
-                        curveDefs.push_back(std::make_pair(rftAddr, selectedDate));
+                        curveDefs.insert(std::make_pair(rftAddr, selectedDate));
                     }
                 }
             }
         }
     }
     return curveDefs;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::curveDefsFromCurves() const
+{
+    std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefs;
+
+    auto plotTrack = m_wellLogPlot->trackByIndex(0);
+    for (const auto& curve : plotTrack->curvesVector())
+    {
+        curveDefs.insert(curveDefFromCurve(curve));
+    }
+    return curveDefs;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::pair<RimWellRftAddress, QDateTime> RimWellRftPlot::curveDefFromCurve(const RimWellLogCurve* curve) const
+{
+    const RimWellLogExtractionCurve* gridCurve = dynamic_cast<const RimWellLogExtractionCurve*>(curve);
+    const RimWellLogFileCurve* wellLogFileCurve = dynamic_cast<const RimWellLogFileCurve*>(curve);
+
+    if (gridCurve != nullptr)
+    {
+        const RimEclipseResultCase* gridCase = dynamic_cast<const RimEclipseResultCase*>(gridCurve->rimCase());
+        if (gridCase != nullptr)
+        {
+            auto timeStepIndex = gridCurve->currentTimeStep();
+            auto timeSteps = timeStepsFromGridCase(gridCase);
+            if (timeStepIndex < timeSteps.size())
+            {
+                return std::make_pair(RimWellRftAddress(RftSourceType::GRID, gridCase->caseId),
+                                      timeSteps[timeStepIndex]);
+            }
+        }
+    }
+    else if (wellLogFileCurve != nullptr)
+    {
+        const auto& wellPath = wellLogFileCurve->wellPath();
+        const auto& wellLogFile = wellPath->wellLogFile();
+        const auto date = RiaDateStringParser::parseDateString(wellLogFile->date());
+
+        if (date.isValid())
+        {
+            return std::make_pair(RimWellRftAddress(RftSourceType::OBSERVED), date);
+        }
+    }
+    return std::make_pair(RimWellRftAddress(RftSourceType::NONE), QDateTime());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& allCurveDefs,
+                                        const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefsToAdd,
+                                        const std::set<RimWellLogCurve*>& curvesToDelete)
+{
+    auto plotTrack = m_wellLogPlot->trackByIndex(0);
+
+    // Delete curves
+    for (const auto& curve : curvesToDelete)
+    {
+        plotTrack->removeCurve(curve);
+    }
+
+    // Add new curves
+    for (const auto& curveDefToAdd : curveDefsToAdd)
+    {
+        if (curveDefToAdd.first.sourceType() == RftSourceType::RFT)
+        {
+
+        }
+        else if (curveDefToAdd.first.sourceType() == RftSourceType::GRID)
+        {
+            auto curve = new RimWellLogExtractionCurve();
+            plotTrack->addCurve(curve);
+
+            cvf::Color3f curveColor = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f(plotTrack->curveCount());
+            curve->setColor(curveColor);
+            curve->setFromSimulationWellName(m_wellName, m_branchIndex);
+
+            // Fetch cases and time steps
+            auto gridCase = gridCaseFromCaseId(curveDefToAdd.first.caseId());
+            if (gridCase != nullptr)
+            {
+                // Case
+                curve->setCase(gridCase);
+
+                // Result definition
+                RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition();
+                resultDef->setResultVariable(PRESSURE_DATA_NAME);
+                curve->setEclipseResultDefinition(resultDef);
+
+                // Time step
+                auto timeSteps = timeStepsFromGridCase(gridCase);
+                auto currentTimeStepIt = std::find(timeSteps.begin(), timeSteps.end(), curveDefToAdd.second);
+                auto currentTimeStep = std::distance(timeSteps.begin(), currentTimeStepIt);
+                curve->setCurrentTimeStep(currentTimeStep);
+                curve->loadDataAndUpdate(false);
+            }
+        }
+        else if (curveDefToAdd.first.sourceType() == RftSourceType::OBSERVED)
+        {
+            auto wellPath = wellPathForObservedData(m_wellName, curveDefToAdd.second);
+            if (wellPath != nullptr)
+            {
+                auto wellLogFile = wellPath->wellLogFile();
+                auto pressureChannels = getPressureChannelsFromWellPath(wellPath);
+                auto curve = new RimWellLogFileCurve();
+                plotTrack->addCurve(curve);
+                curve->setWellPath(wellPath);
+                curve->setWellLogChannelName(pressureChannels.front()->name());
+                curve->loadDataAndUpdate(true);
+            }
+        }
+    }
+    m_wellLogPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -643,8 +761,8 @@ QString RimWellRftPlot::description() const
 void RimWellRftPlot::loadDataAndUpdate()
 {
     updateMdiWindowVisibility();
-    updateFromWell();
     m_wellLogPlot->loadDataAndUpdate();
+    updateEditorsFromCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -123,3 +123,13 @@ QTextStream& operator >> (QTextStream& str, RimWellRftAddress& source)
     source.m_caseId = caseId;
     return str;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2)
+{
+    return (addr1.m_sourceType < addr2.m_sourceType) ||
+        (addr1.m_sourceType == addr2.m_sourceType && addr1.m_caseId < addr2.m_caseId);
+
+}
