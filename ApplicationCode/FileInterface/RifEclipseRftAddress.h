@@ -20,6 +20,8 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
 #include <QDateTime>
 
 //==================================================================================================
@@ -29,8 +31,19 @@
 class RifEclipseRftAddress
 {
 public:
+    static const QString DEPTH;
+    static const QString PRESSURE;
+    static const QString SWAT;
+    static const QString SOIL; 
+    static const QString SGAS;
+    static const QString WRAT;
+    static const QString ORAT;
+    static const QString GRAT;
+public:
     RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName);
-    RifEclipseRftAddress(std::string wellName, time_t timeStep, std::string wellLogChannelName);
+    RifEclipseRftAddress(std::string wellName, time_t timeStep, QString wellLogChannelName);
+
+    static std::vector<QString> allWellLogChannelNames();
 
     const QString&  wellName() const            { return m_wellName; }
     QDateTime           timeStep() const            { return m_timeStep; }
