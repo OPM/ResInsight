@@ -20,6 +20,7 @@
 #pragma once
 
 #include <string>
+#include <QDateTime>
 
 //==================================================================================================
 ///  
@@ -28,17 +29,17 @@
 class RifEclipseRftAddress
 {
 public:
-    RifEclipseRftAddress(std::string wellName, time_t timeStep, std::string wellLogChannelName) :
-        m_wellName(wellName), m_timeStep(timeStep), m_wellLogChannelName(wellLogChannelName) {}
+    RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName);
+    RifEclipseRftAddress(std::string wellName, time_t timeStep, std::string wellLogChannelName);
 
-    const std::string&  wellName() const            { return m_wellName; }
-    time_t              timeStep() const            { return m_timeStep; }
-    const std::string&  wellLogChannelName() const  { return m_wellLogChannelName; }
+    const QString&  wellName() const            { return m_wellName; }
+    QDateTime           timeStep() const            { return m_timeStep; }
+    const QString&  wellLogChannelName() const  { return m_wellLogChannelName; }
 
 private:
-    std::string m_wellName;
-    time_t m_timeStep;
-    std::string m_wellLogChannelName;
+    QString m_wellName;
+    QDateTime   m_timeStep;
+    QString m_wellLogChannelName;
 };
 
 bool operator==(const RifEclipseRftAddress& first, const RifEclipseRftAddress& second);

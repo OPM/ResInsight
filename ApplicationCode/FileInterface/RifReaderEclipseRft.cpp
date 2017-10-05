@@ -22,6 +22,8 @@
 
 #include "ert/ecl/ecl_rft_file.h"
 
+#include <QString>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -134,7 +136,7 @@ void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::ve
 
     ecl_rft_node_type* node = ecl_rft_file_iget_node(m_ecl_rft_file, index);
     
-    std::string wellLogChannelName = rftAddress.wellLogChannelName();
+    QString wellLogChannelName = rftAddress.wellLogChannelName();
 
     if (wellLogChannelName == "DEPTH")
     {

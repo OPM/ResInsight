@@ -37,6 +37,8 @@
 #include "cafPdmObject.h"
 #include "cvfAssert.h"
 
+#include <QString>
+
 
 CAF_PDM_SOURCE_INIT(RimWellLogRftCurve, "WellLogRftCurve");
 
@@ -83,14 +85,6 @@ QString RimWellLogRftCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimWellLogRftCurve::currentTimeStep() const
-{
-    return m_timeStep;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setEclipseResultCase(RimEclipseResultCase* eclipseResultCase)
 {
     m_eclipseResultCase = eclipseResultCase;
@@ -102,6 +96,16 @@ void RimWellLogRftCurve::setEclipseResultCase(RimEclipseResultCase* eclipseResul
 RimEclipseResultCase* RimWellLogRftCurve::eclipseResultCase() const
 {
     return m_eclipseResultCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setRftAddress(RifEclipseRftAddress address)
+{
+    m_timeStep = address.timeStep();
+    m_wellName = address.wellName();
+    m_wellLogChannelName = address.wellLogChannelName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,6 +157,26 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimPlotCurve::updateOptionSensitivity();
+
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+    curveDataGroup->add(&m_wellName);
+    curveDataGroup->add(&m_wellLogChannelName);
+    curveDataGroup->add(&m_timeStep);
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
+    RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup("Curve Name");
+    nameGroup->add(&m_showLegend);
+    RimPlotCurve::curveNameUiOrdering(*nameGroup);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -162,6 +186,20 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     if (options.size() > 0) return options;
 
     if (fieldNeedingOptions == &m_eclipseResultCase)
+    {
+        RimTools::caseOptionItems(&options);
+
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+    }
+    
+    if (fieldNeedingOptions == &m_wellLogChannelName)
+    {
+        RimTools::caseOptionItems(&options);
+
+        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+    }
+    
+    if (fieldNeedingOptions == &m_timeStep)
     {
         RimTools::caseOptionItems(&options);
 
@@ -212,7 +250,7 @@ std::vector<double> RimWellLogRftCurve::xValues() const
 
     if (!reader) return values;
 
-    RifEclipseRftAddress address(m_wellName().toStdString(), m_timeStep, m_wellLogChannelName().toStdString());
+    RifEclipseRftAddress address(m_wellName(), m_timeStep, m_wellLogChannelName());
 
     reader->values(address, &values);
 
@@ -229,7 +267,7 @@ std::vector<double> RimWellLogRftCurve::depthValues() const
 
     if (!reader) return values;
 
-    RifEclipseRftAddress address(m_wellName().toStdString(), m_timeStep, "DEPTH");
+    RifEclipseRftAddress address(m_wellName(), m_timeStep, "DEPTH");
 
     reader->values(address, &values);
 

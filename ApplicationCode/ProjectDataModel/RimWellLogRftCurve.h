@@ -46,10 +46,10 @@ public:
     virtual QString                 wellName() const override;
     virtual QString                 wellLogChannelName() const override;
 
-    int                             currentTimeStep() const;
-
     void                            setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
     RimEclipseResultCase*           eclipseResultCase() const;
+
+    void                            setRftAddress(RifEclipseRftAddress address);
 
 protected:
     // Overrides from RimWellLogPlotCurve
@@ -57,8 +57,9 @@ protected:
     virtual void    onLoadDataAndUpdate(bool updateParentPlot) override;
 
     // Pdm overrrides
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual QList<caf::PdmOptionItemInfo>   calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     RifReaderEclipseRft* rftReader() const;
@@ -70,7 +71,7 @@ private:
     RiuLineSegmentQwtPlotCurve*                     m_qwtPlotCurve;
 
     caf::PdmPtrField<RimEclipseResultCase*>         m_eclipseResultCase;
-    caf::PdmField<time_t>                           m_timeStep;
+    caf::PdmField<QDateTime>                        m_timeStep;
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<QString>                          m_wellLogChannelName;
 };
