@@ -47,4 +47,26 @@ private:
     RimWellPath*        selectedWellPath() const;
     RimEclipseWell*     selectedSimulationWell(int * branchIndex) const;
     bool                caseAvailable() const;
+
+    template<typename T>
+    T                   selectedPdmObject() const;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename T>
+T RicNewRftPlotFeature::selectedPdmObject() const
+{
+    T objToFind = nullptr;
+
+    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
+    if (objHandle)
+    {
+        objHandle->firstAncestorOrThisOfType(objToFind);
+    }
+
+    return objToFind;
+}

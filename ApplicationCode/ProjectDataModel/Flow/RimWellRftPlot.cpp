@@ -71,6 +71,7 @@ CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 /// 
 //--------------------------------------------------------------------------------------------------
 const char RimWellRftPlot::PRESSURE_DATA_NAME[] = "PRESSURE";
+const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -171,7 +172,7 @@ void RimWellRftPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::loadDataAndUpdatePlot()
+void RimWellRftPlot::syncCurvesFromUiSelection()
 {
     auto plotTrack = m_wellLogPlot->trackByIndex(0);
     const auto& allCurveDefs = selectedCurveDefs();
@@ -207,26 +208,6 @@ void RimWellRftPlot::loadDataAndUpdatePlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellRftPlot::hasPressureData(RimWellLogFileChannel* channel)
-{
-    // Todo: read pressure channel names from config/defines
-    return QString::compare(channel->name(), PRESSURE_DATA_NAME) == 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimWellRftPlot::hasPressureData(RimEclipseResultCase* gridCase)
-{
-    auto eclipseCaseData = gridCase->eclipseCaseData();
-    size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
-        findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME);
-    return resultIndex != cvf::UNDEFINED_SIZE_T;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellRftPlot::wellPathsContainingPressure(const QString& wellName) const
 {
     std::vector<RimWellPath*> wellPaths;
@@ -239,19 +220,10 @@ std::vector<RimWellPath*> RimWellRftPlot::wellPathsContainingPressure(const QStr
         {
             bool hasPressure = false;
             const auto& wellLogFile = wellPath->wellLogFile();
-            const auto& wellLogChannels = wellLogFile->wellLogChannelNames();
 
             if (QString::compare(wellLogFile->wellName(), wellName) != 0) continue;
 
-            for (const auto& wellLogChannel : *wellLogChannels)
-            {
-                if (hasPressureData(wellLogChannel))
-                {
-                    hasPressure = true;
-                    break;
-                }
-            }
-            if (hasPressure)
+            if (hasPressureData(wellLogFile))
                 wellPaths.push_back(wellPath);
         }
     }
@@ -510,7 +482,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
             }
         }
     }
-    m_wellLogPlot->loadDataAndUpdate();
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,6 +523,47 @@ void RimWellRftPlot::setCurrentWellName(const QString& currWellName)
 QString RimWellRftPlot::currentWellName() const
 {
     return m_wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::hasPressureData(RimWellLogFile* wellLogFile)
+{
+    const auto& wellLogChannels = wellLogFile->wellLogChannelNames();
+    for (const auto& wellLogChannel : *wellLogChannels)
+    {
+        if (hasPressureData(wellLogChannel)) return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::hasPressureData(RimWellLogFileChannel* channel)
+{
+    // Todo: read pressure channel names from config/defines
+    return QString::compare(channel->name(), PRESSURE_DATA_NAME) == 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::hasPressureData(RimEclipseResultCase* gridCase)
+{
+    auto eclipseCaseData = gridCase->eclipseCaseData();
+    size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
+        findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME);
+    return resultIndex != cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const char* RimWellRftPlot::plotNameFormatString()
+{
+    return PLOT_NAME_QFORMAT_STRING;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -605,13 +618,21 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 {
     RimViewWindow::fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &m_selectedSources)
+    if (changedField == &m_wellName)
     {
-        loadDataAndUpdatePlot();
+        setDescription(QString(plotNameFormatString()).arg(m_wellName));
+    }
+    else if (changedField == &m_selectedSources)
+    {
+        syncCurvesFromUiSelection();
     }
     else if (changedField == &m_selectedTimeSteps)
     {
-        loadDataAndUpdatePlot();
+        syncCurvesFromUiSelection();
+    }
+    else if (changedField == &m_showPlotTitle)
+    {
+        //m_wellLogPlot->setShowDescription(m_showPlotTitle);
     }
 }
 
@@ -646,7 +667,7 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* timeStepsGroup = uiOrdering.addNewGroupWithKeyword("Time Steps", "TimeSteps");
     timeStepsGroup->add(&m_selectedTimeSteps);
 
-    uiOrdering.add(&m_showPlotTitle);
+    //uiOrdering.add(&m_showPlotTitle);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -774,14 +795,3 @@ QWidget* RimWellRftPlot::createViewWidget(QWidget* mainWindowParent)
     return m_wellLogPlotWidget;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Color3f RimWellRftPlot::getTracerColor(const QString& tracerName)
-{
-
-    if (tracerName == RIG_FLOW_OIL_NAME)   return cvf::Color3f::DARK_GREEN;
-    if (tracerName == RIG_FLOW_GAS_NAME)   return cvf::Color3f::DARK_RED;
-    if (tracerName == RIG_FLOW_WATER_NAME) return cvf::Color3f::BLUE;
-    return cvf::Color3f::DARK_GRAY;
-}

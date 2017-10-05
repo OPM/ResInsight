@@ -53,10 +53,6 @@ public:
 
     void                            showTitle(const QString& title);
     void                            hideTitle();
-//    void                            showLegend(bool doShow);
-//    void                            addLegendItem(const QString& name, const cvf::Color3f& color, float value);
-//    void                            clearLegend();
-
 
 protected:
     virtual QSize                   sizeHint() const override;

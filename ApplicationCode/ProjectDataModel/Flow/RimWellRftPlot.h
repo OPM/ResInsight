@@ -61,9 +61,7 @@ class RimWellRftPlot : public RimViewWindow
     CAF_PDM_HEADER_INIT;
 
     static const char PRESSURE_DATA_NAME[];
-
-public:
-    enum FlowType { ACCUMULATED, INFLOW};
+    static const char PLOT_NAME_QFORMAT_STRING[];
 
 public:
     RimWellRftPlot();
@@ -81,6 +79,11 @@ public:
 
     void                                            setCurrentWellName(const QString& currWellName);
     QString                                         currentWellName() const;
+
+    static bool                                     hasPressureData(RimWellLogFile* wellLogFile);
+    static bool                                     hasPressureData(RimWellLogFileChannel* channel);
+    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
+    static const char*                              plotNameFormatString();
 
 protected:
     // Overridden PDM methods
@@ -101,10 +104,8 @@ private:
     void                                            updateEditorsFromCurves();
     void                                            updateWidgetTitleWindowTitle();
 
-    void                                            loadDataAndUpdatePlot();
+    void                                            syncCurvesFromUiSelection();
 
-    static bool                                     hasPressureData(RimWellLogFileChannel* channel);
-    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
     std::vector<RimWellPath*>                       wellPathsContainingPressure(const QString& wellName) const;
     std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
     RimEclipseResultCase*                           gridCaseFromCaseId(int caseId);
@@ -125,14 +126,12 @@ private:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
-    cvf::Color3f                                    getTracerColor(const QString& tracerName);
-
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
     caf::PdmField<QString>                          m_userName;
 
     caf::PdmField<QString>                          m_wellName;
-    caf::PdmField<int>                              m_branchIndex;  // Temp field
+    caf::PdmField<int>                              m_branchIndex;
     caf::PdmField<std::vector<RimWellRftAddress>>   m_selectedSources;
     
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;

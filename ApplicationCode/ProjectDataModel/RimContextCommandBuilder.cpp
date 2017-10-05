@@ -89,6 +89,7 @@
 
 #include <vector>
 #include <QMenu>
+#include "RimRftPlotCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -263,6 +264,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteWellLogPlotFeature";
             commandIds << "Separator";
             commandIds << "RicNewWellLogPlotFeature";
+        }
+        else if (dynamic_cast<RimRftPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewRftPlotFeature";
         }
         else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
         {

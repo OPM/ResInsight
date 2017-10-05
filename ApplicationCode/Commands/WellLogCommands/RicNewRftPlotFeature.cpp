@@ -35,6 +35,7 @@
 #include "RimWellPath.h"
 #include "RimRftPlotCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimEclipseResultCase.h"
 
 #include "RiuMainPlotWindow.h"
 
@@ -55,9 +56,30 @@ CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
-    return true;
-    int branchIndex;
-    return (selectedWellLogPlotTrack() != nullptr || selectedWellPath() != nullptr || selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
+
+    //int branchIndex;
+
+    auto eclWell = selectedPdmObject<RimEclipseWell*>();
+    auto rimWellPath = eclWell == nullptr ? selectedPdmObject<RimWellPath*>() : nullptr;
+    
+    bool enable = true;
+    if (eclWell != nullptr)
+    {
+        auto eclCase = selectedPdmObject<RimEclipseResultCase*>();
+        if (eclWell != nullptr)
+        {
+            enable &= RimWellRftPlot::hasPressureData(eclCase);
+        }
+    }
+    else if (rimWellPath)
+    {
+        auto wellLogFile = rimWellPath->wellLogFile();
+        if (wellLogFile != nullptr)
+        {
+            enable &= RimWellRftPlot::hasPressureData(wellLogFile);
+        }
+    }
+    return enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,29 +87,26 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 {
-    if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return;
+    //if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return;
 
     RimProject* proj = RiaApplication::instance()->project();
 
     auto rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
     if (rftPlotColl)
     {
-        std::vector<caf::PdmUiItem*> selectedItems;
-        caf::SelectionManager::instance()->selectedItems(selectedItems);
-
-        QString wellName = "(unknown well name)";
+        QString wellName;
         RimWellPath* wellPath = nullptr;
         RimEclipseWell* eclipseWell = nullptr;
-        if ((wellPath = dynamic_cast<RimWellPath*>(selectedItems.front())) != nullptr)
+        if ((wellPath = selectedPdmObject<RimWellPath*>()) != nullptr)
         {
             wellName = wellPath->name();
         }
-        else if ((eclipseWell = dynamic_cast<RimEclipseWell*>(selectedItems.front())) != nullptr)
+        else if ((eclipseWell = selectedPdmObject<RimEclipseWell*>()) != nullptr)
         {
             wellName = eclipseWell->name();
         }
 
-        QString plotName = QString("RFT: %1").arg(wellName);
+        QString plotName = QString(RimWellRftPlot::plotNameFormatString()).arg(wellName);
 
         auto rftPlot = new RimWellRftPlot();
         rftPlot->setCurrentWellName(wellName);
@@ -171,3 +190,4 @@ bool RicNewRftPlotFeature::caseAvailable() const
 
     return cases.size() > 0;
 }
+
