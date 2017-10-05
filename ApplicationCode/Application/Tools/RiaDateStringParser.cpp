@@ -135,7 +135,7 @@ bool RiaDateStringParser::tryParseMonth(const std::string& s, int &month)
         sMonth = trimString(sMonth);
         for (int i = 0; i < 12; i++)
         {
-            if (MONTH_NAMES[i].compare(0, s.size(), s) == 0)
+            if (MONTH_NAMES[i].compare(0, sMonth.size(), sMonth) == 0)
             {
                 month = i + 1;
                 return true;
@@ -192,10 +192,13 @@ bool RiaDateStringParser::containsAlphabetic(const std::string& s)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RiaDateStringParser::trimString(std::string& s)
+std::string RiaDateStringParser::trimString(const std::string& s)
 {
     auto sCopy = s.substr(0, s.find_last_not_of(' ') + 1);
     sCopy = sCopy.substr(sCopy.find_first_not_of(' '));
+
+    std::transform(sCopy.begin(), sCopy.end(), sCopy.begin(), ::tolower);
+
     return sCopy;
 }
 
