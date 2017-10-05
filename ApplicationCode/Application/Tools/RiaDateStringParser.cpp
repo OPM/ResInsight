@@ -47,7 +47,10 @@ QDateTime RiaDateStringParser::parseDateString(const QString& dateString)
         tryParseYearFirst(s, year, month, day) ||
         tryParseDayFirst(s, year, month, day);
 
-    return parsedOk ? QDateTime(QDate(year, month, day)) : QDateTime();
+    QDateTime dt;
+    dt.setTimeSpec(Qt::UTC);
+    if (parsedOk) dt.setDate(QDate(year, month, day));
+    return dt;
 }
 
 //--------------------------------------------------------------------------------------------------

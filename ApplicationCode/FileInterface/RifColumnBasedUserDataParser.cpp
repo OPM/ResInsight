@@ -76,7 +76,6 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
         // If a DATE column is present, use the first date as the start date of the samples
         // This date is then used as basis for times defined by days or years given as double values
         QDateTime startDate;
-        startDate.setTimeSpec(Qt::UTC);
 
         std::vector<double> values;
         QString qLine;
@@ -91,14 +90,14 @@ void RifColumnBasedUserDataParser::parseData(const QString& data)
             {
                 if (dateColumnIndex < columnCount)
                 {
-                    QDate observationDate = RiaDateStringParser::parseDateString(entries[static_cast<int>(dateColumnIndex)].toStdString());
+                    QDateTime observationDate = RiaDateStringParser::parseDateString(entries[static_cast<int>(dateColumnIndex)]);
 
                     if (observationDate.isValid() && !startDate.isValid())
                     {
-                        startDate.setDate(observationDate);
+                        startDate = observationDate;
                     }
 
-                    table[i].observationDateTimes.push_back(QDateTime(observationDate));
+                    table[i].observationDateTimes.push_back(observationDate);
                 }
 
                 double entry = entries.at(static_cast<int>(i)).toDouble();
