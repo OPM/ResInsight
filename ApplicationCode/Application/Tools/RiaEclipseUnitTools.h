@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "RiaDefines.h"
 
 class RiaEclipseUnitTools
 {
@@ -44,5 +45,7 @@ public:
     static double inchToFeet (double inch)          { return (inch / 12.0); } 
 
     static double darcysConstant(UnitSystem unitSystem);
+
+    static RiaDefines::DepthUnitType depthUnit(UnitSystem unit);
 };
 
