@@ -22,8 +22,6 @@
 
 #include "ert/ecl/ecl_rft_file.h"
 
-#include <QString>
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -56,50 +54,48 @@ void RifReaderEclipseRft::open()
     {
         ecl_rft_node_type* node = ecl_rft_file_iget_node(m_ecl_rft_file, i);
         
-        std::string wellName = ecl_rft_node_get_well_name(node);
-        time_t timeStep = ecl_rft_node_get_date(node);
-        
-        std::string wellLogChannelName = "PRESSURE";
-        RifEclipseRftAddress addressPressure(wellName, timeStep, wellLogChannelName);
+        std::string wellNameStdString = ecl_rft_node_get_well_name(node);
+        QString wellName(wellNameStdString.c_str());
+        m_wellNames.insert(wellName);
+
+        time_t timeStepTime_t = ecl_rft_node_get_date(node);
+        QDateTime timeStep;
+        timeStep.setTimeSpec(Qt::TimeSpec::UTC);
+        timeStep.setTime_t(timeStepTime_t);
+
+        RifEclipseRftAddress addressPressure(wellName, timeStep, RifEclipseRftAddress::PRESSURE);
         m_eclipseRftAddresses.push_back(addressPressure);
         m_rftAddressToLibeclNodeIdx[addressPressure] = i;
 
-        wellLogChannelName = "DEPTH";
-        RifEclipseRftAddress addressDepth(wellName, timeStep, wellLogChannelName);
+        RifEclipseRftAddress addressDepth(wellName, timeStep, RifEclipseRftAddress::DEPTH);
         m_eclipseRftAddresses.push_back(addressDepth);
         m_rftAddressToLibeclNodeIdx[addressDepth] = i;
 
         if (ecl_rft_node_is_RFT(node))
         {
-            wellLogChannelName = "SWAT";
-            RifEclipseRftAddress addressSwat(wellName, timeStep, wellLogChannelName);
+            RifEclipseRftAddress addressSwat(wellName, timeStep, RifEclipseRftAddress::SWAT);
             m_eclipseRftAddresses.push_back(addressSwat);
             m_rftAddressToLibeclNodeIdx[addressSwat] = i;
 
-            wellLogChannelName = "SOIL";
-            RifEclipseRftAddress addressSoil(wellName, timeStep, wellLogChannelName);
+            RifEclipseRftAddress addressSoil(wellName, timeStep, RifEclipseRftAddress::SOIL);
             m_eclipseRftAddresses.push_back(addressSoil);
             m_rftAddressToLibeclNodeIdx[addressSoil] = i;
 
-            wellLogChannelName = "SGAS";
-            RifEclipseRftAddress addressSgas(wellName, timeStep, wellLogChannelName);
+            RifEclipseRftAddress addressSgas(wellName, timeStep, RifEclipseRftAddress::SGAS);
             m_eclipseRftAddresses.push_back(addressSgas);
             m_rftAddressToLibeclNodeIdx[addressSgas] = i;
         }
         else if (ecl_rft_node_is_PLT(node))
         {
-            wellLogChannelName = "WRAT";
-            RifEclipseRftAddress addressWrat(wellName, timeStep, wellLogChannelName);
+            RifEclipseRftAddress addressWrat(wellName, timeStep, RifEclipseRftAddress::WRAT);
             m_eclipseRftAddresses.push_back(addressWrat);
             m_rftAddressToLibeclNodeIdx[addressWrat] = i;
 
-            wellLogChannelName = "GRAT";
-            RifEclipseRftAddress addressGrat(wellName, timeStep, wellLogChannelName);
+            RifEclipseRftAddress addressGrat(wellName, timeStep, RifEclipseRftAddress::GRAT);
             m_eclipseRftAddresses.push_back(addressGrat);
             m_rftAddressToLibeclNodeIdx[addressGrat] = i;
 
-            wellLogChannelName = "ORAT";
-            RifEclipseRftAddress addressOrat(wellName, timeStep, wellLogChannelName);
+            RifEclipseRftAddress addressOrat(wellName, timeStep, RifEclipseRftAddress::ORAT);
             m_eclipseRftAddresses.push_back(addressOrat);
             m_rftAddressToLibeclNodeIdx[addressOrat] = i;
         }
@@ -138,62 +134,89 @@ void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::ve
     
     QString wellLogChannelName = rftAddress.wellLogChannelName();
 
-    if (wellLogChannelName == "DEPTH")
+    if (wellLogChannelName == RifEclipseRftAddress::DEPTH)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_depth(node, i));
         }
     }
-    else if (wellLogChannelName == "PRESSURE")
+    else if (wellLogChannelName == RifEclipseRftAddress::PRESSURE)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_pressure(node, i));
         }
     }
-    else if (wellLogChannelName == "SWAT")
+    else if (wellLogChannelName == RifEclipseRftAddress::SWAT)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_swat(node, i));
         }
     }
-    else if (wellLogChannelName == "SOIL")
+    else if (wellLogChannelName == RifEclipseRftAddress::SOIL)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_soil(node, i));
         }
     }
-    else if (wellLogChannelName == "SGAS")
+    else if (wellLogChannelName == RifEclipseRftAddress::SGAS)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_sgas(node, i));
         }
     }
-    else if (wellLogChannelName == "WRAT")
+    else if (wellLogChannelName == RifEclipseRftAddress::WRAT)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_wrat(node, i));
         }
     }
-    else if (wellLogChannelName == "GRAT")
+    else if (wellLogChannelName == RifEclipseRftAddress::GRAT)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_grat(node, i));
         }
     }
-    else if (wellLogChannelName == "ORAT")
+    else if (wellLogChannelName == RifEclipseRftAddress::ORAT)
     {
         for (int i = 0; i < ecl_rft_node_get_size(node); i++)
         {
             values->push_back(ecl_rft_node_iget_orat(node, i));
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const QString& wellLogChannelName) const
+{
+    std::vector<QDateTime> timeSteps;
+
+    if (wellName == "" || wellLogChannelName == "") return timeSteps;
+
+    for (const RifEclipseRftAddress& address : m_eclipseRftAddresses)
+    {
+        if (address.wellName() == wellName && address.wellLogChannelName() == wellLogChannelName)
+        {
+            timeSteps.push_back(address.timeStep());
+        }
+    }
+    return timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::set<QString>& RifReaderEclipseRft::wellNames() const
+{
+    return m_wellNames;
 }
 
 //--------------------------------------------------------------------------------------------------

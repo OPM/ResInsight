@@ -25,6 +25,8 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 
+#include <QDateTime>
+
 class RifEclipseRftAddress;
 
 //==================================================================================================
@@ -37,9 +39,11 @@ public:
     RifReaderEclipseRft(const std::string& fileName);
     ~RifReaderEclipseRft();
 
-
     const std::vector<RifEclipseRftAddress>& eclipseRftAddresses();
     void values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
+
+    std::vector<QDateTime>      availableTimeSteps(const QString& wellName, const QString& wellLogChannelName) const;
+    const std::set<QString>&    wellNames() const;
 
 private:
     void open();
@@ -52,6 +56,7 @@ private:
     std::string                         m_fileName;
     ecl_rft_file_type*                  m_ecl_rft_file;
     std::vector<RifEclipseRftAddress>   m_eclipseRftAddresses;
+    std::set<QString>                   m_wellNames;
     std::map<RifEclipseRftAddress, int> m_rftAddressToLibeclNodeIdx;
 
 };

@@ -41,7 +41,6 @@ public:
     static const QString GRAT;
 public:
     RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName);
-    RifEclipseRftAddress(std::string wellName, time_t timeStep, QString wellLogChannelName);
 
     static std::vector<QString> allWellLogChannelNames();
 

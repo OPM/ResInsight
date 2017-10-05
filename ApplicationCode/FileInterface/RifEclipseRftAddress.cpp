@@ -31,19 +31,6 @@ const QString RifEclipseRftAddress::GRAT = "Gas Flow";
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress::RifEclipseRftAddress(std::string wellName, time_t timeStep, QString wellLogChannelName):
-    m_wellLogChannelName(wellLogChannelName)
-{
-    m_timeStep.setTimeSpec(Qt::TimeSpec::UTC);
-    m_timeStep.setTime_t(timeStep);
-
-    m_wellName = QString(wellName.c_str());
-    //m_wellLogChannelName = QString(wellLogChannelName.c_str());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName) :
     m_wellName(wellName), m_wellLogChannelName(wellLogChannelName)
 {
