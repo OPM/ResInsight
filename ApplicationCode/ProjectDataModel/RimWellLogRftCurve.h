@@ -23,13 +23,14 @@
 
 #include "RifEclipseRftAddress.h"
 
-#include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
+#include "cvfObject.h"
 
-class RimEclipseResultCase;
 class RifReaderEclipseRft;
+class RimEclipseResultCase;
 class RiuLineSegmentQwtPlotCurve;
+
 //==================================================================================================
 ///  
 ///  
@@ -55,14 +56,15 @@ protected:
     virtual QString createCurveAutoName() override;
     virtual void    onLoadDataAndUpdate(bool updateParentPlot) override;
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    // Pdm overrrides
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     RifReaderEclipseRft* rftReader() const;
 
-    std::vector<double>  xValues();
-    std::vector<double>  depthValues();
+    std::vector<double>  xValues() const;
+    std::vector<double>  depthValues() const;
 
 private:
     RiuLineSegmentQwtPlotCurve*                     m_qwtPlotCurve;

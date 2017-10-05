@@ -94,7 +94,6 @@ int RimWellLogRftCurve::currentTimeStep() const
 void RimWellLogRftCurve::setEclipseResultCase(RimEclipseResultCase* eclipseResultCase)
 {
     m_eclipseResultCase = eclipseResultCase;
-    //clearGeneratedSimWellPaths();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +205,7 @@ RifReaderEclipseRft* RimWellLogRftCurve::rftReader() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::xValues()
+std::vector<double> RimWellLogRftCurve::xValues() const
 {
     RifReaderEclipseRft* reader = rftReader();
     std::vector<double> values;
@@ -223,7 +222,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::depthValues()
+std::vector<double> RimWellLogRftCurve::depthValues() const
 {
     RifReaderEclipseRft* reader = rftReader();
     std::vector<double> values;
