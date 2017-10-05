@@ -45,23 +45,24 @@ public:
     virtual QString                 wellName() const override;
     virtual QString                 wellLogChannelName() const override;
 
-    std::vector<double>             xValues();
-    std::vector<double>             depthValues();
+    int                             currentTimeStep() const;
 
-    int currentTimeStep() const;
-
-    void setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
-    RimEclipseResultCase* eclipseResultCase() const;
+    void                            setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
+    RimEclipseResultCase*           eclipseResultCase() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve
     virtual QString createCurveAutoName() override;
-    virtual void onLoadDataAndUpdate(bool updateParentPlot) override;
+    virtual void    onLoadDataAndUpdate(bool updateParentPlot) override;
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
     RifReaderEclipseRft* rftReader() const;
+
+    std::vector<double>  xValues();
+    std::vector<double>  depthValues();
 
 private:
     RiuLineSegmentQwtPlotCurve*                     m_qwtPlotCurve;

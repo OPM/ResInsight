@@ -83,40 +83,6 @@ QString RimWellLogRftCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::xValues()
-{
-    RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> values;
-
-    if (!reader) return values;
-
-    RifEclipseRftAddress address(m_wellName().toStdString(), m_timeStep, m_wellLogChannelName().toStdString());
-
-    reader->values(address, &values);
-
-    return values;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::depthValues()
-{
-    RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> values;
-
-    if (!reader) return values;
-
-    RifEclipseRftAddress address(m_wellName().toStdString(), m_timeStep, "DEPTH");
-
-    reader->values(address, &values);
-
-    return values;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 int RimWellLogRftCurve::currentTimeStep() const
 {
     return m_timeStep;
@@ -206,6 +172,26 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     return options;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
+
+    if (changedField == &m_wellName)
+    {
+        this->loadDataAndUpdate(true);
+    }
+    else if (changedField == &m_wellLogChannelName)
+    {
+        this->loadDataAndUpdate(true);
+    }
+    else if (changedField == &m_timeStep)
+    {
+        this->loadDataAndUpdate(true);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -215,4 +201,38 @@ RifReaderEclipseRft* RimWellLogRftCurve::rftReader() const
     if (!m_eclipseResultCase()) return nullptr;
 
     return m_eclipseResultCase()->rftReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::xValues()
+{
+    RifReaderEclipseRft* reader = rftReader();
+    std::vector<double> values;
+
+    if (!reader) return values;
+
+    RifEclipseRftAddress address(m_wellName().toStdString(), m_timeStep, m_wellLogChannelName().toStdString());
+
+    reader->values(address, &values);
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::depthValues()
+{
+    RifReaderEclipseRft* reader = rftReader();
+    std::vector<double> values;
+
+    if (!reader) return values;
+
+    RifEclipseRftAddress address(m_wellName().toStdString(), m_timeStep, "DEPTH");
+
+    reader->values(address, &values);
+
+    return values;
 }
