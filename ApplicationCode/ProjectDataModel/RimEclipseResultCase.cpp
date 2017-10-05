@@ -200,11 +200,15 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
 
     m_flowDagSolverInterface = new RigFlowDiagSolverInterface(this);
 
-    QString rftFile = caseFileName() + ".RFT";
-    std::string rftFileStdString = rftFile.toStdString();
-    if (std::ifstream(rftFileStdString.c_str()))
+    QStringList fileSplitOnDot = caseFileName().split(".");
+    if (fileSplitOnDot.size() == 2)
     {
-        m_readerEclipseRft = new RifReaderEclipseRft(rftFileStdString);
+        QString rftFile = fileSplitOnDot[0] + ".RFT";
+        std::string rftFileStdString = rftFile.toStdString();
+        if (std::ifstream(rftFileStdString.c_str()))
+        {
+            m_readerEclipseRft = new RifReaderEclipseRft(rftFileStdString);
+        }
     }
 
 

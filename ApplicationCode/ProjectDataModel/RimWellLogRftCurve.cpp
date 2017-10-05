@@ -136,6 +136,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
         std::vector<double> values = xValues();
         std::vector<double> depthVector = depthValues();
 
+        if (values.empty() || depthVector.empty()) return;
+
         if (values.size() == depthVector.size())
         {
             m_curveData->setValuesAndMD(values, depthVector, RiaEclipseUnitTools::depthUnit(m_eclipseResultCase->eclipseCaseData()->unitsType()), false);
@@ -162,6 +164,7 @@ void RimWellLogRftCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     RimPlotCurve::updateOptionSensitivity();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
+    curveDataGroup->add(&m_eclipseResultCase);
     curveDataGroup->add(&m_wellName);
     curveDataGroup->add(&m_wellLogChannelName);
     curveDataGroup->add(&m_timeStep);
@@ -191,19 +194,42 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
 
         options.push_front(caf::PdmOptionItemInfo("None", nullptr));
     }
-    
-    if (fieldNeedingOptions == &m_wellLogChannelName)
+    else if (fieldNeedingOptions == &m_wellName)
     {
-        RimTools::caseOptionItems(&options);
-
-        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+        RifReaderEclipseRft* reader = rftReader();
+        if (reader)
+        {
+            std::set<QString> wellNames = reader->wellNames();
+            for (const QString& name : wellNames)
+            {
+                options.push_back(caf::PdmOptionItemInfo(name, name, false, QIcon(":/Well.png")));
+            }
+        }
     }
-    
-    if (fieldNeedingOptions == &m_timeStep)
+    else if (fieldNeedingOptions == &m_wellLogChannelName)
     {
-        RimTools::caseOptionItems(&options);
+        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
 
-        options.push_front(caf::PdmOptionItemInfo("None", nullptr));
+        for (const QString& channelName : RifEclipseRftAddress::allWellLogChannelNames())
+        {
+            options.push_back(caf::PdmOptionItemInfo(channelName, channelName));
+        }
+
+    }
+    else if (fieldNeedingOptions == &m_timeStep)
+    {
+        RifReaderEclipseRft* reader = rftReader();
+        if (reader)
+        {
+            std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName);
+            for (const QDateTime& dt : timeStamps)
+            {
+                options.push_back(caf::PdmOptionItemInfo(dt.toString(), nullptr));
+            }
+        }
+
+        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
     }
 
     return options;
@@ -215,8 +241,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
 void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
-
-    if (changedField == &m_wellName)
+    if (changedField == &m_eclipseResultCase)
+    {
+        this->loadDataAndUpdate(true);
+    }
+    else if (changedField == &m_wellName)
     {
         this->loadDataAndUpdate(true);
     }
