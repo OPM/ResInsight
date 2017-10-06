@@ -411,7 +411,11 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCaseData* e
         transferStaticNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
         progInfo.incrementProgress();
 
-        transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
+        // This test should probably be improved to test more directly for presence of NNC data
+        if (m_eclipseCase->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
+        {
+            transferDynamicNNCData(mainEclGrid, eclipseCase->mainGrid());
+        }
         progInfo.incrementProgress();
 
         progInfo.setProgressDescription("Processing NNC data");
