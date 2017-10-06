@@ -65,6 +65,8 @@ public:
 
     RifReaderEclipseRft*        rftReader();
 
+    QString                     caseName() const { return m_caseName; }
+
 protected:
     virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
@@ -88,6 +90,7 @@ private:
     caf::PdmChildArrayField<RimFlowDiagSolution*> m_flowDiagSolutions;
     caf::PdmField<QString>      m_sourSimFileName;
 
+    QString                     m_caseName;
 
     // Obsolete field
     caf::PdmField<QString>      caseDirectory; 

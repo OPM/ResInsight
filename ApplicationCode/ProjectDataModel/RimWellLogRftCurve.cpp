@@ -139,8 +139,29 @@ RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
-    QString name = wellName() + ": " + wellLogChannelName();
-    
+    QString name;
+    if (m_eclipseResultCase)
+    {
+        name += m_eclipseResultCase->caseName();
+    }
+    if (wellName() != "")
+    {
+        name += ", ";
+        name += wellName();
+    }
+    if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::text(RifEclipseRftAddress::NONE))
+    { 
+        name += ", ";
+        RifEclipseRftAddress::RftWellLogChannelName channelNameEnum = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::fromText(wellLogChannelName());
+        name += caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelNameEnum);
+    }
+    if ( !m_timeStep().isNull())
+    {
+        QString dateFormat = "dd MMM yyyy";
+        name += ", ";
+        name += m_timeStep().toString(dateFormat);
+    }
+
     return name;
 }
 
@@ -251,10 +272,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
         RifReaderEclipseRft* reader = rftReader();
         if (reader)
         {
+            QString dateFormat = "dd MMM yyyy";
             std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
             for (const QDateTime& dt : timeStamps)
             {
-                options.push_back(caf::PdmOptionItemInfo(dt.toString(), dt));
+                options.push_back(caf::PdmOptionItemInfo(dt.toString(dateFormat), dt));
             }
         }
 

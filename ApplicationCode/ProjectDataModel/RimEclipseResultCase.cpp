@@ -91,6 +91,8 @@ RimEclipseResultCase::RimEclipseResultCase()
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
+
+    m_caseName = "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,8 +205,12 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
     QStringList fileSplitOnDot = caseFileName().split(".");
     if (fileSplitOnDot.size() == 2)
     {
+        QStringList fileSplitOnBackSlash = fileSplitOnDot[0].split("\\");
+        m_caseName = fileSplitOnBackSlash.back();
+
         QString rftFile = fileSplitOnDot[0] + ".RFT";
         std::string rftFileStdString = rftFile.toStdString();
+        
         if (std::ifstream(rftFileStdString.c_str()))
         {
             m_readerEclipseRft = new RifReaderEclipseRft(rftFileStdString);
