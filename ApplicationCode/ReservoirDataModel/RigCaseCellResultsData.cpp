@@ -435,7 +435,7 @@ bool RigCaseCellResultsData::hasFlowDiagUsableFluxes() const
 
     bool hasFlowFluxes = true;
     hasFlowFluxes = dynResVarNames.contains("FLRWATI+");
-    hasFlowFluxes = hasFlowFluxes && dynResVarNames.contains("FLROILI+") || dynResVarNames.contains("FLRGASI+");
+    hasFlowFluxes = hasFlowFluxes && (dynResVarNames.contains("FLROILI+") || dynResVarNames.contains("FLRGASI+"));
 
     return hasFlowFluxes;
 }
