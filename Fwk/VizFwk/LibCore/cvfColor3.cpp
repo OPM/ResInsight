@@ -258,6 +258,20 @@ Color3f Color3f::fromByteColor(ubyte r, ubyte g, ubyte b)
     return c;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool operator < (const Color3f& color1, const Color3f& color2)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (color1.m_rgb[i] > color2.m_rgb[i])
+            return false;
+        else if (color1.m_rgb[i] < color2.m_rgb[i])
+            return true;
+    }
+    return false;
+}
 
 
 //==================================================================================================
@@ -431,7 +445,6 @@ const ubyte* Color3ub::ptr() const
 {
     return m_rgb;
 }
-
 
 } // namespace cvf
 
