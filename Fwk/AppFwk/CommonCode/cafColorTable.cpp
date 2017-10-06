@@ -95,7 +95,7 @@ cvf::Color3fArray ColorTable::color3fArray() const
 {
     cvf::Color3fArray col3fArr;
 
-    col3fArr.resize(m_colors.size());
+    col3fArr.reserve(m_colors.size());
     for (const auto& c : m_colors)
     {
         col3fArr.add(cvf::Color3f(c));
