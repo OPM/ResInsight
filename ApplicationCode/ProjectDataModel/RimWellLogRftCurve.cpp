@@ -21,10 +21,8 @@
 
 #include "RiaEclipseUnitTools.h"
 
-#include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
-#include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 
 #include "RigEclipseCaseData.h"
@@ -33,6 +31,7 @@
 #include "RiuLineSegmentQwtPlotCurve.h"
 
 #include "RifReaderEclipseRft.h"
+#include "RifEclipseRftAddress.h"
 
 #include "cafPdmObject.h"
 #include "cvfAssert.h"
@@ -41,6 +40,23 @@
 
 #include <QString>
 
+namespace caf
+{
+    template<>
+    void caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelName >::setUp()
+    {
+        addItem(RifEclipseRftAddress::NONE, "NONE", "None");
+        addItem(RifEclipseRftAddress::DEPTH, "DEPTH", "Depth");
+        addItem(RifEclipseRftAddress::PRESSURE, "PRESSURE", "Pressure");
+        addItem(RifEclipseRftAddress::SWAT, "SWAT", "Water Saturation");
+        addItem(RifEclipseRftAddress::SOIL, "SOIL", "Oil Saturation");
+        addItem(RifEclipseRftAddress::SGAS, "SGAS", "Gas Saturation");
+        addItem(RifEclipseRftAddress::WRAT, "WRAT", "Water Flow");
+        addItem(RifEclipseRftAddress::ORAT, "ORAT", "Oil Flow");
+        addItem(RifEclipseRftAddress::GRAT, "GRAT", "Gas flow");
+        setDefault(RifEclipseRftAddress::NONE);
+    }
+}
 
 CAF_PDM_SOURCE_INIT(RimWellLogRftCurve, "WellLogRftCurve");
 
@@ -57,7 +73,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault(&m_timeStep, "TimeStep", "Time Step", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "Well Name", "", "", "");
-    
+
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "");
 }
 
@@ -81,7 +97,7 @@ QString RimWellLogRftCurve::wellName() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellLogChannelName() const
 {
-    return m_wellLogChannelName;
+    return m_wellLogChannelName().text();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +167,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         updateZoomInParentPlot();
@@ -212,11 +228,14 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     }
     else if (fieldNeedingOptions == &m_wellLogChannelName)
     {
-        options.push_back(caf::PdmOptionItemInfo("None", ""));
-
-        for (const QString& channelName : RifEclipseRftAddress::allWellLogChannelNamesExDepth())
+        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
+        RifReaderEclipseRft* reader = rftReader();
+        if (reader)
         {
-            options.push_back(caf::PdmOptionItemInfo(channelName, channelName));
+            for (const RifEclipseRftAddress::RftWellLogChannelName& channelName : reader->availableWellLogChannels(m_wellName))
+            {
+                options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelName), channelName));
+            }
         }
     }
     else if (fieldNeedingOptions == &m_timeStep)
@@ -224,7 +243,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
         RifReaderEclipseRft* reader = rftReader();
         if (reader)
         {
-            std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName);
+            std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
             for (const QDateTime& dt : timeStamps)
             {
                 options.push_back(caf::PdmOptionItemInfo(dt.toString(), dt));

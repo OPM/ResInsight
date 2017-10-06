@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RifEclipseRftAddress.h"
+
 #include <map>
 #include <string>
 #include <vector>
@@ -26,8 +28,6 @@
 #include "cvfObject.h"
 
 #include <QDateTime>
-
-class RifEclipseRftAddress;
 
 //==================================================================================================
 //
@@ -42,8 +42,9 @@ public:
     const std::vector<RifEclipseRftAddress>& eclipseRftAddresses();
     void values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
 
-    std::vector<QDateTime>      availableTimeSteps(const QString& wellName, const QString& wellLogChannelName) const;
-    const std::set<QString>&    wellNames() const;
+    std::vector<QDateTime>                                      availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelName& wellLogChannelName);
+    std::vector<RifEclipseRftAddress::RftWellLogChannelName>    availableWellLogChannels(const QString& wellName);
+    const std::set<QString>&                                    wellNames();
 
 private:
     void open();
@@ -58,6 +59,5 @@ private:
     std::vector<RifEclipseRftAddress>   m_eclipseRftAddresses;
     std::set<QString>                   m_wellNames;
     std::map<RifEclipseRftAddress, int> m_rftAddressToLibeclNodeIdx;
-
 };
 

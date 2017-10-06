@@ -31,27 +31,31 @@
 class RifEclipseRftAddress
 {
 public:
-    static const QString DEPTH;
-    static const QString PRESSURE;
-    static const QString SWAT;
-    static const QString SOIL; 
-    static const QString SGAS;
-    static const QString WRAT;
-    static const QString ORAT;
-    static const QString GRAT;
+
+    enum RftWellLogChannelName
+    {
+        NONE,
+        DEPTH,
+        PRESSURE,
+        SWAT,
+        SOIL,
+        SGAS,
+        WRAT,
+        ORAT,
+        GRAT
+    };
+
 public:
-    RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName);
+    RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelName wellLogChannelName);
 
-    static std::vector<QString> allWellLogChannelNamesExDepth();
-
-    const QString&  wellName() const            { return m_wellName; }
-    QDateTime       timeStep() const            { return m_timeStep; }
-    const QString&  wellLogChannelName() const  { return m_wellLogChannelName; }
+    const QString&                wellName() const { return m_wellName; }
+    QDateTime                     timeStep() const { return m_timeStep; }
+    const RftWellLogChannelName&  wellLogChannelName() const  { return m_wellLogChannelName; }
 
 private:
-    QString m_wellName;
-    QDateTime   m_timeStep;
-    QString m_wellLogChannelName;
+    QString                 m_wellName;
+    QDateTime               m_timeStep;
+    RftWellLogChannelName   m_wellLogChannelName;
 };
 
 bool operator==(const RifEclipseRftAddress& first, const RifEclipseRftAddress& second);

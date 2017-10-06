@@ -18,43 +18,16 @@
 
 #include "RifEclipseRftAddress.h"
 
-
-const QString RifEclipseRftAddress::DEPTH = "Depth";
-const QString RifEclipseRftAddress::PRESSURE = "Pressure";
-const QString RifEclipseRftAddress::SWAT = "Water Saturation";
-const QString RifEclipseRftAddress::SOIL = "Oil Saturation";
-const QString RifEclipseRftAddress::SGAS = "Gas Saturation";
-const QString RifEclipseRftAddress::WRAT = "Water Flow";
-const QString RifEclipseRftAddress::ORAT = "Oil Flow";
-const QString RifEclipseRftAddress::GRAT = "Gas Flow";
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName) :
+RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep, RftWellLogChannelName wellLogChannelName) :
     m_wellName(wellName), m_wellLogChannelName(wellLogChannelName)
 {
     timeStep.setTimeSpec(Qt::TimeSpec::UTC);
 
     m_timeStep.setTimeSpec(Qt::TimeSpec::UTC);
     m_timeStep = timeStep;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RifEclipseRftAddress::allWellLogChannelNamesExDepth()
-{
-    std::vector<QString> channelNames;
-    channelNames.push_back(RifEclipseRftAddress::PRESSURE);
-    channelNames.push_back(RifEclipseRftAddress::SWAT);
-    channelNames.push_back(RifEclipseRftAddress::SOIL);
-    channelNames.push_back(RifEclipseRftAddress::SGAS);
-    channelNames.push_back(RifEclipseRftAddress::WRAT);
-    channelNames.push_back(RifEclipseRftAddress::ORAT);
-    channelNames.push_back(RifEclipseRftAddress::GRAT);
-
-    return channelNames;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -26,10 +26,10 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 #include "cvfObject.h"
+#include "cafAppEnum.h"
 
 class RifReaderEclipseRft;
 class RimEclipseResultCase;
-class RiuLineSegmentQwtPlotCurve;
 
 //==================================================================================================
 ///  
@@ -68,12 +68,10 @@ private:
     std::vector<double>  depthValues() const;
 
 private:
-    RiuLineSegmentQwtPlotCurve*                     m_qwtPlotCurve;
-
-    caf::PdmPtrField<RimEclipseResultCase*>         m_eclipseResultCase;
-    caf::PdmField<QDateTime>                        m_timeStep;
-    caf::PdmField<QString>                          m_wellName;
-    caf::PdmField<QString>                          m_wellLogChannelName;
+    caf::PdmPtrField<RimEclipseResultCase*>                                       m_eclipseResultCase;
+    caf::PdmField<QDateTime>                                                      m_timeStep;
+    caf::PdmField<QString>                                                        m_wellName;
+    caf::PdmField< caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelName > >  m_wellLogChannelName;
 };
 
 
