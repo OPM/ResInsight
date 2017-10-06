@@ -43,10 +43,9 @@ RifEclipseRftAddress::RifEclipseRftAddress(QString wellName, QDateTime timeStep,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RifEclipseRftAddress::allWellLogChannelNames()
+std::vector<QString> RifEclipseRftAddress::allWellLogChannelNamesExDepth()
 {
     std::vector<QString> channelNames;
-    channelNames.push_back(RifEclipseRftAddress::DEPTH);
     channelNames.push_back(RifEclipseRftAddress::PRESSURE);
     channelNames.push_back(RifEclipseRftAddress::SWAT);
     channelNames.push_back(RifEclipseRftAddress::SOIL);

@@ -211,7 +211,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     {
         options.push_back(caf::PdmOptionItemInfo("None", nullptr));
 
-        for (const QString& channelName : RifEclipseRftAddress::allWellLogChannelNames())
+        for (const QString& channelName : RifEclipseRftAddress::allWellLogChannelNamesExDepth())
         {
             options.push_back(caf::PdmOptionItemInfo(channelName, channelName));
         }

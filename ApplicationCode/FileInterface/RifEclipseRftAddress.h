@@ -42,10 +42,10 @@ public:
 public:
     RifEclipseRftAddress(QString wellName, QDateTime timeStep, QString wellLogChannelName);
 
-    static std::vector<QString> allWellLogChannelNames();
+    static std::vector<QString> allWellLogChannelNamesExDepth();
 
     const QString&  wellName() const            { return m_wellName; }
-    QDateTime           timeStep() const            { return m_timeStep; }
+    QDateTime       timeStep() const            { return m_timeStep; }
     const QString&  wellLogChannelName() const  { return m_wellLogChannelName; }
 
 private:
