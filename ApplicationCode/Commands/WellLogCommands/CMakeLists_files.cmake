@@ -7,6 +7,7 @@ endif()
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RicAddWellLogToPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogCurveExtractionFeature.h
+${CEE_CURRENT_LIST_DIR}RicNewWellLogRftCurveFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewRftPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicDeleteRftPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogFileCurveFeature.h
@@ -28,6 +29,7 @@ ${CEE_CURRENT_LIST_DIR}RicAsciiExportWellLogPlotFeature.h
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RicAddWellLogToPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogCurveExtractionFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicNewWellLogRftCurveFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewRftPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicDeleteRftPlotFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicNewWellLogFileCurveFeature.cpp
