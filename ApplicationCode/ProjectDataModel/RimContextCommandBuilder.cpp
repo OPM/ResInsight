@@ -290,6 +290,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteWellLogCurveFeature";
             commandIds << "Separator";
             commandIds << "RicNewWellLogCurveExtractionFeature";
+            commandIds << "RicNewWellLogRftCurveFeature";
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "Separator";
             commandIds << "RicDeleteWellLogPlotTrackFeature";
@@ -444,7 +445,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
-        commandIds << "RicNewWellLogRftCurveFeature";
 
         commandIds << "RicPasteTimeHistoryCurveFeature";
         commandIds << "RicPasteAsciiDataCurveFeature";
