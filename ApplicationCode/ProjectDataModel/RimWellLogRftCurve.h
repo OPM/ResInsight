@@ -50,6 +50,7 @@ public:
     RimEclipseResultCase*           eclipseResultCase() const;
 
     void                            setRftAddress(RifEclipseRftAddress address);
+    RifEclipseRftAddress            rftAddress() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve

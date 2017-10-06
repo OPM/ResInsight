@@ -127,6 +127,14 @@ void RimWellLogRftCurve::setRftAddress(RifEclipseRftAddress address)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
+{
+    return RifEclipseRftAddress(m_wellName, m_timeStep, m_wellLogChannelName());
+}
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()

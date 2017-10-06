@@ -63,7 +63,9 @@
 #include "RigCaseCellResultsData.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RiaColorTables.h"
-
+#include "RifReaderEclipseRft.h"
+#include "RimWellLogRftCurve.h"
+#include <tuple>
 
 CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 
@@ -252,12 +254,12 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RimWellRftPlot::gridCaseFromCaseId(int caseId)
+RimEclipseResultCase* RimWellRftPlot::eclipseCaseFromCaseId(int caseId)
 {
-    const auto& allGridCases = gridCasesContainingPressure(m_wellName);
-    auto gridCaseItr = std::find_if(allGridCases.begin(), allGridCases.end(), 
-                                 [caseId](RimEclipseResultCase* rimCase) { return  rimCase->caseId == caseId; });
-    return gridCaseItr != allGridCases.end() ? *gridCaseItr : nullptr;
+    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
+    auto itr = std::find_if(eclipseCases.begin(), eclipseCases.end(), 
+                            [caseId](std::tuple<RimEclipseResultCase*,bool,bool> eclCase) { return std::get<0>(eclCase)->caseId == caseId; });
+    return itr != eclipseCases.end() ? std::get<0>(*itr) : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,31 +284,81 @@ RimWellPath* RimWellRftPlot::wellPathForObservedData(const QString& wellName, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseResultCase*> RimWellRftPlot::gridCasesContainingPressure(const QString& wellName) const
+std::vector<std::tuple<RimEclipseResultCase*, bool/*hasPressure*/, bool /*hasRftData*/>> 
+RimWellRftPlot::eclipseCasesContainingPressure(const QString& wellName) const
 {
-    std::vector<RimEclipseResultCase*> cases;
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> cases;
     auto project = RiaApplication::instance()->project();
 
     for (RimOilField* oilField : project->oilFields)
     {
-        auto gridCaseColl = oilField->analysisModels();
-        for (RimEclipseCase* gCase : gridCaseColl->cases())
+        auto eclCaseColl = oilField->analysisModels();
+        for (RimEclipseCase* eCase : eclCaseColl->cases())
         {
-            auto gridCase = dynamic_cast<RimEclipseResultCase*>(gCase);
-            if (gridCase != nullptr && hasPressureData(gridCase))
+            auto eclCase = dynamic_cast<RimEclipseResultCase*>(eCase);
+            if (eclCase != nullptr)
             {
-                auto eclipseCaseData = gridCase->eclipseCaseData();
+                auto eclipseCaseData = eclCase->eclipseCaseData();
                 for (const auto& wellResult : eclipseCaseData->wellResults())
                 {
                     if (QString::compare(wellResult->m_wellName, wellName) == 0)
                     {
-                        cases.push_back(gridCase);
+                        bool hasPressure = hasPressureData(eclCase);
+                        bool hasRftData = eclCase->rftReader() != nullptr;
+                        cases.push_back(std::make_tuple(eclCase, hasPressure, hasRftData));
+                        break;
                     }
                 }
             }
         }
     }
     return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseResultCase*> 
+RimWellRftPlot::gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const
+{
+    std::vector<RimEclipseResultCase*> cases;
+    for (const auto& eclCase : eclipseCases)
+    {
+        bool hasPressureData = std::get<1>(eclCase);
+        cases.push_back(std::get<0>(eclCase));
+    }
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseResultCase*> 
+RimWellRftPlot::rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const
+{
+    std::vector<RimEclipseResultCase*> cases;
+    for (const auto& eclCase : eclipseCases)
+    {
+        bool hasRftData = std::get<2>(eclCase);
+        if (hasRftData)
+        {
+            cases.push_back(std::get<0>(eclCase));
+        }
+    }
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RimWellRftPlot::timeStepsFromRftCase(RimEclipseResultCase* rftCase) const
+{
+    auto reader = rftCase->rftReader();
+    if (reader != nullptr)
+    {
+        return reader->availableTimeSteps(m_wellName, RifEclipseRftAddress::PRESSURE);
+    }
+    return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,8 +378,9 @@ std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(const RimEclipseRes
 std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurveDefs() const
 {
     std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefs;
-    // auto rftCases = 
-    auto gridCases = gridCasesContainingPressure(m_wellName);
+    const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
+    auto rftCases = rftCasesFromEclipseCases(eclipseCases);
+    auto gridCases = gridCasesFromEclipseCases(eclipseCases);
     auto wellPaths = wellPathsContainingPressure(m_wellName);
 
     for (const auto& selectedDate : m_selectedTimeSteps())
@@ -336,7 +389,14 @@ std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurv
         {
             if (rftAddr.sourceType() == RftSourceType::RFT)
             {
-
+                for (const auto& rftCase : rftCases)
+                {
+                    const auto& timeSteps = timeStepsFromRftCase(rftCase);
+                    if (std::find(timeSteps.begin(), timeSteps.end(), selectedDate) != timeSteps.end())
+                    {
+                        curveDefs.insert(std::make_pair(rftAddr, selectedDate));
+                    }
+                }
             }
             else if (rftAddr.sourceType() == RftSourceType::GRID)
             {
@@ -385,10 +445,21 @@ std::set<std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::curveDefsFromC
 //--------------------------------------------------------------------------------------------------
 std::pair<RimWellRftAddress, QDateTime> RimWellRftPlot::curveDefFromCurve(const RimWellLogCurve* curve) const
 {
+    const RimWellLogRftCurve* rftCurve = dynamic_cast<const RimWellLogRftCurve*>(curve);
     const RimWellLogExtractionCurve* gridCurve = dynamic_cast<const RimWellLogExtractionCurve*>(curve);
     const RimWellLogFileCurve* wellLogFileCurve = dynamic_cast<const RimWellLogFileCurve*>(curve);
 
-    if (gridCurve != nullptr)
+    if (rftCurve != nullptr)
+    {
+        const RimEclipseResultCase* rftCase = dynamic_cast<const RimEclipseResultCase*>(rftCurve->eclipseResultCase());
+        if (rftCase != nullptr)
+        {
+            auto rftAddress = rftCurve->rftAddress();
+            auto timeStep = rftAddress.timeStep();
+            return std::make_pair(RimWellRftAddress(RftSourceType::RFT, rftCase->caseId), timeStep);
+        }
+    }
+    else if (gridCurve != nullptr)
     {
         const RimEclipseResultCase* gridCase = dynamic_cast<const RimEclipseResultCase*>(gridCurve->rimCase());
         if (gridCase != nullptr)
@@ -436,7 +507,15 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
     {
         if (curveDefToAdd.first.sourceType() == RftSourceType::RFT)
         {
+            auto curve = new RimWellLogRftCurve();
+            plotTrack->addCurve(curve);
 
+            auto rftCase = eclipseCaseFromCaseId(curveDefToAdd.first.caseId());
+            curve->setEclipseResultCase(rftCase);
+
+            RifEclipseRftAddress address(m_wellName, curveDefToAdd.second, RifEclipseRftAddress::PRESSURE);
+            curve->setRftAddress(address);
+            curve->loadDataAndUpdate(true);
         }
         else if (curveDefToAdd.first.sourceType() == RftSourceType::GRID)
         {
@@ -448,7 +527,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
             curve->setFromSimulationWellName(m_wellName, m_branchIndex);
 
             // Fetch cases and time steps
-            auto gridCase = gridCaseFromCaseId(curveDefToAdd.first.caseId());
+            auto gridCase = eclipseCaseFromCaseId(curveDefToAdd.first.caseId());
             if (gridCase != nullptr)
             {
                 // Case
@@ -482,7 +561,6 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
             }
         }
     }
-    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,12 +657,20 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedSources)
     {
-        options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::RFT), true));
+        const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
 
-        // ...
+        options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::RFT), true));
+        auto rftCases = rftCasesFromEclipseCases(eclipseCases);
+        for (const auto& rftCase : rftCases)
+        {
+            auto addr = RimWellRftAddress(RftSourceType::RFT, rftCase->caseId);
+            auto item = caf::PdmOptionItemInfo(rftCase->caseUserDescription(), QVariant::fromValue(addr));
+            item.setLevel(1);
+            options.push_back(item);
+        }
 
         options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::GRID), true));
-        auto gridCases = gridCasesContainingPressure(m_wellName);
+        auto gridCases = gridCasesFromEclipseCases(eclipseCases);
         for (const auto& gridCase : gridCases)
         {
             auto addr = RimWellRftAddress(RftSourceType::GRID, gridCase->caseId);
@@ -592,7 +678,6 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             item.setLevel(1);
             options.push_back(item);
         }
-
 
         options.push_back(caf::PdmOptionItemInfo::createHeader(RimWellRftAddress::sourceTypeUiText(RftSourceType::OBSERVED), true));
         if (wellPathsContainingPressure(m_wellName).size() > 0)
@@ -715,15 +800,25 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options)
 {
     std::set<QDateTime> dates;
-    //auto rftCases = 
-    auto gridCases = gridCasesContainingPressure(wellName);
+    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(wellName);
+    auto rftCases = rftCasesFromEclipseCases(eclipseCases);
+    auto gridCases = gridCasesFromEclipseCases(eclipseCases);
     auto observedWellPaths = wellPathsContainingPressure(m_wellName);
 
     for (const auto& selection : m_selectedSources())
     {
         if (selection.sourceType() == RimWellRftAddress(RftSourceType::RFT))
         {
-
+            for (const auto& rftCase : rftCases)
+            {
+                for (const auto& date : timeStepsFromRftCase(rftCase))
+                {
+                    if (date.isValid())
+                    {
+                        dates.insert(date);
+                    }
+                }
+            }
         }
         else if (selection.sourceType() == RimWellRftAddress(RftSourceType::GRID))
         {

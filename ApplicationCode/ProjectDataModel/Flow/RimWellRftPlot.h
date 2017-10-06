@@ -108,11 +108,14 @@ private:
 
     std::vector<RimWellPath*>                       wellPathsContainingPressure(const QString& wellName) const;
     std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
-    RimEclipseResultCase*                           gridCaseFromCaseId(int caseId);
+    RimEclipseResultCase*                           eclipseCaseFromCaseId(int caseId);
 
     RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
 
-    std::vector<RimEclipseResultCase*>              gridCasesContainingPressure(const QString& wellName) const;
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesContainingPressure(const QString& wellName) const;
+    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const;
+    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const;
+    std::vector<QDateTime>                          timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
     std::vector<QDateTime>                          timeStepsFromGridCase(const RimEclipseResultCase* gridCase) const;
 
     std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
