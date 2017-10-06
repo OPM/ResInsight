@@ -37,6 +37,8 @@
 #include "cafPdmObject.h"
 #include "cvfAssert.h"
 
+#include <qwt_plot.h>
+
 #include <QString>
 
 
@@ -149,10 +151,11 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         updateZoomInParentPlot();
+        if (m_parentQwtPlot) m_parentQwtPlot->replot();
     }
 }
 
@@ -196,7 +199,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     }
     else if (fieldNeedingOptions == &m_wellName)
     {
-        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+        options.push_back(caf::PdmOptionItemInfo("None", ""));
         RifReaderEclipseRft* reader = rftReader();
         if (reader)
         {
@@ -209,13 +212,12 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     }
     else if (fieldNeedingOptions == &m_wellLogChannelName)
     {
-        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+        options.push_back(caf::PdmOptionItemInfo("None", ""));
 
         for (const QString& channelName : RifEclipseRftAddress::allWellLogChannelNamesExDepth())
         {
             options.push_back(caf::PdmOptionItemInfo(channelName, channelName));
         }
-
     }
     else if (fieldNeedingOptions == &m_timeStep)
     {
@@ -225,11 +227,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
             std::vector<QDateTime> timeStamps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName);
             for (const QDateTime& dt : timeStamps)
             {
-                options.push_back(caf::PdmOptionItemInfo(dt.toString(), nullptr));
+                options.push_back(caf::PdmOptionItemInfo(dt.toString(), dt));
             }
         }
 
-        options.push_back(caf::PdmOptionItemInfo("None", nullptr));
+        options.push_back(caf::PdmOptionItemInfo("None", QDateTime()));
     }
 
     return options;
@@ -296,7 +298,7 @@ std::vector<double> RimWellLogRftCurve::depthValues() const
 
     if (!reader) return values;
 
-    RifEclipseRftAddress address(m_wellName(), m_timeStep, "DEPTH");
+    RifEclipseRftAddress address(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
 
     reader->values(address, &values);
 
