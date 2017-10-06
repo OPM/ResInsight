@@ -53,6 +53,25 @@ CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+template<typename T>
+static T selectedPdmObject()
+{
+    T objToFind = nullptr;
+
+    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
+
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
+    if (objHandle)
+    {
+        objHandle->firstAncestorOrThisOfType(objToFind);
+    }
+
+    return objToFind;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
