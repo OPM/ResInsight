@@ -21,6 +21,7 @@ RimPlotCurve <|-- RimSummaryCurve
 RimWellLogCurve <|-- RimWellFlowRateCurve
 RimWellLogCurve <|-- RimWellLogExtractionCurve
 RimWellLogCurve <|-- RimWellLogFileCurve
+RimWellLogCurve <|-- RimWellLogRftCurve
 RimWellLogCurve *--> RigWellLogCurveData
 }
 }
