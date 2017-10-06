@@ -33,15 +33,19 @@ class RigEclipseCaseData;
 //==================================================================================================
 /// 
 //==================================================================================================
-struct WellPathCellIntersectionInfo {
-    WellPathCellIntersectionInfo(size_t cellIndex, cvf::Vec3d startPoint, cvf::Vec3d endPoint, cvf::Vec3d internalCellLengths)
-        : cellIndex(cellIndex),
+struct WellPathCellIntersectionInfo 
+{
+    WellPathCellIntersectionInfo(size_t globReservoirCellIndex, 
+                                 cvf::Vec3d startPoint, 
+                                 cvf::Vec3d endPoint, 
+                                 cvf::Vec3d internalCellLengths)
+        : globCellIndex(globReservoirCellIndex),
           startPoint(startPoint),
           endPoint(endPoint),
           internalCellLengths(internalCellLengths)
     {}
 
-    size_t                        cellIndex;
+    size_t                        globCellIndex;
     cvf::Vec3d                    startPoint;
     cvf::Vec3d                    endPoint;
     cvf::Vec3d                    internalCellLengths; // intersectionLengthsInCellCS

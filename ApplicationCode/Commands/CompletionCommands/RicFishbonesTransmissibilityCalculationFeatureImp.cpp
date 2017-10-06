@@ -185,7 +185,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
                                                                                                                               fishbonesPath->measuredDepths());
         for (auto& cell : intersectedCells)
         {
-            if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.cellIndex) != wellPathCells.end()) continue;
+            if (std::find(wellPathCells.begin(), wellPathCells.end(), cell.globCellIndex) != wellPathCells.end()) continue;
 
             double skinFactor = wellPath->fishbonesCollection()->wellPathCollection()->skinFactor();
             QString completionMetaData = fishbonesPath->name();
@@ -194,7 +194,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneImportedLate
                                                                              skinFactor, 
                                                                              isMainBore,
                                                                              completionMetaData);
-            wellBorePartsInCells[cell.cellIndex].push_back(wellBorePart); 
+            wellBorePartsInCells[cell.globCellIndex].push_back(wellBorePart); 
         }
     }
 }
@@ -231,6 +231,6 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findMainWellBoreParts(st
                                                                          isMainBore,
                                                                          completionMetaData);
 
-        wellBorePartsInCells[cell.cellIndex].push_back(wellBorePart);
+        wellBorePartsInCells[cell.globCellIndex].push_back(wellBorePart);
     }
 }

@@ -723,20 +723,20 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeature::generateP
                                                                                                                               perforationPointsAndMD.second);
         for (auto& cell : intersectedCells)
         {
-            bool cellIsActive = activeCellInfo->isActive(cell.cellIndex);
+            bool cellIsActive = activeCellInfo->isActive(cell.globCellIndex);
             if (!cellIsActive) continue;
 
             size_t i, j, k;
-            settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.cellIndex, &i, &j, &k);
+            settings.caseToApply->eclipseCaseData()->mainGrid()->ijkFromCellIndex(cell.globCellIndex, &i, &j, &k);
             RigCompletionData completion(wellPath->completions()->wellNameForExport(), IJKCellIndex(i, j, k));
-            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.cellIndex, cell.internalCellLengths);
+            CellDirection direction = calculateDirectionInCell(settings.caseToApply, cell.globCellIndex, cell.internalCellLengths);
 
             double transmissibility = RicWellPathExportCompletionDataFeature::calculateTransmissibility(settings.caseToApply,
                                                                                                         wellPath,
                                                                                                         cell.internalCellLengths,
                                                                                                         interval->skinFactor(),
                                                                                                         interval->diameter(unitSystem) / 2,
-                                                                                                        cell.cellIndex,
+                                                                                                        cell.globCellIndex,
                                                                                                         settings.useLateralNTG);
               
 
@@ -898,7 +898,7 @@ void RicWellPathExportCompletionDataFeature::calculateLateralIntersections(const
 
                 WellSegmentLateralIntersection lateralIntersection( ++(*segmentNum), 
                                                                    attachedSegmentNumber, 
-                                                                   intersection->cellIndex, 
+                                                                   intersection->globCellIndex, 
                                                                    length, 
                                                                    depth);
 

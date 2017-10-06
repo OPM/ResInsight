@@ -234,6 +234,6 @@ void RigWellLogExtractor::appendIntersectionToArrays(double measuredDepth, const
     m_measuredDepth.push_back       (measuredDepth);
     m_trueVerticalDepth.push_back   (fabs(intersection.m_intersectionPoint[2]));
     m_intersections.push_back       (intersection.m_intersectionPoint);
-    m_intersectedCells.push_back    (intersection.m_hexIndex);
+    m_intersectedCellsGlobIdx.push_back    (intersection.m_hexIndex);
     m_intersectedCellFaces.push_back(intersection.m_face);
 }

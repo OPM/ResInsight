@@ -64,7 +64,7 @@ void RigGeoMechWellLogExtractor::curveData(const RigFemResultAddress& resAddr, i
 
     for (size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx)
     {
-        size_t elmIdx = m_intersectedCells[cpIdx];
+        size_t elmIdx = m_intersectedCellsGlobIdx[cpIdx];
         RigElementType elmType = femPart->elementType(elmIdx);
 
         if (!(elmType == HEX8  || elmType == HEX8P)) continue;

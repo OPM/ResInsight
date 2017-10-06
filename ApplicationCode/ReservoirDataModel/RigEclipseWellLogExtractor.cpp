@@ -125,7 +125,7 @@ void RigEclipseWellLogExtractor::curveData(const RigResultAccessor* resultAccess
 
     for (size_t cpIdx = 0; cpIdx < m_intersections.size(); ++cpIdx)
     {
-        size_t cellIdx = m_intersectedCells[cpIdx];
+        size_t cellIdx = m_intersectedCellsGlobIdx[cpIdx];
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
         (*values)[cpIdx] = resultAccessor->cellFaceScalarGlobIdx(cellIdx, cellFace);
     }
@@ -145,8 +145,8 @@ std::vector<WellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellInters
    
         for (size_t cpIdx = 0; cpIdx < m_intersections.size()-1; ++cpIdx)
         {
-            size_t cellIdx1 = m_intersectedCells[cpIdx];
-            size_t cellIdx2 = m_intersectedCells[cpIdx+1];
+            size_t cellIdx1 = m_intersectedCellsGlobIdx[cpIdx];
+            size_t cellIdx2 = m_intersectedCellsGlobIdx[cpIdx+1];
 
             if (cellIdx1 == cellIdx2)
             {

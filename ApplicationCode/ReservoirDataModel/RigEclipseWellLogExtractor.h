@@ -46,14 +46,14 @@ class RigEclipseWellLogExtractor : public RigWellLogExtractor
 public:
     RigEclipseWellLogExtractor(const RigEclipseCaseData* aCase, const RigWellPath* wellpath, const std::string& wellCaseErrorMsgName);
 
-    void                        curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
-    const RigEclipseCaseData*          caseData()     { return m_caseData.p();}
+    void                                      curveData(const RigResultAccessor* resultAccessor, std::vector<double>* values );
+    const RigEclipseCaseData*                 caseData()     { return m_caseData.p();}
 
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfo();
 
 protected:
-    void                        calculateIntersection();
-    std::vector<size_t>         findCloseCells(const cvf::BoundingBox& bb);
+    void                                      calculateIntersection();
+    std::vector<size_t>                       findCloseCells(const cvf::BoundingBox& bb);
 
-    cvf::cref<RigEclipseCaseData>      m_caseData;
+    cvf::cref<RigEclipseCaseData>             m_caseData;
 };
