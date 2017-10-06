@@ -444,6 +444,8 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         // is aware of multiple selected items, move the command to this list
         // without using dyncamic_cast.
 
+        commandIds << "RicNewWellLogRftCurveFeature";
+
         commandIds << "RicPasteTimeHistoryCurveFeature";
         commandIds << "RicPasteAsciiDataCurveFeature";
         commandIds << "RicCopyReferencesToClipboardFeature";
@@ -475,6 +477,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicCloseSummaryCaseInCollectionFeature";
         commandIds << "RicDeleteSummaryCaseCollectionFeature";
         commandIds << "RicCloseObservedDataFeature";
+
 
         // Fracture commands
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
