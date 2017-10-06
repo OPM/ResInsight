@@ -79,6 +79,7 @@ RiaDefines::DepthUnitType RiaEclipseUnitTools::depthUnit(UnitSystem unit)
         return RiaDefines::UNIT_NONE;
         break;
     default:
+        return RiaDefines::UNIT_NONE;
         break;
     }
 }
