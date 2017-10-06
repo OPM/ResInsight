@@ -82,13 +82,12 @@ public:
     caf::PdmField<cvf::Color3f>         wellPathColor;
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
-    caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
-
     RimFishbonesCollection*              fishbonesCollection();
     const RimFishbonesCollection*        fishbonesCollection() const;
     RimPerforationCollection*            perforationIntervalCollection();
     const RimPerforationCollection*      perforationIntervalCollection() const;
     const RimWellPathCompletions*        completions() const;
+
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     RimWellPathFractureCollection*       fractureCollection();
     const RimWellPathFractureCollection* fractureCollection() const;
@@ -138,4 +137,7 @@ private:
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
+    
+    caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
+
 };

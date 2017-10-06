@@ -102,7 +102,7 @@ RimWellPath* RicNewWellLogFileCurveFeature::selectedWellPathWithLogFile() const
     if (selection.size() > 0)
     {
         RimWellPath* wellPath = selection[0];
-        if (wellPath->m_wellLogFile())
+        if (wellPath->wellLogFile())
         {
             return wellPath;
         }
@@ -123,9 +123,9 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
 
         for (size_t i = 0; i < wellPaths.size(); i++)
         {
-            if (wellPaths[i]->m_wellLogFile())
+            if (wellPaths[i]->wellLogFile())
             {
-                if (wellPaths[i]->m_wellLogFile()->wellLogFile())
+                if (wellPaths[i]->wellLogFile()->wellLogFile())
                 {
                     return true;
                 }

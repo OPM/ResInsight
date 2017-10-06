@@ -92,7 +92,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
         else if (m_wellPath)
         {
-            RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
+            RimWellLogFile* logFileInfo = m_wellPath->wellLogFile();
             if (logFileInfo)
             {
                 RigWellLogFile* wellLogFile = logFileInfo->wellLogFile();
@@ -220,7 +220,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
             for (size_t i = 0; i < wellPaths.size(); i++)
             {
                 // Only include well paths coming from a well log file
-                if (wellPaths[i]->m_wellLogFile())
+                if (wellPaths[i]->wellLogFile())
                 {
                     options.push_back(caf::PdmOptionItemInfo(wellPaths[i]->name(), wellPaths[i]));
                 }
@@ -237,7 +237,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
     {
         if (m_wellPath())
         {
-            RimWellLogFile* wellLogFile = m_wellPath->m_wellLogFile();
+            RimWellLogFile* wellLogFile = m_wellPath->wellLogFile();
             if (wellLogFile)
             {
                 const caf::PdmChildArrayField<RimWellLogFileChannel*>* fileLogs = wellLogFile->wellLogChannelNames();
@@ -272,7 +272,7 @@ QString RimWellLogFileCurve::createCurveAutoName()
         txt += " : ";
         txt += m_wellLogChannnelName;
 
-        RimWellLogFile* logFileInfo = m_wellPath->m_wellLogFile;
+        RimWellLogFile* logFileInfo = m_wellPath->wellLogFile();
         RigWellLogFile* wellLogFile = logFileInfo ? logFileInfo->wellLogFile() : NULL;
         if (wellLogFile)
         {

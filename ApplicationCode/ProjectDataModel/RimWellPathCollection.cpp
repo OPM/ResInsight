@@ -137,7 +137,7 @@ void RimWellPathCollection::readWellPathFiles()
             }
         }
 
-        RimWellLogFile* wellLogFile = wellPaths[wpIdx]->m_wellLogFile;
+        RimWellLogFile* wellLogFile = wellPaths[wpIdx]->wellLogFile();
         if (wellLogFile)
         {
             QString errorMessage;
