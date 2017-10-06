@@ -43,31 +43,28 @@ public:
     RimWellLogFile();
     virtual ~RimWellLogFile();
 
-    static RimWellLogFile* readWellLogFile(const QString& logFilePath);
-
-
-    void    setFileName(const QString& fileName);
-    QString fileName() const { return m_fileName; }
-
-    bool readFile(QString* errorMessage);
-    
-    QString wellName() const;
-    QString date() const;
-    virtual caf::PdmFieldHandle* userDescriptionField()  { return &m_name; }
-
-    RigWellLogFile* wellLogFile() { return m_wellLogDataFile.p(); }
-
-    const caf::PdmChildArrayField<RimWellLogFileChannel*>* wellLogChannelNames() const { return &m_wellLogChannelNames; }
-
+    static RimWellLogFile*               readWellLogFile(const QString& logFilePath);
+                                         
+    void                                 setFileName(const QString& fileName);
+    QString                              fileName() const        { return m_fileName; }
+                                         
+    bool                                 readFile(QString* errorMessage);
+                                         
+    QString                              wellName() const;
+    QString                              date() const;
+                                         
+    RigWellLogFile*                      wellLogFile()           { return m_wellLogDataFile.p(); }
     std::vector<RimWellLogFileChannel*>  wellLogChannels() const;
 
 private:
+    virtual caf::PdmFieldHandle*         userDescriptionField()  { return &m_name; }
+
     caf::PdmChildArrayField<RimWellLogFileChannel*>  m_wellLogChannelNames;
 
 private:
-    cvf::ref<RigWellLogFile>    m_wellLogDataFile;
-    caf::PdmField<QString>      m_wellName;
-    caf::PdmField<QString>      m_fileName;
-    caf::PdmField<QString>      m_name;
-    caf::PdmField<QString>      m_date;
+    cvf::ref<RigWellLogFile>             m_wellLogDataFile;
+    caf::PdmField<QString>               m_wellName;
+    caf::PdmField<QString>               m_fileName;
+    caf::PdmField<QString>               m_name;
+    caf::PdmField<QString>               m_date;
 };

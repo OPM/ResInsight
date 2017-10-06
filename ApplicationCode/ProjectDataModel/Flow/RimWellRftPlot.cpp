@@ -530,8 +530,8 @@ QString RimWellRftPlot::currentWellName() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellRftPlot::hasPressureData(RimWellLogFile* wellLogFile)
 {
-    const auto& wellLogChannels = wellLogFile->wellLogChannelNames();
-    for (const auto& wellLogChannel : *wellLogChannels)
+    auto wellLogChannels = wellLogFile->wellLogChannels();
+    for (const auto& wellLogChannel : wellLogChannels)
     {
         if (hasPressureData(wellLogChannel)) return true;
     }

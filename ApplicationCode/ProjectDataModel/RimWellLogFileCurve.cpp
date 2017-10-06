@@ -240,11 +240,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
             RimWellLogFile* wellLogFile = m_wellPath->wellLogFile();
             if (wellLogFile)
             {
-                const caf::PdmChildArrayField<RimWellLogFileChannel*>* fileLogs = wellLogFile->wellLogChannelNames();
+                std::vector<RimWellLogFileChannel*> fileLogs = wellLogFile->wellLogChannels();
 
-                for (size_t i = 0; i < fileLogs->size(); i++)
+                for (size_t i = 0; i < fileLogs.size(); i++)
                 {
-                    QString wellLogChannelName = (*fileLogs)[i]->name();
+                    QString wellLogChannelName = fileLogs[i]->name();
                     options.push_back(caf::PdmOptionItemInfo(wellLogChannelName, wellLogChannelName));
                 }
             }
