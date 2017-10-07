@@ -802,9 +802,9 @@ bool RicSummaryCurveCreator::isAddressCompatibleWithControllingFieldSelection(co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromSelections()
+std::set<std::pair<RifEclipseSummaryAddress,bool>> RicSummaryCurveCreator::buildAddressListFromSelections()
 {
-    std::set<RifEclipseSummaryAddress> addressSet;
+    std::set<std::pair<RifEclipseSummaryAddress,bool>> addressSet;
     for (const auto& category : m_selectedSummaryCategories())
     {
         auto identifierAndFieldList = m_identifierFieldsMap[category];
@@ -820,17 +820,19 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::buildAddressListFromS
 void RicSummaryCurveCreator::buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                     std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                     std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
-                                                                    std::set<RifEclipseSummaryAddress>& addressSet)
+                                                                    std::set<std::pair<RifEclipseSummaryAddress,bool>>& addressPairSet)
 
 {
     for (const auto& identifierText : (*identifierAndFieldItr)->pdmField()->v())
     {
         auto idText = identifierText;
-        idText.remove(OBSERVED_DATA_AVALUE_POSTFIX);
+        bool isObservedData = idText.contains(OBSERVED_DATA_AVALUE_POSTFIX);
+        if(isObservedData)
+            idText.remove(OBSERVED_DATA_AVALUE_POSTFIX);
         identifierPath.push_back(std::make_pair((*identifierAndFieldItr)->summaryIdentifier(), idText));
         if ((*identifierAndFieldItr)->summaryIdentifier() != RifEclipseSummaryAddress::INPUT_VECTOR_NAME)
         {
-            buildAddressListForCategoryRecursively(category, std::next(identifierAndFieldItr, 1), identifierPath, addressSet);
+            buildAddressListForCategoryRecursively(category, std::next(identifierAndFieldItr, 1), identifierPath, addressPairSet);
         }
         else
         {
@@ -839,8 +841,8 @@ void RicSummaryCurveCreator::buildAddressListForCategoryRecursively(RifEclipseSu
             {
                 selectedIdentifiers.insert(std::make_pair(identifier.first, identifier.second.toStdString()));
             }
-            auto address = RifEclipseSummaryAddress(category, selectedIdentifiers);
-            addressSet.insert(address);
+            auto addressPair = std::make_pair(RifEclipseSummaryAddress(category, selectedIdentifiers), isObservedData);
+            addressPairSet.insert(addressPair);
         }
         identifierPath.pop_back();
     }
@@ -857,7 +859,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
     // Populate the newCurveDefinitions from the Gui
 
-    std::set<RifEclipseSummaryAddress> selectedAddresses = buildAddressListFromSelections();
+    std::set<std::pair<RifEclipseSummaryAddress, bool>> selectedAddresses = buildAddressListFromSelections();
 
     // Find the addresses to display
     std::set<RifEclipseSummaryAddress> addrUnion;
@@ -872,7 +874,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
             for (int i = 0; i < addressCount; i++)
             {
-                if (selectedAddresses.count(allAddresses[i]) > 0)
+                if (selectedAddresses.count(std::make_pair(allAddresses[i], isObservedData(currCase))) > 0)
                 {
                     addrUnion.insert(allAddresses[i]);
                     allCurveDefinitions.insert(std::make_pair(currCase, allAddresses[i]));
@@ -1076,6 +1078,8 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
     m_selectedSummaryCategories.v().clear();
     for (const auto& curve : sourceSummaryPlot.summaryCurves())
     {
+        bool isObservedDataCase = isObservedData(curve->summaryCase());
+
         // Select summary category if not already selected
         auto& selectedCategories = m_selectedSummaryCategories();
         if (std::find(selectedCategories.begin(), selectedCategories.end(),
@@ -1093,12 +1097,17 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         auto identifierAndFieldList = m_identifierFieldsMap[curve->summaryAddress().category()];
         for (const auto& identifierAndField : identifierAndFieldList)
         {
-            QString uiText = QString::fromStdString(curve->summaryAddress().uiText(identifierAndField->summaryIdentifier()));
+            bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+            QString avalue = QString::fromStdString(curve->summaryAddress().uiText(identifierAndField->summaryIdentifier()));
+            if (isVectorField && isObservedDataCase)
+            {
+                avalue = avalue + QString(OBSERVED_DATA_AVALUE_POSTFIX);
+            }
             const auto& currentSelectionVector = identifierAndField->pdmField()->v();
-            if (std::find(currentSelectionVector.begin(), currentSelectionVector.end(), uiText) == currentSelectionVector.end())
+            if (std::find(currentSelectionVector.begin(), currentSelectionVector.end(), avalue) == currentSelectionVector.end())
             {
                 std::vector<QString> newSelectionVector(currentSelectionVector.begin(), currentSelectionVector.end());
-                newSelectionVector.push_back(uiText);
+                newSelectionVector.push_back(avalue);
                 (*identifierAndField->pdmField()) = newSelectionVector;
             }
         }

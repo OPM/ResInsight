@@ -102,11 +102,11 @@ private:
     SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *dependentField);
     bool                                    isAddressCompatibleWithControllingFieldSelection(const RifEclipseSummaryAddress &address, 
                                                               const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
-    std::set<RifEclipseSummaryAddress>      buildAddressListFromSelections();
+    std::set<std::pair<RifEclipseSummaryAddress,bool>>   buildAddressListFromSelections();
     void                                    buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                                    std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
                                                                                    std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
-                                                                                   std::set<RifEclipseSummaryAddress>& addressSet);
+                                                                                   std::set<std::pair<RifEclipseSummaryAddress,bool>>& addressPairSet);
 
     void                                    syncPreviewCurvesFromUiSelection();
     void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& allCurveDefsToDisplay, 
