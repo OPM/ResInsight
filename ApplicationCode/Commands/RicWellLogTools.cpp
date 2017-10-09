@@ -36,7 +36,7 @@
 #include "RiuMainPlotWindow.h"
 #include "RiuSelectionManager.h"
 
-#include "WellLogCommands\RicWellLogPlotCurveFeatureImpl.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
 
