@@ -19,17 +19,13 @@
 #pragma once
 
 #include <qglobal.h>
+#include <qnamespace.h>
 
 #include <string>
 
 class QDateTime;
 class QDate;
 class QTime;
-
-namespace Qt
-{
-    enum TimeSpec;
-}
 
 //==================================================================================================
 // 
