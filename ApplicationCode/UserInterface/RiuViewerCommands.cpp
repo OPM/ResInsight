@@ -325,6 +325,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 RiuSelectionManager::instance()->setSelectedItem(selItem, RiuSelectionManager::RUI_TEMPORARY);
 
                 commandIds << "RicNewWellLogCurveExtractionFeature";
+                commandIds << "RicNewWellLogRftCurveFeature";
                 commandIds << "RicNewRftPlotFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
                 commandIds << "RicPlotProductionRateFeature";

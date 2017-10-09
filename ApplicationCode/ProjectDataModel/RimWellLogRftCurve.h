@@ -52,6 +52,8 @@ public:
     void                            setRftAddress(RifEclipseRftAddress address);
     RifEclipseRftAddress            rftAddress() const;
 
+    void                            setDefaultAddress(QString wellName);
+
 protected:
     // Overrides from RimWellLogPlotCurve
     virtual QString createCurveAutoName() override;

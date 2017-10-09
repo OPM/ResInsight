@@ -45,6 +45,7 @@ public:
     std::vector<QDateTime>                                      availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelName& wellLogChannelName);
     std::vector<RifEclipseRftAddress::RftWellLogChannelName>    availableWellLogChannels(const QString& wellName);
     const std::set<QString>&                                    wellNames();
+    bool                                                        wellHasRftData(QString wellName);
 
 private:
     void open();

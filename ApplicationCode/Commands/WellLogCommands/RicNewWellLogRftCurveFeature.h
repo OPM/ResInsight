@@ -22,6 +22,8 @@
 
 class RimWellLogRftCurve;
 class RimWellLogTrack;
+class RimEclipseWell;
+class RimWellPath;
 
 //==================================================================================================
 /// 
@@ -30,12 +32,13 @@ class RicNewWellLogRftCurveFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static RimWellLogRftCurve* addCurve(RimWellLogTrack* plotTrack);
-    static RimWellLogTrack*    selectedWellLogPlotTrack();
-
 private:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook( QAction* actionToSetup ) override;
+
+    static RimWellLogRftCurve* addCurve(RimWellLogTrack* plotTrack, const RimEclipseWell* simWell);
+    static RimWellLogTrack*    selectedWellLogPlotTrack();
+    static RimEclipseWell*     selectedSimulationWell(int * branchIndex);
+    static bool                wellHasRftData(const QString& wellName);
 };

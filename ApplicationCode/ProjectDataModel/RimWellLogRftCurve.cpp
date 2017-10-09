@@ -137,6 +137,37 @@ RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setDefaultAddress(QString wellName)
+{
+    RifReaderEclipseRft* reader = rftReader();
+    if (!reader) return;
+
+    bool wellNameHasRftData = false;
+    std::set<QString> wellNames = reader->wellNames();
+    for (const QString& wellNameWithRft : wellNames)
+    {
+        if (wellName == wellNameWithRft)
+        {
+            wellNameHasRftData = true;
+            m_wellName = wellName;
+            break;
+        }
+    }
+
+    if (!wellNameHasRftData) return;
+
+    m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
+
+    std::vector<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
+    if (timeSteps.size() > 0)
+    {
+        m_timeStep = timeSteps[0];
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
     QString name;
