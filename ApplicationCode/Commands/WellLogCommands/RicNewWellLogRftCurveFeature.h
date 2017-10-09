@@ -20,11 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimWellLogRftCurve;
-class RimWellLogTrack;
-class RimEclipseWell;
-class RimWellPath;
-
 //==================================================================================================
 /// 
 //==================================================================================================
@@ -36,9 +31,4 @@ private:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook( QAction* actionToSetup ) override;
-
-    static RimWellLogRftCurve* addCurve(RimWellLogTrack* plotTrack, const RimEclipseWell* simWell);
-    static RimWellLogTrack*    selectedWellLogPlotTrack();
-    static RimEclipseWell*     selectedSimulationWell(int * branchIndex);
-    static bool                wellHasRftData(const QString& wellName);
 };

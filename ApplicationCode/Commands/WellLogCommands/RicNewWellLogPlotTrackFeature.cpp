@@ -21,6 +21,7 @@
 
 #include "RicNewWellLogCurveExtractionFeature.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
+#include "RicWellLogTools.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -57,7 +58,7 @@ void RicNewWellLogPlotTrackFeature::onActionTriggered(bool isChecked)
          plotTrack->setDescription(QString("Track %1").arg(wellLogPlot->trackCount()));
 
          wellLogPlot->updateConnectedEditors();
-         RicNewWellLogCurveExtractionFeature::addCurve(plotTrack, NULL, NULL, nullptr, -1);
+         RicWellLogTools::addExtractionCurve(plotTrack, nullptr, nullptr, nullptr, -1);
     }
 }
 

@@ -18,32 +18,26 @@
 
 #include "RicNewWellLogRftCurveFeature.h"
 
-#include "RiaApplication.h"
-
+#include "RimEclipseResultCase.h"
 #include "RimEclipseWell.h"
 #include "RimProject.h"
+#include "RimWellLogCurve.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogCurve.h"
-#include "RimEclipseResultCase.h"
 
 #include "RigWellLogCurveData.h"
 
-#include "RifReaderEclipseRft.h"
-
 #include "RiuMainPlotWindow.h"
-#include "RiuSelectionManager.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
 #include "RicNewWellLogPlotFeatureImpl.h"
-#include "cafSelectionManager.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
+#include "RicWellLogTools.h"
 
 #include <QAction>
 #include <QString>
 
 #include <vector>
-
 
 
 CAF_CMD_SOURCE_INIT(RicNewWellLogRftCurveFeature, "RicNewWellLogRftCurveFeature");
@@ -53,19 +47,19 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogRftCurveFeature, "RicNewWellLogRftCurveFeature"
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogRftCurveFeature::isCommandEnabled()
 {
-
-    if (RicNewWellLogRftCurveFeature::selectedWellLogPlotTrack() != nullptr)
+    if (RicWellLogTools::selectedWellLogPlotTrack() != nullptr)
     {
         return true;
     }
 
     int branchIdx;
-    RimEclipseWell* simulationWell = RicNewWellLogRftCurveFeature::selectedSimulationWell(&branchIdx);
+    RimEclipseWell* simulationWell = RicWellLogTools::selectedSimulationWell(&branchIdx);
 
     if (simulationWell != nullptr)
     {
-        return RicNewWellLogRftCurveFeature::wellHasRftData(simulationWell->name());
+        return RicWellLogTools::wellHasRftData(simulationWell->name());
     }
+
     return false;
 }
 
@@ -74,24 +68,24 @@ bool RicNewWellLogRftCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
         int branchIdx;
-        RicNewWellLogRftCurveFeature::addCurve(wellLogPlotTrack, selectedSimulationWell(&branchIdx));
+        RicWellLogTools::addRftCurve(wellLogPlotTrack, RicWellLogTools::selectedSimulationWell(&branchIdx));
     }
     else
     {
         int branchIndex = -1;
-        RimEclipseWell* simWell = selectedSimulationWell(&branchIndex);
+        RimEclipseWell* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
         if (simWell)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogRftCurve* plotCurve = RicNewWellLogRftCurveFeature::addCurve(wellLogPlotTrack, simWell);
+            RimWellLogRftCurve* plotCurve = RicWellLogTools::addRftCurve(wellLogPlotTrack, simWell);
 
             plotCurve->loadDataAndUpdate(true);
 
-            RimWellLogPlot* plot = NULL;
+            RimWellLogPlot* plot = nullptr;
             wellLogPlotTrack->firstAncestorOrThisOfType(plot);
             if (plot && plotCurve->curveData())
             {
@@ -110,98 +104,4 @@ void RicNewWellLogRftCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Well Log RFT Curve");
     actionToSetup->setIcon(QIcon(":/WellLogCurve16x16.png"));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogRftCurve* RicNewWellLogRftCurveFeature::addCurve(RimWellLogTrack* plotTrack, const RimEclipseWell* simWell)
-{
-    CVF_ASSERT(plotTrack);
-
-    RimWellLogRftCurve* curve = new RimWellLogRftCurve();
-
-    RimEclipseResultCase* resultCase;
-    
-    std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases(cases);
-
-    for (RimCase* rimCase : cases)
-    {
-        if (resultCase = dynamic_cast<RimEclipseResultCase*>(rimCase))
-        {
-            break;
-        }
-    }
-
-    if (simWell && resultCase)
-    {
-        curve->setEclipseResultCase(resultCase);
-        curve->setDefaultAddress(simWell->name());
-    }
-
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
-    curve->setColor(curveColor);
-
-    plotTrack->addCurve(curve);
-    plotTrack->updateConnectedEditors();
-
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
-    plotwindow->selectAsCurrentItem(curve);
-    
-    return curve;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogRftCurveFeature::selectedWellLogPlotTrack()
-{
-    std::vector<RimWellLogTrack*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimEclipseWell* RicNewWellLogRftCurveFeature::selectedSimulationWell(int *branchIndex) 
-{
-    RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
-    RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
-    if (simWellSelItem)
-    {
-        (*branchIndex) = static_cast<int>(simWellSelItem->m_branchIndex);
-        return simWellSelItem->m_simWell;
-    }
-    else
-    {
-        std::vector<RimEclipseWell*> selection;
-        caf::SelectionManager::instance()->objectsByType(&selection);
-        (*branchIndex) = 0;
-        return selection.size() > 0 ? selection[0] : NULL;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicNewWellLogRftCurveFeature::wellHasRftData(const QString& wellName)
-{
-    RimEclipseResultCase* resultCase;
-    std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases(cases);
-
-    for (RimCase* rimCase : cases)
-    {
-        if (resultCase = dynamic_cast<RimEclipseResultCase*>(rimCase))
-        {
-            return resultCase->rftReader()->wellHasRftData(wellName);
-        }
-    }
-
-    return false;
 }

@@ -34,6 +34,8 @@
 #include "RimWellPathCollection.h"
 #include "RiuMainPlotWindow.h"
 
+#include "RicWellLogTools.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -48,7 +50,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogFileCurveFeature, "RicNewWellLogFileCurveFeatur
 //--------------------------------------------------------------------------------------------------
 bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 {
-    return (selectedWellLogPlotTrack() != NULL && wellLogFilesAvailable()) || selectedWellPathWithLogFile() != NULL;
+    return (RicWellLogTools::selectedWellLogPlotTrack() != nullptr && wellLogFilesAvailable()) || RicWellLogTools::selectedWellPathWithLogFile() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,18 +58,18 @@ bool RicNewWellLogFileCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 {
-    RimWellLogTrack* wellLogPlotTrack = selectedWellLogPlotTrack();
+    RimWellLogTrack* wellLogPlotTrack = RicWellLogTools::selectedWellLogPlotTrack();
     if (wellLogPlotTrack)
     {
-        addCurve(wellLogPlotTrack);
+        RicWellLogTools::addFileCurve(wellLogPlotTrack);
     }
     else
     {
-        RimWellPath* wellPath = selectedWellPathWithLogFile();
+        RimWellPath* wellPath = RicWellLogTools::selectedWellPathWithLogFile();
         if (wellPath)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-            RimWellLogFileCurve* plotCurve = addCurve(wellLogPlotTrack);
+            RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(wellLogPlotTrack);
             plotCurve->setWellPath(wellPath);
             plotCurve->updateConnectedEditors();
         }
@@ -80,35 +82,6 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
 void RicNewWellLogFileCurveFeature::setupActionLook(QAction* actionToSetup)
 {
     actionToSetup->setText("New Well Log LAS Curve");
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogFileCurveFeature::selectedWellLogPlotTrack() const
-{
-    std::vector<RimWellLogTrack*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewWellLogFileCurveFeature::selectedWellPathWithLogFile() const
-{
-    std::vector<RimWellPath*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
-    if (selection.size() > 0)
-    {
-        RimWellPath* wellPath = selection[0];
-        if (wellPath->wellLogFile())
-        {
-            return wellPath;
-        }
-    }
-
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,48 +107,4 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
     }
 
     return false;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellLogFileCurve* RicNewWellLogFileCurveFeature::addCurve(RimWellLogTrack* plotTrack)
-{
-    CVF_ASSERT(plotTrack);
-
-    RimWellLogFileCurve* curve = new RimWellLogFileCurve();
-
-    cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable(plotTrack->curveCount());
-    curve->setColor(curveColor);
-
-    plotTrack->addCurve(curve);
-
-    plotTrack->updateConnectedEditors();
-
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    plotwindow->selectAsCurrentItem(curve);
-
-    return curve;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels)
-{
-    for (size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++)
-    {
-        RimWellLogFileCurve* plotCurve = addCurve(plotTrack);
-    
-        RimWellPath* wellPath;
-        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType(wellPath);
-        if (wellPath)
-        {
-            plotCurve->setWellPath(wellPath);
-            plotCurve->setWellLogChannelName(wellLogFileChannels[cIdx]->name());
-            plotCurve->loadDataAndUpdate(true);
-            plotCurve->updateConnectedEditors();
-        }
-    }
 }

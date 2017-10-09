@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RicWellLogTools.h
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseFeature.h
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseInCollectionFeature.h
@@ -75,6 +76,7 @@ endif()
 
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RicWellLogTools.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicCloseSummaryCaseInCollectionFeature.cpp

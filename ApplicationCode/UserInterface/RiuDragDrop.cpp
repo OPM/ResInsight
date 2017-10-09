@@ -40,6 +40,8 @@
 #include "RimWellLogTrack.h"
 #include "RiuMainWindow.h"
 
+#include "RicWellLogTools.h"
+
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 #include "cafPdmUiItem.h"
@@ -387,7 +389,7 @@ bool RiuDragDrop::handleWellLogPlotTrackDrop(Qt::DropAction action, caf::PdmObje
     {
         if (action == Qt::CopyAction)
         {
-            RicNewWellLogFileCurveFeature::addWellLogChannelsToPlotTrack(trackTarget, wellLogFileChannels);
+            RicWellLogTools::addWellLogChannelsToPlotTrack(trackTarget, wellLogFileChannels);
             return true;
         }
     }
