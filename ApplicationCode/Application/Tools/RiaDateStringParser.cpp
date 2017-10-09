@@ -19,6 +19,7 @@
 #include "RiaDateStringParser.h"
 
 #include <algorithm>
+#include "RiaQDateTimeTools.h"
 
 const std::string MONTH_NAMES[] =
 {
@@ -48,7 +49,7 @@ QDateTime RiaDateStringParser::parseDateString(const QString& dateString)
         tryParseDayFirst(s, year, month, day);
 
     QDateTime dt;
-    dt.setTimeSpec(Qt::UTC);
+    dt.setTimeSpec(RiaQDateTimeTools::currentTimeSpec());
     if (parsedOk) dt.setDate(QDate(year, month, day));
     return dt;
 }
