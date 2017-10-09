@@ -25,7 +25,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 #include "RimWellRftAddress.h"
-
+#include "RimPlotCurve.h"
 #include <QPointer>
 #include <QDate>
 #include <QMetaType>
@@ -128,6 +128,8 @@ private:
 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
+
+    void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;

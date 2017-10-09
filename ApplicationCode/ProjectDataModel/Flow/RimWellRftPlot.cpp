@@ -135,6 +135,103 @@ void RimWellRftPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
+{
+    const std::pair<RimWellRftAddress, QDateTime>& newCurveDef = curveDefFromCurve(newCurve);
+
+    std::vector<cvf::Color3f> colorTable;
+    RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector(&colorTable);
+
+    std::vector<RimPlotCurve::PointSymbolEnum> symbolTable =
+    {
+        RimPlotCurve::SYMBOL_NONE,
+        RimPlotCurve::SYMBOL_ELLIPSE,
+        RimPlotCurve::SYMBOL_RECT,
+        RimPlotCurve::SYMBOL_DIAMOND,
+        RimPlotCurve::SYMBOL_TRIANGLE,
+        RimPlotCurve::SYMBOL_CROSS,
+        RimPlotCurve::SYMBOL_XCROSS
+    };
+
+    cvf::Color3f                    currentColor;
+    RimPlotCurve::PointSymbolEnum   currentSymbol = RimPlotCurve::SYMBOL_NONE;
+    RimPlotCurve::LineStyleEnum     currentLineStyle = RimPlotCurve::STYLE_SOLID;
+    bool                            isCurrentColorSet = false;
+    bool                            isCurrentSymbolSet = false;
+
+    std::set<cvf::Color3f>                  assignedColors;
+    std::set<RimPlotCurve::PointSymbolEnum> assignedSymbols;
+
+    // Used colors and symbols
+    for (const auto& curve : m_wellLogPlot->trackByIndex(0)->curvesVector())
+    {
+        if (curve == newCurve) continue;
+
+        auto cDef = curveDefFromCurve(curve);
+        if (cDef.first == newCurveDef.first)
+        {
+            currentColor = curve->color();
+            isCurrentColorSet = true;
+        }
+        if (cDef.second == newCurveDef.second)
+        {
+            currentSymbol = curve->symbol();
+            isCurrentSymbolSet = true;
+        }
+        assignedColors.insert(curve->color());
+        assignedSymbols.insert(curve->symbol());
+    }
+
+    // Assign color
+    if (!isCurrentColorSet)
+    {
+        for(const auto& color : colorTable)
+        {
+            if (assignedColors.count(color) == 0)
+            {
+                currentColor = color;
+                isCurrentColorSet = true;
+                break;
+            }
+        }
+        if (!isCurrentColorSet)
+        {
+            currentColor = colorTable.front();
+        }
+    }
+
+    // Assign symbol
+    if (!isCurrentSymbolSet)
+    {
+        for (const auto& symbol : symbolTable)
+        {
+            if (symbol == RimPlotCurve::SYMBOL_NONE) continue;
+
+            if (assignedSymbols.count(symbol) == 0)
+            {
+                currentSymbol = symbol;
+                isCurrentSymbolSet = true;
+                break;
+            }
+        }
+        if (!isCurrentSymbolSet)
+        {
+            currentSymbol = symbolTable.front();
+        }
+    }
+
+    // Observed data
+    currentLineStyle = newCurveDef.first.sourceType() == RftSourceType::OBSERVED
+        ? RimPlotCurve::STYLE_NONE : RimPlotCurve::STYLE_SOLID;
+
+    newCurve->setColor(currentColor);
+    newCurve->setSymbol(currentSymbol);
+    newCurve->setLineStyle(currentLineStyle);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateEditorsFromCurves()
 {
     std::set<RimWellRftAddress> selectedSources;
@@ -515,6 +612,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
 
             RifEclipseRftAddress address(m_wellName, curveDefToAdd.second, RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
+
+            applyCurveAppearance(curve);
             curve->loadDataAndUpdate(true);
         }
         else if (curveDefToAdd.first.sourceType() == RftSourceType::GRID)
@@ -543,6 +642,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
                 auto currentTimeStepIt = std::find(timeSteps.begin(), timeSteps.end(), curveDefToAdd.second);
                 auto currentTimeStep = std::distance(timeSteps.begin(), currentTimeStepIt);
                 curve->setCurrentTimeStep(currentTimeStep);
+
+                applyCurveAppearance(curve);
                 curve->loadDataAndUpdate(false);
             }
         }
@@ -557,6 +658,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
                 plotTrack->addCurve(curve);
                 curve->setWellPath(wellPath);
                 curve->setWellLogChannelName(pressureChannels.front()->name());
+
+                applyCurveAppearance(curve);
                 curve->loadDataAndUpdate(true);
             }
         }
