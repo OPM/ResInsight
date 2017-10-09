@@ -24,6 +24,15 @@
 #include <ctime>
 #include <cmath>
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Qt::TimeSpec RiaQDateTimeTools::currentTimeSpec()
+{
+    return Qt::UTC;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +55,7 @@ quint64 RiaQDateTimeTools::secondsInYear()
 QDateTime RiaQDateTimeTools::fromString(const QString& dateString, const QString& format)
 {
     QDateTime dt = QDateTime::fromString(dateString, format);
-    dt.setTimeSpec(Qt::UTC);
+    dt.setTimeSpec(currentTimeSpec());
 
     return dt;
 }
@@ -105,7 +114,36 @@ QDateTime RiaQDateTimeTools::epoch()
 
     QDateTime dt;
     dt.setDate(QDate(1970, 1, 1)); 
-    dt.setTimeSpec(Qt::UTC);
+    dt.setTimeSpec(currentTimeSpec());
 
     return dt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::createDateTime()
+{
+    auto& qdt = QDateTime();
+    qdt.setTimeSpec(currentTimeSpec());
+    return qdt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::createDateTime(const QDate& date)
+{
+    auto& qdt = QDateTime(date);
+    qdt.setTimeSpec(currentTimeSpec());
+    return qdt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::createDateTime(const QDate& date, const QTime& time)
+{
+    auto& qdt = QDateTime(date, time, currentTimeSpec());
+    return qdt;
 }

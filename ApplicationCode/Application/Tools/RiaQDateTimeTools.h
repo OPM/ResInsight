@@ -23,6 +23,13 @@
 #include <string>
 
 class QDateTime;
+class QDate;
+class QTime;
+
+namespace Qt
+{
+    enum TimeSpec;
+}
 
 //==================================================================================================
 // 
@@ -30,6 +37,8 @@ class QDateTime;
 class RiaQDateTimeTools
 {
 public:
+    static Qt::TimeSpec currentTimeSpec();
+
     static QDateTime fromString(const QString& dateString, const QString& format);
     static QDateTime fromYears(double years);
     
@@ -37,6 +46,10 @@ public:
     static QDateTime addYears(const QDateTime& dt, double years);
 
     static QDateTime epoch();
+
+    static QDateTime createDateTime();
+    static QDateTime createDateTime(const QDate& date);
+    static QDateTime createDateTime(const QDate& date, const QTime& time);
 
 private:
     static quint64  secondsInDay();
