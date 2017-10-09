@@ -48,7 +48,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
 {
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->lastUsedDialogDirectory("INPUT_FILES");
-    QStringList fileNames = QFileDialog::getOpenFileNames(NULL, "Import Observed Time History Data", defaultDir, "All Files (*.*)");
+    QStringList fileNames = QFileDialog::getOpenFileNames(nullptr, "Import Observed Time History Data", defaultDir, "Observed Data (*.RSM *.txt *.inc);;All Files (*.*)");
 
     if (fileNames.isEmpty()) return;
 
