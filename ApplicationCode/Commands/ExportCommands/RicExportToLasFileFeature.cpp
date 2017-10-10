@@ -46,6 +46,7 @@ CAF_CMD_SOURCE_INIT(RicExportToLasFileFeature, "RicExportToLasFileFeature");
 bool RicExportToLasFileFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+    if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
 
     return RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves().size() > 0;
 }

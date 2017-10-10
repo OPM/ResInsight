@@ -43,6 +43,7 @@ CAF_CMD_SOURCE_INIT(RicPasteWellLogCurveFeature, "RicPasteWellLogCurveFeature");
 bool RicPasteWellLogCurveFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+    if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
 
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 

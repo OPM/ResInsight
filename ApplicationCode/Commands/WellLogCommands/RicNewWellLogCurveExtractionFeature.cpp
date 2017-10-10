@@ -54,6 +54,7 @@ CAF_CMD_SOURCE_INIT(RicNewWellLogCurveExtractionFeature, "RicNewWellLogCurveExtr
 bool RicNewWellLogCurveExtractionFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
+    if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return false;
     int branchIndex;
     return (RicWellLogTools::selectedWellLogPlotTrack() != nullptr || RicWellLogTools::selectedWellPath() != nullptr || RicWellLogTools::selectedSimulationWell(&branchIndex) != nullptr) && caseAvailable();
 }

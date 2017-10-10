@@ -23,6 +23,7 @@
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftPlot.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"
@@ -45,8 +46,10 @@ bool RicPasteWellLogTrackFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>(caf::SelectionManager::instance()->selectedItem());
 
     RimWellLogPlot* wellLogPlot = nullptr;
+    RimWellRftPlot* rftPlot = nullptr;
     destinationObject->firstAncestorOrThisOfType(wellLogPlot);
-    if (!wellLogPlot)
+    destinationObject->firstAncestorOrThisOfType(rftPlot);
+    if (!wellLogPlot || rftPlot)
     {
         return false;
     }

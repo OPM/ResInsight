@@ -47,6 +47,8 @@
 #include "RimPerforationInterval.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimAsciiDataCurve.h"
+#include "RimWellLogRftCurve.h"
+#include "RimWellRftPlot.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimEllipseFractureTemplate.h"
@@ -80,9 +82,11 @@ bool isDeletable(caf::PdmUiItem* uiItem)
     if (destinationObject)
     {
         RimWellAllocationPlot* wellAllocationPlot = nullptr;
+        RimWellRftPlot* rftPlot = nullptr;
         destinationObject->firstAncestorOrThisOfType(wellAllocationPlot);
+        destinationObject->firstAncestorOrThisOfType(rftPlot);
 
-        if (wellAllocationPlot)
+        if (wellAllocationPlot || rftPlot)
         {
             return false;
         }
