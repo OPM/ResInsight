@@ -308,12 +308,10 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::s
                 header = false;
                 break;
             }
-            else if (words.size() > columnCount)
-            {
-                continue;
-            }
             else
             {
+                if (words.size() > columnCount) break;
+
                 size_t diff = columnCount - words.size();
 
                 if (diff == columnCount)
