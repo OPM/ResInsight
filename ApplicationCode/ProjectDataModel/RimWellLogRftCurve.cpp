@@ -168,6 +168,43 @@ void RimWellLogRftCurve::setDefaultAddress(QString wellName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
+{
+    if (!m_timeStep().isValid() || m_wellLogChannelName() == RifEclipseRftAddress::NONE)
+    {
+        setDefaultAddress(m_wellName);
+        return;
+    }
+
+    RifReaderEclipseRft* reader = rftReader();
+    if (!reader) return;
+
+    std::vector<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
+
+    if (timeSteps.empty())
+    {
+        m_timeStep = QDateTime();
+    }
+    else if (std::find(timeSteps.begin(), timeSteps.end(), m_timeStep()) == timeSteps.end())
+    {
+        m_timeStep = timeSteps[0];
+    }
+
+    std::vector<RifEclipseRftAddress::RftWellLogChannelName> channelNames = reader->availableWellLogChannels(m_wellName);
+
+    if (channelNames.empty())
+    {
+        m_wellLogChannelName = RifEclipseRftAddress::NONE;
+    }
+    else if (std::find(channelNames.begin(), channelNames.end(), m_wellLogChannelName()) == channelNames.end())
+    {
+        m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
     QString name;
@@ -325,10 +362,15 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
     if (changedField == &m_eclipseResultCase)
     {
+        m_timeStep = QDateTime();
+        m_wellName = "";
+        m_wellLogChannelName = RifEclipseRftAddress::NONE;
+
         this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_wellName)
     {
+        updateWellChannelNameAndTimeStep();
         this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_wellLogChannelName)

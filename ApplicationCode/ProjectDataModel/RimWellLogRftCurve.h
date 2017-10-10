@@ -53,6 +53,7 @@ public:
     RifEclipseRftAddress            rftAddress() const;
 
     void                            setDefaultAddress(QString wellName);
+    void                            updateWellChannelNameAndTimeStep();
 
 protected:
     // Overrides from RimWellLogPlotCurve
