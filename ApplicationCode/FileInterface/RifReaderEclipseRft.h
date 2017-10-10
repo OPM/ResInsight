@@ -24,10 +24,13 @@
 #include <string>
 #include <vector>
 
+#include "cafVecIjk.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <QDateTime>
+
 
 //==================================================================================================
 //
@@ -39,8 +42,9 @@ public:
     RifReaderEclipseRft(const std::string& fileName);
     ~RifReaderEclipseRft();
 
-    const std::vector<RifEclipseRftAddress>& eclipseRftAddresses();
-    void values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
+    const std::vector<RifEclipseRftAddress>&                    eclipseRftAddresses();
+    void                                                        values(const RifEclipseRftAddress& rftAddress, std::vector<double>* values);
+    void                                                        cellIndices(const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices);
 
     std::vector<QDateTime>                                      availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelName& wellLogChannelName);
     std::vector<RifEclipseRftAddress::RftWellLogChannelName>    availableWellLogChannels(const QString& wellName);
@@ -48,8 +52,8 @@ public:
     bool                                                        wellHasRftData(QString wellName);
 
 private:
-    void open();
-    int  indexFromAddress(const RifEclipseRftAddress& rftAddress) const;
+    void                                                        open();
+    int                                                         indexFromAddress(const RifEclipseRftAddress& rftAddress) const;
 
 private:
     // Taken from ecl_rft_file.h and ecl_rft_node.h

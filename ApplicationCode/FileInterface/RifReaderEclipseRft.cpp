@@ -210,6 +210,35 @@ void RifReaderEclipseRft::values(const RifEclipseRftAddress& rftAddress, std::ve
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RifReaderEclipseRft::cellIndices(const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices)
+{
+    CVF_ASSERT(indices);
+
+    if (!m_ecl_rft_file)
+    {
+        open();
+    }
+
+    indices->clear();
+
+    int index = indexFromAddress(rftAddress);
+    if (index < 0) return;
+
+    ecl_rft_node_type* node = ecl_rft_file_iget_node(m_ecl_rft_file, index);
+
+    for (int cellIdx = 0; cellIdx < ecl_rft_node_get_size(node); cellIdx++)
+    {
+        int i, j, k;
+        ecl_rft_node_iget_ijk(node, cellIdx, &i, &j, &k);
+        
+        caf::VecIjk index( (size_t)i, (size_t)j, (size_t)k );
+        indices->push_back(index);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<QDateTime> RifReaderEclipseRft::availableTimeSteps(const QString& wellName, const RifEclipseRftAddress::RftWellLogChannelName& wellLogChannelName)
 {
     if (!m_ecl_rft_file)
