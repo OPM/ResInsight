@@ -38,8 +38,12 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiTableView.h"
+
 #include <QAbstractItemModel>
 #include <QItemSelection>
+#include <QPushButton>
 
 namespace caf
 {
@@ -51,6 +55,21 @@ class PdmUiItem;
 class PdmUiTableItemEditor;
 class PdmUiTreeOrdering;
 class PdmUiTreeViewEditor;
+
+
+class TableViewPushButton : public QPushButton
+{
+    Q_OBJECT
+public:
+    explicit TableViewPushButton(caf::PdmUiFieldHandle* field, const QString& text, QWidget* parent = 0);
+
+private slots:
+    void slotPressed();
+
+private:
+    caf::PdmUiFieldHandle* m_fieldHandle;
+};
+
 
 //==================================================================================================
 //
@@ -80,11 +99,11 @@ public:
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    void                    selectedUiItems(std::vector<PdmUiItem*>& objects);
-
     void                    notifyDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 
     bool                    isRepresentingBoolean(const QModelIndex &index) const;
+
+    void                    createPersistentPushButtonWidgets(QTableView* tableView);
 
 private:
     int                     getFieldIndex(PdmFieldHandle* field) const;
@@ -102,6 +121,8 @@ private:
     std::vector<int>                            m_modelColumnIndexToFieldIndex;
 
     std::vector<PdmUiTableItemEditor*>          m_tableItemEditors;
+
+    PdmUiTableViewEditorAttribute               m_attributes;
 };
 
 

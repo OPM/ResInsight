@@ -35,6 +35,7 @@
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 
 
@@ -213,6 +214,7 @@ public:
         CAF_PDM_InitObject("Small Demo Object A", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_PDM_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
         CAF_PDM_InitField(&m_doubleField, "BigNumber", 0.0, "Big Number", "", "Enter a big number here", "This is a place you can enter a big real value if you want");
         CAF_PDM_InitField(&m_intField, "IntNumber", 0,  "Small Number", "", "Enter some small number here","This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
@@ -249,6 +251,8 @@ public:
     caf::PdmField< caf::AppEnum<TestEnumType> > m_highlightedEnum;
 
     caf::PdmField<bool>     m_toggleField;
+    caf::PdmField<bool>     m_pushButtonField;
+
     virtual caf::PdmFieldHandle* objectToggleField() 
     {
         return &m_toggleField;
@@ -263,6 +267,10 @@ public:
         else if (changedField == &m_highlightedEnum)
         {
             std::cout << "Highlight value " << m_highlightedEnum() <<  std::endl;
+        }
+        else if (changedField == &m_pushButtonField)
+        {
+            std::cout << "Push Button pressed " << std::endl;
         }
     }
 
@@ -335,6 +343,18 @@ protected:
         }
     }
 
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override
+    {
+        caf::PdmUiTableViewEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>(attribute);
+        if (attr)
+        {
+            attr->registerPushButtonTextForFieldKeyword(m_pushButtonField.keyword(), "Edit");
+        }
+    }
 };
 
 CAF_PDM_SOURCE_INIT(SmallDemoPdmObjectA, "SmallDemoPdmObjectA");

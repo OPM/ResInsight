@@ -38,6 +38,7 @@
 #pragma once
 
 #include "cafNotificationCenter.h"
+#include "cafPdmUiFieldEditorHandle.h"
 #include "cafSelectionManager.h"
 
 #include <QModelIndex>
@@ -52,6 +53,21 @@ namespace caf
 class PdmObjectHandle;
 class PdmUiTableViewEditor;
 class PdmChildArrayFieldHandle;
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiTableViewEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    void    registerPushButtonTextForFieldKeyword(const QString& keyword, const QString& text);
+
+    bool    showPushButtonForFieldKeyword(const QString& keyword) const;
+    QString pushButtonText(const QString& keyword) const;
+
+private:
+    std::map<QString, QString> m_fieldKeywordAndPushButtonText;
+};
 
 //==================================================================================================
 /// 
