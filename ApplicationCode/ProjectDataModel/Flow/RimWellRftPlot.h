@@ -116,10 +116,11 @@ private:
     RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
 
     std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesContainingPressure(const QString& wellName) const;
-    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const;
-    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const;
+    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     std::vector<QDateTime>                          timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
     std::vector<QDateTime>                          timeStepsFromGridCase(const RimEclipseCase* gridCase) const; 
+    std::vector<QDateTime>                          timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const;
 
     std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
     std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
