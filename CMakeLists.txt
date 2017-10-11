@@ -264,6 +264,15 @@ list(APPEND THIRD_PARTY_LIBRARIES
     nightcharts
 )
 
+################################################################################
+# C++ Mathematical Expression Parsing And Evaluation Library 
+################################################################################
+
+add_subdirectory(ThirdParty/expressionparser)
+
+list(APPEND THIRD_PARTY_LIBRARIES
+    expressionparser
+)
 
 ################################################################################
 # Prototype feature Fractures
