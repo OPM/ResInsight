@@ -100,6 +100,7 @@ namespace FlowDiagnostics
         , influx_(std::move(inout.influx))
         , outflux_(std::move(inout.outflux))
         , source_term_(expandSparse(pore_volumes.size(), source_inflow))
+        , local_source_term_(pore_volumes.size(), 0.0)
     {
     }
 
@@ -112,10 +113,12 @@ namespace FlowDiagnostics
         // Reset solver variables and set source terms.
         prepareForSolve();
         setupStartArrayFromSource();
+        local_source_term_ = source_term_;
 
         // Compute topological ordering and solve.
         computeOrdering();
         solve();
+        std::fill(local_source_term_.begin(), local_source_term_.end(), 0.0);
 
         // Return computed time-of-flight.
         return tof_;
@@ -125,7 +128,7 @@ namespace FlowDiagnostics
 
 
 
-    TracerTofSolver::LocalSolution TracerTofSolver::solveLocal(const CellSet& startset)
+    TracerTofSolver::LocalSolution TracerTofSolver::solveLocal(const CellSetValues& startset)
     {
         // Reset solver variables and set source terms.
         prepareForSolve();
@@ -133,7 +136,9 @@ namespace FlowDiagnostics
 
         // Compute local topological ordering and solve.
         computeLocalOrdering(startset);
+        setupLocalSource(startset);
         solve();
+        cleanupLocalSource(startset);
 
         // Return computed time-of-flight.
         CellSetValues local_tof;
@@ -143,6 +148,10 @@ namespace FlowDiagnostics
             const int cell = sequence_[element];
             local_tof[cell] = tof_[cell];
             local_tracer[cell] = tracer_[cell];
+            // Verify that tracer values are greater than zero
+            if (tracer_[cell] <= 0.0) {
+                throw std::logic_error("Tracer is zero in non-isolated cell.");
+            }
         }
         return LocalSolution{ std::move(local_tof), std::move(local_tracer) };
     }
@@ -170,9 +179,10 @@ namespace FlowDiagnostics
 
 
 
-    void TracerTofSolver::setupStartArray(const CellSet& startset)
+    void TracerTofSolver::setupStartArray(const CellSetValues& startset)
     {
-        for (const int cell : startset) {
+        for (const auto& startpoint : startset) {
+            const int cell = startpoint.first;
             is_start_[cell] = 1;
         }
     }
@@ -227,10 +237,14 @@ namespace FlowDiagnostics
 
 
 
-    void TracerTofSolver::computeLocalOrdering(const CellSet& startset)
+    void TracerTofSolver::computeLocalOrdering(const CellSetValues& startset)
     {
         // Extract start cells.
-        std::vector<int> startcells(startset.begin(), startset.end());
+        std::vector<int> startcells;
+        startcells.reserve(startset.size());
+        for (const auto& startpoint : startset) {
+            startcells.push_back(startpoint.first);
+        }
 
         // Compute reverse topological ordering.
         const size_t num_cells = pv_.size();
@@ -251,7 +265,7 @@ namespace FlowDiagnostics
         }
 
         // Extract data from solution.
-        sequence_.resize(num_cells); // For local solutions this is the upper limit of the size. TODO: use exact size.
+        sequence_.resize(num_cells); // For local solutions this is the upper limit of the size. Will give proper size afterwards.
         const int num_comp = tarjan_get_numcomponents(result.get());
         component_starts_.resize(num_comp + 1);
         component_starts_[0] = 0;
@@ -259,6 +273,32 @@ namespace FlowDiagnostics
             const TarjanComponent tc = tarjan_get_strongcomponent(result.get(), comp);
             std::copy(tc.vertex, tc.vertex + tc.size, sequence_.begin() + component_starts_[comp]);
             component_starts_[comp + 1] = component_starts_[comp] + tc.size;
+        }
+        sequence_.resize(component_starts_.back());
+    }
+
+
+
+
+
+    void TracerTofSolver::setupLocalSource(const CellSetValues& startset)
+    {
+        for (const auto& startpoint : startset) {
+            if (startpoint.second < 0.0) {
+                throw std::logic_error("Start set for local solve has negative source value.");
+            }
+            local_source_term_[startpoint.first] = startpoint.second;
+        }
+    }
+
+
+
+
+
+    void TracerTofSolver::cleanupLocalSource(const CellSetValues& startset)
+    {
+        for (const auto& startpoint : startset) {
+            local_source_term_[startpoint.first] = 0.0;
         }
     }
 
@@ -292,24 +332,11 @@ namespace FlowDiagnostics
     void TracerTofSolver::solveSingleCell(const int cell)
     {
         // Compute influx (divisor of tof expression).
-        double source = source_term_[cell];  // Initial tof for well cell equal to fill time.
+        double source = source_term_[cell];
         if (source == 0.0 && is_start_[cell]) {
             source = std::numeric_limits<double>::infinity(); // Gives 0 tof in start cell.
         }
         const double total_influx = influx_[cell] + source;
-
-        // Cap time-of-flight if time to fill cell is greater than
-        // max_tof_. Note that cells may still have larger than
-        // max_tof_ after solveSingleCell() when including upwind
-        // contributions, and those in turn can affect cells
-        // downstream (so capping in this method will not produce the
-        // same result). All tofs will finally be capped in solve() as
-        // a post-process. The reason for the somewhat convoluted
-        // behaviour is to match existing MRST results.
-        if (total_influx < pv_[cell] / max_tof_) {
-            tof_[cell] = max_tof_;
-            return;
-        }
 
         // Compute upwind contribution.
         double upwind_tof_contrib = 0.0;
@@ -325,21 +352,41 @@ namespace FlowDiagnostics
             // should get a contribution from the local source term
             // (which is then considered to be containing the
             // currently considered tracer).
-            //
-            // Start cells should therefore never have a zero source
-            // term. This may need to change in the future to support
-            // local tracing from arbitrary locations.
-            upwind_tracer_contrib += source;
+            upwind_tracer_contrib += local_source_term_[cell];
         }
 
-        // Compute time-of-flight and tracer.
-        tracer_[cell] = upwind_tracer_contrib / total_influx;
+        // The following should be true if Tarjan was done correctly.
+        // Note that global Tarjan will also visit isolated cells,
+        // so it is possible to have exactly zero.
+        assert(total_influx >= 0.0);
+        assert(upwind_tracer_contrib >= 0.0);
 
+        // Compute tracer.
+        if (total_influx == 0.0) {
+            assert(upwind_tracer_contrib == 0.0);
+            // Isolated cell.
+            tracer_[cell] = 0.0;
+        } else {
+            tracer_[cell] = upwind_tracer_contrib / total_influx;
+        }
+
+        // Compute time-of-flight.
         if (tracer_[cell] > 0.0) {
             tof_[cell] = (pv_[cell]*tracer_[cell] + upwind_tof_contrib)
                        / (total_influx * tracer_[cell]);
+        } else {
+            tof_[cell] = max_tof_;
         }
-        else {
+
+        // Cap time-of-flight if time to fill cell is greater than
+        // max_tof_. Note that cells may still have larger than
+        // max_tof_ after solveSingleCell() when including upwind
+        // contributions, and those in turn can affect cells
+        // downstream (so capping in this method will not produce the
+        // same result). All tofs will finally be capped in solve() as
+        // a post-process. The reason for the somewhat convoluted
+        // behaviour is to match existing MRST results.
+        if (total_influx < pv_[cell] / max_tof_) {
             tof_[cell] = max_tof_;
         }
     }
@@ -354,17 +401,23 @@ namespace FlowDiagnostics
         ++num_multicell_;
         max_size_multicell_ = std::max(max_size_multicell_, num_cells);
 
-        // Using a Gauss-Seidel approach.
-        double max_delta = 1e100;
+        // Using a simple Gauss-Seidel approach.
+        double max_tof_delta = 1e100;
+        double max_tracer_delta = 1e100;
         int num_iter = 0;
-        while (max_delta > gauss_seidel_tol_) {
-            max_delta = 0.0;
+        while (max_tof_delta > gauss_seidel_tof_tol_ || max_tracer_delta > gauss_seidel_tracer_tol_) {
+            max_tof_delta = 0.0;
+            max_tracer_delta = 0.0;
             ++num_iter;
             for (int ci = 0; ci < num_cells; ++ci) {
                 const int cell = cells[ci];
                 const double tof_before = tof_[cell];
+                const double tracer_before = tracer_[cell];
                 solveSingleCell(cell);
-                max_delta = std::max(max_delta, std::fabs(tof_[cell] - tof_before));
+                max_tof_delta = std::max(max_tof_delta, std::fabs(tof_[cell] - tof_before));
+                const bool zero_change =  ((tracer_before == 0.0) != (tracer_[cell] == 0.0));
+                const double tracer_change = zero_change ? 1.0 : std::fabs(tracer_[cell] - tracer_before);
+                max_tracer_delta = std::max(max_tracer_delta, tracer_change);
             }
         }
         max_iter_multicell_ = std::max(max_iter_multicell_, num_iter);

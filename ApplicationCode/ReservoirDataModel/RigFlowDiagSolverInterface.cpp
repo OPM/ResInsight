@@ -147,6 +147,63 @@ RigFlowDiagSolverInterface::~RigFlowDiagSolverInterface()
 
 }
 
+#if 0
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void removeCrossFlowCells(std::pair<const std::string, std::vector<int>> & tracerCellIdxsPair,
+                          std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> & WellInFluxPrCell,
+                          std::function<bool(double)> isFlowOkFunction)
+{
+    std::string tracerName = tracerCellIdxsPair.first;
+    tracerName = RimFlowDiagSolution::removeCrossFlowEnding(QString::fromStdString(tracerName)).toStdString();
+    auto cellSetIdInFlowsPair =  WellInFluxPrCell.find(Opm::FlowDiagnostics::CellSetID(tracerName));
+
+    CVF_TIGHT_ASSERT(cellSetIdInFlowsPair != WellInFluxPrCell.end());
+
+    std::vector<int> filteredCellIndices;
+
+    for ( int activeCellIdx : tracerCellIdxsPair.second )
+    {
+        auto activeCellIdxFluxPair = cellSetIdInFlowsPair->second.find(activeCellIdx);
+        CVF_TIGHT_ASSERT(activeCellIdxFluxPair != cellSetIdInFlowsPair->second.end());
+
+        if ( isFlowOkFunction(activeCellIdxFluxPair->second) )
+        {
+            filteredCellIndices.push_back(activeCellIdx);
+        }
+    }
+
+    if ( tracerCellIdxsPair.second.size() != filteredCellIndices.size() ) 
+    { 
+        tracerCellIdxsPair.second = filteredCellIndices;
+    }
+}
+#endif
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string removeCrossFlowEnding(std::string tracerName)
+{
+    return RimFlowDiagSolution::removeCrossFlowEnding(QString::fromStdString(tracerName)).toStdString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool hasCrossFlowEnding(std::string tracerName)
+{
+    return RimFlowDiagSolution::hasCrossFlowEnding(QString::fromStdString(tracerName));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string addCrossFlowEnding(std::string tracerName)
+{
+    return RimFlowDiagSolution::addCrossFlowEnding(QString::fromStdString(tracerName)).toStdString();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -253,7 +310,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
 
     // Set up flow Toolbox with timestep data
-    Opm::FlowDiagnostics::CellSetValues sumWellFluxPrCell;
+    std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> WellInFluxPrCell;
 
     {
         if (m_eclipseCase->eclipseCaseData()->results(RiaDefines::MATRIX_MODEL)->hasFlowDiagUsableFluxes())
@@ -266,7 +323,10 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         else
         {
             Opm::ECLInitFileData init(getInitFileName());
-            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), init, *currentRestartData, phaseSelection);
+            Opm::FlowDiagnostics::ConnectionValues connectionVals = RigFlowDiagInterfaceTools::calculateFluxField((*m_opmFlowDiagStaticData->m_eclGraph), 
+                                                                                                                  init, 
+                                                                                                                  *currentRestartData, 
+                                                                                                                  phaseSelection);
             m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux(connectionVals);
         }
 
@@ -279,20 +339,20 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes = wsol.solution(*currentRestartData, gridNames);
 
-        sumWellFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(*(m_opmFlowDiagStaticData->m_eclGraph), well_fluxes);
+        WellInFluxPrCell =  RigFlowDiagInterfaceTools::extractWellFlows(*(m_opmFlowDiagStaticData->m_eclGraph), well_fluxes);
 
-        m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux(sumWellFluxPrCell);
+        m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux(WellInFluxPrCell);
 
+        #if 0
         // Start Hack: Filter connection cells with inconsistent well in flow direction (Hack, we should do something better)
-
         for ( auto& tracerCellIdxsPair: injectorTracers )
         {
             std::vector<int> filteredCellIndices;
                         
             for (int activeCellIdx : tracerCellIdxsPair.second)
             {
-                auto activeCellIdxFluxPair = sumWellFluxPrCell.find(activeCellIdx);
-                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != sumWellFluxPrCell.end());
+                auto activeCellIdxFluxPair = WellInFluxPrCell.find(activeCellIdx);
+                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != WellInFluxPrCell.end());
 
                 if (activeCellIdxFluxPair->second > 0 )
                 {
@@ -309,8 +369,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
             for (int activeCellIdx : tracerCellIdxsPair.second)
             {
-                auto activeCellIdxFluxPair = sumWellFluxPrCell.find(activeCellIdx);
-                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != sumWellFluxPrCell.end());
+                auto activeCellIdxFluxPair = WellInFluxPrCell.find(activeCellIdx);
+                CVF_TIGHT_ASSERT(activeCellIdxFluxPair != WellInFluxPrCell.end());
 
                 if (activeCellIdxFluxPair->second < 0 )
                 {
@@ -319,8 +379,20 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
             }
             if (tracerCellIdxsPair.second.size() != filteredCellIndices.size()) tracerCellIdxsPair.second = filteredCellIndices;
         }
+      
 
         // End Hack
+        // New Filtering Probably not neccesary
+        for ( auto& tracerCellIdxsPair: injectorTracers )
+        {
+            removeCrossFlowCells(tracerCellIdxsPair, WellInFluxPrCell, [](double inFlow){ return inFlow > 0;});
+        }
+
+        for ( auto& tracerCellIdxsPair: producerTracers )
+        {
+            removeCrossFlowCells(tracerCellIdxsPair, WellInFluxPrCell, [](double inFlow){ return inFlow < 0;});
+        }
+        #endif
     }
 
     progressInfo.incrementProgress();
@@ -328,60 +400,82 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     {
         // Injection Solution
-
+        std::set<std::string> injectorCrossFlowTracers;
         std::vector<CellSet> injectorCellSets;
-        for ( const auto& tIt: injectorTracers )
-        {
-            injectorCellSets.push_back(CellSet(CellSetID(tIt.first), tIt.second));
-        }
-
         std::unique_ptr<Toolbox::Forward> injectorSolution;
-        try 
         {
-            injectorSolution.reset(new Toolbox::Forward( m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
-        }
-        catch (const std::exception& e)
-        {
-            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-            return result;
-        }
+            for ( const auto& tIt: injectorTracers )
+            {
+                std::string tracerName = tIt.first;
+                if (hasCrossFlowEnding(tracerName)) 
+                {
+                    tracerName = removeCrossFlowEnding(tracerName);
+                    injectorCrossFlowTracers.insert(tracerName);
+                }
+                injectorCellSets.push_back(CellSet(CellSetID(tracerName), tIt.second));
+            }
 
-        for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
-        {
-            CellSetValues tofVals = injectorSolution->fd.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), phaseSelection, tofVals);
-            CellSetValues fracVals = injectorSolution->fd.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), phaseSelection, fracVals);
+            try
+            {
+                injectorSolution.reset(new Toolbox::Forward(m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics(injectorCellSets)));
+            }
+            catch ( const std::exception& e )
+            {
+                QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
+                return result;
+            }
+
+            for ( const CellSetID& tracerId: injectorSolution->fd.startPoints() )
+            {
+                std::string tracername = tracerId.to_string();
+                if (injectorCrossFlowTracers.count(tracername)) tracername = addCrossFlowEnding(tracername);
+
+                CellSetValues tofVals = injectorSolution->fd.timeOfFlight(tracerId);
+                result.setTracerTOF(tracername, phaseSelection, tofVals);
+                CellSetValues fracVals = injectorSolution->fd.concentration(tracerId);
+                result.setTracerFraction(tracername, phaseSelection, fracVals);
+            }
         }
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Producer Solution");
 
         // Producer Solution
-
+        std::set<std::string> producerCrossFlowTracers;
         std::vector<CellSet> prodjCellSets;
-        for ( const auto& tIt: producerTracers )
-        {
-            prodjCellSets.push_back(CellSet(CellSetID(tIt.first), tIt.second));
-        }
-
         std::unique_ptr<Toolbox::Reverse> producerSolution;
-        try
         {
-            producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
-        }
-        catch ( const std::exception& e )
-        {
-            QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
-            return result;
-        }
+            for ( const auto& tIt: producerTracers )
+            {
+                std::string tracerName = tIt.first;
+                if (hasCrossFlowEnding(tracerName)) 
+                {
+                    tracerName = removeCrossFlowEnding(tracerName);
+                    producerCrossFlowTracers.insert(tracerName);
+                }
+                prodjCellSets.push_back(CellSet(CellSetID(tracerName), tIt.second));
+            }
 
-        for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
-        {
-            CellSetValues tofVals = producerSolution->fd.timeOfFlight(tracerId);
-            result.setTracerTOF(tracerId.to_string(), phaseSelection, tofVals);
-            CellSetValues fracVals = producerSolution->fd.concentration(tracerId);
-            result.setTracerFraction(tracerId.to_string(), phaseSelection, fracVals);
+            try
+            {
+                producerSolution.reset(new Toolbox::Reverse(m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics(prodjCellSets)));
+            }
+            catch ( const std::exception& e )
+            {
+                QMessageBox::critical(nullptr, "ResInsight", "Flow Diagnostics: " + QString(e.what()));
+                return result;
+            }
+
+            for ( const CellSetID& tracerId: producerSolution->fd.startPoints() )
+            {
+                std::string tracername = tracerId.to_string();
+                if (producerCrossFlowTracers.count(tracername)) tracername = addCrossFlowEnding(tracername);
+
+                CellSetValues tofVals = producerSolution->fd.timeOfFlight(tracerId);
+                result.setTracerTOF(tracername, phaseSelection, tofVals);
+                CellSetValues fracVals = producerSolution->fd.concentration(tracerId);
+                result.setTracerFraction(tracername, phaseSelection, fracVals);
+            }
         }
 
         progressInfo.incrementProgress();
@@ -394,17 +488,37 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         {
             const auto& prodCellSet = prodjCellSets[pIdx];
 
+            std::string prodTracerName = prodCellSet.id().to_string();
+            CellSetID prodID(prodTracerName);
+
+            std::string uiProducerTracerName = prodTracerName;
+            if (producerCrossFlowTracers.count(prodTracerName)) 
+            {
+                uiProducerTracerName = addCrossFlowEnding(prodTracerName);
+            }
+
             for ( const auto& injCellSet : injectorCellSets )
             {
+                std::string injTracerName = injCellSet.id().to_string();
+                CellSetID injID(injTracerName);
+
                 std::pair<double, double> fluxPair = injectorProducerPairFlux(*(injectorSolution.get()), 
                                                                               *(producerSolution.get()),
-                                                                              injCellSet, 
-                                                                              prodCellSet,
-                                                                              sumWellFluxPrCell);
+                                                                              injID, 
+                                                                              prodID,
+                                                                              WellInFluxPrCell);
+                std::string uiInjectorTracerName = injTracerName;
+
+                if (injectorCrossFlowTracers.count(injTracerName)) 
+                {
+                    uiInjectorTracerName = addCrossFlowEnding(injTracerName);
+                }
+
+               
                 #pragma omp critical
                 {
-                    result.setInjProdWellPairFlux(injCellSet.id().to_string(),
-                                                  prodCellSet.id().to_string(),
+                    result.setInjProdWellPairFlux(uiInjectorTracerName,
+                                                  uiProducerTracerName,
                                                   fluxPair);
                 }
             }

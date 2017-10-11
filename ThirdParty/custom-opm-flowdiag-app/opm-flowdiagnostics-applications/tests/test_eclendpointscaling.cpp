@@ -99,7 +99,6 @@ BOOST_AUTO_TEST_CASE (NoScaling)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0.0,
         0.2,
@@ -111,9 +110,21 @@ BOOST_AUTO_TEST_CASE (NoScaling)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        check_is_close(s_inp, s);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledConnate)
@@ -136,7 +147,6 @@ BOOST_AUTO_TEST_CASE (ScaledConnate)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0,
         0,
@@ -148,9 +158,30 @@ BOOST_AUTO_TEST_CASE (ScaledConnate)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        const auto s_inp_expect = std::vector<double> {
+            0.2,                // t.s <= smin => smin
+            0.2,                // t.s <= smin => smin
+            0.4,
+            0.6,
+            0.8,
+            1.0,
+        };
+
+        check_is_close(s_inp, s_inp_expect);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledMax)
@@ -173,7 +204,6 @@ BOOST_AUTO_TEST_CASE (ScaledMax)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0,
         0.25,
@@ -185,9 +215,30 @@ BOOST_AUTO_TEST_CASE (ScaledMax)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        const auto s_inp_expect = std::vector<double> {
+            0.0,
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            0.8,                // t.s >= smax => smax
+        };
+
+        check_is_close(s_inp, s_inp_expect);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledBoth)
@@ -210,7 +261,6 @@ BOOST_AUTO_TEST_CASE (ScaledBoth)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0,
         0.0,
@@ -222,9 +272,30 @@ BOOST_AUTO_TEST_CASE (ScaledBoth)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        const auto s_inp_expect = std::vector<double> {
+            0.2,                // t.s <= smin => smin
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            0.8,                // t.s >= smax => smax
+        };
+
+        check_is_close(s_inp, s_inp_expect);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -252,7 +323,6 @@ BOOST_AUTO_TEST_CASE (NoScaling)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0.2,
         0.2,
@@ -264,9 +334,21 @@ BOOST_AUTO_TEST_CASE (NoScaling)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        check_is_close(s_inp, expect);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledConnate)
@@ -290,7 +372,6 @@ BOOST_AUTO_TEST_CASE (ScaledConnate)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0.20,
         0.32,
@@ -302,9 +383,21 @@ BOOST_AUTO_TEST_CASE (ScaledConnate)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        check_is_close(s_inp, s);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledMax)
@@ -328,7 +421,6 @@ BOOST_AUTO_TEST_CASE (ScaledMax)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0.20,
         0.20,
@@ -340,9 +432,30 @@ BOOST_AUTO_TEST_CASE (ScaledMax)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        const auto s_inp_expect = std::vector<double> {
+            0.2,                // t.s <= smin -> smin
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            1.0,
+        };
+
+        check_is_close(s_inp, s_inp_expect);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledBoth)
@@ -366,7 +479,6 @@ BOOST_AUTO_TEST_CASE (ScaledBoth)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0.2,
         0.2,
@@ -378,9 +490,30 @@ BOOST_AUTO_TEST_CASE (ScaledBoth)
 
     const auto eps = SF::TwoPointScaling{ smin, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp     = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        const auto s_inp_expect = std::vector<double> {
+            0.5,                // t.s <= smin -> smin
+            0.5,                // t.s <= smin -> smin
+            0.5,                // t.s <= smin -> smin
+            0.6,
+            0.7,                // t.s >= smax -> smax
+            0.7,                // t.s >= smax -> smax
+        };
+
+        check_is_close(s_inp, s_inp_expect);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
@@ -411,7 +544,6 @@ BOOST_AUTO_TEST_CASE (NoScaling)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0.0,
         0.2,
@@ -423,9 +555,21 @@ BOOST_AUTO_TEST_CASE (NoScaling)
 
     const auto eps = SF::ThreePointScaling{ smin, sdisp, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        check_is_close(s_inp, s);
+    }
 }
 
 BOOST_AUTO_TEST_CASE (ScaledConnate)
@@ -449,7 +593,6 @@ BOOST_AUTO_TEST_CASE (ScaledConnate)
         1.0,
     };
 
-    const auto sp     = associate(s);
     const auto expect = std::vector<double> {
         0,
         1.0  / 15,
@@ -461,9 +604,30 @@ BOOST_AUTO_TEST_CASE (ScaledConnate)
 
     const auto eps = SF::ThreePointScaling{ smin, sdisp, smax };
 
-    const auto s_eff = eps.eval(tep, sp);
+    // Input saturation -> Scaled saturation
+    {
+        const auto sp    = associate(s);
+        const auto s_eff = eps.eval(tep, sp);
 
-    check_is_close(s_eff, expect);
+        check_is_close(s_eff, expect);
+    }
+
+    // Tabulated saturation -> Input saturation
+    {
+        const auto sp    = associate(expect);
+        const auto s_inp = eps.reverse(tep, sp);
+
+        const auto s_inp_expect = std::vector<double> {
+            0.1,                // t.s <= smin -> smin
+            0.2,
+            0.4,
+            0.6,
+            0.8,
+            1.0,
+        };
+
+        check_is_close(s_inp, s_inp_expect);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

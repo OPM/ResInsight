@@ -56,7 +56,7 @@ public:
 
     void assignPoreVolume(const std::vector<double>& pvol);
     void assignConnectionFlux(const ConnectionValues& flux);
-    void assignInflowFlux(const CellSetValues& inflow_flux);
+    void assignInflowFlux(const std::map<CellSetID, CellSetValues>& inflow_flux);
 
     Forward injDiag (const std::vector<CellSet>& start_sets);
     Reverse prodDiag(const std::vector<CellSet>& start_sets);
@@ -66,6 +66,8 @@ private:
 
     std::vector<double> pvol_;
     ConnectionValues    flux_;
+    std::map<CellSetID, CellSetValues> inj_flux_by_id_;
+    std::map<CellSetID, CellSetValues> prod_flux_by_id_;
     CellSetValues       only_inflow_flux_;
     CellSetValues       only_outflow_flux_;
 
@@ -109,15 +111,20 @@ Toolbox::Impl::assignConnectionFlux(const ConnectionValues& flux)
 }
 
 void
-Toolbox::Impl::assignInflowFlux(const CellSetValues& inflow_flux)
+Toolbox::Impl::assignInflowFlux(const std::map<CellSetID, CellSetValues>& inflow_flux)
 {
     only_inflow_flux_.clear();
     only_outflow_flux_.clear();
-    for (const auto& data : inflow_flux) {
-        if (data.second > 0.0) {
-            only_inflow_flux_[data.first] = data.second;
-        } else if (data.second < 0.0) {
-            only_outflow_flux_[data.first] = -data.second;
+    for (const auto& inflow_set : inflow_flux) {
+        const CellSetID& id = inflow_set.first;
+        for (const auto& data : inflow_set.second) {
+            if (data.second > 0.0) {
+                only_inflow_flux_[data.first] += data.second;
+                inj_flux_by_id_[id].insert(data);
+            } else if (data.second < 0.0) {
+                only_outflow_flux_[data.first] += -data.second;
+                prod_flux_by_id_[id].insert(std::make_pair(data.first, -data.second));
+            }
         }
     }
 }
@@ -132,6 +139,9 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
 
     // Check that start sets are valid.
     for (const auto& start : start_sets) {
+        if (inj_flux_by_id_.find(start.id()) == inj_flux_by_id_.end()) {
+            throw std::runtime_error("Start set ID not present in data passed to assignInflowFlux().");
+        }
         for (const int cell : start) {
             if (only_inflow_flux_.count(cell) != 1 || only_outflow_flux_.count(cell) != 0) {
                 throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
@@ -151,7 +161,7 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
     sol.assignGlobalToF(solver.solveGlobal());
 
     for (const auto& start : start_sets) {
-        auto solution = solver.solveLocal(start);
+        auto solution = solver.solveLocal(inj_flux_by_id_[start.id()]);
         sol.assign(start.id(), ToF{ solution.tof });
         sol.assign(start.id(), Conc{ solution.concentration });
     }
@@ -169,6 +179,9 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
 
     // Check that start sets are valid.
     for (const auto& start : start_sets) {
+        if (prod_flux_by_id_.find(start.id()) == prod_flux_by_id_.end()) {
+            throw std::runtime_error("Start set ID not present in data passed to assignInflowFlux().");
+        }
         for (const int cell : start) {
            if (only_inflow_flux_.count(cell) != 0 || only_outflow_flux_.count(cell) != 1) {
                  throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
@@ -188,7 +201,7 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
     sol.assignGlobalToF(solver.solveGlobal());
 
     for (const auto& start : start_sets) {
-        auto solution = solver.solveLocal(start);
+        auto solution = solver.solveLocal(prod_flux_by_id_[start.id()]);
         sol.assign(start.id(), ToF{ solution.tof });
         sol.assign(start.id(), Conc{ solution.concentration });
     }
@@ -271,7 +284,7 @@ Toolbox::assignConnectionFlux(const ConnectionValues& flux)
 }
 
 void
-Toolbox::assignInflowFlux(const CellSetValues& inflow_flux)
+Toolbox::assignInflowFlux(const std::map<CellSetID, CellSetValues>& inflow_flux)
 {
     pImpl_->assignInflowFlux(inflow_flux);
 }

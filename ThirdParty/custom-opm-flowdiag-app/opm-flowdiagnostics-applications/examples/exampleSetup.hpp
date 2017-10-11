@@ -29,6 +29,7 @@
 #include <opm/flowdiagnostics/ConnectionValues.hpp>
 #include <opm/flowdiagnostics/Toolbox.hpp>
 
+#include <opm/utility/ECLCaseUtilities.hpp>
 #include <opm/utility/ECLFluxCalc.hpp>
 #include <opm/utility/ECLGraph.hpp>
 #include <opm/utility/ECLPhaseIndex.hpp>
@@ -36,52 +37,16 @@
 #include <opm/utility/ECLWellSolution.hpp>
 
 #include <exception>
+#include <initializer_list>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+#include <boost/filesystem/path.hpp>
 
 namespace example {
-    inline bool isFile(const boost::filesystem::path& p)
-    {
-        namespace fs = boost::filesystem;
-
-        auto is_regular_file = [](const fs::path& pth)
-        {
-            return fs::exists(pth) && fs::is_regular_file(pth);
-        };
-
-        return is_regular_file(p)
-            || (fs::is_symlink(p) &&
-                is_regular_file(fs::read_symlink(p)));
-    }
-
-    inline boost::filesystem::path
-    deriveFileName(boost::filesystem::path         file,
-                   const std::vector<std::string>& extensions)
-    {
-        for (const auto& ext : extensions) {
-            file.replace_extension(ext);
-
-            if (isFile(file)) {
-                return file;
-            }
-        }
-
-        const auto prefix = file.parent_path() / file.stem();
-
-        std::ostringstream os;
-
-        os << "Unable to derive valid filename from model prefix "
-           << prefix.generic_string();
-
-        throw std::invalid_argument(os.str());
-    }
-
-
     template <class FluxCalc>
     inline Opm::FlowDiagnostics::ConnectionValues
     extractFluxField(const Opm::ECLGraph& G,
@@ -123,35 +88,32 @@ namespace example {
                      const bool                  useEPS)
     {
         if (compute_fluxes) {
-            auto satfunc = ::Opm::ECLSaturationFunc(G, init, useEPS);
+            const auto grav = 0.0;
 
-            Opm::ECLFluxCalc calc(G, std::move(satfunc));
+            Opm::ECLFluxCalc calc(G, init, grav, useEPS);
 
-            auto getFlux = [&calc, &rstrt]
-                (const Opm::ECLPhaseIndex         p)
+            return extractFluxField(G, [&calc, &rstrt]
+                (const Opm::ECLPhaseIndex p)
             {
                 return calc.flux(rstrt, p);
-            };
-
-            return extractFluxField(G, getFlux);
+            });
         }
 
-        auto getFlux = [&G, &rstrt]
-            (const Opm::ECLPhaseIndex         p)
+        return extractFluxField(G, [&G, &rstrt]
+            (const Opm::ECLPhaseIndex p)
         {
             return G.flux(rstrt, p);
-        };
-
-        return extractFluxField(G, getFlux);
+        });
     }
 
     template <class WellFluxes>
-    Opm::FlowDiagnostics::CellSetValues
+    std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues>
     extractWellFlows(const Opm::ECLGraph& G,
                      const WellFluxes&    well_fluxes)
     {
-        Opm::FlowDiagnostics::CellSetValues inflow;
+        std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> well_flows;
         for (const auto& well : well_fluxes) {
+            Opm::FlowDiagnostics::CellSetValues& inflow = well_flows[Opm::FlowDiagnostics::CellSetID(well.name)];
             for (const auto& completion : well.completions) {
                 const auto& gridName = completion.gridName;
                 const auto& ijk = completion.ijk;
@@ -167,32 +129,40 @@ namespace example {
             }
         }
 
-        return inflow;
+        return well_flows;
     }
 
 
 
 
-    struct FilePaths
+    inline Opm::ECLCaseUtilities::ResultSet
+    identifyResultSet(const Opm::ParameterGroup& param)
     {
-        FilePaths(const Opm::ParameterGroup& param)
+        for (const auto* p : { "case", "grid", "init", "restart" })
         {
-            const string casename = param.getDefault<string>("case", "DEFAULT_CASE_NAME");
-            grid = param.has("grid") ? param.get<string>("grid")
-                : deriveFileName(casename, { ".EGRID", ".FEGRID", ".GRID", ".FGRID" });
-            init = param.has("init") ? param.get<string>("init")
-                : deriveFileName(casename, { ".INIT", ".FINIT" });
-            restart = param.has("restart") ? param.get<string>("restart")
-                : deriveFileName(casename, { ".UNRST", ".FUNRST" });
+            if (param.has(p)) {
+                return Opm::ECLCaseUtilities::ResultSet {
+                    param.get<std::string>(p)
+                };
+            }
         }
 
-        using path = boost::filesystem::path;
-        using string = std::string;
+        throw std::invalid_argument {
+            "No Valid Result Set Identified by Input Parameters"
+        };
+    }
 
-        path grid;
-        path init;
-        path restart;
-    };
+
+
+
+    inline std::unordered_set<int>
+    getAvailableSteps(const ::Opm::ECLCaseUtilities::ResultSet& result_set)
+    {
+        const auto steps = result_set.reportStepIDs();
+
+        return { std::begin(steps), std::end(steps) };
+    }
+
 
 
 
@@ -231,10 +201,10 @@ namespace example {
     {
         Setup(int argc, char** argv)
             : param          (initParam(argc, argv))
-            , file_paths     (param)
-            , init           (file_paths.init)
-            , rstrt          (file_paths.restart)
-            , graph          (::Opm::ECLGraph::load(file_paths.grid, init))
+            , result_set     (identifyResultSet(param))
+            , init           (result_set.initFile())
+            , graph          (::Opm::ECLGraph::load(result_set.gridFile(), init))
+            , available_steps(getAvailableSteps(result_set))
             , well_fluxes    ()
             , toolbox        (initToolbox(graph))
             , compute_fluxes_(param.getDefault("compute_fluxes", false))
@@ -247,7 +217,7 @@ namespace example {
 
                 os << "Report Step " << step
                    << " is Not Available in Result Set "
-                   << file_paths.grid.stem();
+                   << this->result_set.gridFile().stem();
 
                 throw std::domain_error(os.str());
             }
@@ -255,16 +225,33 @@ namespace example {
 
         bool selectReportStep(const int step)
         {
-            if (! rstrt.selectReportStep(step)) {
+            if (this->available_steps.count(step) == 0) {
+                // Requested report step not amongst those stored in the
+                // result set.
+                return false;
+            }
+
+            if (! (this->result_set.isUnifiedRestart() &&
+                   bool(this->restart)))
+            {
+                // Non-unified (separate) restart files, or first time-step
+                // selection in a unified restart file case.
+                const auto restart_file =
+                    this->result_set.restartFile(step);
+
+                this->openRestartFile(restart_file);
+            }
+
+            if (! this->restart->selectReportStep(step)) {
                 return false;
             }
 
             {
                 auto wsol = Opm::ECLWellSolution{};
-                well_fluxes = wsol.solution(rstrt, graph.activeGrids());
+                well_fluxes = wsol.solution(*restart, graph.activeGrids());
             }
 
-            toolbox.assignConnectionFlux(extractFluxField(graph, init, rstrt,
+            toolbox.assignConnectionFlux(extractFluxField(graph, init, *restart,
                                                           compute_fluxes_, useEPS_));
 
             toolbox.assignInflowFlux(extractWellFlows(graph, well_fluxes));
@@ -273,14 +260,22 @@ namespace example {
         }
 
         Opm::ParameterGroup param;
-        FilePaths file_paths;
+        Opm::ECLCaseUtilities::ResultSet result_set;
         Opm::ECLInitFileData init;
-        Opm::ECLRestartData rstrt;
         Opm::ECLGraph graph;
+        std::unordered_set<int> available_steps;
         std::vector<Opm::ECLWellSolution::WellData> well_fluxes;
         Opm::FlowDiagnostics::Toolbox toolbox;
         bool compute_fluxes_ = false;
         bool useEPS_ = false;
+
+        std::shared_ptr<Opm::ECLRestartData> restart;
+
+    private:
+        void openRestartFile(const boost::filesystem::path& rstrt)
+        {
+            this->restart.reset(new Opm::ECLRestartData{ rstrt });
+        }
     };
 
 

@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
     const auto& flux = cas.flux();
 
     // Create well in/out flows.
-    CellSetValues wellflow = { {0, 0.3}, {4, -0.3} };
+    std::map<CellSetID, CellSetValues> wellflow = { { CellSetID("I-1"), {{0, 0.3}} }, { CellSetID("P-1"), {{4, -0.3}} } };
 
     Toolbox diagTool(graph);
     diagTool.assignPoreVolume(pv);
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE (OneDimCase)
         const double vol12 = injectorProducerPairVolume(fwd, rev, pv, CellSetID("I-1"), CellSetID("P-1"));
         BOOST_CHECK_CLOSE(vol12, expectedVol12, 1e-10);
 
-        const auto pairflux = injectorProducerPairFlux(fwd, rev, inje[0], prod[0], wellflow);
+        const auto pairflux = injectorProducerPairFlux(fwd, rev, CellSetID("I-1"), CellSetID("P-1"), wellflow);
         BOOST_CHECK_CLOSE(pairflux.first, 0.3, 1e-10);
         BOOST_CHECK_CLOSE(pairflux.second, -0.3, 1e-10);
     }

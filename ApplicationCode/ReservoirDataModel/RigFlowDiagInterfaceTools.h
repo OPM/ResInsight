@@ -110,7 +110,7 @@ namespace RigFlowDiagInterfaceTools {
     {
         auto satfunc = Opm::ECLSaturationFunc(G, init);
 
-        Opm::ECLFluxCalc calc(G, std::move(satfunc));
+        Opm::ECLFluxCalc calc(G, init, 9.80665, true);
 
         auto getFlux = [&calc, &rstrt]
         (const Opm::ECLPhaseIndex p)
@@ -122,12 +122,13 @@ namespace RigFlowDiagInterfaceTools {
     }
 
     template <class WellFluxes>
-    Opm::FlowDiagnostics::CellSetValues
+    std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues>
         extractWellFlows(const Opm::ECLGraph& G,
-            const WellFluxes&    well_fluxes)
+                         const WellFluxes&    well_fluxes)
     {
-        Opm::FlowDiagnostics::CellSetValues inflow;
+        std::map<Opm::FlowDiagnostics::CellSetID, Opm::FlowDiagnostics::CellSetValues> well_flows;
         for (const auto& well : well_fluxes) {
+            Opm::FlowDiagnostics::CellSetValues& inflow = well_flows[Opm::FlowDiagnostics::CellSetID(well.name)];
             for (const auto& completion : well.completions) {
                 const auto& gridName = completion.gridName;
                 const auto& ijk = completion.ijk;
@@ -143,7 +144,7 @@ namespace RigFlowDiagInterfaceTools {
             }
         }
 
-        return inflow;
+        return well_flows;
     }
 
 }

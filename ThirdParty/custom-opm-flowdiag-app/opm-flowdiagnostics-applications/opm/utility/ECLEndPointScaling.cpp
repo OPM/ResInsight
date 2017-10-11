@@ -102,6 +102,10 @@ public:
     eval(const TableEndPoints&   tep,
          const SaturationPoints& sp) const;
 
+    std::vector<double>
+    reverse(const TableEndPoints&   tep,
+            const SaturationPoints& sp) const;
+
 private:
     std::vector<double> smin_;
     std::vector<double> smax_;
@@ -146,6 +150,48 @@ Impl::eval(const TableEndPoints&   tep,
     return effsat;
 }
 
+std::vector<double>
+Opm::SatFunc::TwoPointScaling::
+Impl::reverse(const TableEndPoints&   tep,
+              const SaturationPoints& sp) const
+{
+    const auto srng = tep.high - tep.low;
+
+    auto unscaledsat = std::vector<double>{};
+    unscaledsat.reserve(sp.size());
+
+    for (const auto& eval_pt : sp) {
+        const auto cell = eval_pt.cell;
+
+        const auto sLO = this->smin_[cell];
+        const auto sHI = this->smax_[cell];
+
+        unscaledsat.push_back(0.0);
+        auto& s_unsc = unscaledsat.back();
+
+        if (! (eval_pt.sat > tep.low)) {
+            // s <= minimum tabulated saturation.
+            // Map to Minimum Input Saturation in cell (sLO).
+            s_unsc = sLO;
+        }
+        else if (! (eval_pt.sat < tep.high)) {
+            // s >= maximum tabulated saturation.
+            // Map to Maximum Input Saturation in cell (sHI).
+            s_unsc = sHI;
+        }
+        else {
+            // s in tabulated interval (tep.low, tep.high)
+            // Map to Input Saturation in (sLO, sHI)
+            const auto t =
+                (eval_pt.sat - tep.low) / srng;
+
+            s_unsc = sLO + t*(sHI - sLO);
+        }
+    }
+
+    return unscaledsat;
+}
+
 // ---------------------------------------------------------------------
 // Class Opm::ThreePointScaling::Impl
 // ---------------------------------------------------------------------
@@ -173,6 +219,10 @@ public:
     std::vector<double>
     eval(const TableEndPoints&   tep,
          const SaturationPoints& sp) const;
+
+    std::vector<double>
+    reverse(const TableEndPoints&   tep,
+            const SaturationPoints& sp) const;
 
 private:
     std::vector<double> smin_;
@@ -221,6 +271,57 @@ Impl::eval(const TableEndPoints&   tep,
     }
 
     return effsat;
+}
+
+std::vector<double>
+Opm::SatFunc::ThreePointScaling::
+Impl::reverse(const TableEndPoints&   tep,
+              const SaturationPoints& sp) const
+{
+    auto unscaledsat = std::vector<double>{};
+    unscaledsat.reserve(sp.size());
+
+    for (const auto& eval_pt : sp) {
+        const auto cell = eval_pt.cell;
+
+        unscaledsat.push_back(0.0);
+        auto& s_unsc = unscaledsat.back();
+
+        const auto sLO = this->smin_ [cell];
+        const auto sR  = this->sdisp_[cell];
+        const auto sHI = this->smax_ [cell];
+
+        if (! (eval_pt.sat > tep.low)) {
+            // s <= minimum tabulated saturation.
+            // Map to Minimum Input Saturation in cell (sLO).
+            s_unsc = sLO;
+        }
+        else if (! (eval_pt.sat < tep.high)) {
+            // s >= maximum tabulated saturation.
+            // Map to Maximum Input Saturation in cell (sHI).
+            s_unsc = sHI;
+        }
+        else if (eval_pt.sat < tep.disp) {
+            // s in tabulated interval (tep.low, tep.disp)
+            // Map to Input Saturation in (sLO, sR)
+            const auto t =
+                (eval_pt.sat - tep.low)
+                / (tep.disp  - tep.low);
+
+            s_unsc = sLO + t*(sR - sLO);
+        }
+        else {
+            // s in tabulated interval (tep.disp, tep.high)
+            // Map to Input Saturation in (sR, sHI)
+            const auto t =
+                (eval_pt.sat - tep.disp)
+                / (tep.high  - tep.disp);
+
+            s_unsc = sR + t*(sHI - sR);
+        }
+    }
+
+    return unscaledsat;
 }
 
 // ---------------------------------------------------------------------
@@ -1058,6 +1159,13 @@ Opm::SatFunc::TwoPointScaling::eval(const TableEndPoints&   tep,
     return this->pImpl_->eval(tep, sp);
 }
 
+std::vector<double>
+Opm::SatFunc::TwoPointScaling::reverse(const TableEndPoints&   tep,
+                                       const SaturationPoints& sp) const
+{
+    return this->pImpl_->reverse(tep, sp);
+}
+
 std::unique_ptr<Opm::SatFunc::EPSEvalInterface>
 Opm::SatFunc::TwoPointScaling::clone() const
 {
@@ -1107,6 +1215,13 @@ Opm::SatFunc::ThreePointScaling::eval(const TableEndPoints&   tep,
                                       const SaturationPoints& sp) const
 {
     return this->pImpl_->eval(tep, sp);
+}
+
+std::vector<double>
+Opm::SatFunc::ThreePointScaling::reverse(const TableEndPoints&   tep,
+                                         const SaturationPoints& sp) const
+{
+    return this->pImpl_->reverse(tep, sp);
 }
 
 std::unique_ptr<Opm::SatFunc::EPSEvalInterface>

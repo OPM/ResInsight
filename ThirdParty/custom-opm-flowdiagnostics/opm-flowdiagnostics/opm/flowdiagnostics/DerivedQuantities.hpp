@@ -110,9 +110,9 @@ namespace FlowDiagnostics
     std::pair<double, double>
     injectorProducerPairFlux(const Toolbox::Forward& injector_solution,
                              const Toolbox::Reverse& producer_solution,
-                             const CellSet& injector_cells,
-                             const CellSet& producer_cells,
-                             const CellSetValues& inflow_flux);
+                             const CellSetID& injector,
+                             const CellSetID& producer,
+                             const std::map<CellSetID, CellSetValues>& inflow_flux);
 
 
 } // namespace FlowDiagnostics

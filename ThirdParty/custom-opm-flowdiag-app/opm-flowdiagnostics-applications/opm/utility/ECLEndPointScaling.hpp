@@ -87,6 +87,27 @@ namespace Opm { namespace SatFunc {
         eval(const TableEndPoints&   tep,
              const SaturationPoints& sp) const = 0;
 
+        /// Derive unscaled (raw) input saturations from a sequence of table
+        /// points (independent variate in a tabulated saturation function).
+        ///
+        /// This function maps the result of \code eval() \endcode back to
+        /// its original arguments.  In other words, this is the inverse of
+        /// member function \code eval() \endcode.
+        ///
+        /// \param[in] tep Static end points that identify the saturation
+        ///    scaling intervals of a particular tabulated saturation
+        ///    function.
+        ///
+        /// \param[in] sp Sequence of saturation points.
+        ///
+        /// \return Sequence of input saturation values in order of the
+        ///    input sequence.  In particular the \c i-th element of this
+        ///    result is the scaled version of \code sp[i].sat \endcode.
+        virtual std::vector<double>
+        reverse(const TableEndPoints&   tep,
+                const SaturationPoints& sp) const = 0;
+
+        /// Virtual copy constructor.
         virtual std::unique_ptr<EPSEvalInterface> clone() const = 0;
 
         /// Destructor.  Must be virtual.
@@ -152,7 +173,7 @@ namespace Opm { namespace SatFunc {
         ///    scaling intervals of a particular tabulated saturation
         ///    function.  The evaluation procedure considers only \code
         ///    tep.low \endcode and \code tep.high \endcode.  The value of
-        ///    \code tep.disp \endcode is never read.
+        ///    \code tep.disp \endcode is never referenced.
         ///
         /// \param[in] sp Sequence of saturation points.  The maximum cell
         ///    index (\code sp[i].cell \endcode) must be strictly less than
@@ -166,6 +187,29 @@ namespace Opm { namespace SatFunc {
         eval(const TableEndPoints&   tep,
              const SaturationPoints& sp) const override;
 
+        /// Derive unscaled (raw) input saturations from a sequence of table
+        /// points (independent variate in a tabulated saturation function).
+        ///
+        /// This function maps the result of \code eval() \endcode back to
+        /// its original arguments.  In other words, this is the inverse of
+        /// member function \code eval() \endcode.
+        ///
+        /// \param[in] tep Static end points that identify the saturation
+        ///    scaling intervals of a particular tabulated saturation
+        ///    function.  The reverse mapping procedure considers only \code
+        ///    tep.low \endcode and \code tep.high \endcode.  The value of
+        ///    \code tep.disp \endcode is never referenced.
+        ///
+        /// \param[in] sp Sequence of saturation points.
+        ///
+        /// \return Sequence of input saturation values in order of the
+        ///    input sequence.  In particular the \c i-th element of this
+        ///    result is the scaled version of \code sp[i].sat \endcode.
+        virtual std::vector<double>
+        reverse(const TableEndPoints&   tep,
+                const SaturationPoints& sp) const override;
+
+        /// Virtual copy constructor.
         virtual std::unique_ptr<EPSEvalInterface> clone() const override;
 
     private:
@@ -237,9 +281,9 @@ namespace Opm { namespace SatFunc {
         ///
         /// \param[in] tep Static end points that identify the saturation
         ///    scaling intervals of a particular tabulated saturation
-        ///    function.  The evaluation procedure considers only \code
-        ///    tep.low \endcode and \code tep.high \endcode.  The value of
-        ///    \code tep.disp \endcode is never read.
+        ///    function.  All defined end points---\code tep.low \endcode,
+        ///    \code \tep.disp \endcode, and \code tep.high \endcode---are
+        ///    relevant and referenced in the evaluation procedure.
         ///
         /// \param[in] sp Sequence of saturation points.  The maximum cell
         ///    index (\code sp[i].cell \endcode) must be strictly less than
@@ -253,6 +297,29 @@ namespace Opm { namespace SatFunc {
         eval(const TableEndPoints&   tep,
              const SaturationPoints& sp) const override;
 
+        /// Derive unscaled (raw) input saturations from a sequence of table
+        /// points (independent variate in a tabulated saturation function).
+        ///
+        /// This function maps the result of \code eval() \endcode back to
+        /// its original arguments.  In other words, this is the inverse of
+        /// member function \code eval() \endcode.
+        ///
+        /// \param[in] tep Static end points that identify the saturation
+        ///    scaling intervals of a particular tabulated saturation
+        ///    function.  All defined end points---\code tep.low \endcode,
+        ///    \code \tep.disp \endcode, and \code tep.high \endcode---are
+        ///    relevant and referenced in the reverse mapping procedure.
+        ///
+        /// \param[in] sp Sequence of saturation points.
+        ///
+        /// \return Sequence of input saturation values in order of the
+        ///    input sequence.  In particular the \c i-th element of this
+        ///    result is the scaled version of \code sp[i].sat \endcode.
+        virtual std::vector<double>
+        reverse(const TableEndPoints&   tep,
+                const SaturationPoints& sp) const override;
+
+        /// Virtual copy constructor.
         virtual std::unique_ptr<EPSEvalInterface> clone() const override;
 
     private:

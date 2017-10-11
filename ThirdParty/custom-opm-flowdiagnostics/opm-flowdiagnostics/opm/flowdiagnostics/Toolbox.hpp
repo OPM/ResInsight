@@ -62,7 +62,9 @@ namespace FlowDiagnostics
         /// Inflow fluxes (injection) should be positive, outflow
         /// fluxes (production) should be negative, both should be
         /// given in the inflow_flux argument passed to this method.
-        void assignInflowFlux(const CellSetValues& inflow_flux);
+        /// Values from a single well should typically be associated with
+        /// a single CellSetID and be a single CellSetValues object.
+        void assignInflowFlux(const std::map<CellSetID, CellSetValues>& inflow_flux);
 
         struct Forward
         {

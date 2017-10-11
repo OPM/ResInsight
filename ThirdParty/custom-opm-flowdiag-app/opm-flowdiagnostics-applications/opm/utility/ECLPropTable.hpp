@@ -20,6 +20,10 @@
 #ifndef OPM_ECLPROPTABLE_HEADER_INCLUDED
 #define OPM_ECLPROPTABLE_HEADER_INCLUDED
 
+#include <opm/utility/ECLPiecewiseLinearInterpolant.hpp>
+#include <opm/utility/ECLTableInterpolation1D.hpp>
+
+#include <functional>
 #include <vector>
 
 /// \file
@@ -43,19 +47,117 @@ namespace Opm {
 
         /// Raw table data.  Column major (Fortran) order.  Typically
         /// copied/extracted directly from TAB vector of INIT result-set.
-        DataVector data;
+        /// Array of size \code numRows * numCols * numPrimary \endcode for
+        /// each table, stored consecutively.
+        DataVector data{};
+
+        /// Primary lookup key for 2D interpolation.  Only relevant for PVT
+        /// tables of wet gas and/or live oil (Pg or Rs, respectively).
+        /// Array of size \c numPrimary elements for each table, stored
+        /// consecutively.
+        DataVector primaryKey{};
+
+        /// Number of primary key elements for each individual table.  Only
+        /// relevant (i.e., != 1) for PVT tables of wet gas and/or live oil.
+        SizeType numPrimary{0};
 
         /// Number of rows allocated in the result set for each individual
-        /// table.  Typically corresponds to setting in one of the *DIMS
-        /// keywords.  Should normally be at least two.
-        SizeType numRows;
+        /// primary key.  Typically corresponds to setting in one of the
+        /// *DIMS keywords.  Should normally be at least two for saturation
+        /// functions.
+        SizeType numRows{0};
 
         /// Number of columns in this table.  Varies by keyword/table.
-        SizeType numCols;
+        SizeType numCols{0};
 
         /// Number of tables of this type.  Must match the corresponding
         /// region keyword.
-        SizeType numTables;
+        SizeType numTables{0};
+    };
+
+    /// Build a sequence of table interpolants from raw tabulated data,
+    /// assuming table conventions in the INIT file's TABDIMS/TAB vectors.
+    ///
+    /// \tparam Interpolant Representation of a table interpolant.
+    template <class Interpolant>
+    struct MakeInterpolants
+    {
+        /// Create sequence of table interpolants.
+        ///
+        /// This function is aware of the internal layout of the INIT file's
+        /// tabulated function and knows how to identify table data ranges
+        /// corresponding to a single table.  In particular we know how to
+        /// the data according to region IDs and how to apply further
+        /// partitioning according to primary lookup keys (e.g., for RS
+        /// nodes in PVTO tables).
+        ///
+        /// \tparam Factory Interpolant construction function.  Usually a
+        ///    class constructor wrapped in a lambda.  The call
+        ///    \code
+        ///      I = Factory(xBegin, xEnd, colIt);
+        ///    \endcode
+        ///    must construct an instance \c I of type \p Interpolant.
+        ///    Here, \c xBegin and \c xEnd demarcate the range of a single
+        ///    table's independent variate and \c colIt are column iterators
+        ///    positioned at the beginning of each of the table's dependent
+        ///    (result) column.
+        ///
+        ///    Note: The construction function is expected to advance each
+        ///    column iterator across \code distance(xBegin, xEnd) \endcode
+        ///    entries.
+        ///
+        /// \param[in] raw Raw tabulated data.  Must correspond to a single
+        ///    table vector, e.g. the SWFN data.
+        ///
+        /// \param[in] construct Callback function that knows how to build a
+        ///    single interpolant given a sequence ranges of of independent
+        ///    and dependent tabulated function values.  Must advance the
+        ///    dependent column iterators and perform appropriate unit
+        ///    conversion on the table data if needed (e.g., for capillary
+        ///    pressure data or viscosity values).
+        template <class Factory>
+        static std::vector<Interpolant>
+        fromRawData(const ECLPropTableRawData& raw,
+                    Factory&&                  construct)
+        {
+            auto interp = std::vector<Interpolant>{};
+
+            const auto numInterp = raw.numTables * raw.numPrimary;
+
+            // Table format: numRows*numInterp values of first column
+            // (indep. var) followed by numCols-1 dependent variable
+            // (function value result) columns of numRows*numInterp values
+            // each, one column at a time.
+            const auto colStride = raw.numRows * numInterp;
+
+            // Position column iterators (independent variable and results
+            // respectively) at beginning of each pertinent table column.
+            auto xBegin = std::begin(raw.data);
+            auto colIt  = std::vector<decltype(xBegin)> {
+                xBegin + colStride
+            };
+
+            for (auto col = 0*raw.numCols + 1;
+                      col <   raw.numCols - 1; ++col)
+            {
+                colIt.push_back(colIt.back() + colStride);
+            }
+
+            // Construct actual interpolants by invoking the
+            // constructor/factory function on each sub-table.
+            for (auto i = 0*numInterp;
+                      i <   numInterp; ++i, xBegin += raw.numRows)
+            {
+                auto xEnd = xBegin + raw.numRows;
+
+                // Layering violation:
+                //    The constructor is expected to advance the result
+                //    column iterators across 'numRows' entries.
+                interp.push_back(construct(xBegin, xEnd, colIt));
+            }
+
+            return interp;
+        }
     };
 
     /// Collection of 1D interpolants from tabulated functions (e.g., the
@@ -63,10 +165,29 @@ namespace Opm {
     class SatFuncInterpolant
     {
     public:
+        /// Protocol for converting raw table input data to strict SI unit
+        /// conventions.
+        struct ConvertUnits
+        {
+            /// Convenience type alias for a value transformation.
+            using Converter = std::function<double(const double)>;
+
+            /// How to convert the independent variate (1st column)
+            Converter indep;
+
+            /// How to convert the dependent variates (2nd... columns).
+            std::vector<Converter> column;
+        };
+
         /// Constructor.
         ///
         /// \param[in] raw Raw table data for this collection.
-        explicit SatFuncInterpolant(const ECLPropTableRawData& raw);
+        ///
+        /// \param[in] convert Unit conversion support.  Mostly applicable
+        ///    to capillary pressure.  Assumed to convert raw table data to
+        ///    strict SI unit conventions.
+        SatFuncInterpolant(const ECLPropTableRawData& raw,
+                           const ConvertUnits&        convert);
 
         /// Wrapper type to disambiguate API usage.  Represents a table ID.
         struct InTable {
@@ -105,6 +226,15 @@ namespace Opm {
         /// Retrieve maximum saturation in all tables.
         std::vector<double> maximumSat() const;
 
+        /// Retrieve unscaled sample points of independent variable in
+        /// particular sub-table (saturation region).
+        ///
+        /// \param[in] t ID of sub-table of interpolant.
+        ///
+        /// \return Abscissas of tabulated saturation function corresponding
+        ///    to particular saturation region.
+        const std::vector<double>& saturationPoints(const InTable& t) const;
+
     private:
         /// Single tabulated 1D interpolant.
         class SingleTable
@@ -120,6 +250,10 @@ namespace Opm {
             /// \param[in] xEnd One past the end of linear range of
             ///    independent variable values.
             ///
+            /// \param[in] convert Unit conversion support.  Mostly
+            ///    applicable to capillary pressure.  Assumed to convert raw
+            ///    table data to strict SI unit conventions.
+            ///
             /// \param[in,out] colIt Dependent/column range iterators.  On
             ///    input, point to the beginnings of ranges of results
             ///    pertinent to a single table.  On output, each iterator is
@@ -128,6 +262,7 @@ namespace Opm {
             ///    for the next table if relevant (and called in a loop).
             SingleTable(ElmIt               xBegin,
                         ElmIt               xEnd,
+                        const ConvertUnits& convert,
                         std::vector<ElmIt>& colIt);
 
             /// Evaluate 1D interpolant in sequence of points.
@@ -141,33 +276,32 @@ namespace Opm {
             /// \return Function values of dependent variable \p c evaluated
             ///    at points \p x.
             std::vector<double>
-            interpolate(const ECLPropTableRawData::SizeType nCols,
-                        const ResultColumn&                 c,
-                        const std::vector<double>&          x) const;
+            interpolate(const ResultColumn&        c,
+                        const std::vector<double>& x) const;
 
             /// Retrieve connate saturation in table.
             double connateSat() const;
 
             /// Retrieve critical saturation for particular result column in
             /// table.
-            double criticalSat(const ECLPropTableRawData::SizeType nCols,
-                               const ResultColumn&                 c) const;
+            double criticalSat(const ResultColumn& c) const;
 
             /// Retrieve maximum saturation in table.
             double maximumSat() const;
 
+            /// Retrieve unscaled sample points of independent variable.
+            const std::vector<double>& saturationPoints() const;
+
         private:
-            /// Independent variable.
-            std::vector<double> x_;
+            /// Extrapolation policy for property evaluator/interpolant.
+            using Extrap = ::Opm::Interp1D::PiecewisePolynomial::
+                ExtrapolationPolicy::Constant;
 
-            /// Dependent variable (or variables).  Row major (i.e., C)
-            /// ordering.  Number of elements: x_.size() * host.nCols_.
-            std::vector<double> y_;
+            /// Type of fundamental table interpolant.
+            using Backend = ::Opm::Interp1D::
+                PiecewisePolynomial::Linear<Extrap>;
 
-            /// Value of dependent variable at position (row,c).
-            double y(const ECLPropTableRawData::SizeType nCols,
-                     const ECLPropTableRawData::SizeType row,
-                     const ResultColumn&                 c) const;
+            Backend interp_;
         };
 
         /// Number of result/dependent variables (== #table cols - 1).

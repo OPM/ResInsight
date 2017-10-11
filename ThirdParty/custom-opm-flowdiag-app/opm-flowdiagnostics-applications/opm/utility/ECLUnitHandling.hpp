@@ -28,11 +28,19 @@ namespace Opm {
 
         struct UnitSystem
         {
-            virtual double pressure()         const = 0;
-            virtual double reservoirRate()    const = 0;
-            virtual double reservoirVolume()  const = 0;
-            virtual double time()             const = 0;
-            virtual double transmissibility() const = 0;
+            virtual double density()             const = 0;
+            virtual double depth()               const = 0;
+            virtual double pressure()            const = 0;
+            virtual double reservoirRate()       const = 0;
+            virtual double reservoirVolume()     const = 0;
+            virtual double surfaceVolumeLiquid() const = 0;
+            virtual double surfaceVolumeGas()    const = 0;
+            virtual double time()                const = 0;
+            virtual double transmissibility()    const = 0;
+            virtual double viscosity()           const = 0;
+
+            double dissolvedGasOilRat() const; // Rs
+            double vaporisedOilGasRat() const; // Rv
         };
 
         std::unique_ptr<const UnitSystem>

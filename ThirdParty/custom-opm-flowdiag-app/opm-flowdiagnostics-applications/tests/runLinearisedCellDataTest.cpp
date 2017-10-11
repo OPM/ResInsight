@@ -20,6 +20,8 @@
 
 #include <examples/exampleSetup.hpp>
 
+#include <opm/utility/ECLCaseUtilities.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -30,6 +32,7 @@
 #include <iomanip>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -340,42 +343,6 @@ namespace {
         return max;
     }
 
-    std::vector<int>
-    availableReportSteps(const example::FilePaths& paths)
-    {
-        using FilePtr = ::ERT::
-            ert_unique_ptr<ecl_file_type, ecl_file_close>;
-
-        const auto rsspec_fn = example::
-            deriveFileName(paths.grid, { ".RSSPEC", ".FRSSPEC" });
-
-        // Read-only, keep open between requests
-        const auto open_flags = 0;
-
-        auto rsspec = FilePtr{
-            ecl_file_open(rsspec_fn.generic_string().c_str(), open_flags)
-        };
-
-        auto* globView = ecl_file_get_global_view(rsspec.get());
-
-        const auto* ITIME_kw = "ITIME";
-        const auto n = ecl_file_view_get_num_named_kw(globView, ITIME_kw);
-
-        auto steps = std::vector<int>(n);
-
-        for (auto i = 0*n; i < n; ++i) {
-            const auto* itime =
-                ecl_file_view_iget_named_kw(globView, ITIME_kw, i);
-
-            const auto* itime_data =
-                static_cast<const int*>(ecl_kw_iget_ptr(itime, 0));
-
-            steps[i] = itime_data[0];
-        }
-
-        return steps;
-    }
-
     ErrorTolerance
     testTolerances(const ::Opm::ParameterGroup& param)
     {
@@ -412,9 +379,9 @@ namespace {
 
     ReferenceSolution
     loadReference(const ::Opm::ParameterGroup& param,
-                  const std::string&                      quant,
-                  const int                               step,
-                  const int                               nDigits)
+                  const std::string&           quant,
+                  const int                    step,
+                  const int                    nDigits)
     {
         namespace fs = boost::filesystem;
 
@@ -491,12 +458,21 @@ namespace {
         E.relative.push_back(std::move(rel));
     }
 
+    std::unique_ptr<Opm::ECLRestartData>
+    openRestartSet(const Opm::ECLCaseUtilities::ResultSet& rset,
+                   const int                               step)
+    {
+        return std::unique_ptr<Opm::ECLRestartData> {
+            new Opm::ECLRestartData(rset.restartFile(step))
+        };
+    }
+
     std::array<AggregateErrors, 2>
-    sampleDifferences(const ::Opm::ECLGraph&                  graph,
-                      const ::Opm::ECLRestartData&            rstrt,
-                      const ::Opm::ParameterGroup& param,
-                      const std::string&                      quant,
-                      const std::vector<int>&                 steps)
+    sampleDifferences(const ::Opm::ECLGraph&                    graph,
+                      const ::Opm::ECLCaseUtilities::ResultSet& rset,
+                      const ::Opm::ParameterGroup&              param,
+                      const std::string&                        quant,
+                      const std::vector<int>&                   steps)
     {
         const auto ECLquant = boost::algorithm::to_upper_copy(quant);
 
@@ -508,10 +484,18 @@ namespace {
 
         const auto nDigits = numDigits(steps);
 
+        auto rstrt = std::unique_ptr<Opm::ECLRestartData>{};
+
         auto E = std::array<AggregateErrors, 2>{};
 
         for (const auto& step : steps) {
-            if (! rstrt.selectReportStep(step)) {
+            if (! (rset.isUnifiedRestart() && bool(rstrt))) {
+                // Separate (not unified) restart file or this is the first
+                // time we're selecting a report step.
+                rstrt = openRestartSet(rset, step);
+            }
+
+            if (! rstrt->selectReportStep(step)) {
                 continue;
             }
 
@@ -519,7 +503,7 @@ namespace {
 
             {
                 const auto raw = Calculated {
-                    graph.rawLinearisedCellData<double>(rstrt, ECLquant)
+                    graph.rawLinearisedCellData<double>(*rstrt, ECLquant)
                 };
 
                 computeErrors(Reference{ ref.raw }, raw, E[0]);
@@ -527,7 +511,7 @@ namespace {
 
             {
                 const auto SI = Calculated {
-                    graph.linearisedCellData(rstrt, ECLquant, unit)
+                    graph.linearisedCellData(*rstrt, ECLquant, unit)
                 };
 
                 computeErrors(Reference{ ref.SI }, SI, E[1]);
@@ -556,28 +540,27 @@ namespace {
     }
 
     ::Opm::ECLGraph
-    constructGraph(const example::FilePaths& pth)
+    constructGraph(const Opm::ECLCaseUtilities::ResultSet& rset)
     {
-        const auto I = ::Opm::ECLInitFileData(pth.init);
+        const auto I = ::Opm::ECLInitFileData(rset.initFile());
 
-        return ::Opm::ECLGraph::load(pth.grid, I);
+        return ::Opm::ECLGraph::load(rset.gridFile(), I);
     }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
 try {
-    const auto prm = example::initParam(argc, argv);
-    const auto pth = example::FilePaths(prm);
-    const auto tol = testTolerances(prm);
+    const auto prm  = example::initParam(argc, argv);
+    const auto rset = example::identifyResultSet(prm);
+    const auto tol  = testTolerances(prm);
 
-    const auto rstrt = ::Opm::ECLRestartData(pth.restart);
-    const auto steps = availableReportSteps(pth);
-    const auto graph = constructGraph(pth);
+    const auto steps = rset.reportStepIDs();
+    const auto graph = constructGraph(rset);
 
     auto all_ok = true;
     for (const auto& quant : testQuantities(prm)) {
         const auto E =
-            sampleDifferences(graph, rstrt, prm, quant, steps);
+            sampleDifferences(graph, rset, prm, quant, steps);
 
         const auto ok =
             everythingFine(E[0], tol) && everythingFine(E[1], tol);

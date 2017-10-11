@@ -18,9 +18,10 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <opm/utility/ECLGraph.hpp>
-
 #include <examples/exampleSetup.hpp>
+
+#include <opm/utility/ECLCaseUtilities.hpp>
+#include <opm/utility/ECLGraph.hpp>
 
 #include <algorithm>
 #include <cassert>
@@ -186,7 +187,7 @@ namespace {
     }
 
     bool transfieldAcceptable(const ::Opm::ParameterGroup& param,
-                              const std::vector<double>&              trans)
+                              const std::vector<double>&   trans)
     {
         const auto Tref = loadReference(param);
 
@@ -208,21 +209,21 @@ namespace {
     }
 
     ::Opm::ECLGraph
-    constructGraph(const example::FilePaths& pth)
+    constructGraph(const Opm::ECLCaseUtilities::ResultSet& rset)
     {
-        const auto I = ::Opm::ECLInitFileData(pth.init);
+        const auto I = ::Opm::ECLInitFileData(rset.initFile());
 
-        return ::Opm::ECLGraph::load(pth.grid, I);
+        return ::Opm::ECLGraph::load(rset.gridFile(), I);
     }
 } // namespace Anonymous
 
 int main(int argc, char* argv[])
 try {
-    const auto prm = example::initParam(argc, argv);
-    const auto pth = example::FilePaths(prm);
-    const auto G   = constructGraph(pth);
-    const auto T   = G.transmissibility();
-    const auto ok  = transfieldAcceptable(prm, T);
+    const auto prm  = example::initParam(argc, argv);
+    const auto rset = example::identifyResultSet(prm);
+    const auto G    = constructGraph(rset);
+    const auto T    = G.transmissibility();
+    const auto ok   = transfieldAcceptable(prm, T);
 
     std::cout << (ok ? "OK" : "FAIL") << '\n';
 
