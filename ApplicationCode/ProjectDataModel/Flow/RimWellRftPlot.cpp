@@ -50,7 +50,6 @@
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include "SummaryPlotCommands/RicSummaryCurveCreatorUiKeywords.h"
 #include "cafPdmChildArrayField.h"
 #include "RimWellRftAddress.h"
 #include "RiaDateStringParser.h"

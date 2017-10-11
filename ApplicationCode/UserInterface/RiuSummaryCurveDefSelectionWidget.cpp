@@ -16,36 +16,34 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCreatorSplitterUi.h"
+#include "RiuSummaryCurveDefSelectionWidget.h"
 
-#include "RicSummaryCurveCreator.h"
+#include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
-#include "cafPdmUiFieldHandle.h"
 #include "cafPdmUiGroup.h"
-#include "cafPdmUiTreeView.h"
 
 #include "QMinimizePanel.h"
 
 #include <QBoxLayout>
-#include <QSplitter>
 #include <QFrame>
-#include <QTreeView>
-#include "RimSummaryPlot.h"
-#include "RimSummaryCurveCollection.h"
+#include <QSplitter>
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorSplitterUi::RicSummaryCurveCreatorSplitterUi(QWidget* parent)
+RiuSummaryCurveDefSelectionWidget::RiuSummaryCurveDefSelectionWidget(QWidget* parent)
 {
+    m_summaryAddressSelection = std::unique_ptr<RiuSummaryCurveDefSelection>(new RiuSummaryCurveDefSelection());
+
+    this->setPdmObject(m_summaryAddressSelection.get());
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
+RiuSummaryCurveDefSelectionWidget::~RiuSummaryCurveDefSelectionWidget()
 {
 
 }
@@ -53,22 +51,18 @@ RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionWidget::summaryAddressSelection() const
 {
-    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-    if (sumCurveCreator)
-    {
-        if (sumCurveCreator->isCloseButtonPressed())
-        {
-            sumCurveCreator->clearCloseButton();
+    return m_summaryAddressSelection.get();
+}
 
-            emit signalCloseButtonPressed();
-        }
-    }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelectionWidget::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+{
+    if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
 
-    if (!m_layout) return;
-
-    int splitterPositionIndex = 0;
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
         if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
@@ -100,38 +94,23 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
                 break;
         }
     }
-
-    caf::PdmUiGroup* appearanceGroup = findGroupByKeyword(topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName);
-    auto appearanceGroupBox = createGroupBoxWithContent(appearanceGroup, uiConfigName);
-    m_lowerLeftLayout->insertWidget(0, appearanceGroupBox);
-
-    caf::PdmUiGroup* nameConfigGroup = findGroupByKeyword(topLevelUiItems, RiuSummaryCurveDefinitionKeywords::nameConfig(), uiConfigName);
-    auto nameConfigGroupBox = createGroupBoxWithContent(nameConfigGroup, uiConfigName);
-    m_lowerLeftLayout->insertWidget(1, nameConfigGroupBox);
-
-    m_lowerLeftLayout->insertWidget(2, getOrCreateCurveTreeWidget(), 1);
-
-    m_secondRowLayout->insertWidget(1, getOrCreatePlotWidget());
-
-    // Fields at bottom of dialog
-    configureAndUpdateFields(1, m_bottomFieldLayout, topLevelUiItems, uiConfigName);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
+QWidget* RiuSummaryCurveDefSelectionWidget::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
 
-    m_layout = new QVBoxLayout();
-    m_layout->setContentsMargins(5, 5, 5, 5);
-    widget->setLayout(m_layout);
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->setContentsMargins(5, 5, 5, 5);
+    widget->setLayout(mainLayout);
 
     QFrame* firstRowFrame = new QFrame(widget);
-    m_firstRowLayout = new QHBoxLayout;
-    m_firstRowLayout->setContentsMargins(0, 0, 0, 0);
-    firstRowFrame->setLayout(m_firstRowLayout);
+    QHBoxLayout* firstRowLayout = new QHBoxLayout;
+    firstRowLayout->setContentsMargins(0, 0, 0, 0);
+    firstRowFrame->setLayout(firstRowLayout);
 
     QFrame* firstRowLeftFrame = new QFrame(widget);
     m_firstRowLeftLayout = new QHBoxLayout;
@@ -143,40 +122,16 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
     m_firstRowRightLayout->setContentsMargins(0, 0, 0, 0);
     firstRowRightFrame->setLayout(m_firstRowRightLayout);
 
-    m_firstRowSplitter = new QSplitter(Qt::Horizontal);
-    m_firstRowSplitter->setContentsMargins(0, 0, 0, 0);
-    m_firstRowSplitter->setHandleWidth(6);
-    m_firstRowSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterV.png); }");
-    m_firstRowSplitter->insertWidget(0, firstRowLeftFrame);
-    m_firstRowSplitter->insertWidget(1, firstRowRightFrame);
-    m_firstRowSplitter->setSizes(QList<int>() << 1 << 1);
-    m_firstRowLayout->addWidget(m_firstRowSplitter);
+    QSplitter* rowSplitter = new QSplitter(Qt::Horizontal);
+    rowSplitter->setContentsMargins(0, 0, 0, 0);
+    rowSplitter->setHandleWidth(6);
+    rowSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterV.png); }");
+    rowSplitter->insertWidget(0, firstRowLeftFrame);
+    rowSplitter->insertWidget(1, firstRowRightFrame);
+    rowSplitter->setSizes(QList<int>() << 1 << 1);
+    firstRowLayout->addWidget(rowSplitter);
 
-    QFrame* secondRowFrame = new QFrame(widget);
-    m_secondRowLayout = new QHBoxLayout;
-    m_secondRowLayout->setContentsMargins(0, 0, 0, 0);
-    secondRowFrame->setLayout(m_secondRowLayout);
-
-    m_lowerLeftLayout = new QVBoxLayout;
-    m_lowerLeftLayout->setContentsMargins(0, 0, 0, 0);
-    m_secondRowLayout->addLayout(m_lowerLeftLayout);
-
-    m_firstColumnSplitter = new QSplitter(Qt::Vertical);
-    m_firstColumnSplitter->setContentsMargins(0, 0, 0, 0);
-
-    m_firstColumnSplitter->setHandleWidth(6);
-    m_firstColumnSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterH.png); }");
-
-    m_firstColumnSplitter->insertWidget(0, firstRowFrame);
-    m_firstColumnSplitter->insertWidget(1, secondRowFrame);
-    m_firstColumnSplitter->setSizes(QList<int>() << 1 << 2);
-
-    m_layout->addWidget(m_firstColumnSplitter);
-
-    m_bottomFieldLayout = new QHBoxLayout;
-    m_bottomFieldLayout->setContentsMargins(0, 0, 0, 0);
-    m_layout->addLayout(m_bottomFieldLayout);
-    m_bottomFieldLayout->insertStretch(0, 1);
+    mainLayout->addWidget(rowSplitter);
 
     return widget;
 }
@@ -184,72 +139,7 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmUiGroup* RicSummaryCurveCreatorSplitterUi::findGroupByKeyword(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& keyword, const QString& uiConfigName)
-{
-    for (auto uiItem : topLevelUiItems)
-    {
-        if (uiItem->isUiHidden(uiConfigName)) continue;
-
-        if (uiItem->isUiGroup())
-        {
-            caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(uiItem);
-            if (group->keyword() == keyword)
-            {
-                return group;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
-{
-    if (!m_curvesPanel)
-    {
-        m_curvesPanel = new QMinimizePanel(this->widget());
-        m_curvesPanel->setTitle("Curves");
-        QVBoxLayout* curvesLayout = new QVBoxLayout(m_curvesPanel->contentFrame());
-
-        m_curveTreeView = new caf::PdmUiTreeView(m_curvesPanel->contentFrame());
-        curvesLayout->addWidget(m_curveTreeView);
-        
-        m_curveTreeView->treeView()->setHeaderHidden(true);
-    }
-
-    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-    if (sumCurveCreator)
-    {
-        RimSummaryCurveCollection* sumColl = sumCurveCreator->previewPlot()->summaryCurveCollection();
-        m_curveTreeView->setPdmItem(sumColl);
-    }
-
-    return m_curvesPanel;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreatePlotWidget()
-{
-    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-    if (sumCurveCreator)
-    {
-        // TODO: Rename previewPlot()->createViewWidget to getOrCreateViewWidget
-        return sumCurveCreator->previewPlot()->createViewWidget(this->widget());
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorSplitterUi::configureAndUpdateFields(int widgetStartIndex, 
+void RiuSummaryCurveDefSelectionWidget::configureAndUpdateFields(int widgetStartIndex, 
                                                                 QBoxLayout* layout,
                                                                 const std::vector<caf::PdmUiItem *>& uiItems,
                                                                 const QString& uiConfigName)
@@ -319,7 +209,7 @@ void RicSummaryCurveCreatorSplitterUi::configureAndUpdateFields(int widgetStartI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RicSummaryCurveCreatorSplitterUi::createGroupBoxWithContent(caf::PdmUiGroup* group,
+QMinimizePanel* RiuSummaryCurveDefSelectionWidget::createGroupBoxWithContent(caf::PdmUiGroup* group,
                                                                             const QString& uiConfigName)
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);

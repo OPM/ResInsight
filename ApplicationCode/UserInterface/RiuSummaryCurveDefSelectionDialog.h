@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,29 +16,25 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-
 #pragma once
 
-#include <QString>
+#include <QDialog>
 
+class RiuSummaryCurveDefSelectionWidget;
+class RiuSummaryCurveDefSelection;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RicSummaryCurveCreatorUiKeywords
+class RiuSummaryCurveDefSelectionDialog : public QDialog
 {
 public:
-    static QString sources()            { return "SourcesKeyword"; };
-    static QString summaryTypes()       { return "SummaryTypesKeyword"; };
-    static QString summaries()          { return "SummariesKeyword"; };
-    static QString regions()            { return "RegionsKeyword"; };
-    static QString region2region()      { return "Region2RegionKeyword"; };
-    static QString wellGroup()          { return "WellGroupKeyword"; };
-    static QString wells()              { return "WellsKeyword"; };
-    static QString completions()        { return "CompletionsKeyword"; };
-    static QString lgrWells()           { return "LgrWellsKeyword"; };
-    static QString wellSegments()       { return "WellSegmentsKeyword"; };
-    static QString appearance()         { return "AppearanceKeyword"; };
-    static QString nameConfig()         { return "NameConfigKeyword"; };
+    RiuSummaryCurveDefSelectionDialog(QWidget* parent);
+    ~RiuSummaryCurveDefSelectionDialog();
+
+    RiuSummaryCurveDefSelection* summaryAddressSelection() const;
+
+private:
+    RiuSummaryCurveDefSelectionWidget* m_addrSelWidget;
 };

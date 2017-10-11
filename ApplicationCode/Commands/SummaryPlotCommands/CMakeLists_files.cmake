@@ -25,7 +25,7 @@ ${CEE_CURRENT_LIST_DIR}RicEditSummaryPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
-${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorUiKeywords.h
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefinitionKeywords.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.h
 )
 

@@ -51,6 +51,10 @@ ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 ${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.h
 ${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.h
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefinitionKeywords.h
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelection.h
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionDialog.h
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionWidget.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -99,6 +103,9 @@ ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.cpp
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPlotObjectPicker.cpp
 ${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.cpp
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelection.cpp
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionDialog.cpp
+${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionWidget.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
