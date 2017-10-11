@@ -47,8 +47,14 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
+#include "RiaApplication.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const char RimWellPath::SIM_WELL_NONE_NAME[] = "None";
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -99,6 +105,9 @@ RimWellPath::RimWellPath()
     filepath.uiCapability()->setUiReadOnly(true);
     CAF_PDM_InitField(&wellPathIndexInFile,         "WellPathNumberInFile",     -1,    "Well Number in file", "", "", "");
     wellPathIndexInFile.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitField(&m_simWellName, "SimWellName", QString(""), "Well", "", "", "");
+    CAF_PDM_InitField(&m_branchIndex, "SimBranchIndex", 0, "Branch", "", "", "");
 
     CAF_PDM_InitField(&showWellPathLabel,           "ShowWellPathLabel",    true,           "Show well path label", "", "", "");
 
@@ -288,6 +297,42 @@ void RimWellPath::fieldChangedByUi(const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_simWellName)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        options.push_back(caf::PdmOptionItemInfo(SIM_WELL_NONE_NAME, SIM_WELL_NONE_NAME));
+        for (const auto& wellName : proj->simulationWellNames())
+        {
+            options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
+        }
+    }
+    else if (fieldNeedingOptions == &m_branchIndex)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+
+        size_t branchCount = proj->simulationWellBranches(m_simWellName).size();
+        if (branchCount == 0)
+            branchCount = 1;
+
+        int index = 0;
+        while(index < branchCount)
+        {
+            QString uiText = QString("Branch %1").arg(QString::number(index + 1));
+            options.push_back(caf::PdmOptionItemInfo(uiText, QVariant::fromValue(index)));
+            index++;
+        }
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellPath::name() const
 {
     return m_name();
@@ -360,6 +405,16 @@ void RimWellPath::setWellPathGeometry(RigWellPath* wellPathModel)
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if (m_simWellName().isEmpty())
+    {
+        // Try to set default simulation well name
+        auto simWellName = tryFindSimulationWellFromWellPathName(m_name);
+        if (!simWellName.isEmpty())
+        {
+            m_simWellName = simWellName;
+        }
+    }
+
     caf::PdmUiGroup* appGroup =  uiOrdering.addNewGroup("Appearance");
     appGroup->add(&showWellPathLabel);
     appGroup->add(&wellPathColor);
@@ -368,6 +423,13 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
     fileInfoGroup->add(&filepath);
     fileInfoGroup->add(&wellPathIndexInFile);
+
+    caf::PdmUiGroup* simWellGroup = uiOrdering.addNewGroup("Simulation Well");
+    simWellGroup->add(&m_simWellName);
+
+    RimProject* proj = RiaApplication::instance()->project();
+    if(proj->simulationWellBranches(m_simWellName).size() > 1)
+        simWellGroup->add(&m_branchIndex);
 
     caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
     ssihubGroup->add(&id);
@@ -388,6 +450,8 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     {
         m_datumElevation.uiCapability()->setUiHidden(true);
     }
+
+    uiOrdering.skipRemainingFields(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -556,4 +620,36 @@ RimWellPath* RimWellPath::fromFilePath(QString filePath)
         return wellPath;
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString RimWellPath::relatedSimulationWell() const
+{
+    return m_simWellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimWellPath::relatedSimulationWellBranch() const
+{
+    return m_branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString RimWellPath::tryFindSimulationWellFromWellPathName(const QString& wellPathName)
+{
+    RimProject* proj = RiaApplication::instance()->project();
+    for (const auto& simWellName : proj->simulationWellNames())
+    {
+        if (QString::compare(simWellName, wellPathName) == 0)
+        {
+            return simWellName;
+        }
+    }
+    return "";
 }

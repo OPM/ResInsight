@@ -28,6 +28,9 @@
 #include "RigSingleWellResultsData.h"
 
 #include <QDebug>
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellPath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -319,7 +322,9 @@ const RigCell& RigEclipseCaseData::cellFromWellResultCell(const RigWellResultPoi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigEclipseCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace,const RigWellResultPoint& sourceWellCellResult, const RigWellResultPoint& otherWellCellResult) const
+bool RigEclipseCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, 
+                                              const RigWellResultPoint& sourceWellCellResult, 
+                                              const RigWellResultPoint& otherWellCellResult) const
 {
     size_t gridIndex = sourceWellCellResult.m_gridIndex;
     size_t gridCellIndex = sourceWellCellResult.m_gridCellIndex;
@@ -430,6 +435,69 @@ void RigEclipseCaseData::computeActiveCellBoundingBoxes()
 {
     computeActiveCellIJKBBox();
     computeActiveCellsGeometryBoundingBox();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RigEclipseCaseData::simulationWellNames() const
+{
+    std::vector<QString> wellNames;
+    for (const auto& wellResult : wellResults())
+    {
+        wellNames.push_back(wellResult->m_wellName);
+    }
+    return wellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
+{
+    const auto wellNames = simulationWellNames();
+    return std::find(wellNames.begin(), wellNames.end(), simWellName) != wellNames.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName)
+{
+    std::vector<RigWellPath*> branches;
+
+    if (!(!simWellName.isEmpty() && simWellName != "None"))
+    {
+        return std::vector<RigWellPath*>();
+    }
+
+    const RigSingleWellResultsData* wellResults = findWellResult(simWellName);
+
+    if (!wellResults) return std::vector<RigWellPath*>();
+
+    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+
+    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(this,
+                                                                                    wellResults,
+                                                                                    -1,
+                                                                                    true,
+                                                                                    true,
+                                                                                    pipeBranchesCLCoords,
+                                                                                    pipeBranchesCellIds);
+
+    for (size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx)
+    {
+        auto wellMdCalculator = RigSimulationWellCoordsAndMD(pipeBranchesCLCoords[brIdx]);
+
+        cvf::ref<RigWellPath> newWellPath = new RigWellPath();
+        newWellPath->m_measuredDepths = wellMdCalculator.measuredDepths();
+        newWellPath->m_wellPathPoints = wellMdCalculator.wellPathPoints();
+
+        branches.push_back(newWellPath.p());
+    }
+
+    return branches;
 }
 
 //--------------------------------------------------------------------------------------------------

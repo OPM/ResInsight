@@ -56,6 +56,9 @@ class RimWellPathFractureCollection;
 class RimWellPath : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+    static const char SIM_WELL_NONE_NAME[];
+
 public:
 
     RimWellPath();
@@ -67,7 +70,8 @@ public:
     virtual caf::PdmFieldHandle*        objectToggleField();
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-    
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+
     QString                             name() const;
     void                                setName(const QString& name);
   
@@ -75,6 +79,9 @@ public:
 
     caf::PdmField<QString>              filepath;
     caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
+
+    caf::PdmField<QString>              m_simWellName;
+    caf::PdmField<int>                  m_branchIndex;
 
     caf::PdmField<bool>                 showWellPathLabel;
     
@@ -107,6 +114,10 @@ public:
     RiaEclipseUnitTools::UnitSystem     unitSystem() const;
     static RimWellPath*                 fromFilePath(QString filePath);
 
+    const QString                       relatedSimulationWell() const;
+    int                                 relatedSimulationWellBranch() const;
+    static const QString                tryFindSimulationWellFromWellPathName(const QString& wellPathName);
+
 private:
 
     void                                setWellPathGeometry(RigWellPath* wellPathModel);
@@ -121,6 +132,7 @@ private:
     QString                             getCacheDirectoryPath();
 
     virtual void                        setupBeforeSave();
+
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;
     caf::PdmField<QString>              utmZone;

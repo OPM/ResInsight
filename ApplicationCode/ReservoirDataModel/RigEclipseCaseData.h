@@ -42,6 +42,7 @@ class RigCaseCellResultsData;
 class RigActiveCellInfo;
 class RigSingleWellResultsData;
 class RigCell;
+class RigWellPath;
 class RimEclipseCase;
 
 struct RigWellResultPoint;
@@ -78,7 +79,7 @@ public:
     RigFormationNames*                          activeFormationNames(); 
 
     void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
-    const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
+    const cvf::Collection<RigSingleWellResultsData>&      wellResults() const { return m_wellResults; }
     const RigSingleWellResultsData*             findWellResult(QString wellName) const;
     
     const cvf::UByteArray*                      wellCellsInGrid(size_t gridIndex);
@@ -91,6 +92,10 @@ public:
 
     RiaEclipseUnitTools::UnitSystem             unitsType() const                   { return m_unitsType; }
     void                                        setUnitsType(RiaEclipseUnitTools::UnitSystem unitsType)   { m_unitsType = unitsType; }
+
+    std::vector<QString>                        simulationWellNames() const;
+    bool                                        hasSimulationWell(const QString& simWellName) const;
+    std::vector<RigWellPath*>                   simulationWellBranches(const QString& simWellName);
 
 private:
     void                                        computeActiveCellIJKBBox();

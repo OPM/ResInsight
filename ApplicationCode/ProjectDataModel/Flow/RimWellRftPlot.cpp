@@ -65,6 +65,9 @@
 #include "RiaColorTables.h"
 #include "RifReaderEclipseRft.h"
 #include "RimWellLogRftCurve.h"
+#include "RigWellPath.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimMainPlotCollection.h"
 #include <tuple>
 
 CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
@@ -93,7 +96,6 @@ RimWellRftPlot::RimWellRftPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "WellName", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_branchIndex, "BranchIndex", "BranchIndex", "", "", "");
-    m_branchIndex = 0;
 
     CAF_PDM_InitFieldNoDefault(&m_selectedSources, "Sources", "Sources", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -351,7 +353,7 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RimWellRftPlot::eclipseCaseFromCaseId(int caseId)
+RimEclipseCase* RimWellRftPlot::eclipseCaseFromCaseId(int caseId)
 {
     const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
     auto itr = std::find_if(eclipseCases.begin(), eclipseCases.end(), 
@@ -461,7 +463,7 @@ std::vector<QDateTime> RimWellRftPlot::timeStepsFromRftCase(RimEclipseResultCase
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(const RimEclipseResultCase* gridCase) const
+std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(const RimEclipseCase* gridCase) const
 {
     auto eclipseCaseData = gridCase->eclipseCaseData();
     size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
@@ -608,7 +610,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
             plotTrack->addCurve(curve);
 
             auto rftCase = eclipseCaseFromCaseId(curveDefToAdd.first.caseId());
-            curve->setEclipseResultCase(rftCase);
+            curve->setEclipseResultCase(dynamic_cast<RimEclipseResultCase*>(rftCase));
 
             RifEclipseRftAddress address(m_wellName, curveDefToAdd.second, RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
@@ -795,6 +797,22 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     {
         calculateValueOptionsForTimeSteps(m_wellName, options);
     }
+    else if (fieldNeedingOptions == &m_branchIndex)
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+
+        size_t branchCount = proj->simulationWellBranches(m_wellName).size();
+
+        for (int bIdx = 0; bIdx < static_cast<int>(branchCount); ++bIdx)
+        {
+            options.push_back(caf::PdmOptionItemInfo("Branch " + QString::number(bIdx + 1), QVariant::fromValue(bIdx)));
+        }
+
+        if (options.size() == 0)
+        {
+            options.push_front(caf::PdmOptionItemInfo("None", -1));
+        }
+    }
 
     return options;
 }
@@ -810,11 +828,9 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         setDescription(QString(plotNameFormatString()).arg(m_wellName));
     }
-    else if (changedField == &m_selectedSources)
-    {
-        syncCurvesFromUiSelection();
-    }
-    else if (changedField == &m_selectedTimeSteps)
+    else if (changedField == &m_selectedSources ||
+             changedField == &m_selectedTimeSteps ||
+             changedField == &m_branchIndex)
     {
         syncCurvesFromUiSelection();
     }
@@ -847,7 +863,12 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 {
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellName);
-    uiOrdering.add(&m_branchIndex);
+    
+    RimProject* proj = RiaApplication::instance()->project();
+    if (proj->simulationWellBranches(m_wellName).size() > 1)
+    {
+        uiOrdering.add(&m_branchIndex);
+    }
 
     caf::PdmUiGroup* sourcesGroup = uiOrdering.addNewGroupWithKeyword("Sources", "Sources");
     sourcesGroup->add(&m_selectedSources);
@@ -863,37 +884,27 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options)
 {
-    std::set<QString> wellNames;
-    auto project = RiaApplication::instance()->project();
+    RimProject * proj = RiaApplication::instance()->project();
 
-    for (RimOilField* oilField : project->oilFields)
+    if (proj != nullptr)
     {
-        // RFT/Grid wells
-        auto gridCaseColl = oilField->analysisModels();
-        for (RimEclipseCase* gCase : gridCaseColl->cases())
+        const auto simWellNames = proj->simulationWellNames();
+        std::set<QString> wellNames = std::set<QString>(simWellNames.begin(), simWellNames.end());
+
+        // Observed wells
+        for (const auto& oilField : proj->oilFields())
         {
-            auto gridCase = dynamic_cast<RimEclipseResultCase*>(gCase);
-            if (gridCase != nullptr)
+            auto wellPathColl = oilField->wellPathCollection();
+            for (const auto& wellPath : wellPathColl->wellPaths)
             {
-                auto eclipseCaseData = gridCase->eclipseCaseData();
-                for (const auto& wellResult : eclipseCaseData->wellResults())
-                {
-                    wellNames.insert(wellResult->m_wellName);
-                }
+                wellNames.insert(wellPath->name());
             }
         }
 
-        // Observed wells
-        auto wellPathColl = oilField->wellPathCollection();
-        for (const auto& wellPath : wellPathColl->wellPaths)
+        for (const auto& wellName : wellNames)
         {
-            wellNames.insert(wellPath->name());
+            options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
         }
-    }
-
-    for (const auto& wellName : wellNames)
-    {
-        options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
     }
 }
 

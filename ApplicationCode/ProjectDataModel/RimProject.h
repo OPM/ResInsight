@@ -25,12 +25,14 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmDocument.h"
+#include "cvfCollection.h"
 
 #include <vector>
 
 class RigEclipseCaseData;
 class RigGridManager;
 class RigMainGrid;
+class RigWellPath;
 
 class RimCase;
 class RimCommandObject;
@@ -47,6 +49,7 @@ class RimView;
 class RimViewLinker;
 class RimViewLinkerCollection;
 class RimWellPathImport;
+class RimWellPath;
 
 namespace caf
 {
@@ -115,7 +118,12 @@ public:
     void            reloadCompletionTypeResultsInAllViews();
     void            reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase);
 
-    RimDialogData*  dialogData() const;
+    RimDialogData*              dialogData() const;
+
+    std::vector<RimEclipseCase*>    eclipseCases() const;
+    std::vector<QString>            simulationWellNames() const;
+    std::vector<RigWellPath*>       simulationWellBranches(const QString& simWellName);
+    RimWellPath*                    wellPathFromSimulationWell(const QString& simWellName, int branchIndex = -1);
 
 protected:
     // Overridden methods

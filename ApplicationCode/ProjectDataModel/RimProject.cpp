@@ -25,6 +25,9 @@
 
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigSimulationWellCoordsAndMD.h"
+#include "RigWellPath.h"
 
 #include "RimCalcScript.h"
 #include "RimCase.h"
@@ -59,6 +62,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathImport.h"
+#include "RimWellPath.h"
 
 #include "RiuMainWindow.h"
 #include "RiuMainPlotWindow.h"
@@ -832,6 +836,81 @@ void RimProject::reloadCompletionTypeResultsInAllViews()
 RimDialogData* RimProject::dialogData() const
 {
     return m_dialogData;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimProject::eclipseCases() const
+{
+    std::vector<RimEclipseCase*> allCases;
+    for (const auto& oilField : oilFields)
+    {
+        const auto& cases = oilField->analysisModels->cases;
+        allCases.insert(allCases.end(), cases.begin(), cases.end());
+    }
+    return allCases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimProject::simulationWellNames() const
+{
+    std::set<QString> wellNames;
+
+    for (RimOilField* oilField : oilFields)
+    {
+        auto analysisCaseColl = oilField->analysisModels();
+        for (RimEclipseCase* eclCase : analysisCaseColl->cases())
+        {
+            const auto& eclData = eclCase->eclipseCaseData();
+            if (eclData == nullptr) continue;
+
+            const auto names = eclData->simulationWellNames();
+            wellNames.insert(names.begin(), names.end());
+        }
+    }
+    return std::vector<QString>(wellNames.begin(), wellNames.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigWellPath*> RimProject::simulationWellBranches(const QString& simWellName)
+{
+    // Find first case containing the specified simulation well
+    auto simCases = eclipseCases();
+    auto caseItr = std::find_if(simCases.begin(), simCases.end(), [&simWellName](const RimEclipseCase* eclCase) {
+        const auto& eclData = eclCase->eclipseCaseData();
+        return eclData != nullptr && eclData->hasSimulationWell(simWellName);
+    });
+    RimEclipseCase* eclipseCase = caseItr != simCases.end() ? *caseItr : nullptr;
+    RigEclipseCaseData* eclCaseData = eclipseCase != nullptr ? eclipseCase->eclipseCaseData() : nullptr;
+    return eclCaseData != nullptr ?
+        eclCaseData->simulationWellBranches(simWellName) :
+        std::vector<RigWellPath*>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimProject::wellPathFromSimulationWell(const QString& simWellName, int branchIndex)
+{
+    std::vector<RimWellPath*> paths;
+    for (const auto& oilField : oilFields())
+    {
+        auto wellPathColl = oilField->wellPathCollection();
+        for (const auto& path : wellPathColl->wellPaths)
+        {
+            if (QString::compare(path->relatedSimulationWell(), simWellName) == 0 &&
+                (branchIndex < 0 || path->relatedSimulationWellBranch() == branchIndex))
+            {
+                return path;
+            }
+        }
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

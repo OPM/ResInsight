@@ -24,6 +24,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cvfCollection.h"
 #include "RimWellRftAddress.h"
 #include "RimPlotCurve.h"
 #include <QPointer>
@@ -31,6 +32,7 @@
 #include <QMetaType>
 
 class RimEclipseResultCase;
+class RimEclipseCase;
 class RimEclipseWell;
 class RimFlowDiagSolution;
 class RimTotalWellAllocationPlot;
@@ -42,6 +44,7 @@ class RigSingleWellResultsData;
 class RimWellLogFileChannel;
 class RimWellPath;
 class RimWellLogCurve;
+class RigWellPath;
 
 namespace cvf {
     class Color3f;
@@ -108,7 +111,7 @@ private:
 
     std::vector<RimWellPath*>                       wellPathsContainingPressure(const QString& wellName) const;
     std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
-    RimEclipseResultCase*                           eclipseCaseFromCaseId(int caseId);
+    RimEclipseCase*                                 eclipseCaseFromCaseId(int caseId);
 
     RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
 
@@ -116,7 +119,7 @@ private:
     std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const;
     std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases) const;
     std::vector<QDateTime>                          timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    std::vector<QDateTime>                          timeStepsFromGridCase(const RimEclipseResultCase* gridCase) const;
+    std::vector<QDateTime>                          timeStepsFromGridCase(const RimEclipseCase* gridCase) const; 
 
     std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
     std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
