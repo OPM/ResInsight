@@ -116,7 +116,8 @@ public:
 
     const QString                       relatedSimulationWell() const;
     int                                 relatedSimulationWellBranch() const;
-    static const QString                tryFindSimulationWellFromWellPathName(const QString& wellPathName);
+    bool                                tryAssociateWithSimulationWell();
+    bool                                isAssociatedWithSimulationWell() const;
 
 private:
 

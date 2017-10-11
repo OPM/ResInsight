@@ -40,6 +40,8 @@
 
 #include "RivWellPathPartMgr.h"
 
+#include "RiaApplication.h"
+
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
@@ -47,7 +49,6 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
-#include "RiaApplication.h"
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
@@ -345,6 +346,7 @@ void RimWellPath::setName(const QString& name)
 {
     m_name = name;
     m_completions->setWellNameForExport(name);
+    tryAssociateWithSimulationWell();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,11 +410,7 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     if (m_simWellName().isEmpty())
     {
         // Try to set default simulation well name
-        auto simWellName = tryFindSimulationWellFromWellPathName(m_name);
-        if (!simWellName.isEmpty())
-        {
-            m_simWellName = simWellName;
-        }
+        tryAssociateWithSimulationWell();
     }
 
     caf::PdmUiGroup* appGroup =  uiOrdering.addNewGroup("Appearance");
@@ -641,15 +639,24 @@ int RimWellPath::relatedSimulationWellBranch() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString RimWellPath::tryFindSimulationWellFromWellPathName(const QString& wellPathName)
+bool RimWellPath::tryAssociateWithSimulationWell()
 {
     RimProject* proj = RiaApplication::instance()->project();
     for (const auto& simWellName : proj->simulationWellNames())
     {
-        if (QString::compare(simWellName, wellPathName) == 0)
+        if (QString::compare(simWellName, m_name) == 0)
         {
-            return simWellName;
+            m_simWellName = simWellName;
+            return true;
         }
     }
-    return "";
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::isAssociatedWithSimulationWell() const
+{
+    return !m_simWellName().isEmpty() && QString::compare(m_simWellName, SIM_WELL_NONE_NAME) != 0;
 }

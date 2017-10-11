@@ -49,6 +49,9 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimOilField.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPath.h"
 
 #include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
@@ -616,6 +619,18 @@ bool RimEclipseCase::openReserviorCase()
 
     createTimeStepFormatString();
 
+    // Associate existing well paths with simulation wells
+    RimProject* proj = RiaApplication::instance()->project();
+    for (const auto& oilField : proj->oilFields())
+    {
+        for (const auto& wellPath : oilField->wellPathCollection()->wellPaths())
+        {
+            if (!wellPath->isAssociatedWithSimulationWell())
+            {
+                wellPath->tryAssociateWithSimulationWell();
+            }
+        }
+    }
     return true;
 }
 
