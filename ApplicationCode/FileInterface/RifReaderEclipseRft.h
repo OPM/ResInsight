@@ -24,13 +24,15 @@
 #include <string>
 #include <vector>
 
-#include "cafVecIjk.h"
-
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include <QDateTime>
 
+namespace caf
+{
+    class VecIjk;
+}
 
 //==================================================================================================
 //
