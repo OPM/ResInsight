@@ -164,6 +164,14 @@ std::vector<WellPathCellIntersectionInfo> RigEclipseWellLogExtractor::cellInters
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigEclipseWellLogExtractor::intersectedCellsGlobIdx()
+{
+    return m_intersectedCellsGlobIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<size_t> RigEclipseWellLogExtractor::findCloseCells(const cvf::BoundingBox& bb)
 {
     std::vector<size_t> closeCells;

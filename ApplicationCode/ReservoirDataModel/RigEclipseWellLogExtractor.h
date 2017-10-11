@@ -50,6 +50,7 @@ public:
     const RigEclipseCaseData*                 caseData()     { return m_caseData.p();}
 
     std::vector<WellPathCellIntersectionInfo> cellIntersectionInfo();
+    const std::vector<size_t>&                intersectedCellsGlobIdx();
 
 protected:
     void                                      calculateIntersection();
