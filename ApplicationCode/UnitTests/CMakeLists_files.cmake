@@ -30,6 +30,7 @@ ${CEE_CURRENT_LIST_DIR}RigCellGeometryTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}RigHexIntersectionTools-Test.cpp
 ${CEE_CURRENT_LIST_DIR}ObservedDataParser-Test.cpp
 ${CEE_CURRENT_LIST_DIR}EclipseRftReader-Test.cpp
+${CEE_CURRENT_LIST_DIR}RicExpressionParser-Test.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)
