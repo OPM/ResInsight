@@ -379,7 +379,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
             }
             else
             {
-                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues, depthUnit);
+                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvDepthValues, depthUnit, true);
             }
         }
 

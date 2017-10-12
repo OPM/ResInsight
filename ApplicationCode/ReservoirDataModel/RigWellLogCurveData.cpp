@@ -72,7 +72,8 @@ void RigWellLogCurveData::setValuesAndMD(const std::vector<double>& xValues,
 void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues, 
                                            const std::vector<double>& measuredDepths, 
                                            const std::vector<double>& tvDepths,
-                                           RiaDefines::DepthUnitType depthUnit)
+                                           RiaDefines::DepthUnitType depthUnit,
+                                           bool isExtractionCurve)
 {
     CVF_ASSERT(xValues.size() == measuredDepths.size());
 
@@ -82,7 +83,7 @@ void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues,
     m_depthUnit = depthUnit;
 
     // Always use value filtering when TVD is present
-    m_isExtractionCurve = true;
+    m_isExtractionCurve = isExtractionCurve;
 
     calculateIntervalsOfContinousValidValues(); 
 }
@@ -235,7 +236,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData(d
 
     if (isTvDepthsAvailable)
     {
-        reSampledData->setValuesWithTVD(xValues, measuredDepths, tvDepths, m_depthUnit);
+        reSampledData->setValuesWithTVD(xValues, measuredDepths, tvDepths, m_depthUnit, true);
     }
     else
     {
