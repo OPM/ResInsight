@@ -307,6 +307,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicEditSummaryPlotFeature";
+            commandIds << "RicShowSummaryCurveCalculatorFeature";
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFeature";
             commandIds << "RicAsciiExportSummaryPlotFeature";

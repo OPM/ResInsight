@@ -49,6 +49,7 @@ class RimView;
 class RimViewLinker;
 class RimViewLinkerCollection;
 class RimWellPathImport;
+class RimCalculationCollection;
 class RimWellPath;
 
 namespace caf
@@ -77,6 +78,7 @@ public:
     caf::PdmChildField<RimWellPathImport*>              wellPathImport;
     caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>        viewLinkerCollection;
+    caf::PdmChildField<RimCalculationCollection*>       calculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     
     caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;
