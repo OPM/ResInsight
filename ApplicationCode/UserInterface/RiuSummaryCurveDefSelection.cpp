@@ -704,9 +704,11 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
     std::set<RifEclipseSummaryAddress> addressSet;
     for (const auto& category : m_selectedSummaryCategories())
     {
-         const auto& identifierAndFieldList = m_identifierFieldsMap.at(category);
-         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
-         buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), selectionStack, addressSet);
+        if (category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
+
+        const auto& identifierAndFieldList = m_identifierFieldsMap.at(category);
+        std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
+        buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), selectionStack, addressSet);
     }
     return addressSet;
 }
