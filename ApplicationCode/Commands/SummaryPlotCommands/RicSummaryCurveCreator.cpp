@@ -40,6 +40,7 @@
 #include "RimSummaryPlotCollection.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuSummaryCurveDefinitionKeywords.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"

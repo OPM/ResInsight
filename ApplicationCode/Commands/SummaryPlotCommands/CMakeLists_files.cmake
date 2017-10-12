@@ -25,7 +25,6 @@ ${CEE_CURRENT_LIST_DIR}RicEditSummaryPlotFeature.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
-${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefinitionKeywords.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.h
 )
 
@@ -50,6 +49,10 @@ ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.cpp
+${CEE_CURRENT_LIST_DIR}RicShowSummaryCurveCalculatorFeature.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorDialog.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorWidget.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -19,6 +19,9 @@
 #include "RicSummaryCurveCreatorSplitterUi.h"
 
 #include "RicSummaryCurveCreator.h"
+#include "RimSummaryCurveCollection.h"
+#include "RimSummaryPlot.h"
+
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
@@ -32,8 +35,6 @@
 #include <QSplitter>
 #include <QFrame>
 #include <QTreeView>
-#include "RimSummaryPlot.h"
-#include "RimSummaryCurveCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
