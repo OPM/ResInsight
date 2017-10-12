@@ -61,24 +61,28 @@ void RimCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changed
 {
     if (changedField == &m_button)
     {
-        RiuSummaryCurveDefSelectionDialog dlg(nullptr);
         {
-            std::vector<RiaSummaryCurveDefinition> sumCasePairs;
-            sumCasePairs.push_back(RiaSummaryCurveDefinition(m_case(), m_summaryAddress->address()));
-
-            dlg.summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
-            dlg.summaryAddressSelection()->updateConnectedEditors();
-        }
-
-        if (dlg.exec() == QDialog::Accepted)
-        {
-            std::vector<RiaSummaryCurveDefinition> sumCasePairs = dlg.summaryAddressSelection()->selectedCurveDefinitions();
-            if (sumCasePairs.size() == 1)
+            RiuSummaryCurveDefSelectionDialog dlg(nullptr);
             {
-                m_case = sumCasePairs[0].summaryCase();
-                m_summaryAddress->setAddress(sumCasePairs[0].summaryAddress());
+                std::vector<RiaSummaryCurveDefinition> sumCasePairs;
+                sumCasePairs.push_back(RiaSummaryCurveDefinition(m_case(), m_summaryAddress->address()));
+
+                dlg.summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
+                dlg.summaryAddressSelection()->updateConnectedEditors();
+            }
+
+            if (dlg.exec() == QDialog::Accepted)
+            {
+                std::vector<RiaSummaryCurveDefinition> sumCasePairs = dlg.summaryAddressSelection()->selectedCurveDefinitions();
+                if (sumCasePairs.size() == 1)
+                {
+                    m_case = sumCasePairs[0].summaryCase();
+                    m_summaryAddress->setAddress(sumCasePairs[0].summaryAddress());
+                }
             }
         }
+
+        this->updateConnectedEditors();
     }
 }
 
@@ -87,7 +91,21 @@ void RimCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 QString RimCalculationVariable::summaryAddressDisplayString() const
 {
-    return "test";
+    QString caseName;
+    if (m_case()) caseName = m_case->shortName();
+
+    QString summaryCurvename = QString::fromStdString(m_summaryAddress()->address().uiText());
+
+    QString txt;
+    if (!caseName.isEmpty())
+    {
+        txt = caseName;
+        txt += " : ";
+    }
+
+    txt += summaryCurvename;
+
+    return txt;
 }
 
 //--------------------------------------------------------------------------------------------------

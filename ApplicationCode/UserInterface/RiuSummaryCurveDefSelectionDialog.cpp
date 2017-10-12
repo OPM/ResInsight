@@ -21,6 +21,7 @@
 #include "RiuSummaryCurveDefSelectionWidget.h"
 
 #include <QVBoxLayout>
+#include <QDialogButtonBox>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -31,12 +32,18 @@ RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog(QWidget* pa
     m_addrSelWidget = new RiuSummaryCurveDefSelectionWidget(this);
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget(this);
 
-    QVBoxLayout* dummy = new QVBoxLayout(this);
-    dummy->setContentsMargins(0, 0, 0, 0);
-    dummy->addWidget(addrWidget);
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->addWidget(addrWidget);
 
     setWindowTitle("Summary Address Selection");
     resize(1200, 800);
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    mainLayout->addWidget(buttonBox);
 }
 
 //--------------------------------------------------------------------------------------------------

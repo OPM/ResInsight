@@ -18,9 +18,10 @@
 
 #include "RicSummaryCurveCalculatorDialog.h"
 
-
-#include <QVBoxLayout>
 #include "RicSummaryCurveCalculatorWidget.h"
+
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -46,11 +47,17 @@ RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::setUp()
 {
-    QVBoxLayout* dummy = new QVBoxLayout(this);
-    dummy->setContentsMargins(0, 0, 0, 0);
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
     RicSummaryCurveCalculatorWidget* w = new RicSummaryCurveCalculatorWidget(this);
-    dummy->addWidget(w->getOrCreateWidget(this));
+    mainLayout->addWidget(w->getOrCreateWidget(this));
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    mainLayout->addWidget(buttonBox);
     
     w->updateUi();
 }
