@@ -31,6 +31,7 @@
 #include "cvfCollection.h"
 #include "cvfStructGrid.h"
 #include "cvfVector3.h"
+#include "cvfCollection.h"
 
 #include <vector>
 
@@ -95,7 +96,7 @@ public:
 
     std::vector<QString>                        simulationWellNames() const;
     bool                                        hasSimulationWell(const QString& simWellName) const;
-    std::vector<RigWellPath*>                   simulationWellBranches(const QString& simWellName);
+    std::vector<const RigWellPath*>             simulationWellBranches(const QString& simWellName);
 
 private:
     void                                        computeActiveCellIJKBBox();
@@ -119,4 +120,6 @@ private:
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 
     RiaEclipseUnitTools::UnitSystem             m_unitsType;
+
+    std::map<QString, cvf::Collection<RigWellPath>>          m_branchCache;
 };

@@ -881,7 +881,7 @@ std::vector<QString> RimProject::simulationWellNames() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigWellPath*> RimProject::simulationWellBranches(const QString& simWellName)
+std::vector<const RigWellPath*> RimProject::simulationWellBranches(const QString& simWellName)
 {
     // Find first case containing the specified simulation well
     auto simCases = eclipseCases();
@@ -893,7 +893,7 @@ std::vector<RigWellPath*> RimProject::simulationWellBranches(const QString& simW
     RigEclipseCaseData* eclCaseData = eclipseCase != nullptr ? eclipseCase->eclipseCaseData() : nullptr;
     return eclCaseData != nullptr ?
         eclCaseData->simulationWellBranches(simWellName) :
-        std::vector<RigWellPath*>();
+        std::vector<const RigWellPath*>();
 }
 
 //--------------------------------------------------------------------------------------------------

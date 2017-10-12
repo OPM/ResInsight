@@ -124,7 +124,7 @@ public:
 
     std::vector<RimEclipseCase*>    eclipseCases() const;
     std::vector<QString>            simulationWellNames() const;
-    std::vector<RigWellPath*>       simulationWellBranches(const QString& simWellName);
+    std::vector<const RigWellPath*> simulationWellBranches(const QString& simWellName);
     RimWellPath*                    wellPathFromSimulationWell(const QString& simWellName, int branchIndex = -1);
 
 protected:

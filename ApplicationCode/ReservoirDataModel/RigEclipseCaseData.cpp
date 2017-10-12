@@ -462,41 +462,50 @@ bool RigEclipseCaseData::hasSimulationWell(const QString& simWellName) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName)
+std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const QString& simWellName)
 {
-    std::vector<RigWellPath*> branches;
+    std::vector<const RigWellPath*> branches;
 
-    if (!(!simWellName.isEmpty() && simWellName != "None"))
+    if (m_branchCache.find(simWellName) == m_branchCache.end())
     {
-        return std::vector<RigWellPath*>();
+        if (!(!simWellName.isEmpty() && simWellName != "None"))
+        {
+            return branches;
+        }
+
+        const RigSingleWellResultsData* wellResults = findWellResult(simWellName);
+
+        if (!wellResults) return branches;
+
+        std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
+        std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
+
+        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(this,
+                                                                                        wellResults,
+                                                                                        -1,
+                                                                                        true,
+                                                                                        true,
+                                                                                        pipeBranchesCLCoords,
+                                                                                        pipeBranchesCellIds);
+
+        m_branchCache.insert(std::make_pair(simWellName, cvf::Collection<RigWellPath>()));
+
+        for (size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx)
+        {
+            auto wellMdCalculator = RigSimulationWellCoordsAndMD(pipeBranchesCLCoords[brIdx]);
+
+            cvf::ref<RigWellPath> newWellPath = new RigWellPath();
+            newWellPath->m_measuredDepths = wellMdCalculator.measuredDepths();
+            newWellPath->m_wellPathPoints = wellMdCalculator.wellPathPoints();
+
+            m_branchCache[simWellName].push_back(newWellPath.p());
+        }
     }
 
-    const RigSingleWellResultsData* wellResults = findWellResult(simWellName);
-
-    if (!wellResults) return std::vector<RigWellPath*>();
-
-    std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
-
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(this,
-                                                                                    wellResults,
-                                                                                    -1,
-                                                                                    true,
-                                                                                    true,
-                                                                                    pipeBranchesCLCoords,
-                                                                                    pipeBranchesCellIds);
-
-    for (size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx)
+    for (const auto& branch : m_branchCache[simWellName])
     {
-        auto wellMdCalculator = RigSimulationWellCoordsAndMD(pipeBranchesCLCoords[brIdx]);
-
-        cvf::ref<RigWellPath> newWellPath = new RigWellPath();
-        newWellPath->m_measuredDepths = wellMdCalculator.measuredDepths();
-        newWellPath->m_wellPathPoints = wellMdCalculator.wellPathPoints();
-
-        branches.push_back(newWellPath.p());
+        branches.push_back(branch.p());
     }
-
     return branches;
 }
 
