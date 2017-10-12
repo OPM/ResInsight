@@ -832,9 +832,18 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     {
         setDescription(QString(plotNameFormatString()).arg(m_wellName));
     }
+
+    if (changedField == &m_wellName || changedField == &m_branchIndex)
+    {
+        auto plotTrack = m_wellLogPlot->trackByIndex(0);
+        for (const auto& curve : plotTrack->curvesVector())
+        {
+            plotTrack->removeCurve(curve);
+        }
+        updateEditorsFromCurves();
+    }
     else if (changedField == &m_selectedSources ||
-             changedField == &m_selectedTimeSteps ||
-             changedField == &m_branchIndex)
+             changedField == &m_selectedTimeSteps)
     {
         syncCurvesFromUiSelection();
     }
