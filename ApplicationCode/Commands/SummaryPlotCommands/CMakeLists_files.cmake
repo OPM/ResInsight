@@ -26,6 +26,10 @@ ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreator.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.h
+${CEE_CURRENT_LIST_DIR}RicShowSummaryCurveCalculatorFeature.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorDialog.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorEditor.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -51,7 +55,7 @@ ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorFactoryImpl.cpp
 ${CEE_CURRENT_LIST_DIR}RicShowSummaryCurveCalculatorFeature.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorDialog.cpp
-${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorWidget.cpp
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorEditor.cpp
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculator.cpp
 )
 

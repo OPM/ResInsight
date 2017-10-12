@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCalculatorWidget.h"
+#include "RicSummaryCurveCalculatorEditor.h"
 
 #include "RicSummaryCurveCalculator.h"
 
@@ -40,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorWidget::RicSummaryCurveCalculatorWidget(QWidget* parent)
+RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor(QWidget* parent)
 {
     m_calculator = std::unique_ptr<RicSummaryCurveCalculator>(new RicSummaryCurveCalculator);
 
@@ -61,15 +61,23 @@ RicSummaryCurveCalculatorWidget::RicSummaryCurveCalculatorWidget(QWidget* parent
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorWidget::~RicSummaryCurveCalculatorWidget()
+RicSummaryCurveCalculatorEditor::~RicSummaryCurveCalculatorEditor()
 {
+    if (m_pdmTableView)
+    {
+        m_pdmTableView->setListField(nullptr);
 
+        delete m_pdmTableView;
+        m_pdmTableView = nullptr;
+    }
+
+    this->setPdmObject(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorWidget::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
 
@@ -106,7 +114,7 @@ void RicSummaryCurveCalculatorWidget::recursivelyConfigureAndUpdateTopLevelUiIte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCalculatorWidget::createWidget(QWidget* parent)
+QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
 
@@ -147,7 +155,7 @@ QWidget* RicSummaryCurveCalculatorWidget::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RicSummaryCurveCalculatorWidget::updateGroupBoxWithContent(caf::PdmUiGroup* group,
+QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::PdmUiGroup* group,
                                                                             const QString& uiConfigName)
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);

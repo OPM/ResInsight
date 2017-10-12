@@ -42,11 +42,11 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RicSummaryCurveCalculatorWidget : public caf::PdmUiWidgetBasedObjectEditor
+class RicSummaryCurveCalculatorEditor : public caf::PdmUiWidgetBasedObjectEditor
 {
 public:
-    RicSummaryCurveCalculatorWidget(QWidget* parent);
-    ~RicSummaryCurveCalculatorWidget();
+    RicSummaryCurveCalculatorEditor(QWidget* parent);
+    ~RicSummaryCurveCalculatorEditor();
 
 private:
     virtual void        recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,

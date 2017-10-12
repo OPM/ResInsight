@@ -19,7 +19,9 @@
 #pragma once
 
 #include <QDialog>
+#include <memory>
 
+class RicSummaryCurveCalculatorEditor;
 
 //==================================================================================================
 ///  
@@ -34,4 +36,6 @@ public:
 private:
     void setUp();
 
+private:
+    std::unique_ptr<RicSummaryCurveCalculatorEditor> m_summaryCalcWidget;
 };
