@@ -206,7 +206,15 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
     if (fileSplitOnDot.size() == 2)
     {
         QStringList fileSplitOnBackSlash = fileSplitOnDot[0].split("\\");
-        m_caseName = fileSplitOnBackSlash.back();
+        if (fileSplitOnDot[0] != fileSplitOnBackSlash[0])
+        {
+            m_caseName = fileSplitOnBackSlash.back();
+        }
+        else
+        {
+            QStringList fileSplitOnSlash = fileSplitOnDot[0].split("/");
+            m_caseName = fileSplitOnSlash.back();
+        }
 
         QString rftFile = fileSplitOnDot[0] + ".RFT";
         std::string rftFileStdString = rftFile.toStdString();
