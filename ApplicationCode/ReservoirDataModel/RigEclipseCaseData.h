@@ -34,6 +34,7 @@
 #include "cvfCollection.h"
 
 #include <vector>
+#include <map>
 
 class RigCaseCellResultsData;
 class RigFormationNames;
