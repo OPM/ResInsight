@@ -50,8 +50,8 @@ void RicSummaryCurveCalculatorDialog::setUp()
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(0, 0, 0, 0);
 
-    m_summaryCalcWidget = std::unique_ptr<RicSummaryCurveCalculatorEditor>(new RicSummaryCurveCalculatorEditor(this));
-    mainLayout->addWidget(m_summaryCalcWidget->getOrCreateWidget(this));
+    m_summaryCalcEditor = std::unique_ptr<RicSummaryCurveCalculatorEditor>(new RicSummaryCurveCalculatorEditor());
+    mainLayout->addWidget(m_summaryCalcEditor->getOrCreateWidget(this));
 
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -59,6 +59,6 @@ void RicSummaryCurveCalculatorDialog::setUp()
 
     mainLayout->addWidget(buttonBox);
     
-    m_summaryCalcWidget->updateUi();
+    m_summaryCalcEditor->updateUi();
 }
 

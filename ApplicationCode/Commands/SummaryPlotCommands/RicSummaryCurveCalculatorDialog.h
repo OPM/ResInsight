@@ -37,5 +37,5 @@ private:
     void setUp();
 
 private:
-    std::unique_ptr<RicSummaryCurveCalculatorEditor> m_summaryCalcWidget;
+    std::unique_ptr<RicSummaryCurveCalculatorEditor> m_summaryCalcEditor;
 };

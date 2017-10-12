@@ -26,11 +26,9 @@
 class RicSummaryCurveCalculator;
 
 class QMinimizePanel;
-class QSplitter;
 class QString;
 class QVBoxLayout;
 class QHBoxLayout;
-class QBoxLayout;
 
 namespace caf {
     class PdmUiItem;
@@ -45,7 +43,7 @@ namespace caf {
 class RicSummaryCurveCalculatorEditor : public caf::PdmUiWidgetBasedObjectEditor
 {
 public:
-    RicSummaryCurveCalculatorEditor(QWidget* parent);
+    RicSummaryCurveCalculatorEditor();
     ~RicSummaryCurveCalculatorEditor();
 
 private:

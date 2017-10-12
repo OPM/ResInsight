@@ -19,19 +19,13 @@
 #include "RicSummaryCurveCalculatorEditor.h"
 
 #include "RicSummaryCurveCalculator.h"
-
-#include "RiaApplication.h"
-#include "RimCalculationCollection.h"
 #include "RimCalculation.h"
-#include "RimProject.h"
 
 #include "cafPdmUiTableView.h"
 
 #include "QMinimizePanel.h"
 
-#include <QAbstractItemView>
 #include <QBoxLayout>
-#include <QFrame>
 #include <QHeaderView>
 #include <QSplitter>
 #include <QTableView>
@@ -40,22 +34,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor(QWidget* parent)
+RicSummaryCurveCalculatorEditor::RicSummaryCurveCalculatorEditor()
 {
     m_calculator = std::unique_ptr<RicSummaryCurveCalculator>(new RicSummaryCurveCalculator);
 
     this->setPdmObject(m_calculator.get());
-
-    m_pdmTableView = new caf::PdmUiTableView(parent);
-    m_pdmTableView->tableView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    m_pdmTableView->enableHeaderText(false);
-
-    RimProject* proj = RiaApplication::instance()->project();
-
-    QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
-    verticalHeader->setResizeMode(QHeaderView::Interactive);
-
-    m_pdmTableView->tableView()->resizeColumnsToContents();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +99,15 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
 //--------------------------------------------------------------------------------------------------
 QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
 {
+    m_pdmTableView = new caf::PdmUiTableView(parent);
+    m_pdmTableView->tableView()->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_pdmTableView->enableHeaderText(false);
+
+    QHeaderView* verticalHeader = m_pdmTableView->tableView()->verticalHeader();
+    verticalHeader->setResizeMode(QHeaderView::Interactive);
+
+    m_pdmTableView->tableView()->resizeColumnsToContents();
+
     QWidget* widget = new QWidget(parent);
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
