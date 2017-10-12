@@ -584,7 +584,7 @@ std::pair<RimWellRftAddress, QDateTime> RimWellRftPlot::curveDefFromCurve(const 
         const RimEclipseResultCase* gridCase = dynamic_cast<const RimEclipseResultCase*>(gridCurve->rimCase());
         if (gridCase != nullptr)
         {
-            auto timeStepIndex = gridCurve->currentTimeStep();
+            size_t timeStepIndex = gridCurve->currentTimeStep();
             auto timeSteps = timeStepsFromGridCase(gridCase);
             if (timeStepIndex < timeSteps.size())
             {

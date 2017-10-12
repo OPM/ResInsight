@@ -319,7 +319,7 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmF
         if (branchCount == 0)
             branchCount = 1;
 
-        int index = 0;
+        size_t index = 0;
         while(index < branchCount)
         {
             QString uiText = QString("Branch %1").arg(QString::number(index + 1));
