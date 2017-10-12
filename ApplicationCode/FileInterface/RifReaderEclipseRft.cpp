@@ -20,7 +20,7 @@
 
 #include "cafVecIjk.h"
 
-#include "ert\ecl\ecl_rft_file.h"
+#include "ert/ecl/ecl_rft_file.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
