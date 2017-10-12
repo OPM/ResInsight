@@ -23,13 +23,15 @@
 
 #include "RifEclipseRftAddress.h"
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
+
 #include "cvfObject.h"
-#include "cafAppEnum.h"
 
 class RifReaderEclipseRft;
 class RimEclipseResultCase;
+class RimWellPath;
 
 //==================================================================================================
 ///  
@@ -43,22 +45,22 @@ public:
     RimWellLogRftCurve();
     virtual ~RimWellLogRftCurve();
 
-    virtual QString                 wellName() const override;
-    virtual QString                 wellLogChannelName() const override;
+    virtual QString       wellName() const override;
+    virtual QString       wellLogChannelName() const override;
 
-    void                            setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
-    RimEclipseResultCase*           eclipseResultCase() const;
+    void                  setEclipseResultCase(RimEclipseResultCase* eclipseResultCase);
+    RimEclipseResultCase* eclipseResultCase() const;
 
-    void                            setRftAddress(RifEclipseRftAddress address);
-    RifEclipseRftAddress            rftAddress() const;
+    void                  setRftAddress(RifEclipseRftAddress address);
+    RifEclipseRftAddress  rftAddress() const;
 
-    void                            setDefaultAddress(QString wellName);
-    void                            updateWellChannelNameAndTimeStep();
+    void                  setDefaultAddress(QString wellName);
+    void                  updateWellChannelNameAndTimeStep();
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    virtual QString createCurveAutoName() override;
-    virtual void    onLoadDataAndUpdate(bool updateParentPlot) override;
+    virtual QString                         createCurveAutoName() override;
+    virtual void                            onLoadDataAndUpdate(bool updateParentPlot) override;
 
     // Pdm overrrides
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -69,7 +71,8 @@ private:
     RifReaderEclipseRft* rftReader() const;
 
     std::vector<double>  xValues() const;
-    std::vector<double>  depthValues() const;
+    std::vector<double>  tvDepthValues() const;
+    std::vector<double>  measuredDepthValues() const;
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>                                       m_eclipseResultCase;

@@ -45,7 +45,8 @@ public:
     void                                      setValuesWithTVD(const std::vector<double>& xValues, 
                                                                const std::vector<double>& measuredDepths, 
                                                                const std::vector<double>& tvDepths,
-                                                               RiaDefines::DepthUnitType depthUnit);
+                                                               RiaDefines::DepthUnitType depthUnit,
+                                                               bool isExtractionCurve);
 
     const std::vector<double>&                xValues() const;
     const std::vector<double>&                measuredDepths() const;

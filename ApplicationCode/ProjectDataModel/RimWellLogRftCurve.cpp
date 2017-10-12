@@ -19,26 +19,40 @@
 
 #include "RimWellLogRftCurve.h"
 
+#include "RiaApplication.h"
 #include "RiaEclipseUnitTools.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellPath.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseWellLogExtractor.h"
+#include "RigMainGrid.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
 
-#include "RifReaderEclipseRft.h"
 #include "RifEclipseRftAddress.h"
+#include "RifReaderEclipseRft.h"
 
 #include "cafPdmObject.h"
+#include "cafVecIjk.h"
+
 #include "cvfAssert.h"
 
 #include <qwt_plot.h>
 
 #include <QString>
+
+#include <numeric>
+#include <vector>
 
 namespace caf
 {
@@ -249,14 +263,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
         CVF_ASSERT(wellLogPlot);
 
         std::vector<double> values = xValues();
-        std::vector<double> depthVector = depthValues();
+        std::vector<double> tvDepthVector = tvDepthValues();
+        std::vector<double> measuredDepthVector = measuredDepthValues();
 
-        if (values.empty() || depthVector.empty()) return;
-
-        if (values.size() == depthVector.size())
-        {
-            m_curveData->setValuesAndMD(values, depthVector, RiaEclipseUnitTools::depthUnit(m_eclipseResultCase->eclipseCaseData()->unitsType()), false);
-        }
+        if (values.empty()) return;
+        if (values.size() != tvDepthVector.size()) return;
+        if (values.size() != measuredDepthVector.size()) return;
+        
+        m_curveData->setValuesWithTVD(values, measuredDepthVector, tvDepthVector, RiaEclipseUnitTools::depthUnit(m_eclipseResultCase->eclipseCaseData()->unitsType()), false);
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
         if (wellLogPlot)
@@ -264,7 +278,15 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        if (wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
+        {
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->measuredDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        }
+        else
+        {
+            m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+        }
+
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
 
         updateZoomInParentPlot();
@@ -413,16 +435,76 @@ std::vector<double> RimWellLogRftCurve::xValues() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::depthValues() const
+std::vector<double> RimWellLogRftCurve::tvDepthValues() const
 {
     RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> values;
+    std::vector<double> tvDepthValues;
 
-    if (!reader) return values;
+    if (!reader) return tvDepthValues;
 
-    RifEclipseRftAddress address(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
+    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
 
-    reader->values(address, &values);
+    reader->values(depthAddress, &tvDepthValues);
+    return tvDepthValues;
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::measuredDepthValues() const
+{
+    std::vector<double> measuredDepthForCells;
+    
+    RifReaderEclipseRft* reader = rftReader();
+    if (!reader) return measuredDepthForCells;
 
-    return values;
+
+    RimMainPlotCollection* mainPlotCollection;
+    this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
+
+    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+    if (!wellLogCollection) return measuredDepthForCells;
+
+    RigEclipseWellLogExtractor* eclExtractor = nullptr;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    RimWellPath* wellPath = proj->wellPathFromSimulationWell(m_wellName());
+    eclExtractor = wellLogCollection->findOrCreateExtractor(wellPath, m_eclipseResultCase);
+
+    if (!eclExtractor)
+    {
+        std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(m_wellName());
+        if (wellPaths.size() == 0) return measuredDepthForCells;
+
+        eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_wellName(), QString("Find or create sim well extractor"), wellPaths[0], m_eclipseResultCase->eclipseCaseData());
+    }
+
+    if (!eclExtractor) return measuredDepthForCells;
+
+    std::vector<double> measuredDepthForIntersections = eclExtractor->measuredDepth();
+    
+    std::vector< size_t> globCellIndices = eclExtractor->intersectedCellsGlobIdx();
+
+    std::map<size_t, std::vector<double>> globCellIdToIntersectionDepthsMap;
+
+    for (size_t iIdx = 0; iIdx < measuredDepthForIntersections.size(); ++iIdx)
+    {
+        globCellIdToIntersectionDepthsMap[globCellIndices[iIdx]].push_back(measuredDepthForIntersections[iIdx]);
+    }
+
+    const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
+
+    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
+    std::vector<caf::VecIjk> indices;
+    rftReader()->cellIndices(depthAddress, &indices);
+
+    for (const caf::VecIjk& ijkIndex : indices)
+    {
+        size_t globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
+
+        double sum = std::accumulate(globCellIdToIntersectionDepthsMap[globalCellIndex].begin(), globCellIdToIntersectionDepthsMap[globalCellIndex].end(), 0);
+
+        measuredDepthForCells.push_back(sum / (double)globCellIdToIntersectionDepthsMap[globalCellIndex].size());
+    }
+
+    return measuredDepthForCells;
 }

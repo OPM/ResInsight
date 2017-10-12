@@ -82,7 +82,6 @@ void RigWellLogCurveData::setValuesWithTVD(const std::vector<double>& xValues,
     m_tvDepths = tvDepths;
     m_depthUnit = depthUnit;
 
-    // Always use value filtering when TVD is present
     m_isExtractionCurve = isExtractionCurve;
 
     calculateIntervalsOfContinousValidValues(); 
