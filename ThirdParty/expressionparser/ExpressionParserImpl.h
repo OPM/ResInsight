@@ -34,20 +34,14 @@ class ExpressionParserImpl
 public:
     ExpressionParserImpl();
 
-    void setExpression(const QString& expression);
-
     static std::vector<QString> detectReferencedVariables(const QString& expression);
 
-    void assignVector(const QString& variableName, std::vector<double>& vector);
-
-    bool evaluate();
-
-    QString errorText() const;
+    void    assignVector(const QString& variableName, std::vector<double>& vector);
+    bool    evaluate(const QString& expressionText, QString* errorText = nullptr);
 
 private:
-    QString m_expression;
+    QString parserErrorText(parser_t& parser);
 
+private:
     symbol_table_t m_symbol_table;
-    expression_t   expression;
-    mutable parser_t       parser;
 };

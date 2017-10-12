@@ -25,9 +25,7 @@ TEST(RicExpressionParserTest, BasicUsage)
     parser.assignVector("c", c);
 
     QString expr = "c := a + b";
-    parser.setExpression(expr);
-
-    EXPECT_TRUE(parser.evaluate());
+    EXPECT_TRUE(parser.evaluate(expr));
 
     EXPECT_DOUBLE_EQ(c[0], 110.0);
     EXPECT_DOUBLE_EQ(c[9], 128.0);

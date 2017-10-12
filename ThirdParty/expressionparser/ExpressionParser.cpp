@@ -39,14 +39,6 @@ ExpressionParser::~ExpressionParser()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ExpressionParser::setExpression(const QString& expression)
-{
-    m_expressionParserImpl->setExpression(expression);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<QString> ExpressionParser::detectReferencedVariables(const QString& expression)
 {
     return ExpressionParserImpl::detectReferencedVariables(expression);
@@ -63,15 +55,7 @@ void ExpressionParser::assignVector(const QString& variableName, std::vector<dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool ExpressionParser::evaluate()
+bool ExpressionParser::evaluate(const QString& expressionText, QString* errorText)
 {
-    return m_expressionParserImpl->evaluate();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString ExpressionParser::errorText()
-{
-    return m_expressionParserImpl->errorText();
+    return m_expressionParserImpl->evaluate(expressionText, errorText);
 }

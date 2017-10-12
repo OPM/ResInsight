@@ -36,10 +36,8 @@ public:
 
     static std::vector<QString> detectReferencedVariables(const QString& expression);
 
-    void                        setExpression(const QString& expression);
     void                        assignVector(const QString& variableName, std::vector<double>& vector);
-    bool                        evaluate();
-    QString                     errorText();
+    bool                        evaluate(const QString& expressionText, QString* errorText = nullptr);
 
 private:
     std::unique_ptr<ExpressionParserImpl> m_expressionParserImpl;

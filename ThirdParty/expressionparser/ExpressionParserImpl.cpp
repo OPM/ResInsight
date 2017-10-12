@@ -29,14 +29,6 @@ ExpressionParserImpl::ExpressionParserImpl()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ExpressionParserImpl::setExpression(const QString& expression)
-{
-    m_expression = expression;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<QString> ExpressionParserImpl::detectReferencedVariables(const QString& expression)
 {
     std::vector<QString> referencedVariables;
@@ -64,13 +56,14 @@ void ExpressionParserImpl::assignVector(const QString& variableName, std::vector
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool ExpressionParserImpl::evaluate()
+bool ExpressionParserImpl::evaluate(const QString& expressionText, QString* errorText)
 {
     expression_t expression;
 
     expression.register_symbol_table(m_symbol_table);
 
-    if (!parser.compile(m_expression.toStdString(), expression))
+    parser_t parser;
+    if (!parser.compile(expressionText.toStdString(), expression))
     {
         return false;
     }
@@ -78,13 +71,18 @@ bool ExpressionParserImpl::evaluate()
     // Trigger evaluation
     expression.value();
 
+    if (errorText)
+    {
+        *errorText = parserErrorText(parser);
+    }
+
     return (parser.error_count() == 0);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString ExpressionParserImpl::errorText() const
+QString ExpressionParserImpl::parserErrorText(parser_t& parser)
 {
     QString txt;
 
