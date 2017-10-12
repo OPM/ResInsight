@@ -256,15 +256,22 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
             m_selectedCases.push_back(summaryCase);
         }
 
+        bool isObservedDataCase = isObservedData(summaryCase);
+
         auto identifierAndFieldList = m_identifierFieldsMap[summaryAddress.category()];
         for (const auto& identifierAndField : identifierAndFieldList)
         {
-            QString uiText = QString::fromStdString(summaryAddress.uiText(identifierAndField->summaryIdentifier()));
+            bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+            QString avalue = QString::fromStdString(summaryAddress.uiText(identifierAndField->summaryIdentifier()));
+            if (isVectorField && isObservedDataCase)
+            {
+                avalue = avalue + QString(OBSERVED_DATA_AVALUE_POSTFIX);
+            }
             const auto& currentSelectionVector = identifierAndField->pdmField()->v();
-            if (std::find(currentSelectionVector.begin(), currentSelectionVector.end(), uiText) == currentSelectionVector.end())
+            if (std::find(currentSelectionVector.begin(), currentSelectionVector.end(), avalue) == currentSelectionVector.end())
             {
                 std::vector<QString> newSelectionVector(currentSelectionVector.begin(), currentSelectionVector.end());
-                newSelectionVector.push_back(uiText);
+                newSelectionVector.push_back(avalue);
                 (*identifierAndField->pdmField()) = newSelectionVector;
             }
         }
