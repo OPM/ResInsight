@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuSummaryCurveDefSelectionWidget.h"
+#include "RiuSummaryCurveDefSelectionEditor.h"
 
 #include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelectionWidget::RiuSummaryCurveDefSelectionWidget(QWidget* parent)
+RiuSummaryCurveDefSelectionEditor::RiuSummaryCurveDefSelectionEditor()
 {
     m_summaryAddressSelection = std::unique_ptr<RiuSummaryCurveDefSelection>(new RiuSummaryCurveDefSelection());
 
@@ -43,15 +43,15 @@ RiuSummaryCurveDefSelectionWidget::RiuSummaryCurveDefSelectionWidget(QWidget* pa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelectionWidget::~RiuSummaryCurveDefSelectionWidget()
+RiuSummaryCurveDefSelectionEditor::~RiuSummaryCurveDefSelectionEditor()
 {
-
+    this->setPdmObject(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionWidget::summaryAddressSelection() const
+RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionEditor::summaryAddressSelection() const
 {
     return m_summaryAddressSelection.get();
 }
@@ -59,7 +59,7 @@ RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionWidget::summaryAddressSe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionWidget::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
+void RiuSummaryCurveDefSelectionEditor::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
 
@@ -99,7 +99,7 @@ void RiuSummaryCurveDefSelectionWidget::recursivelyConfigureAndUpdateTopLevelUiI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWidget* RiuSummaryCurveDefSelectionWidget::createWidget(QWidget* parent)
+QWidget* RiuSummaryCurveDefSelectionEditor::createWidget(QWidget* parent)
 {
     QWidget* widget = new QWidget(parent);
 
@@ -139,7 +139,7 @@ QWidget* RiuSummaryCurveDefSelectionWidget::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryCurveDefSelectionWidget::configureAndUpdateFields(int widgetStartIndex, 
+void RiuSummaryCurveDefSelectionEditor::configureAndUpdateFields(int widgetStartIndex, 
                                                                 QBoxLayout* layout,
                                                                 const std::vector<caf::PdmUiItem *>& uiItems,
                                                                 const QString& uiConfigName)
@@ -209,7 +209,7 @@ void RiuSummaryCurveDefSelectionWidget::configureAndUpdateFields(int widgetStart
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RiuSummaryCurveDefSelectionWidget::createGroupBoxWithContent(caf::PdmUiGroup* group,
+QMinimizePanel* RiuSummaryCurveDefSelectionEditor::createGroupBoxWithContent(caf::PdmUiGroup* group,
                                                                             const QString& uiConfigName)
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);

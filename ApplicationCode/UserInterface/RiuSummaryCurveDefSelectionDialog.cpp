@@ -18,7 +18,7 @@
 
 #include "RiuSummaryCurveDefSelectionDialog.h"
 
-#include "RiuSummaryCurveDefSelectionWidget.h"
+#include "RiuSummaryCurveDefSelectionEditor.h"
 
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
@@ -29,7 +29,7 @@
 RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog(QWidget* parent)
     : QDialog(parent)
 {
-    m_addrSelWidget = new RiuSummaryCurveDefSelectionWidget(this);
+    m_addrSelWidget = std::unique_ptr<RiuSummaryCurveDefSelectionEditor>(new RiuSummaryCurveDefSelectionEditor());
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget(this);
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);

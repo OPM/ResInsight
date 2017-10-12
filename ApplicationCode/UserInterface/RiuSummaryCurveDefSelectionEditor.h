@@ -43,11 +43,11 @@ namespace caf {
 ///  
 ///  
 //==================================================================================================
-class RiuSummaryCurveDefSelectionWidget : public caf::PdmUiWidgetBasedObjectEditor
+class RiuSummaryCurveDefSelectionEditor : public caf::PdmUiWidgetBasedObjectEditor
 {
 public:
-    RiuSummaryCurveDefSelectionWidget(QWidget* parent);
-    ~RiuSummaryCurveDefSelectionWidget();
+    RiuSummaryCurveDefSelectionEditor();
+    ~RiuSummaryCurveDefSelectionEditor();
 
     RiuSummaryCurveDefSelection* summaryAddressSelection() const;
 

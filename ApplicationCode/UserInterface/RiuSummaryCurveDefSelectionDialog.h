@@ -19,8 +19,9 @@
 #pragma once
 
 #include <QDialog>
+#include <memory>
 
-class RiuSummaryCurveDefSelectionWidget;
+class RiuSummaryCurveDefSelectionEditor;
 class RiuSummaryCurveDefSelection;
 
 //==================================================================================================
@@ -36,5 +37,5 @@ public:
     RiuSummaryCurveDefSelection* summaryAddressSelection() const;
 
 private:
-    RiuSummaryCurveDefSelectionWidget* m_addrSelWidget;
+    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;
 };
