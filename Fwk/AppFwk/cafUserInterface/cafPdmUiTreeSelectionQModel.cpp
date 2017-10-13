@@ -54,6 +54,7 @@ caf::PdmUiTreeSelectionQModel::PdmUiTreeSelectionQModel(QObject *parent /*= 0*/)
 {
     m_uiFieldHandle = nullptr;
     m_tree = nullptr;
+    m_singleSelectionMode = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +124,14 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems(const QModelIndexLis
     }
 
     PdmUiCommandSystemProxy::instance()->setUiValueToField(m_uiFieldHandle->field(), fieldValueSelection);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode(bool enable)
+{
+    m_singleSelectionMode = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,6 +384,8 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
         else if (isMultipleValueField(fieldValue))
         {
             std::vector<unsigned int> selectedIndices;
+
+            if (!m_singleSelectionMode)
             {
                 QVariant fieldValue = m_uiFieldHandle->field()->uiValue();
                 QList<QVariant> fieldValueSelection = fieldValue.toList();
@@ -386,6 +397,9 @@ bool caf::PdmUiTreeSelectionQModel::setData(const QModelIndex &index, const QVar
             }
 
             bool setSelected = value.toBool();
+
+            // Do not allow empty selection in single selection mode
+            if (m_singleSelectionMode) setSelected = true;
 
             unsigned int opIndex = static_cast<unsigned int>(optionIndex(index));
 

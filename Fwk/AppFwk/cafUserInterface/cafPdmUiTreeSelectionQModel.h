@@ -65,6 +65,7 @@ public:
     static int              optionItemValueRole();
 
     void                    setCheckedStateForItems(const QModelIndexList& indices, bool checked);
+    void                    enableSingleSelectionMode(bool enable);
 
     int                     optionItemCount() const;
     void                    setOptions(caf::PdmUiFieldEditorHandle* field, const QList<caf::PdmOptionItemInfo>& options);
@@ -91,12 +92,13 @@ private:
     void                            notifyChangedForAllModelIndices();
     void                            recursiveNotifyChildren(const QModelIndex& index);
 
-
 private:
     QList<caf::PdmOptionItemInfo>   m_options;
     caf::PdmUiFieldEditorHandle*    m_uiFieldHandle;
 
     TreeItemType*                   m_tree;
+    
+    bool                            m_singleSelectionMode;
 };
 
 

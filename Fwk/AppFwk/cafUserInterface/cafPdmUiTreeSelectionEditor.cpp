@@ -193,8 +193,6 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     else if (PdmUiTreeSelectionQModel::isMultipleValueField(fieldValue))
     {
-        m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-        m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
         connect(m_treeView, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
 
@@ -204,12 +202,27 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi(const QString& uiConfigName)
             uiObject->editorAttribute(field()->fieldHandle(), uiConfigName, &m_attributes);
         }
 
+        if (m_attributes.singleSelectionMode)
+        {
+            m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
+            m_treeView->setContextMenuPolicy(Qt::NoContextMenu);
+        
+            m_model->enableSingleSelectionMode(m_attributes.singleSelectionMode);
+
+            connect(m_treeView, SIGNAL(clicked(QModelIndex)), this, SLOT(slotClicked(QModelIndex)));
+        }
+        else
+        {
+            m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+            m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+        }
+
         if (!m_attributes.showTextFilter)
         {
             m_textFilterLineEdit->hide();
         }
 
-        if (!m_attributes.showToggleAllCheckbox)
+        if (m_attributes.singleSelectionMode || !m_attributes.showToggleAllCheckbox)
         {
             m_toggleAllCheckBox->hide();
         }
@@ -442,6 +455,11 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous)
 {
+    if (m_attributes.singleSelectionMode)
+    {
+        m_proxyModel->setData(current, true, Qt::CheckStateRole);
+    }
+
     if (m_attributes.fieldToReceiveCurrentItemValue)
     {
         PdmUiFieldHandle* uiFieldHandle = m_attributes.fieldToReceiveCurrentItemValue->uiCapability();
@@ -452,6 +470,14 @@ void PdmUiTreeSelectionEditor::slotCurrentChanged(const QModelIndex& current, co
             PdmUiCommandSystemProxy::instance()->setUiValueToField(uiFieldHandle, v);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotClicked(const QModelIndex& current)
+{
+    m_treeView->setCurrentIndex(current);
 }
 
 //--------------------------------------------------------------------------------------------------

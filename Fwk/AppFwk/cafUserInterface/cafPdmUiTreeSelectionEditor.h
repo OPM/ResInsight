@@ -61,6 +61,7 @@ class PdmUiTreeSelectionEditorAttribute : public PdmUiEditorAttribute
 public:
     bool showTextFilter;
     bool showToggleAllCheckbox;
+    bool singleSelectionMode;
 
     /// fieldToReceiveCurrentFieldValue is used to communicate the value of current item in the tree view
     /// This is useful when displaying a list of appEnums, and a dependent view is displaying content based on 
@@ -73,6 +74,7 @@ public:
     {
         showTextFilter = true;
         showToggleAllCheckbox = true;
+        singleSelectionMode = false;
 
         fieldToReceiveCurrentItemValue = nullptr;
     }
@@ -108,6 +110,7 @@ private slots:
     void                slotTextFilterChanged();
 
     void                slotCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
+    void                slotClicked(const QModelIndex& current);
 
 private:
     void                checkAllItems();
