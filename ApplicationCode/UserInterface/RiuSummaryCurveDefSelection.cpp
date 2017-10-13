@@ -240,6 +240,8 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
     for (const auto& caseAddressPair : curveDefinitions)
     {
         RimSummaryCase* summaryCase = caseAddressPair.summaryCase();
+        if (!summaryCase) continue;
+
         const RifEclipseSummaryAddress& summaryAddress = caseAddressPair.summaryAddress();
 
         // Select summary category if not already selected
