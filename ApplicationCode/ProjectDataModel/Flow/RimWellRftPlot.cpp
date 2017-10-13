@@ -1106,11 +1106,18 @@ void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
     }
     else
     {
+        const auto gridTimeStepsVector = std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>(gridTimeStepsMap.begin(), gridTimeStepsMap.end());
+
         for (const auto& timeStepPair : obsAndRftTimeStepsMap)
         {
-            const auto gridTimeStepsVector = std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>(gridTimeStepsMap.begin(), gridTimeStepsMap.end());
             const auto& adjTimeSteps = adjacentTimeSteps(gridTimeStepsVector, timeStepPair);
             addTimeStepsToMap(displayTimeStepsMap, adjTimeSteps);
+        }
+
+        // Add the first grid time step (from the total grid time steps list)
+        if (gridTimeStepsVector.size() > 0)
+        {
+            addTimeStepToMap(displayTimeStepsMap, gridTimeStepsVector.front());
         }
 
         // Add already selected time steps
@@ -1121,7 +1128,7 @@ void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
                 auto sourceAddresses = m_timeStepsToAddresses[timeStep];
                 if (isAnySourceAddressSelected(sourceAddresses))
                 {
-                    displayTimeStepsMap.insert(std::make_pair(timeStep, m_timeStepsToAddresses[timeStep]));
+                    addTimeStepToMap(displayTimeStepsMap, std::make_pair(timeStep, m_timeStepsToAddresses[timeStep]));
                 }
             }
         }
