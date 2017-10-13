@@ -26,7 +26,7 @@
 #include "RigMainGrid.h"
 
 #include "RimEclipseCase.h"
-#include "RimFault.h"
+#include "RimFaultInView.h"
 
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
@@ -44,7 +44,7 @@ CAF_CMD_SOURCE_INIT(RicExportFaultsFeature, "RicExportFaultsFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicExportFaultsFeature::isCommandEnabled()
 {
-    std::vector<RimFault*> selectedFaults;
+    std::vector<RimFaultInView*> selectedFaults;
 
     caf::SelectionManager::instance()->objectsByType(&selectedFaults);
 
@@ -58,7 +58,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    std::vector<RimFault*> selectedFaults;
+    std::vector<RimFaultInView*> selectedFaults;
 
     caf::SelectionManager::instance()->objectsByType(&selectedFaults);
 
@@ -76,7 +76,7 @@ void RicExportFaultsFeature::onActionTriggered(bool isChecked)
         return;
     }
 
-    for (RimFault* rimFault : selectedFaults)
+    for (RimFaultInView* rimFault : selectedFaults)
     {
         RimEclipseCase* eclCase = nullptr;
         rimFault->firstAncestorOrThisOfType(eclCase);

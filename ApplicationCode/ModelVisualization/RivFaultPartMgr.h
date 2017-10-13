@@ -38,7 +38,7 @@ class RimCellEdgeColors;
 class RimFaultCollection;
 class RigGridBase;
 class RimFaultCollection;
-class RimFault;
+class RimFaultInView;
 class RivFaultGeometryGenerator;
 class RivNNCGeometryGenerator;
 
@@ -51,7 +51,7 @@ class RivNNCGeometryGenerator;
 class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFault* rimFault);
+    RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFaultInView* rimFault);
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
@@ -79,7 +79,7 @@ private:
     static cvf::Vec3f findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices);
 private:
     cvf::cref<RigGridBase>      m_grid;
-    const RimFault*             m_rimFault;
+    const RimFaultInView*             m_rimFault;
     const RimFaultCollection*   m_rimFaultCollection;
 
     float                       m_opacityLevel;

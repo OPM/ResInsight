@@ -32,7 +32,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
-#include "RimFault.h"
+#include "RimFaultInView.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
@@ -382,7 +382,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "Separator";
             commandIds << "RicReloadFormationNamesFeature";
         }
-        else if ( dynamic_cast<RimFault*>(uiItem) )
+        else if ( dynamic_cast<RimFaultInView*>(uiItem) )
         {
             commandIds << "RicExportFaultsFeature";
         }
@@ -522,7 +522,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportToLasFileFeature";
         }
-        else if (dynamic_cast<RimFault*>(uiItem) )
+        else if (dynamic_cast<RimFaultInView*>(uiItem) )
         {
             commandIds << "RicExportFaultsFeature";
         }

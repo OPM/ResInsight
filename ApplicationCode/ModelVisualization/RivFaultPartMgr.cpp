@@ -29,7 +29,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimFault.h"
+#include "RimFaultInView.h"
 #include "RimFaultCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFault* rimFault)
+RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFaultInView* rimFault)
     :   m_grid(grid),
         m_rimFaultCollection(rimFaultCollection),
         m_rimFault(rimFault),
@@ -451,7 +451,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
         {
-            RimFault* noConstRimFault = const_cast<RimFault*>(m_rimFault);
+            RimFaultInView* noConstRimFault = const_cast<RimFaultInView*>(m_rimFault);
             if (noConstRimFault)
             {
                 RimFaultCollection* parentObject;

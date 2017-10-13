@@ -34,13 +34,13 @@ class RigFault;
 ///  
 ///  
 //==================================================================================================
-class RimFault : public caf::PdmObject
+class RimFaultInView : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimFault();
-    virtual ~RimFault();
+    RimFaultInView();
+    virtual ~RimFaultInView();
 
     void                                setFaultGeometry(const RigFault* faultGeometry);
     const RigFault*                     faultGeometry() const;

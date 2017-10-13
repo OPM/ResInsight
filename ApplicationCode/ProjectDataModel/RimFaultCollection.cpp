@@ -28,7 +28,7 @@
 #include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimFault.h"
+#include "RimFaultInView.h"
 #include "RimNoCommonAreaNNC.h"
 #include "RimNoCommonAreaNncCollection.h"
 
@@ -155,7 +155,7 @@ caf::PdmFieldHandle* RimFaultCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFault* RimFaultCollection::findFaultByName(QString name)
+RimFaultInView* RimFaultCollection::findFaultByName(QString name)
 {
     for (size_t i = 0; i < this->faults().size(); ++i)
     {
@@ -236,16 +236,16 @@ void RimFaultCollection::syncronizeFaults()
 
     // Find faults with 
 
-    std::vector<caf::PdmPointer<RimFault> > newFaults;
+    std::vector<caf::PdmPointer<RimFaultInView> > newFaults;
 
     // Find corresponding fault from data model, or create a new
     for (size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx)
     {
-        RimFault* rimFault = this->findFaultByName(rigFaults[fIdx]->name());
+        RimFaultInView* rimFault = this->findFaultByName(rigFaults[fIdx]->name());
 
         if (!rimFault)
         {
-            rimFault = new RimFault();
+            rimFault = new RimFaultInView();
             rimFault->faultColor = colorTable.cycledColor3f(fIdx);
             QString faultName = rigFaults[fIdx]->name();
 

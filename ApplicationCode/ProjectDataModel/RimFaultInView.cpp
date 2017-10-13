@@ -17,18 +17,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFault.h"
+#include "RimFaultInView.h"
 
 #include "RigFault.h"
 
 #include "RimEclipseView.h"
 
-CAF_PDM_SOURCE_INIT(RimFault, "Fault");
+CAF_PDM_SOURCE_INIT(RimFaultInView, "Fault");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFault::RimFault()
+RimFaultInView::RimFaultInView()
 {
     CAF_PDM_InitObject("RimFault", ":/draw_style_faults_24x24.png", "", "");
 
@@ -47,14 +47,14 @@ RimFault::RimFault()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFault::~RimFault()
+RimFaultInView::~RimFaultInView()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFault::userDescriptionField()
+caf::PdmFieldHandle* RimFaultInView::userDescriptionField()
 {
     return &name;
 }
@@ -62,7 +62,7 @@ caf::PdmFieldHandle* RimFault::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFaultInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
 
@@ -82,7 +82,7 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFault::objectToggleField()
+caf::PdmFieldHandle* RimFaultInView::objectToggleField()
 {
     return &showFault;
 }
@@ -90,7 +90,7 @@ caf::PdmFieldHandle* RimFault::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFault::setFaultGeometry(const RigFault* faultGeometry)
+void RimFaultInView::setFaultGeometry(const RigFault* faultGeometry)
 {
     m_rigFault = faultGeometry;
 
@@ -100,7 +100,7 @@ void RimFault::setFaultGeometry(const RigFault* faultGeometry)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFault* RimFault::faultGeometry() const
+const RigFault* RimFaultInView::faultGeometry() const
 {
     return m_rigFault;
 }

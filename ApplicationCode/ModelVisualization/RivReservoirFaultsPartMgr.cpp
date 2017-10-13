@@ -25,7 +25,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimFault.h"
+#include "RimFaultInView.h"
 #include "RimFaultCollection.h"
 
 #include "RivFaultPartMgr.h"
@@ -125,7 +125,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
     for (size_t i = 0; i < faultCollection->faults.size(); i++)
     {
-        const RimFault* rimFault = faultCollection->faults[i];
+        const RimFaultInView* rimFault = faultCollection->faults[i];
 
         cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
         CVF_ASSERT(rivFaultPart.notNull());
@@ -260,7 +260,7 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 
     for (size_t i = 0; i < faultCollection->faults.size(); i++)
     {
-        const RimFault* rimFault = faultCollection->faults[i];
+        const RimFaultInView* rimFault = faultCollection->faults[i];
 
         cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
         CVF_ASSERT(rivFaultPart.notNull());

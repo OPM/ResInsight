@@ -42,7 +42,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimFault.h"
+#include "RimFaultInView.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
@@ -439,7 +439,7 @@ void RiuViewerCommands::slotHideFault()
     {
         QString faultName = fault->name();
 
-        RimFault* rimFault = eclipseView->faultCollection()->findFaultByName(faultName);
+        RimFaultInView* rimFault = eclipseView->faultCollection()->findFaultByName(faultName);
         if (rimFault)
         {
             rimFault->showFault.setValueWithFieldChanged(!rimFault->showFault);

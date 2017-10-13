@@ -34,8 +34,8 @@
 
 #include <QString>
 
-class RimFault;
 class RimEclipseView;
+class RimFaultInView;
 class RimNoCommonAreaNncCollection;
 
 //==================================================================================================
@@ -80,8 +80,8 @@ public:
     caf::PdmField<bool>                 showNNCs;
     caf::PdmField<bool>                 hideNncsWhenNoResultIsAvailable;
 
-    caf::PdmChildArrayField<RimFault*>    faults;
-    RimFault*                           findFaultByName(QString name);
+    caf::PdmChildArrayField<RimFaultInView*>    faults;
+    RimFaultInView*                           findFaultByName(QString name);
 
     caf::PdmChildField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
 
