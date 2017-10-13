@@ -26,6 +26,7 @@
 #include "cafPdmUiTextEditor.h"
 
 #include <numeric>
+#include <algorithm>
 
 
 CAF_PDM_SOURCE_INIT(RimCalculation, "RimCalculation");
