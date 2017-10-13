@@ -30,11 +30,11 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimViewManipulator.h"
 
 #include "RiuMainWindow.h"
@@ -69,9 +69,9 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 {
     CVF_ASSERT(viewToModify);
 
-    RimEclipseWell* selectedWell = nullptr;
+    RimSimWellInView* selectedWell = nullptr;
 
-    for (RimEclipseWell* w : viewToModify->wellCollection()->wells())
+    for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
     {
         if (w->name() == wellName)
         {
@@ -124,7 +124,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     
     std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->wellResults(), timeStep);
 
-    for (RimEclipseWell* w : viewToModify->wellCollection()->wells())
+    for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
     {
         if (std::find(tracerNames.begin(), tracerNames.end(), w->name()) != tracerNames.end()
             || selectedWell->name() == w->name())

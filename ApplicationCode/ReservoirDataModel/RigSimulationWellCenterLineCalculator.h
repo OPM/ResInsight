@@ -22,17 +22,17 @@
 #include "cvfVector3.h"
 #include <vector>
 
-class RimEclipseWell;
 class RigEclipseCaseData;
+class RimSimWellInView;
 
 class RigSimulationWellCenterLineCalculator
 {
 public:
-    static void calculateWellPipeStaticCenterline(RimEclipseWell* rimWell, 
+    static void calculateWellPipeStaticCenterline(RimSimWellInView* rimWell, 
                                                   std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                   std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;
 
-    static void calculateWellPipeDynamicCenterline(const RimEclipseWell* rimWell, 
+    static void calculateWellPipeDynamicCenterline(const RimSimWellInView* rimWell, 
                                                    size_t timeStepIndex,
                                                    std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
                                                    std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) ;

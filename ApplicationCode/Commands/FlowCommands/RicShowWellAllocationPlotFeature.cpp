@@ -21,10 +21,10 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimView.h"
 #include "RimWellAllocationPlot.h"
 
@@ -41,7 +41,7 @@ CAF_CMD_SOURCE_INIT(RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlot
 //--------------------------------------------------------------------------------------------------
 bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
     if (collection.size() > 0)
@@ -57,12 +57,12 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
     if (collection.size() > 0)
     {
-        RimEclipseWell* eclWell = collection[0];
+        RimSimWellInView* eclWell = collection[0];
 
         if (RiaApplication::instance()->project())
         {

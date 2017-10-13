@@ -25,13 +25,13 @@
 #include "RigHexIntersectionTools.h"
 #include "RigCellGeometryTools.h"
 
+#include "RigFractureCell.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimFracture.h"
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
 #include "RimLegendConfig.h"
-#include "RigFractureCell.h"
+#include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
 

@@ -29,7 +29,7 @@
 #include "cafTristate.h"
 
 class RimEclipseView;
-class RimEclipseWell;
+class RimSimWellInView;
 
 //==================================================================================================
 ///  
@@ -110,9 +110,9 @@ public:
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 	
-	caf::PdmChildArrayField<RimEclipseWell*>     wells;
+	caf::PdmChildArrayField<RimSimWellInView*>     wells;
 
-    RimEclipseWell*                     findWell(QString name);
+    RimSimWellInView*                     findWell(QString name);
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
     void                                sortWellsByName();

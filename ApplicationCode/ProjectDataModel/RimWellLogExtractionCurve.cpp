@@ -44,6 +44,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimTools.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
@@ -59,7 +60,6 @@
 #include "cafUtils.h"
 
 #include <cmath>
-#include "RimEclipseWell.h"
 
 //==================================================================================================
 ///  

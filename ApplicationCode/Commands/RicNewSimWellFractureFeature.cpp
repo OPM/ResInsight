@@ -24,16 +24,16 @@
 #include "RigEclipseCaseData.h"
 
 #include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellFractureCollection.h"
-#include "RimEclipseCase.h"
+#include "RimSimWellInView.h"
 
 #include "RiuMainWindow.h"
  
@@ -56,7 +56,7 @@ void RicNewSimWellFractureFeature::onActionTriggered(bool isChecked)
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return;
 
-    RimEclipseWell* eclipseWell = nullptr;
+    RimSimWellInView* eclipseWell = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
     RimSimWellFracture* fracture = new RimSimWellFracture();
@@ -115,7 +115,7 @@ bool RicNewSimWellFractureFeature::isCommandEnabled()
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return false;
 
-    RimEclipseWell* eclipseWell = nullptr;
+    RimSimWellInView* eclipseWell = nullptr;
     objHandle->firstAncestorOrThisOfType(eclipseWell);
 
     if (eclipseWell)

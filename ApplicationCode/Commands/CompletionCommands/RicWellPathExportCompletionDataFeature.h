@@ -31,13 +31,13 @@
 #include "cvfBoundingBox.h"
 
 
-class RimWellPath;
-class RimEclipseCase;
-class RimEclipseWell;
+class RigCell;
 class RigEclipseCaseData;
 class RigMainGrid;
-class RigCell;
+class RimEclipseCase;
 class RimFishbonesMultipleSubs;
+class RimSimWellInView;
+class RimWellPath;
 
 //==================================================================================================
 /// 
@@ -129,7 +129,7 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
     std::vector<RimWellPath*>                    selectedWellPaths();
-    std::vector<RimEclipseWell*>                 selectedSimWells();
+    std::vector<RimSimWellInView*>                 selectedSimWells();
 
     bool                                         noWellPathsSelectedDirectly();
 
@@ -156,7 +156,7 @@ public:
                                                                                         double wellRadius,
                                                                                         size_t cellIndex,
                                                                                         CellDirection direction);
-    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimEclipseWell*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings);
+    static void                                  exportCompletions(const std::vector<RimWellPath*>& wellPaths, const std::vector<RimSimWellInView*>& simWells, const RicExportCompletionDataSettingsUi& exportSettings);
 
 private:
     static RigCompletionData                     combineEclipseCellCompletions(const std::vector<RigCompletionData>& completions, 

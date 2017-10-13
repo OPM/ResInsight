@@ -23,16 +23,16 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "RimProject.h"
-#include "RimOilField.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimEclipseCase.h"
-#include "RimEclipseWell.h"
+#include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
-#include "RimEclipseWell.h"
-#include "RimWellPathCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimSimWellInView.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "CompletionCommands/RicWellPathExportCompletionDataFeature.h"
 
@@ -100,7 +100,7 @@ void RicfExportSimWellCompletions::execute()
         return;
     }
 
-    std::vector<RimEclipseWell*> simWells;
+    std::vector<RimSimWellInView*> simWells;
     if (m_wellPathNames().empty())
     {
         std::copy(view->wellCollection->wells.begin(),
@@ -111,7 +111,7 @@ void RicfExportSimWellCompletions::execute()
     {
         for (const QString& wellPathName : m_wellPathNames())
         {
-            RimEclipseWell* simWell = view->wellCollection->findWell(wellPathName);
+            RimSimWellInView* simWell = view->wellCollection->findWell(wellPathName);
             if (simWell)
             {
                 simWells.push_back(simWell);

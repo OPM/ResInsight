@@ -41,9 +41,9 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimGridCollection.h"
 #include "RimIntersection.h"
@@ -52,12 +52,12 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 #include "RimWellPathCollection.h"
-#include "RimFlowCharacteristicsPlot.h"
 
 #include "RiuMainWindow.h"
 #include "RiuSelectionManager.h"
@@ -705,7 +705,7 @@ void RimEclipseView::updateCurrentTimeStep()
                 this->descendantsIncludingThisOfType(fractures);
                 for (RimFracture* f : fractures)
                 {
-                    RimEclipseWell* eclWell = nullptr;
+                    RimSimWellInView* eclWell = nullptr;
                     f->firstAncestorOrThisOfType(eclWell);
                     if (eclWell)
                     {
@@ -1195,12 +1195,12 @@ void RimEclipseView::syncronizeWellsWithResults()
     cvf::Collection<RigSingleWellResultsData> wellResults = m_eclipseCase->eclipseCaseData()->wellResults();
 
  
-    std::vector<caf::PdmPointer<RimEclipseWell> > newWells;
+    std::vector<caf::PdmPointer<RimSimWellInView> > newWells;
 
     // Clear the possible well results data present
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimEclipseWell* well = this->wellCollection()->wells()[wIdx];
+        RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
         well->setWellResults(NULL, -1);
     }
 
@@ -1210,11 +1210,11 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
     {
-        RimEclipseWell* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
+        RimSimWellInView* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
 
         if (!well)
         {
-            well = new RimEclipseWell;
+            well = new RimSimWellInView;
             well->name = wellResults[wIdx]->m_wellName;
 
             isAnyWellCreated = true;
@@ -1228,7 +1228,7 @@ void RimEclipseView::syncronizeWellsWithResults()
 
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimEclipseWell* well = this->wellCollection()->wells()[wIdx];
+        RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
         RigSingleWellResultsData* wellRes = well->wellResults();
         if (wellRes == NULL)
         {
@@ -1289,7 +1289,7 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
     // Loop over the wells and find their contribution
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
-        RimEclipseWell* well =  this->wellCollection()->wells()[wIdx];
+        RimSimWellInView* well =  this->wellCollection()->wells()[wIdx];
         if (well->isWellCellsVisible())
         {
             RigSingleWellResultsData* wres = well->wellResults();

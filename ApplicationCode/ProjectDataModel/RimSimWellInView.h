@@ -45,13 +45,13 @@ class RimSimWellFractureCollection;
 ///  
 ///  
 //==================================================================================================
-class RimEclipseWell : public caf::PdmObject
+class RimSimWellInView : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimEclipseWell();
-    virtual ~RimEclipseWell();
+    RimSimWellInView();
+    virtual ~RimSimWellInView();
     
     void                                setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex);
     RigSingleWellResultsData*           wellResults();

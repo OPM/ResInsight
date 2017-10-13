@@ -19,8 +19,8 @@
 #include "RicNewWellLogRftCurveFeature.h"
 
 #include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogRftCurve.h"
@@ -54,7 +54,7 @@ bool RicNewWellLogRftCurveFeature::isCommandEnabled()
     }
 
     int branchIdx;
-    RimEclipseWell* simulationWell = RicWellLogTools::selectedSimulationWell(&branchIdx);
+    RimSimWellInView* simulationWell = RicWellLogTools::selectedSimulationWell(&branchIdx);
 
     if (simulationWell != nullptr)
     {
@@ -78,7 +78,7 @@ void RicNewWellLogRftCurveFeature::onActionTriggered(bool isChecked)
     else
     {
         int branchIndex = -1;
-        RimEclipseWell* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
+        RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
         if (simWell)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();

@@ -29,8 +29,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimSimWellFracture.h"
@@ -231,7 +231,7 @@ RimEclipseWellCollection::~RimEclipseWellCollection()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseWellCollection::setShowWellCellsState(bool enable)
 {
-    for (RimEclipseWell* w : wells)
+    for (RimSimWellInView* w : wells)
     {
         w->showWellCells = enable;
     }
@@ -263,7 +263,7 @@ bool RimEclipseWellCollection::showWellCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell* RimEclipseWellCollection::findWell(QString name)
+RimSimWellInView* RimEclipseWellCollection::findWell(QString name)
 {
     for (size_t i = 0; i < this->wells().size(); ++i)
     {
@@ -286,7 +286,7 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
     bool hasCells = false;
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
-        RimEclipseWell* well = this->wells()[i];
+        RimSimWellInView* well = this->wells()[i];
         if ( well && well->wellResults() && ((well->showWell() && well->showWellCells())) )
         {
             for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )
@@ -330,7 +330,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_showWellLabel == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellLabel = !(m_showWellLabel().isFalse());
             w->updateConnectedEditors();
@@ -339,7 +339,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_showWellHead == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellHead = !(m_showWellHead().isFalse());
             w->updateConnectedEditors();
@@ -348,7 +348,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_showWellPipe == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellPipe = !(m_showWellPipe().isFalse());
             w->updateConnectedEditors();
@@ -357,7 +357,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_showWellSpheres == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellSpheres = !(m_showWellSpheres().isFalse());
             w->updateConnectedEditors();
@@ -366,7 +366,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_showWellCells == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellCells = !(m_showWellCells().isFalse());
             w->updateConnectedEditors();
@@ -375,7 +375,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
     if (&m_showWellCellFence == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellCellFence = !(m_showWellCellFence().isFalse());
             w->updateConnectedEditors();
@@ -464,7 +464,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (&wellPipeCoordType == changedField)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             for (RimSimWellFracture* frac : w->simwellFractureCollection()->simwellFractures())
             {
@@ -487,7 +487,7 @@ void RimEclipseWellCollection::assignDefaultWellColors()
     
     for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
     {
-        RimEclipseWell* well = wells[wIdx];
+        RimSimWellInView* well = wells[wIdx];
         if (well && well->wellResults() )
         {
             well->wellPipeColor = ownerCase->defaultWellColor(well->wellResults()->m_wellName);
@@ -583,7 +583,7 @@ void RimEclipseWellCollection::updateStateForVisibilityCheckboxes()
     size_t showWellCellsCount = 0;
     size_t showWellCellFenceCount = 0;
 
-    for (RimEclipseWell* w : wells)
+    for (RimSimWellInView* w : wells)
     {
         if (w->showWellLabel())     showLabelCount++;
         if (w->showWellHead())      showWellHeadCount++;
@@ -646,7 +646,7 @@ void RimEclipseWellCollection::initAfterRead()
     {
         showWellsIntersectingVisibleCells = false;
 
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellPipe = false;
         }
@@ -655,7 +655,7 @@ void RimEclipseWellCollection::initAfterRead()
     {
         showWellsIntersectingVisibleCells = false;
 
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellPipe = true;
         }
@@ -663,14 +663,14 @@ void RimEclipseWellCollection::initAfterRead()
 
     if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_NONE)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellCells = false;
         }
     }
     else if (obsoleteField_wellCellsToRangeFilterMode() == RANGE_ADD_ALL)
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellCells = true;
         }
@@ -678,7 +678,7 @@ void RimEclipseWellCollection::initAfterRead()
 
     if (!obsoleteField_showWellLabel())
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellLabel = false;
         }
@@ -686,7 +686,7 @@ void RimEclipseWellCollection::initAfterRead()
 
     if (!obsoleteField_showWellHead())
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellHead = false;
         }
@@ -694,7 +694,7 @@ void RimEclipseWellCollection::initAfterRead()
 
     if (obsoleteField_showWellCellFence())
     {
-        for (RimEclipseWell* w : wells)
+        for (RimSimWellInView* w : wells)
         {
             w->showWellCellFence = true;
         }
@@ -764,7 +764,7 @@ void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex
     if (m_framesOfResultWellPipeVisibilities[frameIndex].size() <= wells().size())
         m_framesOfResultWellPipeVisibilities[frameIndex].resize(wells().size(), false); 
     
-    for (const RimEclipseWell* well : wells())
+    for (const RimSimWellInView* well : wells())
     {
         bool wellPipeVisible = well->isWellPipeVisible(frameIndex);
         bool wellSphereVisible = well->isWellSpheresVisible(frameIndex);
@@ -773,7 +773,7 @@ void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex
     }
 }
 
-bool lessEclipseWell(const caf::PdmPointer<RimEclipseWell>& w1,  const caf::PdmPointer<RimEclipseWell>& w2)
+bool lessEclipseWell(const caf::PdmPointer<RimSimWellInView>& w1,  const caf::PdmPointer<RimSimWellInView>& w2)
 {
     if (w1.notNull() && w2.notNull())
         return (w1->name() < w2->name());

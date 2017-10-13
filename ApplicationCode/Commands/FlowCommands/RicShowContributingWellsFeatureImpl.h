@@ -25,8 +25,8 @@
 class RigSingleWellResultsData;
 class RimEclipseResultCase;
 class RimEclipseView;
-class RimEclipseWell;
 class RimFlowDiagSolution;
+class RimSimWellInView;
 
 //==================================================================================================
 /// 

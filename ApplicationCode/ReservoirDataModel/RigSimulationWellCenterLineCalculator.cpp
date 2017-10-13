@@ -19,13 +19,13 @@
 
 #include "RigSimulationWellCenterLineCalculator.h"
 
-#include "RigEclipseCaseData.h"
 #include "RigCell.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 
 #include "cvfRay.h"
 
@@ -34,7 +34,7 @@
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(RimEclipseWell* rimWell, 
+void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(RimSimWellInView* rimWell, 
                                                                         std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) 
 {
@@ -45,7 +45,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(const RimEclipseWell* rimWell, 
+void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(const RimSimWellInView* rimWell, 
                                                                                size_t timeStepIndex, 
                                                                                std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                                                std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)

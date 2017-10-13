@@ -27,11 +27,11 @@
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
 #include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
@@ -53,10 +53,10 @@ CAF_CMD_SOURCE_INIT(RicPlotProductionRateFeature, "RicPlotProductionRateFeature"
 //--------------------------------------------------------------------------------------------------
 bool RicPlotProductionRateFeature::isCommandEnabled()
 {
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
-    for (RimEclipseWell* well : collection)
+    for (RimSimWellInView* well : collection)
     {
         RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell(well);
         if (gridSummaryCase)
@@ -85,12 +85,12 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
     RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
     CAF_ASSERT(summaryPlotColl);
 
-    std::vector<RimEclipseWell*> collection;
+    std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);
 
     RimSummaryPlot* summaryPlotToSelect = nullptr;
 
-    for (RimEclipseWell* well : collection)
+    for (RimSimWellInView* well : collection)
     {
         RimGridSummaryCase* gridSummaryCase = RicPlotProductionRateFeature::gridSummaryCaseForWell(well);
         if (!gridSummaryCase) continue;
@@ -214,7 +214,7 @@ void RicPlotProductionRateFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimEclipseWell* well)
+RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimSimWellInView* well)
 {
     RimProject* project = RiaApplication::instance()->project();
     if (!project) return nullptr;
@@ -239,7 +239,7 @@ RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimEcli
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
+bool RicPlotProductionRateFeature::isInjector(RimSimWellInView* well)
 {
     RigSingleWellResultsData* wRes = well->wellResults();
     if (wRes)
@@ -268,7 +268,7 @@ bool RicPlotProductionRateFeature::isInjector(RimEclipseWell* well)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimEclipseWell* well,
+RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* plot, const RimSimWellInView* well,
                                                     RimGridSummaryCase* gridSummaryCase, const QString& vectorName,
                                                     RiaDefines::PlotAxis plotAxis, const cvf::Color3f& color)
 {

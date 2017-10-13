@@ -32,7 +32,6 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFault.h"
 #include "RimFlowCharacteristicsPlot.h"
@@ -50,6 +49,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimObservedData.h"
 #include "RimScriptCollection.h"
+#include "RimSimWellInView.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -364,7 +364,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicAppendIntersectionFeature";
             commandIds << "RicAppendIntersectionBoxFeature";
         }
-        else if (dynamic_cast<RimEclipseWell*>(uiItem))
+        else if (dynamic_cast<RimSimWellInView*>(uiItem))
         {
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellLogRftCurveFeature";
@@ -526,7 +526,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             commandIds << "RicExportFaultsFeature";
         }
-        else if (dynamic_cast<RimEclipseWell*>(uiItem))
+        else if (dynamic_cast<RimSimWellInView*>(uiItem))
         {
             commandIds << "RicPlotProductionRateFeature";
             commandIds << "RicShowContributingWellsFeature";

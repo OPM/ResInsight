@@ -32,8 +32,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivPartPriority.h"
@@ -56,7 +56,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
@@ -81,7 +81,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
-    RimEclipseWell* well = m_rimWell;
+    RimSimWellInView* well = m_rimWell;
     
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 

@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseWell;
+class RimSimWellInView;
 
 
 //==================================================================================================

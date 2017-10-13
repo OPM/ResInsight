@@ -21,6 +21,7 @@
 
 #include "RimEclipseView.h"
 #include "RimGeoMechView.h"
+#include "RimSimWellInView.h"
 #include "RimWellPath.h"
 
 #include "RivSimWellPipeSourceInfo.h"
@@ -221,7 +222,7 @@ RiuWellPathSelectionItem::RiuWellPathSelectionItem(const RivWellPathSourceInfo* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimEclipseWell* simwell, 
+RiuSimWellSelectionItem::RiuSimWellSelectionItem(RimSimWellInView* simwell, 
                                                   cvf::Vec3d m_domainCoord,
                                                   size_t m_branchIndex)
     : m_simWell(simwell),

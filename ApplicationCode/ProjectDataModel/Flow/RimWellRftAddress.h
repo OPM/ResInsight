@@ -29,17 +29,17 @@
 #include <QDate>
 #include <QMetaType>
 
-class RimEclipseResultCase;
-class RimEclipseWell;
-class RimFlowDiagSolution;
-class RimTotalWellAllocationPlot;
-class RimWellLogPlot;
-class RiuWellRftPlot;
-class RimWellLogTrack;
-class RimTofAccumulatedPhaseFractionsPlot;
 class RigSingleWellResultsData;
-class RimWellLogFileChannel;
+class RimEclipseResultCase;
+class RimFlowDiagSolution;
+class RimSimWellInView;
+class RimTofAccumulatedPhaseFractionsPlot;
+class RimTotalWellAllocationPlot;
 class RimWellLogFile;
+class RimWellLogFileChannel;
+class RimWellLogPlot;
+class RimWellLogTrack;
+class RiuWellRftPlot;
 
 
 

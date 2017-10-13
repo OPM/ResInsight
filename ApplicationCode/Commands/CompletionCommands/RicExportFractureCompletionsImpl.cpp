@@ -23,14 +23,14 @@
 #include "RicExportCompletionDataSettingsUi.h"
 
 #include "RimEclipseCase.h"
-#include "RimFracture.h"
-#include "RimWellPath.h"
-#include "RimFractureTemplate.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
-#include "RimSimWellFractureCollection.h"
-#include "RimStimPlanFractureTemplate.h"
+#include "RimFracture.h"
+#include "RimFractureTemplate.h"
 #include "RimSimWellFracture.h"
+#include "RimSimWellFractureCollection.h"
+#include "RimSimWellInView.h"
+#include "RimStimPlanFractureTemplate.h"
+#include "RimWellPath.h"
 #include "RimWellPathCompletions.h"
 
 #include "RigEclipseCaseData.h"
@@ -70,7 +70,7 @@ std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdat
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<RigCompletionData> RicExportFractureCompletionsImpl::generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
-                                                                                                 const RimEclipseWell* well,
+                                                                                                 const RimSimWellInView* well,
                                                                                                  QTextStream* outputStreamForIntermediateResultsText)
 {
     std::vector<RigCompletionData> completionData;

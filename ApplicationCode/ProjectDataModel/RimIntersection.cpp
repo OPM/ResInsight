@@ -26,10 +26,10 @@
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimTools.h"
 #include "RimView.h"
 #include "RimWellPath.h"
@@ -252,10 +252,10 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
         RimEclipseWellCollection* coll = simulationWellCollection();
         if (coll)
         {
-            caf::PdmChildArrayField<RimEclipseWell*>& eclWells = coll->wells;
+            caf::PdmChildArrayField<RimSimWellInView*>& eclWells = coll->wells;
 
             QIcon simWellIcon(":/Well.png");
-            for (RimEclipseWell* eclWell : eclWells)
+            for (RimSimWellInView* eclWell : eclWells)
             {
                 options.push_back(caf::PdmOptionItemInfo(eclWell->name(), eclWell, false, simWellIcon));
             }

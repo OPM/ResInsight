@@ -27,6 +27,7 @@
 #include "RigWellLogCurveData.h"
 
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellRftPlot.h"
@@ -38,14 +39,13 @@
 #include "RimEclipseResultCase.h"
 
 #include "RiuMainPlotWindow.h"
+#include "RiuSelectionManager.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
 #include <vector>
-#include "RimEclipseWell.h"
-#include "RiuSelectionManager.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
@@ -78,7 +78,7 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 
     //int branchIndex;
 
-    auto eclWell = selectedPdmObject<RimEclipseWell*>();
+    auto eclWell = selectedPdmObject<RimSimWellInView*>();
     auto rimWellPath = eclWell == nullptr ? selectedPdmObject<RimWellPath*>() : nullptr;
     
     bool enable = true;
@@ -115,12 +115,12 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
     {
         QString wellName;
         RimWellPath* wellPath = nullptr;
-        RimEclipseWell* eclipseWell = nullptr;
+        RimSimWellInView* eclipseWell = nullptr;
         if ((wellPath = selectedPdmObject<RimWellPath*>()) != nullptr)
         {
             wellName = wellPath->name();
         }
-        else if ((eclipseWell = selectedPdmObject<RimEclipseWell*>()) != nullptr)
+        else if ((eclipseWell = selectedPdmObject<RimSimWellInView*>()) != nullptr)
         {
             wellName = eclipseWell->name();
         }
@@ -181,7 +181,7 @@ RimWellPath* RicNewRftPlotFeature::selectedWellPath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell* RicNewRftPlotFeature::selectedSimulationWell(int * branchIndex) const
+RimSimWellInView* RicNewRftPlotFeature::selectedSimulationWell(int * branchIndex) const
 {
     RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
@@ -192,7 +192,7 @@ RimEclipseWell* RicNewRftPlotFeature::selectedSimulationWell(int * branchIndex) 
     }
     else
     {
-        std::vector<RimEclipseWell*> selection;
+        std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType(&selection);
         (*branchIndex) = 0;
         return selection.size() > 0 ? selection[0] : NULL;

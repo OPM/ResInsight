@@ -39,17 +39,17 @@ namespace cvf
     class Color3f;
 }
 
-class RivPipeGeometryGenerator;
-class RimEclipseView;
-class RimEclipseWell;
 class RigWellResultFrame;
+class RimEclipseView;
+class RimSimWellInView;
+class RivPipeGeometryGenerator;
 
 struct RigWellResultPoint;
 
 class RivWellSpheresPartMgr : public cvf::Object
 {
 public:
-    RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well);
+    RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
     ~RivWellSpheresPartMgr();
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
@@ -60,5 +60,5 @@ private:
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimEclipseWell>            m_rimWell;
+    caf::PdmPointer<RimSimWellInView>            m_rimWell;
 };

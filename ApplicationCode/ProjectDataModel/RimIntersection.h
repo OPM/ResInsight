@@ -29,7 +29,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-class RimEclipseWell;
+class RimSimWellInView;
 class RimEclipseWellCollection;
 class RimWellPath;
 class RivIntersectionPartMgr;
@@ -70,7 +70,7 @@ public:
     caf::PdmField< bool >                                showInactiveCells;
 
     caf::PdmPtrField<RimWellPath*>                       wellPath;
-    caf::PdmPtrField<RimEclipseWell*>                    simulationWell;
+    caf::PdmPtrField<RimSimWellInView*>                  simulationWell;
 
     caf::PdmField< bool >                                inputPolyLineFromViewerEnabled;
     caf::PdmField< bool >                                inputExtrusionPointsFromViewerEnabled;

@@ -27,8 +27,8 @@
 
 #include "RigWellLogCurveData.h"
 
-#include "RimEclipseWell.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlot.h"
@@ -75,7 +75,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered(bool isChecked)
     {
         RimWellPath* wellPath = RicWellLogTools::selectedWellPath();
         int branchIndex = -1;
-        RimEclipseWell* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
+        RimSimWellInView* simWell = RicWellLogTools::selectedSimulationWell(&branchIndex);
         if (wellPath || simWell)
         {
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();

@@ -35,22 +35,22 @@
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
+#include "RiaDefines.h"
 #include "RimCellEdgeColors.h"
 #include "RimContextCommandBuilder.h"
-#include "RimIntersection.h"
-#include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimFault.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
+#include "RimIntersection.h"
 #include "RimIntersectionBox.h"
 #include "RimLegendConfig.h"
+#include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimWellPath.h"
@@ -316,7 +316,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
         const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>(firstHitPart->sourceInfo());
         if (eclipseWellSourceInfo)
         {
-            RimEclipseWell* well = eclipseWellSourceInfo->well();
+            RimSimWellInView* well = eclipseWellSourceInfo->well();
             if (well)
             {
                 caf::SelectionManager::instance()->setSelectedItem(well);

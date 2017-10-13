@@ -29,10 +29,10 @@
 
 #include <vector>
 
-class RiuWellAllocationPlot;
-class RimEclipseWell;
+class RimSimWellInView;
 class RimWellLogPlot;
 class RiuNightchartsWidget;
+class RiuWellAllocationPlot;
 
 namespace caf {
     class PdmOptionItemInfo;

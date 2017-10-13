@@ -20,8 +20,8 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 
 #include "RigSingleWellResultsData.h"
 #include "RigFlowDiagResults.h"
@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionsPartMgr::RivWellConnectionsPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivWellConnectionsPartMgr::RivWellConnectionsPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
@@ -126,7 +126,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     // Create potentially two the arrows to/from m_rimWell for each of the other wells in the model.
     // One arrow for the "official" state of the well, and one to account for cross flow contributions 
 
-    for ( RimEclipseWell * otherWell: wellColl->wells )
+    for ( RimSimWellInView * otherWell: wellColl->wells )
     {
         if (  otherWell == m_rimWell ) continue;
         if ( !otherWell->wellResults()->hasWellResult(frameIndex) ) continue;

@@ -26,8 +26,8 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 
 #include "RivWellHeadPartMgr.h"
 #include "RivSimWellPipesPartMgr.h"
@@ -139,7 +139,7 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
     {
         m_wellSpheresPartMgrs.clear();
 
-        for (RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells())
+        for (RimSimWellInView* rimWell : m_reservoirView->wellCollection()->wells())
         {
             RivWellSpheresPartMgr* wppmgr = new RivWellSpheresPartMgr(m_reservoirView, rimWell);
             m_wellSpheresPartMgrs.push_back(wppmgr);
@@ -157,7 +157,7 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBa
     // Well Connection Arrows
     if ( m_reservoirView->wellCollection()->showWellCommunicationLines() )
     {
-        for ( RimEclipseWell* rimWell : m_reservoirView->wellCollection()->wells() )
+        for ( RimSimWellInView* rimWell : m_reservoirView->wellCollection()->wells() )
         {
             cvf::ref<RivWellConnectionsPartMgr> wppmgr = new RivWellConnectionsPartMgr(m_reservoirView, rimWell);
             wppmgr->appendDynamicGeometryPartsToModel(model, frameIndex);

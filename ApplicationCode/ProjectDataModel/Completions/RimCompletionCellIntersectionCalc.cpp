@@ -19,19 +19,19 @@
 #include "RimCompletionCellIntersectionCalc.h"
 
 #include "RiaDefines.h"
-#include "RimProject.h"
-#include "RimOilField.h"
-#include "RimWellPathCollection.h"
-#include "RimWellPath.h"
-#include "RimWellPathCompletions.h"
-#include "RimFishbonesCollection.h"
-#include "RimFishbonesMultipleSubs.h"
-#include "RimPerforationCollection.h"
-#include "RimPerforationInterval.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
-#include "RimEclipseWell.h"
+#include "RimFishbonesCollection.h"
+#include "RimFishbonesMultipleSubs.h"
+#include "RimOilField.h"
+#include "RimPerforationCollection.h"
+#include "RimPerforationInterval.h"
+#include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathCompletions.h"
 
 #include "RigMainGrid.h"
 #include "RigWellPath.h"
@@ -68,7 +68,7 @@ void RimCompletionCellIntersectionCalc::calculateIntersections(const RimProject*
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (RimEclipseView* view : eclipseCase->reservoirViews())
     {
-        for (RimEclipseWell* simWell : view->wellCollection()->wells())
+        for (RimSimWellInView* simWell : view->wellCollection()->wells())
         {
             for (RimSimWellFracture* fracture : simWell->simwellFractureCollection()->simwellFractures())
             {

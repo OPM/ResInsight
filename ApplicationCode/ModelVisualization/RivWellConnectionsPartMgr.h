@@ -36,17 +36,17 @@ namespace cvf
     class Part;
 }
 
-class RivPipeGeometryGenerator;
-class RimEclipseView;
-class RimEclipseWell;
 class RigWellResultFrame;
+class RimEclipseView;
+class RimSimWellInView;
+class RivPipeGeometryGenerator;
 
 struct RigWellResultPoint;
 
 class RivWellConnectionsPartMgr : public cvf::Object
 {
 public:
-    RivWellConnectionsPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well);
+    RivWellConnectionsPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well);
     ~RivWellConnectionsPartMgr();
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
@@ -67,7 +67,7 @@ private:
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimEclipseWell>   m_rimWell;
+    caf::PdmPointer<RimSimWellInView>   m_rimWell;
 
     bool                              m_useCurvedArrows;
 };

@@ -49,11 +49,11 @@ class RimEclipseCellColors;
 class RimEclipseFaultColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
-class RimEclipseWell;
 class RimEclipseWellCollection;
 class RimFaultCollection;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
+class RimSimWellInView;
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimStimPlanColors;
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES

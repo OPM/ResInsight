@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimEclipseWell.h"
+#include "RimSimWellInView.h"
 
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSingleWellResultsData.h"
@@ -46,12 +46,12 @@
 #include "RigMainGrid.h"
 #include "RigActiveCellInfo.h"
 
-CAF_PDM_SOURCE_INIT(RimEclipseWell, "Well");
+CAF_PDM_SOURCE_INIT(RimSimWellInView, "Well");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell::RimEclipseWell()
+RimSimWellInView::RimSimWellInView()
 {
     CAF_PDM_InitObject("Well", ":/Well.png", "", "");
 
@@ -88,7 +88,7 @@ RimEclipseWell::RimEclipseWell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell::~RimEclipseWell()
+RimSimWellInView::~RimSimWellInView()
 {
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     if (simwellFractureCollection()) delete simwellFractureCollection();
@@ -98,7 +98,7 @@ RimEclipseWell::~RimEclipseWell()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEclipseWell::userDescriptionField()
+caf::PdmFieldHandle* RimSimWellInView::userDescriptionField()
 {
     return &name;
 }
@@ -106,7 +106,7 @@ caf::PdmFieldHandle* RimEclipseWell::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
@@ -157,7 +157,7 @@ void RimEclipseWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEclipseWell::objectToggleField()
+caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 {
     return &showWell;
 }
@@ -165,7 +165,7 @@ caf::PdmFieldHandle* RimEclipseWell::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::calculateWellPipeStaticCenterLine(std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
+void RimSimWellInView::calculateWellPipeStaticCenterLine(std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                        std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds)
 {
     RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(this, pipeBranchesCLCoords, pipeBranchesCellIds);
@@ -174,7 +174,7 @@ void RimEclipseWell::calculateWellPipeStaticCenterLine(std::vector< std::vector 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
+void RimSimWellInView::calculateWellPipeDynamicCenterLine(size_t timeStepIdx, 
                                                  std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                  std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const
 {
@@ -184,7 +184,7 @@ void RimEclipseWell::calculateWellPipeDynamicCenterLine(size_t timeStepIdx,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
+void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom)
 {
 
     RimEclipseView* m_rimReservoirView;
@@ -242,7 +242,7 @@ void RimEclipseWell::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* to
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RimEclipseWell::pipeRadius()
+double RimSimWellInView::pipeRadius()
 {
     RimEclipseView* reservoirView;
     firstAncestorOrThisOfTypeAsserted(reservoirView);
@@ -259,7 +259,7 @@ double RimEclipseWell::pipeRadius()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const
+bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const
 {
     if (this->wellResults() == nullptr) return false;
 
@@ -273,7 +273,7 @@ bool RimEclipseWell::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const
+bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const
 {
     RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
@@ -339,7 +339,7 @@ bool RimEclipseWell::intersectsWellCellsFilteredCells(const RigWellResultFrame &
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::intersectsStaticWellCellsFilteredCells() const
+bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
 {
     if (this->wellResults() == nullptr) return false;
 
@@ -355,7 +355,7 @@ bool RimEclipseWell::intersectsStaticWellCellsFilteredCells() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimSimWellInView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Visibility");
     appearanceGroup->add(&showWellLabel);
@@ -381,7 +381,7 @@ void RimEclipseWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
+void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/)
 {
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
     for (RimSimWellFracture* fracture : simwellFractureCollection()->simwellFractures())
@@ -422,7 +422,7 @@ void RimEclipseWell::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellCellsVisible() const
+bool RimSimWellInView::isWellCellsVisible() const
 {
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
@@ -456,7 +456,7 @@ bool RimEclipseWell::isWellCellsVisible() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
+bool RimSimWellInView::isWellPipeVisible(size_t frameIndex) const
 {
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
@@ -502,7 +502,7 @@ bool RimEclipseWell::isWellPipeVisible(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
+bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
 {
     const RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType(reservoirView);
@@ -551,7 +551,7 @@ bool RimEclipseWell::isWellSpheresVisible(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWell::isUsingCellCenterForPipe() const
+bool RimSimWellInView::isUsingCellCenterForPipe() const
 {
     const RimEclipseWellCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
@@ -562,7 +562,7 @@ bool RimEclipseWell::isUsingCellCenterForPipe() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWell::setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex)
+void RimSimWellInView::setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex)
 {
     m_wellResults = wellResults;
     m_resultWellIndex = resultWellIndex;
@@ -571,7 +571,7 @@ void RimEclipseWell::setWellResults(RigSingleWellResultsData* wellResults, size_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigSingleWellResultsData* RimEclipseWell::wellResults()
+RigSingleWellResultsData* RimSimWellInView::wellResults()
 {
     return m_wellResults.p();
 }
@@ -579,7 +579,7 @@ RigSingleWellResultsData* RimEclipseWell::wellResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigSingleWellResultsData* RimEclipseWell::wellResults() const
+const RigSingleWellResultsData* RimSimWellInView::wellResults() const
 {
     return m_wellResults.p();
 }
@@ -587,7 +587,7 @@ const RigSingleWellResultsData* RimEclipseWell::wellResults() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimEclipseWell::resultWellIndex() const
+size_t RimSimWellInView::resultWellIndex() const
 {
     return m_resultWellIndex;
 }

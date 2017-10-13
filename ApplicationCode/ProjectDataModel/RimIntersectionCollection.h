@@ -26,7 +26,7 @@
 class RimIntersection;
 class RimIntersectionBox;
 class RimEclipseCellColors;
-class RimEclipseWell;
+class RimSimWellInView;
 
 namespace cvf {
     class ModelBasicList;
@@ -51,7 +51,7 @@ public:
     void appendIntersection(RimIntersection* intersection);
     void appendIntersectionBox(RimIntersectionBox* intersectionBox);
 
-    bool hasActiveIntersectionForSimulationWell(const RimEclipseWell* eclipseWell) const;
+    bool hasActiveIntersectionForSimulationWell(const RimSimWellInView* eclipseWell) const;
 
     void updateIntersectionBoxGeometry();
 

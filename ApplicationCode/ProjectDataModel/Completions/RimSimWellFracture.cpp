@@ -23,11 +23,11 @@
 #include "RigSingleWellResultsData.h"
 
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -309,7 +309,7 @@ void RimSimWellFracture::setBranchGeometry()
 {
     m_branchCenterLines.clear();
 
-    RimEclipseWell* rimWell = nullptr;
+    RimSimWellInView* rimWell = nullptr;
     this->firstAncestorOrThisOfType(rimWell);
     CVF_ASSERT(rimWell);
 

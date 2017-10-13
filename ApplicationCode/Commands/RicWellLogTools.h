@@ -18,7 +18,7 @@
 
 #pragma once
 
-class RimEclipseWell;
+class RimSimWellInView;
 class RimView;
 class RimWellLogExtractionCurve;
 class RimWellLogFileChannel;
@@ -35,14 +35,14 @@ class RicWellLogTools
 {
 public:
     static RimWellLogTrack*             selectedWellLogPlotTrack();
-    static RimEclipseWell*              selectedSimulationWell(int *branchIndex);
+    static RimSimWellInView*            selectedSimulationWell(int *branchIndex);
     static RimWellPath*                 selectedWellPath();
     static bool                         wellHasRftData(const QString& wellName);
 
     static void                         addWellLogChannelsToPlotTrack(RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels);
     static RimWellPath*                 selectedWellPathWithLogFile();
 
-    static RimWellLogExtractionCurve*   addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimEclipseWell* simWell, int branchIndex);
-    static RimWellLogRftCurve*          addRftCurve(RimWellLogTrack* plotTrack, const RimEclipseWell* simWell);
+    static RimWellLogExtractionCurve*   addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex);
+    static RimWellLogRftCurve*          addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell);
     static RimWellLogFileCurve*         addFileCurve(RimWellLogTrack* plotTrack);
 };

@@ -29,11 +29,11 @@
 
 #include <vector>
 
-class RiuWellAllocationPlot;
-class RimEclipseWell;
+class RimEclipseResultCase;
+class RimSimWellInView;
 class RimWellLogPlot;
 class RiuTofAccumulatedPhaseFractionsPlot;
-class RimEclipseResultCase;
+class RiuWellAllocationPlot;
 
 namespace caf {
     class PdmOptionItemInfo;

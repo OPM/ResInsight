@@ -29,9 +29,9 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimLegendConfig.h"
+#include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
@@ -316,7 +316,7 @@ void RimEclipseCellColors::updateLegendData(size_t currentTimeStep)
             int tracerIndex = 0;
             for (const auto& tracerName : tracerNames)
             {
-                RimEclipseWell* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
+                RimSimWellInView* well = m_reservoirView->wellCollection()->findWell(RimFlowDiagSolution::removeCrossFlowEnding(tracerName));
                 cvf::Color3ub color(cvf::Color3::GRAY);
                 if (well) color = cvf::Color3ub(well->wellPipeColor());
 

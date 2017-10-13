@@ -21,7 +21,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimEclipseWell;
+class RimSimWellInView;
 class RimView;
 class RimWellLogExtractionCurve;
 class RimWellLogTrack;
@@ -46,7 +46,7 @@ protected:
 private:
     RimWellLogTrack*    selectedWellLogPlotTrack() const;
     RimWellPath*        selectedWellPath() const;
-    RimEclipseWell*     selectedSimulationWell(int * branchIndex) const;
+    RimSimWellInView*     selectedSimulationWell(int * branchIndex) const;
     bool                caseAvailable() const;
 };
 

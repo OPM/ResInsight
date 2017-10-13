@@ -27,16 +27,16 @@
 
 #include <QPointer>
 
+class RigSingleWellResultsData;
 class RimEclipseResultCase;
-class RimEclipseWell;
 class RimFlowDiagSolution;
+class RimSimWellInView;
+class RimTofAccumulatedPhaseFractionsPlot;
 class RimTotalWellAllocationPlot;
 class RimWellAllocationPlotLegend;
 class RimWellLogPlot;
-class RiuWellAllocationPlot;
 class RimWellLogTrack;
-class RimTofAccumulatedPhaseFractionsPlot;
-class RigSingleWellResultsData;
+class RiuWellAllocationPlot;
 
 namespace cvf {
     class Color3f;
@@ -61,7 +61,7 @@ public:
     RimWellAllocationPlot();
     virtual ~RimWellAllocationPlot();
 
-    void                                            setFromSimulationWell(RimEclipseWell* simWell);
+    void                                            setFromSimulationWell(RimSimWellInView* simWell);
 
     void                                            setDescription(const QString& description);
     QString                                         description() const;

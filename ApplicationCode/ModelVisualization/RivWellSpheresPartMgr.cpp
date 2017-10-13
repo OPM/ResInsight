@@ -25,8 +25,8 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 
 #include "RiuViewer.h"
 
@@ -49,7 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellSpheresPartMgr::RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimEclipseWell* well)
+RivWellSpheresPartMgr::RivWellSpheresPartMgr(RimEclipseView* reservoirView, RimSimWellInView* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;

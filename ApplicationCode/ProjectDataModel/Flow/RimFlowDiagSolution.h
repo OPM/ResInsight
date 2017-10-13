@@ -25,8 +25,8 @@
 #include "cvfObject.h"
 #include "cvfColor3.h"
 
-class RimEclipseWell;
 class RigFlowDiagResults;
+class RimSimWellInView;
 
 //==================================================================================================
 ///  

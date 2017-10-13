@@ -22,11 +22,11 @@
 
 #include "RimCase.h"
 #include "RimEclipseResultCase.h"
-#include "RimEclipseWell.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimWellLogExtractionCurve.h"
-#include "RimWellLogFileCurve.h"
 #include "RimWellLogFileChannel.h"
+#include "RimWellLogFileCurve.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -54,7 +54,7 @@ RimWellLogTrack* RicWellLogTools::selectedWellLogPlotTrack()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWell* RicWellLogTools::selectedSimulationWell(int *branchIndex)
+RimSimWellInView* RicWellLogTools::selectedSimulationWell(int *branchIndex)
 {
     RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
@@ -65,7 +65,7 @@ RimEclipseWell* RicWellLogTools::selectedSimulationWell(int *branchIndex)
     }
     else
     {
-        std::vector<RimEclipseWell*> selection;
+        std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType(&selection);
         (*branchIndex) = 0;
         return selection.size() > 0 ? selection[0] : nullptr;
@@ -146,7 +146,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimEclipseWell* simWell, int branchIndex)
+RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* plotTrack, RimView* view, RimWellPath* wellPath, const RimSimWellInView* simWell, int branchIndex)
 {
     CVF_ASSERT(plotTrack);
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve();
@@ -175,7 +175,7 @@ RimWellLogExtractionCurve* RicWellLogTools::addExtractionCurve(RimWellLogTrack* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, const RimEclipseWell* simWell)
+RimWellLogRftCurve* RicWellLogTools::addRftCurve(RimWellLogTrack* plotTrack, const RimSimWellInView* simWell)
 {
     CVF_ASSERT(plotTrack);
 

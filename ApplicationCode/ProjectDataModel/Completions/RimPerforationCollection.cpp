@@ -19,10 +19,10 @@
 
 #include "RimPerforationCollection.h"
 
-#include "RimEclipseWell.h"
 #include "RimPerforationInterval.h"
-#include "RimView.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimView.h"
 
 #include "RigWellPath.h"
 

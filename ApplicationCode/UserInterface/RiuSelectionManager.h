@@ -28,17 +28,17 @@
 #include <vector>
 #include <assert.h>
 #include <array>
-#include "RimEclipseWell.h"
 // #include "RivWellPathSourceInfo.h"
 // #include "RivWellPipeSourceInfo.h"
 
 class RimEclipseView;
+class RimGeoMechView;
+class RimSimWellInView;
+class RimWellPath;
 class RiuSelectionChangedHandler;
 class RiuSelectionItem;
-class RimGeoMechView;
-class RimWellPath;
-class RivWellPathSourceInfo;
 class RivSimWellPipeSourceInfo;
+class RivWellPathSourceInfo;
 
 //==================================================================================================
 //
@@ -223,7 +223,7 @@ public:
 class RiuSimWellSelectionItem : public RiuSelectionItem
 {
 public:
-    explicit RiuSimWellSelectionItem(RimEclipseWell* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
+    explicit RiuSimWellSelectionItem(RimSimWellInView* simwell, cvf::Vec3d domainCoord, size_t branchIndex);
 
 
     virtual ~RiuSimWellSelectionItem() {};
@@ -234,7 +234,7 @@ public:
     }
 
 public:
-    RimEclipseWell* m_simWell;
+    RimSimWellInView* m_simWell;
     cvf::Vec3d      m_domainCoord;
     size_t          m_branchIndex;
 };

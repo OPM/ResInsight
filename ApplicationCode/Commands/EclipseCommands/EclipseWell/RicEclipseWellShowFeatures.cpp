@@ -20,8 +20,8 @@
 
 #include "RicEclipseWellFeatureImpl.h"
 
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 
 #include <QAction>
 
@@ -34,8 +34,8 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowLabelFeature, "RicEclipseWellShowLabelFeat
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowLabelFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    for (RimEclipseWell* w : selection)
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    for (RimSimWellInView* w : selection)
     {
         w->showWellLabel.setValueWithFieldChanged(isChecked);
     }
@@ -64,10 +64,10 @@ bool RicEclipseWellShowLabelFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowLabelFeature::isCommandChecked()
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* well = selection[0];
+        RimSimWellInView* well = selection[0];
 
         return well->showWellLabel();
     }
@@ -89,8 +89,8 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowHeadFeature, "RicEclipseWellShowHeadFeatur
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowHeadFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    for (RimEclipseWell* w : selection)
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    for (RimSimWellInView* w : selection)
     {
         w->showWellHead.setValueWithFieldChanged(isChecked);
     }
@@ -119,10 +119,10 @@ bool RicEclipseWellShowHeadFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowHeadFeature::isCommandChecked()
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* well = selection[0];
+        RimSimWellInView* well = selection[0];
 
         return well->showWellHead();
     }
@@ -145,8 +145,8 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowPipeFeature, "RicEclipseWellShowPipeFeatur
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowPipeFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    for (RimEclipseWell* w : selection)
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    for (RimSimWellInView* w : selection)
     {
         w->showWellPipe.setValueWithFieldChanged(isChecked);
     }
@@ -175,10 +175,10 @@ bool RicEclipseWellShowPipeFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowPipeFeature::isCommandChecked()
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* well = selection[0];
+        RimSimWellInView* well = selection[0];
 
         return well->showWellPipe();
     }
@@ -201,8 +201,8 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowSpheresFeature, "RicEclipseWellShowSpheres
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowSpheresFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    for (RimEclipseWell* w : selection)
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    for (RimSimWellInView* w : selection)
     {
         w->showWellSpheres.setValueWithFieldChanged(isChecked);
     }
@@ -231,10 +231,10 @@ bool RicEclipseWellShowSpheresFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowSpheresFeature::isCommandChecked()
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* well = selection[0];
+        RimSimWellInView* well = selection[0];
 
         return well->showWellSpheres();
     }
@@ -256,8 +256,8 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowWellCellsFeature, "RicEclipseWellShowWellC
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowWellCellsFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    for (RimEclipseWell* w : selection)
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    for (RimSimWellInView* w : selection)
     {
         w->showWellCells.setValueWithFieldChanged(isChecked);
     }
@@ -286,10 +286,10 @@ bool RicEclipseWellShowWellCellsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellsFeature::isCommandChecked()
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* well = selection[0];
+        RimSimWellInView* well = selection[0];
 
         return well->showWellCells();
     }
@@ -310,8 +310,8 @@ CAF_CMD_SOURCE_INIT(RicEclipseWellShowWellCellFenceFeature, "RicEclipseWellShowW
 //--------------------------------------------------------------------------------------------------
 void RicEclipseWellShowWellCellFenceFeature::onActionTriggered(bool isChecked)
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
-    for (RimEclipseWell* w : selection)
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    for (RimSimWellInView* w : selection)
     {
         w->showWellCellFence.setValueWithFieldChanged(isChecked);
     }
@@ -340,10 +340,10 @@ bool RicEclipseWellShowWellCellFenceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 bool RicEclipseWellShowWellCellFenceFeature::isCommandChecked()
 {
-    std::vector<RimEclipseWell*> selection = RicEclipseWellFeatureImpl::selectedWells();
+    std::vector<RimSimWellInView*> selection = RicEclipseWellFeatureImpl::selectedWells();
     if (selection.size() > 0)
     {
-        RimEclipseWell* well = selection[0];
+        RimSimWellInView* well = selection[0];
 
         return well->showWellCellFence();
     }

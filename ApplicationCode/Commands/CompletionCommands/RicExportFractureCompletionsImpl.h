@@ -29,8 +29,8 @@ class RicExportCompletionDataSettingsUi;
 class QTextStream;
 class RigWellPath;
 class RimEclipseCase;
-class RimEclipseWell;
 class RimFracture;
+class RimSimWellInView;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -43,7 +43,7 @@ public:
                                                                            QTextStream* outputStreamForIntermediateResultsText);
 
     static std::vector<RigCompletionData> generateCompdatValuesForSimWell(RimEclipseCase* eclipseCase,
-                                                                          const RimEclipseWell* well,
+                                                                          const RimSimWellInView* well,
                                                                           QTextStream* outputStreamForIntermediateResultsText);
 
 private:

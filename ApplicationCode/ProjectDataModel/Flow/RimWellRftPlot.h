@@ -33,20 +33,20 @@
 #include <set>
 #include <map>
 
-class RimEclipseResultCase;
-class RimEclipseCase;
-class RimEclipseWell;
-class RimFlowDiagSolution;
-class RimTotalWellAllocationPlot;
-class RimWellLogPlot;
-class RiuWellRftPlot;
-class RimWellLogTrack;
-class RimTofAccumulatedPhaseFractionsPlot;
 class RigSingleWellResultsData;
-class RimWellLogFileChannel;
-class RimWellPath;
-class RimWellLogCurve;
 class RigWellPath;
+class RimEclipseCase;
+class RimEclipseResultCase;
+class RimFlowDiagSolution;
+class RimSimWellInView;
+class RimTofAccumulatedPhaseFractionsPlot;
+class RimTotalWellAllocationPlot;
+class RimWellLogCurve;
+class RimWellLogFileChannel;
+class RimWellLogPlot;
+class RimWellLogTrack;
+class RimWellPath;
+class RiuWellRftPlot;
 
 namespace cvf {
     class Color3f;

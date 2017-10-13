@@ -21,8 +21,8 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
 
 #include "RigSingleWellResultsData.h"

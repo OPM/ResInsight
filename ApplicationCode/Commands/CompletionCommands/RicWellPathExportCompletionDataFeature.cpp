@@ -38,6 +38,7 @@
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
 
+#include "RimEclipseWellCollection.h"
 #include "RimFishboneWellPath.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
@@ -45,8 +46,7 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimEclipseWell.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathCompletions.h"
@@ -71,7 +71,7 @@ CAF_CMD_SOURCE_INIT(RicWellPathExportCompletionDataFeature, "RicWellPathExportCo
 bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    std::vector<RimEclipseWell*> simWells = selectedSimWells();
+    std::vector<RimSimWellInView*> simWells = selectedSimWells();
 
     if (wellPaths.empty() && simWells.empty())
     {
@@ -104,7 +104,7 @@ bool RicWellPathExportCompletionDataFeature::isCommandEnabled()
 void RicWellPathExportCompletionDataFeature::onActionTriggered(bool isChecked)
 {
     std::vector<RimWellPath*> wellPaths = selectedWellPaths();
-    std::vector<RimEclipseWell*> simWells = selectedSimWells();
+    std::vector<RimSimWellInView*> simWells = selectedSimWells();
 
     CVF_ASSERT(wellPaths.size() > 0 || simWells.size() > 0);
 
@@ -199,9 +199,9 @@ bool RicWellPathExportCompletionDataFeature::noWellPathsSelectedDirectly()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEclipseWell*> RicWellPathExportCompletionDataFeature::selectedSimWells()
+std::vector<RimSimWellInView*> RicWellPathExportCompletionDataFeature::selectedSimWells()
 {
-    std::vector<RimEclipseWell*> simWells;
+    std::vector<RimSimWellInView*> simWells;
     caf::SelectionManager::instance()->objectsByType(&simWells);
 
     std::vector<RimEclipseWellCollection*> simWellCollections;
@@ -215,7 +215,7 @@ std::vector<RimEclipseWell*> RicWellPathExportCompletionDataFeature::selectedSim
         }
     }
 
-    std::set<RimEclipseWell*> uniqueSimWells(simWells.begin(), simWells.end());
+    std::set<RimSimWellInView*> uniqueSimWells(simWells.begin(), simWells.end());
     simWells.assign(uniqueSimWells.begin(), uniqueSimWells.end());
 
     return simWells;
@@ -225,7 +225,7 @@ std::vector<RimEclipseWell*> RicWellPathExportCompletionDataFeature::selectedSim
 /// 
 //--------------------------------------------------------------------------------------------------
 void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector<RimWellPath*>& wellPaths,
-                                                               const std::vector<RimEclipseWell*>& simWells,
+                                                               const std::vector<RimSimWellInView*>& simWells,
                                                                const RicExportCompletionDataSettingsUi& exportSettings)
 {
 
@@ -262,7 +262,7 @@ void RicWellPathExportCompletionDataFeature::exportCompletions(const std::vector
                 break;
             }
         }
-        for (const RimEclipseWell* simWell : simWells)
+        for (const RimSimWellInView* simWell : simWells)
         {
             RimEclipseCase* eclipseCase;
             simWell->firstAncestorOrThisOfType(eclipseCase);

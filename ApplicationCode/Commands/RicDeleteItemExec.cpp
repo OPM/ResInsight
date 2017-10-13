@@ -24,11 +24,11 @@
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseWell.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
 #include "RimView.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogPlot.h"
@@ -126,7 +126,7 @@ void RicDeleteItemExec::redo()
         }
 
         // SimWell Fractures
-        RimEclipseWell* eclipseWell;
+        RimSimWellInView* eclipseWell;
         parentObj->firstAncestorOrThisOfType(eclipseWell);
         if (view && eclipseWell)
         {

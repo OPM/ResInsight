@@ -32,16 +32,16 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWell.h"
 #include "RimEclipseWellCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
+#include "RimSimWellInView.h"
+#include "RimTofAccumulatedPhaseFractionsPlot.h"
 #include "RimTotalWellAllocationPlot.h"
+#include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-#include "RimWellAllocationPlotLegend.h"
-#include "RimTofAccumulatedPhaseFractionsPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellAllocationPlot.h"
@@ -127,7 +127,7 @@ RimWellAllocationPlot::~RimWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::setFromSimulationWell(RimEclipseWell* simWell)
+void RimWellAllocationPlot::setFromSimulationWell(RimSimWellInView* simWell)
 {
     RimEclipseView* eclView;
     simWell->firstAncestorOrThisOfType(eclView);
