@@ -45,6 +45,8 @@
 #include "RiuWellRftPlot.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include <tuple>
+#include <algorithm>
+#include <iterator>
 
 CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 
@@ -212,18 +214,26 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateEditorsFromCurves()
 {
-    std::set<RimWellRftAddress> selectedSources;
-    std::set<QDateTime>         selectedTimeSteps;
+    std::set<RimWellRftAddress>                         selectedSources;
+    std::set<QDateTime>                                 selectedTimeSteps;
+    std::map<QDateTime, std::set<RimWellRftAddress>>    selectedTimeStepsMap;
 
     const auto& curveDefs = curveDefsFromCurves();
     for (const auto& curveDef : curveDefs)
     {
         selectedSources.insert(curveDef.first);
+
+        auto newTimeStepMap = std::map<QDateTime, std::set<RimWellRftAddress>>
+        {
+            { curveDef.second, std::set<RimWellRftAddress> { curveDef.first} }
+        };
+        addTimeStepsToMap(selectedTimeStepsMap, newTimeStepMap);
         selectedTimeSteps.insert(curveDef.second);
     }
 
     m_selectedSources = std::vector<RimWellRftAddress>(selectedSources.begin(), selectedSources.end());
     m_selectedTimeSteps = std::vector<QDateTime>(selectedTimeSteps.begin(), selectedTimeSteps.end());
+    addTimeStepsToMap(m_timeStepsToAddresses, selectedTimeStepsMap);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,39 +446,109 @@ RimWellRftPlot::rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimWellRftPlot::timeStepsFromRftCase(RimEclipseResultCase* rftCase) const
+std::map<QDateTime, std::set<RimWellRftAddress>> RimWellRftPlot::timeStepsFromRftCase(RimEclipseResultCase* rftCase) const
 {
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsMap;
     auto reader = rftCase->rftReader();
     if (reader != nullptr)
     {
-        return reader->availableTimeSteps(m_wellName, RifEclipseRftAddress::PRESSURE);
+        for (const auto& timeStep : reader->availableTimeSteps(m_wellName, RifEclipseRftAddress::PRESSURE))
+        {
+            if (timeStepsMap.count(timeStep) == 0)
+            {
+                timeStepsMap.insert(std::make_pair(timeStep, std::set<RimWellRftAddress>()));
+            }
+            timeStepsMap[timeStep].insert(RimWellRftAddress(RftSourceType::RFT, rftCase->caseId));
+        }
     }
-    return std::vector<QDateTime>();
+    return timeStepsMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimWellRftPlot::timeStepsFromGridCase(const RimEclipseCase* gridCase) const
+std::map<QDateTime, std::set<RimWellRftAddress>> RimWellRftPlot::timeStepsFromGridCase(const RimEclipseCase* gridCase) const
 {
     auto eclipseCaseData = gridCase->eclipseCaseData();
-    size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
-        findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME);
-    return eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultIndex);
+    size_t resultIndex = eclipseCaseData != nullptr ? 
+        eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME) :
+        cvf::UNDEFINED_SIZE_T;
+
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsMap;
+    if (resultIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        for (const auto& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultIndex))
+        {
+            if (timeStepsMap.count(timeStep) == 0)
+            {
+                timeStepsMap.insert(std::make_pair(timeStep, std::set<RimWellRftAddress>()));
+            }
+            timeStepsMap[timeStep].insert(RimWellRftAddress(RftSourceType::GRID, gridCase->caseId));
+        }
+    }
+    return timeStepsMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimWellRftPlot::timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const
+std::map<QDateTime, std::set<RimWellRftAddress>> RimWellRftPlot::timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const
 {
-    std::set<QDateTime> dates;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsMap;
     for (const auto& wellPath : wellPaths)
     {
         auto wellLogFile = wellPath->wellLogFile();
-        dates.insert(RiaDateStringParser::parseDateString(wellLogFile->date()));
+        auto timeStep = RiaDateStringParser::parseDateString(wellLogFile->date());
+
+        if (timeStepsMap.count(timeStep) == 0)
+        {
+            timeStepsMap.insert(std::make_pair(timeStep, std::set<RimWellRftAddress>()));
+        }
+        timeStepsMap[timeStep].insert(RimWellRftAddress(RftSourceType::OBSERVED));
     }
-    return std::vector<QDateTime>(dates.begin(), dates.end());
+    return timeStepsMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::map<QDateTime, std::set<RimWellRftAddress>> 
+RimWellRftPlot::adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>& allTimeSteps,
+                                  const std::pair<QDateTime, std::set<RimWellRftAddress>>& searchTimeStepPair)
+{
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsMap;
+
+    if (allTimeSteps.size() > 0)
+    {
+        auto itr = std::find_if(allTimeSteps.begin(), allTimeSteps.end(), 
+                                [searchTimeStepPair](const std::pair<QDateTime, std::set<RimWellRftAddress>>& dt)
+        {
+            return dt.first > searchTimeStepPair.first;
+        });
+
+        auto itrEnd = itr != allTimeSteps.end() ? itr + 1 : itr;
+
+        for (itr = itrEnd - 1; itr != allTimeSteps.begin() && (*itr).first >= searchTimeStepPair.first; itr--);
+        auto itrFirst = itr;
+
+        timeStepsMap.insert(itrFirst, itrEnd);
+    }
+
+    // Add searched time step in case it is not included
+    addTimeStepToMap(timeStepsMap, searchTimeStepPair);
+
+    return timeStepsMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::mapContainsTimeStep(const std::map<QDateTime, std::set<RimWellRftAddress>>& map, const QDateTime& timeStep)
+{
+    return std::find_if(map.begin(), map.end(), [timeStep](const std::pair<QDateTime, std::set<RimWellRftAddress>>& pair)
+    {
+        return pair.first == timeStep;
+    }) != map.end();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,7 +562,7 @@ std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurv
     auto gridCases = gridCasesFromEclipseCases(eclipseCases);
     auto wellPaths = wellPathsContainingPressure(m_wellName);
 
-    for (const auto& selectedDate : m_selectedTimeSteps())
+    for (const auto& timeStep : m_selectedTimeSteps())
     {
         for (const auto& rftAddr : m_selectedSources())
         {
@@ -491,9 +571,9 @@ std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurv
                 for (const auto& rftCase : rftCases)
                 {
                     const auto& timeSteps = timeStepsFromRftCase(rftCase);
-                    if (std::find(timeSteps.begin(), timeSteps.end(), selectedDate) != timeSteps.end())
+                    if (mapContainsTimeStep(timeSteps, timeStep))
                     {
-                        curveDefs.insert(std::make_pair(rftAddr, selectedDate));
+                        curveDefs.insert(std::make_pair(rftAddr, timeStep));
                     }
                 }
             }
@@ -502,18 +582,18 @@ std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurv
                 for (const auto& gridCase : gridCases)
                 {
                     const auto& timeSteps = timeStepsFromGridCase(gridCase);
-                    if (std::find(timeSteps.begin(), timeSteps.end(), selectedDate) != timeSteps.end())
+                    if (mapContainsTimeStep(timeSteps, timeStep))
                     {
-                        curveDefs.insert(std::make_pair(rftAddr, selectedDate));
+                        curveDefs.insert(std::make_pair(rftAddr, timeStep));
                     }
                 }
             }
             else if (rftAddr.sourceType() == RftSourceType::OBSERVED)
             {
                 const auto& timeSteps = timeStepsFromWellPaths(wellPaths);
-                if (std::find(timeSteps.begin(), timeSteps.end(), selectedDate) != timeSteps.end())
+                if (mapContainsTimeStep(timeSteps, timeStep))
                 {
-                    curveDefs.insert(std::make_pair(rftAddr, selectedDate));
+                    curveDefs.insert(std::make_pair(rftAddr, timeStep));
                 }
             }
         }
@@ -561,11 +641,13 @@ std::pair<RimWellRftAddress, QDateTime> RimWellRftPlot::curveDefFromCurve(const 
         if (gridCase != nullptr)
         {
             size_t timeStepIndex = gridCurve->currentTimeStep();
-            auto timeSteps = timeStepsFromGridCase(gridCase);
-            if (timeStepIndex < timeSteps.size())
+            auto timeStepsMap = timeStepsFromGridCase(gridCase);
+            auto timeStepsVector = std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>(
+                timeStepsMap.begin(), timeStepsMap.end());
+            if (timeStepIndex < timeStepsMap.size())
             {
                 return std::make_pair(RimWellRftAddress(RftSourceType::GRID, gridCase->caseId),
-                                      timeSteps[timeStepIndex]);
+                                      timeStepsVector[timeStepIndex].first);
             }
         }
     }
@@ -638,7 +720,8 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
 
                 // Time step
                 auto timeSteps = timeStepsFromGridCase(gridCase);
-                auto currentTimeStepIt = std::find(timeSteps.begin(), timeSteps.end(), curveDefToAdd.second);
+                auto currentTimeStepIt = std::find_if(timeSteps.begin(), timeSteps.end(), 
+                                                      [curveDefToAdd](std::pair<QDateTime, std::set<RimWellRftAddress>> pair) {return pair.first == curveDefToAdd.second; });
                 auto currentTimeStep = std::distance(timeSteps.begin(), currentTimeStepIt);
                 curve->setCurrentTimeStep(currentTimeStep);
 
@@ -663,6 +746,32 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::isOnlyGridSourcesSelected() const
+{
+    const auto& selSources = m_selectedSources();
+    return std::find_if(selSources.begin(), selSources.end(), [](const RimWellRftAddress& addr)
+    {
+        return addr.sourceType() == RftSourceType::RFT || addr.sourceType() == RftSourceType::OBSERVED;
+    }) == selSources.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellRftPlot::isAnySourceAddressSelected(const std::set<RimWellRftAddress>& addresses) const
+{
+    const auto& selectedSourcesVector = m_selectedSources();
+    const auto selectedSources = std::set<RimWellRftAddress>(selectedSourcesVector.begin(), selectedSourcesVector.end());
+    std::vector<RimWellRftAddress> intersectVector;
+
+    std::set_intersection(selectedSources.begin(), selectedSources.end(),
+                          addresses.begin(), addresses.end(), std::inserter(intersectVector, intersectVector.end()));
+    return intersectVector.size() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -840,6 +949,7 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         {
             plotTrack->removeCurve(curve);
         }
+        m_timeStepsToAddresses.clear();
         updateEditorsFromCurves();
     }
     else if (changedField == &m_selectedSources ||
@@ -897,6 +1007,40 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::addTimeStepToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
+                                       const std::pair<QDateTime, std::set<RimWellRftAddress>>& timeStepToAdd)
+{
+    auto timeStepMapToAdd = std::map<QDateTime, std::set<RimWellRftAddress>>
+    {
+        timeStepToAdd
+    };
+    addTimeStepsToMap(destMap, timeStepMapToAdd);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::addTimeStepsToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap, 
+                                       const std::map<QDateTime, std::set<RimWellRftAddress>>& timeStepsToAdd)
+{
+    for (const auto& timeStepPair : timeStepsToAdd)
+    {
+        if (timeStepPair.first.isValid())
+        {
+            if (destMap.count(timeStepPair.first) == 0)
+            {
+                destMap.insert(std::make_pair(timeStepPair.first, std::set<RimWellRftAddress>()));
+            }
+            auto addresses = timeStepPair.second;
+            destMap[timeStepPair.first].insert(addresses.begin(), addresses.end());
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options)
 {
     RimProject * proj = RiaApplication::instance()->project();
@@ -928,7 +1072,7 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options)
 {
-    std::set<QDateTime> dates;
+    std::map<QDateTime, std::set<RimWellRftAddress>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
     const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(wellName);
     auto rftCases = rftCasesFromEclipseCases(eclipseCases);
     auto gridCases = gridCasesFromEclipseCases(eclipseCases);
@@ -940,44 +1084,54 @@ void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
         {
             for (const auto& rftCase : rftCases)
             {
-                for (const auto& date : timeStepsFromRftCase(rftCase))
-                {
-                    if (date.isValid())
-                    {
-                        dates.insert(date);
-                    }
-                }
+                addTimeStepsToMap(obsAndRftTimeStepsMap, timeStepsFromRftCase(rftCase));
             }
         }
         else if (selection.sourceType() == RimWellRftAddress(RftSourceType::GRID))
         {
             for (const auto& gridCase : gridCases)
             {
-                for (const auto& date : timeStepsFromGridCase(gridCase))
-                {
-                    if (date.isValid())
-                    {
-                        dates.insert(date);
-                    }
-                }
+                addTimeStepsToMap(gridTimeStepsMap, timeStepsFromGridCase(gridCase));
             }
         }
         else if (selection.sourceType() == RimWellRftAddress(RftSourceType::OBSERVED))
         {
-            for (const auto& date : timeStepsFromWellPaths(observedWellPaths))
+            addTimeStepsToMap(obsAndRftTimeStepsMap, timeStepsFromWellPaths(observedWellPaths));
+        }
+    }
+
+    if (isOnlyGridSourcesSelected())
+    {
+        displayTimeStepsMap = gridTimeStepsMap;
+    }
+    else
+    {
+        for (const auto& timeStepPair : obsAndRftTimeStepsMap)
+        {
+            const auto gridTimeStepsVector = std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>(gridTimeStepsMap.begin(), gridTimeStepsMap.end());
+            const auto& adjTimeSteps = adjacentTimeSteps(gridTimeStepsVector, timeStepPair);
+            addTimeStepsToMap(displayTimeStepsMap, adjTimeSteps);
+        }
+
+        // Add already selected time steps
+        for (const auto& timeStep : m_selectedTimeSteps())
+        {
+            if (m_timeStepsToAddresses.count(timeStep) > 0)
             {
-                if (date.isValid())
+                auto sourceAddresses = m_timeStepsToAddresses[timeStep];
+                if (isAnySourceAddressSelected(sourceAddresses))
                 {
-                    dates.insert(date);
+                    displayTimeStepsMap.insert(std::make_pair(timeStep, m_timeStepsToAddresses[timeStep]));
                 }
             }
         }
     }
 
-    for (const auto& date : dates)
+    for (const auto& timeStepPair : displayTimeStepsMap)
     {
-        options.push_back(caf::PdmOptionItemInfo(date.toString(RimTools::dateFormatString()), date));
+        options.push_back(caf::PdmOptionItemInfo(timeStepPair.first.toString(RimTools::dateFormatString()), timeStepPair.first));
     }
+    addTimeStepsToMap(m_timeStepsToAddresses, displayTimeStepsMap);
 }
 
 //--------------------------------------------------------------------------------------------------

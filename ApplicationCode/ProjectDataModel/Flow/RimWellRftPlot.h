@@ -30,6 +30,8 @@
 #include <QPointer>
 #include <QDate>
 #include <QMetaType>
+#include <set>
+#include <map>
 
 class RimEclipseResultCase;
 class RimEclipseCase;
@@ -101,6 +103,10 @@ protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    void                                            addTimeStepToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
+                                                                     const std::pair<QDateTime, std::set<RimWellRftAddress>>& timeStepToAdd);
+    void                                            addTimeStepsToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
+                                                                      const std::map<QDateTime, std::set<RimWellRftAddress>>& timeStepsToAdd);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 
@@ -118,9 +124,12 @@ private:
     std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesContainingPressure(const QString& wellName) const;
     std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    std::vector<QDateTime>                          timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    std::vector<QDateTime>                          timeStepsFromGridCase(const RimEclipseCase* gridCase) const; 
-    std::vector<QDateTime>                          timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(const RimEclipseCase* gridCase) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>& allTimeSteps, 
+                                                                       const std::pair<QDateTime, std::set<RimWellRftAddress>>& searchTimeStepPair);
+    static bool                                      mapContainsTimeStep(const std::map<QDateTime, std::set<RimWellRftAddress>>& map, const QDateTime& timeStep);
 
     std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
     std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
@@ -128,6 +137,9 @@ private:
     void                                            updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& allCurveDefs,
                                                                        const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefsToAdd,
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);
+    bool                                            isOnlyGridSourcesSelected() const;
+    bool                                            isAnySourceAddressSelected(const std::set<RimWellRftAddress>& addresses) const;
+
     // RimViewWindow overrides
 
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
@@ -148,4 +160,6 @@ private:
     QPointer<RiuWellRftPlot>                        m_wellLogPlotWidget;
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
+
+    std::map<QDateTime, std::set<RimWellRftAddress>> m_timeStepsToAddresses;
 };
