@@ -29,6 +29,7 @@ class QMinimizePanel;
 class QString;
 class QVBoxLayout;
 class QHBoxLayout;
+class QPushButton;
 
 namespace caf {
     class PdmUiItem;
@@ -42,6 +43,8 @@ namespace caf {
 //==================================================================================================
 class RicSummaryCurveCalculatorEditor : public caf::PdmUiWidgetBasedObjectEditor
 {
+    Q_OBJECT
+
 public:
     RicSummaryCurveCalculatorEditor();
     ~RicSummaryCurveCalculatorEditor();
@@ -54,9 +57,16 @@ private:
 
     QMinimizePanel*     updateGroupBoxWithContent(caf::PdmUiGroup* group, const QString& uiConfigName);
 
+private slots:
+    void                slotCalculate();
+    void                slotParseExpression();
+
 private:
     QPointer<QHBoxLayout>   m_firstRowLeftLayout;
     QPointer<QVBoxLayout>   m_firstRowRightLayout;
+
+    QPointer<QHBoxLayout>   m_parseButtonLayout;
+    QPointer<QHBoxLayout>   m_calculateButtonLayout;
 
     caf::PdmUiTableView* m_pdmTableView;
 

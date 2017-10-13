@@ -36,10 +36,13 @@ class RicSummaryCurveCalculator : public caf::PdmObject
 public:
     RicSummaryCurveCalculator();
 
-    static QString calculatedSummariesGroupName();
-    static QString calulationGroupName();
+    static QString  calculatedSummariesGroupName();
+    static QString  calulationGroupName();
 
     RimCalculation* currentCalculation() const;
+
+    void            parseExpression();
+    void            calculate() const;
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
@@ -59,10 +62,4 @@ private:
     
     caf::PdmField<bool>                 m_newCalculation;
     caf::PdmField<bool>                 m_deleteCalculation;
-
-    caf::PdmField<bool>                 m_newVariable;
-    caf::PdmField<bool>                 m_deleteVariable;
-
-    caf::PdmField<bool>                 m_parseExpression;
-    caf::PdmField<bool>                 m_calculateExpression;
 };

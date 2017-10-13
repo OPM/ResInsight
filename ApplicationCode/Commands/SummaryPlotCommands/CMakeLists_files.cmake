@@ -70,6 +70,7 @@ ${SOURCE_GROUP_SOURCE_FILES}
 list(APPEND QT_MOC_HEADERS
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorSplitterUi.h
 ${CEE_CURRENT_LIST_DIR}RicSummaryCurveCreatorDialog.h
+${CEE_CURRENT_LIST_DIR}RicSummaryCurveCalculatorEditor.h
 )
 
 

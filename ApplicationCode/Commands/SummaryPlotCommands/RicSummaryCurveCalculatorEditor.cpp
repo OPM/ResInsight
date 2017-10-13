@@ -27,6 +27,7 @@
 
 #include <QBoxLayout>
 #include <QHeaderView>
+#include <QPushButton>
 #include <QSplitter>
 #include <QTableView>
 
@@ -64,6 +65,7 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
 {
     if (!m_firstRowLeftLayout || !m_firstRowRightLayout) return;
 
+    int layoutItemIndex = 0;
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
     {
         if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
@@ -79,10 +81,12 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
             }
             else if (group->keyword() == RicSummaryCurveCalculator::calulationGroupName())
             {
-                m_firstRowRightLayout->addWidget(groupBox);
+                m_firstRowRightLayout->insertWidget(layoutItemIndex++, groupBox);
             }
         }
     }
+
+    m_firstRowRightLayout->insertLayout(layoutItemIndex++, m_parseButtonLayout);
 
     if (m_calculator->currentCalculation())
     {
@@ -91,7 +95,8 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
     else
         m_pdmTableView->setListField(nullptr);
 
-    m_firstRowRightLayout->addWidget(m_pdmTableView);
+    m_firstRowRightLayout->insertWidget(layoutItemIndex++, m_pdmTableView);
+    m_firstRowRightLayout->insertLayout(layoutItemIndex++, m_calculateButtonLayout);
 
     m_pdmTableView->tableView()->resizeColumnsToContents();
 }
@@ -142,6 +147,22 @@ QWidget* RicSummaryCurveCalculatorEditor::createWidget(QWidget* parent)
 
     mainLayout->addWidget(rowSplitter);
 
+    {
+        QPushButton* pushButton = new QPushButton("Parse Expression");
+        connect(pushButton, SIGNAL(clicked()), this, SLOT(slotParseExpression()));
+        m_parseButtonLayout = new QHBoxLayout;
+        m_parseButtonLayout->addStretch(10);
+        m_parseButtonLayout->addWidget(pushButton);
+    }
+
+    {
+        QPushButton* pushButton = new QPushButton("Calculate");
+        connect(pushButton, SIGNAL(clicked()), this, SLOT(slotCalculate()));
+        m_calculateButtonLayout = new QHBoxLayout;
+        m_calculateButtonLayout->addStretch(10);
+        m_calculateButtonLayout->addWidget(pushButton);
+    }
+
     return widget;
 }
 
@@ -157,5 +178,21 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::
     const std::vector<caf::PdmUiItem*>& groupChildren = group->uiItems();
     recursivelyConfigureAndUpdateUiItemsInGridLayoutColumn(groupChildren, groupBox->contentFrame(), uiConfigName);
     return groupBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculatorEditor::slotCalculate()
+{
+    m_calculator->calculate();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculatorEditor::slotParseExpression()
+{
+    m_calculator->parseExpression();
 }
 
