@@ -27,7 +27,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeColors.h
 ${CEE_CURRENT_LIST_DIR}RimSimWellInView.h
-${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.h
+${CEE_CURRENT_LIST_DIR}RimSimWellInViewCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
@@ -42,7 +42,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
 ${CEE_CURRENT_LIST_DIR}RimTools.h
-${CEE_CURRENT_LIST_DIR}RimFault.h
+${CEE_CURRENT_LIST_DIR}RimFaultInView.h
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFormationNames.h
 ${CEE_CURRENT_LIST_DIR}RimFormationNamesCollection.h
@@ -127,7 +127,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimSimWellInView.cpp
-${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSimWellInViewCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
@@ -142,7 +142,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseStatisticsCaseEvaluator.cpp
 ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimTools.cpp
-${CEE_CURRENT_LIST_DIR}RimFault.cpp
+${CEE_CURRENT_LIST_DIR}RimFaultInView.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RimFormationNamesCollection.cpp

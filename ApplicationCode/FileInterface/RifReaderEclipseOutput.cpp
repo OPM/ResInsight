@@ -49,6 +49,8 @@
 #include "ert/ecl/ecl_nnc_geometry.h"
 #include "ert/ecl/ecl_nnc_data.h"
 
+#include <QDateTime>
+
 #include <cmath> // Needed for HUGE_VAL on Linux
 #include <iostream>
 #include <map>

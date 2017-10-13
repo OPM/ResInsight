@@ -22,6 +22,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 class QString;

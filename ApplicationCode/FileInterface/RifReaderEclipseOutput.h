@@ -34,6 +34,7 @@ class RigFault;
 class RigEclipseTimeStepInfo;
 class RigGridBase;
 class RigMainGrid;
+class QDateTime;
 
 struct RigWellResultPoint;
 

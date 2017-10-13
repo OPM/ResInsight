@@ -20,6 +20,8 @@
 
 #include "RiaLogging.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "H5Cpp.h"
 #include "H5Exception.h"
 
