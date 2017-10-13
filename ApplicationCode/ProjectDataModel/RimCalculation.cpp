@@ -113,6 +113,10 @@ caf::PdmFieldHandle* RimCalculation::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 bool RimCalculation::parseExpression()
 {
+    // The expression parser handles only variables in lower case
+    QString lowerVariant = m_expression().toLower();
+    m_expression = lowerVariant;
+
     QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
     if (leftHandSideVariableName.isEmpty()) return false;
 
@@ -151,6 +155,8 @@ bool RimCalculation::parseExpression()
             }
         }
     }
+
+    this->updateConnectedEditors();
 
     return true;
 }
@@ -242,4 +248,43 @@ RimCalculationVariable* RimCalculation::findByName(const QString& name) const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimCalculation::buildCalculationName() const
+{
+    QString name = "Default Calculation Name";
+
+    QString lhs = RimCalculation::findLeftHandSide(m_expression);
+    if (!lhs.isEmpty())
+    {
+        name = lhs;
+
+        name += " ( ";
+
+        for (RimCalculationVariable* v : m_variables)
+        {
+            name += v->summaryAddressDisplayString();
+
+            if (v != m_variables[m_variables.size() - 1])
+            {
+                name += ", ";
+            }
+        }
+
+        name += " )";
+    }
+
+    return name;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCalculation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    m_description = buildCalculationName();
 }

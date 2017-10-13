@@ -50,6 +50,8 @@ RimCalculationVariable::RimCalculationVariable()
     CAF_PDM_InitFieldNoDefault(&m_summaryAddressUi,   "SummaryAddressUi",   "Summary Address", "", "", "");
     m_summaryAddressUi.registerGetMethod(this, &RimCalculationVariable::summaryAddressDisplayString);
     m_summaryAddressUi.xmlCapability()->disableIO();
+    m_summaryAddressUi.uiCapability()->setUiReadOnly(true);
+
     
     CAF_PDM_InitFieldNoDefault(&m_case, "SummaryCase", "Summary Case", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "");

@@ -35,8 +35,8 @@ class RimCalculation : public caf::PdmObject
 public:
     RimCalculation();
 
-    void setDescription(const QString& description);
-    QString description() const;
+    void                            setDescription(const QString& description);
+    QString                         description() const;
 
     caf::PdmChildArrayFieldHandle*  variables();
     RimCalculationVariable*         addVariable();
@@ -52,6 +52,10 @@ public:
 private:
     static QString                  findLeftHandSide(const QString& expresion);
     RimCalculationVariable*         findByName(const QString& name) const;
+
+    QString                         buildCalculationName() const;
+
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<QString>                              m_description;

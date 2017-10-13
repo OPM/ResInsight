@@ -154,6 +154,14 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
+    if (!m_currentCalculation())
+    {
+        if (calculationCollection()->calculations().size() > 0)
+        {
+            m_currentCalculation = calculationCollection()->calculations()[0];
+        }
+    }
+
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword("Calculated Summaries", RicSummaryCurveCalculator::calculatedSummariesGroupName());
         group->add(&m_currentCalculation);
@@ -174,6 +182,7 @@ void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmU
 //         group->add(&m_newVariable);
 //         group->add(&m_deleteVariable);
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
