@@ -55,7 +55,7 @@ CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const char RimWellPath::SIM_WELL_NONE_NAME[] = "None";
+const char RimWellPath::SIM_WELL_NONE_UI_TEXT[] = "None";
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -305,7 +305,7 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmF
     if (fieldNeedingOptions == &m_simWellName)
     {
         RimProject* proj = RiaApplication::instance()->project();
-        options.push_back(caf::PdmOptionItemInfo(SIM_WELL_NONE_NAME, SIM_WELL_NONE_NAME));
+        options.push_back(caf::PdmOptionItemInfo(SIM_WELL_NONE_UI_TEXT, ""));
         for (const auto& wellName : proj->simulationWellNames())
         {
             options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
@@ -641,15 +641,32 @@ int RimWellPath::relatedSimulationWellBranch() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::tryAssociateWithSimulationWell()
 {
+    if (!m_simWellName().isEmpty()) return false;
+
     RimProject* proj = RiaApplication::instance()->project();
-    for (const auto& simWellName : proj->simulationWellNames())
+    const std::vector<QString>& simWellNames = proj->simulationWellNames();
+
+    // Try exact name match
+    for (const auto& simWellName : simWellNames)
     {
-        if (QString::compare(simWellName, m_name) == 0)
+        if (QString::compare(simWellName, m_name, Qt::CaseInsensitive) == 0)
         {
             m_simWellName = simWellName;
             return true;
         }
     }
+
+    // Try matching ignoring spaces
+    QString wpName = QString(m_name).remove(' ');
+    for (const auto& simWellName : simWellNames)
+    {
+        if (QString::compare(simWellName, wpName, Qt::CaseInsensitive) == 0)
+        {
+            m_simWellName = simWellName;
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -658,5 +675,5 @@ bool RimWellPath::tryAssociateWithSimulationWell()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::isAssociatedWithSimulationWell() const
 {
-    return !m_simWellName().isEmpty() && QString::compare(m_simWellName, SIM_WELL_NONE_NAME) != 0;
+    return !m_simWellName().isEmpty();
 }

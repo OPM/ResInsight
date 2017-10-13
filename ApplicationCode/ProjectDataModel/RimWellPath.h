@@ -57,7 +57,7 @@ class RimWellPath : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
-    static const char SIM_WELL_NONE_NAME[];
+    static const char SIM_WELL_NONE_UI_TEXT[];
 
 public:
 
