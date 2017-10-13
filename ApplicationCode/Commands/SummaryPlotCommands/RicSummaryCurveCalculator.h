@@ -64,4 +64,7 @@ private:
 
     caf::PdmField<bool>                 m_newVariable;
     caf::PdmField<bool>                 m_deleteVariable;
+
+    caf::PdmField<bool>                 m_parseExpression;
+    caf::PdmField<bool>                 m_calculateExpression;
 };

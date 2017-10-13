@@ -18,7 +18,15 @@
 
 #include "RimCalculation.h"
 
+#include "expressionparser/ExpressionParser.h"
+
+#include "RiaLogging.h"
 #include "RimCalculationVariable.h"
+
+#include "cafPdmUiTextEditor.h"
+
+#include <numeric>
+
 
 CAF_PDM_SOURCE_INIT(RimCalculation, "RimCalculation");
 
@@ -29,9 +37,30 @@ RimCalculation::RimCalculation()
 {
     CAF_PDM_InitObject("RimCalculation", ":/octave.png", "Calculation", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_expression, "Expression", "Expression", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_variables, "Variables", "Variables", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_description,      "Description",      "Description", "", "", "");
+    m_description.uiCapability()->setUiReadOnly(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_expression,       "Expression",       "Expression", "", "", "");
+    m_expression.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_variables,        "Variables",        "Variables", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCalculation::setDescription(const QString& description)
+{
+    m_description = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimCalculation::description() const
+{
+    return m_description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +103,143 @@ const std::vector<double>& RimCalculation::values() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculation::setCalculatedValues(const std::vector<double>& values)
+caf::PdmFieldHandle* RimCalculation::userDescriptionField()
 {
-    m_calculatedValues = values;
+    return &m_description;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCalculation::parseExpression()
+{
+    QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
+    if (leftHandSideVariableName.isEmpty()) return false;
+
+    std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables(m_expression);
+
+    // Remove variables not present in expression
+    {
+        std::vector<RimCalculationVariable*> toBeDeleted;
+        for (RimCalculationVariable* v : m_variables)
+        {
+            if (std::find(variableNames.begin(), variableNames.end(), v->name()) == variableNames.end())
+            {
+                toBeDeleted.push_back(v);
+            }
+
+            if (leftHandSideVariableName == v->name())
+            {
+                toBeDeleted.push_back(v);
+            }
+        }
+
+        for (RimCalculationVariable* v : toBeDeleted)
+        {
+            deleteVariable(v);
+        }
+    }
+
+    for (auto variableName : variableNames)
+    {
+        if (leftHandSideVariableName != variableName)
+        {
+            if (!findByName(variableName))
+            {
+                auto v = this->addVariable();
+                v->setName(variableName);
+            }
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCalculation::calculate()
+{
+    if (!parseExpression()) return false;
+
+    QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
+
+    ExpressionParser parser;
+
+    std::vector<double> a(10);
+    std::iota(a.begin(), a.end(), 0);
+    
+    size_t itemCount = 0;
+
+    for (RimCalculationVariable* v : m_variables)
+    {
+        itemCount = a.size();
+        parser.assignVector(v->name(), a);
+    }
+
+    if (itemCount == 0)
+    {
+        RiaLogging::error("Not able to evaluate expression with no data.");
+
+        return false;
+    }
+
+    m_calculatedValues.v().resize(itemCount);
+    parser.assignVector(leftHandSideVariableName, m_calculatedValues.v());
+
+    QString errorText;
+    bool evaluatedOk = parser.evaluate(m_expression, &errorText);
+
+    if (evaluatedOk)
+    {
+        QString txt;
+        for (auto v : m_calculatedValues())
+        {
+            txt += QString::number(v);
+            txt += " ";
+        }
+
+        RiaLogging::info(txt);
+    }
+    else
+    {
+        RiaLogging::error(errorText);
+    }
+
+    return evaluatedOk;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find the last assignment using := and interpret the text before the := as LHS
+//--------------------------------------------------------------------------------------------------
+QString RimCalculation::findLeftHandSide(const QString& expresion)
+{
+    QString exprWithSpace = expresion;
+    exprWithSpace.replace("\n", " ");
+
+    QStringList words = exprWithSpace.split(" ", QString::SkipEmptyParts);
+
+    int index = words.lastIndexOf(":=");
+    if (index > 0)
+    {
+        return words[index - 1];
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCalculationVariable* RimCalculation::findByName(const QString& name) const
+{
+    for (RimCalculationVariable* v : m_variables)
+    {
+        if (v->name() == name)
+        {
+            return v;
+        }
+    }
+
+    return nullptr;
 }

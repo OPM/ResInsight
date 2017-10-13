@@ -24,9 +24,9 @@
 #include "RimCalculationCollection.h"
 #include "RimProject.h"
 
-#include "cafPdmUiTreeSelectionEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCalculator, "RicSummaryCurveCalculator");
@@ -48,6 +48,12 @@ RicSummaryCurveCalculator::RicSummaryCurveCalculator()
     
     CAF_PDM_InitFieldNoDefault(&m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "");
     RicSummaryCurveCalculator::assignPushButtonEditor(&m_deleteCalculation);
+
+    CAF_PDM_InitFieldNoDefault(&m_parseExpression, "ParseExpression", "Parse", "", "", "");
+    RicSummaryCurveCalculator::assignPushButtonEditor(&m_parseExpression);
+
+    CAF_PDM_InitFieldNoDefault(&m_calculateExpression, "CalculateExpression", "Calculate", "", "", "");
+    RicSummaryCurveCalculator::assignPushButtonEditor(&m_calculateExpression);
 
     CAF_PDM_InitFieldNoDefault(&m_newVariable, "NewVariable", "New Variable", "", "", "");
     RicSummaryCurveCalculator::assignPushButtonEditor(&m_newVariable);
@@ -106,6 +112,26 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
             this->updateConnectedEditors();
         }
     }
+    else if (changedField == &m_parseExpression)
+    {
+        m_parseExpression = false;
+
+        if (m_currentCalculation())
+        {
+            m_currentCalculation()->parseExpression();
+
+            this->updateConnectedEditors();
+        }
+    }
+    else if (changedField == &m_calculateExpression)
+    {
+        m_calculateExpression = false;
+
+        if (m_currentCalculation())
+        {
+            m_currentCalculation()->calculate();
+        }
+    }
     else if (changedField == &m_newVariable)
     {
         m_newVariable = false;
@@ -142,6 +168,9 @@ void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmU
             m_currentCalculation->uiOrdering(uiConfigName, *group);
         }
 
+        group->add(&m_parseExpression);
+        group->add(&m_calculateExpression);
+
         group->add(&m_newVariable);
         group->add(&m_deleteVariable);
     }
@@ -157,7 +186,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(c
     {
         for (auto c : calculationCollection()->calculations())
         {
-            options.push_back(caf::PdmOptionItemInfo(c->name(), c));
+            options.push_back(caf::PdmOptionItemInfo(c->description(), c));
         }
     }
 
@@ -222,5 +251,13 @@ void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle*
     else if (&m_deleteVariable == field)
     {
         RicSummaryCurveCalculator::assignPushButtonEditorText(attribute, "Delete Variable");
+    }
+    else if (&m_parseExpression == field)
+    {
+        RicSummaryCurveCalculator::assignPushButtonEditorText(attribute, "Parse Expression");
+    }
+    else if (&m_calculateExpression == field)
+    {
+        RicSummaryCurveCalculator::assignPushButtonEditorText(attribute, "Calculate");
     }
 }

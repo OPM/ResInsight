@@ -40,7 +40,8 @@ class RimCalculationVariable : public caf::PdmObject
 public:
     RimCalculationVariable();
 
-
+    QString name() const;
+    void setName(const QString& name);
 
 private:
     QString summaryAddressDisplayString() const;

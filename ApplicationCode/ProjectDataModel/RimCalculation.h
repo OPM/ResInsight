@@ -18,9 +18,9 @@
 
 #pragma once
 
-#include "RimNamedObject.h"
-
 #include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
 
 class RimCalculationVariable;
 
@@ -28,21 +28,33 @@ class RimCalculationVariable;
 ///  
 ///  
 //==================================================================================================
-class RimCalculation : public RimNamedObject
+class RimCalculation : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimCalculation();
 
+    void setDescription(const QString& description);
+    QString description() const;
+
     caf::PdmChildArrayFieldHandle*  variables();
     RimCalculationVariable*         addVariable();
     void                            deleteVariable(RimCalculationVariable* calcVariable);
 
     const std::vector<double>&      values() const;
-    void                            setCalculatedValues(const std::vector<double>& values);
+
+    bool                            parseExpression();
+    bool                            calculate();
+    
+    virtual caf::PdmFieldHandle*    userDescriptionField() override;
 
 private:
+    static QString                  findLeftHandSide(const QString& expresion);
+    RimCalculationVariable*         findByName(const QString& name) const;
+
+private:
+    caf::PdmField<QString>                              m_description;
     caf::PdmField<QString>                              m_expression;
     caf::PdmChildArrayField<RimCalculationVariable*>    m_variables;
 

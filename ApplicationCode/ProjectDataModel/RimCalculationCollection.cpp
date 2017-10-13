@@ -42,7 +42,7 @@ RimCalculationCollection::RimCalculationCollection()
 RimCalculation* RimCalculationCollection::addCalculation()
 {
     RimCalculation* calculation = new RimCalculation;
-    calculation->setName(QString("Calculation %1").arg(m_calcuations.size()));
+    calculation->setDescription(QString("Calculation %1").arg(m_calcuations.size()));
 
     m_calcuations.push_back(calculation);
 
