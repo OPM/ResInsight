@@ -22,7 +22,6 @@
 
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
-#include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
 
 #include "RigSingleWellResultsData.h"

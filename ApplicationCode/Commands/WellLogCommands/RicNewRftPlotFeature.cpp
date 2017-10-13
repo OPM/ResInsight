@@ -78,14 +78,14 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 
     //int branchIndex;
 
-    auto eclWell = selectedPdmObject<RimSimWellInView*>();
-    auto rimWellPath = eclWell == nullptr ? selectedPdmObject<RimWellPath*>() : nullptr;
+    RimSimWellInView* simWell = selectedPdmObject<RimSimWellInView*>();
+    RimWellPath* rimWellPath = simWell == nullptr ? selectedPdmObject<RimWellPath*>() : nullptr;
     
     bool enable = true;
-    if (eclWell != nullptr)
+    if (simWell != nullptr)
     {
-        auto eclCase = selectedPdmObject<RimEclipseResultCase*>();
-        if (eclWell != nullptr)
+        RimEclipseResultCase* eclCase = selectedPdmObject<RimEclipseResultCase*>();
+        if (simWell != nullptr)
         {
             enable &= RimWellRftPlot::hasPressureData(eclCase);
         }

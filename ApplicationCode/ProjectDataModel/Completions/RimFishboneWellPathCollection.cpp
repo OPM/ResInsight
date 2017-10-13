@@ -22,7 +22,6 @@
 #include "RimFishboneWellPath.h"
 #include "RimFishbonesCollection.h"
 #include "RimProject.h"
-#include "RimSimWellInView.h"
 #include "RimView.h"
 
 #include "RigWellPath.h"

@@ -35,6 +35,6 @@ public:
     size_t branchIndex() const;
 
 private:    
-    caf::PdmPointer<RimSimWellInView> m_eclipseWell;
+    caf::PdmPointer<RimSimWellInView> m_simWell;
     size_t m_branchIndex;
 };

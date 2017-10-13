@@ -60,5 +60,5 @@ private:
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;
-    caf::PdmPointer<RimSimWellInView>            m_rimWell;
+    caf::PdmPointer<RimSimWellInView> m_rimWell;
 };

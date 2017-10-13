@@ -235,6 +235,6 @@ public:
 
 public:
     RimSimWellInView* m_simWell;
-    cvf::Vec3d      m_domainCoord;
-    size_t          m_branchIndex;
+    cvf::Vec3d        m_domainCoord;
+    size_t            m_branchIndex;
 };

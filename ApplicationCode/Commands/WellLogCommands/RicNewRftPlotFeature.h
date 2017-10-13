@@ -46,7 +46,7 @@ protected:
 private:
     RimWellLogTrack*    selectedWellLogPlotTrack() const;
     RimWellPath*        selectedWellPath() const;
-    RimSimWellInView*     selectedSimulationWell(int * branchIndex) const;
+    RimSimWellInView*   selectedSimulationWell(int * branchIndex) const;
     bool                caseAvailable() const;
 };
 

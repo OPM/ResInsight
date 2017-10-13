@@ -31,7 +31,6 @@
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
 #include "RimLegendConfig.h"
-#include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanFractureTemplate.h"
 

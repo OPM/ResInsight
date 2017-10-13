@@ -50,13 +50,13 @@ void RicNewSimWellIntersectionFeature::onActionTriggered(bool isChecked)
     caf::SelectionManager::instance()->objectsByType(&collection);
     CVF_ASSERT(collection.size() == 1);
 
-    RimSimWellInView* eclWell = collection[0];
+    RimSimWellInView* simWell = collection[0];
     
     RimEclipseView* eclView = NULL;
-    eclWell->firstAncestorOrThisOfType(eclView);
+    simWell->firstAncestorOrThisOfType(eclView);
     CVF_ASSERT(eclView);
 
-    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd(eclView->crossSectionCollection, eclWell);
+    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd(eclView->crossSectionCollection, simWell);
     caf::CmdExecCommandManager::instance()->processExecuteCommand(cmd);
 }
 

@@ -32,7 +32,6 @@
 class RigSingleWellResultsData;
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
-class RimSimWellInView;
 class RimTofAccumulatedPhaseFractionsPlot;
 class RimTotalWellAllocationPlot;
 class RimWellLogFile;

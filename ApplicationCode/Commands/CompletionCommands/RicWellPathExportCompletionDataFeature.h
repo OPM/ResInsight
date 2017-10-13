@@ -129,7 +129,7 @@ protected:
     virtual void setupActionLook(QAction* actionToSetup) override;
 
     std::vector<RimWellPath*>                    selectedWellPaths();
-    std::vector<RimSimWellInView*>                 selectedSimWells();
+    std::vector<RimSimWellInView*>               selectedSimWells();
 
     bool                                         noWellPathsSelectedDirectly();
 

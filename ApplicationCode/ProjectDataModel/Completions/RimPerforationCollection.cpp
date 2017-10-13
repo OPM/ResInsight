@@ -21,7 +21,6 @@
 
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
-#include "RimSimWellInView.h"
 #include "RimView.h"
 
 #include "RigWellPath.h"

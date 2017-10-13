@@ -705,11 +705,11 @@ void RimEclipseView::updateCurrentTimeStep()
                 this->descendantsIncludingThisOfType(fractures);
                 for (RimFracture* f : fractures)
                 {
-                    RimSimWellInView* eclWell = nullptr;
-                    f->firstAncestorOrThisOfType(eclWell);
-                    if (eclWell)
+                    RimSimWellInView* simWell = nullptr;
+                    f->firstAncestorOrThisOfType(simWell);
+                    if (simWell)
                     {
-                        bool isAnyGeometryPresent = eclWell->isWellPipeVisible(m_currentTimeStep) || eclWell->isWellSpheresVisible(m_currentTimeStep);
+                        bool isAnyGeometryPresent = simWell->isWellPipeVisible(m_currentTimeStep) || simWell->isWellSpheresVisible(m_currentTimeStep);
                         if (!isAnyGeometryPresent)
                         {
                             continue;

@@ -31,7 +31,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
-#include "RimSimWellInView.h"
 
 CAF_PDM_SOURCE_INIT(RimFlowDiagSolution, "FlowDiagSolution");
 

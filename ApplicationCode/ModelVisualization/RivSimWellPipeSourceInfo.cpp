@@ -27,8 +27,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimSimWellInView* eclipseWell, size_t branchIndex)
-    : m_eclipseWell(eclipseWell),
+RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimSimWellInView* simWell, size_t branchIndex)
+    : m_simWell(simWell),
     m_branchIndex(branchIndex)
 {
 }
@@ -38,7 +38,7 @@ RivSimWellPipeSourceInfo::RivSimWellPipeSourceInfo(RimSimWellInView* eclipseWell
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RivSimWellPipeSourceInfo::well() const
 {
-    return m_eclipseWell.p();
+    return m_simWell.p();
 }
 
 //--------------------------------------------------------------------------------------------------

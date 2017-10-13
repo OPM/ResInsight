@@ -126,9 +126,9 @@ void RicDeleteItemExec::redo()
         }
 
         // SimWell Fractures
-        RimSimWellInView* eclipseWell;
-        parentObj->firstAncestorOrThisOfType(eclipseWell);
-        if (view && eclipseWell)
+        RimSimWellInView* simWell;
+        parentObj->firstAncestorOrThisOfType(simWell);
+        if (view && simWell)
         {
             view->scheduleCreateDisplayModelAndRedraw();
         }

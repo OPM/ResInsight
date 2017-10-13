@@ -62,14 +62,14 @@ void RicShowWellAllocationPlotFeature::onActionTriggered(bool isChecked)
 
     if (collection.size() > 0)
     {
-        RimSimWellInView* eclWell = collection[0];
+        RimSimWellInView* simWell = collection[0];
 
         if (RiaApplication::instance()->project())
         {
             RimFlowPlotCollection* flowPlotColl = RiaApplication::instance()->project()->mainPlotCollection->flowPlotCollection();
             if (flowPlotColl)
             {
-                flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell(eclWell);
+                flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell(simWell);
                 flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
                 // Make sure the summary plot window is created and visible

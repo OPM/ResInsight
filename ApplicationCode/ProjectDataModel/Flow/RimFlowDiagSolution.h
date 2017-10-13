@@ -26,7 +26,6 @@
 #include "cvfColor3.h"
 
 class RigFlowDiagResults;
-class RimSimWellInView;
 
 //==================================================================================================
 ///  

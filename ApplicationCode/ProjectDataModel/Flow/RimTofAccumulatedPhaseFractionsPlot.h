@@ -30,7 +30,6 @@
 #include <vector>
 
 class RimEclipseResultCase;
-class RimSimWellInView;
 class RimWellLogPlot;
 class RiuTofAccumulatedPhaseFractionsPlot;
 class RiuWellAllocationPlot;

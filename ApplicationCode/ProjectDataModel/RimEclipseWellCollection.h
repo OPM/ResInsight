@@ -112,7 +112,7 @@ public:
 	
 	caf::PdmChildArrayField<RimSimWellInView*>     wells;
 
-    RimSimWellInView*                     findWell(QString name);
+    RimSimWellInView*                   findWell(QString name);
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
     void                                sortWellsByName();

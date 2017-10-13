@@ -29,7 +29,6 @@
 
 #include <vector>
 
-class RimSimWellInView;
 class RimWellLogPlot;
 class RiuNightchartsWidget;
 class RiuWellAllocationPlot;

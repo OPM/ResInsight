@@ -115,10 +115,10 @@ bool RicNewSimWellFractureFeature::isCommandEnabled()
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
     if (!objHandle) return false;
 
-    RimSimWellInView* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType(eclipseWell);
+    RimSimWellInView* simWell = nullptr;
+    objHandle->firstAncestorOrThisOfType(simWell);
 
-    if (eclipseWell)
+    if (simWell)
     {
         return true;
     }
