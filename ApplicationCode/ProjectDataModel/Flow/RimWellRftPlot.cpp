@@ -492,19 +492,23 @@ std::map<QDateTime, std::set<RimWellRftAddress>> RimWellRftPlot::timeStepsFromGr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::map<QDateTime, std::set<RimWellRftAddress>> RimWellRftPlot::timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const
+std::map<QDateTime, std::set<RimWellRftAddress> > RimWellRftPlot::timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const
 {
-    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsMap;
+    std::map<QDateTime, std::set<RimWellRftAddress> > timeStepsMap;
     for (const auto& wellPath : wellPaths)
     {
-        auto wellLogFile = wellPath->wellLogFile();
-        auto timeStep = RiaDateStringParser::parseDateString(wellLogFile->date());
+        RimWellLogFile* wellLogFile = wellPath->wellLogFile();
 
-        if (timeStepsMap.count(timeStep) == 0)
+        if (wellLogFile)
         {
-            timeStepsMap.insert(std::make_pair(timeStep, std::set<RimWellRftAddress>()));
+           QDateTime timeStep = RiaDateStringParser::parseDateString(wellLogFile->date());
+
+           if ( timeStepsMap.count(timeStep) == 0 )
+           {
+               timeStepsMap.insert(std::make_pair(timeStep, std::set<RimWellRftAddress>()));
+           }
+           timeStepsMap[timeStep].insert(RimWellRftAddress(RftSourceType::OBSERVED));
         }
-        timeStepsMap[timeStep].insert(RimWellRftAddress(RftSourceType::OBSERVED));
     }
     return timeStepsMap;
 }
