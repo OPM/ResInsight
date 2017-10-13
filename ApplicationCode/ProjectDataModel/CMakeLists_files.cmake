@@ -26,7 +26,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseView.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeColors.h
-${CEE_CURRENT_LIST_DIR}RimEclipseWell.h
+${CEE_CURRENT_LIST_DIR}RimSimWellInView.h
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellPath.h
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
@@ -126,7 +126,7 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseView.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseResultDefinition.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseCellColors.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeColors.cpp
-${CEE_CURRENT_LIST_DIR}RimEclipseWell.cpp
+${CEE_CURRENT_LIST_DIR}RimSimWellInView.cpp
 ${CEE_CURRENT_LIST_DIR}RimEclipseWellCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
