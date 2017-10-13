@@ -32,7 +32,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-class RigSingleWellResultsData;
+class RigSimWellData;
 class RigWellResultFrame;
 struct RigWellResultPoint;
 
@@ -53,9 +53,9 @@ public:
     RimSimWellInView();
     virtual ~RimSimWellInView();
     
-    void                                setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex);
-    RigSingleWellResultsData*           wellResults();
-    const RigSingleWellResultsData*     wellResults() const;
+    void                                setSimWellData(RigSimWellData* simWellData, size_t resultWellIndex);
+    RigSimWellData*                     simWellData();
+    const RigSimWellData*               simWellData() const;
     size_t                              resultWellIndex() const;
 
     bool                                isWellCellsVisible() const;
@@ -110,6 +110,6 @@ private:
     bool                                intersectsWellCellsFilteredCells(const RigWellResultFrame &wrsf, size_t frameIndex) const;
 
 private:
-    cvf::ref<RigSingleWellResultsData>  m_wellResults;
+    cvf::ref<RigSimWellData>            m_simWellData;
     size_t                              m_resultWellIndex;
 };

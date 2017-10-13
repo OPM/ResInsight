@@ -18,13 +18,15 @@
 
 #pragma once
 
+#include "RigSimWellData.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
 #include "cafPdmPointer.h"
+
 #include <list>
-#include "RigSingleWellResultsData.h"
 
 namespace cvf
 {

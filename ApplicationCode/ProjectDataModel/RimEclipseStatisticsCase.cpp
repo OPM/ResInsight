@@ -24,7 +24,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCellColors.h"
@@ -511,13 +511,13 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
             // Propagate well info to statistics case
             if (sourceResultCase->eclipseCaseData())
             {
-                const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults = sourceResultCase->eclipseCaseData()->wellResults();
-                setWellResultsAndUpdateViews(sourceCaseWellResults);
+                const cvf::Collection<RigSimWellData>& sourceCaseSimWellData = sourceResultCase->eclipseCaseData()->wellResults();
+                setWellResultsAndUpdateViews(sourceCaseSimWellData);
             }
         }
         else
         {
-            cvf::Collection<RigSingleWellResultsData> sourceCaseWellResults;
+            cvf::Collection<RigSimWellData> sourceCaseWellResults;
             setWellResultsAndUpdateViews(sourceCaseWellResults);
         }
     }
@@ -526,9 +526,9 @@ void RimEclipseStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
+void RimEclipseStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSimWellData>& sourceCaseSimWellData)
 {
-    this->eclipseCaseData()->setWellResults(sourceCaseWellResults);
+    this->eclipseCaseData()->setSimWellData(sourceCaseSimWellData);
     
     caf::ProgressInfo progInfo(reservoirViews().size() + 1, "Updating Well Data for Views");
 

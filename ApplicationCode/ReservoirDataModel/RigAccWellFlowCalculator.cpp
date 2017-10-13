@@ -18,7 +18,7 @@
 
 #include "RigAccWellFlowCalculator.h"
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigMainGrid.h"
 #include "RigActiveCellInfo.h"
 #include "RigFlowDiagResults.h"

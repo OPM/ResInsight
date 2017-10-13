@@ -22,7 +22,7 @@
 
 #include <QString>
 
-class RigSingleWellResultsData;
+class RigSimWellData;
 class RimEclipseResultCase;
 class RimEclipseView;
 class RimFlowDiagSolution;
@@ -41,7 +41,7 @@ private:
 
     static std::vector<QString> findContributingTracerNames(
                                 const RimFlowDiagSolution* flowDiagSolution,
-                                const RigSingleWellResultsData* wellResults,
+                                const RigSimWellData* wellResults,
                                 int timeStep);
 };
 

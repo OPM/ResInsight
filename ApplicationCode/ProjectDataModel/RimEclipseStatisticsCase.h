@@ -35,7 +35,7 @@ class RimIdenticalGridCaseGroup;
 class RimEclipseResultDefinition;
 class RimEclipseStatisticsCaseCollection;
 class RigMainGrid;
-class RigSingleWellResultsData;
+class RigSimWellData;
 
 
 //==================================================================================================
@@ -91,7 +91,7 @@ private:
     void updatePercentileUiVisibility();
 
 
-    void setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults);
+    void setWellResultsAndUpdateViews(const cvf::Collection<RigSimWellData>& sourceCaseSimWellData);
 
     // Pdm system overrides
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;

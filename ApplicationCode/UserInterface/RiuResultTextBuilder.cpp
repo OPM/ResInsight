@@ -25,7 +25,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimCellEdgeColors.h"
 #include "RimEclipseCase.h"
@@ -738,10 +738,10 @@ QString RiuResultTextBuilder::wellResultText()
     if (m_reservoirView->eclipseCase() &&
         m_reservoirView->eclipseCase()->eclipseCaseData() )
     {
-        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoirView->eclipseCase()->eclipseCaseData()->wellResults();
-        for (size_t i = 0; i < wellResults.size(); i++)
+        cvf::Collection<RigSimWellData> simWellData = m_reservoirView->eclipseCase()->eclipseCaseData()->wellResults();
+        for (size_t i = 0; i < simWellData.size(); i++)
         {
-            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
+            RigSimWellData* singleWellResultData = simWellData.at(i);
 
             if (!singleWellResultData->hasWellResult(m_timeStepIndex))
             {

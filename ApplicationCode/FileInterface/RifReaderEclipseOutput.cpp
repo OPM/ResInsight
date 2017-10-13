@@ -37,7 +37,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigEclipseResultInfo.h"
 
 #include "cafProgressInfo.h"
@@ -1308,7 +1308,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
     std::vector<RigGridBase*> grids;
     m_eclipseCase->allGrids(&grids);
 
-    cvf::Collection<RigSingleWellResultsData> wells;
+    cvf::Collection<RigSimWellData> wells;
     caf::ProgressInfo progress(well_info_get_num_wells(ert_well_info), "");
 
     int wellIdx;
@@ -1317,20 +1317,20 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
         const char* wellName = well_info_iget_well_name(ert_well_info, wellIdx);
         CVF_ASSERT(wellName);
 
-        cvf::ref<RigSingleWellResultsData> wellResults = new RigSingleWellResultsData;
-        wellResults->m_wellName = wellName;
+        cvf::ref<RigSimWellData> simWellData = new RigSimWellData;
+        simWellData->m_wellName = wellName;
 
         well_ts_type* ert_well_time_series = well_info_get_ts(ert_well_info , wellName);
         int timeStepCount = well_ts_get_size(ert_well_time_series);
 
-        wellResults->m_wellCellsTimeSteps.resize(timeStepCount);
+        simWellData->m_wellCellsTimeSteps.resize(timeStepCount);
 
         int timeIdx;
         for (timeIdx = 0; timeIdx < timeStepCount; timeIdx++)
         {
             well_state_type* ert_well_state = well_ts_iget_state(ert_well_time_series, timeIdx);
 
-            RigWellResultFrame& wellResFrame = wellResults->m_wellCellsTimeSteps[timeIdx];
+            RigWellResultFrame& wellResFrame = simWellData->m_wellCellsTimeSteps[timeIdx];
 
             // Build timestamp for well
             bool haveFoundTimeStamp = false;
@@ -1386,7 +1386,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
 
             if (importCompleteMswData && well_state_is_MSW(ert_well_state))
             {
-                wellResults->setMultiSegmentWell(true);
+                simWellData->setMultiSegmentWell(true);
 
                 // how do we handle LGR-s ? 
                 // 1. Create separate visual branches for each Grid, with its own wellhead
@@ -1811,16 +1811,16 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid, boo
             }
         }
 
-        wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(filteredTimeSteps);
+        simWellData->computeMappingFromResultTimeIndicesToWellTimeIndices(filteredTimeSteps);
 
-        wells.push_back(wellResults.p());
+        wells.push_back(simWellData.p());
 
         progress.incrementProgress();
     }
 
     well_info_free(ert_well_info);
 
-    m_eclipseCase->setWellResults(wells);
+    m_eclipseCase->setSimWellData(wells);
 }
 
 

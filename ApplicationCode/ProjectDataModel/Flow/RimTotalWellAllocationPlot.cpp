@@ -23,7 +23,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipseWellCollection.h"
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"

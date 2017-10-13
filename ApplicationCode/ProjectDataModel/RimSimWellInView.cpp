@@ -21,7 +21,7 @@
 #include "RimSimWellInView.h"
 
 #include "RigSimulationWellCenterLineCalculator.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseView.h"
@@ -192,9 +192,9 @@ void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* 
     
     RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
 
-    if (!this->wellResults()->hasWellResult(frameIndex)) return;
+    if (!this->simWellData()->hasWellResult(frameIndex)) return;
 
-    const RigWellResultFrame& wellResultFrame = this->wellResults()->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wellResultFrame = this->simWellData()->wellResultFrame(frameIndex);
     const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
@@ -261,11 +261,11 @@ double RimSimWellInView::pipeRadius()
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells(size_t frameIndex) const
 {
-    if (this->wellResults() == nullptr) return false;
+    if (this->simWellData() == nullptr) return false;
 
-    if (!wellResults()->hasWellResult(frameIndex)) return false;
+    if (!simWellData()->hasWellResult(frameIndex)) return false;
 
-    const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wrsf = this->simWellData()->wellResultFrame(frameIndex);
 
     return intersectsWellCellsFilteredCells(wrsf, frameIndex);
 }
@@ -341,10 +341,10 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells(const RigWellResultFrame
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
 {
-    if (this->wellResults() == nullptr) return false;
+    if (this->simWellData() == nullptr) return false;
 
     // NOTE: Read out static well cells, union of well cells across all time steps
-    const RigWellResultFrame& wrsf = this->wellResults()->staticWellCells();
+    const RigWellResultFrame& wrsf = this->simWellData()->staticWellCells();
 
     // NOTE: Use first time step for visibility evaluation
     size_t frameIndex = 0;
@@ -428,7 +428,7 @@ bool RimSimWellInView::isWellCellsVisible() const
     this->firstAncestorOrThisOfType(reservoirView);
 
     if (reservoirView == nullptr) return false;
-    if (this->wellResults() == nullptr) return false;
+    if (this->simWellData() == nullptr) return false;
 
     if (!reservoirView->wellCollection()->isActive())
         return false;
@@ -462,14 +462,14 @@ bool RimSimWellInView::isWellPipeVisible(size_t frameIndex) const
     this->firstAncestorOrThisOfType(reservoirView);
 
     if (reservoirView == nullptr) return false;
-    if (this->wellResults() == nullptr) return false;
+    if (this->simWellData() == nullptr) return false;
 
-    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
+    if (frameIndex >= this->simWellData()->m_resultTimeStepIndexToWellTimeStepIndex.size())
     {
         return false;
     }
 
-    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
+    size_t wellTimeStepIndex = this->simWellData()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
     if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -508,14 +508,14 @@ bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
     this->firstAncestorOrThisOfType(reservoirView);
 
     if (reservoirView == nullptr) return false;
-    if (this->wellResults() == nullptr) return false;
+    if (this->simWellData() == nullptr) return false;
 
-    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
+    if (frameIndex >= this->simWellData()->m_resultTimeStepIndexToWellTimeStepIndex.size())
     {
         return false;
     }
 
-    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
+    size_t wellTimeStepIndex = this->simWellData()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
     if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -562,26 +562,26 @@ bool RimSimWellInView::isUsingCellCenterForPipe() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::setWellResults(RigSingleWellResultsData* wellResults, size_t resultWellIndex)
+void RimSimWellInView::setSimWellData(RigSimWellData* simWellData, size_t resultWellIndex)
 {
-    m_wellResults = wellResults;
+    m_simWellData = simWellData;
     m_resultWellIndex = resultWellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigSingleWellResultsData* RimSimWellInView::wellResults()
+RigSimWellData* RimSimWellInView::simWellData()
 {
-    return m_wellResults.p();
+    return m_simWellData.p();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigSingleWellResultsData* RimSimWellInView::wellResults() const
+const RigSimWellData* RimSimWellInView::simWellData() const
 {
-    return m_wellResults.p();
+    return m_simWellData.p();
 }
 
 //--------------------------------------------------------------------------------------------------

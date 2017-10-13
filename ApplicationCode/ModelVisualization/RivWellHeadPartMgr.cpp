@@ -28,7 +28,7 @@
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -98,9 +98,9 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     
 
-    if (!well->wellResults()->hasWellResult(frameIndex)) return;
+    if (!well->simWellData()->hasWellResult(frameIndex)) return;
 
-    const RigWellResultFrame& wellResultFrame = well->wellResults()->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wellResultFrame = well->simWellData()->wellResultFrame(frameIndex);
 
     double pipeRadius = m_rimWell->pipeRadius();
 

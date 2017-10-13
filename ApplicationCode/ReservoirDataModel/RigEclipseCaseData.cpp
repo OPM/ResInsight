@@ -25,7 +25,7 @@
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include <QDebug>
 #include "RigSimulationWellCenterLineCalculator.h"
@@ -206,12 +206,12 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
 
     // Fill arrays with data
     size_t wIdx;
-    for (wIdx = 0; wIdx < m_wellResults.size(); ++wIdx)
+    for (wIdx = 0; wIdx < m_simWellData.size(); ++wIdx)
     {
         size_t tIdx;
-        for (tIdx = 0; tIdx < m_wellResults[wIdx]->m_wellCellsTimeSteps.size(); ++tIdx)
+        for (tIdx = 0; tIdx < m_simWellData[wIdx]->m_wellCellsTimeSteps.size(); ++tIdx)
         {
-            RigWellResultFrame& wellCells =  m_wellResults[wIdx]->m_wellCellsTimeSteps[tIdx];
+            RigWellResultFrame& wellCells =  m_simWellData[wIdx]->m_wellCellsTimeSteps[tIdx];
 
             // Well head
             {
@@ -257,9 +257,9 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setWellResults(const cvf::Collection<RigSingleWellResultsData>& data)
+void RigEclipseCaseData::setSimWellData(const cvf::Collection<RigSimWellData>& data)
 {
-    m_wellResults = data;
+    m_simWellData = data;
     m_wellCellsInGrid.clear();
     m_gridCellToResultWellIndex.clear();
 
@@ -270,11 +270,11 @@ void RigEclipseCaseData::setWellResults(const cvf::Collection<RigSingleWellResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigSingleWellResultsData* RigEclipseCaseData::findWellResult(QString wellName) const
+const RigSimWellData* RigEclipseCaseData::findSimWellData(QString wellName) const
 {
-    for (size_t wIdx = 0; wIdx < m_wellResults.size(); ++wIdx)
+    for (size_t wIdx = 0; wIdx < m_simWellData.size(); ++wIdx)
     {
-        if (m_wellResults[wIdx]->m_wellName == wellName) return m_wellResults[wIdx].p();
+        if (m_simWellData[wIdx]->m_wellName == wellName) return m_simWellData[wIdx].p();
     }
 
     return nullptr;
@@ -473,15 +473,15 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches(const
             return branches;
         }
 
-        const RigSingleWellResultsData* wellResults = findWellResult(simWellName);
+        const RigSimWellData* simWellData = findSimWellData(simWellName);
 
-        if (!wellResults) return branches;
+        if (!simWellData) return branches;
 
         std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
         std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
         RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(this,
-                                                                                        wellResults,
+                                                                                        simWellData,
                                                                                         -1,
                                                                                         true,
                                                                                         true,

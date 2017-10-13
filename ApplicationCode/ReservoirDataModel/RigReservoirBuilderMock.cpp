@@ -24,7 +24,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigCell.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 /* rand example: guess the number */
 #include <stdio.h>
@@ -372,12 +372,12 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
 
     cvf::Vec3st dim = grid->gridPointDimensions();
 
-    cvf::Collection<RigSingleWellResultsData> wells;
+    cvf::Collection<RigSimWellData> wells;
 
     int wellIdx;
     for (wellIdx = 0; wellIdx < 1; wellIdx++)
     {
-        cvf::ref<RigSingleWellResultsData> wellCellsTimeHistory = new RigSingleWellResultsData;
+        cvf::ref<RigSimWellData> wellCellsTimeHistory = new RigSimWellData;
         wellCellsTimeHistory->m_wellName = QString("Well %1").arg(wellIdx);
 
         wellCellsTimeHistory->m_wellCellsTimeSteps.resize(m_timeStepCount);
@@ -474,7 +474,7 @@ void RigReservoirBuilderMock::addWellData(RigEclipseCaseData* eclipseCase, RigGr
         wells.push_back(wellCellsTimeHistory.p());
     }
 
-    eclipseCase->setWellResults(wells);
+    eclipseCase->setSimWellData(wells);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@
 #include "RifReaderEclipseRft.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigWellPath.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"

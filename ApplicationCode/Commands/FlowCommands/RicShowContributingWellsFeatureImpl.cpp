@@ -23,7 +23,7 @@
 #include "RicSelectOrCreateViewFeatureImpl.h"
 
 #include "RigFlowDiagResultAddress.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
@@ -122,7 +122,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
     viewToModify->cellResult()->loadDataAndUpdate();
     viewToModify->cellResult()->updateConnectedEditors();
     
-    std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->wellResults(), timeStep);
+    std::vector<QString> tracerNames = findContributingTracerNames(flowDiagSolution, selectedWell->simWellData(), timeStep);
 
     for (RimSimWellInView* w : viewToModify->wellCollection()->wells())
     {
@@ -170,16 +170,16 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracerNames(
     const RimFlowDiagSolution* flowDiagSolution,
-    const RigSingleWellResultsData* wellResults,
+    const RigSimWellData* simWellData,
     int timeStep)
 {
     std::vector<QString> tracerCellFractionValues;
 
-    if (flowDiagSolution && wellResults->hasWellResult(timeStep))
+    if (flowDiagSolution && simWellData->hasWellResult(timeStep))
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::UNDEFINED;
 
-        const RigWellResultFrame::WellProductionType prodType = wellResults->wellProductionType(timeStep);
+        const RigWellResultFrame::WellProductionType prodType = simWellData->wellProductionType(timeStep);
         if (   prodType == RigWellResultFrame::PRODUCER
             || prodType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE)
         {

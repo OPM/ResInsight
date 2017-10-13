@@ -52,7 +52,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(c
 {
     CVF_ASSERT(rimWell);
 
-    const RigSingleWellResultsData*  wellResults = rimWell->wellResults();
+    const RigSimWellData*  simWellData = rimWell->simWellData();
 
     RimEclipseView* eclipseView;
     rimWell->firstAncestorOrThisOfType(eclipseView);
@@ -65,7 +65,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(c
     bool useAllCellCenters  = rimWell->isUsingCellCenterForPipe();
 
     calculateWellPipeCenterlineFromWellFrame(eclipseCaseData,
-                                             wellResults,
+                                             simWellData,
                                              static_cast<int>(timeStepIndex),
                                              isAutoDetectBranches,
                                              useAllCellCenters,
@@ -79,7 +79,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeDynamicCenterline(c
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
 void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(const RigEclipseCaseData* eclipseCaseData, 
-                                                                                     const RigSingleWellResultsData* wellResults,
+                                                                                     const RigSimWellData* wellResults,
                                                                                      int timeStepIndex,
                                                                                      bool isAutoDetectBranches,
                                                                                      bool useAllCellCenters,

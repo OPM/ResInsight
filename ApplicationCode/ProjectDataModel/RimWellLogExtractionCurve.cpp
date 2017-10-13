@@ -30,7 +30,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
@@ -420,11 +420,11 @@ std::set<QString> RimWellLogExtractionCurve::findSortedWellNames()
 
     if ( eclipseCase && eclipseCase->eclipseCaseData() )
     {
-        const cvf::Collection<RigSingleWellResultsData>& wellRes = eclipseCase->eclipseCaseData()->wellResults();
+        const cvf::Collection<RigSimWellData>& simWellData = eclipseCase->eclipseCaseData()->wellResults();
 
-        for ( size_t wIdx = 0; wIdx < wellRes.size(); ++wIdx )
+        for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
         {
-            sortedWellNames.insert(wellRes[wIdx]->m_wellName);
+            sortedWellNames.insert(simWellData[wIdx]->m_wellName);
         }
     }
 
@@ -448,15 +448,15 @@ void RimWellLogExtractionCurve::updateGeneratedSimulationWellpath()
     }
 
     RigEclipseCaseData* eclCaseData = eclipseCase->eclipseCaseData();
-    const RigSingleWellResultsData* wellResults = eclCaseData->findWellResult(m_simWellName());
+    const RigSimWellData* simWellData = eclCaseData->findSimWellData(m_simWellName());
 
-    if (!wellResults) return;
+    if (!simWellData) return;
 
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
     std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(eclCaseData,
-                                                                                    wellResults,
+                                                                                    simWellData,
                                                                                     -1,
                                                                                     true,
                                                                                     true,

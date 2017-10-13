@@ -42,7 +42,7 @@ class RigMainGrid;
 class RigGridBase;
 class RigCaseCellResultsData;
 class RigActiveCellInfo;
-class RigSingleWellResultsData;
+class RigSimWellData;
 class RigCell;
 class RigWellPath;
 class RimEclipseCase;
@@ -80,9 +80,9 @@ public:
     void                                        setActiveFormationNames(RigFormationNames* activeFormationNames);
     RigFormationNames*                          activeFormationNames(); 
 
-    void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
-    const cvf::Collection<RigSingleWellResultsData>&      wellResults() const { return m_wellResults; }
-    const RigSingleWellResultsData*             findWellResult(QString wellName) const;
+    void                                        setSimWellData(const cvf::Collection<RigSimWellData>& data);
+    const cvf::Collection<RigSimWellData>&      wellResults() const { return m_simWellData; }
+    const RigSimWellData*                       findSimWellData(QString wellName) const;
     
     const cvf::UByteArray*                      wellCellsInGrid(size_t gridIndex);
     const cvf::UIntArray*                       gridCellToResultWellIndex(size_t gridIndex);
@@ -116,7 +116,7 @@ private:
 
     cvf::ref<RigFormationNames>                 m_activeFormationNamesData;
 
-    cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
+    cvf::Collection<RigSimWellData>             m_simWellData;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling whether the cell is a well cell or not
     cvf::Collection<cvf::UIntArray>             m_gridCellToResultWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 

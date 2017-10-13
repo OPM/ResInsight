@@ -31,7 +31,7 @@
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeColors.h"
@@ -1192,7 +1192,7 @@ void RimEclipseView::syncronizeWellsWithResults()
 {
     if (!(m_eclipseCase && m_eclipseCase->eclipseCaseData()) ) return;
 
-    cvf::Collection<RigSingleWellResultsData> wellResults = m_eclipseCase->eclipseCaseData()->wellResults();
+    cvf::Collection<RigSimWellData> simWellData = m_eclipseCase->eclipseCaseData()->wellResults();
 
  
     std::vector<caf::PdmPointer<RimSimWellInView> > newWells;
@@ -1201,27 +1201,27 @@ void RimEclipseView::syncronizeWellsWithResults()
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
-        well->setWellResults(NULL, -1);
+        well->setSimWellData(NULL, -1);
     }
 
     bool isAnyWellCreated = false;
 
     // Find corresponding well from well result, or create a new
 
-    for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
+    for (size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx)
     {
-        RimSimWellInView* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
+        RimSimWellInView* well = this->wellCollection()->findWell(simWellData[wIdx]->m_wellName);
 
         if (!well)
         {
             well = new RimSimWellInView;
-            well->name = wellResults[wIdx]->m_wellName;
+            well->name = simWellData[wIdx]->m_wellName;
 
             isAnyWellCreated = true;
         }
         newWells.push_back(well);
 
-        well->setWellResults(wellResults[wIdx].p(), wIdx);
+        well->setSimWellData(simWellData[wIdx].p(), wIdx);
     }
 
     // Delete all wells that does not have a result
@@ -1229,8 +1229,8 @@ void RimEclipseView::syncronizeWellsWithResults()
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimSimWellInView* well = this->wellCollection()->wells()[wIdx];
-        RigSingleWellResultsData* wellRes = well->wellResults();
-        if (wellRes == NULL)
+        RigSimWellData* simWellData = well->simWellData();
+        if (simWellData == NULL)
         {
             delete well;
         }
@@ -1292,10 +1292,10 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
         RimSimWellInView* well =  this->wellCollection()->wells()[wIdx];
         if (well->isWellCellsVisible())
         {
-            RigSingleWellResultsData* wres = well->wellResults();
-            if (!wres) continue;
+            RigSimWellData* simWellData = well->simWellData();
+            if (!simWellData) continue;
 
-            const std::vector< RigWellResultFrame >& wellResFrames = wres->m_wellCellsTimeSteps;
+            const std::vector< RigWellResultFrame >& wellResFrames = simWellData->m_wellCellsTimeSteps;
             for (size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx)
             {
                 // Add the wellhead cell if it is active

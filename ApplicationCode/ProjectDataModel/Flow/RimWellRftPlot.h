@@ -33,17 +33,12 @@
 #include <set>
 #include <map>
 
-class RigSingleWellResultsData;
-class RigWellPath;
+
 class RimEclipseCase;
 class RimEclipseResultCase;
-class RimFlowDiagSolution;
-class RimTofAccumulatedPhaseFractionsPlot;
-class RimTotalWellAllocationPlot;
 class RimWellLogCurve;
 class RimWellLogFileChannel;
 class RimWellLogPlot;
-class RimWellLogTrack;
 class RimWellPath;
 class RiuWellRftPlot;
 

@@ -23,7 +23,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimSimWellInView.h"
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigFlowDiagResults.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
@@ -63,11 +63,11 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     if (  m_rimReservoirView.isNull() ) return;
     if ( !m_rimReservoirView->eclipseCase() ) return;
     if ( !m_rimWell->showWell() ) return;
-    if ( !m_rimWell->wellResults()->hasWellResult(frameIndex) ) return;
-    if ( !m_rimWell->wellResults()->wellResultFrame(frameIndex).m_isOpen ) return;
-    if (  m_rimWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE ) return;
+    if ( !m_rimWell->simWellData()->hasWellResult(frameIndex) ) return;
+    if ( !m_rimWell->simWellData()->wellResultFrame(frameIndex).m_isOpen ) return;
+    if (  m_rimWell->simWellData()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE ) return;
 
-    bool   isProducer =  (m_rimWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::PRODUCER);
+    bool   isProducer =  (m_rimWell->simWellData()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::PRODUCER);
     double pipeRadius = m_rimWell->pipeRadius();
 
     cvf::Vec3d                           wellHeadTop;
@@ -129,11 +129,11 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     for ( RimSimWellInView * otherWell: wellColl->wells )
     {
         if (  otherWell == m_rimWell ) continue;
-        if ( !otherWell->wellResults()->hasWellResult(frameIndex) ) continue;
-        if ( !otherWell->wellResults()->wellResultFrame(frameIndex).m_isOpen ) continue;
-        if (  otherWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE ) continue;
+        if ( !otherWell->simWellData()->hasWellResult(frameIndex) ) continue;
+        if ( !otherWell->simWellData()->wellResultFrame(frameIndex).m_isOpen ) continue;
+        if (  otherWell->simWellData()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE ) continue;
 
-        bool isOtherProducer = (otherWell->wellResults()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::PRODUCER);
+        bool isOtherProducer = (otherWell->simWellData()->wellResultFrame(frameIndex).m_productionType == RigWellResultFrame::PRODUCER);
 
         {
             std::string otherWellName   =  otherWell->name().toStdString();

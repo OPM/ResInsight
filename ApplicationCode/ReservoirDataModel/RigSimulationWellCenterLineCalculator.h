@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "cvfVector3.h"
 #include <vector>
 
@@ -39,7 +39,7 @@ public:
 
 
     static void calculateWellPipeCenterlineFromWellFrame(const RigEclipseCaseData* eclipseCaseData, 
-                                                         const RigSingleWellResultsData* wellResults,
+                                                         const RigSimWellData* simWellData,
                                                          int timeStepIndex,
                                                          bool isAutoDetectBranches,
                                                          bool useAllCellCenters,

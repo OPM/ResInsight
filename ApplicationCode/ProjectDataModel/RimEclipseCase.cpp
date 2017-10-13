@@ -28,7 +28,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimCaseCollection.h"
 #include "RimCellEdgeColors.h"
@@ -162,15 +162,15 @@ cvf::Color3f RimEclipseCase::defaultWellColor(const QString& wellName)
         cvf::Color3ubArray wellColors = colorTable.color3ubArray();
         cvf::Color3ubArray interpolatedWellColors = wellColors;
 
-        const cvf::Collection<RigSingleWellResultsData>& wellResults = this->eclipseCaseData()->wellResults();
-        if ( wellResults.size() > 1 )
+        const cvf::Collection<RigSimWellData>& simWellData = this->eclipseCaseData()->wellResults();
+        if ( simWellData.size() > 1 )
         {
-            interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, wellResults.size());
+            interpolatedWellColors = caf::ColorTable::interpolateColorArray(wellColors, simWellData.size());
         }
 
-        for ( size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx )
+        for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
         {
-            m_wellToColorMap[wellResults[wIdx]->m_wellName] = cvf::Color3f::BLACK;
+            m_wellToColorMap[simWellData[wIdx]->m_wellName] = cvf::Color3f::BLACK;
         }
 
         size_t wIdx = 0;

@@ -36,7 +36,7 @@ ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.h
-${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.h
+${CEE_CURRENT_LIST_DIR}RigSimWellData.h
 ${CEE_CURRENT_LIST_DIR}RigWellPath.h
 ${CEE_CURRENT_LIST_DIR}RigFault.h
 ${CEE_CURRENT_LIST_DIR}RigNNCData.h
@@ -109,7 +109,7 @@ ${CEE_CURRENT_LIST_DIR}RigLocalGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.cpp
-${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.cpp
+${CEE_CURRENT_LIST_DIR}RigSimWellData.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPath.cpp
 ${CEE_CURRENT_LIST_DIR}RigFault.cpp
 ${CEE_CURRENT_LIST_DIR}RigNNCData.cpp

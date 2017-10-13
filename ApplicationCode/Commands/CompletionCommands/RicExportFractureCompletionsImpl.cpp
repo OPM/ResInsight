@@ -41,7 +41,7 @@
 #include "RigFractureTransmissibilityEquations.h"
 #include "RigWellPathStimplanIntersector.h"
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellPath.h"
 

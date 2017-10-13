@@ -16,7 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
+
 #include <map>
 
 #include <QDebug>
@@ -24,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigWellResultFrame& RigSingleWellResultsData::wellResultFrame(size_t resultTimeStepIndex) const
+const RigWellResultFrame& RigSimWellData::wellResultFrame(size_t resultTimeStepIndex) const
 {
     CVF_ASSERT(resultTimeStepIndex < m_resultTimeStepIndexToWellTimeStepIndex.size());
 
@@ -37,7 +38,7 @@ const RigWellResultFrame& RigSingleWellResultsData::wellResultFrame(size_t resul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& simulationTimeSteps)
+void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& simulationTimeSteps)
 {
     m_resultTimeStepIndexToWellTimeStepIndex.clear();
     if (m_wellCellsTimeSteps.size() == 0) return;
@@ -84,7 +85,7 @@ void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigSingleWellResultsData::hasWellResult(size_t resultTimeStepIndex) const
+bool RigSimWellData::hasWellResult(size_t resultTimeStepIndex) const
 {
     if (resultTimeStepIndex >= m_resultTimeStepIndexToWellTimeStepIndex.size())
     {
@@ -108,7 +109,7 @@ bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSingleWellResultsData::computeStaticWellCellPath() const
+void RigSimWellData::computeStaticWellCellPath() const
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
@@ -249,7 +250,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigSingleWellResultsData::setMultiSegmentWell(bool isMultiSegmentWell)
+void RigSimWellData::setMultiSegmentWell(bool isMultiSegmentWell)
 {
     m_isMultiSegmentWell = isMultiSegmentWell;
 }
@@ -257,7 +258,7 @@ void RigSingleWellResultsData::setMultiSegmentWell(bool isMultiSegmentWell)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigSingleWellResultsData::isMultiSegmentWell() const
+bool RigSimWellData::isMultiSegmentWell() const
 {
     return m_isMultiSegmentWell;
 }
@@ -266,7 +267,7 @@ bool RigSingleWellResultsData::isMultiSegmentWell() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigWellResultFrame::WellProductionType RigSingleWellResultsData::wellProductionType(size_t resultTimeStepIndex) const
+RigWellResultFrame::WellProductionType RigSimWellData::wellProductionType(size_t resultTimeStepIndex) const
 {
     if (hasWellResult(resultTimeStepIndex))
     {
@@ -282,7 +283,7 @@ RigWellResultFrame::WellProductionType RigSingleWellResultsData::wellProductionT
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigWellResultFrame& RigSingleWellResultsData::staticWellCells() const
+const RigWellResultFrame& RigSimWellData::staticWellCells() const
 {
     // Make sure we have computed the static representation of the well
     if (m_staticWellCells.m_wellResultBranches.size() == 0)
@@ -296,7 +297,7 @@ const RigWellResultFrame& RigSingleWellResultsData::staticWellCells() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigSingleWellResultsData::isOpen(size_t resultTimeStepIndex) const
+bool RigSimWellData::isOpen(size_t resultTimeStepIndex) const
 {
     if (hasWellResult(resultTimeStepIndex))
     {

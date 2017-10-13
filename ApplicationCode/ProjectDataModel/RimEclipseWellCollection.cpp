@@ -25,7 +25,7 @@
 #include "RiaPreferences.h"
 
 #include "RigEclipseCaseData.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -287,11 +287,11 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
         RimSimWellInView* well = this->wells()[i];
-        if ( well && well->wellResults() && ((well->showWell() && well->showWellCells())) )
+        if ( well && well->simWellData() && ((well->showWell() && well->showWellCells())) )
         {
-            for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )
+            for (size_t tIdx = 0; !hasCells &&  tIdx < well->simWellData()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
-                const RigWellResultFrame& wellResultFrame = well->wellResults()->m_wellCellsTimeSteps[tIdx];
+                const RigWellResultFrame& wellResultFrame = well->simWellData()->m_wellCellsTimeSteps[tIdx];
                 for (size_t wsIdx = 0; !hasCells &&  wsIdx < wellResultFrame.m_wellResultBranches.size(); ++wsIdx)
                 {
                     if (wellResultFrame.m_wellResultBranches[wsIdx].m_branchResultPoints.size() > 0  ) hasCells = true; 
@@ -488,9 +488,9 @@ void RimEclipseWellCollection::assignDefaultWellColors()
     for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
     {
         RimSimWellInView* well = wells[wIdx];
-        if (well && well->wellResults() )
+        if (well && well->simWellData() )
         {
-            well->wellPipeColor = ownerCase->defaultWellColor(well->wellResults()->m_wellName);
+            well->wellPipeColor = ownerCase->defaultWellColor(well->simWellData()->m_wellName);
         }
     }
 

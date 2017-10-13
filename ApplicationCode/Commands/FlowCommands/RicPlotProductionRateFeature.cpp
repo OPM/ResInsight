@@ -24,7 +24,7 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimGridSummaryCase.h"
@@ -241,7 +241,7 @@ RimGridSummaryCase* RicPlotProductionRateFeature::gridSummaryCaseForWell(RimSimW
 //--------------------------------------------------------------------------------------------------
 bool RicPlotProductionRateFeature::isInjector(RimSimWellInView* well)
 {
-    RigSingleWellResultsData* wRes = well->wellResults();
+    RigSimWellData* wRes = well->simWellData();
     if (wRes)
     {
         RimView* rimView = nullptr;

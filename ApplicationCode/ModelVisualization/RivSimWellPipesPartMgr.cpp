@@ -209,15 +209,15 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     if (m_rimWell == NULL) return;
 
-    RigSingleWellResultsData* wRes = m_rimWell->wellResults();
-    if (wRes == NULL) return;
+    RigSimWellData* simWellData = m_rimWell->simWellData();
+    if (simWellData == NULL) return;
 
-    if (!wRes->hasWellResult(frameIndex)) return; // Or reset colors or something
+    if (!simWellData->hasWellResult(frameIndex)) return; // Or reset colors or something
 
     const double closed = -0.1, producing = 1.5, water = 2.5, hcInjection = 3.5; // Closed set to -0.1 instead of 0.5 to workaround bug in the scalar mapper.
 
     std::list<RivPipeBranchData>::iterator brIt;
-    const RigWellResultFrame& wResFrame = wRes->wellResultFrame(frameIndex);
+    const RigWellResultFrame& wResFrame = simWellData->wellResultFrame(frameIndex);
 
     std::vector<double> wellCellStates;
 

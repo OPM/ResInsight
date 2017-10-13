@@ -24,7 +24,7 @@
 #include "RimEclipseWellCollection.h"
 #include "RimWellAllocationPlot.h"
 
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 #include "RigTofAccumulatedPhaseFractionsCalculator.h"
 
 #include "RimWellLogPlot.h"

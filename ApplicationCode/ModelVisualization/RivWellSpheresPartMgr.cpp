@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RigMainGrid.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -76,7 +76,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicLis
     const RigMainGrid* mainGrid = m_rimReservoirView->mainGrid();
     CVF_ASSERT(mainGrid);
 
-    RigSingleWellResultsData* rigWellResult = m_rimWell->wellResults();
+    RigSimWellData* rigWellResult = m_rimWell->simWellData();
     if (!rigWellResult) return;
 
     if (!rigWellResult->hasWellResult(frameIndex)) return;

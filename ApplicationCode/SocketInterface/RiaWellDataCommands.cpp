@@ -24,7 +24,7 @@
 
 #include "RigGridBase.h"
 #include "RigEclipseCaseData.h"
-#include "RigSingleWellResultsData.h"
+#include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"
 
@@ -55,7 +55,7 @@ public:
 
         std::vector<QString> wellNames;
 
-        const cvf::Collection<RigSingleWellResultsData>& wells = rimCase->eclipseCaseData()->wellResults();
+        const cvf::Collection<RigSimWellData>& wells = rimCase->eclipseCaseData()->wellResults();
  
         for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
         {
@@ -112,8 +112,8 @@ public:
         std::vector<size_t> requestedTimesteps;
         //First find the well result for the correct well
 
-        const cvf::Collection<RigSingleWellResultsData>& allWellRes =  rimCase->eclipseCaseData()->wellResults();
-        cvf::ref<RigSingleWellResultsData> currentWellResult;
+        const cvf::Collection<RigSimWellData>& allWellRes =  rimCase->eclipseCaseData()->wellResults();
+        cvf::ref<RigSimWellData> currentWellResult;
         for (size_t tsIdx = 0; tsIdx < allWellRes.size(); ++tsIdx)
         {
             if (allWellRes[tsIdx]->m_wellName == wellName)
@@ -247,8 +247,8 @@ public:
             return true;
         }
  
-        const cvf::Collection<RigSingleWellResultsData>& allWellRes =  rimCase->eclipseCaseData()->wellResults();
-        cvf::ref<RigSingleWellResultsData> currentWellResult;
+        const cvf::Collection<RigSimWellData>& allWellRes =  rimCase->eclipseCaseData()->wellResults();
+        cvf::ref<RigSimWellData> currentWellResult;
         for (size_t cIdx = 0; cIdx < allWellRes.size(); ++cIdx)
         {
             if (allWellRes[cIdx]->m_wellName == wellName)

@@ -178,10 +178,10 @@ public:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigSingleWellResultsData : public cvf::Object
+class RigSimWellData : public cvf::Object
 {
 public:
-    RigSingleWellResultsData() { m_isMultiSegmentWell = false; }
+    RigSimWellData() { m_isMultiSegmentWell = false; }
 
     void                                   setMultiSegmentWell(bool isMultiSegmentWell);
     bool                                   isMultiSegmentWell() const;

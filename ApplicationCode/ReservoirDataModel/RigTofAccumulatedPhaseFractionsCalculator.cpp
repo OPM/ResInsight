@@ -27,7 +27,6 @@
 #include "RigFlowDiagResults.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigSingleWellResultsData.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
