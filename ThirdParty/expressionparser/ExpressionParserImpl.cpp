@@ -65,6 +65,11 @@ bool ExpressionParserImpl::evaluate(const QString& expressionText, QString* erro
     parser_t parser;
     if (!parser.compile(expressionText.toStdString(), expression))
     {
+        if (errorText)
+        {
+            *errorText = parserErrorText(parser);
+        }
+
         return false;
     }
 
