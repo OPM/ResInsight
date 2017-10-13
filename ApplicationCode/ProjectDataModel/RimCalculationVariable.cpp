@@ -110,7 +110,15 @@ void RimCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changed
         {
             RimCalculation* rimCalculation = nullptr;
             this->firstAncestorOrThisOfTypeAsserted(rimCalculation);
-            rimCalculation->updateConnectedEditors();
+
+            // RimCalculation is pointed to by RicSummaryCurveCalculator in a PtrField
+            // Update editors connected to RicSummaryCurveCalculator
+            std::vector<caf::PdmObjectHandle*> referringObjects;
+            rimCalculation->objectsWithReferringPtrFields(referringObjects);
+            for (auto o : referringObjects)
+            {
+                o->uiCapability()->updateConnectedEditors();
+            }
         }
     }
 }
