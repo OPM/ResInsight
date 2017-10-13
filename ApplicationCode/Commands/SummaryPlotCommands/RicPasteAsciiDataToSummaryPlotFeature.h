@@ -24,8 +24,6 @@
 
 #include <vector>
 
-#include <QDateTime>
-
 class RimSummaryCurve;
 class RimAsciiDataCurve;
 class RicPasteAsciiDataToSummaryPlotFeatureUi;

@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 
-class QDateTime;
 class QString;
 
 class RifColumnBasedAsciiParser;

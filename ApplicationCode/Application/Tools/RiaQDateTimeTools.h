@@ -43,9 +43,9 @@ public:
 
     static QDateTime epoch();
 
-    static QDateTime createDateTime();
-    static QDateTime createDateTime(const QDate& date);
-    static QDateTime createDateTime(const QDate& date, const QTime& time);
+    static QDateTime createUtcDateTime();
+    static QDateTime createUtcDateTime(const QDate& date);
+    static QDateTime createUtcDateTime(const QDate& date, const QTime& time);
 
 private:
     static quint64  secondsInDay();

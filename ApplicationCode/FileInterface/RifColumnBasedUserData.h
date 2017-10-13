@@ -22,11 +22,8 @@
 #include "RifSummaryReaderInterface.h"
 
 #include <map>
-#include <memory>
-#include <string>
 #include <vector>
 
-class QDateTime;
 class QString;
 
 class RifColumnBasedUserDataParser;
@@ -53,7 +50,7 @@ public:
 
 private:
     std::unique_ptr<RifColumnBasedUserDataParser>    m_parser;
-    std::vector< std::vector<time_t> >              m_timeSteps;
+    std::vector< std::vector<time_t> >               m_timeSteps;
 
     std::map<RifEclipseSummaryAddress, size_t >                     m_mapFromAddressToTimeStepIndex;
     std::map<RifEclipseSummaryAddress, std::pair<size_t, size_t> >  m_mapFromAddressToResultIndex;

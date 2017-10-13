@@ -122,7 +122,7 @@ QDateTime RiaQDateTimeTools::epoch()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::createDateTime()
+QDateTime RiaQDateTimeTools::createUtcDateTime()
 {
     auto qdt = QDateTime();
     qdt.setTimeSpec(currentTimeSpec());
@@ -132,7 +132,7 @@ QDateTime RiaQDateTimeTools::createDateTime()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::createDateTime(const QDate& date)
+QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date)
 {
     auto qdt = QDateTime(date);
     qdt.setTimeSpec(currentTimeSpec());
@@ -142,7 +142,7 @@ QDateTime RiaQDateTimeTools::createDateTime(const QDate& date)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::createDateTime(const QDate& date, const QTime& time)
+QDateTime RiaQDateTimeTools::createUtcDateTime(const QDate& date, const QTime& time)
 {
     auto qdt = QDateTime(date, time, currentTimeSpec());
     return qdt;

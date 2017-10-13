@@ -160,7 +160,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         int year = 0;
         getDayMonthYear(kwINTEHEAD, &day, &month, &year);
 
-        QDateTime reportDateTime = RiaQDateTimeTools::createDateTime(QDate(year, month, day));
+        QDateTime reportDateTime = RiaQDateTimeTools::createUtcDateTime(QDate(year, month, day));
         CVF_ASSERT(reportDateTime.isValid());
 
         double dayValue = dayValues[i];

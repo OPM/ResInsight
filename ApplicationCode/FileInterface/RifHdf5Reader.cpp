@@ -258,9 +258,7 @@ QDateTime RifHdf5Reader::sourSimDateTimeToQDateTime(std::string dateString) cons
 	QDate d(year, month, day);
 	QTime t(hours, minutes, seconds);
 
-	QDateTime dt;
-	dt.setDate(d);
-	dt.setTime(t);
+    QDateTime dt = RiaQDateTimeTools::createUtcDateTime(d, t);
 
 	return dt;
 }
