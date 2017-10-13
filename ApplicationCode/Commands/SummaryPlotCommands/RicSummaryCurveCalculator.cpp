@@ -171,8 +171,8 @@ void RicSummaryCurveCalculator::defineUiOrdering(QString uiConfigName, caf::PdmU
         group->add(&m_parseExpression);
         group->add(&m_calculateExpression);
 
-        group->add(&m_newVariable);
-        group->add(&m_deleteVariable);
+//         group->add(&m_newVariable);
+//         group->add(&m_deleteVariable);
     }
 }
 

@@ -28,6 +28,7 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableView.h"
+#include "RimCalculation.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCalculationVariable, "RimCalculationVariable");
@@ -40,8 +41,9 @@ RimCalculationVariable::RimCalculationVariable()
     CAF_PDM_InitObject("RimCalculationVariable", ":/octave.png", "RimCalculationVariable", "");
 
     CAF_PDM_InitFieldNoDefault(&m_name,             "VariableName",     "Variable Name", "", "", "");
+    m_name.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_button, "PushButton", "Edit ", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_button, "PushButton", "", "", "", "");
     m_button.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
     m_button.xmlCapability()->disableIO();
 
@@ -77,6 +79,8 @@ void RimCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changed
 {
     if (changedField == &m_button)
     {
+        bool updateContainingEditor = false;
+
         {
             RiuSummaryCurveDefSelectionDialog dlg(nullptr);
             {
@@ -94,11 +98,18 @@ void RimCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changed
                 {
                     m_case = sumCasePairs[0].summaryCase();
                     m_summaryAddress->setAddress(sumCasePairs[0].summaryAddress());
+
+                    updateContainingEditor = true;
                 }
             }
         }
 
-        this->updateConnectedEditors();
+        if (updateContainingEditor)
+        {
+            RimCalculation* rimCalculation = nullptr;
+            this->firstAncestorOrThisOfTypeAsserted(rimCalculation);
+            rimCalculation->updateConnectedEditors();
+        }
     }
 }
 

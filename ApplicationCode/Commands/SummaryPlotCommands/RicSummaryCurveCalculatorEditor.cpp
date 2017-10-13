@@ -92,6 +92,8 @@ void RicSummaryCurveCalculatorEditor::recursivelyConfigureAndUpdateTopLevelUiIte
         m_pdmTableView->setListField(nullptr);
 
     m_firstRowRightLayout->addWidget(m_pdmTableView);
+
+    m_pdmTableView->tableView()->resizeColumnsToContents();
 }
 
 //--------------------------------------------------------------------------------------------------
