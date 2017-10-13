@@ -33,12 +33,12 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimScriptCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiuMainWindow.h"
 

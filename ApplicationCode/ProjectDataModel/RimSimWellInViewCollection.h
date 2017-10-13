@@ -35,13 +35,13 @@ class RimSimWellInView;
 ///  
 ///  
 //==================================================================================================
-class RimEclipseWellCollection : public caf::PdmObject
+class RimSimWellInViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
 
-    RimEclipseWellCollection();
-    virtual ~RimEclipseWellCollection();
+    RimSimWellInViewCollection();
+    virtual ~RimSimWellInViewCollection();
     
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
 
@@ -52,7 +52,7 @@ public:
         PIPES_OPEN_IN_VISIBLE_CELLS,
         PIPES_FORCE_ALL_ON
     };
-    typedef caf::AppEnum<RimEclipseWellCollection::WellVisibilityType> WellVisibilityEnum;
+    typedef caf::AppEnum<RimSimWellInViewCollection::WellVisibilityType> WellVisibilityEnum;
 
     enum WellCellsRangeFilterType
     {
@@ -60,7 +60,7 @@ public:
         RANGE_ADD_INDIVIDUAL,
         RANGE_ADD_NONE
     };
-    typedef caf::AppEnum<RimEclipseWellCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
+    typedef caf::AppEnum<RimSimWellInViewCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
 
     enum WellFenceType
     {
@@ -68,21 +68,21 @@ public:
         J_DIRECTION,
         I_DIRECTION
     };
-    typedef caf::AppEnum<RimEclipseWellCollection::WellFenceType> WellFenceEnum;
+    typedef caf::AppEnum<RimSimWellInViewCollection::WellFenceType> WellFenceEnum;
 
     enum WellHeadPositionType
     {
         WELLHEAD_POS_ACTIVE_CELLS_BB, 
         WELLHEAD_POS_TOP_COLUMN
     };
-    typedef caf::AppEnum<RimEclipseWellCollection::WellHeadPositionType> WellHeadPositionEnum;
+    typedef caf::AppEnum<RimSimWellInViewCollection::WellHeadPositionType> WellHeadPositionEnum;
 
     enum WellPipeCoordType
     {
         WELLPIPE_CELLCENTER,
         WELLPIPE_INTERPOLATED
     };
-    typedef caf::AppEnum<RimEclipseWellCollection::WellPipeCoordType> WellPipeCoordEnum;
+    typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeCoordType> WellPipeCoordEnum;
 
 
     caf::PdmField<bool>                 isActive;

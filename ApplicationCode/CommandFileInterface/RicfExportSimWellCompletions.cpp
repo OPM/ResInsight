@@ -26,7 +26,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"

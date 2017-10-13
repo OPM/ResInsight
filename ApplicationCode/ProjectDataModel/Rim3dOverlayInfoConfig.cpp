@@ -37,7 +37,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"

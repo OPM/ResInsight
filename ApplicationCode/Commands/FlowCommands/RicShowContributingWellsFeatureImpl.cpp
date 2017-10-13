@@ -30,7 +30,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimFaultCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"

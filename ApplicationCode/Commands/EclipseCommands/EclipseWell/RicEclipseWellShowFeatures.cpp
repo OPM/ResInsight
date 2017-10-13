@@ -20,7 +20,7 @@
 
 #include "RicEclipseWellFeatureImpl.h"
 
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include <QAction>

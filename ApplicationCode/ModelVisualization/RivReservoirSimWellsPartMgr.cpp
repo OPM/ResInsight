@@ -26,7 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include "RivWellHeadPartMgr.h"

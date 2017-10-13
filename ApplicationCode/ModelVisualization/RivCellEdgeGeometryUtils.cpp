@@ -31,7 +31,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 

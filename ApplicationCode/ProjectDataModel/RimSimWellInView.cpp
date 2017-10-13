@@ -25,8 +25,8 @@
 
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimIntersectionCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimSimWellFractureCollection.h"
@@ -139,7 +139,7 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         }
     }
 
-    RimEclipseWellCollection* wellColl = nullptr;
+    RimSimWellInViewCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
     if (wellColl)
     {
@@ -150,7 +150,7 @@ void RimSimWellInView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 
     if (changedField == &wellPipeColor)
     {
-        RimEclipseWellCollection::updateWellAllocationPlots();
+        RimSimWellInViewCollection::updateWellAllocationPlots();
     }
 }
 
@@ -203,7 +203,7 @@ void RimSimWellInView::wellHeadTopBottomPosition(size_t frameIndex, cvf::Vec3d* 
 
     // Compute well head based on the z position of the top of the K column the well head is part of
     (*top) = (*bottom);
-    if ( m_rimReservoirView->wellCollection()->wellHeadPosition() == RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN )
+    if ( m_rimReservoirView->wellCollection()->wellHeadPosition() == RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN )
     {
         // Position well head at top active cell of IJ-column
 
@@ -402,7 +402,7 @@ void RimSimWellInView::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrderi
         return;
     }
     
-    const RimEclipseWellCollection* wellColl = nullptr;
+    const RimSimWellInViewCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
     if (!wellColl) return;
 
@@ -553,10 +553,10 @@ bool RimSimWellInView::isWellSpheresVisible(size_t frameIndex) const
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isUsingCellCenterForPipe() const
 {
-    const RimEclipseWellCollection* wellColl = nullptr;
+    const RimSimWellInViewCollection* wellColl = nullptr;
     this->firstAncestorOrThisOfType(wellColl);
 
-    return (wellColl && wellColl->wellPipeCoordType() == RimEclipseWellCollection::WELLPIPE_CELLCENTER);
+    return (wellColl && wellColl->wellPipeCoordType() == RimSimWellInViewCollection::WELLPIPE_CELLCENTER);
 }
 
 //--------------------------------------------------------------------------------------------------

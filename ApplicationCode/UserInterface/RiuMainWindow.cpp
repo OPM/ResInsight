@@ -28,11 +28,11 @@
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimView.h"
 
 #include "RiuDragDrop.h"

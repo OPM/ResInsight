@@ -21,7 +21,7 @@
 #include "RiaDefines.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimFishbonesCollection.h"
 #include "RimFishbonesMultipleSubs.h"
 #include "RimOilField.h"

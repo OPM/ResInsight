@@ -30,9 +30,9 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseStatisticsCaseEvaluator.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiuMainWindow.h"
 

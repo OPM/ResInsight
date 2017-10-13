@@ -32,9 +32,9 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPathSourceInfo.h"
@@ -253,7 +253,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
         wellCellStates.clear();
         wellCellStates.resize(brIt->m_cellIds.size(), closed);
 
-        RimEclipseWellCollection* wellColl = nullptr;
+        RimSimWellInViewCollection* wellColl = nullptr;
         if (m_rimWell)
         {
             m_rimWell->firstAncestorOrThisOfType(wellColl);

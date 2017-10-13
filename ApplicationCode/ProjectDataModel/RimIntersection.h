@@ -29,10 +29,10 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
-class RimSimWellInView;
-class RimEclipseWellCollection;
 class RimWellPath;
 class RivIntersectionPartMgr;
+class RimSimWellInView;
+class RimSimWellInViewCollection;
 
 //==================================================================================================
 //
@@ -104,7 +104,7 @@ private:
     caf::PdmField< std::vector< cvf::Vec3d> >  m_userPolyline;
     caf::PdmField< std::vector< cvf::Vec3d> >  m_customExtrusionPoints;
 
-    RimEclipseWellCollection*               simulationWellCollection();
+    RimSimWellInViewCollection*               simulationWellCollection();
     void                                    updateWellCenterline() const;
     void                                    updateWellExtentDefaultValue();
     void                                    addExtents(std::vector<cvf::Vec3d> &polyLine) const;

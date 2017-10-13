@@ -26,10 +26,10 @@
 
 #include "RimCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimTools.h"
 #include "RimView.h"
 #include "RimWellPath.h"
@@ -249,7 +249,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &simulationWell)
     {
-        RimEclipseWellCollection* coll = simulationWellCollection();
+        RimSimWellInViewCollection* coll = simulationWellCollection();
         if (coll)
         {
             caf::PdmChildArrayField<RimSimWellInView*>& simWells = coll->wells;
@@ -301,7 +301,7 @@ caf::PdmFieldHandle* RimIntersection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWellCollection* RimIntersection::simulationWellCollection()
+RimSimWellInViewCollection* RimIntersection::simulationWellCollection()
 {
     RimEclipseView* eclipseView = NULL;
     firstAncestorOrThisOfType(eclipseView);

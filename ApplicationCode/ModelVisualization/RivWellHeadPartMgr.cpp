@@ -32,7 +32,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include "RivPipeGeometryGenerator.h"
@@ -235,7 +235,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         cvf::Color4f headColor(cvf::Color3::GRAY);
 
-        RimEclipseWellCollection* wellColl = nullptr;
+        RimSimWellInViewCollection* wellColl = nullptr;
         if (m_rimWell)
         {
             m_rimWell->firstAncestorOrThisOfType(wellColl);
@@ -331,7 +331,7 @@ void RivWellHeadPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* 
     if (m_rimReservoirView.isNull()) return;
     if (m_rimWell.isNull()) return;
 
-    RimEclipseWellCollection* wellCollection = nullptr;
+    RimSimWellInViewCollection* wellCollection = nullptr;
     m_rimWell->firstAncestorOrThisOfType(wellCollection);
     if (!wellCollection) return;
 

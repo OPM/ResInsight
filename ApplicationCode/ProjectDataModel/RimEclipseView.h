@@ -49,10 +49,10 @@ class RimEclipseCellColors;
 class RimEclipseFaultColors;
 class RimEclipsePropertyFilter;
 class RimEclipsePropertyFilterCollection;
-class RimEclipseWellCollection;
 class RimFaultCollection;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
+class RimSimWellInViewCollection;
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 class RimStimPlanColors;
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
@@ -97,7 +97,7 @@ public:
     caf::PdmChildField<RimStimPlanColors*>                  stimPlanColors;
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
-    caf::PdmChildField<RimEclipseWellCollection*>            wellCollection;
+    caf::PdmChildField<RimSimWellInViewCollection*>            wellCollection;
     caf::PdmChildField<RimFaultCollection*>                  faultCollection;
 
     // Fields

@@ -32,7 +32,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"

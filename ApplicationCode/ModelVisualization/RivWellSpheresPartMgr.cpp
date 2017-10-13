@@ -25,7 +25,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include "RiuViewer.h"
@@ -195,7 +195,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor(const RigWellResultFrame& well
 
     cvf::Color3f cellColor(cvf::Color3f::GRAY);
 
-    RimEclipseWellCollection* wellColl = nullptr;
+    RimSimWellInViewCollection* wellColl = nullptr;
     if (m_rimWell)
     {
         m_rimWell->firstAncestorOrThisOfType(wellColl);

@@ -34,13 +34,13 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
-#include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
+#include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseView.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 
 #include <QTcpSocket>
 #include <QErrorMessage>

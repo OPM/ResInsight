@@ -18,7 +18,7 @@
 
 #include "RicEclipseWellFeatureImpl.h"
 
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include "cafSelectionManager.h"
@@ -53,14 +53,14 @@ std::vector<RimSimWellInView*> RicEclipseWellFeatureImpl::selectedWells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWellCollection* RicEclipseWellFeatureImpl::wellCollectionFromSelection()
+RimSimWellInViewCollection* RicEclipseWellFeatureImpl::wellCollectionFromSelection()
 {
     std::vector<RimSimWellInView*> selection = selectedWells();
     if (selection.size() > 0)
     {
         RimSimWellInView* firstWell = selection[0];
 
-        RimEclipseWellCollection* wellCollection = nullptr;
+        RimSimWellInViewCollection* wellCollection = nullptr;
         firstWell->firstAncestorOrThisOfType(wellCollection);
 
         return wellCollection;

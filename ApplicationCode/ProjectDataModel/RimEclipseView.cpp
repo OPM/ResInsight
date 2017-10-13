@@ -41,7 +41,6 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
-#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
@@ -53,6 +52,7 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimTernaryLegendConfig.h"
 #include "RimViewController.h"
@@ -126,7 +126,7 @@ RimEclipseView::RimEclipseView()
 #endif // USE_PROTOTYPE_FEATURE_FRACTURES
 
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
-    wellCollection = new RimEclipseWellCollection;
+    wellCollection = new RimSimWellInViewCollection;
     wellCollection.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&faultCollection, "FaultCollection", "Faults", "", "", "");
@@ -1340,17 +1340,17 @@ void RimEclipseView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleC
                                 size_t cellCountFenceDirection = 0;
                                 size_t fIdx = 0;
 
-                                if (this->wellCollection()->wellCellFenceType == RimEclipseWellCollection::K_DIRECTION)
+                                if (this->wellCollection()->wellCellFenceType == RimSimWellInViewCollection::K_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountK();
                                     pK = &fIdx;
                                 }
-                                else if (this->wellCollection()->wellCellFenceType == RimEclipseWellCollection::J_DIRECTION)
+                                else if (this->wellCollection()->wellCellFenceType == RimSimWellInViewCollection::J_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountJ();
                                     pJ = &fIdx;
                                 }
-                                else if (this->wellCollection()->wellCellFenceType == RimEclipseWellCollection::I_DIRECTION)
+                                else if (this->wellCollection()->wellCellFenceType == RimSimWellInViewCollection::I_DIRECTION)
                                 {
                                     cellCountFenceDirection = grid->cellCountI();
                                     pI = &fIdx;

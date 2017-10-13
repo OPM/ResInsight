@@ -21,7 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RigSimWellData.h"
 

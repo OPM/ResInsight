@@ -18,7 +18,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
@@ -50,12 +50,12 @@ namespace caf
 {
     // OBSOLETE enum
     template<>
-    void RimEclipseWellCollection::WellVisibilityEnum::setUp()
+    void RimSimWellInViewCollection::WellVisibilityEnum::setUp()
     {
-        addItem(RimEclipseWellCollection::PIPES_FORCE_ALL_OFF,       "FORCE_ALL_OFF",      "All Off");
-        addItem(RimEclipseWellCollection::PIPES_INDIVIDUALLY,        "ALL_ON",             "Individual");
-        addItem(RimEclipseWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS,"OPEN_IN_VISIBLE_CELLS", "Visible cells filtered");
-        addItem(RimEclipseWellCollection::PIPES_FORCE_ALL_ON,        "FORCE_ALL_ON",       "All On");
+        addItem(RimSimWellInViewCollection::PIPES_FORCE_ALL_OFF,       "FORCE_ALL_OFF",      "All Off");
+        addItem(RimSimWellInViewCollection::PIPES_INDIVIDUALLY,        "ALL_ON",             "Individual");
+        addItem(RimSimWellInViewCollection::PIPES_OPEN_IN_VISIBLE_CELLS,"OPEN_IN_VISIBLE_CELLS", "Visible cells filtered");
+        addItem(RimSimWellInViewCollection::PIPES_FORCE_ALL_ON,        "FORCE_ALL_ON",       "All On");
     }
 }
 
@@ -64,54 +64,54 @@ namespace caf
 {
     // OBSOLETE enum
     template<>
-    void RimEclipseWellCollection::WellCellsRangeFilterEnum::setUp()
+    void RimSimWellInViewCollection::WellCellsRangeFilterEnum::setUp()
     {
-        addItem(RimEclipseWellCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "All Off");
-        addItem(RimEclipseWellCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON",             "Individually");
-        addItem(RimEclipseWellCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "All On");
+        addItem(RimSimWellInViewCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "All Off");
+        addItem(RimSimWellInViewCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON",             "Individually");
+        addItem(RimSimWellInViewCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "All On");
     }
 }
 
 namespace caf
 {
     template<>
-    void RimEclipseWellCollection::WellFenceEnum::setUp()
+    void RimSimWellInViewCollection::WellFenceEnum::setUp()
     {
-        addItem(RimEclipseWellCollection::K_DIRECTION, "K_DIRECTION",    "K - Direction");
-        addItem(RimEclipseWellCollection::J_DIRECTION, "J_DIRECTION",    "J - Direction");
-        addItem(RimEclipseWellCollection::I_DIRECTION, "I_DIRECTION",    "I - Direction");
-        setDefault(RimEclipseWellCollection::K_DIRECTION);
+        addItem(RimSimWellInViewCollection::K_DIRECTION, "K_DIRECTION",    "K - Direction");
+        addItem(RimSimWellInViewCollection::J_DIRECTION, "J_DIRECTION",    "J - Direction");
+        addItem(RimSimWellInViewCollection::I_DIRECTION, "I_DIRECTION",    "I - Direction");
+        setDefault(RimSimWellInViewCollection::K_DIRECTION);
     }
 }
 
 namespace caf
 {
     template<>
-    void RimEclipseWellCollection::WellHeadPositionEnum::setUp()
+    void RimSimWellInViewCollection::WellHeadPositionEnum::setUp()
     {
-        addItem(RimEclipseWellCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of Active Cells");
-        addItem(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Top of Active Cell Column");
-        setDefault(RimEclipseWellCollection::WELLHEAD_POS_TOP_COLUMN);
+        addItem(RimSimWellInViewCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of Active Cells");
+        addItem(RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Top of Active Cell Column");
+        setDefault(RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN);
     }
 }
 
 namespace caf
 {
     template<>
-    void RimEclipseWellCollection::WellPipeCoordEnum::setUp()
+    void RimSimWellInViewCollection::WellPipeCoordEnum::setUp()
     {
-        addItem(RimEclipseWellCollection::WELLPIPE_INTERPOLATED,    "WELLPIPE_INTERPOLATED",    "Interpolated");
-        addItem(RimEclipseWellCollection::WELLPIPE_CELLCENTER,      "WELLPIPE_CELLCENTER",      "Cell Centers");
-        setDefault(RimEclipseWellCollection::WELLPIPE_INTERPOLATED);
+        addItem(RimSimWellInViewCollection::WELLPIPE_INTERPOLATED,    "WELLPIPE_INTERPOLATED",    "Interpolated");
+        addItem(RimSimWellInViewCollection::WELLPIPE_CELLCENTER,      "WELLPIPE_CELLCENTER",      "Cell Centers");
+        setDefault(RimSimWellInViewCollection::WELLPIPE_INTERPOLATED);
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimEclipseWellCollection, "Wells");
+CAF_PDM_SOURCE_INIT(RimSimWellInViewCollection, "Wells");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWellCollection::RimEclipseWellCollection()
+RimSimWellInViewCollection::RimSimWellInViewCollection()
 {
     CAF_PDM_InitObject("Simulation Wells", ":/WellCollection.png", "", "");
 
@@ -221,7 +221,7 @@ RimEclipseWellCollection::RimEclipseWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimEclipseWellCollection::~RimEclipseWellCollection()
+RimSimWellInViewCollection::~RimSimWellInViewCollection()
 {
    wells.deleteAllChildObjects();
 }
@@ -229,7 +229,7 @@ RimEclipseWellCollection::~RimEclipseWellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::setShowWellCellsState(bool enable)
+void RimSimWellInViewCollection::setShowWellCellsState(bool enable)
 {
     for (RimSimWellInView* w : wells)
     {
@@ -248,7 +248,7 @@ void RimEclipseWellCollection::setShowWellCellsState(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWellCollection::showWellCells()
+bool RimSimWellInViewCollection::showWellCells()
 {
     if (m_showWellCells().isFalse())
     {
@@ -263,7 +263,7 @@ bool RimEclipseWellCollection::showWellCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSimWellInView* RimEclipseWellCollection::findWell(QString name)
+RimSimWellInView* RimSimWellInViewCollection::findWell(QString name)
 {
     for (size_t i = 0; i < this->wells().size(); ++i)
     {
@@ -278,7 +278,7 @@ RimSimWellInView* RimEclipseWellCollection::findWell(QString name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWellCollection::hasVisibleWellCells()
+bool RimSimWellInViewCollection::hasVisibleWellCells()
 {
     if (!this->isActive()) return false;
     if (this->wells().size() == 0 ) return false;
@@ -310,7 +310,7 @@ bool RimEclipseWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 /// Used to know if we need animation of time steps due to the wells
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseWellCollection::hasVisibleWellPipes() 
+bool RimSimWellInViewCollection::hasVisibleWellPipes() 
 {
     if (!this->isActive()) return false;
     if (this->wells().size() == 0 ) return false;
@@ -321,7 +321,7 @@ bool RimEclipseWellCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimSimWellInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (&isActive == changedField)
     {
@@ -446,7 +446,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 
         if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 
-        RimEclipseWellCollection::updateWellAllocationPlots();
+        RimSimWellInViewCollection::updateWellAllocationPlots();
 
         m_applySingleColorToWells = false;
     }
@@ -478,7 +478,7 @@ void RimEclipseWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::assignDefaultWellColors()
+void RimSimWellInViewCollection::assignDefaultWellColors()
 {
 
 
@@ -494,13 +494,13 @@ void RimEclipseWellCollection::assignDefaultWellColors()
         }
     }
 
-    RimEclipseWellCollection::updateWellAllocationPlots();
+    RimSimWellInViewCollection::updateWellAllocationPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::updateWellAllocationPlots()
+void RimSimWellInViewCollection::updateWellAllocationPlots()
 {
     RimProject* proj = RiaApplication::instance()->project();
 
@@ -516,7 +516,7 @@ void RimEclipseWellCollection::updateWellAllocationPlots()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimSimWellInViewCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }
@@ -524,7 +524,7 @@ void RimEclipseWellCollection::setReservoirView(RimEclipseView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimSimWellInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     updateStateForVisibilityCheckboxes();
 
@@ -574,7 +574,7 @@ void RimEclipseWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::updateStateForVisibilityCheckboxes()
+void RimSimWellInViewCollection::updateStateForVisibilityCheckboxes()
 {
     size_t showLabelCount = 0;
     size_t showWellHeadCount = 0;
@@ -604,7 +604,7 @@ void RimEclipseWellCollection::updateStateForVisibilityCheckboxes()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::updateStateFromEnabledChildCount(size_t enabledChildCount, caf::PdmField<caf::Tristate>* fieldToUpdate)
+void RimSimWellInViewCollection::updateStateFromEnabledChildCount(size_t enabledChildCount, caf::PdmField<caf::Tristate>* fieldToUpdate)
 {
     caf::Tristate tristate;
 
@@ -627,7 +627,7 @@ void RimEclipseWellCollection::updateStateFromEnabledChildCount(size_t enabledCh
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
+caf::PdmFieldHandle* RimSimWellInViewCollection::objectToggleField()
 {
     return &isActive;
 }
@@ -636,7 +636,7 @@ caf::PdmFieldHandle* RimEclipseWellCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::initAfterRead()
+void RimSimWellInViewCollection::initAfterRead()
 {
     if (obsoleteField_wellPipeVisibility() == PIPES_OPEN_IN_VISIBLE_CELLS)
     {
@@ -704,7 +704,7 @@ void RimEclipseWellCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+void RimSimWellInViewCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
 {
     if (&m_applyIndividualColorsToWells == field)
     {
@@ -737,7 +737,7 @@ void RimEclipseWellCollection::defineEditorAttribute(const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellGeometryVisibilities(size_t frameIndex)
+const std::vector<cvf::ubyte>& RimSimWellInViewCollection::resultWellGeometryVisibilities(size_t frameIndex)
 {
     calculateWellGeometryVisibility(frameIndex);
     return m_framesOfResultWellPipeVisibilities[frameIndex];
@@ -746,7 +746,7 @@ const std::vector<cvf::ubyte>& RimEclipseWellCollection::resultWellGeometryVisib
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
+void RimSimWellInViewCollection::scheduleIsWellPipesVisibleRecalculation()
 {
     m_framesOfResultWellPipeVisibilities.clear();
 }
@@ -754,7 +754,7 @@ void RimEclipseWellCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::calculateWellGeometryVisibility(size_t frameIndex)
+void RimSimWellInViewCollection::calculateWellGeometryVisibility(size_t frameIndex)
 {
     if (m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size()) return;
 
@@ -786,7 +786,7 @@ bool lessEclipseWell(const caf::PdmPointer<RimSimWellInView>& w1,  const caf::Pd
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseWellCollection::sortWellsByName()
+void RimSimWellInViewCollection::sortWellsByName()
 {
    std::sort(wells.begin(), wells.end(), lessEclipseWell);
 }

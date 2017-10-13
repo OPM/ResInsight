@@ -24,7 +24,7 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include "cvfRay.h"

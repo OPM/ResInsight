@@ -38,7 +38,7 @@
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
 
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimFishboneWellPath.h"
 #include "RimFishboneWellPathCollection.h"
 #include "RimFishbonesCollection.h"
@@ -204,7 +204,7 @@ std::vector<RimSimWellInView*> RicWellPathExportCompletionDataFeature::selectedS
     std::vector<RimSimWellInView*> simWells;
     caf::SelectionManager::instance()->objectsByType(&simWells);
 
-    std::vector<RimEclipseWellCollection*> simWellCollections;
+    std::vector<RimSimWellInViewCollection*> simWellCollections;
     caf::SelectionManager::instance()->objectsByType(&simWellCollections);
 
     for (auto simWellCollection : simWellCollections)

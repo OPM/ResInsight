@@ -26,10 +26,10 @@
 #include "RigTernaryResultAccessor2d.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseView.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimTernaryLegendConfig.h"
-#include "RimEclipseWellCollection.h"
 
 #include "RivTernaryResultToTextureMapper.h"
 #include "RivTernaryScalarMapper.h"

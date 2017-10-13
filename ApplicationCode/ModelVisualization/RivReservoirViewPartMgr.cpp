@@ -37,9 +37,9 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
 #include "RimFaultCollection.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
 

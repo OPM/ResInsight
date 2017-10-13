@@ -20,7 +20,7 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimSimWellInView.h"
 
 #include "RigSimWellData.h"
@@ -121,7 +121,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasi
     }
 
     bool enableLighting                = !m_rimReservoirView->isLightingDisabled();
-    RimEclipseWellCollection* wellColl = m_rimReservoirView->wellCollection();
+    RimSimWellInViewCollection* wellColl = m_rimReservoirView->wellCollection();
 
     // Create potentially two the arrows to/from m_rimWell for each of the other wells in the model.
     // One arrow for the "official" state of the well, and one to account for cross flow contributions 

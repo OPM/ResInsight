@@ -41,10 +41,10 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimEclipseWellCollection.h"
-#include "RimReservoirCellResultsStorage.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 
 #include "RiuSelectionManager.h"
 
