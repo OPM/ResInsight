@@ -42,7 +42,7 @@ class RimNoCommonAreaNncCollection;
 ///  
 ///  
 //==================================================================================================
-class RimFaultCollection : public caf::PdmObject
+class RimFaultInViewCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -54,8 +54,8 @@ public:
     };
 
 public:
-    RimFaultCollection();
-    virtual ~RimFaultCollection();
+    RimFaultInViewCollection();
+    virtual ~RimFaultInViewCollection();
 
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
     void                                syncronizeFaults();

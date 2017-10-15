@@ -30,7 +30,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimLegendConfig.h"
 #include "RimTernaryLegendConfig.h"
 
@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFaultInView* rimFault)
+RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, const RimFaultInView* rimFault)
     :   m_grid(grid),
         m_rimFaultCollection(rimFaultCollection),
         m_rimFault(rimFault),
@@ -454,7 +454,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
             RimFaultInView* noConstRimFault = const_cast<RimFaultInView*>(m_rimFault);
             if (noConstRimFault)
             {
-                RimFaultCollection* parentObject;
+                RimFaultInViewCollection* parentObject;
                 noConstRimFault->firstAncestorOrThisOfType(parentObject);
                 if (parentObject)
                 {
@@ -604,7 +604,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
     bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
     if (!isShowingGrid )
     {
-        if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+        if (m_rimFaultCollection->faultResult() == RimFaultInViewCollection::FAULT_BACK_FACE_CULLING)
         {
             if (m_grid->mainGrid()->isFaceNormalsOutwards())
             {
@@ -615,7 +615,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
                 return caf::FC_FRONT;
             }
         }
-        else if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+        else if (m_rimFaultCollection->faultResult() == RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING)
         {
             if (m_grid->mainGrid()->isFaceNormalsOutwards())
             {

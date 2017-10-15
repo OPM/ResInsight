@@ -38,7 +38,7 @@
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
@@ -397,11 +397,11 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                 bool isShowingGrid = eclipseView->faultCollection()->isGridVisualizationMode();
                 if (!isShowingGrid)
                 {
-                    if (eclipseView->faultCollection()->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+                    if (eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_BACK_FACE_CULLING)
                     {
                         faultMapping = "Cells behind fault";
                     }
-                    else if (eclipseView->faultCollection()->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+                    else if (eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING)
                     {
                         faultMapping = "Cells in front of fault";
                     }

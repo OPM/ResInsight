@@ -17,7 +17,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
@@ -41,23 +41,23 @@
 namespace caf
 {
     template<>
-    void AppEnum< RimFaultCollection::FaultFaceCullingMode >::setUp()
+    void AppEnum< RimFaultInViewCollection::FaultFaceCullingMode >::setUp()
     {
-        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell behind fault");
-        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell in front of fault");
-        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both");
-        setDefault(RimFaultCollection::FAULT_NO_FACE_CULLING);
+        addItem(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell behind fault");
+        addItem(RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell in front of fault");
+        addItem(RimFaultInViewCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both");
+        setDefault(RimFaultInViewCollection::FAULT_NO_FACE_CULLING);
     }
 }
 
 
 
-CAF_PDM_SOURCE_INIT(RimFaultCollection, "Faults");
+CAF_PDM_SOURCE_INIT(RimFaultInViewCollection, "Faults");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultCollection::RimFaultCollection()
+RimFaultInViewCollection::RimFaultInViewCollection()
 {
     CAF_PDM_InitObject("Faults", ":/draw_style_faults_24x24.png", "", "");
 
@@ -68,7 +68,7 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show opposite faces", "", "", "");
     CAF_PDM_InitField(&m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show faults outside filters", "", "", "");
 
-    CAF_PDM_InitField(&faultResult, "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
+    CAF_PDM_InitField(&faultResult, "FaultFaceCulling", caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>(RimFaultInViewCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
     CAF_PDM_InitField(&showFaultLabel, "ShowFaultLabel", false, "Show labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
@@ -90,7 +90,7 @@ RimFaultCollection::RimFaultCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultCollection::~RimFaultCollection()
+RimFaultInViewCollection::~RimFaultInViewCollection()
 {
    faults.deleteAllChildObjects();
 
@@ -101,7 +101,7 @@ RimFaultCollection::~RimFaultCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFaultInViewCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
     
@@ -138,7 +138,7 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::setReservoirView(RimEclipseView* ownerReservoirView)
+void RimFaultInViewCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
 }
@@ -147,7 +147,7 @@ void RimFaultCollection::setReservoirView(RimEclipseView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFaultCollection::objectToggleField()
+caf::PdmFieldHandle* RimFaultInViewCollection::objectToggleField()
 {
     return &showFaultCollection;
 }
@@ -155,7 +155,7 @@ caf::PdmFieldHandle* RimFaultCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultInView* RimFaultCollection::findFaultByName(QString name)
+RimFaultInView* RimFaultInViewCollection::findFaultByName(QString name)
 {
     for (size_t i = 0; i < this->faults().size(); ++i)
     {
@@ -183,7 +183,7 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::syncronizeFaults()
+void RimFaultInViewCollection::syncronizeFaults()
 {
     if (!(m_reservoirView && m_reservoirView->mainGrid()) ) return;
 
@@ -338,7 +338,7 @@ void RimFaultCollection::syncronizeFaults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFaultCollection::isGridVisualizationMode() const
+bool RimFaultInViewCollection::isGridVisualizationMode() const
 {
     CVF_ASSERT(m_reservoirView);
 
@@ -348,7 +348,7 @@ bool RimFaultCollection::isGridVisualizationMode() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimFaultInViewCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     bool isGridVizMode = isGridVisualizationMode();
 
@@ -377,7 +377,7 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimFaultCollection::showFaultsOutsideFilters() const
+bool RimFaultInViewCollection::showFaultsOutsideFilters() const
 {
     if (!showFaultCollection) return false;
 
@@ -387,7 +387,7 @@ bool RimFaultCollection::showFaultsOutsideFilters() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
+void RimFaultInViewCollection::setShowFaultsOutsideFilters(bool enableState)
 {
     m_showFaultsOutsideFilters = enableState;
 }
@@ -395,7 +395,7 @@ void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultCollection::addMockData()
+void RimFaultInViewCollection::addMockData()
 {
     if (!(m_reservoirView && m_reservoirView->mainGrid())) return;
 

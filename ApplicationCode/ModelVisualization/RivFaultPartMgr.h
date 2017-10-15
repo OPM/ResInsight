@@ -35,9 +35,9 @@ namespace cvf
 
 class RimEclipseCellColors;
 class RimCellEdgeColors;
-class RimFaultCollection;
+class RimFaultInViewCollection;
 class RigGridBase;
-class RimFaultCollection;
+class RimFaultInViewCollection;
 class RimFaultInView;
 class RivFaultGeometryGenerator;
 class RivNNCGeometryGenerator;
@@ -51,7 +51,7 @@ class RivNNCGeometryGenerator;
 class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFaultInView* rimFault);
+    RivFaultPartMgr(const RigGridBase* grid, const RimFaultInViewCollection* rimFaultCollection, const RimFaultInView* rimFault);
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
@@ -80,7 +80,7 @@ private:
 private:
     cvf::cref<RigGridBase>      m_grid;
     const RimFaultInView*             m_rimFault;
-    const RimFaultCollection*   m_rimFaultCollection;
+    const RimFaultInViewCollection*   m_rimFaultCollection;
 
     float                       m_opacityLevel;
     cvf::Color3f                m_defaultColor;

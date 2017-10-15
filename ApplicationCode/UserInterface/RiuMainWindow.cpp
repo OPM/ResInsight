@@ -28,7 +28,7 @@
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"

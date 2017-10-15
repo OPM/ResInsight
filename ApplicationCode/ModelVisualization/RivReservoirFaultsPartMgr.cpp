@@ -26,7 +26,7 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 
 #include "RivFaultPartMgr.h"
 
@@ -49,7 +49,7 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  R
 
     if (reservoirView)
     {
-        RimFaultCollection* faultCollection = reservoirView->faultCollection();
+        RimFaultInViewCollection* faultCollection = reservoirView->faultCollection();
         if (faultCollection)
         {
             for (size_t i = 0; i < faultCollection->faults.size(); i++)
@@ -97,7 +97,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != NULL);
 
-    RimFaultCollection* faultCollection = m_reservoirView->faultCollection();
+    RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();
     if (!faultCollection) return;
 
  
@@ -211,7 +211,7 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimEclipseCel
 {
     if (!m_reservoirView) return;
 
-    RimFaultCollection* faultCollection = m_reservoirView->faultCollection();
+    RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();
     CVF_ASSERT(faultCollection);
 
     for (size_t i = 0; i < faultCollection->faults.size(); i++)
@@ -246,7 +246,7 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
     CVF_ASSERT(model != NULL);
     if (!m_reservoirView) return;
 
-    RimFaultCollection* faultCollection = m_reservoirView->faultCollection();
+    RimFaultInViewCollection* faultCollection = m_reservoirView->faultCollection();
     CVF_ASSERT(faultCollection);
 
     if (!faultCollection->showFaultCollection()) return;

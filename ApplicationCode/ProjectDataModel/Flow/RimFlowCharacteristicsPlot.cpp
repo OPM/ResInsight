@@ -29,7 +29,7 @@
 #include "RimEclipseView.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 #include "RicSelectOrCreateViewFeatureImpl.h"

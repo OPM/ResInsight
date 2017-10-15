@@ -43,7 +43,7 @@ ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
 ${CEE_CURRENT_LIST_DIR}RimTools.h
 ${CEE_CURRENT_LIST_DIR}RimFaultInView.h
-${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
+${CEE_CURRENT_LIST_DIR}RimFaultInViewCollection.h
 ${CEE_CURRENT_LIST_DIR}RimFormationNames.h
 ${CEE_CURRENT_LIST_DIR}RimFormationNamesCollection.h
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
@@ -143,7 +143,7 @@ ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimTools.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultInView.cpp
-${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimFaultInViewCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimFormationNames.cpp
 ${CEE_CURRENT_LIST_DIR}RimFormationNamesCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp

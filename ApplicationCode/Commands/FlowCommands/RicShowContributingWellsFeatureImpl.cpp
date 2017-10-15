@@ -31,7 +31,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
-#include "RimFaultCollection.h"
+#include "RimFaultInViewCollection.h"
 #include "RimFlowDiagSolution.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
