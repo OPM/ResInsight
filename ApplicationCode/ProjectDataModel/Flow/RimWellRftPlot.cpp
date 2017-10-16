@@ -71,6 +71,7 @@ RimWellRftPlot::RimWellRftPlot()
     CAF_PDM_InitFieldNoDefault(&m_wellLogPlot, "WellLog", "WellLog", "", "", "");
     m_wellLogPlot.uiCapability()->setUiHidden(true);
     m_wellLogPlot = new RimWellLogPlot();
+    m_wellLogPlot->setDepthType(RimWellLogPlot::TRUE_VERTICAL_DEPTH);
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "WellName", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_branchIndex, "BranchIndex", "BranchIndex", "", "", "");

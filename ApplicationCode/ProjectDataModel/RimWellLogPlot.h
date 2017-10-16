@@ -31,6 +31,7 @@
 
 class RiuWellLogPlot;
 class RimWellLogTrack;
+class RimWellRftPlot;
 
 
 //==================================================================================================
@@ -100,6 +101,9 @@ public:
     virtual QWidget*                                viewWidget() override;
 
     QString                                         asciiDataForPlotExport() const;
+
+    RimWellRftPlot*                                 rftPlot() const;
+    bool                                            isRftPlotChild() const;
 
 protected:
 

@@ -34,6 +34,7 @@
 #include "cvfAssert.h"
 
 #include <math.h>
+#include "RimWellRftPlot.h"
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0
@@ -124,6 +125,7 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         RimWellAllocationPlot* wellAllocPlot;
         firstAncestorOrThisOfType(wellAllocPlot);
         if (wellAllocPlot) wellAllocPlot->loadDataAndUpdate();
+        else if (isRftPlotChild()) rftPlot()->loadDataAndUpdate();
         else updateTracks();
     }
     if ( changedField == &m_depthUnit)
@@ -152,6 +154,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogPlot::calculateValueOptions(const caf::P
         for (size_t i = 0; i < DepthAppEnum::size(); ++i)
         {
             DepthTypeEnum enumVal = DepthAppEnum::fromIndex(i);
+
             if (m_disabledDepthTypes.count( enumVal) == 0) 
             {
                 options.push_back(caf::PdmOptionItemInfo(DepthAppEnum::uiText(enumVal), enumVal));
@@ -474,6 +477,24 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellRftPlot* RimWellLogPlot::rftPlot() const
+{
+    RimWellRftPlot* rftPlot;
+    firstAncestorOrThisOfType(rftPlot);
+    return rftPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::isRftPlotChild() const
+{
+    return rftPlot() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const
 {
     *minimumDepth = m_minVisibleDepth;
@@ -776,6 +797,12 @@ void RimWellLogPlot::updateDisabledDepthTypes()
         {
             m_depthType = CONNECTION_NUMBER;
         }
+    }
+    else if (isRftPlotChild())
+    {
+        m_disabledDepthTypes.insert(MEASURED_DEPTH);
+        m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+        m_disabledDepthTypes.insert(CONNECTION_NUMBER);
     }
     else
     {
