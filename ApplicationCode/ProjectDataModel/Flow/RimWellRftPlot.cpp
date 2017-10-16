@@ -1139,11 +1139,20 @@ void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
         }
     }
 
+    addTimeStepsToMap(m_timeStepsToAddresses, displayTimeStepsMap);
+
+    // Create vector of all time steps
+    std::vector<QDateTime> allTimeSteps;
+    for (const auto& timeStepPair : m_timeStepsToAddresses)
+    {
+        allTimeSteps.push_back(timeStepPair.first);
+    }
+
+    auto dateFormatString = RimTools::createTimeFormatStringFromDates(allTimeSteps);
     for (const auto& timeStepPair : displayTimeStepsMap)
     {
-        options.push_back(caf::PdmOptionItemInfo(timeStepPair.first.toString(RimTools::dateFormatString()), timeStepPair.first));
+        options.push_back(caf::PdmOptionItemInfo(timeStepPair.first.toString(dateFormatString), timeStepPair.first));
     }
-    addTimeStepsToMap(m_timeStepsToAddresses, displayTimeStepsMap);
 }
 
 //--------------------------------------------------------------------------------------------------
