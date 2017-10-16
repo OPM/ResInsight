@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
 RiaPreferences::RiaPreferences(void)
 {
-    CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_CEETRON), "Navigation Mode", "", "", "");
+    CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_RMS), "Navigation Mode", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
     scriptDirectories.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
