@@ -346,7 +346,7 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimWellRftPlot::eclipseCaseFromCaseId(int caseId)
 {
-    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
+    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
     auto itr = std::find_if(eclipseCases.begin(), eclipseCases.end(), 
                             [caseId](std::tuple<RimEclipseResultCase*,bool,bool> eclCase) { return std::get<0>(eclCase)->caseId == caseId; });
     return itr != eclipseCases.end() ? std::get<0>(*itr) : nullptr;
@@ -375,7 +375,7 @@ RimWellPath* RimWellRftPlot::wellPathForObservedData(const QString& wellName, co
 /// 
 //--------------------------------------------------------------------------------------------------
 std::vector<std::tuple<RimEclipseResultCase*, bool/*hasPressure*/, bool /*hasRftData*/>> 
-RimWellRftPlot::eclipseCasesContainingPressure(const QString& wellName) const
+RimWellRftPlot::eclipseCasesForWell(const QString& wellName) const
 {
     std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> cases;
     auto project = RiaApplication::instance()->project();
@@ -416,7 +416,7 @@ RimWellRftPlot::gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclips
     {
         bool hasPressureData = std::get<1>(eclCaseTuple);
         size_t timeStepCount = timeStepsFromGridCase(std::get<0>(eclCaseTuple)).size();
-        if (timeStepCount > 0)
+        if (hasPressureData && timeStepCount > 0)
         {
             cases.push_back(std::get<0>(eclCaseTuple));
         }
@@ -561,7 +561,7 @@ bool RimWellRftPlot::mapContainsTimeStep(const std::map<QDateTime, std::set<RimW
 std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurveDefs() const
 {
     std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefs;
-    const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
+    const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
     auto rftCases = rftCasesFromEclipseCases(eclipseCases);
     auto gridCases = gridCasesFromEclipseCases(eclipseCases);
     auto wellPaths = wellPathsContainingPressure(m_wellName);
@@ -872,7 +872,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedSources)
     {
-        const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(m_wellName);
+        const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
 
         auto rftCases = rftCasesFromEclipseCases(eclipseCases);
         if (rftCases.size() > 0)
@@ -1077,7 +1077,7 @@ void RimWellRftPlot::calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>
 void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options)
 {
     std::map<QDateTime, std::set<RimWellRftAddress>> displayTimeStepsMap, obsAndRftTimeStepsMap, gridTimeStepsMap;
-    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesContainingPressure(wellName);
+    const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(wellName);
     auto rftCases = rftCasesFromEclipseCases(eclipseCases);
     auto gridCases = gridCasesFromEclipseCases(eclipseCases);
     auto observedWellPaths = wellPathsContainingPressure(m_wellName);

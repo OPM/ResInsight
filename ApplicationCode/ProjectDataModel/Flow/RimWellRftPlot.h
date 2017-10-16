@@ -121,7 +121,7 @@ private:
 
     RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
 
-    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesContainingPressure(const QString& wellName) const;
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
     std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
