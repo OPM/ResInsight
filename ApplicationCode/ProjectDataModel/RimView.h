@@ -174,7 +174,7 @@ public:
     void                                    updateGridBoxData();
     virtual RimCase*                        ownerCase() const = 0;
 
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual caf::PdmFieldHandle*            userDescriptionField() override { return &name; }
 protected:
 
     void                                    setDefaultView();
@@ -218,10 +218,9 @@ protected:
     caf::PdmChildField<RimGridCollection*>              m_gridCollection;
     
     // Overridden PDM methods:
-    virtual void                            setupBeforeSave();
-    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                            setupBeforeSave() override;
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-
 
     virtual QWidget*                        createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                            updateViewWidgetAfterCreation() override; 
