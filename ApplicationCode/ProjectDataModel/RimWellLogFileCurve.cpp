@@ -90,26 +90,42 @@ void RimWellLogFileCurve::onLoadDataAndUpdate(bool updateParentPlot)
                 if (wellLogFile)
                 {
                     std::vector<double> values = wellLogFile->values(m_wellLogChannnelName);
-
                     std::vector<double> measuredDepthValues = wellLogFile->depthValues();
 
                     if (wellLogPlot && wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
                     {
-                        RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
-                        if (rigWellPath)
+                        bool canUseTvd = false;
+                        if (wellLogFile->hasTvdChannel())
                         {
-                            std::vector<double> trueVerticeldepthValues;
+                            std::vector<double> tvdMslValues = wellLogFile->tvdMslValues();
 
-                            for (double measuredDepthValue : measuredDepthValues)
+                            if (values.size() == measuredDepthValues.size() && values.size() == tvdMslValues.size())
                             {
-                                trueVerticeldepthValues.push_back(-rigWellPath->interpolatedPointAlongWellPath(measuredDepthValue).z());
-                            }
-                            if (values.size() == trueVerticeldepthValues.size() && values.size() == measuredDepthValues.size())
-                            {
-                                m_curveData->setValuesWithTVD(values, measuredDepthValues, trueVerticeldepthValues, wellLogFile->depthUnit(), false);
+                                m_curveData->setValuesWithTVD(values, measuredDepthValues, tvdMslValues, wellLogFile->depthUnit(), false);
+                                canUseTvd = true;
                             }
                         }
-                        else
+
+                        if (!canUseTvd)
+                        {
+                            RigWellPath* rigWellPath = m_wellPath->wellPathGeometry();
+                            if (rigWellPath)
+                            {
+                                std::vector<double> trueVerticeldepthValues;
+
+                                for (double measuredDepthValue : measuredDepthValues)
+                                {
+                                    trueVerticeldepthValues.push_back(-rigWellPath->interpolatedPointAlongWellPath(measuredDepthValue).z());
+                                }
+                                if (values.size() == trueVerticeldepthValues.size() && values.size() == measuredDepthValues.size())
+                                {
+                                    m_curveData->setValuesWithTVD(values, measuredDepthValues, trueVerticeldepthValues, wellLogFile->depthUnit(), false);
+                                    canUseTvd = true;
+                                }
+                            }
+                        }
+
+                        if (!canUseTvd)
                         {
                             if (RiaApplication::instance()->preferences()->showLasCurveWithoutTvdWarning())
                             {

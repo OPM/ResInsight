@@ -115,6 +115,10 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
         {
             m_depthLogName = logName;
         }
+        else if (logName.toUpper() == "TVDMSL")
+        {
+            m_tvdMslLogName = logName;
+        }
     }
 
     m_wellLogChannelNames = wellLogNames;
@@ -170,6 +174,14 @@ QStringList RigWellLogFile::wellLogChannelNames() const
 std::vector<double> RigWellLogFile::depthValues() const
 {
     return values(m_depthLogName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogFile::tvdMslValues() const
+{
+    return values(m_tvdMslLogName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,6 +349,14 @@ bool RigWellLogFile::exportToLasFile(const RimWellLogCurve* curve, const QString
     lasFile.WriteToFile(fileName.toStdString(), commentHeader);
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogFile::hasTvdChannel() const
+{
+    return !m_tvdMslLogName.isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
