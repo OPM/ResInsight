@@ -148,6 +148,22 @@ QString RimCalculationVariable::summaryAddressDisplayString() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimCalculationVariable::summaryCase()
+{
+    return m_case();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryAddress* RimCalculationVariable::summaryAddress()
+{
+    return m_summaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCalculationVariable::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_name);

@@ -18,6 +18,9 @@
 
 #include "RiaSummaryCurveDefinition.h"
 
+#include "RifSummaryReaderInterface.h"
+#include "RimSummaryCase.h"
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -40,6 +43,22 @@ RimSummaryCase* RiaSummaryCurveDefinition::summaryCase() const
 const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() const
 {
     return m_curveDefinition.second;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::resultValues(const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values)
+{
+    CVF_ASSERT(values);
+
+    if (!curveDefinition.summaryAddress().isValid()) return;
+    if (!curveDefinition.summaryCase()) return;
+    
+    RifSummaryReaderInterface* reader = curveDefinition.summaryCase()->summaryReader();
+    if (!reader) return;
+
+    reader->values(curveDefinition.summaryAddress(), values);
 }
 
 //--------------------------------------------------------------------------------------------------

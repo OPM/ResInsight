@@ -45,6 +45,9 @@ public:
 
     QString         summaryAddressDisplayString() const;
 
+    RimSummaryCase*     summaryCase();
+    RimSummaryAddress*  summaryAddress();
+
 private:
     
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

@@ -21,12 +21,15 @@
 #include "expressionparser/ExpressionParser.h"
 
 #include "RiaLogging.h"
+#include "RiaSummaryCurveDefinition.h"
+
 #include "RimCalculationVariable.h"
+#include "RimSummaryCurve.h"
 
 #include "cafPdmUiTextEditor.h"
 
-#include <numeric>
 #include <algorithm>
+#include <numeric>
 
 
 CAF_PDM_SOURCE_INIT(RimCalculation, "RimCalculation");
@@ -173,15 +176,50 @@ bool RimCalculation::calculate()
 
     ExpressionParser parser;
 
-    std::vector<double> a(10);
-    std::iota(a.begin(), a.end(), 0);
+    std::vector<std::vector<double>> variableValues;
+    variableValues.resize(m_variables.size());
     
     size_t itemCount = 0;
 
-    for (RimCalculationVariable* v : m_variables)
+    for (size_t i = 0; i < m_variables.size(); i++)
     {
-        itemCount = a.size();
-        parser.assignVector(v->name(), a);
+        RimCalculationVariable* v = m_variables[i];
+
+        if (!v->summaryCase())
+        {
+            RiaLogging::error("No summary case defined.");
+
+            return false;
+        }
+
+        if (!v->summaryAddress())
+        {
+            RiaLogging::error("No summary address defined.");
+
+            return false;
+        }
+
+        RimSummaryAddress* sumAdr = v->summaryAddress();
+        RiaSummaryCurveDefinition curveDef(v->summaryCase(), v->summaryAddress()->address());
+
+        std::vector<double>& curveValues = variableValues[i];
+        RiaSummaryCurveDefinition::resultValues(curveDef, &curveValues);
+
+        if (itemCount == 0)
+        {
+            itemCount = curveValues.size();
+        }
+        else
+        {
+            if (itemCount != curveValues.size())
+            {
+                RiaLogging::error("Not able to evaluate expression varying vector size.");
+
+                return false;
+            }
+        }
+
+        parser.assignVector(v->name(), curveValues);
     }
 
     if (itemCount == 0)
