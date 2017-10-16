@@ -608,7 +608,7 @@ public:
             {
                 const RiuEclipseSelectionItem* eclipseItem = static_cast<const RiuEclipseSelectionItem*>(item);
 
-                eclipseItem->m_view->eclipseCase()->eclipseCaseData()->grid(eclipseItem->m_gridIndex)->ijkFromCellIndex(eclipseItem->m_cellIndex, &i, &j, &k);
+                eclipseItem->m_view->eclipseCase()->eclipseCaseData()->grid(eclipseItem->m_gridIndex)->ijkFromCellIndex(eclipseItem->m_gridLocalCellIndex, &i, &j, &k);
                 gridIndex = eclipseItem->m_gridIndex;
                 caseId = eclipseItem->m_view->eclipseCase()->caseId;
             }

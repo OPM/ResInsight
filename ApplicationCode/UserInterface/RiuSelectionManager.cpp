@@ -157,7 +157,7 @@ void RiuSelectionManager::deleteAllItemsFromSelection(int role)
 RiuEclipseSelectionItem::RiuEclipseSelectionItem(RimEclipseView* view, size_t gridIndex, size_t cellIndex, size_t nncIndex, cvf::Color3f color, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& localIntersectionPoint)
     :   m_view(view),
         m_gridIndex(gridIndex),
-        m_cellIndex(cellIndex),
+        m_gridLocalCellIndex(cellIndex),
         m_nncIndex(nncIndex),
         m_color(color),
         m_face(face),

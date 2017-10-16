@@ -1307,7 +1307,7 @@ public:
 
                 if (eclipseItem->m_view->eclipseCase()->caseId == reservoirCase->caseId)
                 {
-                    selectedCells.push_back(std::make_pair(eclipseItem->m_gridIndex, eclipseItem->m_cellIndex));
+                    selectedCells.push_back(std::make_pair(eclipseItem->m_gridIndex, eclipseItem->m_gridLocalCellIndex));
                 }
             }
             else if (item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT)

@@ -1671,7 +1671,7 @@ void RimEclipseView::createPartCollectionFromSelection(cvf::Collection<cvf::Part
                 CVF_ASSERT(eclipseSelItem->m_view->eclipseCase());
                 CVF_ASSERT(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData());
 
-                RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_cellIndex);
+                RivSingleCellPartGenerator partGen(eclipseSelItem->m_view->eclipseCase()->eclipseCaseData(), eclipseSelItem->m_gridIndex, eclipseSelItem->m_gridLocalCellIndex);
 
                 cvf::ref<cvf::Part> part = partGen.createPart(eclipseSelItem->m_color);
                 part->setTransform(this->scaleTransform());

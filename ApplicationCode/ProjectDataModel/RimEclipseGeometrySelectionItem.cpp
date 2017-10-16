@@ -55,7 +55,7 @@ RimEclipseGeometrySelectionItem::~RimEclipseGeometrySelectionItem()
 void RimEclipseGeometrySelectionItem::setFromSelectionItem(const RiuEclipseSelectionItem* selectionItem)
 {
     m_gridIndex = selectionItem->m_gridIndex;
-    m_cellIndex = selectionItem->m_cellIndex;
+    m_cellIndex = selectionItem->m_gridLocalCellIndex;
     m_localIntersectionPoint = selectionItem->m_localIntersectionPoint;
 
     m_eclipseCase = selectionItem->m_view->eclipseCase();

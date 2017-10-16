@@ -139,7 +139,7 @@ public:
 public:
     caf::PdmPointer<RimEclipseView> m_view;
     size_t m_gridIndex;
-    size_t m_cellIndex;
+    size_t m_gridLocalCellIndex;
     size_t m_nncIndex;
     cvf::Color3f m_color;
     cvf::StructGridInterface::FaceType m_face;

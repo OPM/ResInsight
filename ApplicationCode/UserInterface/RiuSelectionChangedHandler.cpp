@@ -124,10 +124,10 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
         curveName += ", ";
         curveName += QString("Grid index %1").arg(eclipseSelectionItem->m_gridIndex);
         curveName += ", ";
-        curveName += RigTimeHistoryResultAccessor::geometrySelectionText(eclipseView->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex);
+        curveName += RigTimeHistoryResultAccessor::geometrySelectionText(eclipseView->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
 
 
-        std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->eclipseCase()->eclipseCaseData(), eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex, timeStepDates.size());
+        std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues(eclipseView->eclipseCase()->eclipseCaseData(), eclipseView->cellResult(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex, timeStepDates.size());
         CVF_ASSERT(timeStepDates.size() == timeHistoryValues.size());
 
         RiuMainWindow::instance()->resultPlot()->addCurve(curveName, eclipseSelectionItem->m_color, timeStepDates, timeHistoryValues);
@@ -267,7 +267,7 @@ void RiuSelectionChangedHandler::updateResultInfo(const RiuSelectionItem* itemAd
 
             RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
-            RiuResultTextBuilder textBuilder(eclipseView, eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_cellIndex, eclipseView->currentTimeStep());
+            RiuResultTextBuilder textBuilder(eclipseView, eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex, eclipseView->currentTimeStep());
             textBuilder.setFace(eclipseSelectionItem->m_face);
             textBuilder.setNncIndex(eclipseSelectionItem->m_nncIndex);
             textBuilder.setIntersectionPoint(eclipseSelectionItem->m_localIntersectionPoint);
