@@ -95,7 +95,10 @@ bool RicWellLogTools::wellHasRftData(const QString& wellName)
     {
         if (resultCase = dynamic_cast<RimEclipseResultCase*>(rimCase))
         {
-            return resultCase->rftReader()->wellHasRftData(wellName);
+            if (resultCase->rftReader())
+            {
+                return resultCase->rftReader()->wellHasRftData(wellName);
+            }
         }
     }
 
