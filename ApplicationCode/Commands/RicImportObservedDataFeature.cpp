@@ -26,6 +26,8 @@
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
+#include "RiuMainPlotWindow.h"
+
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -59,7 +61,7 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return;
 
-    for (auto fileName : fileNames)
+    for (const QString& fileName : fileNames)
     {
         RicImportObservedDataFeature::createAndAddObservedDataFromFile(fileName);
     }
@@ -108,6 +110,8 @@ bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QStrin
     if (!observedDataCollection) return false;
 
     RimObservedData* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName);
+
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newObservedData);
 
     return true;
 }
