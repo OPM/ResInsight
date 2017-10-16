@@ -55,6 +55,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefinitionKeywords.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelection.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionDialog.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionEditor.h
+${CEE_CURRENT_LIST_DIR}RiuSummaryVectorDescriptionMap.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -106,6 +107,7 @@ ${CEE_CURRENT_LIST_DIR}RiuContextMenuLauncher.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelection.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionEditor.cpp
+${CEE_CURRENT_LIST_DIR}RiuSummaryVectorDescriptionMap.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
