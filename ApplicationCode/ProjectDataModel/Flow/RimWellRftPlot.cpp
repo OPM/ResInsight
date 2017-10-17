@@ -219,6 +219,33 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateSelectedTimeStepsFromSelectedSources()
+{
+    std::vector<QDateTime> selectedTimeSteps = m_selectedTimeSteps;
+    std::vector<QDateTime> newTimeStepsSelections;
+    std::vector<RimWellRftAddress> selectedSourcesVector = m_selectedSources;
+    auto selectedSources = std::set<RimWellRftAddress>(selectedSourcesVector.begin(), selectedSourcesVector.end());
+
+    for (const auto& timeStep : m_selectedTimeSteps())
+    {
+        if(m_timeStepsToAddresses.count(timeStep) > 0)
+        {
+            std::vector<RimWellRftAddress> intersectVector;
+            const auto& addresses = m_timeStepsToAddresses[timeStep];
+            std::set_intersection(selectedSources.begin(), selectedSources.end(),
+                                  addresses.begin(), addresses.end(), std::inserter(intersectVector, intersectVector.end()));
+            if(intersectVector.size() > 0)
+            {
+                newTimeStepsSelections.push_back(timeStep);
+            }
+        }
+    }
+    m_selectedTimeSteps = newTimeStepsSelections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::applyInitialSelections()
 {
     std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclCaseTuples = eclipseCasesForWell(m_wellName);
@@ -1022,8 +1049,14 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         m_timeStepsToAddresses.clear();
         updateEditorsFromCurves();
     }
-    else if (changedField == &m_selectedSources ||
-             changedField == &m_selectedTimeSteps)
+    else if (changedField == &m_selectedSources)
+    {
+        // Update time steps selections based on source selections
+        updateSelectedTimeStepsFromSelectedSources();
+    }
+
+    if (changedField == &m_selectedSources ||
+        changedField == &m_selectedTimeSteps)
     {
         syncCurvesFromUiSelection();
     }

@@ -142,6 +142,7 @@ private:
     virtual void                                    deleteViewWidget() override; 
 
     void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
+    void                                            updateSelectedTimeStepsFromSelectedSources();
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
