@@ -61,15 +61,10 @@ bool RicWellPathsImportSsihubFeature::isCommandEnabled()
 void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
 {
     RiaApplication* app = RiaApplication::instance();
-    if (!app->project())
-    {
-        return;
-    }
+    if (!app->project()) return;
 
-    if (!caf::Utils::fileExists(app->project()->fileName()))
-    {
-        return;
-    }
+    if (!caf::Utils::fileExists(app->project()->fileName())) return;
+
 
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
@@ -78,10 +73,12 @@ void RicWellPathsImportSsihubFeature::onActionTriggered(bool isChecked)
     wellPathsFolderPath += "_wellpaths";
     QDir::root().mkpath(wellPathsFolderPath);
 
+    if (!app->project()->wellPathImport()) return;
 
     // Keep a copy of the import settings, and restore if cancel is pressed in the import wizard
     QString copyOfOriginalObject = app->project()->wellPathImport()->writeObjectToXmlString();
 
+    if (!app->preferences()) return;
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport(), RiuMainWindow::instance());
 
     // Get password/username from application cache
