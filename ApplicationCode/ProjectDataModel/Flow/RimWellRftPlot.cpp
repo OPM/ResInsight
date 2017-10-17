@@ -125,7 +125,6 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
 
     std::vector<RimPlotCurve::PointSymbolEnum> symbolTable =
     {
-        RimPlotCurve::SYMBOL_NONE,
         RimPlotCurve::SYMBOL_ELLIPSE,
         RimPlotCurve::SYMBOL_RECT,
         RimPlotCurve::SYMBOL_DIAMOND,
@@ -134,8 +133,12 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
         RimPlotCurve::SYMBOL_XCROSS
     };
 
+    // State variables
+    static size_t  defaultColorTableIndex = 0;
+    static size_t  defaultSymbolTableIndex = 0;
+
     cvf::Color3f                    currentColor;
-    RimPlotCurve::PointSymbolEnum   currentSymbol = RimPlotCurve::SYMBOL_NONE;
+    RimPlotCurve::PointSymbolEnum   currentSymbol = symbolTable.front();
     RimPlotCurve::LineStyleEnum     currentLineStyle = RimPlotCurve::STYLE_SOLID;
     bool                            isCurrentColorSet = false;
     bool                            isCurrentSymbolSet = false;
@@ -177,7 +180,10 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
         }
         if (!isCurrentColorSet)
         {
-            currentColor = colorTable.front();
+            currentColor = colorTable[defaultColorTableIndex];
+            if (++defaultColorTableIndex == colorTable.size())
+                defaultColorTableIndex = 0;
+
         }
     }
 
@@ -186,8 +192,6 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
     {
         for (const auto& symbol : symbolTable)
         {
-            if (symbol == RimPlotCurve::SYMBOL_NONE) continue;
-
             if (assignedSymbols.count(symbol) == 0)
             {
                 currentSymbol = symbol;
@@ -197,7 +201,9 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
         }
         if (!isCurrentSymbolSet)
         {
-            currentSymbol = symbolTable.front();
+            currentSymbol = symbolTable[defaultSymbolTableIndex];
+            if (++defaultSymbolTableIndex == symbolTable.size())
+                defaultSymbolTableIndex = 0;
         }
     }
 
