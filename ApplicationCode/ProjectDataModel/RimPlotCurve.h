@@ -98,6 +98,8 @@ public:
 
     void                            showLegend(bool show);
 
+    void                            setZOrder(double z);
+
 protected:
 
     virtual QString                 createCurveAutoName() = 0;

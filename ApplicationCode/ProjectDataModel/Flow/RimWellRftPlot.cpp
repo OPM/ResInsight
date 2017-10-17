@@ -791,6 +791,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
 
             RifEclipseRftAddress address(m_wellName, curveDefToAdd.second, RifEclipseRftAddress::PRESSURE);
             curve->setRftAddress(address);
+            curve->setZOrder(1);
 
             applyCurveAppearance(curve);
             curve->loadDataAndUpdate(true);
@@ -822,6 +823,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
                                                       [curveDefToAdd](std::pair<QDateTime, std::set<RimWellRftAddress>> pair) {return pair.first == curveDefToAdd.second; });
                 auto currentTimeStep = std::distance(timeSteps.begin(), currentTimeStepIt);
                 curve->setCurrentTimeStep(currentTimeStep);
+                curve->setZOrder(0);
 
                 applyCurveAppearance(curve);
                 curve->loadDataAndUpdate(false);
@@ -837,6 +839,7 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
                 plotTrack->addCurve(curve);
                 curve->setWellPath(wellPath);
                 curve->setWellLogChannelName(pressureChannels.front()->name());
+                curve->setZOrder(2);
 
                 applyCurveAppearance(curve);
                 curve->loadDataAndUpdate(true);
