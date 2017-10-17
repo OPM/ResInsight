@@ -219,6 +219,56 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::applyInitialSelections()
+{
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclCaseTuples = eclipseCasesForWell(m_wellName);
+
+    std::vector<RimWellRftAddress> sourcesToSelect;
+    std::map<QDateTime, std::set<RimWellRftAddress>> rftTimeSteps;
+    std::map<QDateTime, std::set<RimWellRftAddress>> observedTimeSteps;
+    std::map<QDateTime, std::set<RimWellRftAddress>> gridTimeSteps;
+
+    for(const auto& rftCase : rftCasesFromEclipseCases(eclCaseTuples))
+    {
+        sourcesToSelect.push_back(RimWellRftAddress(RftSourceType::RFT, rftCase->caseId()));
+        addTimeStepsToMap(rftTimeSteps, timeStepsFromRftCase(rftCase));
+    }
+    
+    for (const auto& gridCase : gridCasesFromEclipseCases(eclCaseTuples))
+    {
+        sourcesToSelect.push_back(RimWellRftAddress(RftSourceType::GRID, gridCase->caseId()));
+        addTimeStepsToMap(gridTimeSteps, timeStepsFromGridCase(gridCase));
+    }
+    
+    std::vector<RimWellPath*> wellPaths = wellPathsContainingPressure(m_wellName);
+    if(wellPaths.size() > 0)
+    {
+        sourcesToSelect.push_back(RimWellRftAddress(RftSourceType::OBSERVED));
+        addTimeStepsToMap(observedTimeSteps, timeStepsFromWellPaths(wellPaths));
+    }
+
+    m_selectedSources = sourcesToSelect;
+    
+    std::set<QDateTime> timeStepsToSelect;
+    for (const auto& dateTimePair : rftTimeSteps)
+    {
+        timeStepsToSelect.insert(dateTimePair.first);
+    }
+    for (const auto& dateTimePair : observedTimeSteps)
+    {
+        timeStepsToSelect.insert(dateTimePair.first);
+    }
+    if (gridTimeSteps.size() > 0)
+        timeStepsToSelect.insert((*gridTimeSteps.begin()).first);
+
+    m_selectedTimeSteps = std::vector<QDateTime>(timeStepsToSelect.begin(), timeStepsToSelect.end());
+
+    syncCurvesFromUiSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateEditorsFromCurves()
 {
     std::set<RimWellRftAddress>                         selectedSources;

@@ -84,6 +84,8 @@ public:
     static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
     static const char*                              plotNameFormatString();
 
+    void                                            applyInitialSelections();
+
 protected:
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }

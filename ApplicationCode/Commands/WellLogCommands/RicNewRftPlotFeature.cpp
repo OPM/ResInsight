@@ -137,15 +137,16 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         rftPlotColl->addPlot(rftPlot);
         rftPlot->setDescription(plotName);
 
+        rftPlot->applyInitialSelections();
+        rftPlot->loadDataAndUpdate();
+        rftPlotColl->updateConnectedEditors();
+
         RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
             mainPlotWindow->selectAsCurrentItem(rftPlot);
             mainPlotWindow->setExpanded(rftPlot, true);
         }
-
-        rftPlot->loadDataAndUpdate();
-        rftPlotColl->updateConnectedEditors();
     }
 }
 
