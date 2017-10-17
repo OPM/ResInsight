@@ -369,6 +369,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellLogRftCurveFeature";
             commandIds << "RicNewSimWellIntersectionFeature";
+            commandIds << "RicNewRftPlotFeature";
             commandIds << "RicShowWellAllocationPlotFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))
