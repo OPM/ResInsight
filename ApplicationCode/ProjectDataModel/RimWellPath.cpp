@@ -50,6 +50,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include <regex>
+
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
 
 //--------------------------------------------------------------------------------------------------
@@ -641,31 +643,29 @@ int RimWellPath::relatedSimulationWellBranch() const
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::tryAssociateWithSimulationWell()
 {
-    if (!m_simWellName().isEmpty()) return false;
-
     RimProject* proj = RiaApplication::instance()->project();
     const std::vector<QString>& simWellNames = proj->simulationWellNames();
 
+    if (!m_simWellName().isEmpty()) return false;
+    if (simWellNames.empty()) return false;
+
+    QString wellPathName = QString(m_name);
+
     // Try exact name match
-    for (const auto& simWellName : simWellNames)
-    {
-        if (QString::compare(simWellName, m_name, Qt::CaseInsensitive) == 0)
-        {
-            m_simWellName = simWellName;
-            return true;
-        }
-    }
+    if (tryMatchName(wellPathName, simWellNames)) return true;
 
     // Try matching ignoring spaces
-    QString wpName = QString(m_name).remove(' ');
-    for (const auto& simWellName : simWellNames)
-    {
-        if (QString::compare(simWellName, wpName, Qt::CaseInsensitive) == 0)
-        {
-            m_simWellName = simWellName;
-            return true;
-        }
-    }
+    wellPathName = QString(m_name).remove(' ');
+    if (tryMatchName(wellPathName, simWellNames)) return true;
+
+    // Try to remove prefix on the format 'xxxx/xx-'
+    std::regex pattern("^\\d*[/]\\d*-");
+
+    wellPathName = QString::fromStdString(std::regex_replace(m_name().toStdString(), pattern, ""));
+    if (tryMatchName(wellPathName, simWellNames)) return true;
+
+    wellPathName = wellPathName.remove(' ');
+    if (tryMatchName(wellPathName, simWellNames)) return true;
 
     return false;
 }
@@ -676,4 +676,22 @@ bool RimWellPath::tryAssociateWithSimulationWell()
 bool RimWellPath::isAssociatedWithSimulationWell() const
 {
     return !m_simWellName().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::tryMatchName(QString wellPathName, const std::vector<QString>& simWellNames)
+{
+    if (wellPathName.isEmpty()) return false;
+
+    for (const auto& simWellName : simWellNames)
+    {
+        if (QString::compare(simWellName, wellPathName, Qt::CaseInsensitive) == 0)
+        {
+            m_simWellName = simWellName;
+            return true;
+        }
+    }
+    return false;
 }

@@ -118,6 +118,7 @@ public:
     int                                 relatedSimulationWellBranch() const;
     bool                                tryAssociateWithSimulationWell();
     bool                                isAssociatedWithSimulationWell() const;
+    bool                                tryMatchName(QString wellPathName, const std::vector<QString>& simWellNames);
 
 private:
 
