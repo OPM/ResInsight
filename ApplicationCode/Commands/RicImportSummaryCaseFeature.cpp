@@ -29,6 +29,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
 
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
@@ -70,7 +71,11 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
         RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(f);
     }
 
-    app->getOrCreateAndShowMainPlotWindow();
+    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow && sumCaseColl->summaryCaseCount() > 0)
+    {
+        mainPlotWindow->selectAsCurrentItem(sumCaseColl->summaryCase(sumCaseColl->summaryCaseCount()-1));
+    }
 
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);

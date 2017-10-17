@@ -292,9 +292,6 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
 {
     if (changedField == &m_applyButtonField || changedField == &m_okButtonField)
     {
-        m_applyButtonField = false;
-        m_okButtonField = false;
-
         if (m_targetPlot == nullptr)
         {
             createNewPlot();
@@ -305,9 +302,14 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
         if (changedField == &m_okButtonField)
         {
             m_closeButtonField = true;
+            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
+            mainPlotWindow->selectAsCurrentItem(m_targetPlot);
+            mainPlotWindow->setExpanded(m_targetPlot, true);
         }
 
-        RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(m_targetPlot);
+        m_applyButtonField = false;
+        m_okButtonField = false;
+
         caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>(m_targetPlot->uiCapability()->objectToggleField());
         field->setValueWithFieldChanged(true);
     }
@@ -1316,13 +1318,6 @@ void RicSummaryCurveCreator::createNewPlot()
             plot->loadDataAndUpdate();
 
             summaryPlotColl->updateConnectedEditors();
-
-            RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->mainPlotWindow();
-            if (mainPlotWindow)
-            {
-                mainPlotWindow->selectAsCurrentItem(plot);
-                mainPlotWindow->setExpanded(plot, true);
-            }
 
             m_targetPlot = plot;
             updateTargetPlot();

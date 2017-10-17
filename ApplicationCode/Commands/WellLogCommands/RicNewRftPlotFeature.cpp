@@ -110,7 +110,7 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 
     RimProject* proj = RiaApplication::instance()->project();
 
-    auto rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
+    RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
     if (rftPlotColl)
     {
         QString wellName;
@@ -127,10 +127,10 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 
         QString plotName = QString(RimWellRftPlot::plotNameFormatString()).arg(wellName);
 
-        auto rftPlot = new RimWellRftPlot();
+        RimWellRftPlot* rftPlot = new RimWellRftPlot();
         rftPlot->setCurrentWellName(wellName);
 
-        auto plotTrack = new RimWellLogTrack();
+        RimWellLogTrack* plotTrack = new RimWellLogTrack();
         rftPlot->wellLogPlot()->addTrack(plotTrack);
         plotTrack->setDescription(QString("Track %1").arg(rftPlot->wellLogPlot()->trackCount()));
 
@@ -144,8 +144,8 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
+            mainPlotWindow->setExpanded(plotTrack, true);
             mainPlotWindow->selectAsCurrentItem(rftPlot);
-            mainPlotWindow->setExpanded(rftPlot, true);
         }
     }
 }
@@ -166,7 +166,7 @@ RimWellLogTrack* RicNewRftPlotFeature::selectedWellLogPlotTrack() const
 {
     std::vector<RimWellLogTrack*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : NULL;
+    return selection.size() > 0 ? selection[0] : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ RimWellPath* RicNewRftPlotFeature::selectedWellPath() const
 {
     std::vector<RimWellPath*> selection;
     caf::SelectionManager::instance()->objectsByType(&selection);
-    return selection.size() > 0 ? selection[0] : NULL;
+    return selection.size() > 0 ? selection[0] : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ RimSimWellInView* RicNewRftPlotFeature::selectedSimulationWell(int * branchIndex
         std::vector<RimSimWellInView*> selection;
         caf::SelectionManager::instance()->objectsByType(&selection);
         (*branchIndex) = 0;
-        return selection.size() > 0 ? selection[0] : NULL;
+        return selection.size() > 0 ? selection[0] : nullptr;
     }
 }
 
