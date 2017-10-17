@@ -370,7 +370,7 @@ std::vector<RimWellPath*> RimWellRftPlot::wellPathsContainingPressure(const QStr
             bool hasPressure = false;
             const auto& wellLogFile = wellPath->wellLogFile();
 
-            if (QString::compare(wellLogFile->wellName(), wellName) != 0) continue;
+            if (wellLogFile == nullptr || QString::compare(wellLogFile->wellName(), wellName) != 0) continue;
 
             if (hasPressureData(wellLogFile))
                 wellPaths.push_back(wellPath);
@@ -387,12 +387,15 @@ std::vector<RimWellLogFileChannel*> RimWellRftPlot::getPressureChannelsFromWellP
     std::vector<RimWellLogFileChannel*> channels;
 
     auto wellLogFile = wellPath->wellLogFile();
-    for (const auto& channel : wellLogFile->wellLogChannels())
+    if (wellLogFile != nullptr)
     {
-        // Todo: add more criterias
-        if (hasPressureData(channel))
+        for (const auto& channel : wellLogFile->wellLogChannels())
         {
-            channels.push_back(channel);
+            // Todo: add more criterias
+            if (hasPressureData(channel))
+            {
+                channels.push_back(channel);
+            }
         }
     }
     return channels;
@@ -418,11 +421,14 @@ RimWellPath* RimWellRftPlot::wellPathForObservedData(const QString& wellName, co
     for (const auto& wellPath : wellPaths)
     {
         auto wellLogFile = wellPath->wellLogFile();
-        auto wName = wellLogFile->wellName();
-        auto wDate = RiaDateStringParser::parseDateString(wellLogFile->date());
-        if (wName == wellName && wDate == date)
+        if (wellLogFile != nullptr)
         {
-            return wellPath;
+            auto wName = wellLogFile->wellName();
+            auto wDate = RiaDateStringParser::parseDateString(wellLogFile->date());
+            if (wName == wellName && wDate == date)
+            {
+                return wellPath;
+            }
         }
     }
     return nullptr;
@@ -556,7 +562,7 @@ std::map<QDateTime, std::set<RimWellRftAddress> > RimWellRftPlot::timeStepsFromW
     {
         RimWellLogFile* wellLogFile = wellPath->wellLogFile();
 
-        if (wellLogFile)
+        if (wellLogFile != nullptr)
         {
            QDateTime timeStep = RiaDateStringParser::parseDateString(wellLogFile->date());
 
@@ -716,11 +722,15 @@ std::pair<RimWellRftAddress, QDateTime> RimWellRftPlot::curveDefFromCurve(const 
     {
         const auto& wellPath = wellLogFileCurve->wellPath();
         const auto& wellLogFile = wellPath->wellLogFile();
-        const auto date = RiaDateStringParser::parseDateString(wellLogFile->date());
 
-        if (date.isValid())
+        if (wellLogFile != nullptr)
         {
-            return std::make_pair(RimWellRftAddress(RftSourceType::OBSERVED), date);
+            const auto date = RiaDateStringParser::parseDateString(wellLogFile->date());
+
+            if (date.isValid())
+            {
+                return std::make_pair(RimWellRftAddress(RftSourceType::OBSERVED), date);
+            }
         }
     }
     return std::make_pair(RimWellRftAddress(RftSourceType::NONE), QDateTime());
@@ -795,7 +805,6 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RimWellRftAddre
             auto wellPath = wellPathForObservedData(m_wellName, curveDefToAdd.second);
             if (wellPath != nullptr)
             {
-                auto wellLogFile = wellPath->wellLogFile();
                 auto pressureChannels = getPressureChannelsFromWellPath(wellPath);
                 auto curve = new RimWellLogFileCurve();
                 plotTrack->addCurve(curve);
