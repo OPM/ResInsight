@@ -205,12 +205,18 @@ namespace Opm
             if (std::fabs(well_reservoir_inflow_rate) < rate_threshold_) {
                 continue;
             }
+            // Skip if well has no connections (for example, if this
+            // is a sector model wells that are outside this sector
+            // will have -1 for ncon).
+            const int ncon = iwel[well * ih.niwel + IWEL_CONNECTIONS_INDEX];
+            if (ncon < 1) {
+                continue;
+            }
             // Otherwise: add data for this well.
             WellData wd;
             wd.name = trimSpacesRight(zwel[well * ih.nzwel]);
             const bool is_producer = (iwel[well * ih.niwel + IWEL_TYPE_INDEX] == IWEL_TYPE_PRODUCER);
             wd.is_injector_well = !is_producer;
-            const int ncon = iwel[well * ih.niwel + IWEL_CONNECTIONS_INDEX];
             wd.completions.reserve(ncon);
             for (int comp_index = 0; comp_index < ncon; ++comp_index) {
                 const int icon_offset = (well*ih.ncwma + comp_index) * ih.nicon;

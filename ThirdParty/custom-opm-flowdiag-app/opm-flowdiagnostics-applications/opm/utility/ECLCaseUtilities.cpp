@@ -305,6 +305,11 @@ Opm::ECLCaseUtilities::ResultSet::reportStepIDs() const
         ecl_file_open(rsspec_fn.generic_string().c_str(), open_flags)
     };
 
+    // If spec file was not found, return empty vector.
+    if (!rsspec) {
+        return {};
+    }
+
     auto* globView = ecl_file_get_global_view(rsspec.get());
 
     const auto* ITIME_kw = "ITIME";

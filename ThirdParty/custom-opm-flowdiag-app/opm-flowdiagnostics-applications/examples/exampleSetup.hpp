@@ -225,7 +225,7 @@ namespace example {
 
         bool selectReportStep(const int step)
         {
-            if (this->available_steps.count(step) == 0) {
+            if (!this->available_steps.empty() && this->available_steps.count(step) == 0) {
                 // Requested report step not amongst those stored in the
                 // result set.
                 return false;
