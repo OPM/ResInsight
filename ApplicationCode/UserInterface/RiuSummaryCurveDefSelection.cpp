@@ -104,6 +104,9 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
+    } },
+    { RifEclipseSummaryAddress::SUMMARY_CALCULATED, {
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } }
 })
 {
@@ -156,6 +159,7 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(), "CalculatedVectors", "Calculated vectors", "", "", "");
 
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -283,6 +287,29 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromCalculated()
+{
+    std::set<RifEclipseSummaryAddress> addressSet;
+
+    if (m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+    {
+        // TODO
+        // Wire up list of calculated curves here
+/*
+        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::calculatedCurveAddress("a My Test");
+        addressSet.insert(adr);
+
+        RifEclipseSummaryAddress adr2 = RifEclipseSummaryAddress::calculatedCurveAddress("b My Test2");
+        addressSet.insert(adr2);
+*/
+    }
+
+    return addressSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 }
@@ -355,13 +382,17 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(fieldNeedingOptions);
         if (identifierAndField != nullptr)
         {
-            enum {SUM_CASES, OBS_DATA};
-            std::set<RifEclipseSummaryAddress> addrUnion[2];
+            enum {SUM_CASES, OBS_DATA, CALCULATED_CURVES};
+
+            const size_t itemCount = CALCULATED_CURVES + 1;
+
+            std::set<RifEclipseSummaryAddress> addrUnion[itemCount];
             addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
             addrUnion[OBS_DATA] =  findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField);
+            addrUnion[CALCULATED_CURVES] =  findPossibleSummaryAddressesFromCalculated();
 
-            std::set<QString> itemNames[2];
-            for (int i = 0; i < 2; i++)
+            std::set<QString> itemNames[itemCount];
+            for (int i = 0; i < itemCount; i++)
             {
                 for (const auto& address : addrUnion[i])
                 {
@@ -381,7 +412,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
             }
 
             auto pdmField = identifierAndField->pdmField();
-            for(int i = 0; i < 2; i++)
+            for(int i = 0; i < itemCount; i++)
             {
                 // Create headers only for vector fields when observed data is selected
                 bool hasObservedData = itemNames[OBS_DATA].size() > 0;
@@ -400,8 +431,6 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                         optionItem.setLevel(1);
                     options.push_back(optionItem);
                 }
-
-                if (itemNames[OBS_DATA].size() == 0) break;
             }
         }
     }
@@ -534,6 +563,10 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
         }
 
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField();
+    }
+    else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+    {
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField();
     }
 
     CAF_ASSERT(summaryiesField);
@@ -714,7 +747,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::buildAddressList
     for (const auto& category : m_selectedSummaryCategories())
     {
         if (category == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID) continue;
-
+        
         const auto& identifierAndFieldList = m_identifierFieldsMap.at(category);
         std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>> selectionStack;
         buildAddressListForCategoryRecursively(category, identifierAndFieldList.begin(), selectionStack, addressSet);

@@ -89,6 +89,7 @@ private:
                                                                          const SummaryIdentifierAndField *identifierAndField);
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField);
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField);
+    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromCalculated();
 
     std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField) const;
     SummaryIdentifierAndField*              lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle) const;

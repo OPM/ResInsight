@@ -118,8 +118,12 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_LGR_NAME) },
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_CELL_IJK) },
         { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
+    } },
+    { RifEclipseSummaryAddress::SUMMARY_CALCULATED, {
+        { new SummaryIdentifierAndField(RifEclipseSummaryAddress::INPUT_VECTOR_NAME) }
     } }
 })
+
 {
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
 
@@ -169,6 +173,8 @@ RicSummaryCurveCreator::RicSummaryCurveCreator() : m_identifierFieldsMap(
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField(), "BlockLgrLgrName", "LGR Names", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField(), "BlockLgrIjk", "Cell IJK", "", "", "");
     CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField(), "BlockLgrVectors", "Block Vectors", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(), "CalculatedVectors", "Calculated Vectors", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "Target Plot", "", "", "");
 
@@ -598,6 +604,10 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         }
 
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField();
+    }
+    else if (sumCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+    {
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField();
     }
 
     CAF_ASSERT(summaryiesField);

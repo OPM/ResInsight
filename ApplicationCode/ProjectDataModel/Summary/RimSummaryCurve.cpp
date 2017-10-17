@@ -140,6 +140,7 @@ void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
     addItem(RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT,         "SUMMARY_SEGMENT",             "Segment");
     addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK,                "SUMMARY_BLOCK",               "Block");
     addItem(RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR,            "SUMMARY_BLOCK_LGR",           "Lgr-Block");
+    addItem(RifEclipseSummaryAddress::SUMMARY_CALCULATED,           "SUMMARY_CALCULATED",          "Calculated");
     setDefault(RifEclipseSummaryAddress::SUMMARY_FIELD);
 }
 
