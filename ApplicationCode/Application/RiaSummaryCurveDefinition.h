@@ -39,7 +39,8 @@ public:
     bool operator < (const RiaSummaryCurveDefinition& other) const;
 
     // TODO: Consider moving to a separate tools class
-    static void resultValues(const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values);
+    static void                         resultValues(const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values);
+    static const std::vector<time_t>&   timeSteps(const RiaSummaryCurveDefinition& curveDefinition);
 
 private:
     std::pair<RimSummaryCase*, RifEclipseSummaryAddress> m_curveDefinition;

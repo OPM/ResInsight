@@ -23,6 +23,7 @@
 #include "cafPdmChildField.h"
 
 class RimCalculation;
+class RimSummaryCase;
 class RimCalculatedSummaryCase;
 
 //==================================================================================================
@@ -40,7 +41,12 @@ public:
     void                            deleteCalculation(RimCalculation* calculation);
     std::vector<RimCalculation*>    calculations() const;
 
-    RimCalculatedSummaryCase*       calculationSummaryCase();
+    RimSummaryCase*                 calculationSummaryCase();
+
+    void                            deleteAllContainedObjects();
+
+private:
+    void                            ensureSummaryCaseIsCreated();
 
 private:
     caf::PdmChildArrayField<RimCalculation*>        m_calcuations;

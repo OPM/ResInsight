@@ -37,7 +37,9 @@ RimCalculationCollection::RimCalculationCollection()
     m_calcuations.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case", "", "", "");
-    m_calcuationSummaryCase = new RimCalculatedSummaryCase;
+    m_calcuationSummaryCase.xmlCapability()->disableIO();
+    
+    ensureSummaryCaseIsCreated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,7 +52,8 @@ RimCalculation* RimCalculationCollection::addCalculation()
 
     m_calcuations.push_back(calculation);
 
-    m_calcuationSummaryCase()->buildMetaData();
+    ensureSummaryCaseIsCreated();
+    m_calcuationSummaryCase->buildMetaData();
 
     return calculation;
 }
@@ -62,7 +65,8 @@ void RimCalculationCollection::deleteCalculation(RimCalculation* calculation)
 {
     m_calcuations.removeChildObject(calculation);
 
-    m_calcuationSummaryCase()->buildMetaData();
+    ensureSummaryCaseIsCreated();
+    m_calcuationSummaryCase->buildMetaData();
 
     delete calculation;
 }
@@ -85,8 +89,37 @@ std::vector<RimCalculation*> RimCalculationCollection::calculations() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculatedSummaryCase* RimCalculationCollection::calculationSummaryCase()
+RimSummaryCase* RimCalculationCollection::calculationSummaryCase()
 {
+    ensureSummaryCaseIsCreated();
+
     return m_calcuationSummaryCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCalculationCollection::deleteAllContainedObjects()
+{
+    RimCalculatedSummaryCase* sumCase = m_calcuationSummaryCase();
+    if (sumCase)
+    {
+        m_calcuationSummaryCase.removeChildObject(sumCase);
+
+        delete sumCase;
+    }
+
+    m_calcuations.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCalculationCollection::ensureSummaryCaseIsCreated()
+{
+    if (!m_calcuationSummaryCase())
+    {
+        m_calcuationSummaryCase = new RimCalculatedSummaryCase;
+    }
 }
 

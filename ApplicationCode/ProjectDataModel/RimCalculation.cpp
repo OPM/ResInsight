@@ -188,6 +188,8 @@ bool RimCalculation::calculate()
 
     std::vector<std::vector<double>> variableValues;
     variableValues.resize(m_variables.size());
+
+    std::vector<time_t> sourceTimeSteps;
     
     size_t itemCount = 0;
 
@@ -214,6 +216,11 @@ bool RimCalculation::calculate()
 
         std::vector<double>& curveValues = variableValues[i];
         RiaSummaryCurveDefinition::resultValues(curveDef, &curveValues);
+
+        if (sourceTimeSteps.size() == 0)
+        {
+            sourceTimeSteps = RiaSummaryCurveDefinition::timeSteps(curveDef);
+        }
 
         if (itemCount == 0)
         {
@@ -247,6 +254,9 @@ bool RimCalculation::calculate()
 
     if (evaluatedOk)
     {
+        // Copy time vector from source
+        m_timesteps = sourceTimeSteps;
+
         QString txt;
         for (auto v : m_calculatedValues())
         {
