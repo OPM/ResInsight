@@ -203,7 +203,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
 
-    if (!eclipseView || eclipseView->cellResult()->resultType() != RiaDefines::FLOW_DIAGNOSTICS) // 
+    if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding()) // 
     {
         statGroup->add(&m_statisticsTimeRange);
     }
@@ -626,7 +626,7 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
         }
         else if (eclipseView)
         {
-            if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+            if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
             {
                 RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
                 RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
