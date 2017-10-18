@@ -52,6 +52,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include "RimCalculationCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
@@ -425,6 +426,58 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
         auto identifierAndField = lookupIdentifierAndFieldFromFieldHandle(fieldNeedingOptions);
         if (identifierAndField != nullptr)
         {
+            enum { SUM_CASES, OBS_DATA, CALCULATED_CURVES };
+
+            const size_t itemCount = CALCULATED_CURVES + 1;
+
+            std::set<RifEclipseSummaryAddress> addrUnion[itemCount];
+            addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
+            addrUnion[OBS_DATA] = findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField);
+            addrUnion[CALCULATED_CURVES] = findPossibleSummaryAddressesFromCalculated();
+
+            std::set<QString> itemNames[itemCount];
+            for (int i = 0; i < itemCount; i++)
+            {
+                for (const auto& address : addrUnion[i])
+                {
+                    auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
+                    if (!name.isEmpty())
+                        itemNames[i].insert(name);
+                }
+            }
+
+            bool isVectorField = identifierAndField->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME;
+
+            // Merge sets for all other fields than vector fields
+            if (!isVectorField)
+            {
+                itemNames[SUM_CASES].insert(itemNames[OBS_DATA].begin(), itemNames[OBS_DATA].end());
+                itemNames[OBS_DATA].clear();
+            }
+
+            auto pdmField = identifierAndField->pdmField();
+            for (int i = 0; i < itemCount; i++)
+            {
+                // Create headers only for vector fields when observed data is selected
+                bool hasObservedData = itemNames[OBS_DATA].size() > 0;
+                bool groupItems = isVectorField && hasObservedData;
+                if (groupItems)
+                {
+                    auto headerText = i == SUM_CASES ? QString("Simulated Data") : QString("Observed Data");
+                    options.push_back(caf::PdmOptionItemInfo::createHeader(headerText, true));
+                }
+
+                auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
+                for (const auto& iName : itemNames[i])
+                {
+                    auto optionItem = caf::PdmOptionItemInfo(iName, iName + itemPostfix);
+                    if (groupItems)
+                        optionItem.setLevel(1);
+                    options.push_back(optionItem);
+                }
+            }
+
+/*
             enum {SUM_CASES, OBS_DATA};
             std::set<RifEclipseSummaryAddress> addrUnion[2];
             addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
@@ -473,6 +526,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCreator::calculateValueOptions(cons
 
                 if (itemNames[OBS_DATA].size() == 0) break;
             }
+*/
         }
     }
 
@@ -681,6 +735,27 @@ std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAd
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddressesFromCalculated()
+{
+    std::set<RifEclipseSummaryAddress> addressSet;
+
+    if (m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+    {
+        RimSummaryCase* calcSumCase = calculatedSummaryCase();
+
+        const std::vector<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
+        for (const auto& adr : allAddresses)
+        {
+            addressSet.insert(adr);
+        }
+    }
+
+    return addressSet;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the summary addresses that match the selected item type and input selections made in GUI
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress> RicSummaryCurveCreator::findPossibleSummaryAddresses(const std::vector<RimSummaryCase*> &selectedCases, 
@@ -876,7 +951,7 @@ void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 
     // Find the addresses to display
     std::set<RifEclipseSummaryAddress> addrUnion;
-    for (RimSummaryCase* currCase : m_selectedCases)
+    for (RimSummaryCase* currCase : summaryCases())
     {
         RifSummaryReaderInterface* reader = nullptr;
         if (currCase) reader = currCase->summaryReader();
@@ -1355,4 +1430,32 @@ void RicSummaryCurveCreator::updateCurveNames()
 bool RicSummaryCurveCreator::isObservedData(RimSummaryCase *sumCase) const
 {
     return dynamic_cast<RimObservedData*>(sumCase) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RicSummaryCurveCreator::summaryCases() const
+{
+    std::vector<RimSummaryCase*> cases;
+
+    for (RimSummaryCase* currCase : m_selectedCases)
+    {
+        cases.push_back(currCase);
+    }
+
+    // Always add the summary case for calculated curves as this case is not displayed in UI
+    cases.push_back(RicSummaryCurveCreator::calculatedSummaryCase());
+
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RicSummaryCurveCreator::calculatedSummaryCase()
+{
+    RimCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+
+    return calcColl->calculationSummaryCase();
 }

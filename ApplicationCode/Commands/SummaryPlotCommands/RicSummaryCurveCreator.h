@@ -96,6 +96,7 @@ private:
                                                                          const SummaryIdentifierAndField *identifierAndField);
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField);
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField);
+    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromCalculated();
 
     std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
     SummaryIdentifierAndField*              lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle);
@@ -128,6 +129,10 @@ private:
                                             allPreviewCurveDefs() const;
     void                                    createNewPlot();
     bool                                    isObservedData(RimSummaryCase *sumCase) const;
+
+    std::vector<RimSummaryCase*>            summaryCases() const;
+    static RimSummaryCase*                  calculatedSummaryCase();
+
 
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
