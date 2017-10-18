@@ -24,13 +24,8 @@
 
 #include "cafPdmChildField.h"
 
-class RimEclipseView;
 class RimEclipsePropertyFilterCollection;
 class RimEclipseResultDefinition;
-
-class RigGridBase;
-class RigCaseCellResultsData;
-
 
 //==================================================================================================
 ///  
