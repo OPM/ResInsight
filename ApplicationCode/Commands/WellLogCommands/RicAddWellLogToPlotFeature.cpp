@@ -103,17 +103,13 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
             curve->loadDataAndUpdate(true);
         }        
     }
-
     plot->calculateAvailableDepthRange();
     plot->updateDepthZoom();
     plotTrack->viewer()->replot();
 
-    // Make sure the summary plot window is created and visible
-    RiuMainPlotWindow* plotwindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
-
     RiaApplication::instance()->project()->updateConnectedEditors();
-
-    plotwindow->selectAsCurrentItem(selection.back());
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(plot);
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->setExpanded(plotTrack, true);
 }
 
 //--------------------------------------------------------------------------------------------------
