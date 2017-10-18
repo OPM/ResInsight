@@ -56,13 +56,13 @@ CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
 namespace caf
 {
-template<>
-void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsTimeRangeType>::setUp()
-{
-    addItem(Rim3dOverlayInfoConfig::ALL_TIMESTEPS, "ALL_TIMESTEPS", "All Time Steps");
-    addItem(Rim3dOverlayInfoConfig::CURRENT_TIMESTEP, "CURRENT_TIMESTEP", "Current Time Step");
-    setDefault(Rim3dOverlayInfoConfig::ALL_TIMESTEPS);
-}
+    template<>
+    void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsTimeRangeType>::setUp()
+    {
+        addItem(Rim3dOverlayInfoConfig::ALL_TIMESTEPS, "ALL_TIMESTEPS", "All Time Steps");
+        addItem(Rim3dOverlayInfoConfig::CURRENT_TIMESTEP, "CURRENT_TIMESTEP", "Current Time Step");
+        setDefault(Rim3dOverlayInfoConfig::ALL_TIMESTEPS);
+    }
 }
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -70,29 +70,29 @@ void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsTimeRangeType>::setUp()
 
 namespace caf
 {
-template<>
-void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsCellRangeType>::setUp()
-{
-    addItem(Rim3dOverlayInfoConfig::ALL_CELLS, "ALL_CELLS", "All Active Cells");
-    addItem(Rim3dOverlayInfoConfig::VISIBLE_CELLS, "VISIBLE_CELLS", "Visible Cells");
-    setDefault(Rim3dOverlayInfoConfig::ALL_CELLS);
-}
+    template<>
+    void caf::AppEnum<Rim3dOverlayInfoConfig::StatisticsCellRangeType>::setUp()
+    {
+        addItem(Rim3dOverlayInfoConfig::ALL_CELLS, "ALL_CELLS", "All Active Cells");
+        addItem(Rim3dOverlayInfoConfig::VISIBLE_CELLS, "VISIBLE_CELLS", "Visible Cells");
+        setDefault(Rim3dOverlayInfoConfig::ALL_CELLS);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig() 
+Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 {
     CAF_PDM_InitObject("Info Box", ":/InfoBox16x16.png", "", "");
 
-    CAF_PDM_InitField(&active,              "Active",               true,   "Active",   "", "", "");
+    CAF_PDM_InitField(&active, "Active", true, "Active", "", "", "");
     active.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitField(&showAnimProgress,    "ShowAnimProgress",     true,   "Animation progress",   "", "", "");
-    CAF_PDM_InitField(&showCaseInfo,        "ShowInfoText",         true,   "Case Info",   "", "", "");
-    CAF_PDM_InitField(&showResultInfo,      "ShowResultInfo",       true,   "Result Info",   "", "", "");
-    CAF_PDM_InitField(&showHistogram,       "ShowHistogram",        true,   "Histogram",   "", "", "");
+    CAF_PDM_InitField(&showAnimProgress, "ShowAnimProgress", true, "Animation progress", "", "", "");
+    CAF_PDM_InitField(&showCaseInfo,     "ShowInfoText",     true, "Case Info", "", "", "");
+    CAF_PDM_InitField(&showResultInfo,   "ShowResultInfo",   true, "Result Info", "", "", "");
+    CAF_PDM_InitField(&showHistogram,    "ShowHistogram",    true, "Histogram", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_statisticsTimeRange, "StatisticsTimeRange", "Statistics Time Range", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_statisticsCellRange, "StatisticsCellRange", "Statistics Cell Range", "", "", "");
@@ -148,24 +148,26 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
     if (!m_viewDef) return;
     if (!m_viewDef->viewer()) return;
-    
+
     if (!this->active())
     {
         m_viewDef->viewer()->showInfoText(false);
         m_viewDef->viewer()->showHistogram(false);
         m_viewDef->viewer()->showAnimationProgress(false);
-        
+
         return;
     }
 
     m_viewDef->viewer()->showInfoText(showCaseInfo() || showResultInfo());
     m_viewDef->viewer()->showHistogram(false);
     m_viewDef->viewer()->showAnimationProgress(showAnimProgress());
-    
+
     m_isVisCellStatUpToDate = false;
 
-    if (m_viewDef->propertyFilterCollection() && m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
-        m_statisticsCellRange() == VISIBLE_CELLS && m_statisticsTimeRange() == ALL_TIMESTEPS)
+    if (m_viewDef->propertyFilterCollection() && 
+        m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
+        m_statisticsCellRange() == VISIBLE_CELLS && 
+        m_statisticsTimeRange() == ALL_TIMESTEPS)
     {
         displayPropertyFilteredStatisticsMessage(true);
         m_statisticsTimeRange = CURRENT_TIMESTEP;
@@ -201,7 +203,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
 
-    if ( !eclipseView || eclipseView->cellResult()->resultType() != RiaDefines::FLOW_DIAGNOSTICS ) // 
+    if (!eclipseView || eclipseView->cellResult()->resultType() != RiaDefines::FLOW_DIAGNOSTICS) // 
     {
         statGroup->add(&m_statisticsTimeRange);
     }
@@ -229,7 +231,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
     double sum = 0.0;
     const std::vector<size_t>* histogram = NULL;
 
-    bool isResultsInfoRelevant  = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
+    bool isResultsInfoRelevant = eclipseView->hasUserRequestedAnimation() && eclipseView->cellResult()->hasResult();
 
     if (showHistogram() || showResultInfo())
     {
@@ -239,72 +241,72 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
             if (scalarIndex != cvf::UNDEFINED_SIZE_T)
             {
 
-            if (m_statisticsCellRange == ALL_CELLS)
-            {
-                if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                if (m_statisticsCellRange == ALL_CELLS)
                 {
-                    eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-                    eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-                    eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
-                    eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, sum);
-                    histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
-                }
-                else if (m_statisticsTimeRange == CURRENT_TIMESTEP )
-                {
-                    int currentTimeStep = eclipseView->currentTimeStep();
-                    if (eclipseView->cellResult()->hasStaticResult())
+                    if (m_statisticsTimeRange == ALL_TIMESTEPS)
                     {
-                        currentTimeStep = 0;
+                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+                        eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
+                        eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, sum);
+                        histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
                     }
-
-                    eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, min, max);
-                    eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, p10, p90);
-                    eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, mean);
-                    eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, sum);
-                    histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
-                }
-                else
-                {
-                    CVF_ASSERT(false);
-                }
-            }
-            else if ( m_statisticsCellRange == VISIBLE_CELLS)
-            {
-                updateVisCellStatsIfNeeded();
-                if (m_statisticsTimeRange == ALL_TIMESTEPS)
-                {
-                    // TODO: Only valid if we have no dynamic property filter
-                    m_visibleCellStatistics->meanCellScalarValues(mean);
-                    m_visibleCellStatistics->minMaxCellScalarValues(min, max);
-                    m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
-                    m_visibleCellStatistics->sumCellScalarValues(sum);
-
-                    histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
-                }
-                else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
-                {
-                    int currentTimeStep = eclipseView->currentTimeStep();
-                    if (eclipseView->cellResult()->hasStaticResult())
+                    else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
                     {
-                        currentTimeStep = 0;
+                        int currentTimeStep = eclipseView->currentTimeStep();
+                        if (eclipseView->cellResult()->hasStaticResult())
+                        {
+                            currentTimeStep = 0;
+                        }
+
+                        eclipseView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, currentTimeStep, min, max);
+                        eclipseView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, currentTimeStep, p10, p90);
+                        eclipseView->currentGridCellResults()->meanCellScalarValues(scalarIndex, currentTimeStep, mean);
+                        eclipseView->currentGridCellResults()->sumCellScalarValues(scalarIndex, currentTimeStep, sum);
+                        histogram = &(eclipseView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex, currentTimeStep));
                     }
-
-                    m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
-                    m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
-                    m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
-                    m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
-
-                    histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
+                    else
+                    {
+                        CVF_ASSERT(false);
+                    }
                 }
-            }
+                else if (m_statisticsCellRange == VISIBLE_CELLS)
+                {
+                    updateVisCellStatsIfNeeded();
+                    if (m_statisticsTimeRange == ALL_TIMESTEPS)
+                    {
+                        // TODO: Only valid if we have no dynamic property filter
+                        m_visibleCellStatistics->meanCellScalarValues(mean);
+                        m_visibleCellStatistics->minMaxCellScalarValues(min, max);
+                        m_visibleCellStatistics->p10p90CellScalarValues(p10, p90);
+                        m_visibleCellStatistics->sumCellScalarValues(sum);
+
+                        histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram());
+                    }
+                    else if (m_statisticsTimeRange == CURRENT_TIMESTEP)
+                    {
+                        int currentTimeStep = eclipseView->currentTimeStep();
+                        if (eclipseView->cellResult()->hasStaticResult())
+                        {
+                            currentTimeStep = 0;
+                        }
+
+                        m_visibleCellStatistics->meanCellScalarValues(currentTimeStep, mean);
+                        m_visibleCellStatistics->minMaxCellScalarValues(currentTimeStep, min, max);
+                        m_visibleCellStatistics->p10p90CellScalarValues(currentTimeStep, p10, p90);
+                        m_visibleCellStatistics->sumCellScalarValues(currentTimeStep, sum);
+
+                        histogram = &(m_visibleCellStatistics->cellScalarValuesHistogram(currentTimeStep));
+                    }
+                }
             }
             else if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS || eclipseView->cellResult->resultType() == RiaDefines::INJECTION_FLOODING)
             {
-                if ( m_statisticsTimeRange == CURRENT_TIMESTEP ||  m_statisticsTimeRange == ALL_TIMESTEPS) // All timesteps is ignored
+                if (m_statisticsTimeRange == CURRENT_TIMESTEP || m_statisticsTimeRange == ALL_TIMESTEPS) // All timesteps is ignored
                 {
                     int currentTimeStep = eclipseView->currentTimeStep();
 
-                    if ( m_statisticsCellRange == ALL_CELLS )
+                    if (m_statisticsCellRange == ALL_CELLS)
                     {
                         RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
                         RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
@@ -315,7 +317,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                         fldResults->sumScalarValue(resAddr, currentTimeStep, &sum);
                         histogram = &(fldResults->scalarValuesHistogram(resAddr, currentTimeStep));
                     }
-                    else if (m_statisticsCellRange == VISIBLE_CELLS )
+                    else if (m_statisticsCellRange == VISIBLE_CELLS)
                     {
                         updateVisCellStatsIfNeeded();
 
@@ -378,8 +380,8 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         if (isResultsInfoRelevant)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
-            QString timeRangeText =  m_statisticsTimeRange().uiText();
-            if ( eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS )
+            QString timeRangeText = m_statisticsTimeRange().uiText();
+            if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
             {
                 timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
             }
@@ -387,9 +389,9 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
             infoText += QString("<br><b>Statistics:</b> ") + timeRangeText + " and " + m_statisticsCellRange().uiText();
             infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
-                                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                                "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
+                "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
 
             if (eclipseView->faultResultSettings()->hasValidCustomResult())
             {
@@ -427,12 +429,12 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
             eclipseView->cellEdgeResult()->minMaxCellEdgeValues(min, max);
             infoText += QString("<b>Cell Edge Property:</b> %1 ").arg(cellEdgeName);
             infoText += QString("<table border=0 cellspacing=5 >"
-                                "<tr> <td>Min</td> <td></td> <td></td> <td></td> <td>Max</td> </tr>"
-                                "<tr> <td>%1</td>  <td></td> <td></td> <td></td> <td> %2</td></tr>"
-                                "</table>").arg(min).arg(max);
+                "<tr> <td>Min</td> <td></td> <td></td> <td></td> <td>Max</td> </tr>"
+                "<tr> <td>%1</td>  <td></td> <td></td> <td></td> <td> %2</td></tr>"
+                "</table>").arg(min).arg(max);
 
         }
-        
+
     }
 
     if (!infoText.isEmpty())
@@ -556,19 +558,19 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
 
                 switch (geoMechView->cellResultResultDefinition()->resultPositionType())
                 {
-                    case RIG_NODAL:
+                case RIG_NODAL:
                     resultPos = "Nodal";
                     break;
 
-                    case RIG_ELEMENT_NODAL:
+                case RIG_ELEMENT_NODAL:
                     resultPos = "Element nodal";
                     break;
 
-                    case RIG_INTEGRATION_POINT:
+                case RIG_INTEGRATION_POINT:
                     resultPos = "Integration point";
                     break;
 
-                    default:
+                default:
                     break;
                 }
 
@@ -577,9 +579,9 @@ void Rim3dOverlayInfoConfig::updateGeoMech3DInfo(RimGeoMechView * geoMechView)
             {
                 infoText += QString("<br><b>Statistics:</b> ") + m_statisticsTimeRange().uiText() + " and " + m_statisticsCellRange().uiText();
                 infoText += QString("<table border=0 cellspacing=5 >"
-                                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
-                                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
+                    "<tr> <td>Min</td> <td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> <td>Sum</td> </tr>"
+                    "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                    "</table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max).arg(sum);
 
             }
         }
@@ -618,27 +620,27 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
         {
             RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
             calc = new RigFemNativeVisibleCellsStatCalc(geoMechView->geoMechCase()->geoMechData(),
-                                                        resAddress,
-                                                        geoMechView->currentTotalCellVisibility().p());
-          
+                resAddress,
+                geoMechView->currentTotalCellVisibility().p());
+
         }
         else if (eclipseView)
         {
-            if ( eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS )
+            if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
             {
                 RigFlowDiagResultAddress resAddr = eclipseView->cellResult()->flowDiagResAddress();
                 RigFlowDiagResults* fldResults = eclipseView->cellResult()->flowDiagSolution()->flowDiagResults();
-                calc = new RigFlowDiagVisibleCellsStatCalc(fldResults, 
-                                                           resAddr,
-                                                           eclipseView->currentTotalCellVisibility().p());
+                calc = new RigFlowDiagVisibleCellsStatCalc(fldResults,
+                    resAddr,
+                    eclipseView->currentTotalCellVisibility().p());
 
             }
             else
             {
                 size_t scalarIndex = eclipseView->cellResult()->scalarResultIndex();
                 calc = new RigEclipseNativeVisibleCellsStatCalc(eclipseView->currentGridCellResults(),
-                                                                scalarIndex,
-                                                                eclipseView->currentTotalCellVisibility().p());
+                    scalarIndex,
+                    eclipseView->currentTotalCellVisibility().p());
             }
         }
 
@@ -657,19 +659,19 @@ void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage(bool showS
     if (showSwitchToCurrentTimestep)
     {
         switchString = QString("<br>"
-                               "Switching to statistics for <b>Current Time Step</b>");
+            "Switching to statistics for <b>Current Time Step</b>");
     }
 
     if (!isShowing)
     {
         isShowing = true;
         QMessageBox::information(m_viewDef->viewer()->layoutWidget(),
-                                 QString("ResInsight"),
-                                 QString("Statistics not available<br>"
-                                 "<br>"
-                                 "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> is not supported<br>"
-                                 "when you have an active Property filter on a time varying result.<br>")
-                                 + switchString);
+            QString("ResInsight"),
+            QString("Statistics not available<br>"
+                "<br>"
+                "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> is not supported<br>"
+                "when you have an active Property filter on a time varying result.<br>")
+            + switchString);
         isShowing = false;
     }
 }
