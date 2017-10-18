@@ -19,6 +19,7 @@
 #include "RimCalculationCollection.h"
 
 #include "RimCalculation.h"
+#include "RimCalculatedSummaryCase.h"
 
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -34,6 +35,9 @@ RimCalculationCollection::RimCalculationCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_calcuations, "Calculations", "Calculations", "", "", "");
     m_calcuations.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case", "", "", "");
+    m_calcuationSummaryCase = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,6 +50,8 @@ RimCalculation* RimCalculationCollection::addCalculation()
 
     m_calcuations.push_back(calculation);
 
+    m_calcuationSummaryCase()->buildMetaData();
+
     return calculation;
 }
 
@@ -55,6 +61,9 @@ RimCalculation* RimCalculationCollection::addCalculation()
 void RimCalculationCollection::deleteCalculation(RimCalculation* calculation)
 {
     m_calcuations.removeChildObject(calculation);
+
+    m_calcuationSummaryCase()->buildMetaData();
+
     delete calculation;
 }
 
@@ -71,5 +80,13 @@ std::vector<RimCalculation*> RimCalculationCollection::calculations() const
     }
 
     return calcs;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCalculatedSummaryCase* RimCalculationCollection::calculationSummaryCase()
+{
+    return m_calcuationSummaryCase();
 }
 

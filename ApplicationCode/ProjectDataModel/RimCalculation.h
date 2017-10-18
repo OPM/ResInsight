@@ -43,6 +43,7 @@ public:
     void                            deleteVariable(RimCalculationVariable* calcVariable);
 
     const std::vector<double>&      values() const;
+    const std::vector<time_t>&      timeSteps() const;
 
     bool                            parseExpression();
     bool                            calculate();
@@ -63,4 +64,5 @@ private:
     caf::PdmChildArrayField<RimCalculationVariable*>    m_variables;
 
     caf::PdmField<std::vector<double>>                  m_calculatedValues;
+    caf::PdmField<std::vector<time_t>>                  m_timesteps;
 };

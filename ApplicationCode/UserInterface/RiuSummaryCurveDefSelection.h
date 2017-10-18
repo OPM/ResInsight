@@ -106,6 +106,9 @@ private:
     void                                    resetAllFields();
     bool                                    isObservedData(RimSummaryCase *sumCase) const;
 
+    std::vector<RimSummaryCase*>            summaryCases() const;
+    static RimSummaryCase*                  calculatedSummaryCase();
+
 private:
     caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
 

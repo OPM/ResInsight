@@ -49,6 +49,8 @@ RimCalculation::RimCalculation()
 
     CAF_PDM_InitFieldNoDefault(&m_variables,        "Variables",        "Variables", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_timesteps,        "TimeSteps",        "Time Steps", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,6 +104,14 @@ void RimCalculation::deleteVariable(RimCalculationVariable* calcVariable)
 const std::vector<double>& RimCalculation::values() const
 {
     return m_calculatedValues();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<time_t>& RimCalculation::timeSteps() const
+{
+    return m_timesteps();
 }
 
 //--------------------------------------------------------------------------------------------------

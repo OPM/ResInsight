@@ -21,11 +21,12 @@
 #include "RiaApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 
-#include "RiuSummaryCurveDefinitionKeywords.h"
-
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RimCalculation.h"
+#include "RimCalculatedSummaryCase.h"
+#include "RimCalculationCollection.h"
 #include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
@@ -33,6 +34,8 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+
+#include "RiuSummaryCurveDefinitionKeywords.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -211,7 +214,7 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurv
 
         std::set<RifEclipseSummaryAddress> selectedAddressesFromUi = buildAddressListFromSelections();
 
-        for (RimSummaryCase* currCase : m_selectedCases)
+        for (RimSummaryCase* currCase : summaryCases())
         {
             if (currCase && currCase->summaryReader())
             {
@@ -259,7 +262,10 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
         // Select case if not already selected
         if (std::find(m_selectedCases.begin(), m_selectedCases.end(), summaryCase) == m_selectedCases.end())
         {
-            m_selectedCases.push_back(summaryCase);
+            if (summaryCase != calculatedSummaryCase())
+            {
+                m_selectedCases.push_back(summaryCase);
+            }
         }
 
         bool isObservedDataCase = isObservedData(summaryCase);
@@ -293,15 +299,13 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 
     if (m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
     {
-        // TODO
-        // Wire up list of calculated curves here
-/*
-        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::calculatedCurveAddress("a My Test");
-        addressSet.insert(adr);
+        RimSummaryCase* calcSumCase = calculatedSummaryCase();
 
-        RifEclipseSummaryAddress adr2 = RifEclipseSummaryAddress::calculatedCurveAddress("b My Test2");
-        addressSet.insert(adr2);
-*/
+        const std::vector<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
+        for (const auto& adr : allAddresses)
+        {
+            addressSet.insert(adr);
+        }
     }
 
     return addressSet;
@@ -582,7 +586,7 @@ void RiuSummaryCurveDefSelection::defineUiOrdering(QString uiConfigName, caf::Pd
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RimSummaryCase*> cases;
-    for (const auto& sumCase: m_selectedCases)
+    for (const auto& sumCase : m_selectedCases())
     {
         if(isObservedData(sumCase)) continue;
         cases.push_back(sumCase);
@@ -596,7 +600,7 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField)
 {
     std::vector<RimSummaryCase*> obsData;
-    for (const auto& sumCase : m_selectedCases)
+    for (const auto& sumCase : m_selectedCases())
     {
         if (isObservedData(sumCase))
         {
@@ -830,4 +834,32 @@ void RiuSummaryCurveDefSelection::resetAllFields()
 bool RiuSummaryCurveDefSelection::isObservedData(RimSummaryCase *sumCase) const
 {
     return dynamic_cast<RimObservedData*>(sumCase) != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RiuSummaryCurveDefSelection::summaryCases() const
+{
+    std::vector<RimSummaryCase*> cases;
+
+    for (RimSummaryCase* currCase : m_selectedCases)
+    {
+        cases.push_back(currCase);
+    }
+
+    // Always add the summary case for calculated curves as this case is not displayed in UI
+    cases.push_back(RiuSummaryCurveDefSelection::calculatedSummaryCase());
+
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RiuSummaryCurveDefSelection::calculatedSummaryCase()
+{
+    RimCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+
+    return calcColl->calculationSummaryCase();
 }
