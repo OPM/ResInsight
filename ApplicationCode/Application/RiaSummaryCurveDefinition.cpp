@@ -66,7 +66,7 @@ void RiaSummaryCurveDefinition::resultValues(const RiaSummaryCurveDefinition& cu
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RiaSummaryCurveDefinition::timeSteps(const RiaSummaryCurveDefinition& curveDefinition)
 {
-    std::vector<time_t> dummy;
+    static std::vector<time_t> dummy;
 
     if (!curveDefinition.summaryAddress().isValid()) return dummy;
     if (!curveDefinition.summaryCase()) return dummy;

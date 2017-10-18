@@ -164,17 +164,16 @@ void RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 RimCalculation* RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
 {
-    if (!m_calculationCollection) return false;
-
-    CVF_ASSERT(resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED);
-
-    QString calculatedName = QString::fromStdString(resultAddress.quantityName());
-
-    for (RimCalculation* calc : m_calculationCollection->calculations())
+    if (m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
     {
-        if (calc->description() == calculatedName)
+        QString calculatedName = QString::fromStdString(resultAddress.quantityName());
+
+        for (RimCalculation* calc : m_calculationCollection->calculations())
         {
-            return calc;
+            if (calc->description() == calculatedName)
+            {
+                return calc;
+            }
         }
     }
 

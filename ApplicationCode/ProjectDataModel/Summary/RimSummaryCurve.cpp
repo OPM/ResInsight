@@ -159,7 +159,8 @@ RimSummaryCurve::RimSummaryCurve()
 
     CAF_PDM_InitFieldNoDefault(&m_summaryCase, "SummaryCase", "Case", "", "", "");
     m_summaryCase.uiCapability()->setUiTreeChildrenHidden(true);
-    
+    m_summaryCase.uiCapability()->setAutoAddingOptionFromValue(false);
+
     CAF_PDM_InitFieldNoDefault(&m_selectedVariableDisplayField, "SelectedVariableDisplayVar", "Vector", "", "", "");
     m_selectedVariableDisplayField.xmlCapability()->setIOWritable(false);
     m_selectedVariableDisplayField.xmlCapability()->setIOReadable(false);

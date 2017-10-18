@@ -101,14 +101,6 @@ RimSummaryCase* RimCalculationCollection::calculationSummaryCase()
 //--------------------------------------------------------------------------------------------------
 void RimCalculationCollection::deleteAllContainedObjects()
 {
-    RimCalculatedSummaryCase* sumCase = m_calcuationSummaryCase();
-    if (sumCase)
-    {
-        m_calcuationSummaryCase.removeChildObject(sumCase);
-
-        delete sumCase;
-    }
-
     m_calcuations.deleteAllChildObjects();
 }
 
