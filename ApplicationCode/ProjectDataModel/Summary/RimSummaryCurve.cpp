@@ -19,10 +19,11 @@
 #include "RimSummaryCurve.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 
 #include "RifReaderEclipseSummary.h"
 
-#include "RiaDefines.h"
+#include "RimCalculationCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -310,6 +311,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions(const caf::
         std::vector<RimSummaryCase*> cases;
 
         proj->allSummaryCases(cases);
+
+        cases.push_back(proj->calculationCollection->calculationSummaryCase());
 
         for (RimSummaryCase* rimCase : cases)
         {
