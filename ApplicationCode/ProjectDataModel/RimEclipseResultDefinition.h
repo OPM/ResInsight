@@ -88,6 +88,7 @@ public:
     bool                            isTernarySaturationSelected() const;
     bool                            isCompletionTypeSelected() const;
     bool                            hasCategoryResult() const;
+    bool                            isFlowDiagOrInjectionFlooding() const;
 
     RigCaseCellResultsData*         currentGridCellResults() const;
 

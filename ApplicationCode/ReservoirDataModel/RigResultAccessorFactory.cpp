@@ -221,7 +221,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
                                                                                  size_t timeStepIndex,
                                                                                  RimEclipseResultDefinition* resultDefinition)
 {
-    if (resultDefinition->resultType() == RiaDefines::FLOW_DIAGNOSTICS || resultDefinition->resultType() == RiaDefines::INJECTION_FLOODING)
+    if (resultDefinition->isFlowDiagOrInjectionFlooding())
     {
         RimFlowDiagSolution* flowSol = resultDefinition->flowDiagSolution();
         if (!flowSol) return new RigHugeValResultAccessor;;

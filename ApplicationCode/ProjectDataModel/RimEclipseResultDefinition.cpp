@@ -718,7 +718,7 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 {
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || m_resultType() == RiaDefines::INJECTION_FLOODING) return cvf::UNDEFINED_SIZE_T;
+    if (isFlowDiagOrInjectionFlooding()) return cvf::UNDEFINED_SIZE_T;
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults )
@@ -734,7 +734,7 @@ size_t RimEclipseResultDefinition::scalarResultIndex() const
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 {
-    CVF_ASSERT(m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || m_resultType() == RiaDefines::INJECTION_FLOODING);
+    CVF_ASSERT(isFlowDiagOrInjectionFlooding());
 
     if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS)
     {
@@ -885,7 +885,7 @@ QString RimEclipseResultDefinition::resultVariableUiShortName() const
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadResult()
 {
-    if (m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING) return; // Will load automatically on access
+    if (isFlowDiagOrInjectionFlooding()) return; // Will load automatically on access
 
     RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
@@ -901,7 +901,7 @@ void RimEclipseResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasStaticResult() const
 {
-    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING) return false;
+    if (isFlowDiagOrInjectionFlooding()) return false;
 
     const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
     size_t gridScalarResultIndex = this->scalarResultIndex();
@@ -921,7 +921,7 @@ bool RimEclipseResultDefinition::hasStaticResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasResult() const
 {
-    if (this->resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->resultType() == RiaDefines::INJECTION_FLOODING)
+    if (isFlowDiagOrInjectionFlooding())
     {
         if (m_flowSolution() && !m_resultVariable().isEmpty()) return true;
     }
@@ -1092,6 +1092,18 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
     return this->resultVariable().contains("NUM", Qt::CaseInsensitive);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseResultDefinition::isFlowDiagOrInjectionFlooding() const
+{
+    if (this->m_resultType() == RiaDefines::FLOW_DIAGNOSTICS || this->m_resultType() == RiaDefines::INJECTION_FLOODING)
+    {
+        return true;
+    }
+
+    return false;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

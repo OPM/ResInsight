@@ -300,7 +300,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
                     }
                 }
             }
-            else if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS || eclipseView->cellResult->resultType() == RiaDefines::INJECTION_FLOODING)
+            else if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
             {
                 if (m_statisticsTimeRange == CURRENT_TIMESTEP || m_statisticsTimeRange == ALL_TIMESTEPS) // All timesteps is ignored
                 {
