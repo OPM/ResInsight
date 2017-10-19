@@ -280,7 +280,10 @@ void RigMainGrid::calculateFaults(const RigActiveCellInfo* activeCellInfo)
         bool firstNO_FAULTFaceForCell = true;
         bool isCellActive = true;
 
-        for (char faceIdx = 0; faceIdx < 6; ++faceIdx)
+        char upperLimitForFaceType = cvf::StructGridInterface::FaceType::POS_K;
+
+        // Compare only I and J faces
+        for (char faceIdx = 0; faceIdx < upperLimitForFaceType; ++faceIdx)
         {
             cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType(faceIdx);
 
