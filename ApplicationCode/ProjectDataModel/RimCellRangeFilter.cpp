@@ -79,6 +79,27 @@ RimCellRangeFilter::~RimCellRangeFilter()
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (changedField == &gridIndex)
+    {
+        const cvf::StructGridInterface* grid = selectedGrid();
+
+        if (grid && grid->cellCountI() > 0 && grid->cellCountJ() > 0 && grid->cellCountK() > 0)
+        {
+            cellCountI = static_cast<int>(grid->cellCountI());
+            startIndexI = 1;
+
+            cellCountJ = static_cast<int>(grid->cellCountJ());
+            startIndexJ = 1;
+
+            cellCountK = static_cast<int>(grid->cellCountK());
+            startIndexK = 1;
+        }
+
+        parentContainer()->updateDisplayModeNotifyManagedViews(this);
+
+        return;
+    }
+    
     if (changedField != &name)
     {
         computeAndSetValidValues();
