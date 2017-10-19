@@ -51,7 +51,7 @@ public:
                             const cvf::ScalarMapper* mapper,
                             RiaDefines::ResultCatType resultType,
                             size_t scalarResultIndex,
-                            size_t timeStepIndex) const;
+                            size_t nativeTimeStepIndex) const;
 
     // Mapping between cells and geometry
     cvf::ref<cvf::Array<size_t> >   triangleToNNCIndex() const;

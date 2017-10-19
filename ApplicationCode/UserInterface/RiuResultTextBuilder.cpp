@@ -356,7 +356,11 @@ QString RiuResultTextBuilder::nncResultText()
                     }
                     else if (resultType == RiaDefines::DYNAMIC_NATIVE)
                     {
-                        nncValues = nncData->dynamicConnectionScalarResult(scalarResultIdx, m_timeStepIndex);
+                        if (m_reservoirView.notNull() && m_reservoirView->eclipseCase())
+                        {
+                            size_t nativeTimeStep = m_reservoirView->eclipseCase()->uiToNativeTimeIndex(m_timeStepIndex);
+                            nncValues = nncData->dynamicConnectionScalarResult(scalarResultIdx, nativeTimeStep);
+                        }
                     }
                     if (nncValues)
                     {

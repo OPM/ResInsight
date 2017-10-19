@@ -149,8 +149,9 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
         }
         flowrateKatAllTimeSteps.push_back(flowrateK);
 
+        size_t nativeTimeStepIndex = caseToApply->uiToNativeTimeStepIndex(timeStep);
         const std::vector<double>* connectionFlowrate = nncData->dynamicConnectionScalarResultByName(nncConnectionProperty,
-                                                                                                     timeStep);
+                                                                                                     nativeTimeStepIndex);
         flowrateNNCatAllTimeSteps.push_back(connectionFlowrate);
 
 

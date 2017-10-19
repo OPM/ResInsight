@@ -69,6 +69,16 @@ cvf::Vec3d RimCase::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RimCase::uiToNativeTimeStepIndex(size_t uiTimeStepIndex)
+{
+    std::vector<size_t> nativeTimeIndices = m_timeStepFilter->filteredNativeTimeStepIndices();
+
+    return nativeTimeIndices.at(uiTimeStepIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;

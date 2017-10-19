@@ -50,7 +50,7 @@ public:
     void                    setTimeStepsFromFile(const std::vector<QDateTime>& timeSteps);
     void                    clearTimeStepsFromFile();
     
-    std::vector<size_t>     selectedTimeStepIndices() const;
+    std::vector<size_t>     filteredNativeTimeStepIndices() const;
 
 private:
     QString                 filteredTimeStepsAsText() const;

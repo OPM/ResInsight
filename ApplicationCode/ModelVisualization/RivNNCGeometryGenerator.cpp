@@ -149,7 +149,7 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
                                                  const cvf::ScalarMapper* mapper,
                                                  RiaDefines::ResultCatType resultType,
                                                  size_t scalarResultIndex,
-                                                 size_t timeStepIndex) const
+                                                 size_t nativeTimeStepIndex) const
 {
     size_t numVertices = m_vertices->size();
 
@@ -162,11 +162,11 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
     }
     else if (resultType == RiaDefines::DYNAMIC_NATIVE)
     {
-        nncResultVals = m_nncData->dynamicConnectionScalarResult(scalarResultIndex, timeStepIndex);
+        nncResultVals = m_nncData->dynamicConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
     }
     else if (resultType == RiaDefines::GENERATED)
     {
-        nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, timeStepIndex);
+        nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
     }
 
     if (!nncResultVals)

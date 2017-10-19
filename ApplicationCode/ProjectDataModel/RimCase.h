@@ -66,6 +66,8 @@ public:
 
     virtual double                              characteristicCellSize() const = 0;
 
+    size_t                                      uiToNativeTimeStepIndex(size_t uiTimeStepIndex);
+
 protected:
     virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 private:

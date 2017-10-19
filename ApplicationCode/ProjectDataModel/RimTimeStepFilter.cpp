@@ -106,7 +106,7 @@ void RimTimeStepFilter::clearTimeStepsFromFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimTimeStepFilter::selectedTimeStepIndices() const
+std::vector<size_t> RimTimeStepFilter::filteredNativeTimeStepIndices() const
 {
     std::vector<size_t> indices;
 

@@ -666,8 +666,16 @@ void RivFaultPartMgr::updateNNCColors(size_t timeStepIndex, RimEclipseCellColors
         RiaDefines::ResultCatType resultType = cellResultColors->resultType();
 
         const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
-
-        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, resultType, scalarSetIndex, timeStepIndex);
+        
+        if (eclipseView)
+        {
+            RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+            if (eclipseCase)
+            {
+                size_t nativeTimeStepIndex = eclipseCase->uiToNativeTimeStepIndex(timeStepIndex);
+                m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, resultType, scalarSetIndex, nativeTimeStepIndex);
+            }
+        }
 
         cvf::ref<cvf::Effect> nncEffect;
 

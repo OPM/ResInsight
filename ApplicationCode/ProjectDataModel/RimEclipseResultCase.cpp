@@ -171,7 +171,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData(bool showTimeStepFilter)
             readerEclipseOutput->setFileDataAccess(restartDataAccess.p());
         }
 
-        readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->selectedTimeStepIndices());
+        readerEclipseOutput->setTimeStepFilter(m_timeStepFilter->filteredNativeTimeStepIndices());
 
         cvf::ref<RigEclipseCaseData> eclipseCase = new RigEclipseCaseData(this);
         if (!readerEclipseOutput->open(caseFileName(), eclipseCase.p()))
