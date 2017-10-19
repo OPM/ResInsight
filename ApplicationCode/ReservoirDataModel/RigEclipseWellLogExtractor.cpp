@@ -18,16 +18,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigEclipseWellLogExtractor.h"
-#include <map>
+
 #include "RigEclipseCaseData.h"
-#include "RigWellPath.h"
+#include "RigMainGrid.h"
 #include "RigResultAccessor.h"
+#include "RigWellLogExtractionTools.h"
+#include "RigWellPath.h"
+#include "RigWellPathIntersectionTools.h"
+
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 
-#include "RigWellLogExtractionTools.h"
-#include "RigMainGrid.h"
-#include "RigWellPathIntersectionTools.h"
+#include <map>
 
 //==================================================================================================
 /// 

@@ -21,18 +21,11 @@
 
 #include "RigWellLogExtractor.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfMath.h"
-#include "cvfVector3.h"
-
-#include <vector>
-#include "cvfStructGrid.h"
-#include "RigWellPathIntersectionTools.h"
-
 class RigEclipseCaseData;
 class RigWellPath;
 class RigResultAccessor;
+
+struct WellPathCellIntersectionInfo;
 
 namespace cvf {
     class BoundingBox;
