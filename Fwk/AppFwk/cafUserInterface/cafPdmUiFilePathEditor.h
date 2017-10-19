@@ -36,7 +36,9 @@
 
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
+
 #include <QString>
 #include <QWidget>
 #include <QPointer>
@@ -52,7 +54,6 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-
 class PdmUiFilePathEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -77,6 +78,9 @@ public:
 };
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class PdmUiFilePathEditor : public PdmUiFieldEditorHandle
 {
     Q_OBJECT

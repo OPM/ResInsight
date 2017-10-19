@@ -23,7 +23,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include "QMessageBox"
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT(RicReloadFormationNamesFeature, "RicReloadFormationNamesFeature");
 

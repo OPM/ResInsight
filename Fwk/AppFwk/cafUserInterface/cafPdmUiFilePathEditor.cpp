@@ -37,23 +37,19 @@
 
 #include "cafPdmUiFilePathEditor.h"
 
-#include "cafPdmUiDefaultObjectEditor.h"
-
+#include "cafFactory.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiOrdering.h"
 
-#include "cafPdmField.h"
-
-#include <QLineEdit>
-#include <QLabel>
+#include <QBoxLayout>
+#include <QDir>
+#include <QFileDialog>
 #include <QIntValidator>
-
-#include "cafFactory.h"
-#include "qboxlayout.h"
-#include "qtoolbutton.h"
-#include "qfiledialog.h"
-
+#include <QLabel>
+#include <QLineEdit>
 
 
 namespace caf

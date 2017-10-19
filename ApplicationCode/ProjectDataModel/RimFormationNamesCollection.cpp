@@ -15,10 +15,12 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimFormationNamesCollection.h"
 
 #include "RimFormationNames.h"
-#include "QMessageBox"
+
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimFormationNamesCollection, "FormationNamesCollectionObject");
 

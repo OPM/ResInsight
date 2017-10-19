@@ -28,7 +28,7 @@
 
 #include <QFile>
 #include <QFileInfo>
-#include "QMessageBox"
+#include <QMessageBox>
 
 CAF_PDM_SOURCE_INIT(RimFormationNames, "FormationNames");
 

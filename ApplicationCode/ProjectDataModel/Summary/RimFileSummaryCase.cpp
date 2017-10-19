@@ -17,13 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimFileSummaryCase.h"
+
+#include "RiaLogging.h"
+
+#include "RifEclipseSummaryTools.h"
+#include "RifReaderEclipseSummary.h"
+
 #include "RimTools.h"
 
-#include "QFileInfo"
-#include "RifReaderEclipseSummary.h"
-#include "QDir"
-#include "RifEclipseSummaryTools.h"
-#include "RiaLogging.h"
+#include <QDir>
+#include <QFileInfo>
 
 
 //==================================================================================================

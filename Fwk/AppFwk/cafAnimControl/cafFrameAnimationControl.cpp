@@ -37,7 +37,7 @@
 
 #include "cafFrameAnimationControl.h"
 
-#include "qtimer.h"
+#include <QTimer>
 
 
 namespace caf
