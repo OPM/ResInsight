@@ -41,7 +41,7 @@
 #include "RiuMainPlotWindow.h"
 #include "RiuSelectionManager.h"
 
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -53,38 +53,19 @@ CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-template<typename T>
-static T selectedPdmObject()
-{
-    T objToFind = nullptr;
-
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>(pdmUiItem);
-    if (objHandle)
-    {
-        objHandle->firstAncestorOrThisOfType(objToFind);
-    }
-
-    return objToFind;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
 
     //int branchIndex;
 
-    RimSimWellInView* simWell = selectedPdmObject<RimSimWellInView*>();
-    RimWellPath* rimWellPath = simWell == nullptr ? selectedPdmObject<RimWellPath*>() : nullptr;
+    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
+    RimWellPath* rimWellPath = simWell == nullptr ? caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>() : nullptr;
     
     bool enable = true;
     if (simWell != nullptr)
     {
-        RimEclipseResultCase* eclCase = selectedPdmObject<RimEclipseResultCase*>();
+        RimEclipseResultCase* eclCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseResultCase*>();
         if (simWell != nullptr)
         {
             enable &= RimWellRftPlot::hasPressureData(eclCase);
@@ -116,11 +97,11 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         QString wellName;
         RimWellPath* wellPath = nullptr;
         RimSimWellInView* eclipseWell = nullptr;
-        if ((wellPath = selectedPdmObject<RimWellPath*>()) != nullptr)
+        if ((wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>()) != nullptr)
         {
             wellName = wellPath->name();
         }
-        else if ((eclipseWell = selectedPdmObject<RimSimWellInView*>()) != nullptr)
+        else if ((eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>()) != nullptr)
         {
             wellName = eclipseWell->name();
         }
@@ -164,8 +145,7 @@ void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 RimWellLogTrack* RicNewRftPlotFeature::selectedWellLogPlotTrack() const
 {
-    std::vector<RimWellLogTrack*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    auto selection = caf::selectedObjectsByType<RimWellLogTrack*>();
     return selection.size() > 0 ? selection[0] : nullptr;
 }
 
@@ -174,8 +154,7 @@ RimWellLogTrack* RicNewRftPlotFeature::selectedWellLogPlotTrack() const
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RicNewRftPlotFeature::selectedWellPath() const
 {
-    std::vector<RimWellPath*> selection;
-    caf::SelectionManager::instance()->objectsByType(&selection);
+    auto selection = caf::selectedObjectsByType<RimWellPath*>();
     return selection.size() > 0 ? selection[0] : nullptr;
 }
 

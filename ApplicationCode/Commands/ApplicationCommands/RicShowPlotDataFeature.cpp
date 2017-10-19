@@ -26,7 +26,7 @@
 
 #include "RiuMainPlotWindow.h"
 
-#include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 #include <QBoxLayout>
@@ -174,12 +174,10 @@ void RicTextWidget::contextMenuEvent(QContextMenuEvent* event)
 //--------------------------------------------------------------------------------------------------
 bool RicShowPlotDataFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryPlot*> selectedSummaryPlots;
-    caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
+    auto selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
     if (selectedSummaryPlots.size() > 0) return true;
 
-    std::vector<RimWellLogPlot*> wellLogPlots;
-    caf::SelectionManager::instance()->objectsByType(&wellLogPlots);
+    auto wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
     if (wellLogPlots.size() > 0) return true;
 
     return false;
@@ -192,11 +190,8 @@ void RicShowPlotDataFeature::onActionTriggered(bool isChecked)
 {
     this->disableModelChangeContribution();
 
-    std::vector<RimSummaryPlot*> selectedSummaryPlots;
-    caf::SelectionManager::instance()->objectsByType(&selectedSummaryPlots);
-
-    std::vector<RimWellLogPlot*> wellLogPlots;
-    caf::SelectionManager::instance()->objectsByType(&wellLogPlots);
+    std::vector<RimSummaryPlot*> selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
+    std::vector<RimWellLogPlot*> wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
 
     if (selectedSummaryPlots.size() == 0 && wellLogPlots.size() == 0)
     {

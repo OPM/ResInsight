@@ -46,10 +46,8 @@ set( PROJECT_FILES
 
     cafSelectionManager.cpp
     cafSelectionManager.h
-
-
+    cafSelectionManagerTools.h
 )
-
 
 add_library( ${PROJECT_NAME}
 	${PROJECT_FILES}
