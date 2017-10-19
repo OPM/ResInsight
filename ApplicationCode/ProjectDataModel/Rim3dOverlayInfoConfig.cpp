@@ -27,6 +27,8 @@
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
+#include "RigFlowDiagResults.h"
+#include "RigFlowDiagVisibleCellsStatCalc.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 #include "RigStatisticsDataCache.h"
@@ -37,17 +39,18 @@
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
 #include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimView.h"
 
 #include "RiuViewer.h"
-#include "RigFlowDiagResults.h"
-#include "RigFlowDiagVisibleCellsStatCalc.h"
+
+#include <QMessageBox>
+
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +206,7 @@ void Rim3dOverlayInfoConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup("Statistics Options");
     RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
 
-    if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding()) // 
+    if (!eclipseView || !eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
     {
         statGroup->add(&m_statisticsTimeRange);
     }
@@ -649,8 +652,9 @@ void Rim3dOverlayInfoConfig::updateVisCellStatsIfNeeded()
     }
 }
 
-#include <QMessageBox>
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage(bool showSwitchToCurrentTimestep)
 {
     static bool isShowing = false;

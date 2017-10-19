@@ -40,6 +40,7 @@ class RigStatisticsDataCache;
 class Rim3dOverlayInfoConfig : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
 public:
     Rim3dOverlayInfoConfig();
     virtual ~Rim3dOverlayInfoConfig();
@@ -69,7 +70,6 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-
     void updateEclipse3DInfo(RimEclipseView * reservoirView);
     void updateGeoMech3DInfo(RimGeoMechView * geoMechView);
 
@@ -90,5 +90,4 @@ private:
     void displayPropertyFilteredStatisticsMessage(bool showSwitchToCurrentTimestep);
     bool                                        m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
-
 };
