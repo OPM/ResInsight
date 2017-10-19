@@ -71,7 +71,7 @@ public:
 
     void                setDefaultWindowSize();
 
-    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
+    void                setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
     RimMdiWindowGeometry windowGeometryForViewer(QWidget* viewer) override;
 

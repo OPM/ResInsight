@@ -102,7 +102,7 @@ public:
 
     void            refreshDrawStyleActions();
     
-    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded);
+    void            setExpanded(const caf::PdmUiItem* uiItem, bool expanded = true);
 
     RimMdiWindowGeometry    windowGeometryForViewer(QWidget* viewer);
 

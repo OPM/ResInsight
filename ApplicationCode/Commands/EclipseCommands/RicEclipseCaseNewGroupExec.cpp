@@ -74,7 +74,7 @@ void RicEclipseCaseNewGroupExec::redo()
         analysisModels->caseGroups().push_back(createdObject);
         analysisModels->updateConnectedEditors();
         RiuMainWindow::instance()->selectAsCurrentItem(createdObject);
-        RiuMainWindow::instance()->setExpanded(createdObject, true);
+        RiuMainWindow::instance()->setExpanded(createdObject);
     }
 }
 

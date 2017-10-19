@@ -144,7 +144,7 @@ void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
         RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
         if (mainPlotWindow)
         {
-            mainPlotWindow->setExpanded(plotTrack, true);
+            mainPlotWindow->setExpanded(plotTrack);
             mainPlotWindow->selectAsCurrentItem(rftPlot);
         }
     }

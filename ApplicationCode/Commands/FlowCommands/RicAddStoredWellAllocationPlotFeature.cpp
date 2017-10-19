@@ -83,7 +83,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered(bool isChecked)
             if (mainPlotWindow)
             {
                 mainPlotWindow->selectAsCurrentItem(wellAllocationPlot);
-                mainPlotWindow->setExpanded(wellAllocationPlot, true);
+                mainPlotWindow->setExpanded(wellAllocationPlot);
             }
         }
     }

@@ -109,7 +109,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered(bool isChecked)
 
     RiaApplication::instance()->project()->updateConnectedEditors();
     RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(plot);
-    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->setExpanded(plotTrack, true);
+    RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->setExpanded(plotTrack);
 }
 
 //--------------------------------------------------------------------------------------------------

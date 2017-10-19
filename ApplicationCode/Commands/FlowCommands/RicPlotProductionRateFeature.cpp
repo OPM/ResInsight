@@ -195,7 +195,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
         if (mainPlotWindow)
         {
             mainPlotWindow->selectAsCurrentItem(summaryPlotToSelect);
-            mainPlotWindow->setExpanded(summaryPlotToSelect, true);
+            mainPlotWindow->setExpanded(summaryPlotToSelect);
 
             mainPlotWindow->tileWindows();
         }

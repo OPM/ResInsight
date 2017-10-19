@@ -80,7 +80,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection(RimEclipseRe
 //==================================================================================================
 void RicSelectOrCreateViewFeatureImpl::focusView(RimEclipseView* view)
 {
-    RiuMainWindow::instance()->setExpanded(view, true);
+    RiuMainWindow::instance()->setExpanded(view);
     RiuMainWindow::instance()->selectAsCurrentItem(view);
     RiuMainWindow::instance()->raise();
 }

@@ -82,7 +82,7 @@ void RicSetMasterViewFeature::onActionTriggered(bool isChecked)
 
     // Set managed view collection to selected and expanded in project tree
     RiuMainWindow::instance()->selectAsCurrentItem(viewLinker);
-    RiuMainWindow::instance()->setExpanded(viewLinker, true);
+    RiuMainWindow::instance()->setExpanded(viewLinker);
 }
 
 //--------------------------------------------------------------------------------------------------

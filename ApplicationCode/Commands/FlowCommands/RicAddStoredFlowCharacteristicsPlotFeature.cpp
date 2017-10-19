@@ -83,7 +83,7 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered(bool isChecke
             if (mainPlotWindow)
             {
                 mainPlotWindow->selectAsCurrentItem(flowCharacteristicsPlot);
-                mainPlotWindow->setExpanded(flowCharacteristicsPlot, true);
+                mainPlotWindow->setExpanded(flowCharacteristicsPlot);
             }
         }
     }

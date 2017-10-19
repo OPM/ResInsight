@@ -156,7 +156,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells(RimE
 
     propertyFilterCollection->updateConnectedEditors();
 
-    RiuMainWindow::instance()->setExpanded(propertyFilterCollection, true);
+    RiuMainWindow::instance()->setExpanded(propertyFilterCollection);
 
     viewToModify->faultCollection()->showFaultCollection = false;
     viewToModify->faultCollection()->updateConnectedEditors();

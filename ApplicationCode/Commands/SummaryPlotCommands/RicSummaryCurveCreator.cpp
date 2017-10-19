@@ -311,7 +311,7 @@ void RicSummaryCurveCreator::fieldChangedByUi(const caf::PdmFieldHandle* changed
             m_closeButtonField = true;
             RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
             mainPlotWindow->selectAsCurrentItem(m_targetPlot);
-            mainPlotWindow->setExpanded(m_targetPlot, true);
+            mainPlotWindow->setExpanded(m_targetPlot);
         }
 
         m_applyButtonField = false;

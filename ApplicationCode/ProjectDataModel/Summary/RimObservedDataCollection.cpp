@@ -122,7 +122,7 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
             if (mainPlotWindow)
             {
                 mainPlotWindow->selectAsCurrentItem(observedData);
-                mainPlotWindow->setExpanded(observedData, true);
+                mainPlotWindow->setExpanded(observedData);
             }
 
             this->updateConnectedEditors();
