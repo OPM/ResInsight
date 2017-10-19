@@ -137,26 +137,27 @@ void RimWellPathCollection::readWellPathFiles()
             }
         }
 
-        RimWellLogFile* wellLogFile = wellPaths[wpIdx]->wellLogFile();
-        if (wellLogFile)
+        for (RimWellLogFile* const wellLogFile : wellPaths[wpIdx]->wellLogFiles())
         {
-            QString errorMessage;
-            if (!wellLogFile->readFile(&errorMessage))
+            if (wellLogFile)
             {
-                QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
-
-                if (!errorMessage.isEmpty())
+                QString errorMessage;
+                if (!wellLogFile->readFile(&errorMessage))
                 {
-                    displayMessage += "\n\n";
-                    displayMessage += errorMessage;
-                }
+                    QString displayMessage = "Could not open the well log file: \n" + wellLogFile->fileName();
 
-                QMessageBox::warning(RiuMainWindow::instance(), 
-                    "File open error", 
-                    displayMessage);
+                    if (!errorMessage.isEmpty())
+                    {
+                        displayMessage += "\n\n";
+                        displayMessage += errorMessage;
+                    }
+
+                    QMessageBox::warning(RiuMainWindow::instance(),
+                                         "File open error",
+                                         displayMessage);
+                }
             }
         }
-
         progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name()));
         progress.incrementProgress();
     }
@@ -300,7 +301,7 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
                 wellPaths.push_back(wellPath);
             }
 
-            wellPath->setLogFileInfo(logFileInfo);
+            wellPath->addWellLogFile(logFileInfo);
         }
     }
 

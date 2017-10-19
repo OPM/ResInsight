@@ -79,9 +79,10 @@ public:
     void                                            setCurrentWellName(const QString& currWellName);
     QString                                         currentWellName() const;
 
-    static bool                                     hasPressureData(RimWellLogFile* wellLogFile);
-    static bool                                     hasPressureData(RimWellLogFileChannel* channel);
+    static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
+    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
     static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
+    static bool                                     hasPressureData(RimWellPath* wellPath);
     static const char*                              plotNameFormatString();
 
     void                                            applyInitialSelections();
@@ -111,18 +112,17 @@ private:
 
     void                                            syncCurvesFromUiSelection();
 
-    std::vector<RimWellPath*>                       wellPathsContainingPressure(const QString& wellName) const;
-    std::vector<RimWellLogFileChannel*>             getPressureChannelsFromWellPath(const RimWellPath* wellPath) const;
-    RimEclipseCase*                                 eclipseCaseFromCaseId(int caseId);
+    std::vector<RimWellLogFile*>                    wellLogFilesContainingPressure(const QString& wellName) const;
+    RimWellLogFileChannel*                          getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile) const;
 
-    RimWellPath*                                    wellPathForObservedData(const QString& wellName, const QDateTime& date) const;
-
+    RimWellPath*                                    wellPathFromWellLogFile(const RimWellLogFile* wellLogFile) const;
+    
     std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
     std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(const RimEclipseCase* gridCase) const;
-    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromWellPaths(const std::vector<RimWellPath*> wellPaths) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const;
     std::map<QDateTime, std::set<RimWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>& allTimeSteps, 
                                                                        const std::pair<QDateTime, std::set<RimWellRftAddress>>& searchTimeStepPair);
     static bool                                      mapContainsTimeStep(const std::map<QDateTime, std::set<RimWellRftAddress>>& map, const QDateTime& timeStep);
@@ -135,6 +135,7 @@ private:
                                                                        const std::set<RimWellLogCurve*>& curvesToDelete);
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RimWellRftAddress>& addresses) const;
+    std::vector<RimWellRftAddress>                  selectedSources() const;
 
     // RimViewWindow overrides
 
@@ -159,4 +160,6 @@ private:
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
 
     std::map<QDateTime, std::set<RimWellRftAddress>> m_timeStepsToAddresses;
+
+    bool m_selectedSourcesOrTimeStepsFieldsChanged;
 };

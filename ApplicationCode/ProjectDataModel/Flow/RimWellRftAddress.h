@@ -24,12 +24,15 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmPointer.h"
 
 #include <QPointer>
 #include <QDate>
 #include <QMetaType>
 
 class RimWellLogFile;
+class RimEclipseCase;
+
 
 //==================================================================================================
 ///  
@@ -43,28 +46,27 @@ enum class RftSourceType
     OBSERVED
 };
 
-
 class RimWellRftAddress
 {
+    
 public:
-    RimWellRftAddress() : m_sourceType(RftSourceType::NONE), m_caseId(-1)
-    {
-    }
-
-    RimWellRftAddress(RftSourceType sourceType, int caseId = -1);
+    RimWellRftAddress();
+    RimWellRftAddress(RftSourceType sourceType, RimEclipseCase* eclCase);
+    RimWellRftAddress(RftSourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
 
     RftSourceType   sourceType() const;
-    int             caseId() const;
+    RimEclipseCase* eclCase() const;
+    RimWellLogFile* wellLogFile() const;
 
-    QString uiText() const;
     static QString sourceTypeUiText(RftSourceType sourceType);
 
     friend QTextStream& operator >> (QTextStream& str, RimWellRftAddress& addr);
     friend bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);
 
 private:
-    RftSourceType   m_sourceType;
-    int             m_caseId;
+    RftSourceType                   m_sourceType;
+    caf::PdmPointer<RimEclipseCase> m_eclCase;
+    caf::PdmPointer<RimWellLogFile> m_wellLogFile;
 };
 
 Q_DECLARE_METATYPE(RimWellRftAddress);

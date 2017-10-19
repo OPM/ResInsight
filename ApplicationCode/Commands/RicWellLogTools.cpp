@@ -137,7 +137,7 @@ RimWellPath* RicWellLogTools::selectedWellPathWithLogFile()
     if (selection.size() > 0)
     {
         RimWellPath* wellPath = selection[0];
-        if (wellPath->wellLogFile())
+        if (wellPath->wellLogFiles().size() > 0)
         {
             return wellPath;
         }

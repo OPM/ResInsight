@@ -17,7 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellRftAddress.h"
+#include "RimEclipseCase.h"
+#include "RimWellLogFile.h"
+
 #include "cafAppEnum.h"
+#include "cvfAssert.h"
 #include <QString>
 #include <QTextStream>
 
@@ -34,10 +38,34 @@ namespace caf
     }
 }
 
-RimWellRftAddress::RimWellRftAddress(RftSourceType sourceType , int caseId)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellRftAddress::RimWellRftAddress() : m_sourceType(RftSourceType::NONE)
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellRftAddress::RimWellRftAddress(RftSourceType sourceType, RimEclipseCase* eclCase)
+{
+    CVF_ASSERT(sourceType == RftSourceType::RFT || sourceType == RftSourceType::GRID);
+    CVF_ASSERT(eclCase != nullptr);
+
     m_sourceType = sourceType;
-    m_caseId = caseId;
+    m_eclCase = eclCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellRftAddress::RimWellRftAddress(RftSourceType sourceType, RimWellLogFile* wellLogFile)
+{
+    CVF_ASSERT(sourceType == RftSourceType::OBSERVED);
+
+    m_sourceType = sourceType;
+    m_wellLogFile = wellLogFile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,19 +79,17 @@ RftSourceType RimWellRftAddress::sourceType() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimWellRftAddress::caseId() const
+RimEclipseCase* RimWellRftAddress::eclCase() const
 {
-    return m_caseId;
+    return m_eclCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellRftAddress::uiText() const
+RimWellLogFile* RimWellRftAddress::wellLogFile() const
 {
-    return m_caseId >= 0 ?
-        QString("%1 %2").arg(sourceTypeUiText(m_sourceType), QString::number(m_caseId)) :
-        QString("%1").arg(sourceTypeUiText(m_sourceType));
+    return m_wellLogFile;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +111,9 @@ QString RimWellRftAddress::sourceTypeUiText(RftSourceType sourceType)
 //--------------------------------------------------------------------------------------------------
 bool operator==(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2)
 {
-    return addr1.sourceType() == addr2.sourceType() && addr1.caseId() == addr2.caseId();
+    return addr1.sourceType() == addr2.sourceType() 
+        && addr1.eclCase() == addr2.eclCase() 
+        && addr1.wellLogFile() == addr2.wellLogFile();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +121,8 @@ bool operator==(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2)
 //--------------------------------------------------------------------------------------------------
 QTextStream& operator << (QTextStream& str, const RimWellRftAddress& addr)
 {
-    str << RimWellRftAddress::sourceTypeUiText(addr.sourceType()) << " " << addr.caseId();
+    // Not implemented
+    CVF_ASSERT(false);
     return str;
 }
 
@@ -102,25 +131,8 @@ QTextStream& operator << (QTextStream& str, const RimWellRftAddress& addr)
 //--------------------------------------------------------------------------------------------------
 QTextStream& operator >> (QTextStream& str, RimWellRftAddress& source)
 {
-    QString sourceTypeString;
-    int caseId;
-
-    str >> sourceTypeString;
-    str >> caseId;
-
-    if (QString::compare(sourceTypeString, RimWellRftAddress::sourceTypeUiText(RftSourceType::RFT)) == 0)
-    {
-        source.m_sourceType = RftSourceType::RFT;
-    }
-    else if (QString::compare(sourceTypeString, RimWellRftAddress::sourceTypeUiText(RftSourceType::GRID)) == 0)
-    {
-        source.m_sourceType = RftSourceType::GRID;
-    }
-    else if (QString::compare(sourceTypeString, RimWellRftAddress::sourceTypeUiText(RftSourceType::OBSERVED)) == 0)
-    {
-        source.m_sourceType = RftSourceType::OBSERVED;
-    }
-    source.m_caseId = caseId;
+    // Not implemented
+    CVF_ASSERT(false);
     return str;
 }
 
@@ -130,6 +142,8 @@ QTextStream& operator >> (QTextStream& str, RimWellRftAddress& source)
 bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2)
 {
     return (addr1.m_sourceType < addr2.m_sourceType) ||
-        (addr1.m_sourceType == addr2.m_sourceType && addr1.m_caseId < addr2.m_caseId);
-
+        (addr1.m_sourceType == addr2.m_sourceType && 
+         addr1.eclCase() != nullptr && addr2.eclCase() != nullptr ? addr1.eclCase()->caseId() < addr2.eclCase()->caseId() :
+         addr1.wellLogFile() != nullptr && addr2.wellLogFile() != nullptr ?  addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName() :
+         addr1.wellLogFile() < addr2.wellLogFile());
 }

@@ -64,7 +64,7 @@ public:
     RimWellPath();
     virtual ~RimWellPath();
 
-    void                                setLogFileInfo(RimWellLogFile* logFileInfo);
+    void                                addWellLogFile(RimWellLogFile* logFileInfo);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
@@ -75,7 +75,7 @@ public:
     QString                             name() const;
     void                                setName(const QString& name);
   
-    RimWellLogFile*                     wellLogFile() const;
+    std::vector<RimWellLogFile*>        wellLogFiles() const;
 
     caf::PdmField<QString>              filepath;
     caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
@@ -152,6 +152,8 @@ private:
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmField<QString>              m_name;
     
-    caf::PdmChildField<RimWellLogFile*> m_wellLogFile;
+    caf::PdmChildArrayField<RimWellLogFile*> m_wellLogFiles;
+
+    caf::PdmChildField<RimWellLogFile*> m_wellLogFile_OBSOLETE;
 
 };

@@ -57,8 +57,6 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 {
     if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
 
-    //int branchIndex;
-
     RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
     RimWellPath* rimWellPath = simWell == nullptr ? caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>() : nullptr;
     
@@ -73,11 +71,7 @@ bool RicNewRftPlotFeature::isCommandEnabled()
     }
     else if (rimWellPath)
     {
-        auto wellLogFile = rimWellPath->wellLogFile();
-        if (wellLogFile != nullptr)
-        {
-            enable &= RimWellRftPlot::hasPressureData(wellLogFile);
-        }
+        enable &= RimWellRftPlot::hasPressureData(rimWellPath);
     }
     return enable;
 }

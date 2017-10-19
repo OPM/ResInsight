@@ -28,6 +28,7 @@
 
 class RimWellPath;
 class RimWellLogFileChannel;
+class RimWellLogFile;
 
 //==================================================================================================
 ///  
@@ -44,10 +45,12 @@ public:
     void setWellPath(RimWellPath* wellPath);
     RimWellPath* wellPath() const;
     void setWellLogChannelName(const QString& name);
-    
+    void setWellLogFile(RimWellLogFile* wellLogFile);
+
     // Overrides from RimWellLogPlotCurve
     virtual QString wellName() const;
     virtual QString wellLogChannelName() const;
+    virtual RimWellLogFile* wellLogFile() const;
 
 protected:
     // Overrides from RimWellLogPlotCurve
@@ -61,9 +64,10 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 protected:
-    caf::PdmPtrField<RimWellPath*>  m_wellPath;
-    caf::PdmField<QString>          m_wellLogChannnelName;
-    caf::PdmField<QString>          m_wellLogChannnelUnit;
+    caf::PdmPtrField<RimWellPath*>      m_wellPath;
+    caf::PdmPtrField<RimWellLogFile*>   m_wellLogFile;
+    caf::PdmField<QString>              m_wellLogChannnelName;
+    caf::PdmField<QString>              m_wellLogChannnelUnit;
 };
 
 

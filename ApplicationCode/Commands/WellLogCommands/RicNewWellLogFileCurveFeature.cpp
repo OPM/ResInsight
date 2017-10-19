@@ -97,12 +97,9 @@ bool RicNewWellLogFileCurveFeature::wellLogFilesAvailable() const
 
         for (size_t i = 0; i < wellPaths.size(); i++)
         {
-            if (wellPaths[i]->wellLogFile())
+            if (wellPaths[i]->wellLogFiles().size() > 0)
             {
-                if (wellPaths[i]->wellLogFile()->wellLogFile())
-                {
-                    return true;
-                }
+                return true;
             }
         }
     }

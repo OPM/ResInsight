@@ -124,8 +124,12 @@ RimWellPath::RimWellPath()
     m_completions = new RimWellPathCompletions;
     m_completions.uiCapability()->setUiTreeHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_wellLogFile,      "WellLogFile",  "Well Log File", "", "", "");
-    m_wellLogFile.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "");
+    m_wellLogFiles.uiCapability()->setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&m_wellLogFile_OBSOLETE,      "WellLogFile",  "Well Log File", "", "", "");
+    m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
+    m_wellLogFile_OBSOLETE.xmlCapability()->setIOWritable(false);
 
     m_wellPath = NULL;
 }
@@ -136,9 +140,14 @@ RimWellPath::RimWellPath()
 //--------------------------------------------------------------------------------------------------
 RimWellPath::~RimWellPath()
 {
-    if (m_wellLogFile())
+    if (m_wellLogFile_OBSOLETE())
     {
-        delete m_wellLogFile;
+        delete m_wellLogFile_OBSOLETE;
+    }
+
+    for(const auto& file : m_wellLogFiles())
+    {
+        delete file;
     }
 
     RimProject* project;
@@ -354,9 +363,9 @@ void RimWellPath::setName(const QString& name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogFile* RimWellPath::wellLogFile() const
+std::vector<RimWellLogFile*> RimWellPath::wellLogFiles() const
 {
-    return m_wellLogFile;
+    return std::vector<RimWellLogFile*>(m_wellLogFiles.begin(), m_wellLogFiles.end());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -459,7 +468,7 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName)
 { 
-    uiTreeOrdering.add(&m_wellLogFile);
+    uiTreeOrdering.add(&m_wellLogFiles);
 
     if (m_completions->hasCompletions())
     {
@@ -594,17 +603,24 @@ RiaEclipseUnitTools::UnitSystem RimWellPath::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::setLogFileInfo(RimWellLogFile* logFileInfo)
+void RimWellPath::addWellLogFile(RimWellLogFile* logFileInfo)
 {
-    if (m_wellLogFile())
+    auto itr = std::find_if(m_wellLogFiles.begin(), m_wellLogFiles.end(), [&](const RimWellLogFile* file) 
+    { 
+        return QString::compare(file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive) == 0;
+    });
+
+    // Todo: Verify well name to ensure all well log files having the same well name
+
+    if (itr == m_wellLogFiles.end())
     {
-        delete m_wellLogFile;
+        m_wellLogFiles.push_back(logFileInfo);
+
+        if (m_wellLogFiles.size() == 1)
+        {
+            setName(m_wellLogFiles[0]->wellName());
+        }
     }
-
-    m_wellLogFile = logFileInfo;
-    m_wellLogFile->uiCapability()->setUiHidden(true);
-
-    setName(m_wellLogFile->wellName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -616,7 +632,7 @@ RimWellPath* RimWellPath::fromFilePath(QString filePath)
     if (logFileInfo)
     {
         auto wellPath = new RimWellPath();
-        wellPath->setLogFileInfo(logFileInfo);
+        wellPath->addWellLogFile(logFileInfo);
         return wellPath;
     }
     return nullptr;
