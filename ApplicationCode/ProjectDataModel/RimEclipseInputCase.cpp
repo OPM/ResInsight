@@ -83,7 +83,7 @@ RimEclipseInputCase::~RimEclipseInputCase()
 /// Open the supplied file set. If no grid data has been read, it will first find the possible 
 /// grid data among the files then read all supported properties from the files matching the grid
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
+bool RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 {
     if (fileNames.contains(RiaDefines::mockModelBasicInputCase()))
     {
@@ -100,7 +100,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
         
         computeCachedData();
 
-        return;
+        return true;
     }
 
     if (this->eclipseCaseData() == NULL) 
@@ -135,7 +135,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
 
     if (this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-        return ; // No grid present
+        return false; // No grid present
     }
 
     std::vector<QString> filesToRead;
@@ -171,6 +171,7 @@ void RimEclipseInputCase::openDataFileSet(const QStringList& fileNames)
             m_inputPropertyCollection->inputProperties.push_back(inputProperty);
         }
     }
+    return true;
 }
 
 

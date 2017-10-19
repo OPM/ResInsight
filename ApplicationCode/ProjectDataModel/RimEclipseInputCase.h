@@ -49,7 +49,7 @@ public:
     caf::PdmChildField<RimEclipseInputPropertyCollection*> m_inputPropertyCollection;
 
     // File open methods
-    void                        openDataFileSet(const QStringList& fileNames);
+    bool                        openDataFileSet(const QStringList& fileNames);
     void                        loadAndSyncronizeInputProperties();
 
     // RimCase overrides

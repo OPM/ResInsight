@@ -20,6 +20,7 @@
 #include "RicImportInputEclipseCaseFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 
 #include "RimEclipseCaseCollection.h"
@@ -50,10 +51,15 @@ bool RicImportInputEclipseCaseFeature::openInputEclipseCaseFromFileNames(const Q
 
     project->assignCaseIdToCase(rimInputReservoir);
 
-    rimInputReservoir->openDataFileSet(fileNames);
+    bool gridImportSuccess = rimInputReservoir->openDataFileSet(fileNames);
+    if (!gridImportSuccess)
+    {
+        RiaLogging::error("Failed to import grid");
+        return false;
+    }
 
-    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : NULL;
-    if (analysisModels == NULL) return false;
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if (analysisModels == nullptr) return false;
 
     analysisModels->cases.push_back(rimInputReservoir);
 
