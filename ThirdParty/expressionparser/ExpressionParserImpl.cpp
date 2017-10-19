@@ -38,7 +38,16 @@ std::vector<QString> ExpressionParserImpl::detectReferencedVariables(const QStri
 
         for (const auto& s : variable_list)
         {
-            referencedVariables.push_back(QString::fromStdString(s));
+            QString variableNameLowerCase = QString::fromStdString(s);
+
+            // ExprTk reports always in 
+
+            int index = expression.indexOf(variableNameLowerCase, 0, Qt::CaseInsensitive);
+            if (index > -1)
+            {
+
+                referencedVariables.push_back(expression.mid(index, variableNameLowerCase.size()));
+            }
         }
     }
 

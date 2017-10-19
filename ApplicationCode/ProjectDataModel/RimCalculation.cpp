@@ -127,10 +127,6 @@ caf::PdmFieldHandle* RimCalculation::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 bool RimCalculation::parseExpression()
 {
-    // The expression parser handles only variables in lower case
-    QString lowerVariant = m_expression().toLower();
-    m_expression = lowerVariant;
-
     QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
     if (leftHandSideVariableName.isEmpty()) return false;
 
