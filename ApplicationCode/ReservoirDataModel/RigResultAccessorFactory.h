@@ -60,6 +60,8 @@ public:
                             size_t timeStepIndex,
                             size_t resultIndex);
 
+
+
 private:
     static cvf::ref<RigResultAccessor>
         createNativeFromUiResultName(const RigEclipseCaseData* eclipseCase,
@@ -68,6 +70,11 @@ private:
                                      size_t timeStepIndex,
                                      const QString& resultName);
 
+    static cvf::ref<RigResultAccessor>
+        createDerivedResultAccessor(const RigEclipseCaseData* eclipseCase,
+                                    size_t gridIndex,
+                                    RiaDefines::PorosityModelType porosityModel,
+                                    size_t timeStepIndex,
+                                    const QString& uiResultName);
 };
-
 
