@@ -332,6 +332,17 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogFileCurve::initAfterRead()
+{
+    if (m_wellPath->wellLogFiles().size() == 1)
+    {
+        m_wellLogFile = m_wellPath->wellLogFiles().front();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::createCurveAutoName()
 {
     if (m_wellPath)

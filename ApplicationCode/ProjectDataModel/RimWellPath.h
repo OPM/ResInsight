@@ -71,6 +71,7 @@ public:
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                        initAfterRead() override;
 
     QString                             name() const;
     void                                setName(const QString& name);

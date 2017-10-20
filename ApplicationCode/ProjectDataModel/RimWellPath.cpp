@@ -345,6 +345,20 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::initAfterRead()
+{
+    RimWellLogFile* wellLogFile = m_wellLogFile_OBSOLETE();
+    m_wellLogFile_OBSOLETE = nullptr;
+
+    if (wellLogFile != nullptr)
+    {
+        m_wellLogFiles.push_back(wellLogFile);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellPath::name() const
 {
     return m_name();
