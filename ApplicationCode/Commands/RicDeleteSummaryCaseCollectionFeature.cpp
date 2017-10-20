@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 
+#include "RiaSummaryTools.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -43,7 +44,7 @@ CAF_CMD_SOURCE_INIT(RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCase
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection(RimSummaryCaseCollection* caseCollection)
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     for (RimSummaryCase* summaryCase : caseCollection->allSummaryCases())
     {

@@ -30,9 +30,7 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimGridTimeHistoryCurve.h"
-#include "RimMainPlotCollection.h"
 #include "RimProject.h"
-#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -46,6 +44,7 @@
 #include "cvfColor3.h"
 
 #include <QAction>
+#include "RiaSummaryTools.h"
 
 
 CAF_CMD_SOURCE_INIT(RicNewGridTimeHistoryCurveFeature, "RicNewGridTimeHistoryCurveFeature");
@@ -81,14 +80,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 {
     const QString lastUsedSummaryPlotKey("lastUsedSummaryPlotKey");
 
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT(project);
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {

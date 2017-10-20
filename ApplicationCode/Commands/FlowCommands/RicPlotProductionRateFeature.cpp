@@ -38,6 +38,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimView.h"
+#include "RiaSummaryTools.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -79,11 +80,7 @@ void RicPlotProductionRateFeature::onActionTriggered(bool isChecked)
     RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return;
 
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CAF_ASSERT(mainPlotColl);
-
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-    CAF_ASSERT(summaryPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType(&collection);

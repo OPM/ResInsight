@@ -18,6 +18,8 @@
 
 #include "RimSummaryCase.h"
 
+#include "RiaSummaryTools.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -95,12 +97,7 @@ void RimSummaryCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateTreeItemName();
     }
 
-    RimProject* proj = NULL;
-    this->firstAncestorOrThisOfType(proj);
-    
-    RimMainPlotCollection* mainPlotColl = proj->mainPlotCollection();
-    RimSummaryPlotCollection* summaryPlotColl = mainPlotColl->summaryPlotCollection();
-
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
 
     updateOptionSensitivity();

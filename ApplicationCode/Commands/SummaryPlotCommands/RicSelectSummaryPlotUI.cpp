@@ -19,6 +19,7 @@
 #include "RicSelectSummaryPlotUI.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
@@ -91,7 +92,7 @@ QList<caf::PdmOptionItemInfo> RicSelectSummaryPlotUI::calculateValueOptions(cons
 
     if (fieldNeedingOptions == &m_selectedSummaryPlot)
     {
-        RimSummaryPlotCollection* summaryPlotColl = summaryPlotCollection();
+        RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
         summaryPlotColl->summaryPlotItemInfos(&options);
     }
@@ -104,7 +105,7 @@ QList<caf::PdmOptionItemInfo> RicSelectSummaryPlotUI::calculateValueOptions(cons
 //--------------------------------------------------------------------------------------------------
 void RicSelectSummaryPlotUI::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    if (summaryPlotCollection()->summaryPlots().size() == 0)
+    if (RiaSummaryTools::summaryPlotCollection()->summaryPlots().size() == 0)
     {
         m_createNewPlot = true;
     }
@@ -120,15 +121,4 @@ void RicSelectSummaryPlotUI::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
         m_selectedSummaryPlot.uiCapability()->setUiReadOnly(false);
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RicSelectSummaryPlotUI::summaryPlotCollection()
-{
-    RimProject* project = RiaApplication::instance()->project();
-    
-    return project->mainPlotCollection()->summaryPlotCollection();
-}
-
 

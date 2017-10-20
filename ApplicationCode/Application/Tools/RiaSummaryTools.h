@@ -28,6 +28,7 @@ class QString;
 class RiaSummaryTools
 {
 public:
-    static RimSummaryPlotCollection* summaryPlotCollection();
-    static void notifyCalculatedCurveNameHasChanged(const QString& previousCurveName, const QString& currentCurveName);
+    static RimSummaryPlotCollection*    summaryPlotCollection();
+    static void                         notifyCalculatedCurveNameHasChanged(const QString& previousCurveName,
+                                                                            const QString& currentCurveName);
 };

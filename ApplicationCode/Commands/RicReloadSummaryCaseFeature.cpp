@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -64,8 +65,7 @@ bool RicReloadSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::onActionTriggered(bool isChecked)
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for (RimSummaryCase* summaryCase : caseSelection)

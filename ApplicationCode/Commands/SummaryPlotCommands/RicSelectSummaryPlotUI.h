@@ -48,9 +48,6 @@ protected:
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    static RimSummaryPlotCollection* summaryPlotCollection();
-
-private:
     caf::PdmPtrField<RimSummaryPlot*>   m_selectedSummaryPlot;
     caf::PdmField<bool>                 m_createNewPlot;
     caf::PdmField<QString>              m_newSummaryPlotName;

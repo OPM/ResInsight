@@ -19,6 +19,7 @@
 #include "RicCloseSummaryCaseFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
@@ -49,8 +50,7 @@ void RicCloseSummaryCaseFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummaryCase*>& cases)
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     for (RimSummaryCase* summaryCase : cases)
     {

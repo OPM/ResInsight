@@ -19,8 +19,8 @@
 #include "RicCloseObservedDataFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
-#include "RimMainPlotCollection.h"
 #include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimProject.h"
@@ -49,9 +49,7 @@ void RicCloseObservedDataFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::deleteObservedData(const std::vector<RimObservedData*>& data)
 {
-
-    RimSummaryPlotCollection* summaryPlotColl = RiaApplication::instance()->project()->mainPlotCollection()->summaryPlotCollection();
-    CVF_ASSERT(summaryPlotColl);
+    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
 
     for (RimObservedData* observedData : data)
     {
