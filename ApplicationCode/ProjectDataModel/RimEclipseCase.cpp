@@ -60,6 +60,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
+#include "RimEclipseStatisticsCase.h"
 
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT(RimEclipseCase, "RimReservoir");
@@ -578,42 +579,53 @@ bool RimEclipseCase::openReserviorCase()
         return false;
     }
 
+    bool createPlaceholderEntries = true;
+    if (dynamic_cast<RimEclipseStatisticsCase*>(this))
     {
-        RigCaseCellResultsData* results = this->results(RiaDefines::MATRIX_MODEL);
-        if (results )
-        {
-            results->createPlaceholderResultEntries();
-            // After the placeholder result for combined transmissibility is created, 
-            // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
-            size_t combinedTransResIdx = results->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
-            if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
-            {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(), combinedTransResIdx);
-            }
-            size_t combinedWatFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
-            if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
-            {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(), combinedWatFluxResIdx);
-            }
-            size_t combinedOilFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
-            if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
-            {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(), combinedOilFluxResIdx);
-            }
-            size_t combinedGasFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
-            if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
-            {
-                eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(), combinedGasFluxResIdx);
-            }
-        }
-
+        // Never create placeholder entries for statistical cases. This does not make sense, and breaks the 
+        // logic for testing if data is present in RimEclipseStatisticsCase::hasComputedStatistics()
+        createPlaceholderEntries = false;
     }
 
+    if (createPlaceholderEntries)
     {
-        RigCaseCellResultsData* results = this->results(RiaDefines::FRACTURE_MODEL);
-        if (results)
         {
-            results->createPlaceholderResultEntries();
+            RigCaseCellResultsData* results = this->results(RiaDefines::MATRIX_MODEL);
+            if (results )
+            {
+                results->createPlaceholderResultEntries();
+                // After the placeholder result for combined transmissibility is created, 
+                // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
+                size_t combinedTransResIdx = results->findScalarResultIndex(RiaDefines::STATIC_NATIVE, RiaDefines::combinedTransmissibilityResultName());
+                if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
+                {
+                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameCombTrans(), combinedTransResIdx);
+                }
+                size_t combinedWatFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedWaterFluxResultName());
+                if (combinedWatFluxResIdx != cvf::UNDEFINED_SIZE_T)
+                {
+                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxWat(), combinedWatFluxResIdx);
+                }
+                size_t combinedOilFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedOilFluxResultName());
+                if (combinedOilFluxResIdx != cvf::UNDEFINED_SIZE_T)
+                {
+                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxOil(), combinedOilFluxResIdx);
+                }
+                size_t combinedGasFluxResIdx = results->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, RiaDefines::combinedGasFluxResultName());
+                if (combinedGasFluxResIdx != cvf::UNDEFINED_SIZE_T)
+                {
+                    eclipseCaseData()->mainGrid()->nncData()->setScalarResultIndex(RigNNCData::propertyNameFluxGas(), combinedGasFluxResIdx);
+                }
+            }
+
+        }
+
+        {
+            RigCaseCellResultsData* results = this->results(RiaDefines::FRACTURE_MODEL);
+            if (results)
+            {
+                results->createPlaceholderResultEntries();
+            }
         }
     }
 
