@@ -38,8 +38,7 @@ RimCalculationCollection::RimCalculationCollection()
 
     CAF_PDM_InitFieldNoDefault(&m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case", "", "", "");
     m_calcuationSummaryCase.xmlCapability()->disableIO();
-    
-    ensureSummaryCaseIsCreated();
+    m_calcuationSummaryCase = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,8 +51,7 @@ RimCalculation* RimCalculationCollection::addCalculation()
 
     m_calcuations.push_back(calculation);
 
-    ensureSummaryCaseIsCreated();
-    m_calcuationSummaryCase->buildMetaData();
+    rebuildCaseMetaData();
 
     return calculation;
 }
@@ -65,8 +63,7 @@ void RimCalculationCollection::deleteCalculation(RimCalculation* calculation)
 {
     m_calcuations.removeChildObject(calculation);
 
-    ensureSummaryCaseIsCreated();
-    m_calcuationSummaryCase->buildMetaData();
+    rebuildCaseMetaData();
 
     delete calculation;
 }
@@ -91,8 +88,6 @@ std::vector<RimCalculation*> RimCalculationCollection::calculations() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimCalculationCollection::calculationSummaryCase()
 {
-    ensureSummaryCaseIsCreated();
-
     return m_calcuationSummaryCase();
 }
 
@@ -102,16 +97,23 @@ RimSummaryCase* RimCalculationCollection::calculationSummaryCase()
 void RimCalculationCollection::deleteAllContainedObjects()
 {
     m_calcuations.deleteAllChildObjects();
+
+    rebuildCaseMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculationCollection::ensureSummaryCaseIsCreated()
+void RimCalculationCollection::rebuildCaseMetaData()
 {
-    if (!m_calcuationSummaryCase())
-    {
-        m_calcuationSummaryCase = new RimCalculatedSummaryCase;
-    }
+    m_calcuationSummaryCase->buildMetaData();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCalculationCollection::initAfterRead()
+{
+    rebuildCaseMetaData();
 }
 

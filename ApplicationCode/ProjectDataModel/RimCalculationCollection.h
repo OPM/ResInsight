@@ -44,9 +44,10 @@ public:
     RimSummaryCase*                 calculationSummaryCase();
 
     void                            deleteAllContainedObjects();
+    void                            rebuildCaseMetaData();
 
 private:
-    void                            ensureSummaryCaseIsCreated();
+    virtual void                    initAfterRead() override;
 
 private:
     caf::PdmChildArrayField<RimCalculation*>        m_calcuations;
