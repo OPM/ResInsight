@@ -58,11 +58,12 @@ void RimFormationNamesCollection::readAllFormationNames()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFormationNamesCollection::importFiles(const QStringList& fileNames)
+RimFormationNames* RimFormationNamesCollection::importFiles(const QStringList& fileNames)
 {
     QStringList newFileNames;
     std::vector<RimFormationNames*> formNamesObjsToReload;
-
+    size_t formationListBeforeImportCount = m_formationNamesList.size();
+    
     for(const QString& newFileName : fileNames)
     {
         bool isFound = false;
@@ -108,6 +109,16 @@ void RimFormationNamesCollection::importFiles(const QStringList& fileNames)
     {
         QMessageBox::warning(nullptr, "Import Formation Names", totalErrorMessage);
     }
+
+    if (m_formationNamesList.size() > formationListBeforeImportCount)
+    {
+        return m_formationNamesList[m_formationNamesList.size() - 1];
+    }
+    else
+    {
+        return nullptr;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

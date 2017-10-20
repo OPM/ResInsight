@@ -18,10 +18,12 @@
 
 #include "RicImportFormationNamesFeature.h"
 
-#include "RimFormationNamesCollection.h"
 #include "RiaApplication.h"
-#include "RimProject.h"
+
+#include "RimFormationNames.h"
+#include "RimFormationNamesCollection.h"
 #include "RimOilField.h"
+#include "RimProject.h"
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -63,8 +65,13 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
 
     // For each file, find existing Formation names item, or create new
 
-    fomNameColl->importFiles(fileNames);
+    RimFormationNames* formationName = fomNameColl->importFiles(fileNames);
     proj->updateConnectedEditors();
+
+    if (formationName)
+    {
+        RiuMainWindow::instance()->selectAsCurrentItem(formationName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

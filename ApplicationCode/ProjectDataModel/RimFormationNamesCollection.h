@@ -37,7 +37,7 @@ public:
 
     void readAllFormationNames();
     
-    void importFiles(const QStringList& fileNames);
+    RimFormationNames* importFiles(const QStringList& fileNames);
     void updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 private:
