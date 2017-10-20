@@ -384,20 +384,3 @@ bool RimFaultInViewCollection::showFaultsOutsideFilters() const
     return m_showFaultsOutsideFilters;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::setShowFaultsOutsideFilters(bool enableState)
-{
-    m_showFaultsOutsideFilters = enableState;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::addMockData()
-{
-    if (!(m_reservoirView && m_reservoirView->mainGrid())) return;
-
-}
-

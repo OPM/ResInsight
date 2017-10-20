@@ -60,12 +60,9 @@ public:
     void                                setReservoirView(RimEclipseView* ownerReservoirView);
     void                                syncronizeFaults();
 
-    void                                addMockData();
-
     bool                                isGridVisualizationMode() const;
     
     bool                                showFaultsOutsideFilters() const;
-    void                                setShowFaultsOutsideFilters(bool enableState);
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
@@ -93,6 +90,5 @@ private:
 
 private:
     caf::PdmField<bool>     m_showFaultsOutsideFilters;
-    RimEclipseView*       m_reservoirView;
-
+    RimEclipseView*         m_reservoirView;
 };
