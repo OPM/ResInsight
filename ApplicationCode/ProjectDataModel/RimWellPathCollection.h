@@ -37,10 +37,11 @@
 #include <QString>
 
 class RifWellPathImporter;
-class RimWellPath;
-class RimProject;
 class RigWellPath;
 class RimEclipseView;
+class RimProject;
+class RimWellLogFile;
+class RimWellPath;
 
 namespace cvf {
 class ModelBasicList;
@@ -94,7 +95,7 @@ public:
 
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
     void                                addWellPaths(const std::vector<RimWellPath*> wellPaths);
-    void                                addWellLogs(const QStringList& filePaths);
+    RimWellLogFile*                     addWellLogs(const QStringList& filePaths);
 
     void                                scheduleRedrawAffectedViews();
 

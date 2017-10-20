@@ -287,11 +287,13 @@ void RimWellPathCollection::addWellPaths(const std::vector<RimWellPath*> wellPat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
+RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 {
+    RimWellLogFile* logFileInfo;
+
     foreach (QString filePath, filePaths)
     {
-        RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);
+        logFileInfo = RimWellLogFile::readWellLogFile(filePath);
         if (logFileInfo)
         {
             RimWellPath* wellPath = wellPathByName(logFileInfo->wellName());
@@ -306,6 +308,8 @@ void RimWellPathCollection::addWellLogs(const QStringList& filePaths)
     }
 
     this->sortWellsByName();
+
+    return logFileInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
