@@ -423,9 +423,11 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
 
         for (RimWellLogCurve* curve : curves)
         {
-            curveNames.push_back(curve->curveName());
+            if (!curve->isCurveVisible()) continue;
+
             const RigWellLogCurveData* curveData = curve->curveData();
-            if (!curveData) return out;
+            if (!curveData) continue;
+            curveNames.push_back(curve->curveName());
 
             if (curveNames.size() == 1)
             {
@@ -440,7 +442,16 @@ QString RimWellLogPlot::asciiDataForPlotExport() const
             }
 
             std::vector<double> xPlotValues = curveData->xPlotValues();
-            if (!(curveDepths.size() == xPlotValues.size())) return out;
+            if (curveDepths.size() != xPlotValues.size() || xPlotValues.empty())
+            {
+                curveNames.pop_back();
+
+                if (curveNames.empty())
+                {
+                    curveDepths.clear();
+                }
+                continue;
+            }
             curvesPlotXValues.push_back(xPlotValues);
         }
 
