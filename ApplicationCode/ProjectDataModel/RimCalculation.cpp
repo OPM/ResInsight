@@ -22,14 +22,18 @@
 
 #include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryTools.h"
 
+#include "RimCalculationCollection.h"
 #include "RimCalculationVariable.h"
+#include "RimProject.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryPlot.h"
+#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmUiTextEditor.h"
 
 #include <algorithm>
-#include <numeric>
 
 
 CAF_PDM_SOURCE_INIT(RimCalculation, "RimCalculation");
@@ -166,7 +170,7 @@ bool RimCalculation::parseExpression()
         }
     }
 
-    this->updateConnectedEditors();
+    m_description = buildCalculationName();
 
     return true;
 }
@@ -176,8 +180,6 @@ bool RimCalculation::parseExpression()
 //--------------------------------------------------------------------------------------------------
 bool RimCalculation::calculate()
 {
-    if (!parseExpression()) return false;
-
     QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
 
     ExpressionParser parser;
@@ -333,13 +335,35 @@ QString RimCalculation::buildCalculationName() const
     }
 
     return name;
-
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimCalculation::updateDependentCurvesAndPlots()
 {
-    m_description = buildCalculationName();
+    RimCalculationCollection* calcColl = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted(calcColl);
+    calcColl->rebuildCaseMetaData();
+
+    RimSummaryPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryPlotCollection();
+    for (RimSummaryPlot* sumPlot : summaryPlotCollection->summaryPlots())
+    {
+        bool plotContainsCalculatedCurves = false;
+
+        for (RimSummaryCurve* sumCurve : sumPlot->summaryCurves())
+        {
+            if (sumCurve->summaryAddress().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
+            {
+                sumCurve->updateConnectedEditors();
+
+                plotContainsCalculatedCurves = true;
+            }
+        }
+
+        if (plotContainsCalculatedCurves)
+        {
+            sumPlot->loadDataAndUpdate();
+        }
+    }
 }

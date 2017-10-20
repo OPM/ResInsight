@@ -186,6 +186,8 @@ QMinimizePanel* RicSummaryCurveCalculatorEditor::updateGroupBoxWithContent(caf::
 void RicSummaryCurveCalculatorEditor::slotCalculate()
 {
     m_calculator->calculate();
+
+    m_calculator->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,5 +196,7 @@ void RicSummaryCurveCalculatorEditor::slotCalculate()
 void RicSummaryCurveCalculatorEditor::slotParseExpression()
 {
     m_calculator->parseExpression();
+
+    m_calculator->updateConnectedEditors();
 }
 

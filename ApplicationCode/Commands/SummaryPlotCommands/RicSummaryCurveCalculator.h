@@ -41,8 +41,8 @@ public:
 
     RimCalculation* currentCalculation() const;
 
-    void            parseExpression();
-    void            calculate() const;
+    bool            parseExpression() const;
+    bool            calculate() const;
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

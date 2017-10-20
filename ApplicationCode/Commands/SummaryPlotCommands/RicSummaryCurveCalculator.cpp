@@ -27,6 +27,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+#include "RiaSummaryTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCalculator, "RicSummaryCurveCalculator");
@@ -77,14 +78,26 @@ RimCalculation* RicSummaryCurveCalculator::currentCalculation() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::parseExpression()
+bool RicSummaryCurveCalculator::parseExpression() const
 {
     if (m_currentCalculation())
     {
-        m_currentCalculation()->parseExpression();
+        QString previousCurveName = m_currentCalculation->description();
+        if (!m_currentCalculation()->parseExpression())
+        {
+            return false;
+        }
 
-        this->updateConnectedEditors();
+        QString currentCurveName = m_currentCalculation->description();
+        if (previousCurveName != currentCurveName)
+        {
+            RiaSummaryTools::notifyCalculatedCurveNameHasChanged(previousCurveName, currentCurveName);
+        }
+
+        m_currentCalculation()->updateDependentCurvesAndPlots();
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,12 +215,31 @@ void RicSummaryCurveCalculator::assignPushButtonEditorText(caf::PdmUiEditorAttri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculator::calculate() const
+bool RicSummaryCurveCalculator::calculate() const
 {
     if (m_currentCalculation())
     {
-        m_currentCalculation()->calculate();
+        QString previousCurveName = m_currentCalculation->description();
+        if (!m_currentCalculation()->parseExpression())
+        {
+            return false;
+        }
+
+        QString currentCurveName = m_currentCalculation->description();
+        if (previousCurveName != currentCurveName)
+        {
+            RiaSummaryTools::notifyCalculatedCurveNameHasChanged(previousCurveName, currentCurveName);
+        }
+
+        if (!m_currentCalculation()->calculate())
+        {
+            return false;
+        }
+
+        m_currentCalculation()->updateDependentCurvesAndPlots();
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

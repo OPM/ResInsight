@@ -47,6 +47,7 @@ public:
 
     bool                            parseExpression();
     bool                            calculate();
+    void                            updateDependentCurvesAndPlots();
     
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
 
@@ -55,8 +56,6 @@ private:
     RimCalculationVariable*         findByName(const QString& name) const;
 
     QString                         buildCalculationName() const;
-
-    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
     caf::PdmField<QString>                              m_description;
