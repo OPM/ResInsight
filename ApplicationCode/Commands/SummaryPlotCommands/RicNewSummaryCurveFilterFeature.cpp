@@ -58,8 +58,6 @@ void RicNewSummaryCurveFilterFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-
     RimSummaryPlot* plot = selectedSummaryPlot();
     if (plot)
     {
