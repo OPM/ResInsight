@@ -74,9 +74,7 @@ void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
             RimWellPath* wellPath = oilField->wellPathCollection->wellPaths()[lastIdx];
             RiuMainWindow::instance()->selectAsCurrentItem(wellPath);
         }
-
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
