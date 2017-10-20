@@ -97,7 +97,7 @@ public:
     int                     parseArgumentsAndRunUnitTestsIfRequested();
     bool                    parseArguments();
 
-    void                    executeRegressionTests(const QString& regressionTestPath);
+    void                    executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter = nullptr);
 
     void                    setActiveReservoirView(RimView*);
     RimView*                activeReservoirView();
@@ -141,7 +141,7 @@ public:
     void                addWellLogsToModel(const QList<QString>& wellLogFilePaths);
 
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
-    void                runRegressionTest(const QString& testRootPath);
+    void                runRegressionTest(const QString& testRootPath, QStringList* testFilter = nullptr);
 
     void                processNonGuiEvents();
 

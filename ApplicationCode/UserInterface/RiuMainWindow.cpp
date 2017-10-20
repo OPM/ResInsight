@@ -1587,7 +1587,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     caf::PdmSettings::readFieldsFromApplicationStore(&regTestConfig);
 
     caf::PdmUiPropertyViewDialog regressionTestDialog(this, &regTestConfig, "Regression Test", "");
-    regressionTestDialog.resize(QSize(600, 200));
+    regressionTestDialog.resize(QSize(600, 300));
 
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
@@ -1597,7 +1597,10 @@ void RiuMainWindow::slotShowRegressionTestDialog()
         QString currentApplicationPath = QDir::currentPath();
 
         QDir::setCurrent(regTestConfig.applicationWorkingFolder);
-        app->executeRegressionTests(regTestConfig.regressionTestFolder);
+
+        QStringList testFilter = regTestConfig.testFilter().split(";", QString::SkipEmptyParts);
+
+        app->executeRegressionTests(regTestConfig.regressionTestFolder, &testFilter);
 
         QDir::setCurrent(currentApplicationPath);
     }

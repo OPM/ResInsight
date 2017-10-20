@@ -17,7 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaRegressionTest.h"
+
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RiaRegressionTest, "RiaRegressionTest");
@@ -30,10 +32,11 @@ RiaRegressionTest::RiaRegressionTest(void)
     CAF_PDM_InitFieldNoDefault(&applicationWorkingFolder,        "workingFolder", "Folder containing <b>compare</b>", "", "Location of compare tool from Image Magic suite", "");
     applicationWorkingFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
-    CAF_PDM_InitFieldNoDefault(&regressionTestFolder,   "regressionTestFolder", "Regression Test Folder", "", "", "");
-    regressionTestFolder.uiCapability()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
-
+    CAF_PDM_InitFieldNoDefault(&regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "");
     CAF_PDM_InitField(&showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive diff images", "", "", "");
+    
+    CAF_PDM_InitFieldNoDefault(&testFilter,   "testFilter", "Test Filter", "", "If empty, all tests are executed.\nTo execute a subset of tests, specify folder names separated by ;", "");
+    testFilter.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------

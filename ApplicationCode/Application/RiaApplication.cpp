@@ -1901,7 +1901,7 @@ void logInfoTextWithTimeInSeconds(const QTime& time, const QString& msg)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::runRegressionTest(const QString& testRootPath)
+void RiaApplication::runRegressionTest(const QString& testRootPath, QStringList* testFilter)
 {
     m_runningRegressionTests = true;
 
@@ -1920,6 +1920,28 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     testDir.setNameFilters(dirNameFilter);
 
     QFileInfoList folderList = testDir.entryInfoList();
+
+    if (testFilter && testFilter->size() > 0)
+    {
+        QFileInfoList subset;
+
+        for (auto fi : folderList)
+        {
+            QString path = fi.path();
+            QString baseName = fi.baseName();
+
+            for (auto s : *testFilter)
+            {
+                QString trimmed = s.trimmed();
+                if (baseName.contains(trimmed))
+                {
+                    subset.push_back(fi);
+                }
+            }
+        }
+
+        folderList = subset;
+    }
 
     // delete diff and generated images
 
@@ -2416,7 +2438,7 @@ bool RiaApplication::isRunningRegressionTests() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
+void RiaApplication::executeRegressionTests(const QString& regressionTestPath, QStringList* testFilter)
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (mainWnd)
@@ -2424,7 +2446,7 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
         mainWnd->hideAllDockWindows();
  
         mainWnd->setDefaultWindowSize();
-        runRegressionTest(regressionTestPath);
+        runRegressionTest(regressionTestPath, testFilter);
 
         mainWnd->loadWinGeoAndDockToolBarLayout();
     }
