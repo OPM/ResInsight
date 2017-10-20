@@ -922,6 +922,30 @@ RimWellPath* RimProject::wellPathFromSimulationWell(const QString& simWellName, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RimGeoMechCase*> RimProject::geoMechCases() const
+{
+    std::vector<RimGeoMechCase*> cases;
+
+    for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
+    {
+        RimOilField* oilField = oilFields[oilFieldIdx];
+        if (!oilField) continue;
+
+        RimGeoMechModels* geomModels = oilField->geoMechModels();
+        if (geomModels)
+        {
+            for (size_t caseIdx = 0; caseIdx < geomModels->cases.size(); caseIdx++)
+            {
+                cases.push_back(geomModels->cases[caseIdx]);
+            }
+        }
+    }
+    return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsForEclipseCase(RimEclipseCase* eclipseCase)
 {
     std::vector<RimView*> views = eclipseCase->views();

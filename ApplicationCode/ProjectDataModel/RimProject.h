@@ -34,10 +34,12 @@ class RigGridManager;
 class RigMainGrid;
 class RigWellPath;
 
+class RimCalculationCollection;
 class RimCase;
 class RimCommandObject;
 class RimDialogData;
 class RimEclipseCase;
+class RimGeoMechCase;
 class RimIdenticalGridCaseGroup;
 class RimMainPlotCollection;
 class RimMultiSnapshotDefinition; 
@@ -48,9 +50,8 @@ class RimSummaryCase;
 class RimView;
 class RimViewLinker;
 class RimViewLinkerCollection;
-class RimWellPathImport;
-class RimCalculationCollection;
 class RimWellPath;
+class RimWellPathImport;
 
 namespace caf
 {
@@ -126,6 +127,8 @@ public:
     std::vector<QString>            simulationWellNames() const;
     std::vector<const RigWellPath*> simulationWellBranches(const QString& simWellName);
     RimWellPath*                    wellPathFromSimulationWell(const QString& simWellName, int branchIndex = -1);
+
+    std::vector<RimGeoMechCase*>    geoMechCases() const;
 
 protected:
     // Overridden methods

@@ -20,10 +20,18 @@
 
 #include "RiaApplication.h"
 
+#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
+#include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+
+#include "RigEclipseCaseData.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
+
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -66,6 +74,28 @@ void RicImportFormationNamesFeature::onActionTriggered(bool isChecked)
     // For each file, find existing Formation names item, or create new
 
     RimFormationNames* formationName = fomNameColl->importFiles(fileNames);
+
+    std::vector<RimCase*> cases;
+    proj->allCases(cases);
+    
+    if (cases.size() == 1)
+    {
+        std::vector<RimEclipseCase*> eclCases = proj->eclipseCases();
+        if (eclCases.size() == 1)
+        {
+            eclCases[0]->activeFormationNames = formationName;
+            eclCases[0]->eclipseCaseData()->setActiveFormationNames(formationName->formationNamesData());
+        }
+
+        std::vector<RimGeoMechCase*> geoMechCases = proj->geoMechCases();
+
+        if (geoMechCases.size() == 1)
+        {
+            geoMechCases[0]->activeFormationNames = formationName;
+            geoMechCases[0]->geoMechData()->femPartResults()->setActiveFormationNames(formationName->formationNamesData());
+        }
+    }
+
     proj->updateConnectedEditors();
 
     if (formationName)
