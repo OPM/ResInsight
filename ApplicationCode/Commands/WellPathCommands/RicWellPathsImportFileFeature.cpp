@@ -20,7 +20,12 @@
 #include "RicWellPathsImportFileFeature.h"
 
 #include "RiaApplication.h"
+
+#include "RimOilField.h"
 #include "RimProject.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -53,10 +58,25 @@ void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
     app->setLastUsedDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
 
     app->addWellPathsToModel(wellPathFilePaths);
-    if (app->project())
+   
+    RimProject* project = app->project();
+
+    if (project)
     {
-        app->project()->createDisplayModelAndRedrawAllViews();
+        project->createDisplayModelAndRedrawAllViews();
+        RimOilField* oilField = project->activeOilField();
+
+        if (!oilField) return;
+
+        size_t lastIdx = oilField->wellPathCollection->wellPaths().size() - 1;
+        if (lastIdx >= 0)
+        {
+            RimWellPath* wellPath = oilField->wellPathCollection->wellPaths()[lastIdx];
+            RiuMainWindow::instance()->selectAsCurrentItem(wellPath);
+        }
+
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
