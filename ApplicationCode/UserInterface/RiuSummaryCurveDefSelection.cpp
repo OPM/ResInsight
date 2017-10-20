@@ -388,7 +388,7 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
         {
             enum {SUM_CASES, OBS_DATA, CALCULATED_CURVES};
 
-            const size_t itemCount = CALCULATED_CURVES + 1;
+            const int itemCount = CALCULATED_CURVES + 1;
 
             std::set<RifEclipseSummaryAddress> addrUnion[itemCount];
             addrUnion[SUM_CASES] = findPossibleSummaryAddressesFromSelectedCases(identifierAndField);
