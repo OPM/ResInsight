@@ -36,6 +36,8 @@ std::vector<QString> ExpressionParserImpl::detectReferencedVariables(const QStri
         std::vector<std::string> variable_list;
         exprtk::collect_variables(expression.toStdString(), variable_list);
 
+        std::vector<std::pair<int, QString>> indexAndNamePairs;
+
         for (const auto& s : variable_list)
         {
             QString variableNameLowerCase = QString::fromStdString(s);
@@ -45,8 +47,16 @@ std::vector<QString> ExpressionParserImpl::detectReferencedVariables(const QStri
             int index = expression.indexOf(variableNameLowerCase, 0, Qt::CaseInsensitive);
             if (index > -1)
             {
-                referencedVariables.push_back(expression.mid(index, variableNameLowerCase.size()));
+                indexAndNamePairs.push_back(std::make_pair(index, expression.mid(index, variableNameLowerCase.size())));
             }
+        }
+
+        // Sort the variable names in the order they first appear in the expression
+        std::sort(indexAndNamePairs.begin(), indexAndNamePairs.end());
+
+        for (const auto& indexAndName : indexAndNamePairs)
+        {
+            referencedVariables.push_back(indexAndName.second);
         }
     }
 

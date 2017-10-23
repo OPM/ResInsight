@@ -41,8 +41,8 @@ TEST(RicExpressionParserTest, DetectVariables)
 
     std::vector<QString> variables = ExpressionParser::detectReferencedVariables(expr);
 
-    EXPECT_STREQ(variables[0].toStdString().data(), "a");
-    EXPECT_STREQ(variables[1].toStdString().data(), "c");
+    EXPECT_STREQ(variables[0].toStdString().data(), "c");
+    EXPECT_STREQ(variables[1].toStdString().data(), "a");
     EXPECT_STREQ(variables[2].toStdString().data(), "x");
     EXPECT_STREQ(variables[3].toStdString().data(), "y");
 }

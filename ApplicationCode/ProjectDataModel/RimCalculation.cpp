@@ -33,6 +33,8 @@
 
 #include "cafPdmUiTextEditor.h"
 
+#include <QMessageBox>
+
 #include <algorithm>
 
 
@@ -132,7 +134,12 @@ caf::PdmFieldHandle* RimCalculation::userDescriptionField()
 bool RimCalculation::parseExpression()
 {
     QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
-    if (leftHandSideVariableName.isEmpty()) return false;
+    if (leftHandSideVariableName.isEmpty())
+    {
+        QMessageBox::warning(nullptr, "Expression Parser", "Failed to detect left hand side of equation");
+
+        return false;
+    }
 
     std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables(m_expression);
 
