@@ -276,6 +276,11 @@ void RiuSummaryCurveDefSelection::setSelectedCurveDefinitions(const std::vector<
             m_selectedSummaryCategories.v().push_back(summaryAddress.category());
         }
 
+        if (curveDefinitions.size() == 1)
+        {
+            m_currentSummaryCategory = curveDefinitions[0].summaryAddress().category();
+        }
+
         // Select case if not already selected
         if (std::find(m_selectedCases.begin(), m_selectedCases.end(), summaryCase) == m_selectedCases.end())
         {
