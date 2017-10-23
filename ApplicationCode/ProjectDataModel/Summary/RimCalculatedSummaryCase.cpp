@@ -23,6 +23,32 @@
 
 CAF_PDM_SOURCE_INIT(RimCalculatedSummaryCase,"CalculatedSummaryCase");
 
+
+
+//==================================================================================================
+//
+//==================================================================================================
+class RifCalculatedSummaryCurveReader : public RifSummaryReaderInterface
+{
+public:
+    explicit RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection);
+
+    virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
+    virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
+    virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
+
+    void                                buildMetaData();
+
+private:
+    RimSummaryCalculation*              findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
+
+private:
+    caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;
+};
+
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +126,7 @@ void RimCalculatedSummaryCase::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection)
+RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection)
     : m_calculationCollection(calculationCollection)
 {
 
@@ -109,7 +135,7 @@ RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::RifCalculatedSummaryC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
+const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
     RimSummaryCalculation* calc = findCalculationByName(resultAddress);
     if (calc)
@@ -125,7 +151,7 @@ const std::vector<time_t>& RimCalculatedSummaryCase::RifCalculatedSummaryCurveRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
+bool RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
     RimSummaryCalculation* calc = findCalculationByName(resultAddress);
     if (calc)
@@ -141,7 +167,7 @@ bool RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::values(const Rif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::string RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
+std::string RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
     return "Calculated Curve Unit";
 }
@@ -149,7 +175,7 @@ std::string RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::unitName(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::buildMetaData()
+void RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
 
@@ -162,7 +188,7 @@ void RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
+RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
 {
     if (m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
     {

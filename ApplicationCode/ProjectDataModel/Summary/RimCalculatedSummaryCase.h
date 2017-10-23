@@ -21,8 +21,9 @@
 #include "RimSummaryCase.h"
 #include "RifSummaryReaderInterface.h"
 
-class RimSummaryCalculationCollection;
+class RifCalculatedSummaryCurveReader;
 class RimSummaryCalculation;
+class RimSummaryCalculationCollection;
 
 
 //==================================================================================================
@@ -31,28 +32,6 @@ class RimSummaryCalculation;
 class RimCalculatedSummaryCase : public RimSummaryCase
 {
     CAF_PDM_HEADER_INIT;
-
-private:
-    //==================================================================================================
-    //
-    //==================================================================================================
-    class RifCalculatedSummaryCurveReader : public RifSummaryReaderInterface
-    {
-    public:
-        explicit RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection);
-
-        virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
-        virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
-        virtual std::string                 unitName(const RifEclipseSummaryAddress& resultAddress) const override;
-
-        void                                buildMetaData();
-
-    private:
-        RimSummaryCalculation*                     findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
-
-    private:
-        caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;
-    };
 
 public:
     RimCalculatedSummaryCase();
