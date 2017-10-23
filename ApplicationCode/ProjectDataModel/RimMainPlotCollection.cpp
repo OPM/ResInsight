@@ -23,6 +23,7 @@
 #include "RimProject.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimRftPlotCollection.h"
+#include "RimPltPlotCollection.h"
 #include "RimWellLogPlotCollection.h"
 
 #include "RiuMainWindow.h"
@@ -47,6 +48,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault(&m_rftPlotCollection, "RftPlotCollection", "", "", "", "");
     m_rftPlotCollection.uiCapability()->setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&m_pltPlotCollection, "PltPlotCollection", "", "", "", "");
+    m_pltPlotCollection.uiCapability()->setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "");
     m_summaryPlotCollection.uiCapability()->setUiHidden(true);
 
@@ -55,6 +59,7 @@ RimMainPlotCollection::RimMainPlotCollection()
 
     m_wellLogPlotCollection = new RimWellLogPlotCollection();
     m_rftPlotCollection     = new RimRftPlotCollection();
+    m_pltPlotCollection     = new RimPltPlotCollection();
     m_summaryPlotCollection = new RimSummaryPlotCollection();
     m_flowPlotCollection    = new RimFlowPlotCollection();
 
@@ -67,6 +72,7 @@ RimMainPlotCollection::~RimMainPlotCollection()
 {
     if (m_wellLogPlotCollection())  delete m_wellLogPlotCollection();
     if (m_rftPlotCollection())      delete m_rftPlotCollection();
+    if (m_pltPlotCollection())      delete m_pltPlotCollection();
     if (m_summaryPlotCollection())  delete m_summaryPlotCollection();
     if (m_flowPlotCollection())     delete m_flowPlotCollection();
 
@@ -107,6 +113,14 @@ RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection()
+{
+    return m_pltPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection()
 {
     return m_summaryPlotCollection();
@@ -127,6 +141,7 @@ void RimMainPlotCollection::deleteAllContainedObjects()
 {
     m_wellLogPlotCollection()->wellLogPlots.deleteAllChildObjects();
     m_rftPlotCollection()->deleteAllPlots();
+    m_pltPlotCollection()->deleteAllPlots();
     m_summaryPlotCollection()->summaryPlots.deleteAllChildObjects();
 
     m_flowPlotCollection()->closeDefaultPlotWindowAndDeletePlots();

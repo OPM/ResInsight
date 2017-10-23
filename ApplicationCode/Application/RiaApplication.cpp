@@ -48,6 +48,7 @@
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimRftPlotCollection.h"
+#include "RimPltPlotCollection.h"
 
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
@@ -61,7 +62,6 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimReservoirCellResultsStorage.h"
-#include "RimRftPlotCollection.h"
 #include "RimScriptCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -77,6 +77,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPltPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuMainWindow.h"
@@ -622,6 +623,7 @@ void RiaApplication::loadAndUpdatePlotData()
     RimSummaryPlotCollection* spColl = nullptr;
     RimFlowPlotCollection* flowColl = nullptr;
     RimRftPlotCollection* rftColl = nullptr;
+    RimPltPlotCollection* pltColl = nullptr;
 
     if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->wellLogPlotCollection())
     {
@@ -639,12 +641,17 @@ void RiaApplication::loadAndUpdatePlotData()
     {
         rftColl = m_project->mainPlotCollection()->rftPlotCollection();
     }
+    if (m_project->mainPlotCollection() && m_project->mainPlotCollection()->pltPlotCollection())
+    {
+        pltColl = m_project->mainPlotCollection()->pltPlotCollection();
+    }
 
     size_t plotCount = 0;
     plotCount += wlpColl ? wlpColl->wellLogPlots().size() : 0;
     plotCount += spColl ? spColl->summaryPlots().size() : 0;
     plotCount += flowColl ? flowColl->plotCount() : 0;
     plotCount += rftColl ? rftColl->rftPlots().size() : 0;
+    plotCount += pltColl ? pltColl->pltPlots().size() : 0;
 
     caf::ProgressInfo plotProgress(plotCount, "Loading Plot Data");
     if (wlpColl)
@@ -677,6 +684,15 @@ void RiaApplication::loadAndUpdatePlotData()
         for (const auto& rftPlot : rftColl->rftPlots())
         {
             rftPlot->loadDataAndUpdate();
+            plotProgress.incrementProgress();
+        }
+    }
+
+    if (pltColl)
+    {
+        for (const auto& pltPlot : pltColl->pltPlots())
+        {
+            pltPlot->loadDataAndUpdate();
             plotProgress.incrementProgress();
         }
     }

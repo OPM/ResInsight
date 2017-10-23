@@ -29,6 +29,7 @@
 
 class RimWellLogPlotCollection;
 class RimRftPlotCollection;
+class RimPltPlotCollection;
 class RimSummaryPlotCollection;
 class RimSummaryPlot;
 class RifReaderEclipseSummary;
@@ -49,6 +50,7 @@ public:
 
     RimWellLogPlotCollection*   wellLogPlotCollection();
     RimRftPlotCollection*       rftPlotCollection();
+    RimPltPlotCollection*       pltPlotCollection();
     RimSummaryPlotCollection*   summaryPlotCollection();
     RimFlowPlotCollection*      flowPlotCollection();
 
@@ -63,6 +65,7 @@ protected:
 
     caf::PdmChildField<RimWellLogPlotCollection*> m_wellLogPlotCollection;
     caf::PdmChildField<RimRftPlotCollection*>     m_rftPlotCollection;
+    caf::PdmChildField<RimPltPlotCollection*>     m_pltPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*> m_summaryPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>    m_flowPlotCollection;
 

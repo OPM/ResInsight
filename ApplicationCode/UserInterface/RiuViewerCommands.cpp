@@ -327,6 +327,7 @@ void RiuViewerCommands::displayContextMenu(QMouseEvent* event)
                 commandIds << "RicNewWellLogCurveExtractionFeature";
                 commandIds << "RicNewWellLogRftCurveFeature";
                 commandIds << "RicNewRftPlotFeature";
+                commandIds << "RicNewPltPlotFeature";
                 commandIds << "RicShowWellAllocationPlotFeature";
                 commandIds << "RicPlotProductionRateFeature";
                 commandIds << "Separator";

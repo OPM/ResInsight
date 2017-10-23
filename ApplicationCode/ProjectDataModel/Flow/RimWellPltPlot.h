@@ -1,0 +1,165 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2017     Statoil ASA
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+
+#include "RimViewWindow.h"
+
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+#include "cvfCollection.h"
+#include "RimWellRftAddress.h"
+#include "RimPlotCurve.h"
+#include <QPointer>
+#include <QDate>
+#include <QMetaType>
+#include <set>
+#include <map>
+
+
+class RimEclipseCase;
+class RimEclipseResultCase;
+class RimWellLogCurve;
+class RimWellLogFileChannel;
+class RimWellLogPlot;
+class RimWellPath;
+class RiuWellPltPlot;
+
+namespace cvf {
+    class Color3f;
+}
+
+namespace caf {
+    class PdmOptionItemInfo;
+}
+
+
+//==================================================================================================
+///  
+///  
+//==================================================================================================
+class RimWellPltPlot : public RimViewWindow
+{
+    CAF_PDM_HEADER_INIT;
+
+    static const char PRESSURE_DATA_NAME[];
+    static const char PLOT_NAME_QFORMAT_STRING[];
+
+public:
+    RimWellPltPlot();
+    virtual ~RimWellPltPlot();
+
+    void                                            setDescription(const QString& description);
+    QString                                         description() const;
+
+    virtual void                                    loadDataAndUpdate() override;
+
+    virtual QWidget*                                viewWidget() override;
+    virtual void                                    zoomAll() override;
+
+    RimWellLogPlot*                                 wellLogPlot() const;
+
+    void                                            setCurrentWellName(const QString& currWellName);
+    QString                                         currentWellName() const;
+
+    static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
+    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
+    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
+    static bool                                     hasPressureData(RimWellPath* wellPath);
+    static const char*                              plotNameFormatString();
+
+    void                                            applyInitialSelections();
+
+protected:
+    // Overridden PDM methods
+    virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
+    virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+
+    virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+
+    virtual QImage                                  snapshotWindowContent() override;
+
+
+    virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+
+private:
+    void                                            addTimeStepToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
+                                                                     const std::pair<QDateTime, std::set<RimWellRftAddress>>& timeStepToAdd);
+    void                                            addTimeStepsToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
+                                                                      const std::map<QDateTime, std::set<RimWellRftAddress>>& timeStepsToAdd);
+    void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
+    void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
+
+    void                                            updateEditorsFromCurves();
+    void                                            updateWidgetTitleWindowTitle();
+
+    void                                            syncCurvesFromUiSelection();
+
+    std::vector<RimWellLogFile*>                    wellLogFilesContainingPressure(const QString& wellName) const;
+    RimWellLogFileChannel*                          getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile) const;
+
+    RimWellPath*                                    wellPathFromWellLogFile(const RimWellLogFile* wellLogFile) const;
+    
+    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
+    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const;
+    std::map<QDateTime, std::set<RimWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>& allTimeSteps, 
+                                                                       const std::pair<QDateTime, std::set<RimWellRftAddress>>& searchTimeStepPair);
+    static bool                                      mapContainsTimeStep(const std::map<QDateTime, std::set<RimWellRftAddress>>& map, const QDateTime& timeStep);
+
+    std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
+    std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
+    std::pair<RimWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
+    void                                            updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& allCurveDefs,
+                                                                       const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefsToAdd,
+                                                                       const std::set<RimWellLogCurve*>& curvesToDelete);
+    bool                                            isOnlyGridSourcesSelected() const;
+    bool                                            isAnySourceAddressSelected(const std::set<RimWellRftAddress>& addresses) const;
+    std::vector<RimWellRftAddress>                  selectedSources() const;
+
+    // RimViewWindow overrides
+
+    virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
+    virtual void                                    deleteViewWidget() override; 
+
+    void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
+    void                                            updateSelectedTimeStepsFromSelectedSources();
+
+private:
+    caf::PdmField<bool>                             m_showPlotTitle;
+    caf::PdmField<QString>                          m_userName;
+
+    caf::PdmField<QString>                          m_wellName;
+    caf::PdmField<int>                              m_branchIndex;
+    caf::PdmField<std::vector<RimWellRftAddress>>   m_selectedSources;
+    
+    caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
+
+    QPointer<RiuWellPltPlot>                        m_wellLogPlotWidget;
+
+    caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
+
+    std::map<QDateTime, std::set<RimWellRftAddress>> m_timeStepsToAddresses;
+
+    bool m_selectedSourcesOrTimeStepsFieldsChanged;
+};

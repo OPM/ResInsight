@@ -67,6 +67,9 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellRftPlot.h"
+#include "RimWellPltPlot.h"
+#include "RimRftPlotCollection.h"
+#include "RimPltPlotCollection.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimEllipseFractureTemplate.h"
@@ -89,7 +92,6 @@
 
 #include <vector>
 #include <QMenu>
-#include "RimRftPlotCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -224,6 +226,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
             commandIds << "RicNewRftPlotFeature";
+            commandIds << "RicNewPltPlotFeature";
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
@@ -231,6 +234,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimWellRftPlot*>(uiItem))
         {
             commandIds << "RicDeleteRftPlotFeature";
+        }
+        else if (dynamic_cast<RimWellPltPlot*>(uiItem))
+        {
+            commandIds << "RicDeletePltPlotFeature";
         }
         else if (dynamic_cast<RimCalcScript*>(uiItem))
         {
@@ -268,6 +275,10 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         else if (dynamic_cast<RimRftPlotCollection*>(uiItem))
         {
             commandIds << "RicNewRftPlotFeature";
+        }
+        else if (dynamic_cast<RimPltPlotCollection*>(uiItem))
+        {
+            commandIds << "RicNewPltPlotFeature";
         }
         else if (dynamic_cast<RimSummaryPlotCollection*>(uiItem))
         {
@@ -370,6 +381,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogRftCurveFeature";
             commandIds << "RicNewSimWellIntersectionFeature";
             commandIds << "RicNewRftPlotFeature";
+            commandIds << "RicNewPltPlotFeature";
             commandIds << "RicShowWellAllocationPlotFeature";
         }
         else if(dynamic_cast<RimFormationNames*>(uiItem))

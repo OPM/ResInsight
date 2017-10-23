@@ -66,6 +66,7 @@ ${CEE_CURRENT_LIST_DIR}RimViewController.h
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimRftPlotCollection.h
+${CEE_CURRENT_LIST_DIR}RimPltPlotCollection.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogTrack.h
 ${CEE_CURRENT_LIST_DIR}RimWellLogCurve.h
@@ -166,6 +167,7 @@ ${CEE_CURRENT_LIST_DIR}RimViewController.cpp
 ${CEE_CURRENT_LIST_DIR}RimMainPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimRftPlotCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimPltPlotCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogTrack.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellLogCurve.cpp
