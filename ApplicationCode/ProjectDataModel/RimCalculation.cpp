@@ -277,15 +277,17 @@ bool RimCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 QString RimCalculation::findLeftHandSide(const QString& expresion)
 {
-    QString exprWithSpace = expresion;
-    exprWithSpace.replace("\n", " ");
-
-    QStringList words = exprWithSpace.split(" ", QString::SkipEmptyParts);
-
-    int index = words.lastIndexOf(":=");
+    int index = expresion.lastIndexOf(":=");
     if (index > 0)
     {
-        return words[index - 1];
+        QString s = expresion.left(index).simplified();
+
+        QStringList words = s.split(" ");
+
+        if (words.size() > 0)
+        {
+            return words.back();
+        }
     }
 
     return "";

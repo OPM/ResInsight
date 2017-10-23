@@ -51,8 +51,9 @@ public:
     
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
 
-private:
     static QString                  findLeftHandSide(const QString& expresion);
+
+private:
     RimCalculationVariable*         findByName(const QString& name) const;
 
     QString                         buildCalculationName() const;
