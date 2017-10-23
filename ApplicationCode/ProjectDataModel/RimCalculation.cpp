@@ -20,7 +20,6 @@
 
 #include "expressionparser/ExpressionParser.h"
 
-#include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
@@ -142,6 +141,12 @@ bool RimCalculation::parseExpression()
     }
 
     std::vector<QString> variableNames = ExpressionParser::detectReferencedVariables(m_expression);
+    if (variableNames.size() < 1)
+    {
+        QMessageBox::warning(nullptr, "Expression Parser", "Failed to detect any variable names");
+
+        return false;
+    }
 
     // Remove variables not present in expression
     {
@@ -204,14 +209,14 @@ bool RimCalculation::calculate()
 
         if (!v->summaryCase())
         {
-            RiaLogging::error("No summary case defined.");
+            QMessageBox::warning(nullptr, "Expression Parser", QString("No summary case defined for variable : %1").arg(v->name()));
 
             return false;
         }
 
         if (!v->summaryAddress())
         {
-            RiaLogging::error("No summary address defined.");
+            QMessageBox::warning(nullptr, "Expression Parser", QString("No summary address defined for variable : %1").arg(v->name()));
 
             return false;
         }
@@ -235,7 +240,7 @@ bool RimCalculation::calculate()
         {
             if (itemCount != curveValues.size())
             {
-                RiaLogging::error("Not able to evaluate expression varying vector size.");
+                QMessageBox::warning(nullptr, "Expression Parser", QString("Detected varying number of time steps in input vectors. Only vectors with identical number of time steps is supported."));
 
                 return false;
             }
@@ -246,7 +251,7 @@ bool RimCalculation::calculate()
 
     if (itemCount == 0)
     {
-        RiaLogging::error("Not able to evaluate expression with no data.");
+        QMessageBox::warning(nullptr, "Expression Parser", QString("Detected zero time steps in input vectors, which is not supported."));
 
         return false;
     }
@@ -261,19 +266,13 @@ bool RimCalculation::calculate()
     {
         // Copy time vector from source
         m_timesteps = sourceTimeSteps;
-
-        QString txt;
-        for (auto v : m_calculatedValues())
-        {
-            txt += QString::number(v);
-            txt += " ";
-        }
-
-        RiaLogging::info(txt);
     }
     else
     {
-        RiaLogging::error(errorText);
+        QString s = "The following error message was received from the parser library : \n\n";
+        s += errorText;
+
+        QMessageBox::warning(nullptr, "Expression Parser", s);
     }
 
     return evaluatedOk;
