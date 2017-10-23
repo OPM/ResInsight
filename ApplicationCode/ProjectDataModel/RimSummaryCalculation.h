@@ -28,12 +28,12 @@ class RimCalculationVariable;
 ///  
 ///  
 //==================================================================================================
-class RimCalculation : public caf::PdmObject
+class RimSummaryCalculation : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCalculation();
+    RimSummaryCalculation();
 
     void                            setDescription(const QString& description);
     QString                         description() const;

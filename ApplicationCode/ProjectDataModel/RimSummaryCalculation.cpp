@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 
 #include "expressionparser/ExpressionParser.h"
 
@@ -37,12 +37,12 @@
 #include <algorithm>
 
 
-CAF_PDM_SOURCE_INIT(RimCalculation, "RimCalculation");
+CAF_PDM_SOURCE_INIT(RimSummaryCalculation, "RimCalculation");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculation::RimCalculation()
+RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject("RimCalculation", ":/octave.png", "Calculation", "");
 
@@ -61,7 +61,7 @@ RimCalculation::RimCalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculation::setDescription(const QString& description)
+void RimSummaryCalculation::setDescription(const QString& description)
 {
     m_description = description;
 }
@@ -69,7 +69,7 @@ void RimCalculation::setDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimCalculation::description() const
+QString RimSummaryCalculation::description() const
 {
     return m_description;
 }
@@ -77,7 +77,7 @@ QString RimCalculation::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmChildArrayFieldHandle* RimCalculation::variables()
+caf::PdmChildArrayFieldHandle* RimSummaryCalculation::variables()
 {
     return &m_variables;
 }
@@ -85,7 +85,7 @@ caf::PdmChildArrayFieldHandle* RimCalculation::variables()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculationVariable* RimCalculation::addVariable()
+RimCalculationVariable* RimSummaryCalculation::addVariable()
 {
     RimCalculationVariable* v = new RimCalculationVariable;
     m_variables.push_back(v);
@@ -96,7 +96,7 @@ RimCalculationVariable* RimCalculation::addVariable()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculation::deleteVariable(RimCalculationVariable* calcVariable)
+void RimSummaryCalculation::deleteVariable(RimCalculationVariable* calcVariable)
 {
     m_variables.removeChildObject(calcVariable);
 
@@ -106,7 +106,7 @@ void RimCalculation::deleteVariable(RimCalculationVariable* calcVariable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimCalculation::values() const
+const std::vector<double>& RimSummaryCalculation::values() const
 {
     return m_calculatedValues();
 }
@@ -114,7 +114,7 @@ const std::vector<double>& RimCalculation::values() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimCalculation::timeSteps() const
+const std::vector<time_t>& RimSummaryCalculation::timeSteps() const
 {
     return m_timesteps();
 }
@@ -122,7 +122,7 @@ const std::vector<time_t>& RimCalculation::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCalculation::userDescriptionField()
+caf::PdmFieldHandle* RimSummaryCalculation::userDescriptionField()
 {
     return &m_description;
 }
@@ -130,9 +130,9 @@ caf::PdmFieldHandle* RimCalculation::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCalculation::parseExpression()
+bool RimSummaryCalculation::parseExpression()
 {
-    QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
+    QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide(m_expression);
     if (leftHandSideVariableName.isEmpty())
     {
         QMessageBox::warning(nullptr, "Expression Parser", "Failed to detect left hand side of equation");
@@ -190,9 +190,9 @@ bool RimCalculation::parseExpression()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimCalculation::calculate()
+bool RimSummaryCalculation::calculate()
 {
-    QString leftHandSideVariableName = RimCalculation::findLeftHandSide(m_expression);
+    QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide(m_expression);
 
     ExpressionParser parser;
 
@@ -281,7 +281,7 @@ bool RimCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 /// Find the last assignment using := and interpret the text before the := as LHS
 //--------------------------------------------------------------------------------------------------
-QString RimCalculation::findLeftHandSide(const QString& expresion)
+QString RimSummaryCalculation::findLeftHandSide(const QString& expresion)
 {
     int index = expresion.lastIndexOf(":=");
     if (index > 0)
@@ -302,7 +302,7 @@ QString RimCalculation::findLeftHandSide(const QString& expresion)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculationVariable* RimCalculation::findByName(const QString& name) const
+RimCalculationVariable* RimSummaryCalculation::findByName(const QString& name) const
 {
     for (RimCalculationVariable* v : m_variables)
     {
@@ -318,11 +318,11 @@ RimCalculationVariable* RimCalculation::findByName(const QString& name) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimCalculation::buildCalculationName() const
+QString RimSummaryCalculation::buildCalculationName() const
 {
     QString name = "Default Calculation Name";
 
-    QString lhs = RimCalculation::findLeftHandSide(m_expression);
+    QString lhs = RimSummaryCalculation::findLeftHandSide(m_expression);
     if (!lhs.isEmpty())
     {
         name = lhs;
@@ -348,7 +348,7 @@ QString RimCalculation::buildCalculationName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculation::updateDependentCurvesAndPlots()
+void RimSummaryCalculation::updateDependentCurvesAndPlots()
 {
     RimCalculationCollection* calcColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(calcColl);

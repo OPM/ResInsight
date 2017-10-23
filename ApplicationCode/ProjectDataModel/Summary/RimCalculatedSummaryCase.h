@@ -22,7 +22,7 @@
 #include "RifSummaryReaderInterface.h"
 
 class RimCalculationCollection;
-class RimCalculation;
+class RimSummaryCalculation;
 
 
 //==================================================================================================
@@ -48,7 +48,7 @@ private:
         void                                buildMetaData();
 
     private:
-        RimCalculation*                     findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
+        RimSummaryCalculation*                     findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
 
     private:
         caf::PdmPointer<RimCalculationCollection> m_calculationCollection;

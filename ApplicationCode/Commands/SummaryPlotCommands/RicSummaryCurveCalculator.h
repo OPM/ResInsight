@@ -24,7 +24,7 @@
 #include "cafPdmPtrField.h"
 
 class RimCalculationCollection;
-class RimCalculation;
+class RimSummaryCalculation;
 
 //==================================================================================================
 /// 
@@ -39,7 +39,7 @@ public:
     static QString  calculatedSummariesGroupName();
     static QString  calulationGroupName();
 
-    RimCalculation* currentCalculation() const;
+    RimSummaryCalculation* currentCalculation() const;
 
     bool            parseExpression() const;
     bool            calculate() const;
@@ -58,7 +58,7 @@ private:
     static void assignPushButtonEditorText(caf::PdmUiEditorAttribute* attribute, const QString& text);
 
 private:
-    caf::PdmPtrField<RimCalculation*>   m_currentCalculation;
+    caf::PdmPtrField<RimSummaryCalculation*>   m_currentCalculation;
     
     caf::PdmField<bool>                 m_newCalculation;
     caf::PdmField<bool>                 m_deleteCalculation;

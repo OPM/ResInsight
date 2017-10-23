@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 
 #include "expressionparser/ExpressionParser.h"
 
@@ -55,7 +55,7 @@ TEST(RicExpressionParserTest, FindLeftHandSide)
     {
         QString expr = "c := a";
 
-        QString s = RimCalculation::findLeftHandSide(expr);
+        QString s = RimSummaryCalculation::findLeftHandSide(expr);
 
         EXPECT_STREQ(s.toStdString().data(), "c");
     }
@@ -63,7 +63,7 @@ TEST(RicExpressionParserTest, FindLeftHandSide)
     {
         QString expr = "c:=a";
 
-        QString s = RimCalculation::findLeftHandSide(expr);
+        QString s = RimSummaryCalculation::findLeftHandSide(expr);
 
         EXPECT_STREQ(s.toStdString().data(), "c");
     }
@@ -71,7 +71,7 @@ TEST(RicExpressionParserTest, FindLeftHandSide)
     {
         QString expr = "\na:=b\n\nc:=a";
 
-        QString s = RimCalculation::findLeftHandSide(expr);
+        QString s = RimSummaryCalculation::findLeftHandSide(expr);
 
         EXPECT_STREQ(s.toStdString().data(), "c");
     }

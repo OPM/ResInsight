@@ -18,7 +18,7 @@
 
 #include "RimCalculationCollection.h"
 
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 #include "RimCalculatedSummaryCase.h"
 
 #include "cafPdmUiGroup.h"
@@ -44,9 +44,9 @@ RimCalculationCollection::RimCalculationCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculation* RimCalculationCollection::addCalculation()
+RimSummaryCalculation* RimCalculationCollection::addCalculation()
 {
-    RimCalculation* calculation = new RimCalculation;
+    RimSummaryCalculation* calculation = new RimSummaryCalculation;
     calculation->setDescription(QString("Calculation %1").arg(m_calcuations.size()));
 
     m_calcuations.push_back(calculation);
@@ -59,7 +59,7 @@ RimCalculation* RimCalculationCollection::addCalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculationCollection::deleteCalculation(RimCalculation* calculation)
+void RimCalculationCollection::deleteCalculation(RimSummaryCalculation* calculation)
 {
     m_calcuations.removeChildObject(calculation);
 
@@ -71,9 +71,9 @@ void RimCalculationCollection::deleteCalculation(RimCalculation* calculation)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimCalculation*> RimCalculationCollection::calculations() const
+std::vector<RimSummaryCalculation*> RimCalculationCollection::calculations() const
 {
-    std::vector<RimCalculation*> calcs;
+    std::vector<RimSummaryCalculation*> calcs;
 
     for (auto c : m_calcuations)
     {

@@ -19,7 +19,7 @@
 #include "RicSummaryCurveCalculatorEditor.h"
 
 #include "RicSummaryCurveCalculator.h"
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 
 #include "cafPdmUiTableView.h"
 

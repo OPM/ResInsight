@@ -22,7 +22,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 
-class RimCalculation;
+class RimSummaryCalculation;
 class RimSummaryCase;
 class RimCalculatedSummaryCase;
 
@@ -37,9 +37,9 @@ class RimCalculationCollection : public caf::PdmObject
 public:
     RimCalculationCollection();
 
-    RimCalculation*                 addCalculation();
-    void                            deleteCalculation(RimCalculation* calculation);
-    std::vector<RimCalculation*>    calculations() const;
+    RimSummaryCalculation*                 addCalculation();
+    void                            deleteCalculation(RimSummaryCalculation* calculation);
+    std::vector<RimSummaryCalculation*>    calculations() const;
 
     RimSummaryCase*                 calculationSummaryCase();
 
@@ -50,6 +50,6 @@ private:
     virtual void                    initAfterRead() override;
 
 private:
-    caf::PdmChildArrayField<RimCalculation*>        m_calcuations;
+    caf::PdmChildArrayField<RimSummaryCalculation*>        m_calcuations;
     caf::PdmChildField<RimCalculatedSummaryCase*>   m_calcuationSummaryCase;
 };

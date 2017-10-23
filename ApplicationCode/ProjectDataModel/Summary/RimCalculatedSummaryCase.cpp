@@ -18,7 +18,7 @@
 
 #include "RimCalculatedSummaryCase.h"
 
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 #include "RimCalculationCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimCalculatedSummaryCase,"CalculatedSummaryCase");
@@ -111,7 +111,7 @@ RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::RifCalculatedSummaryC
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::timeSteps(const RifEclipseSummaryAddress& resultAddress) const
 {
-    RimCalculation* calc = findCalculationByName(resultAddress);
+    RimSummaryCalculation* calc = findCalculationByName(resultAddress);
     if (calc)
     {
         return calc->timeSteps();
@@ -127,7 +127,7 @@ const std::vector<time_t>& RimCalculatedSummaryCase::RifCalculatedSummaryCurveRe
 //--------------------------------------------------------------------------------------------------
 bool RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const
 {
-    RimCalculation* calc = findCalculationByName(resultAddress);
+    RimSummaryCalculation* calc = findCalculationByName(resultAddress);
     if (calc)
     {
         *values = calc->values();
@@ -153,7 +153,7 @@ void RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
 
-    for (RimCalculation* calc : m_calculationCollection->calculations())
+    for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
     {
         m_allResultAddresses.push_back(RifEclipseSummaryAddress::calculatedCurveAddress(calc->description().toStdString()));
     }
@@ -162,13 +162,13 @@ void RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculation* RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
+RimSummaryCalculation* RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const
 {
     if (m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED)
     {
         QString calculatedName = QString::fromStdString(resultAddress.quantityName());
 
-        for (RimCalculation* calc : m_calculationCollection->calculations())
+        for (RimSummaryCalculation* calc : m_calculationCollection->calculations())
         {
             if (calc->description() == calculatedName)
             {

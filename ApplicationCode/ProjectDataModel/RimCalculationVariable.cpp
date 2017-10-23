@@ -28,7 +28,7 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableView.h"
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCalculationVariable, "RimCalculationVariable");
@@ -108,7 +108,7 @@ void RimCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* changed
 
         if (updateContainingEditor)
         {
-            RimCalculation* rimCalculation = nullptr;
+            RimSummaryCalculation* rimCalculation = nullptr;
             this->firstAncestorOrThisOfTypeAsserted(rimCalculation);
 
             // RimCalculation is pointed to by RicSummaryCurveCalculator in a PtrField

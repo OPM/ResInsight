@@ -24,7 +24,7 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 #include "RimCalculatedSummaryCase.h"
 #include "RimCalculationCollection.h"
 #include "RimObservedData.h"

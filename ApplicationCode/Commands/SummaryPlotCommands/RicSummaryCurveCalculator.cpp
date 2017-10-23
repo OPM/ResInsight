@@ -20,7 +20,7 @@
 
 #include "RiaApplication.h"
 
-#include "RimCalculation.h"
+#include "RimSummaryCalculation.h"
 #include "RimCalculationCollection.h"
 #include "RimProject.h"
 
@@ -70,7 +70,7 @@ QString RicSummaryCurveCalculator::calulationGroupName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculation* RicSummaryCurveCalculator::currentCalculation() const
+RimSummaryCalculation* RicSummaryCurveCalculator::currentCalculation() const
 {
     return m_currentCalculation();
 }
@@ -109,7 +109,7 @@ void RicSummaryCurveCalculator::fieldChangedByUi(const caf::PdmFieldHandle* chan
     {
         m_newCalculation = false;
 
-        RimCalculation* rimCalc = calculationCollection()->addCalculation();
+        RimSummaryCalculation* rimCalc = calculationCollection()->addCalculation();
         m_currentCalculation = rimCalc;
 
         this->updateConnectedEditors();
