@@ -482,22 +482,42 @@ void RifReaderEclipseOutput::setHdf5FileName(const QString& fileName)
 
     if (!hdf5ReaderInterface)
     {
-        RiaLogging::error("HDF: Failed to import Sour Sim data ");
-
         return;
     }
 
     std::vector<QDateTime> sourSimTimeSteps = hdf5ReaderInterface->timeSteps();
+    if (sourSimTimeSteps.size() == 0)
+    {
+        RiaLogging::error("HDF: No data available from SourSim");
+
+        return;
+    }
     
     if (timeStepInfos.size() > 0)
     {
-        bool isTimeStampsEqual = true;
+        if (allTimeSteps().size() != sourSimTimeSteps.size())
+        {
+            RiaLogging::error(QString("HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 ").arg(allTimeSteps().size()).arg(sourSimTimeSteps.size()));
 
+            return;
+        }
+
+        bool isTimeStampsEqual = true;
         for (size_t i = 0; i < timeStepInfos.size(); i++)
         {
             size_t indexOnFile = timeStepIndexOnFile(i);
-            if (!isEclipseAndSoursimTimeStepsEqual(timeStepInfos[i].m_date, sourSimTimeSteps[indexOnFile]))
+            if (indexOnFile < sourSimTimeSteps.size())
             {
+                if (!isEclipseAndSoursimTimeStepsEqual(timeStepInfos[i].m_date, sourSimTimeSteps[indexOnFile]))
+                {
+                    isTimeStampsEqual = false;
+                }
+            }
+            else
+            {
+                RiaLogging::error(QString("HDF: Time step count mismatch, Eclipse : %1 ; HDF : %2 ").arg(timeStepInfos.size()).arg(sourSimTimeSteps.size()));
+
+                // We have less soursim time steps than eclipse time steps
                 isTimeStampsEqual = false;
             }
         }
