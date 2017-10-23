@@ -41,7 +41,7 @@ class RimSummaryCurve;
 class RimSummaryFilter;
 class RiuLineSegmentQwtPlotCurve;
 class RimSummaryCurveAutoName;
-
+class RiaSummaryCurveDefinition;
 
 
 
@@ -81,14 +81,14 @@ public:
 
 private:
     void                                    syncCurvesFromUiSelection();
-    void                                    createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions);
+    void                                    createCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& curveDefinitions);
     void                                    syncUiSelectionFromCurves();
     std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses();
     
     void                                    createSetOfCasesAndResultAdresses(
                                                    const std::vector<RimSummaryCase*>& cases,
                                                    const RimSummaryFilter& filter,
-                                                   std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const;
+                                                   std::set<RiaSummaryCurveDefinition>* curveDefinitions) const;
 
     // Overridden PDM methods
     virtual caf::PdmFieldHandle*            objectToggleField() override;

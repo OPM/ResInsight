@@ -20,8 +20,10 @@
 
 #include "cafPdmUiWidgetBasedObjectEditor.h"
 #include <vector>
+#include <memory>
 
 class RicSummaryCurveCreator;
+class RiuSummaryCurveDefSelectionEditor;
 
 class QMinimizePanel;
 class QSplitter;
@@ -75,17 +77,17 @@ signals:
 private:
     QPointer<QVBoxLayout>       m_layout;
     QPointer<QSplitter>         m_firstColumnSplitter;
-    QPointer<QSplitter>         m_firstRowSplitter;
 
     QPointer<QMinimizePanel>    m_curvesPanel;
 
     QPointer<QHBoxLayout>       m_firstRowLayout;
-    QPointer<QHBoxLayout>       m_firstRowLeftLayout;
-    QPointer<QHBoxLayout>       m_firstRowRightLayout;
     QPointer<QHBoxLayout>       m_secondRowLayout;
     QPointer<QVBoxLayout>       m_lowerLeftLayout;
 
     QPointer<QHBoxLayout>       m_bottomFieldLayout;
 
     QPointer<caf::PdmUiTreeView> m_curveTreeView;
+
+    QWidget*                    m_parentWidget;
+    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;
 };

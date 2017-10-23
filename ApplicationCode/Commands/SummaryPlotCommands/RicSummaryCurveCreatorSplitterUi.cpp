@@ -23,6 +23,8 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
+#include "RiuSummaryCurveDefSelectionEditor.h"
+#include "RiuSummaryCurveDefSelection.h"
 
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafPdmUiFieldHandle.h"
@@ -41,6 +43,8 @@
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreatorSplitterUi::RicSummaryCurveCreatorSplitterUi(QWidget* parent)
 {
+    m_parentWidget = parent;
+    m_addrSelWidget = std::unique_ptr<RiuSummaryCurveDefSelectionEditor>(new RiuSummaryCurveDefSelectionEditor());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +63,8 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
     RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
     if (sumCurveCreator)
     {
+        sumCurveCreator->setCurveDefSelectionObject(m_addrSelWidget->summaryAddressSelection());
+
         if (sumCurveCreator->isCloseButtonPressed())
         {
             sumCurveCreator->clearCloseButton();
@@ -69,38 +75,10 @@ void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiIt
 
     if (!m_layout) return;
 
-    int splitterPositionIndex = 0;
-    for (size_t i = 0; i < topLevelUiItems.size(); ++i)
-    {
-        if (topLevelUiItems[i]->isUiHidden(uiConfigName)) continue;
+    QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget(m_parentWidget);
+    m_addrSelWidget->summaryAddressSelection()->updateConnectedEditors();
 
-        if (topLevelUiItems[i]->isUiGroup())
-        {
-            caf::PdmUiGroup* group = static_cast<caf::PdmUiGroup*>(topLevelUiItems[i]);
-            auto groupBox = createGroupBoxWithContent(group, uiConfigName);
-
-            bool isSources = group->keyword() == RiuSummaryCurveDefinitionKeywords::sources();
-            bool isSummaryTypes = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaryTypes();
-            bool isSummaries = group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries();
-            bool isDynamicGroup = !isSources && !isSummaryTypes && !isSummaries;
-            bool leftColumn = isSources || isSummaryTypes;
-
-            if (isSummaryTypes || isDynamicGroup)
-            {
-                groupBox->setFixedWidth(170);
-            }
-
-            if(leftColumn)
-                m_firstRowLeftLayout->addWidget(groupBox);
-            else
-                m_firstRowRightLayout->addWidget(groupBox);
-
-            // Add group boxes until summaries are detected
-
-            if (group->keyword() == RiuSummaryCurveDefinitionKeywords::summaries())
-                break;
-        }
-    }
+    m_firstRowLayout->addWidget(addrWidget);
 
     caf::PdmUiGroup* appearanceGroup = findGroupByKeyword(topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName);
     auto appearanceGroupBox = createGroupBoxWithContent(appearanceGroup, uiConfigName);
@@ -133,25 +111,6 @@ QWidget* RicSummaryCurveCreatorSplitterUi::createWidget(QWidget* parent)
     m_firstRowLayout = new QHBoxLayout;
     m_firstRowLayout->setContentsMargins(0, 0, 0, 0);
     firstRowFrame->setLayout(m_firstRowLayout);
-
-    QFrame* firstRowLeftFrame = new QFrame(widget);
-    m_firstRowLeftLayout = new QHBoxLayout;
-    m_firstRowLeftLayout->setContentsMargins(0, 0, 0, 0);
-    firstRowLeftFrame->setLayout(m_firstRowLeftLayout);
-
-    QFrame* firstRowRightFrame = new QFrame(widget);
-    m_firstRowRightLayout = new QHBoxLayout;
-    m_firstRowRightLayout->setContentsMargins(0, 0, 0, 0);
-    firstRowRightFrame->setLayout(m_firstRowRightLayout);
-
-    m_firstRowSplitter = new QSplitter(Qt::Horizontal);
-    m_firstRowSplitter->setContentsMargins(0, 0, 0, 0);
-    m_firstRowSplitter->setHandleWidth(6);
-    m_firstRowSplitter->setStyleSheet("QSplitter::handle { image: url(:/SplitterV.png); }");
-    m_firstRowSplitter->insertWidget(0, firstRowLeftFrame);
-    m_firstRowSplitter->insertWidget(1, firstRowRightFrame);
-    m_firstRowSplitter->setSizes(QList<int>() << 1 << 1);
-    m_firstRowLayout->addWidget(m_firstRowSplitter);
 
     QFrame* secondRowFrame = new QFrame(widget);
     m_secondRowLayout = new QHBoxLayout;

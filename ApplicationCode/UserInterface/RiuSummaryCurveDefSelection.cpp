@@ -186,6 +186,7 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
     m_selectedSummaryCategories.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     m_currentSummaryCategory.uiCapability()->setUiHidden(true);
+    m_multiSelectionMode = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,6 +236,22 @@ std::vector<RiaSummaryCurveDefinition> RiuSummaryCurveDefSelection::selectedCurv
     }
 
     return caseAndAddressVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelection::setMultiSelectionMode(bool multiSelectionMode)
+{
+    m_multiSelectionMode = multiSelectionMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelection::setFieldChangedHandler(const std::function<void()>& handlerFunc)
+{
+    m_toggleChangedHandler = handlerFunc;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,6 +333,10 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryCurveDefSelection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (m_toggleChangedHandler != nullptr)
+    {
+        m_toggleChangedHandler();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -806,7 +827,7 @@ void RiuSummaryCurveDefSelection::defineEditorAttribute(const caf::PdmFieldHandl
             attrib->showToggleAllCheckbox = false;
         }
 
-        attrib->singleSelectionMode = true;
+        attrib->singleSelectionMode = !m_multiSelectionMode;
     }
 }
 

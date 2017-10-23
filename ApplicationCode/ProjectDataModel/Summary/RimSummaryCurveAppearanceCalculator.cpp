@@ -19,6 +19,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 #include "RiaColorTables.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RimSummaryCurve.h"
 #include "RimSummaryCase.h"
@@ -45,21 +46,21 @@ void caf::AppEnum< RimSummaryCurveAppearanceCalculator::CurveAppearanceType >::s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions, const std::set<std::string> allSummaryCaseNames, const std::set<std::string> allSummaryWellNames)
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, const std::set<std::string> allSummaryCaseNames, const std::set<std::string> allSummaryWellNames)
 {
     m_allSummaryCaseNames = allSummaryCaseNames;
     m_allSummaryWellNames = allSummaryWellNames;
 
-    for(const std::pair<RimSummaryCase*, RifEclipseSummaryAddress>& curveDef : curveDefinitions)
+    for(const RiaSummaryCurveDefinition& curveDef : curveDefinitions)
     {
-        if(curveDef.first)                           m_caseToAppearanceIdxMap[curveDef.first]                 = -1;
-        if(!curveDef.second.wellName().empty())      m_welToAppearanceIdxMap[curveDef.second.wellName()]      = -1;
-        if(!curveDef.second.wellGroupName().empty()) m_grpToAppearanceIdxMap[curveDef.second.wellGroupName()] = -1;
-        if(!(curveDef.second.regionNumber() == -1))  m_regToAppearanceIdxMap[curveDef.second.regionNumber()]  = -1;
+        if(curveDef.summaryCase())                              m_caseToAppearanceIdxMap[curveDef.summaryCase()]                    = -1;
+        if(!curveDef.summaryAddress().wellName().empty())       m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()]       = -1;
+        if(!curveDef.summaryAddress().wellGroupName().empty())  m_grpToAppearanceIdxMap[curveDef.summaryAddress().wellGroupName()]  = -1;
+        if(!(curveDef.summaryAddress().regionNumber() == -1))   m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()]   = -1;
 
-        if(!curveDef.second.quantityName().empty())
+        if(!curveDef.summaryAddress().quantityName().empty())
         {
-            std::string varname = curveDef.second.quantityName();
+            std::string varname = curveDef.summaryAddress().quantityName();
             m_varToAppearanceIdxMap[varname]  = -1;
 
             // Indexes for sub color ranges

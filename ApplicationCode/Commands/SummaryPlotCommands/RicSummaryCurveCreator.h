@@ -21,6 +21,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RiuSummaryCurveDefSelectionEditor.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -36,6 +37,7 @@
 class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
+class RiaSummaryCurveDefinition;
 
 //==================================================================================================
 ///  
@@ -48,29 +50,6 @@ class RicSummaryCurveCreator : public caf::PdmObject
 private:
     typedef caf::AppEnum<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> AppearanceTypeAppEnum;
 
-    class SummaryIdentifierAndField
-    {
-    public:
-        SummaryIdentifierAndField() :
-            m_summaryIdentifier((RifEclipseSummaryAddress::SummaryIdentifierType)0),
-            m_pdmField(nullptr) 
-            {}
-
-        SummaryIdentifierAndField(RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier) :
-            m_summaryIdentifier(summaryIdentifier),
-            m_pdmField(new caf::PdmField<std::vector<QString>>()) 
-            {}
-
-        virtual ~SummaryIdentifierAndField()                      { delete m_pdmField; }
-
-        RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
-        caf::PdmField<std::vector<QString>>*            pdmField()                { return m_pdmField; }
-
-    private:
-        RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;
-        caf::PdmField<std::vector<QString>> *           m_pdmField;
-    };
-
 public:
     RicSummaryCurveCreator();
     virtual ~RicSummaryCurveCreator();
@@ -81,6 +60,7 @@ public:
     bool                                    isCloseButtonPressed() const;
     void                                    clearCloseButton();
     void                                    updateCurveNames();
+    void                                    setCurveDefSelectionObject(RiuSummaryCurveDefSelection* curveDefSelection);
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
@@ -91,27 +71,9 @@ private:
     virtual void                            defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                                   caf::PdmUiEditorAttribute* attribute) override;
 
-
-    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddresses(const std::vector<RimSummaryCase*> &selectedCases, 
-                                                                         const SummaryIdentifierAndField *identifierAndField);
-    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedCases(const SummaryIdentifierAndField *identifierAndField);
-    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromSelectedObservedData(const SummaryIdentifierAndField *identifierAndField);
-    std::set<RifEclipseSummaryAddress>      findPossibleSummaryAddressesFromCalculated();
-
-    std::vector<SummaryIdentifierAndField*> buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField);
-    SummaryIdentifierAndField*              lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle);
-    SummaryIdentifierAndField*              lookupControllingField(const SummaryIdentifierAndField *dependentField);
-    bool                                    isAddressCompatibleWithControllingFieldSelection(const RifEclipseSummaryAddress &address, 
-                                                              const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList);
-    std::set<std::pair<RifEclipseSummaryAddress,bool>>   buildAddressListFromSelections();
-    void                                    buildAddressListForCategoryRecursively(RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                                   std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
-                                                                                   std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
-                                                                                   std::set<std::pair<RifEclipseSummaryAddress,bool>>& addressPairSet);
-
     void                                    syncPreviewCurvesFromUiSelection();
-    void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& allCurveDefsToDisplay, 
-                                                                                    const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefsToAdd,
+    void                                    updatePreviewCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay, 
+                                                                                    const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
                                                                                     const std::set<RimSummaryCurve*>& curvesToDelete);
     std::set<std::string>                   getAllSummaryCaseNames();
     std::set<std::string>                   getAllSummaryWellNames();
@@ -121,26 +83,19 @@ private:
     static void                             copyCurveAndAddToPlot(const RimSummaryCurve *curve, RimSummaryPlot *plot, bool forceVisible = false);
 
     void                                    resetAllFields();
-    void                                    updateEditorsConnectedToPreviewPlot();
     void                                    initCurveAppearanceCalculator(RimSummaryCurveAppearanceCalculator& curveAppearanceCalc);
     void                                    applyAppearanceToAllPreviewCurves();
     void                                    updateAppearanceEditor();
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress>>
-                                            allPreviewCurveDefs() const;
+    std::set<RiaSummaryCurveDefinition>     allPreviewCurveDefs() const;
     void                                    createNewPlot();
     bool                                    isObservedData(RimSummaryCase *sumCase) const;
 
-    std::vector<RimSummaryCase*>            summaryCases() const;
     static RimSummaryCase*                  calculatedSummaryCase();
-
+    void                                    selectionEditorFieldChanged();
 
 private:
-    caf::PdmPtrArrayField<RimSummaryCase*>                                                              m_selectedCases;
 
-    caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>>              m_selectedSummaryCategories;
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_currentSummaryCategory;
-    
-    std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
+    caf::PdmPtrField<RiuSummaryCurveDefSelection*>                                                      m_selectionEditor;
 
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
     

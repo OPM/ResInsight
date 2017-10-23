@@ -19,6 +19,7 @@
 #include "RimSummaryCurveFilter.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryCurveDefinition.h"
 
 #include "RifReaderEclipseSummary.h"
 
@@ -140,7 +141,7 @@ void RimSummaryCurveFilter::createDefaultCurves(RimSummaryCase* summaryCase, con
 
         m_summaryFilter->setCompleteVarStringFilter(defaultCurveStringFilter);
 
-        std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
+        std::set<RiaSummaryCurveDefinition> newCurveDefinitions;
 
         createSetOfCasesAndResultAdresses(selectedCases, *m_summaryFilter, &newCurveDefinitions);
 
@@ -355,7 +356,7 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
 {
     // Create a search map containing whats supposed to be curves
 
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> > newCurveDefinitions;
+    std::set<RiaSummaryCurveDefinition> newCurveDefinitions;
 
     // Populate the newCurveDefinitions from the Gui
 
@@ -372,7 +373,7 @@ void RimSummaryCurveFilter::syncCurvesFromUiSelection()
             if(!reader->hasAddress(addr)) continue;
             if (addrUnion.count(addr) == 0 ) continue; // Wash the possible "old" ui selection with new filter
              
-            newCurveDefinitions.insert(std::make_pair(currentCase, addr));
+            newCurveDefinitions.insert(RiaSummaryCurveDefinition(currentCase, addr));
         }
     }
 
@@ -522,7 +523,7 @@ void RimSummaryCurveFilter::removeCurvesAssosiatedWithCase(RimSummaryCase* summa
 void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
     const std::vector<RimSummaryCase*>& cases,
     const RimSummaryFilter& filter,
-    std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >* curveDefinitions) const
+    std::set<RiaSummaryCurveDefinition>* curveDefinitions) const
 {
     for (RimSummaryCase* currentCase : cases)
     {
@@ -536,7 +537,7 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
         {
             if (!filter.isIncludedByFilter(allAddresses[i])) continue;
 
-            curveDefinitions->insert(std::make_pair(currentCase, allAddresses[i]));
+            curveDefinitions->insert(RiaSummaryCurveDefinition(currentCase, allAddresses[i]));
         }
     }
 }
@@ -545,7 +546,7 @@ void RimSummaryCurveFilter::createSetOfCasesAndResultAdresses(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions)
+void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<RiaSummaryCurveDefinition>& curveDefinitions)
 {
     RimSummaryCase* prevCase = nullptr;
     RimPlotCurve::LineStyleEnum lineStyle = RimPlotCurve::STYLE_SOLID;
@@ -582,12 +583,12 @@ void RimSummaryCurveFilter::createCurvesFromCurveDefinitions(const std::set<std:
 
     for (auto& caseAddrPair : curveDefinitions)
     {
-        RimSummaryCase* currentCase = caseAddrPair.first;
+        RimSummaryCase* currentCase = caseAddrPair.summaryCase();
 
         RimSummaryCurve* curve = new RimSummaryCurve();
         curve->setParentQwtPlotNoReplot(m_parentQwtPlot);
         curve->setSummaryCase(currentCase);
-        curve->setSummaryAddress(caseAddrPair.second);
+        curve->setSummaryAddress(caseAddrPair.summaryAddress());
         curve->setYAxis(m_plotAxis());
         curve->applyCurveAutoNameSettings(*m_curveNameConfig());
 

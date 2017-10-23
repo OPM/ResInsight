@@ -28,6 +28,7 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
+#include <functional>
 
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
@@ -50,6 +51,8 @@ public:
 
     void                                    setSelectedCurveDefinitions(const std::vector<RiaSummaryCurveDefinition>& curveDefinitions);
     std::vector<RiaSummaryCurveDefinition>  selectedCurveDefinitions() const;
+    void                                    setMultiSelectionMode(bool multiSelectionMode);
+    void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
 
 private:
     class SummaryIdentifierAndField
@@ -116,4 +119,8 @@ private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>                           m_currentSummaryCategory;
     
     std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::vector<SummaryIdentifierAndField*>>     m_identifierFieldsMap;
+
+    bool                                                                                                m_multiSelectionMode;
+
+    std::function<void()>                                                                               m_toggleChangedHandler;
 };

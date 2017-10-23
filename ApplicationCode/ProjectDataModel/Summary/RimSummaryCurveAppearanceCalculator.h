@@ -27,11 +27,12 @@
 class RimSummaryCurve;
 class RimSummaryCase;
 class RifEclipseSummaryAddress;
+class RiaSummaryCurveDefinition;
 
 class RimSummaryCurveAppearanceCalculator
 {
 public:
-    explicit RimSummaryCurveAppearanceCalculator(const std::set<std::pair<RimSummaryCase*, RifEclipseSummaryAddress> >& curveDefinitions, 
+    explicit RimSummaryCurveAppearanceCalculator(const std::set<RiaSummaryCurveDefinition>& curveDefinitions, 
                                                  const std::set<std::string> allSummaryCaseNames, 
                                                  const std::set<std::string> allSummaryWellNames);
     enum CurveAppearanceType
