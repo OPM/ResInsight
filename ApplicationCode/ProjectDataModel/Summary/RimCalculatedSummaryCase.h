@@ -21,6 +21,8 @@
 #include "RimSummaryCase.h"
 #include "RifSummaryReaderInterface.h"
 
+#include <memory>
+
 class RifCalculatedSummaryCurveReader;
 class RimSummaryCalculation;
 class RimSummaryCalculationCollection;
@@ -45,5 +47,5 @@ public:
     void                                    buildMetaData();
 
 private:
-    RifCalculatedSummaryCurveReader*        m_calculatedCurveReader;
+    std::unique_ptr<RifCalculatedSummaryCurveReader>    m_calculatedCurveReader;
 };

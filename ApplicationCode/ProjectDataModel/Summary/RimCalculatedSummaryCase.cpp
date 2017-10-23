@@ -84,7 +84,7 @@ void RimCalculatedSummaryCase::createSummaryReaderInterface()
         RimSummaryCalculationCollection* calculationCollection = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(calculationCollection);
 
-        m_calculatedCurveReader = new RifCalculatedSummaryCurveReader(calculationCollection);
+        m_calculatedCurveReader.reset(new RifCalculatedSummaryCurveReader(calculationCollection));
     
         m_calculatedCurveReader->buildMetaData();
     }
@@ -97,7 +97,7 @@ RifSummaryReaderInterface* RimCalculatedSummaryCase::summaryReader()
 {
     if (!m_calculatedCurveReader) createSummaryReaderInterface();
 
-    return m_calculatedCurveReader;
+    return m_calculatedCurveReader.get();
 }
 
 //--------------------------------------------------------------------------------------------------
