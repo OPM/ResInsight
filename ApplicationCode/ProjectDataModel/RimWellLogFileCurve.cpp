@@ -236,8 +236,8 @@ void RimWellLogFileCurve::defineUiOrdering(QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup("Curve Data");
     curveDataGroup->add(&m_wellPath);
-    curveDataGroup->add(&m_wellLogChannnelName);
     curveDataGroup->add(&m_wellLogFile);
+    curveDataGroup->add(&m_wellLogChannnelName);
 
     caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup("Appearance");
     RimPlotCurve::appearanceUiOrdering(*appearanceGroup);
@@ -313,11 +313,14 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
 
     if (fieldNeedingOptions == &m_wellLogFile)
     {
+        
         if (m_wellPath() && m_wellPath->wellLogFiles().size() > 0)
         {
+            bool isRft = isInRftPlot();
+
             for (RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles())
             {
-                if (RimWellRftPlot::hasPressureData(wellLogFile))
+                if (!isRft || RimWellRftPlot::hasPressureData(wellLogFile))
                 {
                     QFileInfo fileInfo(wellLogFile->fileName());
                     options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));
@@ -338,6 +341,16 @@ void RimWellLogFileCurve::initAfterRead()
     {
         m_wellLogFile = m_wellPath->wellLogFiles().front();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogFileCurve::isInRftPlot() const
+{
+    RimWellRftPlot* rftPlot;
+    firstAncestorOrThisOfType(rftPlot);
+    return rftPlot != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
