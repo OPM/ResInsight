@@ -39,7 +39,7 @@ public:
     QString                         description() const;
 
     caf::PdmChildArrayFieldHandle*  variables();
-    RimSummaryCalculationVariable*         addVariable();
+    RimSummaryCalculationVariable*  addVariable();
     void                            deleteVariable(RimSummaryCalculationVariable* calcVariable);
 
     const std::vector<double>&      values() const;
@@ -54,14 +54,15 @@ public:
     static QString                  findLeftHandSide(const QString& expresion);
 
 private:
-    RimSummaryCalculationVariable*         findByName(const QString& name) const;
+    RimSummaryCalculationVariable*  findByName(const QString& name) const;
 
     QString                         buildCalculationName() const;
 
 private:
     caf::PdmField<QString>                              m_description;
     caf::PdmField<QString>                              m_expression;
-    caf::PdmChildArrayField<RimSummaryCalculationVariable*>    m_variables;
+
+    caf::PdmChildArrayField<RimSummaryCalculationVariable*> m_variables;
 
     caf::PdmField<std::vector<double>>                  m_calculatedValues;
     caf::PdmField<std::vector<time_t>>                  m_timesteps;

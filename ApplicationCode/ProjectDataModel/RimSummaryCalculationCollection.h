@@ -37,19 +37,19 @@ class RimSummaryCalculationCollection : public caf::PdmObject
 public:
     RimSummaryCalculationCollection();
 
-    RimSummaryCalculation*                 addCalculation();
-    void                            deleteCalculation(RimSummaryCalculation* calculation);
-    std::vector<RimSummaryCalculation*>    calculations() const;
+    RimSummaryCalculation*              addCalculation();
+    void                                deleteCalculation(RimSummaryCalculation* calculation);
+    std::vector<RimSummaryCalculation*> calculations() const;
 
-    RimSummaryCase*                 calculationSummaryCase();
+    RimSummaryCase*                     calculationSummaryCase();
 
-    void                            deleteAllContainedObjects();
-    void                            rebuildCaseMetaData();
-
-private:
-    virtual void                    initAfterRead() override;
+    void                                deleteAllContainedObjects();
+    void                                rebuildCaseMetaData();
 
 private:
-    caf::PdmChildArrayField<RimSummaryCalculation*>        m_calcuations;
+    virtual void                        initAfterRead() override;
+
+private:
+    caf::PdmChildArrayField<RimSummaryCalculation*> m_calcuations;
     caf::PdmChildField<RimCalculatedSummaryCase*>   m_calcuationSummaryCase;
 };
