@@ -30,7 +30,7 @@
 #include "RigWellPath.h"
 
 #include "RimCalcScript.h"
-#include "RimCalculationCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCommandObject.h"
@@ -114,7 +114,7 @@ RimProject::RimProject(void)
     viewLinkerCollection = new RimViewLinkerCollection;
 
     CAF_PDM_InitFieldNoDefault(&calculationCollection, "CalculationCollection", "Calculation Collection", "", "", "");
-    calculationCollection = new RimCalculationCollection;
+    calculationCollection = new RimSummaryCalculationCollection;
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.uiCapability()->setUiHidden(true);

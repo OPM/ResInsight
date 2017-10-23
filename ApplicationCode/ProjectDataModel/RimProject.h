@@ -34,7 +34,7 @@ class RigGridManager;
 class RigMainGrid;
 class RigWellPath;
 
-class RimCalculationCollection;
+class RimSummaryCalculationCollection;
 class RimCase;
 class RimCommandObject;
 class RimDialogData;
@@ -79,7 +79,7 @@ public:
     caf::PdmChildField<RimWellPathImport*>              wellPathImport;
     caf::PdmChildField<RimMainPlotCollection*>          mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>        viewLinkerCollection;
-    caf::PdmChildField<RimCalculationCollection*>       calculationCollection;
+    caf::PdmChildField<RimSummaryCalculationCollection*>       calculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>          commandObjects;
     
     caf::PdmChildArrayField<RimMultiSnapshotDefinition*> multiSnapshotDefinitions;

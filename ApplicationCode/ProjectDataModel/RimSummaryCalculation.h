@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
-class RimCalculationVariable;
+class RimSummaryCalculationVariable;
 
 //==================================================================================================
 ///  
@@ -39,8 +39,8 @@ public:
     QString                         description() const;
 
     caf::PdmChildArrayFieldHandle*  variables();
-    RimCalculationVariable*         addVariable();
-    void                            deleteVariable(RimCalculationVariable* calcVariable);
+    RimSummaryCalculationVariable*         addVariable();
+    void                            deleteVariable(RimSummaryCalculationVariable* calcVariable);
 
     const std::vector<double>&      values() const;
     const std::vector<time_t>&      timeSteps() const;
@@ -54,14 +54,14 @@ public:
     static QString                  findLeftHandSide(const QString& expresion);
 
 private:
-    RimCalculationVariable*         findByName(const QString& name) const;
+    RimSummaryCalculationVariable*         findByName(const QString& name) const;
 
     QString                         buildCalculationName() const;
 
 private:
     caf::PdmField<QString>                              m_description;
     caf::PdmField<QString>                              m_expression;
-    caf::PdmChildArrayField<RimCalculationVariable*>    m_variables;
+    caf::PdmChildArrayField<RimSummaryCalculationVariable*>    m_variables;
 
     caf::PdmField<std::vector<double>>                  m_calculatedValues;
     caf::PdmField<std::vector<time_t>>                  m_timesteps;

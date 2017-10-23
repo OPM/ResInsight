@@ -19,7 +19,7 @@
 #include "RimCalculatedSummaryCase.h"
 
 #include "RimSummaryCalculation.h"
-#include "RimCalculationCollection.h"
+#include "RimSummaryCalculationCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimCalculatedSummaryCase,"CalculatedSummaryCase");
 
@@ -55,7 +55,7 @@ void RimCalculatedSummaryCase::createSummaryReaderInterface()
 {
     if (!m_calculatedCurveReader)
     {
-        RimCalculationCollection* calculationCollection = nullptr;
+        RimSummaryCalculationCollection* calculationCollection = nullptr;
         this->firstAncestorOrThisOfTypeAsserted(calculationCollection);
 
         m_calculatedCurveReader = new RifCalculatedSummaryCurveReader(calculationCollection);
@@ -100,7 +100,7 @@ void RimCalculatedSummaryCase::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader(RimCalculationCollection* calculationCollection)
+RimCalculatedSummaryCase::RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection)
     : m_calculationCollection(calculationCollection)
 {
 

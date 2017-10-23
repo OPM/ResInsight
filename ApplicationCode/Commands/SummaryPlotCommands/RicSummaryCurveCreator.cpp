@@ -39,7 +39,7 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimCalculationCollection.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuSummaryQwtPlot.h"
@@ -674,7 +674,7 @@ bool RicSummaryCurveCreator::isObservedData(RimSummaryCase *sumCase) const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RicSummaryCurveCreator::calculatedSummaryCase()
 {
-    RimCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
 
     return calcColl->calculationSummaryCase();
 }

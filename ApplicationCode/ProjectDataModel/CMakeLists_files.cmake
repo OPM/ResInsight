@@ -93,8 +93,8 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.h
 ${CEE_CURRENT_LIST_DIR}RimDialogData.h
 ${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.h
 ${CEE_CURRENT_LIST_DIR}RimSummaryCalculation.h
-${CEE_CURRENT_LIST_DIR}RimCalculationCollection.h
-${CEE_CURRENT_LIST_DIR}RimCalculationVariable.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCalculationCollection.h
+${CEE_CURRENT_LIST_DIR}RimSummaryCalculationVariable.h
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES) 
@@ -193,8 +193,8 @@ ${CEE_CURRENT_LIST_DIR}RimEclipseGeometrySelectionItem.cpp
 ${CEE_CURRENT_LIST_DIR}RimDialogData.cpp
 ${CEE_CURRENT_LIST_DIR}RimTimeStepFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimSummaryCalculation.cpp
-${CEE_CURRENT_LIST_DIR}RimCalculationCollection.cpp
-${CEE_CURRENT_LIST_DIR}RimCalculationVariable.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCalculationCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimSummaryCalculationVariable.cpp
 )
 
 if (RESINSIGHT_ENABLE_PROTOTYPE_FEATURE_FRACTURES)

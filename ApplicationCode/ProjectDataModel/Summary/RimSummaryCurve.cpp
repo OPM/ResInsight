@@ -23,7 +23,7 @@
 
 #include "RifReaderEclipseSummary.h"
 
-#include "RimCalculationCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"

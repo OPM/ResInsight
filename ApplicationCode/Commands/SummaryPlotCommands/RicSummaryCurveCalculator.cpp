@@ -19,15 +19,15 @@
 #include "RicSummaryCurveCalculator.h"
 
 #include "RiaApplication.h"
+#include "RiaSummaryTools.h"
 
-#include "RimSummaryCalculation.h"
-#include "RimCalculationCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
-#include "RiaSummaryTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RicSummaryCurveCalculator, "RicSummaryCurveCalculator");
@@ -177,7 +177,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryCurveCalculator::calculateValueOptions(c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculationCollection* RicSummaryCurveCalculator::calculationCollection()
+RimSummaryCalculationCollection* RicSummaryCurveCalculator::calculationCollection()
 {
     RimProject* proj = RiaApplication::instance()->project();
     if (proj)

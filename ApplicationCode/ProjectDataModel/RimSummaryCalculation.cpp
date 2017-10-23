@@ -23,9 +23,9 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
-#include "RimCalculationCollection.h"
-#include "RimCalculationVariable.h"
 #include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
+#include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -37,14 +37,14 @@
 #include <algorithm>
 
 
-CAF_PDM_SOURCE_INIT(RimSummaryCalculation, "RimCalculation");
+CAF_PDM_SOURCE_INIT(RimSummaryCalculation, "RimSummaryCalculation");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculation::RimSummaryCalculation()
 {
-    CAF_PDM_InitObject("RimCalculation", ":/octave.png", "Calculation", "");
+    CAF_PDM_InitObject("RimSummaryCalculation", ":/octave.png", "Calculation", "");
 
     CAF_PDM_InitFieldNoDefault(&m_description,      "Description",      "Description", "", "", "");
     m_description.uiCapability()->setUiReadOnly(true);
@@ -85,9 +85,9 @@ caf::PdmChildArrayFieldHandle* RimSummaryCalculation::variables()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculationVariable* RimSummaryCalculation::addVariable()
+RimSummaryCalculationVariable* RimSummaryCalculation::addVariable()
 {
-    RimCalculationVariable* v = new RimCalculationVariable;
+    RimSummaryCalculationVariable* v = new RimSummaryCalculationVariable;
     m_variables.push_back(v);
 
     return v;
@@ -96,7 +96,7 @@ RimCalculationVariable* RimSummaryCalculation::addVariable()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::deleteVariable(RimCalculationVariable* calcVariable)
+void RimSummaryCalculation::deleteVariable(RimSummaryCalculationVariable* calcVariable)
 {
     m_variables.removeChildObject(calcVariable);
 
@@ -150,8 +150,8 @@ bool RimSummaryCalculation::parseExpression()
 
     // Remove variables not present in expression
     {
-        std::vector<RimCalculationVariable*> toBeDeleted;
-        for (RimCalculationVariable* v : m_variables)
+        std::vector<RimSummaryCalculationVariable*> toBeDeleted;
+        for (RimSummaryCalculationVariable* v : m_variables)
         {
             if (std::find(variableNames.begin(), variableNames.end(), v->name()) == variableNames.end())
             {
@@ -164,7 +164,7 @@ bool RimSummaryCalculation::parseExpression()
             }
         }
 
-        for (RimCalculationVariable* v : toBeDeleted)
+        for (RimSummaryCalculationVariable* v : toBeDeleted)
         {
             deleteVariable(v);
         }
@@ -205,7 +205,7 @@ bool RimSummaryCalculation::calculate()
 
     for (size_t i = 0; i < m_variables.size(); i++)
     {
-        RimCalculationVariable* v = m_variables[i];
+        RimSummaryCalculationVariable* v = m_variables[i];
 
         if (!v->summaryCase())
         {
@@ -302,9 +302,9 @@ QString RimSummaryCalculation::findLeftHandSide(const QString& expresion)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculationVariable* RimSummaryCalculation::findByName(const QString& name) const
+RimSummaryCalculationVariable* RimSummaryCalculation::findByName(const QString& name) const
 {
-    for (RimCalculationVariable* v : m_variables)
+    for (RimSummaryCalculationVariable* v : m_variables)
     {
         if (v->name() == name)
         {
@@ -329,7 +329,7 @@ QString RimSummaryCalculation::buildCalculationName() const
 
         name += " ( ";
 
-        for (RimCalculationVariable* v : m_variables)
+        for (RimSummaryCalculationVariable* v : m_variables)
         {
             name += v->summaryAddressDisplayString();
 
@@ -350,7 +350,7 @@ QString RimSummaryCalculation::buildCalculationName() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::updateDependentCurvesAndPlots()
 {
-    RimCalculationCollection* calcColl = nullptr;
+    RimSummaryCalculationCollection* calcColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted(calcColl);
     calcColl->rebuildCaseMetaData();
 

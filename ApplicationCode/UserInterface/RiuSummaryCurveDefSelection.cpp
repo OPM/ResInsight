@@ -24,13 +24,13 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RimSummaryCalculation.h"
 #include "RimCalculatedSummaryCase.h"
-#include "RimCalculationCollection.h"
 #include "RimObservedData.h"
 #include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -880,7 +880,7 @@ std::vector<RimSummaryCase*> RiuSummaryCurveDefSelection::summaryCases() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RiuSummaryCurveDefSelection::calculatedSummaryCase()
 {
-    RimCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
+    RimSummaryCalculationCollection* calcColl = RiaApplication::instance()->project()->calculationCollection();
 
     return calcColl->calculationSummaryCase();
 }

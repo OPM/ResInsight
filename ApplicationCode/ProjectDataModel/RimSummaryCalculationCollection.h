@@ -19,47 +19,37 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmPtrField.h"
-#include "cafPdmProxyValueField.h"
-
-#include "RifEclipseSummaryAddressQMetaType.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 
+class RimSummaryCalculation;
 class RimSummaryCase;
-class RimSummaryAddress;
+class RimCalculatedSummaryCase;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimCalculationVariable : public caf::PdmObject
+class RimSummaryCalculationCollection : public caf::PdmObject
 {
-    CAF_PDM_HEADER_INIT;
+     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCalculationVariable();
+    RimSummaryCalculationCollection();
 
-    QString         name() const;
-    void            setName(const QString& name);
+    RimSummaryCalculation*                 addCalculation();
+    void                            deleteCalculation(RimSummaryCalculation* calculation);
+    std::vector<RimSummaryCalculation*>    calculations() const;
 
-    QString         summaryAddressDisplayString() const;
+    RimSummaryCase*                 calculationSummaryCase();
 
-    RimSummaryCase*     summaryCase();
-    RimSummaryAddress*  summaryAddress();
-
-private:
-    
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
+    void                            deleteAllContainedObjects();
+    void                            rebuildCaseMetaData();
 
 private:
-    caf::PdmField<QString> m_name;
-    caf::PdmProxyValueField<QString> m_summaryAddressUi;
+    virtual void                    initAfterRead() override;
 
-    caf::PdmField<bool> m_button;
-
-    caf::PdmPtrField<RimSummaryCase*>       m_case;
-    caf::PdmChildField<RimSummaryAddress*>  m_summaryAddress;
+private:
+    caf::PdmChildArrayField<RimSummaryCalculation*>        m_calcuations;
+    caf::PdmChildField<RimCalculatedSummaryCase*>   m_calcuationSummaryCase;
 };

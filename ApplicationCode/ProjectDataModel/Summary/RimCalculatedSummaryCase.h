@@ -21,7 +21,7 @@
 #include "RimSummaryCase.h"
 #include "RifSummaryReaderInterface.h"
 
-class RimCalculationCollection;
+class RimSummaryCalculationCollection;
 class RimSummaryCalculation;
 
 
@@ -39,7 +39,7 @@ private:
     class RifCalculatedSummaryCurveReader : public RifSummaryReaderInterface
     {
     public:
-        explicit RifCalculatedSummaryCurveReader(RimCalculationCollection* calculationCollection);
+        explicit RifCalculatedSummaryCurveReader(RimSummaryCalculationCollection* calculationCollection);
 
         virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
         virtual bool                        values(const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values) const override;
@@ -51,7 +51,7 @@ private:
         RimSummaryCalculation*                     findCalculationByName(const RifEclipseSummaryAddress& resultAddress) const;
 
     private:
-        caf::PdmPointer<RimCalculationCollection> m_calculationCollection;
+        caf::PdmPointer<RimSummaryCalculationCollection> m_calculationCollection;
     };
 
 public:

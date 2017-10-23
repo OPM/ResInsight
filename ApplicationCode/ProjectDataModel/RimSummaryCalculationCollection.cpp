@@ -16,20 +16,20 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimCalculationCollection.h"
+#include "RimSummaryCalculationCollection.h"
 
-#include "RimSummaryCalculation.h"
 #include "RimCalculatedSummaryCase.h"
+#include "RimSummaryCalculation.h"
 
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 
-CAF_PDM_SOURCE_INIT(RimCalculationCollection, "RimCalculationCollection");
+CAF_PDM_SOURCE_INIT(RimSummaryCalculationCollection, "RimSummaryCalculationCollection");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCalculationCollection::RimCalculationCollection()
+RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 {
     CAF_PDM_InitObject("Calculation Collection", ":/chain.png", "", "");
 
@@ -44,7 +44,7 @@ RimCalculationCollection::RimCalculationCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RimCalculationCollection::addCalculation()
+RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 {
     RimSummaryCalculation* calculation = new RimSummaryCalculation;
     calculation->setDescription(QString("Calculation %1").arg(m_calcuations.size()));
@@ -59,7 +59,7 @@ RimSummaryCalculation* RimCalculationCollection::addCalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculationCollection::deleteCalculation(RimSummaryCalculation* calculation)
+void RimSummaryCalculationCollection::deleteCalculation(RimSummaryCalculation* calculation)
 {
     m_calcuations.removeChildObject(calculation);
 
@@ -71,7 +71,7 @@ void RimCalculationCollection::deleteCalculation(RimSummaryCalculation* calculat
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCalculation*> RimCalculationCollection::calculations() const
+std::vector<RimSummaryCalculation*> RimSummaryCalculationCollection::calculations() const
 {
     std::vector<RimSummaryCalculation*> calcs;
 
@@ -86,7 +86,7 @@ std::vector<RimSummaryCalculation*> RimCalculationCollection::calculations() con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimCalculationCollection::calculationSummaryCase()
+RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 {
     return m_calcuationSummaryCase();
 }
@@ -94,7 +94,7 @@ RimSummaryCase* RimCalculationCollection::calculationSummaryCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculationCollection::deleteAllContainedObjects()
+void RimSummaryCalculationCollection::deleteAllContainedObjects()
 {
     m_calcuations.deleteAllChildObjects();
 
@@ -104,7 +104,7 @@ void RimCalculationCollection::deleteAllContainedObjects()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculationCollection::rebuildCaseMetaData()
+void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
     m_calcuationSummaryCase->buildMetaData();
 }
@@ -112,7 +112,7 @@ void RimCalculationCollection::rebuildCaseMetaData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCalculationCollection::initAfterRead()
+void RimSummaryCalculationCollection::initAfterRead()
 {
     rebuildCaseMetaData();
 }

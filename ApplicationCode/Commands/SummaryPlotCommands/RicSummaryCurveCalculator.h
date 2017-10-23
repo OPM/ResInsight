@@ -23,7 +23,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 
-class RimCalculationCollection;
+class RimSummaryCalculationCollection;
 class RimSummaryCalculation;
 
 //==================================================================================================
@@ -51,7 +51,7 @@ private:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute) override;
 
 private:
-    static RimCalculationCollection* calculationCollection();
+    static RimSummaryCalculationCollection* calculationCollection();
 
     // TODO : Move to a common caf helper class
     static void assignPushButtonEditor(caf::PdmFieldHandle* fieldHandle);
