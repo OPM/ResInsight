@@ -222,7 +222,6 @@ void RimWellRftPlot::applyCurveAppearance(RimWellLogCurve* newCurve)
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::updateSelectedTimeStepsFromSelectedSources()
 {
-    std::vector<QDateTime> selectedTimeSteps = m_selectedTimeSteps;
     std::vector<QDateTime> newTimeStepsSelections;
     std::vector<RimWellRftAddress> selectedSourcesVector = selectedSources();
     auto selectedSources = std::set<RimWellRftAddress>(selectedSourcesVector.begin(), selectedSourcesVector.end());
@@ -646,7 +645,6 @@ std::set < std::pair<RimWellRftAddress, QDateTime>> RimWellRftPlot::selectedCurv
     const std::vector<std::tuple<RimEclipseResultCase*,bool,bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
     const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
     const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
-    const std::vector<RimWellLogFile*> wellLogFiles = wellLogFilesContainingPressure(m_wellName);
 
     for (const QDateTime& timeStep : m_selectedTimeSteps())
     {
@@ -1218,7 +1216,6 @@ void RimWellRftPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
     const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(wellName);
     const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
     const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
-    const std::vector<RimWellLogFile*> wellLogFiles = wellLogFilesContainingPressure(m_wellName);
 
     for (const RimWellRftAddress& selection : selectedSources())
     {
