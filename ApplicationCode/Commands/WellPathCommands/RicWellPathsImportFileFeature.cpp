@@ -68,10 +68,9 @@ void RicWellPathsImportFileFeature::onActionTriggered(bool isChecked)
 
         if (!oilField) return;
 
-        size_t lastIdx = oilField->wellPathCollection->wellPaths().size() - 1;
-        if (lastIdx >= 0)
+        if (oilField->wellPathCollection->wellPaths().size() > 0)
         {
-            RimWellPath* wellPath = oilField->wellPathCollection->wellPaths()[lastIdx];
+            RimWellPath* wellPath = oilField->wellPathCollection->wellPaths()[oilField->wellPathCollection->wellPaths().size() - 1];
             RiuMainWindow::instance()->selectAsCurrentItem(wellPath);
         }
     }
