@@ -80,6 +80,32 @@ const std::vector<time_t>& RiaSummaryCurveDefinition::timeSteps(const RiaSummary
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QString RiaSummaryCurveDefinition::curveDefinitionText() const
+{
+    return RiaSummaryCurveDefinition::curveDefinitionText(summaryCase(), summaryAddress());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaSummaryCurveDefinition::curveDefinitionText(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress)
+{
+    QString txt;
+
+    if (summaryCase)
+    {
+        txt += summaryCase->caseName();
+        txt += ", ";
+    }
+
+    txt += QString::fromStdString(summaryAddress.uiText());
+
+    return txt;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RiaSummaryCurveDefinition::operator<(const RiaSummaryCurveDefinition& other) const
 {
     if (m_curveDefinition.first == other.summaryCase())

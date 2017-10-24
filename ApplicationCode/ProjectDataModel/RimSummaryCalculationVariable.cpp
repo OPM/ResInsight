@@ -91,6 +91,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi(const caf::PdmFieldHandle* 
 
                 dlg.summaryAddressSelection()->setSelectedCurveDefinitions(sumCasePairs);
                 dlg.summaryAddressSelection()->updateConnectedEditors();
+                dlg.updateLabel();
             }
 
             if (dlg.exec() == QDialog::Accepted)

@@ -18,10 +18,15 @@
 
 #include "RiuSummaryCurveDefSelectionDialog.h"
 
+#include "RiaSummaryCurveDefinition.h"
+
+#include "RiuSummaryCurveDefSelection.h"
 #include "RiuSummaryCurveDefSelectionEditor.h"
 
-#include <QVBoxLayout>
+#include <QBoxLayout>
 #include <QDialogButtonBox>
+#include <QLabel>
+#include <QVBoxLayout>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -39,11 +44,22 @@ RiuSummaryCurveDefSelectionDialog::RiuSummaryCurveDefSelectionDialog(QWidget* pa
     setWindowTitle("Summary Address Selection");
     resize(1200, 800);
 
+    m_label = new QLabel("", this);
+
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    mainLayout->addWidget(buttonBox);
+    QHBoxLayout* labelLayout = new QHBoxLayout(this);
+    labelLayout->addStretch(1);
+    labelLayout->addWidget(m_label);
+    labelLayout->addWidget(buttonBox);
+
+    mainLayout->addLayout(labelLayout);
+
+    m_addrSelWidget->summaryAddressSelection()->setFieldChangedHandler([this]() { this->updateLabel(); });
+
+    updateLabel();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,5 +75,28 @@ RiuSummaryCurveDefSelectionDialog::~RiuSummaryCurveDefSelectionDialog()
 RiuSummaryCurveDefSelection* RiuSummaryCurveDefSelectionDialog::summaryAddressSelection() const
 {
     return m_addrSelWidget->summaryAddressSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryCurveDefSelectionDialog::updateLabel()
+{
+    QString curveAddressText;
+    std::vector<RiaSummaryCurveDefinition> sumCasePairs = this->summaryAddressSelection()->selectedCurveDefinitions();
+    if (sumCasePairs.size() == 1)
+    {
+        curveAddressText = sumCasePairs.front().curveDefinitionText();
+    }
+
+    if (curveAddressText.isEmpty())
+    {
+        curveAddressText = "<None>";
+    }
+
+    QString txt = "Selected Address : ";
+    txt += curveAddressText;
+
+    m_label->setText(txt);
 }
 

@@ -21,6 +21,8 @@
 #include <QDialog>
 #include <memory>
 
+class QLabel;
+
 class RiuSummaryCurveDefSelectionEditor;
 class RiuSummaryCurveDefSelection;
 
@@ -36,6 +38,10 @@ public:
 
     RiuSummaryCurveDefSelection* summaryAddressSelection() const;
 
+    void    updateLabel();
+
 private:
     std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;
+    
+    QLabel* m_label;
 };

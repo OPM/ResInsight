@@ -20,6 +20,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include <QString>
+
 #include <utility>
 #include <vector>
 
@@ -41,6 +43,11 @@ public:
     // TODO: Consider moving to a separate tools class
     static void                         resultValues(const RiaSummaryCurveDefinition& curveDefinition, std::vector<double>* values);
     static const std::vector<time_t>&   timeSteps(const RiaSummaryCurveDefinition& curveDefinition);
+
+    QString                             curveDefinitionText() const;
+
+private:
+    static QString                      curveDefinitionText(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress);
 
 private:
     std::pair<RimSummaryCase*, RifEclipseSummaryAddress> m_curveDefinition;
