@@ -72,6 +72,11 @@ void RicNewWellLogFileCurveFeature::onActionTriggered(bool isChecked)
             RimWellLogTrack* wellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
             RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve(wellLogPlotTrack);
             plotCurve->setWellPath(wellPath);
+
+            if (wellPath->wellLogFiles().size() == 1)
+            {
+                plotCurve->setWellLogFile(wellPath->wellLogFiles().front());
+            }
             plotCurve->updateConnectedEditors();
         }
     }
