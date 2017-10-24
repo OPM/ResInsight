@@ -45,6 +45,35 @@
 
 CAF_PDM_SOURCE_INIT(RiuSummaryCurveDefSelection, "RicSummaryAddressSelection");
 
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class SummaryIdentifierAndField
+{
+public:
+    SummaryIdentifierAndField() :
+        m_summaryIdentifier((RifEclipseSummaryAddress::SummaryIdentifierType)0),
+        m_pdmField(nullptr)
+    {}
+
+    SummaryIdentifierAndField(RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier) :
+        m_summaryIdentifier(summaryIdentifier),
+        m_pdmField(new caf::PdmField<std::vector<QString>>())
+    {}
+
+    virtual ~SummaryIdentifierAndField() { delete m_pdmField; }
+
+    RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
+    caf::PdmField<std::vector<QString>>*            pdmField() { return m_pdmField; }
+
+private:
+    RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;
+    caf::PdmField<std::vector<QString>> *           m_pdmField;
+};
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -687,9 +716,9 @@ std::set<RifEclipseSummaryAddress> RiuSummaryCurveDefSelection::findPossibleSumm
 //--------------------------------------------------------------------------------------------------
 /// Build a list of relevant selections
 //--------------------------------------------------------------------------------------------------
-std::vector<RiuSummaryCurveDefSelection::SummaryIdentifierAndField*> RiuSummaryCurveDefSelection::buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField) const
+std::vector<SummaryIdentifierAndField*> RiuSummaryCurveDefSelection::buildControllingFieldList(const SummaryIdentifierAndField *identifierAndField) const
 {
-    std::vector<RiuSummaryCurveDefSelection::SummaryIdentifierAndField*> controllingFields;
+    std::vector<SummaryIdentifierAndField*> controllingFields;
     const auto& identifierAndFieldList = m_identifierFieldsMap.at(m_currentSummaryCategory());
     for (const auto& identifierAndFieldItem : identifierAndFieldList)
     {
@@ -705,7 +734,7 @@ std::vector<RiuSummaryCurveDefSelection::SummaryIdentifierAndField*> RiuSummaryC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection::SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle) const
+SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupIdentifierAndFieldFromFieldHandle(const caf::PdmFieldHandle* pdmFieldHandle) const
 {
     for (const auto& itemTypes : m_identifierFieldsMap)
     {
@@ -725,7 +754,7 @@ RiuSummaryCurveDefSelection::SummaryIdentifierAndField* RiuSummaryCurveDefSelect
 /// Controlling means the field controlling the dependent field
 /// If the specified pdm field info is the topmost (i.e. index is 0), null pointer is returned
 //--------------------------------------------------------------------------------------------------
-RiuSummaryCurveDefSelection::SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupControllingField(const RiuSummaryCurveDefSelection::SummaryIdentifierAndField *dependentField) const
+SummaryIdentifierAndField* RiuSummaryCurveDefSelection::lookupControllingField(const SummaryIdentifierAndField *dependentField) const
 {
     for (const auto& identifierAndFieldList : m_identifierFieldsMap)
     {

@@ -36,6 +36,7 @@ class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
+class SummaryIdentifierAndField;
 
 //==================================================================================================
 ///  
@@ -53,30 +54,6 @@ public:
     std::vector<RiaSummaryCurveDefinition>  selectedCurveDefinitions() const;
     void                                    setMultiSelectionMode(bool multiSelectionMode);
     void                                    setFieldChangedHandler(const std::function<void()>& handlerFunc);
-
-private:
-    class SummaryIdentifierAndField
-    {
-    public:
-        SummaryIdentifierAndField() :
-            m_summaryIdentifier((RifEclipseSummaryAddress::SummaryIdentifierType)0),
-            m_pdmField(nullptr) 
-            {}
-
-        SummaryIdentifierAndField(RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier) :
-            m_summaryIdentifier(summaryIdentifier),
-            m_pdmField(new caf::PdmField<std::vector<QString>>()) 
-            {}
-
-        virtual ~SummaryIdentifierAndField()                      { delete m_pdmField; }
-
-        RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
-        caf::PdmField<std::vector<QString>>*            pdmField()                { return m_pdmField; }
-
-    private:
-        RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;
-        caf::PdmField<std::vector<QString>> *           m_pdmField;
-    };
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
