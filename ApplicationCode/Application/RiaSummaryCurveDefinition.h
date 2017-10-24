@@ -46,8 +46,9 @@ public:
 
     QString                             curveDefinitionText() const;
 
-private:
     static QString                      curveDefinitionText(RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress);
+
+private:
 
 private:
     std::pair<RimSummaryCase*, RifEclipseSummaryAddress> m_curveDefinition;

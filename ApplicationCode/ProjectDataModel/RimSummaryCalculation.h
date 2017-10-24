@@ -39,8 +39,6 @@ public:
     QString                         description() const;
 
     caf::PdmChildArrayFieldHandle*  variables();
-    RimSummaryCalculationVariable*  addVariable();
-    void                            deleteVariable(RimSummaryCalculationVariable* calcVariable);
 
     const std::vector<double>&      values() const;
     const std::vector<time_t>&      timeSteps() const;
@@ -55,6 +53,8 @@ public:
 
 private:
     RimSummaryCalculationVariable*  findByName(const QString& name) const;
+    RimSummaryCalculationVariable*  addVariable(const QString& name);
+    void                            deleteVariable(RimSummaryCalculationVariable* calcVariable);
 
     QString                         buildCalculationName() const;
 

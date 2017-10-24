@@ -49,7 +49,7 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitFieldNoDefault(&m_description,      "Description",      "Description", "", "", "");
     m_description.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_expression,       "Expression",       "Expression", "", "", "");
+    CAF_PDM_InitField(&m_expression,                "Expression",       QString("variableName := a"),       "Expression", "", "", "");
     m_expression.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_variables,        "Variables",        "Variables", "", "", "");
@@ -85,9 +85,11 @@ caf::PdmChildArrayFieldHandle* RimSummaryCalculation::variables()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculationVariable* RimSummaryCalculation::addVariable()
+RimSummaryCalculationVariable* RimSummaryCalculation::addVariable(const QString& name)
 {
     RimSummaryCalculationVariable* v = new RimSummaryCalculationVariable;
+    v->setName(name);
+
     m_variables.push_back(v);
 
     return v;
@@ -176,8 +178,7 @@ bool RimSummaryCalculation::parseExpression()
         {
             if (!findByName(variableName))
             {
-                auto v = this->addVariable();
-                v->setName(variableName);
+                this->addVariable(variableName);
             }
         }
     }
