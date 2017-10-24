@@ -46,7 +46,8 @@ QDateTime RiaDateStringParser::parseDateString(const QString& dateString)
     std::string s = dateString.toStdString();
     bool parsedOk = 
         tryParseYearFirst(s, year, month, day) ||
-        tryParseDayFirst(s, year, month, day);
+        tryParseDayFirst(s, year, month, day) ||
+        tryParseMonthFirst(s, year, month, day);
 
     QDateTime dt;
     dt.setTimeSpec(RiaQDateTimeTools::currentTimeSpec());
@@ -101,6 +102,23 @@ bool RiaDateStringParser::tryParseDayFirst(const std::string& s, int& year, int&
 
     auto sDay = s.substr(0, firstSep);
     auto sMonth = s.substr(firstSep + 1, lastSep - firstSep - 1);
+    auto sYear = s.substr(lastSep + 1);
+
+    return tryParseYear(sYear, year) && tryParseMonth(sMonth, month) && tryParseDay(sDay, day);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::tryParseMonthFirst(const std::string& s, int& year, int& month, int& day)
+{
+    auto firstSep = s.find_first_of(" -_.");
+    auto lastSep = s.find_first_of(" -_.", firstSep + 1);
+
+    if (firstSep == std::string::npos || lastSep == std::string::npos) return false;
+
+    auto sMonth = s.substr(0, firstSep);
+    auto sDay = s.substr(firstSep + 1, lastSep - firstSep - 1);
     auto sYear = s.substr(lastSep + 1);
 
     return tryParseYear(sYear, year) && tryParseMonth(sMonth, month) && tryParseDay(sDay, day);

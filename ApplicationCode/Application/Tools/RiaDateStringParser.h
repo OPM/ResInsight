@@ -35,6 +35,7 @@ public:
 private:
     static bool tryParseYearFirst(const std::string& s, int& year, int& month, int& day);
     static bool tryParseDayFirst(const std::string& s, int& year, int& month, int& day);
+    static bool tryParseMonthFirst(const std::string& s, int& year, int& month, int& day);
 
     static bool tryParseYear(const std::string& s, int &year);
     static bool tryParseMonth(const std::string& s, int &month);
