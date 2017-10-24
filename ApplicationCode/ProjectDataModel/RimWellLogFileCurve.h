@@ -64,7 +64,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
     virtual void initAfterRead() override;
 
-    bool        isInRftPlot() const;
+    bool        isRftPlotChild() const;
 
 protected:
     caf::PdmPtrField<RimWellPath*>      m_wellPath;

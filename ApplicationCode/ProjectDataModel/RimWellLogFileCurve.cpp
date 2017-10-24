@@ -316,11 +316,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions(const c
         
         if (m_wellPath() && m_wellPath->wellLogFiles().size() > 0)
         {
-            bool isRft = isInRftPlot();
+            bool isRftChild = isRftPlotChild();
 
             for (RimWellLogFile* const wellLogFile : m_wellPath->wellLogFiles())
             {
-                if (!isRft || RimWellRftPlot::hasPressureData(wellLogFile))
+                if (!isRftChild || RimWellRftPlot::hasPressureData(wellLogFile))
                 {
                     QFileInfo fileInfo(wellLogFile->fileName());
                     options.push_back(caf::PdmOptionItemInfo(fileInfo.baseName(), wellLogFile));
@@ -346,7 +346,7 @@ void RimWellLogFileCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogFileCurve::isInRftPlot() const
+bool RimWellLogFileCurve::isRftPlotChild() const
 {
     RimWellRftPlot* rftPlot;
     firstAncestorOrThisOfType(rftPlot);
