@@ -51,7 +51,7 @@ std::string RiuSummaryVectorDescriptionMap::fieldInfo(const std::string &vectorN
         }
     }
 
-    return std::string();
+    return vectorName;
 }
 
 //--------------------------------------------------------------------------------------------------

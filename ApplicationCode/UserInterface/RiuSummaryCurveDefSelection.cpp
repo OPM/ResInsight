@@ -36,6 +36,7 @@
 #include "RimSummaryCaseMainCollection.h"
 
 #include "RiuSummaryCurveDefinitionKeywords.h"
+#include "RiuSummaryVectorDescriptionMap.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -450,14 +451,16 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
             addrUnion[OBS_DATA] =  findPossibleSummaryAddressesFromSelectedObservedData(identifierAndField);
             addrUnion[CALCULATED_CURVES] =  findPossibleSummaryAddressesFromCalculated();
 
-            std::set<QString> itemNames[itemCount];
+            std::set<std::string> itemNames[itemCount];
             for (int i = 0; i < itemCount; i++)
             {
                 for (const auto& address : addrUnion[i])
                 {
-                    auto name = QString::fromStdString(address.uiText(identifierAndField->summaryIdentifier()));
-                    if (!name.isEmpty())
+                    auto name = address.uiText(identifierAndField->summaryIdentifier());
+                    if (name.size() > 0)
+                    {
                         itemNames[i].insert(name);
+                    }
                 }
             }
 
@@ -485,7 +488,20 @@ QList<caf::PdmOptionItemInfo> RiuSummaryCurveDefSelection::calculateValueOptions
                 auto itemPostfix = (isVectorField && i == OBS_DATA) ? QString(OBSERVED_DATA_AVALUE_POSTFIX) : QString("");
                 for (const auto& iName : itemNames[i])
                 {
-                    auto optionItem = caf::PdmOptionItemInfo(iName, iName + itemPostfix);
+                    QString displayName;
+
+                    if (isVectorField)
+                    {
+                        std::string descriptiveName = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(iName);
+                        displayName = QString::fromStdString(descriptiveName);
+                        displayName += QString(" [%1]").arg(QString::fromStdString(iName));
+                    }
+                    else
+                    {
+                        displayName = QString::fromStdString(iName);
+                    }
+
+                    auto optionItem = caf::PdmOptionItemInfo(displayName, QString::fromStdString(iName) + itemPostfix);
                     if (groupItems)
                         optionItem.setLevel(1);
                     options.push_back(optionItem);
