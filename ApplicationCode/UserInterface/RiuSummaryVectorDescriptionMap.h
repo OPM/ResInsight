@@ -19,20 +19,23 @@
 #pragma once
 
 #include <map>
+#include <string>
 
-class QString;
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RiuSummaryVectorDescriptionMap
 {
 public:
     static RiuSummaryVectorDescriptionMap* instance();
 
-    QString fieldInfo(const QString &field);
+    std::string fieldInfo(const std::string& field);
 
 private:
     RiuSummaryVectorDescriptionMap();
     void populateFieldToInfoMap();
 
 private:
-    std::map<QString, QString> m_summaryToDescMap;
+    std::map<std::string, std::string> m_summaryToDescMap;
 };
