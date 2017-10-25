@@ -559,7 +559,10 @@ void RigAccWellFlowCalculator::addDownStreamBranchFlow(std::vector<double> *accF
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigAccWellFlowCalculator::storeFlowOnDepth(BranchFlow* branchFlow, double depthValue, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer)
+void RigAccWellFlowCalculator::storeFlowOnDepth(BranchFlow* branchFlow, 
+                                                double depthValue, 
+                                                const std::vector<double>& accFlowPrTracer, 
+                                                const std::vector<double>& flowPrTracer)
 {
     size_t tracerIdx = 0;
     for ( const auto & tracerName: m_tracerNames )
@@ -575,7 +578,11 @@ void RigAccWellFlowCalculator::storeFlowOnDepth(BranchFlow* branchFlow, double d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigAccWellFlowCalculator::storeFlowOnDepthWTvd(BranchFlow *branchFlow, double depthValue, double trueVerticalDepth, const std::vector<double>& accFlowPrTracer, const std::vector<double>& flowPrTracer)
+void RigAccWellFlowCalculator::storeFlowOnDepthWTvd(BranchFlow *branchFlow, 
+                                                    double depthValue, 
+                                                    double trueVerticalDepth, 
+                                                    const std::vector<double>& accFlowPrTracer, 
+                                                    const std::vector<double>& flowPrTracer)
 {
     size_t tracerIdx = 0;
     for ( const auto & tracerName: m_tracerNames )

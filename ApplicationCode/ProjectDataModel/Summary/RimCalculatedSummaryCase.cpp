@@ -54,7 +54,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 RimCalculatedSummaryCase::RimCalculatedSummaryCase()
 {
-    CAF_PDM_InitObject("Calculated Summary Case",":/SummaryCase48x48.png","","");
+    CAF_PDM_InitObject("Calculated",":/SummaryCase48x48.png","","");
 
     m_calculatedCurveReader = nullptr;
 }
@@ -71,7 +71,7 @@ RimCalculatedSummaryCase::~RimCalculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 QString RimCalculatedSummaryCase::caseName()
 {
-    return "Calculated Summary Case";
+    return "Calculated";
 }
 
 //--------------------------------------------------------------------------------------------------

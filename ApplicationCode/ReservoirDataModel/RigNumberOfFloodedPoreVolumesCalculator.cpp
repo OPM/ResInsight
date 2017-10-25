@@ -266,7 +266,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
         for (size_t cellResultIndex = 0; cellResultIndex < resultCellCount; cellResultIndex++)
         {
             CellQwIn[cellResultIndex] = cellQwInAtAllTimeSteps[timeStep - 1][cellResultIndex]
-                + (totoalFlowrateIntoCell[cellResultIndex]) * deltaT;
+                                     + (totoalFlowrateIntoCell[cellResultIndex]) * deltaT;
         }
         cellQwInAtAllTimeSteps.push_back(CellQwIn);
 
@@ -291,7 +291,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate(RigMainGrid* mainGrid,
             }
 
             cumWinflowPV[cellResultIndex] = cellQwInAtAllTimeSteps[timeStep][cellResultIndex]
-                / scaledPoreVolume;
+                                            / scaledPoreVolume;
         }
         m_cumWinflowPVAllTimeSteps.push_back(cumWinflowPV);
     }
