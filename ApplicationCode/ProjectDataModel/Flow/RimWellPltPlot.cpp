@@ -51,6 +51,8 @@
 
 CAF_PDM_SOURCE_INIT(RimWellPltPlot, "WellPltPlot"); 
 
+namespace caf
+{
 template<>
 void caf::AppEnum< RimWellPltPlot::FlowType>::setUp()
 {
@@ -64,6 +66,7 @@ void caf::AppEnum< RimWellPltPlot::FlowPhase>::setUp()
     addItem(RimWellPltPlot::PHASE_OIL, "PHASE_OIL", "Oil");
     addItem(RimWellPltPlot::PHASE_GAS, "PHASE_GAS", "Gas");
     addItem(RimWellPltPlot::PHASE_WATER, "PHASE_WATER", "Water");
+}
 }
 
 const QString RimWellPltPlot::OIL_CHANNEL_NAME = "QOZT";

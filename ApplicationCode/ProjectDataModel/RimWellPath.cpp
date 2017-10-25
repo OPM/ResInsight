@@ -655,7 +655,7 @@ void RimWellPath::addWellLogFile(RimWellLogFile* logFileInfo)
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::removeWellLogFile(const RimWellLogFile* logFileInfo)
 {
-    for (int i = 0; i < m_wellLogFiles.size(); i++)
+    for (size_t i = 0; i < m_wellLogFiles.size(); i++)
     {
         if (m_wellLogFiles[i] == logFileInfo)
         {
