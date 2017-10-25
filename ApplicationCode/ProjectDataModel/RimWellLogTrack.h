@@ -22,14 +22,20 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
+#include "cvfCollection.h"
+#include "cafPdmPtrField.h"
 
 #include <QPointer>
 
 #include <vector>
 
-class RimWellLogCurve;
-class RiuWellLogTrack;
+class RigWellPath;
+class RimCase;
 class RimWellFlowRateCurve;
+class RimWellLogCurve;
+class RimWellPath;
+class RiuPlotAnnotationTool;
+class RiuWellLogTrack;
 
 class QwtPlotCurve;
 
@@ -43,6 +49,8 @@ class RimWellLogTrack : public caf::PdmObject
 public:
     RimWellLogTrack();
     virtual ~RimWellLogTrack();
+
+    enum TrajectoryType { WELL_PATH, SIMULATION_WELL };
 
     void setDescription(const QString& description);
     bool isVisible();
@@ -73,24 +81,27 @@ public:
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();
 
-
 protected:
+
     // Overridden PDM methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
+    void updateGeneratedSimulationWellpath();
 
-    virtual caf::PdmFieldHandle* objectToggleField();
-    virtual caf::PdmFieldHandle* userDescriptionField();
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual caf::PdmFieldHandle* objectToggleField() override;
+    virtual caf::PdmFieldHandle* userDescriptionField() override;
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
+    void clearGeneratedSimWellPaths();
+    void updateFormationNamesOnPlot();
+    void removeFormationNames();
     void updateAxisScaleEngine();
 
 private:
     QString m_xAxisTitle;
-
-    // Fields
 
     caf::PdmField<bool> m_show;
     caf::PdmField<QString> m_userName;
@@ -100,5 +111,17 @@ private:
     caf::PdmField<bool>   m_isAutoScaleXEnabled;
     caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
 
+    caf::PdmField<bool>                             m_showFormations;
+    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmField<caf::AppEnum<TrajectoryType> >    m_trajectoryType;
+    caf::PdmPtrField<RimWellPath*>                  m_wellPath;
+    caf::PdmField<QString>                          m_simWellName;
+    caf::PdmField<int>                              m_branchIndex;
+
+    cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
+
+
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
+    
+    RiuPlotAnnotationTool* m_annotationTool;
 };

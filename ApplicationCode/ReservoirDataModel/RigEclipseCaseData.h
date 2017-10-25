@@ -35,6 +35,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 
 class RigCaseCellResultsData;
 class RigFormationNames;
@@ -82,6 +83,7 @@ public:
 
     void                                        setSimWellData(const cvf::Collection<RigSimWellData>& data);
     const cvf::Collection<RigSimWellData>&      wellResults() const { return m_simWellData; }
+    std::set<QString>                           findSortedWellNames() const;
     const RigSimWellData*                       findSimWellData(QString wellName) const;
     
     const cvf::UByteArray*                      wellCellsInGrid(size_t gridIndex);

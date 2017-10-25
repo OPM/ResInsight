@@ -21,18 +21,22 @@
 #include <QString>
 
 #include "qwt_plot.h"
+#include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& names, const std::vector<double> yPositions)
+void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions)
 {
+    detachAllAnnotations();
     if (names.size() != yPositions.size()) return;
 
     QPen curvePen;
     curvePen.setStyle(Qt::DashLine);
-    curvePen.setColor(Qt::gray);
+    curvePen.setColor(Qt::blue);
     curvePen.setWidth(1);
+
+    double delta = 0.5;
 
     for (size_t i = 0; i < names.size(); i++)
     {
@@ -40,13 +44,29 @@ void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& nam
    
         line->setLineStyle(QwtPlotMarker::HLine);
         line->setLinePen(curvePen);
-        line->setYValue(yPositions[i]);
-        line->setLabel(names[i]);
-        line->setLabelAlignment(Qt::AlignLeft | Qt::AlignBottom);
+        line->setYValue(yPositions[i].first);
+        QString name = "Top ";
+        name += names[i];
+
+        line->setLabel(name);
+        line->setLabelAlignment(Qt::AlignRight | Qt::AlignBottom);
 
         line->attach(m_plot);
 
         m_markers.push_back(std::move(line));
+
+        if ((i == names.size() - 1) || cvf::Math::abs(yPositions[i].second - yPositions[i+1].first) > delta)
+        {
+            std::unique_ptr<QwtPlotMarker> line(std::make_unique<QwtPlotMarker>());
+
+            line->setLineStyle(QwtPlotMarker::HLine);
+            line->setLinePen(curvePen);
+            line->setYValue(yPositions[i].second);
+            
+            line->attach(m_plot);
+
+            m_markers.push_back(std::move(line));
+        }
     }
 }
 

@@ -270,6 +270,23 @@ void RigEclipseCaseData::setSimWellData(const cvf::Collection<RigSimWellData>& d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::set<QString> RigEclipseCaseData::findSortedWellNames() const
+{
+    std::set<QString> sortedWellNames;
+
+    const cvf::Collection<RigSimWellData>& simWellData = wellResults();
+
+    for (size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx)
+    {
+        sortedWellNames.insert(simWellData[wIdx]->m_wellName);
+    }
+
+    return sortedWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const RigSimWellData* RigEclipseCaseData::findSimWellData(QString wellName) const
 {
     for (size_t wIdx = 0; wIdx < m_simWellData.size(); ++wIdx)
@@ -616,7 +633,7 @@ void RigEclipseCaseData::setActiveFormationNames(RigFormationNames* activeFormat
 
     size_t totalGlobCellCount = m_mainGrid->globalCellArray().size();
     size_t resIndex = m_matrixModelResults->addStaticScalarResult(RiaDefines::FORMATION_NAMES, 
-                                                                  "Active Formation Names", 
+                                                                  RiaDefines::activeFormationNamesResultName(), 
                                                                   false, 
                                                                   totalGlobCellCount);
 

@@ -81,6 +81,7 @@ namespace RiaDefines
     QString mockModelCustomized();
     QString mockModelBasicInputCase();
 
+    QString activeFormationNamesResultName();
 
     //Units and conversions
     enum DepthUnitType

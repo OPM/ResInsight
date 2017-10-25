@@ -31,7 +31,7 @@ class RiuPlotAnnotationTool
 public:
     RiuPlotAnnotationTool(QwtPlot* plot) : m_plot(plot) {};
 
-    void attachFormationNames(const std::vector<QString>& names, const std::vector<double> yPositions);
+    void attachFormationNames(const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions);
     void detachAllAnnotations();
 
 private:
