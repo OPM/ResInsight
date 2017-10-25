@@ -909,14 +909,31 @@ RimWellPath* RimProject::wellPathFromSimulationWell(const QString& simWellName, 
         auto wellPathColl = oilField->wellPathCollection();
         for (const auto& path : wellPathColl->wellPaths)
         {
-            if (QString::compare(path->relatedSimulationWell(), simWellName) == 0 &&
-                (branchIndex < 0 || path->relatedSimulationWellBranch() == branchIndex))
+            if (QString::compare(path->associatedSimulationWell(), simWellName) == 0 &&
+                (branchIndex < 0 || path->associatedSimulationWellBranch() == branchIndex))
             {
                 return path;
             }
         }
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPath*> RimProject::allWellPaths() const
+{
+    std::vector<RimWellPath*> paths;
+    for (const auto& oilField : oilFields())
+    {
+        auto wellPathColl = oilField->wellPathCollection();
+        for (const auto& path : wellPathColl->wellPaths)
+        {
+            paths.push_back(path);
+        }
+    }
+    return paths;
 }
 
 //--------------------------------------------------------------------------------------------------

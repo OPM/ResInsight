@@ -316,9 +316,22 @@ QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions(const caf::PdmF
     if (fieldNeedingOptions == &m_simWellName)
     {
         RimProject* proj = RiaApplication::instance()->project();
+
+        // Find simulation wells already assigned to a well path
+        std::set<QString> associatedSimWells;
+        for (const auto& wellPath : proj->allWellPaths())
+        {
+            if (wellPath->isAssociatedWithSimulationWell() && wellPath != this)
+            {
+                associatedSimWells.insert(wellPath->associatedSimulationWell());
+            }
+        }
+
         options.push_back(caf::PdmOptionItemInfo(SIM_WELL_NONE_UI_TEXT, ""));
         for (const auto& wellName : proj->simulationWellNames())
         {
+            if (associatedSimWells.count(wellName) > 0) continue;
+
             options.push_back(caf::PdmOptionItemInfo(wellName, wellName));
         }
     }
@@ -655,7 +668,7 @@ RimWellPath* RimWellPath::fromFilePath(QString filePath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString RimWellPath::relatedSimulationWell() const
+const QString RimWellPath::associatedSimulationWell() const
 {
     return m_simWellName;
 }
@@ -663,7 +676,7 @@ const QString RimWellPath::relatedSimulationWell() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-int RimWellPath::relatedSimulationWellBranch() const
+int RimWellPath::associatedSimulationWellBranch() const
 {
     return m_branchIndex;
 }
