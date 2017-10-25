@@ -66,12 +66,12 @@ bool RicNewPltPlotFeature::isCommandEnabled()
         RimEclipseResultCase* eclCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseResultCase*>();
         if (simWell != nullptr)
         {
-            enable &= RimWellPltPlot::hasPressureData(eclCase);
+            enable &= RimWellPltPlot::hasFlowData(eclCase);
         }
     }
     else if (rimWellPath)
     {
-        enable &= RimWellPltPlot::hasPressureData(rimWellPath);
+        enable &= RimWellPltPlot::hasFlowData(rimWellPath);
     }
     return enable;
 }
@@ -110,7 +110,7 @@ void RicNewPltPlotFeature::onActionTriggered(bool isChecked)
         pltPlotColl->addPlot(pltPlot);
         pltPlot->setDescription(plotName);
 
-        pltPlot->applyInitialSelections();
+        //pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();
         pltPlotColl->updateConnectedEditors();
 

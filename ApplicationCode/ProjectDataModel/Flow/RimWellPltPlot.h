@@ -20,6 +20,7 @@
 
 
 #include "RimViewWindow.h"
+#include "RigFlowDiagResultAddress.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -41,6 +42,8 @@ class RimWellLogFileChannel;
 class RimWellLogPlot;
 class RimWellPath;
 class RiuWellPltPlot;
+class RimWellLogTrack;
+
 
 namespace cvf {
     class Color3f;
@@ -59,7 +62,15 @@ class RimWellPltPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 
-    static const char PRESSURE_DATA_NAME[];
+    enum FlowType { FLOW_TYPE_TOTAL, FLOW_TYPE_PHASE_SPLIT };
+    enum FlowPhase { PHASE_NONE, PHASE_OIL, PHASE_GAS, PHASE_WATER, PHASE_TOTAL };
+
+    static const QString OIL_CHANNEL_NAME;
+    static const QString GAS_CHANNEL_NAME;
+    static const QString WATER_CHANNEL_NAME;
+    static const QString TOTAL_CHANNEL_NAME;
+
+    static const std::set<QString> FLOW_DATA_NAMES;
     static const char PLOT_NAME_QFORMAT_STRING[];
 
 public:
@@ -79,13 +90,13 @@ public:
     void                                            setCurrentWellName(const QString& currWellName);
     QString                                         currentWellName() const;
 
-    static bool                                     hasPressureData(const RimWellLogFile* wellLogFile);
-    static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
-    static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
-    static bool                                     hasPressureData(RimWellPath* wellPath);
+    static bool                                     hasFlowData(const RimWellLogFile* wellLogFile);
+    static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
+    static bool                                     hasFlowData(RimEclipseResultCase* gridCase);
+    static bool                                     hasFlowData(RimWellPath* wellPath);
     static const char*                              plotNameFormatString();
 
-    void                                            applyInitialSelections();
+    //void                                            applyInitialSelections();
 
 protected:
     // Overridden PDM methods
@@ -98,6 +109,7 @@ protected:
 
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
     void                                            addTimeStepToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
@@ -112,16 +124,16 @@ private:
 
     void                                            syncCurvesFromUiSelection();
 
-    std::vector<RimWellLogFile*>                    wellLogFilesContainingPressure(const QString& wellName) const;
-    RimWellLogFileChannel*                          getPressureChannelFromWellFile(const RimWellLogFile* wellLogFile) const;
+    std::vector<RimWellLogFile*>                    wellLogFilesContainingFlow(const QString& wellName) const;
+    std::vector<RimWellLogFileChannel*>             getFlowChannelsFromWellFile(const RimWellLogFile* wellLogFile) const;
 
     RimWellPath*                                    wellPathFromWellLogFile(const RimWellLogFile* wellLogFile) const;
     
-    std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
-    std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
+    //std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
+    //std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    //std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
+    //std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
+    //std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
     std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const;
     std::map<QDateTime, std::set<RimWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>& allTimeSteps, 
                                                                        const std::pair<QDateTime, std::set<RimWellRftAddress>>& searchTimeStepPair);
@@ -130,9 +142,12 @@ private:
     std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
     std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
     std::pair<RimWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
-    void                                            updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& allCurveDefs,
-                                                                       const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefsToAdd,
-                                                                       const std::set<RimWellLogCurve*>& curvesToDelete);
+    void                                            updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefs);
+    void                                            addStackedCurve(const QString& tracerName,
+                                                                    const std::vector<double>& depthValues,
+                                                                    const std::vector<double>& accFlow,
+                                                                    RimWellLogTrack* plotTrack);
+
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RimWellRftAddress>& addresses) const;
     std::vector<RimWellRftAddress>                  selectedSources() const;
@@ -142,8 +157,11 @@ private:
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
 
-    void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
+    //void                                            applyCurveAppearance(RimWellLogCurve* newCurve);
     void                                            updateSelectedTimeStepsFromSelectedSources();
+    static FlowPhase                                flowPhaseFromChannelName(const QString& channelName);
+    void                                            setPlotXAxisTitles(RimWellLogTrack* plotTrack);
+    std::vector<RimEclipseCase*>                    eclipseCases() const;
 
 private:
     caf::PdmField<bool>                             m_showPlotTitle;
@@ -161,5 +179,6 @@ private:
 
     std::map<QDateTime, std::set<RimWellRftAddress>> m_timeStepsToAddresses;
 
-    bool m_selectedSourcesOrTimeStepsFieldsChanged;
+    caf::PdmField<caf::AppEnum<FlowType>>               m_phaseSelectionMode;
+    caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
 };

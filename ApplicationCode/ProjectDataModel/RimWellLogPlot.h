@@ -32,6 +32,7 @@
 class RiuWellLogPlot;
 class RimWellLogTrack;
 class RimWellRftPlot;
+class RimWellPltPlot;
 
 
 //==================================================================================================
@@ -104,6 +105,8 @@ public:
 
     RimWellRftPlot*                                 rftPlot() const;
     bool                                            isRftPlotChild() const;
+    RimWellPltPlot*                                 pltPlot() const;
+    bool                                            isPltPlotChild() const;
 
 protected:
 

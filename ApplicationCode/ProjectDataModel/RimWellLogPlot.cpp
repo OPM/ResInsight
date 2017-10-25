@@ -26,6 +26,8 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogTrack.h"
+#include "RimWellRftPlot.h"
+#include "RimWellPltPlot.h"
 
 #include "RiuMainPlotWindow.h"
 #include "RiuWellLogPlot.h"
@@ -34,7 +36,6 @@
 #include "cvfAssert.h"
 
 #include <math.h>
-#include "RimWellRftPlot.h"
 
 #define RI_LOGPLOT_MINDEPTH_DEFAULT 0.0
 #define RI_LOGPLOT_MAXDEPTH_DEFAULT 1000.0
@@ -506,6 +507,24 @@ bool RimWellLogPlot::isRftPlotChild() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimWellPltPlot* RimWellLogPlot::pltPlot() const
+{
+    RimWellPltPlot* pltPlot;
+    firstAncestorOrThisOfType(pltPlot);
+    return pltPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogPlot::isPltPlotChild() const
+{
+    return pltPlot() != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const
 {
     *minimumDepth = m_minVisibleDepth;
@@ -813,6 +832,11 @@ void RimWellLogPlot::updateDisabledDepthTypes()
     {
         m_disabledDepthTypes.insert(MEASURED_DEPTH);
         m_disabledDepthTypes.insert(PSEUDO_LENGTH);
+        m_disabledDepthTypes.insert(CONNECTION_NUMBER);
+    }
+    else if (isPltPlotChild())
+    {
+        m_disabledDepthTypes.insert(TRUE_VERTICAL_DEPTH);
         m_disabledDepthTypes.insert(CONNECTION_NUMBER);
     }
     else
