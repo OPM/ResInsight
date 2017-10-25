@@ -65,7 +65,7 @@ public:
     virtual ~RimWellPath();
 
     void                                addWellLogFile(RimWellLogFile* logFileInfo);
-    void                                removeWellLogFile(const RimWellLogFile* logFileInfo);
+    void                                deleteWellLogFile(RimWellLogFile* logFileInfo);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();

@@ -53,7 +53,7 @@ void RicWellLogFileCloseFeature::onActionTriggered(bool isChecked)
 
         if (parentWellPath != nullptr)
         {
-            parentWellPath->removeWellLogFile(wellLogFile);
+            parentWellPath->deleteWellLogFile(wellLogFile);
         }
         parentWellPath->updateConnectedEditors();
     }
