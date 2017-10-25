@@ -19,6 +19,6 @@ TEST(RiuSummaryVectorDescriptionMap, TestInit)
         std::string s("does not exist");
         auto test = RiuSummaryVectorDescriptionMap::instance()->fieldInfo(s);
 
-        EXPECT_TRUE(test.size() == 0);
+        EXPECT_TRUE(test == s);
     }
 }
