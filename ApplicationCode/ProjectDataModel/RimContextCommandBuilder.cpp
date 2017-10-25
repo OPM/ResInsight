@@ -574,6 +574,14 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicWellPathDeleteFeature";
     }
 
+    if (caf::CmdFeatureManager::instance()->getCommandFeature("RicWellLogFileCloseFeature")->canFeatureBeExecuted())
+    {
+        // Special delete command for Well paths
+        // Placed here to fit context menu location of general delete feature
+        commandIds << "Separator";
+        commandIds << "RicWellLogFileCloseFeature";
+    }
+
     if ( caf::CmdFeatureManager::instance()->getCommandFeature("RicCloseCaseFeature")->canFeatureBeExecuted() )
     {
         commandIds << "Separator";

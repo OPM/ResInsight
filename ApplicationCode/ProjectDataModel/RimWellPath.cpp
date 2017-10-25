@@ -653,6 +653,21 @@ void RimWellPath::addWellLogFile(RimWellLogFile* logFileInfo)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPath::removeWellLogFile(const RimWellLogFile* logFileInfo)
+{
+    for (int i = 0; i < m_wellLogFiles.size(); i++)
+    {
+        if (m_wellLogFiles[i] == logFileInfo)
+        {
+            m_wellLogFiles.erase(i);
+            break;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPath::fromFilePath(QString filePath)
 {
     RimWellLogFile* logFileInfo = RimWellLogFile::readWellLogFile(filePath);
