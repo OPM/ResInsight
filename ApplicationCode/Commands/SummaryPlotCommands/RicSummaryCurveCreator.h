@@ -94,8 +94,7 @@ private:
     void                                    selectionEditorFieldChanged();
 
 private:
-
-    caf::PdmPtrField<RiuSummaryCurveDefSelection*>                                                      m_selectionEditor;
+    caf::PdmPointer<RiuSummaryCurveDefSelection>                                                      m_selectionEditor;
 
     caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
     

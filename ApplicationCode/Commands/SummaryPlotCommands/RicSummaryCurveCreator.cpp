@@ -61,8 +61,6 @@ CAF_PDM_SOURCE_INIT(RicSummaryCurveCreator, "RicSummaryCurveCreator");
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::RicSummaryCurveCreator()
 {
-    CAF_PDM_InitFieldNoDefault(&m_selectionEditor, "SelectionEditor", "Selection Editor", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_targetPlot, "TargetPlot", "Target Plot", "", "", "");
 
     CAF_PDM_InitField(&m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "");
@@ -662,7 +660,6 @@ void RicSummaryCurveCreator::setCurveDefSelectionObject(RiuSummaryCurveDefSelect
     m_selectionEditor = curveDefSelection;
     m_selectionEditor->setFieldChangedHandler([this]() { this->selectionEditorFieldChanged(); });
     m_selectionEditor->setMultiSelectionMode(true);
-    m_selectionEditor.uiCapability()->setUiTreeChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
