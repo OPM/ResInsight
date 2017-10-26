@@ -144,6 +144,8 @@ RiuSummaryCurveDefSelection::RiuSummaryCurveDefSelection() : m_identifierFieldsM
 })
 {
     CAF_PDM_InitFieldNoDefault(&m_selectedCases, "SummaryCases", "Cases", "", "", "");
+    m_selectedCases.uiCapability()->setAutoAddingOptionFromValue(false);
+
 
     CAF_PDM_InitFieldNoDefault(&m_currentSummaryCategory, "CurrentSummaryCategory", "Current Summary Category", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedSummaryCategories, "SelectedSummaryCategories", "Summary Categories", "", "", "");
