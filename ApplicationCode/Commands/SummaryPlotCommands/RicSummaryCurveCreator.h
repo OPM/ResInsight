@@ -31,6 +31,8 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
+#include <memory>
+
 
 #define OBSERVED_DATA_AVALUE_POSTFIX    "_OBSDATA"
 
@@ -54,7 +56,7 @@ public:
     RicSummaryCurveCreator();
     virtual ~RicSummaryCurveCreator();
 
-    RimSummaryPlot*                         previewPlot() { return m_previewPlot;}
+    RimSummaryPlot*                         previewPlot() const;
     void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot);
 
     bool                                    isCloseButtonPressed() const;
@@ -94,23 +96,23 @@ private:
     void                                    selectionEditorFieldChanged();
 
 private:
-    caf::PdmPointer<RiuSummaryCurveDefSelection>                                                      m_selectionEditor;
+    caf::PdmPointer<RiuSummaryCurveDefSelection>    m_selectionEditor;
 
-    caf::PdmPtrField<RimSummaryPlot*>                                                                   m_targetPlot;
+    caf::PdmPtrField<RimSummaryPlot*>               m_targetPlot;
     
-    RimSummaryPlot*                                                                                     m_previewPlot;
+    std::unique_ptr<RimSummaryPlot>                 m_previewPlot;
 
-    caf::PdmField<bool>                                                                                 m_useAutoAppearanceAssignment;
-    caf::PdmField<bool>                                                                                 m_appearanceApplyButton;
-    caf::PdmField< AppearanceTypeAppEnum >                                                              m_caseAppearanceType;
-    caf::PdmField< AppearanceTypeAppEnum >                                                              m_variableAppearanceType;
-    caf::PdmField< AppearanceTypeAppEnum >                                                              m_wellAppearanceType;
-    caf::PdmField< AppearanceTypeAppEnum >                                                              m_groupAppearanceType;
-    caf::PdmField< AppearanceTypeAppEnum >                                                              m_regionAppearanceType;
+    caf::PdmField<bool>                             m_useAutoAppearanceAssignment;
+    caf::PdmField<bool>                             m_appearanceApplyButton;
+    caf::PdmField< AppearanceTypeAppEnum >          m_caseAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >          m_variableAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >          m_wellAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >          m_groupAppearanceType;
+    caf::PdmField< AppearanceTypeAppEnum >          m_regionAppearanceType;
 
-    caf::PdmChildField<RimSummaryCurveAutoName*>                                                        m_curveNameConfig;
+    caf::PdmChildField<RimSummaryCurveAutoName*>    m_curveNameConfig;
 
-    caf::PdmField<bool> m_okButtonField;
-    caf::PdmField<bool> m_applyButtonField;
-    caf::PdmField<bool> m_closeButtonField;
+    caf::PdmField<bool>                             m_okButtonField;
+    caf::PdmField<bool>                             m_applyButtonField;
+    caf::PdmField<bool>                             m_closeButtonField;
 };

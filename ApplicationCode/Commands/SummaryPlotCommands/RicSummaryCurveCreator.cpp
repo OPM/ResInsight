@@ -71,7 +71,7 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
     CAF_PDM_InitFieldNoDefault(&m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "");
 
-    m_previewPlot = new RimSummaryPlot();
+    m_previewPlot.reset(new RimSummaryPlot());
     m_previewPlot->setShowDescription(false);
 
     CAF_PDM_InitFieldNoDefault(&m_applyButtonField, "ApplySelection", "", "", "", "");
@@ -104,7 +104,14 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCreator::~RicSummaryCurveCreator()
 {
-    delete m_previewPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicSummaryCurveCreator::previewPlot() const
+{
+    return m_previewPlot.get();
 }
 
 //--------------------------------------------------------------------------------------------------
