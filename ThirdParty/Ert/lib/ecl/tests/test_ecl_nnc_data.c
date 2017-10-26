@@ -31,6 +31,8 @@
 
 
 
+
+
 void test_alloc_global_only(bool data_in_file) {
    test_work_area_type * work_area = test_work_area_alloc("nnc-INIT");
    {
@@ -66,10 +68,11 @@ void test_alloc_global_only(bool data_in_file) {
          ecl_file_view_type * view_file = ecl_file_get_global_view( init_file );       
          
          ecl_nnc_data_type * nnc_geo_data = ecl_nnc_data_alloc_tran(grid0, nnc_geo, view_file);
-         int nnc_data_size = ecl_nnc_data_get_size( nnc_geo_data );
+         
 
          if (data_in_file) {
-
+    
+            int nnc_data_size = ecl_nnc_data_get_size( nnc_geo_data );
             test_assert_true( ecl_file_view_has_kw( view_file, TRANNNC_KW) );
             test_assert_true(nnc_data_size == 3);
             const double * values = ecl_nnc_data_get_values( nnc_geo_data );
@@ -78,9 +81,10 @@ void test_alloc_global_only(bool data_in_file) {
             test_assert_double_equal(values[2] , 3.0);
          }
          else
-            test_assert_true(nnc_data_size == 0);
+            test_assert_NULL(nnc_geo_data);
          
-         ecl_nnc_data_free( nnc_geo_data );
+         if (data_in_file)
+           ecl_nnc_data_free( nnc_geo_data );
          ecl_nnc_geometry_free( nnc_geo );
          ecl_file_close(init_file);
       }

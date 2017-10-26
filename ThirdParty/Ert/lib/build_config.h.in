@@ -30,6 +30,9 @@
 #cmakedefine HAVE_CXX_SHARED_PTR
 #cmakedefine HAVE_POSIX_UNLINK
 #cmakedefine HAVE_WINDOWS_UNLINK
+#cmakedefine HAVE_NETINET_IN_H
+#cmakedefine HAVE_ARPA_INET_H
+#cmakedefine HAVE_WINSOCK2_H
 
 
 #cmakedefine HAVE_WINDOWS_GET_TEMP_PATH
@@ -62,5 +65,3 @@
 #endif
 #endif
 #endif
-
-

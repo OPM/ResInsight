@@ -1,0 +1,268 @@
+Source:
+kw_magic: K
+Schlum  : S
+Decrypt : D
+
+INTEHEAD
+INDEX           SOURCE  VALUE
+0               S/D     ISNUM = Time encoded number
+1               D       201601
+2               K/S     units type = 1 (METRIC), 2 (FIELD), 3 (LAB), 4 (PVT-M)
+3               D       CONSTANT, -2345
+4               D       CONSTANT, -2345        
+5               D       CONSTANT, -2345
+6               D       CONSTANT, -2345
+7               D       CONSTANT, -2345
+8               K/S     NX, cells in x dimension
+9               K/S     NY, cells in y dimension
+10              K/S     NZ, cells in z dimenstion
+11              K/S     NACTIV, number of active cells
+12              -       -
+13              -       -
+14              K/S     IPHS, intehead phase indicator
+15              D       CONSTANT, -2345
+16              K/S     NWELLS=number of wells
+17              K/S     NCWMAX=maximum number of completions per wells
+18              -       -
+19              K/S     NWGMAX=maximum number of wells in any well group
+20              K/S     NGMAXZ=maximum number of groups in field
+21              D       CONSTANT, 0
+22              D       CONSTANT, 0
+23              D       CONSTANT, 0
+24              K/S     NWELZ=number of data elements per well in IWEL array
+25              K/S     NSWELZ=number of data elements per well in SWEL array
+26              K/S     NXWELZ=number of data elements per well in XWEL array
+27              K/S     NZWELZ=number of data elements per well in ZWEL array
+28              -       -
+29              -       -
+30              D       CONSTANT, 1
+31              D       CONSTANT, -2345
+32              K/S     NICONZ=number of elements in ICON array
+33              K/S     NSCONZ=number of elements in SCON array
+34              K/S     NXCONZ=number of elements in XCON array
+35              D       CONSTANT, -2345
+36              K/S     NIGRPZ=number of data elements per group in IGRP array
+37              S       NSGRPZ=number of data elements per group in SGRP array
+38              S       NXGRPZ=number of data elements per group in XGRP array
+39              S       NZGRPZ=number of data elements per group in ZGRP array
+40              D       CONSTANT, 0
+41              S       NCAMAX=maximum number of analytic aquifer connections
+42              S       NIAAQZ=number of data elements per aquifer in IAAQ array
+43              S       NSAAQZ=number of data elements per aquifer in SAAQ array
+44              S       NXAAQZ=number of data elements per aquifer in XAAQ array
+45              S       NICAQZ=number of data elements per aquifer in ICAQ array
+46              S       NSCAQZ=number of data elements per aquifer in SCAQ array
+47              S       NXCAQZ=number of data elements per aquifer in XCAQ array
+48              D       CONSTANT, 0
+49              -       -
+50              D       CONSTANT, 1
+51              -       -
+52              D       CONSTANT, 0
+53              D       CONSTANT, 0
+54              D       CONSTANT, 0
+55              -       -
+56              D       CONSTANT, 0
+57              D       CONSTANT, 0
+58              D       CONSTANT, 0
+59              D       CONSTANT, 0
+60              D       CONSTANT, 0
+61              D       CONSTANT, 0
+62              D       CONSTANT, 0
+63              D       CONSTANT, 0
+64              K/S     IDAY
+65              K/S     IMON
+66              K/S     IYEAR
+67              D       Timestep
+68              D       Reportstep
+69              D       CONSTANT, 0
+70              D       CONSTANT, 1
+71              D       CONSTANT, 0
+72              D       CONSTANT, 0
+73              D       CONSTANT, 0
+74              -       -
+75              D       CONSTANT, 0
+76              -       -
+77              D       CONSTANT, 10
+78              D       CONSTANT 0
+79              -       -
+80              D       CONSTANT, 12
+81              D       CONSTANT,  1
+82              -       -
+83              D       CONSTANT, 1
+84              D       CONSTANT, -2345
+85              D       CONSTANT, -2345
+86              -       -
+87              D       CONSTANT, 8
+88              -       -
+89              -       -
+90              D       CONSTANT, 2
+91              D       CONSTANT, 3
+92              D       CONSTANT, 1
+93              D       CONSTANT, 2
+94              K/S     IPROG, simulation program identifier
+95              D       CONSTANT, 0
+96              -       -
+97              D       CONSTANT, 0
+98              D       CONSTANT, -17
+99              -       -
+100             D       0
+101             D       1
+102             D       0       
+103             D       1           
+104             D       0
+105             D       NX
+106             D       NY
+107             D       Number of cells
+108             -       -
+109             D       CONSTANT, 1
+110             D       CONSTANT, 1
+111             D       CONSTANT, 1
+112             D       CONSTANT, 1
+113             -       -
+114             -       -
+115             -       -
+116             D       CONSTANT, 25
+117             D       CONSTANT, 1
+118             D       CONSTANT, 0
+119             D       CONSTANT, 0
+120             D       CONSTANT, 0
+121             D       CONSTANT, 0
+122             D       CONSTANT, 0
+123             D       CONSTANT, 1
+124             D       CONSTANT, 1
+125             D       CONSTANT, 1
+126             D       CONSTANT, 0
+127             D       CONSTANT, 0
+128             -       -
+129             D       CONSTANT, 0
+130             D       CONSTANT, 0
+131             D       CONSTANT, 0
+132             D       CONSTANT, 0
+133             D       CONSTAND, 14
+134             D       CONSTAND, 11
+135             D       CONSTAND, 10
+136             D       CONSTAND, 17
+137             D       CONSTANT, 2
+138             D       CONSTANT, 1
+139             D       CONSTANT, 1
+140             D       CONSTANT, 1
+141             D       CONSTANT, 1
+142             -       -          
+143             D       CONSTANT, 1
+144             D       CONSTANT, 1
+145             D       CONSTANT, 1
+146             D       CONSTANT, 1
+147             D       CONSTANT, 1
+148             D       CONSTANT, 1
+149             -       -                  
+150             D       CONSTANT, 122
+151             D       CONSTANT, 0
+152             D       CONSTANT, 0
+153             D       CONSTANT, 0
+154             D       CONSTANT, 0
+155             D       CONSTANT, 0
+156             D       CONSTANT, 0
+157             D       CONSTANT, 50
+158             D       CONSTANT, 10
+159             D       CONSTANT, 4
+160             D       CONSTANT, 5
+161             D       CONSTANT, 9
+162             D       CONSTANT, 0
+163             -       -
+164             D       CONSTANT; 8
+165             D       CONSTANT; 8
+166             D       CONSTANT; 12
+167             D       CONSTANT; 1
+168             D       CONSTANT; 25
+169             D       CONSTANT; 1
+170             D       CONSTANT, -1073741823
+171             D       CONSTANT, -1073741823
+172             D       CONSTANT, -1073741823
+173             D       CONSTANT, -1073741823
+174             D       CONSTANT, 0
+175             D       CONSTANT, 1
+176             D       CONSTANT, 1
+177             D       CONSTANT, 1
+178             D       CONSTANT, 22
+179             -       -
+180             D       CONSTANT, 10
+181             D       CONSTANT, 1
+182             D       CONSTANT, 1
+183             D       CONSTANT, 1
+184             D       CONSTANT, 1
+185             -       -
+186             D       CONSTANT, 116
+187             D       CONSTANT, -1073741823
+188             D       CONSTANT, -1073741823
+189             D       CONSTANT, 0
+190             D       CONSTANT, 0
+191             D       CONSTANT, 130
+192             D       CONSTANT, 58
+193             D       CONSTANT, 180
+194             D       CONSTANT, 10
+195             D       CONSTANT, 0
+196             D       CONSTANT, 25
+197             D       CONSTANT, 155
+198             D       CONSTANT, 0
+199             D       CONSTANT, 0
+200             D       CONSTANT, 1
+201             -       -
+202             D       CONSTANT, 116
+203             D       CONSTANT, 0
+204             D       CONSTANT, 0
+205             D       CONSTANT, 0
+206             D       CONSTANT, 0
+207             D       CONSTANT, 0
+208             D       CONSTANT, 0
+209             D       CONSTANT, 1
+210             D       CONSTANT, 0
+211             -       -
+212             D       CONSTANT, 0
+213             D       CONSTANT, 0
+214             D       CONSTANT, 1
+215             D       CONSTANT, 0
+216             D       CONSTANT, 0
+217             D       CONSTANT, 1
+218             D       CONSTANT, 0
+219             D       Reportstep - 1
+220             D       CONSTANT, 12
+221             D       CONSTANT, 0
+222             D       CONSTANT, 0
+223             D       CONSTANT, 10
+224             D       CONSTANT, 13
+225             D       CONSTANT, 1
+226             D       CONSTANT, 0
+227             D       CONSTANT, 0
+228             D       CONSTANT, 0
+229             D       CONSTANT, 0
+230             D       CONSTANT, 2
+231             D       CONSTANT, 0
+232             D       CONSTANT, 0
+233             D       CONSTANT, 3600
+234             D       CONSTANT, 1
+235             D       CONSTANT, 0
+236             D       CONSTANT, 1
+237             D       CONSTANT, 10
+238             D       CONSTANT, 1
+239             D       CONSTANT, 10
+240             -       -
+241             D       CONSTANT, 1
+242             -       -
+
+287             D       Number of cells
+
+302-410         D       CONSTANT, -2345
+
+
+
+
+
+DOUBHEAD
+
+
+              
+     
+
+
+
+

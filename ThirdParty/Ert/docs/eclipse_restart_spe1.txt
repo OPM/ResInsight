@@ -1,0 +1,109 @@
+This files contains additional information about the structure of restart files generated in ECLIPSE. 
+
+This applies to the case spe1 in the opm-data repository. 
+
+INTEHEAD:
+0: Value based on computer time in which the file was written
+67: Timestep
+68: Report step
+219: Report step-1
+Values not described her or in ecl_kw_magic, are constant during simulation. 
+
+LOGIHEAD
+1: Set to true if RV values are calculated.
+86: does not impact solution
+Values not described her or in ecl_kw_magic, are constant during simulation. 
+
+DOUBHEAD:
+0: days
+21: EQUIL, item 1
+157: Reservoir mean pressure
+158: A double related to RS, but does not impact solution
+159: possibly related to RV, 0 if RV not set
+160: Start of simulation, 735979 days after year 0
+161: A whole number, value = 735979 + days
+(735979 / 365.25 = 2015.00007. 735979 = Number of days since year 0)
+Values not described her or in ecl_kw_magic, are constant during simulation. 
+
+IWEL:
+Changes during eclipse simulation. Reset to start values at restart stage does not impact solution. Related to the values:
+index: 7
+index: 8
+index: 23
+index: 141
+index: 154
+index: 178
+All values except 7, 8, 23 , 141 154 and 178 are constant during simulation. 
+Known IWELS in addition to ecl_kw_magic:
+0: PROD, X
+1: PROD, Y
+2: COMPDAT, 'PROD', item 4
+3: COMPDAT, 'PROD', item 5
+4: Number of completion connections
+7, Uncertain
+8: Uncertain
+15: 1 = Oil production, 3 = Gas production
+155: INJ, X
+156: INJ, Y
+157: COMPDAT, 'INJ', item 4
+158: COMPDAT, 'INJ', item 5
+159: Number of completion connections
+168: Uncertain
+
+SWEL:
+Mostly SWEL will contain the values:
+0
+1
++/-100000002004087734272, which are either missing entries in the .DATA file or settings. 
+Otherwise:
+0: WCONPROD, item 4, noentry = 100000002004087734272
+2: WCONPROD, item 6, noentry = 100000002004087734272
+6: WCONPROD, item 9
+9: WELSPECS, 'PROD', item 5
+54: same as index: 2
+55: same as index: 6
+122: WCONINJ, item 6
+124: WCONINJ, item 5
+128: WCONINJ, item 7
+131: WELSPECS, 'INJ', item 5
+176: same as index: 124
+177: same as index: 128
+During simulation spe1, SWEL is constant. 
+
+ICON:
+1: I coordinate
+2: J coordinate
+3: K coordinate
+4: Number of cells IF: I, J, K is are max. 
+During simulation spe1, ICON is constant. 
+
+
+These KS are unchanged during simulation (spe1):
+LOGIHEAD
+IGRP
+SGRP
+SWEL
+ZWLS
+ICON
+SCON
+
+
+KW that does not need to be present (can be removed):
+XGRP
+ZGRP
+XWEL
+IWLS
+XCON
+DLYTIM
+HIDDEN
+REGDIMS
+FIPFAMNA
+REGRPT
+
+note about STARTSOL:
+ECLIPSE may cause if error or bugs anything unknwon or unecessary is added after STARTSOL
+In spe1, there are some extra KWs after ENDSOL, and the TEMP and RV words, which should be removed. 
+If RV is calculated, Logihead indx: 1 should be set to true, if RV is not calculated, logihead,indx 1 should be set to false and RV should not be printed to solution. 
+
+
+

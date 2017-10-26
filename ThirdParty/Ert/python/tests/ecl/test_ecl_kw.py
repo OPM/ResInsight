@@ -1,27 +1,28 @@
 #!/usr/bin/env python
-#  Copyright (C) 2011  Statoil ASA, Norway. 
-#   
+#  Copyright (C) 2011  Statoil ASA, Norway.
+#
 #  The file 'test_kw.py' is part of ERT - Ensemble based Reservoir Tool.
-#   
-#  ERT is free software: you can redistribute it and/or modify 
-#  it under the terms of the GNU General Public License as published by 
-#  the Free Software Foundation, either version 3 of the License, or 
-#  (at your option) any later version. 
-#   
-#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
-#  WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-#  FITNESS FOR A PARTICULAR PURPOSE.   
-#   
-#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+#
+#  ERT is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  ERT is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.
+#
+#  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
 import os
 import random
 import numpy
 import warnings
 
-from ecl.ecl import EclKW, EclDataType, EclTypeEnum, EclFile, FortIO, EclFileFlagEnum , openFortIO
+from ecl.ecl import (EclKW, EclDataType, EclTypeEnum, EclFile, FortIO,
+                     EclFileFlagEnum, openFortIO)
 
-from ecl.test import ExtendedTestCase , TestAreaContext
+from ecl.test import ExtendedTestCase, TestAreaContext
 
 
 def copy_long():
@@ -36,17 +37,25 @@ def copy_offset():
 
 class KWTest(ExtendedTestCase):
 
+    def test_name(self):
+        kw = EclKW('TEST', 3, EclDataType.ECL_INT)
+        self.assertEqual(kw.name, 'TEST')
+        self.assertIn('TEST', repr(kw))
+        kw.name = 'SCHMEST'
+        self.assertEqual(kw.name, 'SCHMEST')
+        self.assertIn('SCHMEST', repr(kw))
+
     def test_min_max(self):
         kw = EclKW("TEST", 3, EclDataType.ECL_INT)
         kw[0] = 10
         kw[1] = 5
         kw[2] = 0
 
-        self.assertEqual( 10 , kw.getMax())
-        self.assertEqual( 0  , kw.getMin())
-        self.assertEqual( (0,10)  , kw.getMinMax())
+        self.assertEqual(10, kw.getMax())
+        self.assertEqual(0 , kw.getMin())
+        self.assertEqual((0,10) , kw.getMinMax())
 
-        
+
     def test_deprecated_datatypes(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
@@ -64,7 +73,7 @@ class KWTest(ExtendedTestCase):
             self.assertTrue(len(w) > 0)
             self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
 
-    def kw_test( self, data_type, data, fmt ):
+    def kw_test(self, data_type, data, fmt):
         name1 = "file1.txt"
         name2 = "file2.txt"
         kw = EclKW("TEST", len(data), data_type)
@@ -82,49 +91,49 @@ class KWTest(ExtendedTestCase):
             file2.write(fmt % d)
         file2.close()
         self.assertFilesAreEqual(name1, name2)
-        self.assertEqual( kw.data_type , data_type )
+        self.assertEqual(kw.data_type, data_type)
 
     def test_create(self):
         with self.assertRaises(ValueError):
-            EclKW( "ToGodDamnLong" , 100 , EclDataType.ECL_CHAR )
+            EclKW("ToGodDamnLong", 100, EclDataType.ECL_CHAR)
 
-    def test_sum( self ):
+    def test_sum(self):
         for ecl_type in [EclDataType.ECL_CHAR, EclDataType.ECL_STRING(42)]:
             kw_string = EclKW("STRING", 100, ecl_type)
             with self.assertRaises(ValueError):
                 kw_string.sum()
 
-        kw_int = EclKW( "INT" , 4 , EclDataType.ECL_INT )
+        kw_int = EclKW("INT", 4, EclDataType.ECL_INT)
         kw_int[0] = 1
         kw_int[1] = 2
         kw_int[2] = 3
         kw_int[3] = 4
-        self.assertEqual( kw_int.sum() , 10 )
+        self.assertEqual(kw_int.sum(), 10)
 
-        kw_d = EclKW( "D" , 4 , EclDataType.ECL_DOUBLE )
+        kw_d = EclKW("D", 4, EclDataType.ECL_DOUBLE)
         kw_d[0] = 1
         kw_d[1] = 2
         kw_d[2] = 3
         kw_d[3] = 4
-        self.assertEqual( kw_d.sum() , 10 )
+        self.assertEqual(kw_d.sum(), 10)
 
-        kw_f = EclKW( "F" , 4 , EclDataType.ECL_FLOAT )
+        kw_f = EclKW("F", 4, EclDataType.ECL_FLOAT)
         kw_f[0] = 1
         kw_f[1] = 2
         kw_f[2] = 3
         kw_f[3] = 4
-        self.assertEqual( kw_f.sum() , 10 )
+        self.assertEqual(kw_f.sum(), 10)
 
-        kw_b = EclKW( "F" , 4 , EclDataType.ECL_BOOL )
+        kw_b = EclKW("F", 4, EclDataType.ECL_BOOL)
         kw_b[0] = False
         kw_b[1] = True
         kw_b[2] = False
         kw_b[3] = True
-        self.assertEqual( kw_b.sum() , 2 )
+        self.assertEqual(kw_b.sum(), 2)
 
 
 
-    def test_fprintf( self ):
+    def test_fprintf(self):
         with TestAreaContext("python.ecl_kw"):
             self.kw_test(EclDataType.ECL_INT, [0, 1, 2, 3, 4, 5], "%4d\n")
             self.kw_test(EclDataType.ECL_FLOAT, [0.0, 1.1, 2.2, 3.3, 4.4, 5.5], "%12.6f\n")
@@ -180,41 +189,41 @@ class KWTest(ExtendedTestCase):
 
     def test_fprintf_data(self):
         with TestAreaContext("kw_no_header"):
-            kw = EclKW("REGIONS" , 10 , EclDataType.ECL_INT)
+            kw = EclKW("REGIONS", 10, EclDataType.ECL_INT)
             for i in range(len(kw)):
                 kw[i] = i
-                
-            fileH = open("test" , "w")
-            kw.fprintf_data( fileH )
+
+            fileH = open("test", "w")
+            kw.fprintf_data(fileH)
             fileH.close()
 
-            fileH = open("test" , "r")
+            fileH = open("test", "r")
             data = []
             for line in fileH.readlines():
                 tmp = line.split()
                 for elm in tmp:
-                    data.append( int(elm) )
+                    data.append(int(elm))
 
             for (v1,v2) in zip(data,kw):
                 self.assertEqual(v1,v2)
 
 
     def test_sliced_set(self):
-        kw = EclKW("REGIONS" , 10 , EclDataType.ECL_INT)
+        kw = EclKW("REGIONS", 10, EclDataType.ECL_INT)
         kw.assign(99)
         kw[0:5] = 66
-        self.assertEqual(kw[0] , 66)
-        self.assertEqual(kw[4] , 66)
-        self.assertEqual(kw[5] , 99)
+        self.assertEqual(kw[0], 66)
+        self.assertEqual(kw[4], 66)
+        self.assertEqual(kw[5], 99)
 
-        
+
     def test_long_name(self):
         with self.assertRaises(ValueError):
-            EclKW("LONGLONGNAME" , 10 , EclDataType.ECL_INT)
+            EclKW("LONGLONGNAME", 10, EclDataType.ECL_INT)
 
-        kw = EclKW("REGIONS" , 10 , EclDataType.ECL_INT)
+        kw = EclKW("REGIONS", 10, EclDataType.ECL_INT)
         with self.assertRaises(ValueError):
-            kw.setName("LONGLONGNAME")
+            kw.name = "LONGLONGNAME"
 
 
     def test_abs(self):
@@ -223,99 +232,99 @@ class KWTest(ExtendedTestCase):
                 EclDataType.ECL_BOOL,
                 EclDataType.ECL_STRING(32)
                 ]:
-            kw = EclKW("NAME" , 10 , ecl_type)
+            kw = EclKW("NAME", 10, ecl_type)
             with self.assertRaises(TypeError):
                 abs_kw = abs(kw)
 
-        kw = EclKW("NAME" , 10 , EclDataType.ECL_INT)
+        kw = EclKW("NAME", 10, EclDataType.ECL_INT)
         for i in range(len(kw)):
             kw[i] = -i
 
         abs_kw = abs(kw)
         for i in range(len(kw)):
-            self.assertEqual(kw[i] , -i ) 
-            self.assertEqual(abs_kw[i] , i ) 
+            self.assertEqual(kw[i], -i)
+            self.assertEqual(abs_kw[i], i)
 
 
     def test_fmt(self):
-        kw1 = EclKW( "NAME1" , 100 , EclDataType.ECL_INT)
-        kw2 = EclKW( "NAME2" , 100 , EclDataType.ECL_INT)
+        kw1 = EclKW("NAME1", 100, EclDataType.ECL_INT)
+        kw2 = EclKW("NAME2", 100, EclDataType.ECL_INT)
 
         for i in range(len(kw1)):
             kw1[i] = i + 1
             kw2[i] = len(kw1) - kw1[i]
-            
+
         with TestAreaContext("ecl_kw/fmt") as ta:
-            with openFortIO( "TEST.FINIT" , FortIO.WRITE_MODE , fmt_file = True ) as f:
-                kw1.fwrite( f )
-                kw2.fwrite( f )
-                
-            with openFortIO( "TEST.FINIT" , fmt_file = True ) as f:
-                kw1b = EclKW.fread( f )
-                kw2b = EclKW.fread( f )
+            with openFortIO("TEST.FINIT", FortIO.WRITE_MODE, fmt_file=True) as f:
+                kw1.fwrite(f)
+                kw2.fwrite(f)
 
-            self.assertTrue( kw1 == kw1b )
-            self.assertTrue( kw2 == kw2b )
+            with openFortIO("TEST.FINIT", fmt_file=True) as f:
+                kw1b = EclKW.fread(f)
+                kw2b = EclKW.fread(f)
 
-            f = EclFile( "TEST.FINIT" )
-            self.assertTrue( kw1 == f[0] )
-            self.assertTrue( kw2 == f[1] )
+            self.assertTrue(kw1 == kw1b)
+            self.assertTrue(kw2 == kw2b)
+
+            f = EclFile("TEST.FINIT")
+            self.assertTrue(kw1 == f[0])
+            self.assertTrue(kw2 == f[1])
 
 
     def test_first_different(self):
-        kw1 = EclKW( "NAME1" , 100 , EclDataType.ECL_INT)
-        kw2 = EclKW( "NAME2" , 100 , EclDataType.ECL_INT)
-        kw3 = EclKW( "NAME2" , 200 , EclDataType.ECL_INT)
-        kw4 = EclKW( "NAME2" , 100 , EclDataType.ECL_FLOAT)
-        kw5 = EclKW( "NAME2" , 100 , EclDataType.ECL_FLOAT)
-
-            
-        with self.assertRaises( IndexError ):
-            EclKW.firstDifferent( kw1 , kw2 , offset = 100 )
-
-        with self.assertRaises( ValueError ):
-            EclKW.firstDifferent( kw1 , kw3 )
-
-        with self.assertRaises( TypeError ):
-            EclKW.firstDifferent( kw1 , kw4 )
-
-            
-        with self.assertRaises( IndexError ):
-            kw1.firstDifferent( kw2 , offset = 100 )
-
-        with self.assertRaises( ValueError ):
-            kw1.firstDifferent( kw3 )
-
-        with self.assertRaises( TypeError ):
-            kw1.firstDifferent( kw4 )
+        kw1 = EclKW("NAME1", 100, EclDataType.ECL_INT)
+        kw2 = EclKW("NAME2", 100, EclDataType.ECL_INT)
+        kw3 = EclKW("NAME2", 200, EclDataType.ECL_INT)
+        kw4 = EclKW("NAME2", 100, EclDataType.ECL_FLOAT)
+        kw5 = EclKW("NAME2", 100, EclDataType.ECL_FLOAT)
 
 
-        kw1.assign( 1 )
-        kw2.assign( 1 )
+        with self.assertRaises(IndexError):
+            EclKW.firstDifferent(kw1, kw2, offset=100)
 
-        self.assertEqual( kw1.firstDifferent( kw2 ) , len(kw1))
+        with self.assertRaises(ValueError):
+            EclKW.firstDifferent(kw1, kw3)
+
+        with self.assertRaises(TypeError):
+            EclKW.firstDifferent(kw1, kw4)
+
+
+        with self.assertRaises(IndexError):
+            kw1.firstDifferent(kw2, offset=100)
+
+        with self.assertRaises(ValueError):
+            kw1.firstDifferent(kw3)
+
+        with self.assertRaises(TypeError):
+            kw1.firstDifferent(kw4)
+
+
+        kw1.assign(1)
+        kw2.assign(1)
+
+        self.assertEqual(kw1.firstDifferent(kw2), len(kw1))
 
         kw1[0] = 100
-        self.assertEqual( kw1.firstDifferent( kw2 ) , 0)
-        self.assertEqual( kw1.firstDifferent( kw2 , offset = 1) , len(kw1))
+        self.assertEqual(kw1.firstDifferent(kw2), 0)
+        self.assertEqual(kw1.firstDifferent(kw2, offset=1), len(kw1))
         kw1[10] = 100
-        self.assertEqual( kw1.firstDifferent( kw2 , offset = 1) , 10)
+        self.assertEqual(kw1.firstDifferent(kw2, offset=1), 10)
 
 
-        kw4.assign( 1.0 )
-        kw5.assign( 1.0 )
-        self.assertEqual( kw4.firstDifferent( kw5 ) , len(kw4))
+        kw4.assign(1.0)
+        kw5.assign(1.0)
+        self.assertEqual(kw4.firstDifferent(kw5), len(kw4))
 
         kw4[10] *= 1.0001
-        self.assertEqual( kw4.firstDifferent( kw5 ) , 10)
+        self.assertEqual(kw4.firstDifferent(kw5), 10)
 
-        self.assertEqual( kw4.firstDifferent( kw5 , epsilon = 1.0) , len(kw4))
-        self.assertEqual( kw4.firstDifferent( kw5 , epsilon = 0.0000001) , 10)
+        self.assertEqual(kw4.firstDifferent(kw5, epsilon=1.0), len(kw4))
+        self.assertEqual(kw4.firstDifferent(kw5, epsilon=0.0000001), 10)
 
-        
+
     def test_numeric_equal(self):
-        kw1 = EclKW("Name1" , 10 , EclDataType.ECL_DOUBLE )
-        kw2 = EclKW("Name1" , 10 , EclDataType.ECL_DOUBLE )
+        kw1 = EclKW("Name1", 10, EclDataType.ECL_DOUBLE)
+        kw2 = EclKW("Name1", 10, EclDataType.ECL_DOUBLE)
 
 
         shift = 0.0001
@@ -323,46 +332,46 @@ class KWTest(ExtendedTestCase):
 
         abs_diff = shift
         rel_diff = shift / (shift + 2* value)
-        kw1.assign( value )
-        kw2.assign( value + shift )
+        kw1.assign(value)
+        kw2.assign(value + shift)
 
-        
-        self.assertTrue( kw1.equal_numeric( kw2 , abs_epsilon = abs_diff * 1.1 , rel_epsilon = rel_diff * 1.1))
-        self.assertFalse( kw1.equal_numeric( kw2 , abs_epsilon = abs_diff * 1.1 , rel_epsilon = rel_diff * 0.9))
-        self.assertFalse( kw1.equal_numeric( kw2 , abs_epsilon = abs_diff * 0.9 , rel_epsilon = rel_diff * 1.1))
-        self.assertTrue( kw1.equal_numeric( kw2 , abs_epsilon = 0 , rel_epsilon = rel_diff * 1.1))
-        self.assertTrue( kw1.equal_numeric( kw2 , abs_epsilon = abs_diff * 1.1 , rel_epsilon = 0))
+
+        self.assertTrue( kw1.equal_numeric(kw2, abs_epsilon=abs_diff * 1.1, rel_epsilon=rel_diff * 1.1))
+        self.assertFalse(kw1.equal_numeric(kw2, abs_epsilon=abs_diff * 1.1, rel_epsilon=rel_diff * 0.9))
+        self.assertFalse(kw1.equal_numeric(kw2, abs_epsilon=abs_diff * 0.9, rel_epsilon=rel_diff * 1.1))
+        self.assertTrue( kw1.equal_numeric(kw2, abs_epsilon=0,              rel_epsilon=rel_diff * 1.1))
+        self.assertTrue( kw1.equal_numeric(kw2, abs_epsilon=abs_diff * 1.1, rel_epsilon=0))
 
     def test_mul(self):
-        kw1 = EclKW("Name1" , 10 , EclDataType.ECL_INT )
-        kw1.assign( 10 )
+        kw1 = EclKW("Name1", 10, EclDataType.ECL_INT)
+        kw1.assign(10)
 
-        kw2 = EclKW("Name1" , 10 , EclDataType.ECL_INT )
-        kw2.assign( 2 )
+        kw2 = EclKW("Name1", 10, EclDataType.ECL_INT)
+        kw2.assign(2)
 
         kw3 = kw1 * kw2
         kw4 = kw1 + kw2
-        self.assertEqual( len(kw3) , len(kw1))
-        self.assertEqual( len(kw4) , len(kw1))
+        self.assertEqual(len(kw3), len(kw1))
+        self.assertEqual(len(kw4), len(kw1))
         for v in kw3:
-            self.assertEqual( v , 20 )
+            self.assertEqual(v, 20)
 
         for v in kw4:
-            self.assertEqual( v , 12 )
+            self.assertEqual(v, 12)
 
 
     def test_numpy(self):
-        kw1 = EclKW("DOUBLE", 10, EclDataType.ECL_DOUBLE )
- 
-        view = kw1.numpyView( )
-        copy = kw1.numpyCopy( )
+        kw1 = EclKW("DOUBLE", 10, EclDataType.ECL_DOUBLE)
 
-        self.assertTrue( copy[ 0 ] == kw1[ 0 ] )
-        self.assertTrue( view[ 0 ] == kw1[ 0 ] )
+        view = kw1.numpyView()
+        copy = kw1.numpyCopy()
+
+        self.assertTrue(copy[ 0 ] == kw1[ 0 ])
+        self.assertTrue(view[ 0 ] == kw1[ 0 ])
 
         kw1[ 0 ] += 1
-        self.assertTrue( view[ 0 ] == kw1[ 0 ] )
-        self.assertTrue( copy[ 0 ] == kw1[ 0 ] - 1)
+        self.assertTrue(view[ 0 ] == kw1[ 0 ])
+        self.assertTrue(copy[ 0 ] == kw1[ 0 ] - 1)
 
         for ecl_type in [
                 EclDataType.ECL_CHAR,
@@ -374,45 +383,45 @@ class KWTest(ExtendedTestCase):
 
     def test_slice(self):
         N = 100
-        kw = EclKW("KW" , N , EclDataType.ECL_INT)
+        kw = EclKW("KW", N, EclDataType.ECL_INT)
         for i in range(len(kw)):
             kw[i] = i
 
         even = kw[0:len(kw):2]
         odd  = kw[1:len(kw):2]
 
-        self.assertEqual( len(even) , N/2 )
-        self.assertEqual( len(odd)  , N/2 )
+        self.assertEqual(len(even), N/2)
+        self.assertEqual(len(odd) , N/2)
 
         for i in range(len(even)):
-            self.assertEqual(even[i] , 2*i)
-            self.assertEqual(odd[i] , 2*i + 1)
+            self.assertEqual(even[i], 2*i)
+            self.assertEqual(odd[i], 2*i + 1)
 
 
     def test_resize(self):
         N = 4
-        kw = EclKW("KW" , N , EclDataType.ECL_INT)
+        kw = EclKW("KW", N, EclDataType.ECL_INT)
         for i in range(N):
             kw[i] = i
 
-        kw.resize( 2*N )
-        self.assertEqual( len(kw) , 2*N )
+        kw.resize(2*N)
+        self.assertEqual(len(kw), 2*N)
         for i in range(N):
-            self.assertEqual( kw[i] , i )
+            self.assertEqual(kw[i], i)
 
-        kw.resize( N/2 )
-        self.assertEqual( len(kw) , N/2 )
+        kw.resize(N/2)
+        self.assertEqual(len(kw), N/2)
         for i in range(N/2):
-            self.assertEqual( kw[i] , i )
-            
+            self.assertEqual(kw[i], i)
+
 
     def test_typename(self):
-        kw = EclKW("KW" , 100 , EclDataType.ECL_INT)
+        kw = EclKW("KW", 100, EclDataType.ECL_INT)
 
-        self.assertEqual( kw.typeName( ) , "INTE")
+        self.assertEqual(kw.typeName(), "INTE")
 
     def test_string_alloc(self):
-        kw = EclKW("KW" , 10, EclDataType.ECL_STRING(30))
+        kw = EclKW("KW", 10, EclDataType.ECL_STRING(30))
 
         for i in range(10):
             kw[i] = str(i)*30
@@ -424,7 +433,7 @@ class KWTest(ExtendedTestCase):
         for str_len in range(1000):
             with TestAreaContext("my_space"):
 
-                kw = EclKW("TEST_KW" , 10, EclDataType.ECL_STRING(str_len))
+                kw = EclKW("TEST_KW", 10, EclDataType.ECL_STRING(str_len))
                 for i in range(10):
                     kw[i] = str(i)*str_len
 
@@ -442,7 +451,7 @@ class KWTest(ExtendedTestCase):
         for str_len in range(1000):
             with TestAreaContext("my_space"):
 
-                kw = EclKW("TEST_KW" , 10, EclDataType.ECL_STRING(str_len))
+                kw = EclKW("TEST_KW", 10, EclDataType.ECL_STRING(str_len))
                 for i in range(10):
                     kw[i] = str(i)*str_len
 
@@ -455,12 +464,12 @@ class KWTest(ExtendedTestCase):
 
                 self.assertEqual(kw, loaded_kw)
 
-                
-    def test_string_padding(self):
-        kw = EclKW("TEST_KW" , 1 , EclDataType.ECL_STRING(4))
-        kw[0] = "AB"
-        self.assertEqual( kw[0] , "AB  " )
 
-        kw = EclKW("TEST_KW" , 1 , EclDataType.ECL_CHAR)
+    def test_string_padding(self):
+        kw = EclKW("TEST_KW", 1, EclDataType.ECL_STRING(4))
+        kw[0] = "AB"
+        self.assertEqual(kw[0], "AB  ")
+
+        kw = EclKW("TEST_KW", 1, EclDataType.ECL_CHAR)
         kw[0] = "ABCD"
-        self.assertEqual( kw[0] , "ABCD    " )
+        self.assertEqual(kw[0], "ABCD    ")

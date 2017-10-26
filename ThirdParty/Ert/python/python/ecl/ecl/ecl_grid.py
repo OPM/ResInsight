@@ -34,7 +34,7 @@ import itertools
 from cwrap import CFILE, BaseCClass
 from ecl.util import monkey_the_camel
 from ecl.util import IntVector
-from ecl.ecl import EclPrototype, EclDataType, EclKW, FortIO, EclUnitTypeEnum
+from ecl.ecl import EclPrototype, EclDataType, EclKW, FortIO, EclUnitTypeEnum, Cell
 
 
 class EclGrid(BaseCClass):
@@ -385,6 +385,33 @@ class EclGrid(BaseCClass):
         """
         n = self._get_name()
         return str(n) if n else ''
+
+    def cell(self, global_index=None, active_index=None, i=None, j=None, k=None):
+        if global_index is not None:
+            return Cell(self, global_index)
+        if active_index is not None:
+            return Cell(self, self.global_index(active_index=active_index))
+        if i is not None:
+            return Cell(self, self.global_index(ijk=(i,j,k)))
+
+    def __getitem__(self, global_index):
+        if isinstance(global_index, tuple):
+            i,j,k = global_index
+            return self.cell(i=i, j=j, k=k)
+        return self.cell(global_index=global_index)
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+    def cells(self, active=False):
+        """Iterator over all the (active) cells"""
+        if not active:
+            for c in self:
+                yield c
+        else:
+            for i in range(self.get_num_active()):
+                yield self.cell(active_index=i)
 
     def global_index(self, active_index=None, ijk=None):
         """

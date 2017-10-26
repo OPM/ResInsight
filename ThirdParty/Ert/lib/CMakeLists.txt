@@ -71,7 +71,12 @@ if (ERT_BUILD_CXX)
                          ecl/FortIO.cpp
                          ecl/Smspec.cpp
                          ecl/EclFilename.cpp
+                         nexus/nexus_plot.cpp
 )
+endif ()
+
+if (BUILD_NEXUS)
+    list(APPEND opt_srcs nexus/nexus_plot.cpp)
 endif ()
 
 configure_file(build_config.h.in   include/ert/util/build_config.h)
@@ -215,7 +220,7 @@ endif ()
 set_target_properties(ecl PROPERTIES
                           VERSION ${ECL_VERSION_MAJOR}.${ECL_VERSION_MINOR}
                           SOVERSION ${ECL_VERSION_MAJOR})
-if (INSTALL_ERT)
+
 install(TARGETS ecl
         EXPORT  ecl-config
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -240,7 +245,6 @@ if (ERT_BUILD_CXX)
             PATTERN *.hpp
 )
 endif ()
-endif()
 
 if (NOT BUILD_TESTS)
     return ()
@@ -462,6 +466,15 @@ if (ERT_BUILD_CXX)
     endforeach ()
 endif ()
 
+if (BUILD_NEXUS)
+    foreach (name nexus_plot_load nexus2ecl)
+        add_executable(${name} nexus/tests/${name}.cpp)
+        target_link_libraries(${name} ecl)
+        add_test(NAME ${name} COMMAND ${name} ${CMAKE_SOURCE_DIR})
+    endforeach ()
+endif()
+
+
 if (NOT STATOIL_TESTDATA_ROOT)
     return ()
 endif()
@@ -676,6 +689,7 @@ add_test(NAME ecl_rft_rft    COMMAND ecl_rft ${_eclpath}/Gurbat/ECLIPSE.RFT RFT)
 add_test(NAME ecl_rft_rft_rw COMMAND ecl_rft ${_eclpath}/Gurbat/ECLIPSE.RFT RFT_RW)
 add_test(NAME ecl_rft_plt    COMMAND ecl_rft ${_eclpath}/RFT/TEST1_1A.RFT PLT)
 add_test(NAME ecl_rft_mswplt COMMAND ecl_rft ${_eclpath}/RFT/RFT2.RFT MSW-PLT)
+add_test(NAME ecl_rft_alloc  COMMAND ecl_rft ${_eclpath}/RFT/NORNE_ATW2013_RFTPLT_V2.RFT SIMPLE)
 
 add_executable(ecl_grid_copy_statoil ecl/tests/ecl_grid_copy_statoil.c)
 target_link_libraries(ecl_grid_copy_statoil ecl)

@@ -161,7 +161,12 @@ static ecl_kw_type * ecl_rft_node_get_pressure_kw( ecl_rft_node_type * rft_node 
     if (ecl_kw_element_sum_float( conpres_kw ) > 0.0 )
       return conpres_kw;
     else
-      return ecl_file_view_iget_named_kw( rft , PRESSURE_KW , 0);
+      if (ecl_file_view_has_kw(rft, PRESSURE_KW))
+        return ecl_file_view_iget_named_kw( rft , PRESSURE_KW , 0);
+      else {
+        fprintf(stderr, "WARNING: %s returned a CONPRES_KW with all values at zero. PRESSURE_KW not found.\n", __func__);
+        return conpres_kw;
+      } 
   }
 }
 

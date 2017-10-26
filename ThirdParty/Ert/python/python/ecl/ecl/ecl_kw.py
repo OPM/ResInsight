@@ -643,27 +643,30 @@ class EclKW(BaseCClass):
 
     # No __rdiv__()
 
-    def sum(self):
+    def sum(self, mask = None, force_active = False):
         """
         Will calculate the sum of all the elements in the keyword.
 
         String: Raise ValueError exception.
         Bool:   The number of true values
         """
-        if self.data_type.is_int():
-            return self._int_sum()
-        elif self.data_type.is_float():
-            return self._float_sum()
-        elif self.data_type.is_double():
-            return self._float_sum()
-        elif self.data_type.is_bool():
-            sum = 0
-            for elm in self:
-                if elm:
-                    sum += 1
-            return sum
-        else:
-            raise ValueError('The keyword "%s" is of string type - sum is not implemented' % self.getName())
+        if mask is None:
+            if self.data_type.is_int():
+                return self._int_sum()
+            elif self.data_type.is_float():
+                return self._float_sum()
+            elif self.data_type.is_double():
+                return self._float_sum()
+            elif self.data_type.is_bool():
+                sum = 0
+                for elm in self:
+                    if elm:
+                        sum += 1
+                return sum
+            else:
+                raise ValueError('The keyword "%s" is of string type - sum is not implemented' % self.getName())
+
+        return mask.sum_kw(self, force_active)
 
 
 
@@ -716,7 +719,7 @@ class EclKW(BaseCClass):
         """
         if self.isNumeric():
             if type(value) == type(self):
-                if mask:
+                if mask is not None:
                     mask.copy_kw(self, value, force_active)
                 else:
                     if self.assert_binary(value):
@@ -724,7 +727,7 @@ class EclKW(BaseCClass):
                     else:
                         raise TypeError("Type / size mismatch")
             else:
-                if mask:
+                if mask is not None:
                     mask.set_kw(self, value, force_active)
                 else:
                     if self.data_type.is_int():
@@ -744,7 +747,7 @@ class EclKW(BaseCClass):
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
+        if mask is not None:
             mask.iadd_kw(self, other, force_active)
         else:
             return self.__iadd__(other)
@@ -754,7 +757,7 @@ class EclKW(BaseCClass):
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
+        if mask is not None:
             mask.isub_kw(self, other, force_active)
         else:
             return self.__isub__(other)
@@ -764,7 +767,7 @@ class EclKW(BaseCClass):
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
+        if mask is not None:
             mask.imul_kw(self, other, force_active)
         else:
             return self.__imul__(other)
@@ -774,7 +777,7 @@ class EclKW(BaseCClass):
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
+        if mask is not None:
             mask.idiv_kw(self, other, force_active)
         else:
             return self.__idiv__(other)
@@ -802,7 +805,7 @@ class EclKW(BaseCClass):
         See method assign() for documentation of optional arguments
         @mask and @force_active.
         """
-        if mask:
+        if mask is not None:
             active_list = mask.kw_index_list(self, force_active)
             if arg:
                 for index in active_list:
@@ -883,6 +886,10 @@ class EclKW(BaseCClass):
     def name(self):
         n = self._get_header()
         return str(n) if n else ''
+
+    @name.setter
+    def name(self, value):
+        self.set_name(value)
 
     def get_name(self):
         return self.name

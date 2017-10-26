@@ -150,6 +150,11 @@ void test_plt( const char * plt_file ) {
 }
 
 
+void test_simple_load_rft(const char * filename) {
+  ecl_rft_file_type * rft_file = ecl_rft_file_alloc_case(filename);
+  ecl_rft_file_free( rft_file );
+}
+
 
 int main( int argc , char ** argv) {
   const char * rft_file = argv[1];
@@ -164,8 +169,10 @@ int main( int argc , char ** argv) {
     test_plt( rft_file );
   else if (strcmp( mode_string , "MSW-PLT") == 0)
     test_plt_msw( rft_file );
+  else if (strcmp( mode_string , "SIMPLE") == 0)
+    test_simple_load_rft(rft_file);
   else
     test_error_exit("Second argument:%s not recognized. Valid values are: RFT and PLT" , mode_string);
-  
+
   exit(0);
 }

@@ -57,6 +57,9 @@ void test_cmp_types() {
   test_assert_true( smspec_node_cmp( misc_node1, misc_node2) < 0 );
   test_assert_true( smspec_node_cmp( misc_node2, misc_node1) > 0 );
 
+  smspec_node_type * net1 = smspec_node_alloc(ECL_SMSPEC_NETWORK_VAR, "Net", "FOPT", "UNIT", ":", dims, 10 , 0, 0);
+  smspec_node_type * net2 = smspec_node_alloc(ECL_SMSPEC_NETWORK_VAR, "Net", "FOPT", "UNIT", ":", dims, 10 , 0, 0);
+  test_assert_true( smspec_node_cmp( net1, net2) == 0 );
 
   smspec_node_free( segment_node );
   smspec_node_free( aquifer_node );
@@ -67,6 +70,8 @@ void test_cmp_types() {
   smspec_node_free( field_node );
   smspec_node_free( misc_node1 );
   smspec_node_free( misc_node2 );
+  smspec_node_free( net1 );
+  smspec_node_free( net2 );
 }
 
 void test_cmp_well() {

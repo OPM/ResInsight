@@ -1122,6 +1122,14 @@ static int smspec_node_cmp_KEYWORD( const smspec_node_type * node1, const smspec
 }
 
 static int smspec_node_cmp_key1( const smspec_node_type * node1, const smspec_node_type * node2) {
+  if (!node1->gen_key1) {
+    if (!node2->gen_key1)
+      return 0;
+    else
+      return -1;
+  } else if (!node2->gen_key1) {
+    return 1;
+  }
   return util_strcmp_int( node1->gen_key1 , node2->gen_key1 );
 }
 

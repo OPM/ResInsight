@@ -2442,6 +2442,9 @@ static void ecl_kw_inplace_div_indexed_ ## ctype( ecl_kw_type * target_kw , cons
 }
 
 
+
+
+
 ECL_KW_TYPED_INPLACE_DIV_INDEXED( int )
 ECL_KW_TYPED_INPLACE_DIV_INDEXED( double )
 ECL_KW_TYPED_INPLACE_DIV_INDEXED( float )
@@ -2463,6 +2466,7 @@ void ecl_kw_inplace_div_indexed( ecl_kw_type * target_kw , const int_vector_type
     util_abort("%s: inplace div not implemented for type:%s \n",__func__ , ecl_type_alloc_name( ecl_kw_get_data_type(target_kw) ));
   }
 }
+
 
 
 
@@ -2623,6 +2627,49 @@ ECL_KW_MIN( double )
 #undef ECL_KW_MAX_MIN
 
 
+#define KW_SUM_INDEXED(type)                                       \
+{                                                                  \
+  const type * data = ecl_kw_get_data_ref(ecl_kw);                 \
+  type sum = 0;                                                    \
+  int size = int_vector_size( index_list );                        \
+  const int * index_ptr = int_vector_get_const_ptr( index_list );  \
+  for (int i = 0; i < size; i++)                                   \
+     sum += data[index_ptr[i]];                                    \
+  memcpy(_sum , &sum , ecl_kw_get_sizeof_ctype(ecl_kw));           \
+}
+
+
+void ecl_kw_element_sum_indexed(const ecl_kw_type * ecl_kw , const int_vector_type * index_list, void * _sum) {
+  switch (ecl_kw_get_type(ecl_kw)) {
+  case(ECL_FLOAT_TYPE):
+    KW_SUM_INDEXED(float);
+    break;
+  case(ECL_DOUBLE_TYPE):
+    KW_SUM_INDEXED(double);
+    break;
+  case(ECL_INT_TYPE):
+    KW_SUM_INDEXED(int);
+    break;
+  case(ECL_BOOL_TYPE):
+    {
+      const int * data = ecl_kw_get_data_ref(ecl_kw);
+      const int * index_ptr = int_vector_get_const_ptr( index_list );
+      const int size = int_vector_size( index_list );
+      int sum = 0;
+      for (int i = 0; i < size; i++)
+        sum += (data[index_ptr[i]] == ECL_BOOL_TRUE_INT);
+
+      memcpy(_sum , &sum , sizeof sum);
+    }
+    break;
+  default:
+    util_abort("%s: invalid type for element sum \n",__func__);
+  }
+}
+#undef KW_SUM
+
+
+
 
 
 
@@ -2630,10 +2677,9 @@ ECL_KW_MIN( double )
 
 #define KW_SUM(type)                                        \
 {                                                           \
-  type * data = ecl_kw_get_data_ref(ecl_kw);                \
+  const type * data = ecl_kw_get_data_ref(ecl_kw);          \
   type sum = 0;                                             \
-  int i;                                                    \
-  for (i=0; i < ecl_kw_get_size(ecl_kw); i++)               \
+  for (int i=0; i < ecl_kw_get_size(ecl_kw); i++)           \
      sum += data[i];                                        \
   memcpy(_sum , &sum , ecl_kw_get_sizeof_ctype(ecl_kw));    \
 }

@@ -291,16 +291,19 @@ values (2e20) are denoted with '*'.
 */
 
 
-#define INTEHEAD_UNIT_INDEX     2
-#define INTEHEAD_NX_INDEX       8
-#define INTEHEAD_NY_INDEX       9
-#define INTEHEAD_NZ_INDEX      10
-#define INTEHEAD_NACTIVE_INDEX 11
-#define INTEHEAD_PHASE_INDEX   14
-#define INTEHEAD_DAY_INDEX     64
-#define INTEHEAD_MONTH_INDEX   65
-#define INTEHEAD_YEAR_INDEX    66
-#define INTEHEAD_IPROG_INDEX   94
+#define INTEHEAD_UNIT_INDEX      2
+#define INTEHEAD_NX_INDEX        8
+#define INTEHEAD_NY_INDEX        9
+#define INTEHEAD_NZ_INDEX       10
+#define INTEHEAD_NACTIVE_INDEX  11
+#define INTEHEAD_PHASE_INDEX    14
+#define INTEHEAD_DAY_INDEX      64
+#define INTEHEAD_MONTH_INDEX    65
+#define INTEHEAD_YEAR_INDEX     66
+#define INTEHEAD_TIMESTEP_INDEX 67
+#define INTEHEAD_REPORT_STEP    68
+#define INTEHEAD_IPROG_INDEX    94
+#define INTEHEAD_REPORT_INDEX   219 (report_steps-1)
 
 
 #define INTEHEAD_METRIC_VALUE              1

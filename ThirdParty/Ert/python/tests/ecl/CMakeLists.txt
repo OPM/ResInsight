@@ -19,6 +19,7 @@ set(TEST_SOURCES
     test_fortio.py
     test_grdecl.py
     test_grid.py
+    test_cell.py
     test_grid_statoil.py
     test_grid_generator.py
     test_indexed_read.py
@@ -48,6 +49,7 @@ set(TEST_SOURCES
 add_python_package("python.tests.ecl"  ${PYTHON_INSTALL_PREFIX}/tests/ecl "${TEST_SOURCES}" False)
 
 addPythonTest(tests.ecl.test_fk_user_data.FKTest)
+addPythonTest(tests.ecl.test_cell.CellTest)
 addPythonTest(tests.ecl.test_grid.GridTest LABELS SLOW_1)
 addPythonTest(tests.ecl.test_grid_generator.GridGeneratorTest LABELS SLOW_2)
 addPythonTest(tests.ecl.test_ecl_kw.KWTest LABELS SLOW_2)

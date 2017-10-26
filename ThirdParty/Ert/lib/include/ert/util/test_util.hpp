@@ -36,6 +36,12 @@
       test_error_exit("Correct exception not thrown at %s:%d\n",__FILE__ , __LINE__); \
 }
 
+#define test_assert_std_string_equal(s0, s1)                                \
+{                                                                           \
+    if (s0.compare(s1) != 0)                                                \
+        test_error_exit("Strings not equal at%s:%d (%s != %s)\n",           \
+            __FILE__ , __LINE__, s0.c_str(), s1.c_str()); \
+}
 
 
 #endif

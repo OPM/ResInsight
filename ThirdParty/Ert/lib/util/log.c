@@ -53,13 +53,18 @@ struct log_struct {
 
 
 
+static void log_delete_empty(const log_type * logh) {
+  if (logh->filename && util_file_exists( logh->filename ) ) {
+    size_t file_size = util_file_size( logh->filename );
+    if (file_size == 0)
+      remove( logh->filename );
+  }
+}
+
 void log_reopen(log_type *logh , const char *filename) {
   if (logh->stream != NULL)  { /* Close the existing file descriptor. */
-    size_t file_size;
     fclose( logh->stream );
-    file_size = util_file_size( logh->filename );
-    if (file_size == 0)
-      remove( logh->filename ); /* Unlink the old log file if it had zero size. */
+    log_delete_empty( logh );
   }
 
   logh->filename = util_realloc_string_copy( logh->filename , filename );
@@ -234,6 +239,7 @@ void log_close( log_type * logh ) {
   if ((logh->stream != stdout) && (logh->stream != stderr) && (logh->stream != NULL))
     fclose( logh->stream );  /* This closes BOTH the FILE * stream and the integer file descriptor. */
 
+  log_delete_empty( logh );
   util_safe_free( logh->filename );
   free( logh );
 }

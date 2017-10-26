@@ -980,24 +980,20 @@ bool ecl_smspec_needs_num( ecl_smspec_var_type var_type ) {
 
 
 
-bool ecl_smspec_equal( const ecl_smspec_type * self , const ecl_smspec_type * other) {
-  bool equal = true;
+bool ecl_smspec_equal(const ecl_smspec_type * self,
+                      const ecl_smspec_type * other) {
+  if (vector_get_size( self->smspec_nodes ) != vector_get_size( other->smspec_nodes))
+    return false;
 
-  if (vector_get_size( self->smspec_nodes ) == vector_get_size( other->smspec_nodes)) {
-    for (int i=0; i < vector_get_size( self->smspec_nodes ); i++) {
-      const smspec_node_type * node1 = vector_iget_const( self->smspec_nodes , i );
-      const smspec_node_type * node2 = vector_iget_const( other->smspec_nodes , i );
+  for (int i=0; i < vector_get_size( self->smspec_nodes ); i++) {
+    const smspec_node_type * node1 = vector_iget_const(self->smspec_nodes, i);
+    const smspec_node_type * node2 = vector_iget_const(other->smspec_nodes, i);
 
-      if (!smspec_node_equal( node1,node2)) {
-        equal = false;
-        break;
-      }
+    if (!smspec_node_equal(node1, node2))
+      return false;
+  }
 
-    }
-  } else
-    equal = false;
-
-  return equal;
+  return true;
 }
 
 

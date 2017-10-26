@@ -25,7 +25,8 @@
 
 #define LOG_FILE "log.txt"
 
-int main(int argc , char ** argv) {
+
+void test_open() {
   test_work_area_type * work_area = test_work_area_alloc("util/logh");
   {
     log_type * logh = log_open( NULL , 0 );
@@ -52,5 +53,58 @@ int main(int argc , char ** argv) {
   }
 
   test_work_area_free( work_area );
+}
+
+
+void test_delete_empty() {
+  test_work_area_type * work_area = test_work_area_alloc("logh_delete_empty");
+  {
+    log_type * logh = log_open( LOG_FILE , 0 );
+    test_assert_not_NULL(logh);
+    log_close( logh );
+
+    test_assert_false( util_file_exists( LOG_FILE ));
+  }
+
+  {
+    log_type * logh = log_open( LOG_FILE , 0 );
+    log_reopen( logh , "LOG2.txt");
+    log_close( logh );
+
+    test_assert_false( util_file_exists( LOG_FILE ));
+  }
+
+  {
+    log_type * logh = log_open( LOG_FILE , 1 );
+    log_add_message( logh , 1 , NULL , "Message" , false);
+    log_close( logh );
+    test_assert_true( util_file_exists( LOG_FILE ));
+
+    logh = log_open( LOG_FILE , 1 );
+    log_close( logh );
+    test_assert_true( util_file_exists( LOG_FILE ));
+  }
+
+  test_work_area_free( work_area );
+}
+
+
+/*
+   Someone else deletes the file before closing - that should not kill the thing.
+*/
+
+void test_file_deleted() {
+  log_type * logh = log_open( LOG_FILE , 1 );
+  log_add_message( logh , 1 , NULL , "Message" , false);
+  util_unlink( LOG_FILE );
+  test_assert_false( util_file_exists( LOG_FILE ));
+  log_close( logh );
+  test_assert_false( util_file_exists( LOG_FILE ));
+}
+
+int main(int argc , char ** argv) {
+  test_open();
+  test_delete_empty();
+  test_file_deleted( );
   exit(0);
 }

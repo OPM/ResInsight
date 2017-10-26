@@ -148,6 +148,7 @@ extern "C" {
   double     ecl_kw_element_sum_float( const ecl_kw_type * ecl_kw );
   void       ecl_kw_inplace_inv(ecl_kw_type * my_kw);
   void       ecl_kw_element_sum(const ecl_kw_type * , void * );
+  void ecl_kw_element_sum_indexed(const ecl_kw_type * ecl_kw , const int_vector_type * index_list, void * _sum);
   void       ecl_kw_max_min(const ecl_kw_type * , void * , void *);
   void     * ecl_kw_get_void_ptr(const ecl_kw_type * ecl_kw);
 

@@ -203,6 +203,12 @@ void rng_free( rng_type * rng) {
   free( rng );
 }
 
+void rng_free__( void * arg) {
+  rng_type * rng = rng_safe_cast( arg );
+  rng_free( rng );
+}
+
+
 void rng_fprintf_state( rng_type * rng , FILE * stream ) {
   rng->fprintf_state( rng->state , stream );
 }

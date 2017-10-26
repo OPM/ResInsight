@@ -1492,3 +1492,36 @@ bool ecl_region_equal( const ecl_region_type * region1 , const ecl_region_type *
   } else
     return false;
 }
+
+/*****************************************************************/
+
+int ecl_region_sum_kw_int( ecl_region_type * ecl_region, const ecl_kw_type * ecl_kw , bool force_active) {
+  int sum;
+  const int_vector_type * index_set = ecl_region_get_kw_index_list( ecl_region , ecl_kw , force_active);
+  ecl_kw_element_sum_indexed( ecl_kw , index_set , &sum );
+  return sum;
+}
+
+
+float ecl_region_sum_kw_float( ecl_region_type * ecl_region, const ecl_kw_type * ecl_kw , bool force_active) {
+  float sum;
+  const int_vector_type * index_set = ecl_region_get_kw_index_list( ecl_region , ecl_kw , force_active);
+  ecl_kw_element_sum_indexed( ecl_kw , index_set , &sum);
+  return sum;
+}
+
+
+double ecl_region_sum_kw_double( ecl_region_type * ecl_region, const ecl_kw_type * ecl_kw , bool force_active) {
+  double sum;
+  const int_vector_type * index_set = ecl_region_get_kw_index_list( ecl_region , ecl_kw , force_active);
+  ecl_kw_element_sum_indexed( ecl_kw , index_set , &sum);
+  return sum;
+}
+
+
+int ecl_region_sum_kw_bool( ecl_region_type * ecl_region, const ecl_kw_type * ecl_kw , bool force_active) {
+  int sum;
+  const int_vector_type * index_set = ecl_region_get_kw_index_list( ecl_region , ecl_kw , force_active);
+  ecl_kw_element_sum_indexed( ecl_kw , index_set , &sum);
+  return sum;
+}

@@ -185,6 +185,10 @@ typedef struct ecl_region_struct ecl_region_type;
 
 /*****************************************************************/
 
+  double ecl_region_sum_kw_double( ecl_region_type * ecl_region , const ecl_kw_type * ecl_kw , bool force_active);
+  int    ecl_region_sum_kw_int( ecl_region_type * ecl_region , const ecl_kw_type * ecl_kw , bool force_active);
+  float  ecl_region_sum_kw_float( ecl_region_type * ecl_region , const ecl_kw_type * ecl_kw , bool force_active);
+  int    ecl_region_sum_kw_bool( ecl_region_type * ecl_region , const ecl_kw_type * ecl_kw , bool force_active);
 
 
 

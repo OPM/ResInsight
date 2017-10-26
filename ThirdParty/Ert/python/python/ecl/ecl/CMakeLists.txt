@@ -28,6 +28,7 @@ set(PYTHON_SOURCES
     ecl_sum_var_type.py
     ecl_type.py
     ecl_grid_generator.py
+    cell.py
 )
 
 add_python_package("python.ecl.ecl" ${PYTHON_INSTALL_PREFIX}/ecl/ecl "${PYTHON_SOURCES}" True)

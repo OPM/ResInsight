@@ -30,12 +30,6 @@
 #include <ert/util/test_work_area.h>
 
 
-void assert_data_values_read(ecl_nnc_data_type * nnc_data) {
-   int data_size = ecl_nnc_data_get_size(nnc_data);
-   for (int n = 0; n < data_size; n++) {
-      test_assert_double_not_equal(-1.0, ecl_nnc_data_iget_value(nnc_data, n));
-   }
-}
 
 int find_index(ecl_nnc_geometry_type * nnc_geo, int grid1, int grid2, int indx1, int indx2) {
    int index = -1;
@@ -109,7 +103,7 @@ void test_alloc_file_flux(char * filename, int file_num) {
       ecl_file_view_type * view_file = ecl_file_get_global_view( restart_file );
 
       ecl_nnc_data_type * nnc_flux_data = ecl_nnc_data_alloc_wat_flux(grid, nnc_geo, view_file);
-      assert_data_values_read(nnc_flux_data);
+      test_assert_not_NULL(nnc_flux_data);
       ecl_nnc_data_free( nnc_flux_data );
    }
    ecl_nnc_geometry_free(nnc_geo);
