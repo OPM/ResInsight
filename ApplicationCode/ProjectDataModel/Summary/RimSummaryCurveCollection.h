@@ -68,8 +68,6 @@ private:
                                                              const QVariant& oldValue, const QVariant& newValue) override;
 
 private:
-    caf::PdmPtrArrayField<RimSummaryCase*>      m_selectedSummaryCases;
-
     caf::PdmField<bool>                         m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*>   m_curves;
 
