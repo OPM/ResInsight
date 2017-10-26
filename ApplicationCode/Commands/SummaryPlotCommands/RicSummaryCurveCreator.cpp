@@ -251,6 +251,8 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.add(&m_closeButtonField);
 
     uiOrdering.skipRemainingFields(true);
+
+    syncPreviewCurvesFromUiSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,6 +260,8 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 {
+    if (!m_selectionEditor) return;
+
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector = m_selectionEditor->selectedCurveDefinitions();
     std::set<RiaSummaryCurveDefinition> allCurveDefinitions = std::set<RiaSummaryCurveDefinition>(allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end());
 
