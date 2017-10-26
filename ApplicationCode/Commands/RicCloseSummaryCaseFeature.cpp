@@ -65,7 +65,8 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases(const std::vector<RimSummary
 
         summaryCaseMainCollection->removeCase(summaryCase);
         delete summaryCase;
-        summaryCaseMainCollection->updateConnectedEditors();
+
+        summaryCaseMainCollection->updateAllRequiredEditors();
     }
 }
 

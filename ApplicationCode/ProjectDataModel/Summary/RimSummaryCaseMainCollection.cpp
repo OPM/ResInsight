@@ -91,7 +91,6 @@ void RimSummaryCaseMainCollection::createSummaryCasesFromRelevantEclipseResultCa
                 {
                     // Create new GridSummaryCase
                     createAndAddSummaryCaseFromEclipseResultCase(eclResCase);
-
                 }
             }
         }
@@ -217,7 +216,7 @@ size_t RimSummaryCaseMainCollection::summaryCaseCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases()
+std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases() const
 {
     std::vector<RimSummaryCase*> cases;
     this->descendantsIncludingThisOfType(cases);

@@ -201,7 +201,7 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl(const QStr
 
                     }
 
-                    sumCaseColl->updateConnectedEditors();
+                    sumCaseColl->updateAllRequiredEditors();
                 }
             }
         }

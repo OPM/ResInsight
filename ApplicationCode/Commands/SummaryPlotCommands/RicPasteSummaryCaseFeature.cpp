@@ -109,7 +109,7 @@ void RicPasteSummaryCaseFeature::onActionTriggered(bool isChecked)
         }
 
         RicPasteFeatureImpl::clearClipboard();
-        summaryCaseMainCollection->updateConnectedEditors();
+        summaryCaseMainCollection->updateAllRequiredEditors();
     }
 }
 

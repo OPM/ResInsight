@@ -39,7 +39,7 @@ public:
     RimSummaryCase*     summaryCase(size_t idx);
     size_t              summaryCaseCount() const;
 
-    std::vector<RimSummaryCase*>            allSummaryCases(); 
+    std::vector<RimSummaryCase*>            allSummaryCases() const;
     std::vector<RimSummaryCase*>            topLevelSummaryCases() const;
     std::vector<RimSummaryCaseCollection*>  summaryCaseCollections() const;
 

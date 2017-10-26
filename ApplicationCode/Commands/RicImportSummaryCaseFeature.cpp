@@ -71,12 +71,6 @@ void RicImportSummaryCaseFeature::onActionTriggered(bool isChecked)
         RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(f);
     }
 
-    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
-    if (mainPlotWindow && sumCaseColl->summaryCaseCount() > 0)
-    {
-        mainPlotWindow->selectAsCurrentItem(sumCaseColl->summaryCase(sumCaseColl->summaryCaseCount()-1));
-    }
-
     std::vector<RimCase*> cases;
     app->project()->allCases(cases);
 
@@ -105,8 +99,15 @@ bool RicImportSummaryCaseFeature::createAndAddSummaryCaseFromFile(const QString&
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     if (!sumCaseColl) return false;
 
-    sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
-    sumCaseColl->updateConnectedEditors();
+    RimSummaryCase* sumCase = sumCaseColl->createAndAddSummaryCaseFromFileName(fileName);
+    sumCaseColl->updateAllRequiredEditors();
+
+    RiuMainPlotWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
+    if (mainPlotWindow)
+    {
+        mainPlotWindow->selectAsCurrentItem(sumCase);
+    }
+    
     app->addToRecentFiles(fileName);
 
     return true;
