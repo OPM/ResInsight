@@ -726,6 +726,12 @@ MainWindow::~MainWindow()
     m_pdmUiTreeView2->setPdmItem(NULL);
     m_pdmUiPropertyView->showProperties(NULL);
     m_pdmUiTableView->setListField(NULL);
+
+    delete m_pdmUiTreeView;
+    delete m_pdmUiTreeView2;
+    delete m_pdmUiPropertyView;
+    delete m_pdmUiTableView;
+    delete m_customObjectEditor;
 }
 
 //--------------------------------------------------------------------------------------------------

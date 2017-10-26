@@ -38,6 +38,7 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmUiEditorHandle.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmUiObjectEditorHandle.h"
 
 namespace caf
 {
@@ -348,6 +349,16 @@ void PdmUiItem::updateConnectedEditors()
     {
         (*it)->updateUi();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::updateAllRequiredEditors()
+{
+    updateConnectedEditors();
+
+    PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -229,7 +229,11 @@ public:
 
     virtual bool     isUiGroup()                                                           { return false; }
 
+    /// Intended to be called when fields in an object has been changed
     void             updateConnectedEditors();
+
+    /// Intended to be called when an object has been created or deleted
+    void             updateAllRequiredEditors();
 
     void             updateUiIconFromState(bool isActive,  QString uiConfigName = "");
 

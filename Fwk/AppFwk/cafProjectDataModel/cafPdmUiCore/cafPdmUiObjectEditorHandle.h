@@ -55,27 +55,32 @@ class PdmObjectHandle;
 /// Abstract class to handle editors for complete PdmObjects
 //==================================================================================================
 
-class PdmUiObjectEditorHandle: public PdmUiEditorHandle
+class PdmUiObjectEditorHandle : public PdmUiEditorHandle
 {
 public:
-    PdmUiObjectEditorHandle() {}
-    ~PdmUiObjectEditorHandle() {}
+    PdmUiObjectEditorHandle();
+    virtual ~PdmUiObjectEditorHandle();
    
-    QWidget*            getOrCreateWidget(QWidget* parent);
-    QWidget*            widget() { return m_widget; }
+    QWidget*                getOrCreateWidget(QWidget* parent);
+    QWidget*                widget() const;
 
     void                    setPdmObject(PdmObjectHandle* object);
     PdmObjectHandle*        pdmObject();
     const PdmObjectHandle*  pdmObject() const;
 
+    /// This function is intended to be called after a PdmObject has been created or deleted
+    static void             updateUiAllObjectEditors();
+
 protected:
     /// Supposed to create the top level widget of the editor with a suitable QLayout 
-    virtual QWidget*    createWidget(QWidget* parent) = 0;
+    virtual QWidget*        createWidget(QWidget* parent) = 0;
 
-    virtual void        cleanupBeforeSettingPdmObject() {};
+    virtual void            cleanupBeforeSettingPdmObject() {};
 
-protected:
+private:
     QPointer<QWidget>   m_widget;
+
+    static std::set<QPointer<PdmUiObjectEditorHandle>> m_sRegisteredObjectEditors;
 };
 
 
