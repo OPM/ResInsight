@@ -26,6 +26,10 @@
 #include "cafPdmPtrField.h"
 #include "cafPdmPointer.h"
 
+#include "RifWellRftAddressQMetaType.h"
+
+#include "cafAppEnum.h"
+
 #include <QPointer>
 #include <QDate>
 #include <QMetaType>
@@ -38,40 +42,19 @@ class RimEclipseCase;
 ///  
 ///  
 //==================================================================================================
-enum class RftSourceType
+class RimRftAddress : public caf::PdmObject
 {
-    NONE,
-    RFT,
-    GRID,
-    OBSERVED
-};
+    CAF_PDM_HEADER_INIT;
 
-class RimWellRftAddress
-{
-    
 public:
-    RimWellRftAddress();
-    RimWellRftAddress(RftSourceType sourceType, RimEclipseCase* eclCase);
-    RimWellRftAddress(RftSourceType sourceType, RimWellLogFile* wellLogFile = nullptr);
 
-    RftSourceType   sourceType() const;
-    RimEclipseCase* eclCase() const;
-    RimWellLogFile* wellLogFile() const;
+    RimRftAddress();
 
-    static QString sourceTypeUiText(RftSourceType sourceType);
-
-    friend QTextStream& operator >> (QTextStream& str, RimWellRftAddress& addr);
-    friend bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);
+    void setAddress(const RifWellRftAddress& address);
+    RifWellRftAddress address() const;
 
 private:
-    RftSourceType                   m_sourceType;
-    caf::PdmPointer<RimEclipseCase> m_eclCase;
-    caf::PdmPointer<RimWellLogFile> m_wellLogFile;
+    caf::PdmField<caf::AppEnum<RifWellRftAddress::SourceType> > m_sourceType;
+    caf::PdmPtrField<RimEclipseCase*>                           m_eclCase;
+    caf::PdmPtrField<RimWellLogFile*>                           m_wellLogFile;
 };
-
-Q_DECLARE_METATYPE(RimWellRftAddress);
-
-bool operator==(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);
-QTextStream& operator <<(QTextStream& str, const RimWellRftAddress& addr);
-QTextStream& operator >> (QTextStream& str, RimWellRftAddress& addr);
-bool operator<(const RimWellRftAddress& addr1, const RimWellRftAddress& addr2);

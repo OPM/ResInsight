@@ -26,8 +26,11 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
 #include "cvfCollection.h"
-#include "RimWellRftAddress.h"
 #include "RimPlotCurve.h"
+
+#include "RifWellRftAddress.h"
+#include "RifWellRftAddressQMetaType.h"
+
 #include <QPointer>
 #include <QDate>
 #include <QMetaType>
@@ -112,10 +115,10 @@ protected:
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
-    void                                            addTimeStepToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
-                                                                     const std::pair<QDateTime, std::set<RimWellRftAddress>>& timeStepToAdd);
-    void                                            addTimeStepsToMap(std::map<QDateTime, std::set<RimWellRftAddress>>& destMap,
-                                                                      const std::map<QDateTime, std::set<RimWellRftAddress>>& timeStepsToAdd);
+    void                                            addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
+                                                                     const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
+    void                                            addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
+                                                                      const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 
@@ -132,25 +135,25 @@ private:
     //std::vector<std::tuple<RimEclipseResultCase*, bool, bool>> eclipseCasesForWell(const QString& wellName) const;
     //std::vector<RimEclipseResultCase*>              gridCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
     //std::vector<RimEclipseResultCase*>              rftCasesFromEclipseCases(const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCasesTuple) const;
-    //std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
-    //std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
-    std::map<QDateTime, std::set<RimWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const;
-    std::map<QDateTime, std::set<RimWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RimWellRftAddress>>>& allTimeSteps, 
-                                                                       const std::pair<QDateTime, std::set<RimWellRftAddress>>& searchTimeStepPair);
-    static bool                                      mapContainsTimeStep(const std::map<QDateTime, std::set<RimWellRftAddress>>& map, const QDateTime& timeStep);
+    //std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromRftCase(RimEclipseResultCase* gridCase) const;
+    //std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromGridCase(RimEclipseCase* gridCase) const;
+    std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsFromWellLogFile(RimWellLogFile* wellLogFile) const;
+    std::map<QDateTime, std::set<RifWellRftAddress>> adjacentTimeSteps(const std::vector<std::pair<QDateTime, std::set<RifWellRftAddress>>>& allTimeSteps, 
+                                                                       const std::pair<QDateTime, std::set<RifWellRftAddress>>& searchTimeStepPair);
+    static bool                                      mapContainsTimeStep(const std::map<QDateTime, std::set<RifWellRftAddress>>& map, const QDateTime& timeStep);
 
-    std::set<std::pair<RimWellRftAddress, QDateTime>> selectedCurveDefs() const;
-    std::set<std::pair<RimWellRftAddress, QDateTime>> curveDefsFromCurves() const;
-    std::pair<RimWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
-    void                                            updateCurvesInPlot(const std::set<std::pair<RimWellRftAddress, QDateTime>>& curveDefs);
+    std::set<std::pair<RifWellRftAddress, QDateTime>> selectedCurveDefs() const;
+    std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefsFromCurves() const;
+    std::pair<RifWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
+    void                                            updateCurvesInPlot(const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefs);
     void                                            addStackedCurve(const QString& tracerName,
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,
                                                                     RimWellLogTrack* plotTrack);
 
     bool                                            isOnlyGridSourcesSelected() const;
-    bool                                            isAnySourceAddressSelected(const std::set<RimWellRftAddress>& addresses) const;
-    std::vector<RimWellRftAddress>                  selectedSources() const;
+    bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;
+    std::vector<RifWellRftAddress>                  selectedSources() const;
 
     // RimViewWindow overrides
 
@@ -169,7 +172,7 @@ private:
 
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<int>                              m_branchIndex;
-    caf::PdmField<std::vector<RimWellRftAddress>>   m_selectedSources;
+    caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
     
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 
@@ -177,7 +180,7 @@ private:
 
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
 
-    std::map<QDateTime, std::set<RimWellRftAddress>> m_timeStepsToAddresses;
+    std::map<QDateTime, std::set<RifWellRftAddress>>    m_timeStepsToAddresses;
 
     caf::PdmField<caf::AppEnum<FlowType>>               m_phaseSelectionMode;
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;

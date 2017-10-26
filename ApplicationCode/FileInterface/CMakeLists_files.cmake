@@ -34,6 +34,8 @@ ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.h
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.h
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorUserData.h
+${CEE_CURRENT_LIST_DIR}RifWellRftAddress.h
+${CEE_CURRENT_LIST_DIR}RifWellRftAddressQMetaType.h
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
 #${CEE_CURRENT_LIST_DIR}RifHdf5Reader.h
@@ -74,6 +76,7 @@ ${CEE_CURRENT_LIST_DIR}RifWellPathImporter.cpp
 ${CEE_CURRENT_LIST_DIR}RifHdf5ReaderInterface.cpp
 ${CEE_CURRENT_LIST_DIR}RifColumnBasedUserData.cpp
 ${CEE_CURRENT_LIST_DIR}RifKeywordVectorUserData.cpp
+${CEE_CURRENT_LIST_DIR}RifWellRftAddress.cpp
 
 
 # HDF5 file reader is directly included in ResInsight main CmakeList.txt
