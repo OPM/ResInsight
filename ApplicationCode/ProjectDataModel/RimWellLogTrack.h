@@ -82,19 +82,15 @@ public:
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();
 
-protected:
-
-    // Overridden PDM methods
+private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
-
-    void computeAndSetXRangeMinForLogarithmicScale();
 
     virtual caf::PdmFieldHandle* objectToggleField() override;
     virtual caf::PdmFieldHandle* userDescriptionField() override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
-private:
+    void computeAndSetXRangeMinForLogarithmicScale();
     
     static void updateGeneratedSimulationWellpath(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches, const QString& simWellName, RimCase* rimCase);
     static void simWellOptionItems(QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase);
@@ -120,6 +116,8 @@ private:
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmField<QString>                          m_simWellName;
     caf::PdmField<int>                              m_branchIndex;
+
+    bool                                            m_simulationWellChosen;
 
     cvf::Collection<RigWellPath>                    m_generatedSimulationWellPathBranches;
 

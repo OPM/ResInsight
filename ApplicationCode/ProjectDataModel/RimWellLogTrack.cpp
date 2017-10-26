@@ -109,6 +109,8 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
+
+    m_simulationWellChosen = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,8 +272,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_trajectoryType)
     {
         clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
-        m_wellPath = nullptr;
-        m_simWellName = QString("None");
+
         loadDataAndUpdate();
     }
     else if (changedField == &m_branchIndex)
@@ -438,6 +439,11 @@ void RimWellLogTrack::loadDataAndUpdate()
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->loadDataAndUpdate(true);
+    }
+
+    if (m_trajectoryType == RimWellLogTrack::SIMULATION_WELL)
+    {
+        m_simulationWellChosen = true;
     }
 
     updateFormationNamesOnPlot();
@@ -807,7 +813,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     std::vector<QString> formationNamesVector;
 
     cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
-    if (geomExtractor.notNull())
+    if (!m_simulationWellChosen && geomExtractor.notNull())
     {
         if (plot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
         {
@@ -823,7 +829,12 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     }
     else
     {
-        cvf::ref<RigEclipseWellLogExtractor> eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
+        cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
+
+        if (!m_simulationWellChosen)
+        {
+            eclExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, eclipseCase);
+        }
 
         if (eclExtractor.isNull())
         {
