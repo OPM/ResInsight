@@ -109,8 +109,6 @@ RimWellLogTrack::RimWellLogTrack()
 
     CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
-
-    m_annotationTool = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,12 +124,7 @@ RimWellLogTrack::~RimWellLogTrack()
         m_wellLogTrackPlotWidget = nullptr;
     }
 
-    clearGeneratedSimWellPaths();
-
-    if (m_annotationTool != nullptr)
-    {
-        delete m_annotationTool;
-    }
+    clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,9 +136,38 @@ void RimWellLogTrack::setDescription(const QString& description)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::simWellOptionItems(QList<caf::PdmOptionItemInfo>* options, RimCase* rimCase)
+{
+    CVF_ASSERT(options);
+    if (!options) return;
+
+    std::set<QString> sortedWellNames;
+
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
+
+    if (eclipseCase && eclipseCase->eclipseCaseData())
+    {
+        sortedWellNames = eclipseCase->eclipseCaseData()->findSortedWellNames();
+    }
+
+    QIcon simWellIcon(":/Well.png");
+    for (const QString& wname : sortedWellNames)
+    {
+        options->push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));
+    }
+
+    if (options->size() == 0)
+    {
+        options->push_front(caf::PdmOptionItemInfo("None", "None"));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Clean up existing generated well paths 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::clearGeneratedSimWellPaths()
+void RimWellLogTrack::clearGeneratedSimWellPaths(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches)
 {
     RimWellLogPlotCollection* wellLogCollection = nullptr;
 
@@ -156,12 +178,12 @@ void RimWellLogTrack::clearGeneratedSimWellPaths()
 
     if (!wellLogCollection) return;
 
-    for (size_t wpIdx = 0; wpIdx < m_generatedSimulationWellPathBranches.size(); ++wpIdx)
+    for (size_t wpIdx = 0; wpIdx < generatedSimulationWellPathBranches->size(); ++wpIdx)
     {
-        wellLogCollection->removeExtractors(m_generatedSimulationWellPathBranches[wpIdx].p());
+        wellLogCollection->removeExtractors(generatedSimulationWellPathBranches->at(wpIdx));
     }
 
-    m_generatedSimulationWellPathBranches.clear();
+    generatedSimulationWellPathBranches->clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,21 +245,15 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_case)
     {
-        std::set<QString> wellNameSet;
+        QList<caf::PdmOptionItemInfo> options;
+        RimWellLogTrack::simWellOptionItems(&options, m_case);
 
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-
-        if (eclipseCase && eclipseCase->eclipseCaseData())
-        {
-            wellNameSet = eclipseCase->eclipseCaseData()->findSortedWellNames();
-        }
-
-        if (!wellNameSet.count(m_simWellName()))
+        if (options.isEmpty())
         {
             m_simWellName = QString("None");
         }
 
-        clearGeneratedSimWellPaths();
+        clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
 
         loadDataAndUpdate();
     }
@@ -247,13 +263,13 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_simWellName)
     {
-        clearGeneratedSimWellPaths();
+        clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
 
         loadDataAndUpdate();
     }
     else if (changedField == &m_trajectoryType)
     {
-        clearGeneratedSimWellPaths();
+        clearGeneratedSimWellPaths(&m_generatedSimulationWellPathBranches);
         m_wellPath = nullptr;
         m_simWellName = QString("None");
         loadDataAndUpdate();
@@ -262,7 +278,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     {
         loadDataAndUpdate();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,29 +303,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogTrack::calculateValueOptions(const caf::
     }
     else if (fieldNeedingOptions == &m_simWellName)
     {
-        std::set<QString> sortedWellNames;
-
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-
-        if (eclipseCase && eclipseCase->eclipseCaseData())
-        {
-            sortedWellNames = eclipseCase->eclipseCaseData()->findSortedWellNames();
-        }
-
-        QIcon simWellIcon(":/Well.png");
-        for (const QString& wname : sortedWellNames)
-        {
-            options.push_back(caf::PdmOptionItemInfo(wname, wname, false, simWellIcon));
-        }
-
-        if (options.size() == 0)
-        {
-            options.push_front(caf::PdmOptionItemInfo("None", "None"));
-        }
+        RimWellLogTrack::simWellOptionItems(&options, m_case);
     }
     else if (fieldNeedingOptions == &m_branchIndex)
     {
-        updateGeneratedSimulationWellpath();
+        updateGeneratedSimulationWellpath(&m_generatedSimulationWellPathBranches, m_simWellName(), m_case);
 
         size_t branchCount = m_generatedSimulationWellPathBranches.size();
 
@@ -577,19 +574,19 @@ RimWellLogCurve* RimWellLogTrack::curveDefinitionFromCurve(const QwtPlotCurve* c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateGeneratedSimulationWellpath()
+void RimWellLogTrack::updateGeneratedSimulationWellpath(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches, const QString& simWellName, RimCase* rimCase)
 {
-    if (m_generatedSimulationWellPathBranches.size()) return; // Already created. Nothing to do
+    if (generatedSimulationWellPathBranches->size()) return; // Already created. Nothing to do
 
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
+    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(rimCase);
 
-    if (!(!m_simWellName().isEmpty() && m_simWellName() != QString("None") && eclipseCase  && eclipseCase->eclipseCaseData()))
+    if (!(!simWellName.isEmpty() && simWellName != QString("None") && eclipseCase  && eclipseCase->eclipseCaseData()))
     {
         return;
     }
 
     RigEclipseCaseData* eclCaseData = eclipseCase->eclipseCaseData();
-    const RigSimWellData* simWellData = eclCaseData->findSimWellData(m_simWellName());
+    const RigSimWellData* simWellData = eclCaseData->findSimWellData(simWellName);
 
     if (!simWellData) return;
 
@@ -612,7 +609,7 @@ void RimWellLogTrack::updateGeneratedSimulationWellpath()
         newWellPath->m_measuredDepths = wellMdCalculator.measuredDepths();
         newWellPath->m_wellPathPoints = wellMdCalculator.wellPathPoints();
 
-        m_generatedSimulationWellPathBranches.push_back(newWellPath.p());
+        generatedSimulationWellPathBranches->push_back(newWellPath.p());
     }
 }
 
@@ -636,7 +633,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
     }
     else
     {
-        updateGeneratedSimulationWellpath();
+        updateGeneratedSimulationWellpath(&m_generatedSimulationWellPathBranches, m_simWellName(), m_case);
 
         formationGroup->add(&m_simWellName);
         if (m_generatedSimulationWellPathBranches.size() > 1)
@@ -789,7 +786,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     if (m_annotationTool == nullptr)
     {
-        m_annotationTool = new RiuPlotAnnotationTool(this->viewer());
+        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool(this->viewer()));
     }
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -903,7 +900,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::removeFormationNames()
 {
-    if (m_annotationTool != nullptr)
+    if (m_annotationTool)
     {
         m_annotationTool->detachAllAnnotations();
     }

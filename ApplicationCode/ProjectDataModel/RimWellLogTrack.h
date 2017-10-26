@@ -27,6 +27,7 @@
 
 #include <QPointer>
 
+#include <memory>
 #include <vector>
 
 class RigWellPath;
@@ -88,14 +89,16 @@ protected:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     void computeAndSetXRangeMinForLogarithmicScale();
-    void updateGeneratedSimulationWellpath();
 
     virtual caf::PdmFieldHandle* objectToggleField() override;
     virtual caf::PdmFieldHandle* userDescriptionField() override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void clearGeneratedSimWellPaths();
+    
+    static void updateGeneratedSimulationWellpath(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches, const QString& simWellName, RimCase* rimCase);
+    static void simWellOptionItems(QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase);
+    static void clearGeneratedSimWellPaths(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches);
     void updateFormationNamesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
@@ -123,5 +126,5 @@ private:
 
     QPointer<RiuWellLogTrack> m_wellLogTrackPlotWidget;
     
-    RiuPlotAnnotationTool* m_annotationTool;
+    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 };
