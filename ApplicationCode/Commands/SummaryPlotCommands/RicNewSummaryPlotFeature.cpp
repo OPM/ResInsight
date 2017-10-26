@@ -41,14 +41,6 @@ CAF_CMD_SOURCE_INIT(RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RicNewSummaryPlotFeature::RicNewSummaryPlotFeature()
-{
-    m_curveCreatorFactory = RicSummaryCurveCreatorFactoryImpl::instance();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RicNewSummaryPlotFeature::isCommandEnabled()
 {
     return true;
@@ -62,8 +54,8 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    auto dialog = m_curveCreatorFactory->dialog();
-    auto curveCreator = m_curveCreatorFactory->curveCreator();
+    auto dialog = RicSummaryCurveCreatorFactoryImpl::instance()->dialog();
+    auto curveCreator = RicSummaryCurveCreatorFactoryImpl::instance()->curveCreator();
 
     if (!dialog->isVisible())
     {

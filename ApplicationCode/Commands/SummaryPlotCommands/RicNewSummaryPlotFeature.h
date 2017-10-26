@@ -20,7 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RicSummaryCurveCreatorFactoryImpl;
 class RimSummaryPlotCollection;
 class RimSummaryCase;
 class RimSummaryPlot;
@@ -33,7 +32,6 @@ class RicNewSummaryPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    RicNewSummaryPlotFeature();
     static RimSummaryPlot* createNewSummaryPlot(RimSummaryPlotCollection* summaryPlotColl, RimSummaryCase* summaryCase);
 
 protected:
@@ -41,7 +39,4 @@ protected:
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook(QAction* actionToSetup);
-
-private:
-    RicSummaryCurveCreatorFactoryImpl*      m_curveCreatorFactory;
 };

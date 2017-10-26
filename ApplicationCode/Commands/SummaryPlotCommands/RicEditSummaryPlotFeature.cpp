@@ -41,7 +41,6 @@ CAF_CMD_SOURCE_INIT(RicEditSummaryPlotFeature, "RicEditSummaryPlotFeature");
 //--------------------------------------------------------------------------------------------------
 RicEditSummaryPlotFeature::RicEditSummaryPlotFeature()
 {
-    m_curveCreatorFactory = RicSummaryCurveCreatorFactoryImpl::instance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,8 +48,8 @@ RicEditSummaryPlotFeature::RicEditSummaryPlotFeature()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 {
-    auto dialog = m_curveCreatorFactory->dialog();
-    auto curveCreator = m_curveCreatorFactory->curveCreator();
+    auto dialog = RicSummaryCurveCreatorFactoryImpl::instance()->dialog();
+    auto curveCreator = RicSummaryCurveCreatorFactoryImpl::instance()->curveCreator();
 
     if (dialog && dialog->isVisible())
     {
@@ -81,8 +80,8 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    auto dialog = m_curveCreatorFactory->dialog();
-    auto curveCreator = m_curveCreatorFactory->curveCreator();
+    auto dialog = RicSummaryCurveCreatorFactoryImpl::instance()->dialog();
+    auto curveCreator = RicSummaryCurveCreatorFactoryImpl::instance()->curveCreator();
 
     if (!dialog->isVisible())
     {

@@ -19,14 +19,8 @@
 #pragma once
 
 #include "cafCmdFeature.h"
-#include <QPointer>
 
-class RicSummaryCurveCreatorFactoryImpl;
 class RimSummaryPlot;
-
-namespace caf {
-	class PdmUiPropertyViewDialog;
-}
 
 //==================================================================================================
 /// 
@@ -47,7 +41,4 @@ protected:
 
 private:
     RimSummaryPlot* selectedSummaryPlot() const;
-
-private:
-    RicSummaryCurveCreatorFactoryImpl*      m_curveCreatorFactory;
 };
