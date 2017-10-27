@@ -125,7 +125,7 @@ RimSummaryPlot* RicSummaryCurveCreator::previewPlot() const
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
 {
-    if (m_targetPlot != targetPlot)
+    if (targetPlot == nullptr || m_targetPlot != targetPlot)
     {
         resetAllFields();
     }
@@ -136,8 +136,9 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     if (m_targetPlot)
     {
         populateCurveCreator(*m_targetPlot);
-        syncPreviewCurvesFromUiSelection();
     }
+
+    syncPreviewCurvesFromUiSelection();
 
     caf::PdmUiItem::updateConnectedEditors();
 }
@@ -548,6 +549,9 @@ void RicSummaryCurveCreator::copyCurveAndAddToPlot(const RimSummaryCurve *curve,
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::resetAllFields()
 {
+    std::vector<RiaSummaryCurveDefinition> curveDefinitions;
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions(curveDefinitions);
+
     m_previewPlot->deleteAllSummaryCurves();
     m_targetPlot = nullptr;
 }
