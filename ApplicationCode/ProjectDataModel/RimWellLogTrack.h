@@ -25,6 +25,8 @@
 #include "cvfCollection.h"
 #include "cafPdmPtrField.h"
 
+#include "RimWellLogPlot.h"
+
 #include <QPointer>
 
 #include <memory>
@@ -37,8 +39,21 @@ class RimWellLogCurve;
 class RimWellPath;
 class RiuPlotAnnotationTool;
 class RiuWellLogTrack;
+class RigEclipseWellLogExtractor;
+class RimWellLogPlotCollection;
+class RigGeoMechWellLogExtractor;
+class RigResultAccessor;
+class RigFemResultAddress;
 
 class QwtPlotCurve;
+
+struct CurveSamplingPointData
+{
+    std::vector<double> data;
+    std::vector<double> md;
+    std::vector<double> tvd;
+};
+
 
 //==================================================================================================
 ///  
@@ -95,6 +110,24 @@ private:
     static void updateGeneratedSimulationWellpath(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches, const QString& simWellName, RimCase* rimCase);
     static void simWellOptionItems(QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase);
     static void clearGeneratedSimWellPaths(cvf::Collection<RigWellPath>* generatedSimulationWellPathBranches);
+    
+    static RigEclipseWellLogExtractor* createSimWellExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, const QString& simWellName, int branchIndex);
+    static RigEclipseWellLogExtractor* createWellPathExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath);
+    static RigGeoMechWellLogExtractor* createGeoMechExtractor(RimWellLogPlotCollection* wellLogCollection, RimCase* rimCase, RimWellPath* wellPath);
+
+    static CurveSamplingPointData curveSamplingPointData(RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor);
+    static CurveSamplingPointData curveSamplingPointData(RigGeoMechWellLogExtractor* extractor, const RigFemResultAddress& resultAddress);
+
+    static std::vector<QString> formationNameIndexToName(RimCase* rimCase, const std::vector<int>& formationNameInidces);
+
+    static void findFormationNamesToPlot(const CurveSamplingPointData&           curveData,
+                                         const std::vector<QString>&             formationNamesVector,
+                                         RimWellLogPlot::DepthTypeEnum           depthType,
+                                         std::vector<QString>*                   formationNamesToPlot,
+                                         std::vector<std::pair<double, double>>* yValues);
+
+    static std::vector<QString> formationNamesVector(RimCase* rimCase);
+
     void updateFormationNamesOnPlot();
     void removeFormationNames();
     void updateAxisScaleEngine();
