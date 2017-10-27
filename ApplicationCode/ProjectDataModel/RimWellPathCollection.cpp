@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaColorTables.h"
+#include "RiaWellNameComparer.h"
 
 #include "RigWellPath.h"
 #include "RigEclipseCaseData.h"
@@ -250,12 +251,15 @@ void RimWellPathCollection::readAndAddWellPaths(std::vector<RimWellPath*>& wellP
         progress.setProgressDescription(QString("Reading file %1").arg(wellPath->name()));
 
         // If a well path with this name exists already, make it read the well path file
-        RimWellPath* existingWellPath = wellPathByName(wellPath->name());
+        RimWellPath* existingWellPath = tryFindMatchingWellPath(wellPath->name());
         if (existingWellPath)
         {
             existingWellPath->filepath = wellPath->filepath;
             existingWellPath->wellPathIndexInFile = wellPath->wellPathIndexInFile;
             existingWellPath->readWellPathFile(NULL, m_wellPathImporter);
+
+            // Let name from well path file override name from well log file
+            existingWellPath->setName(wellPath->name());
 
             delete wellPath;
         }
@@ -296,7 +300,7 @@ RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
         logFileInfo = RimWellLogFile::readWellLogFile(filePath);
         if (logFileInfo)
         {
-            RimWellPath* wellPath = wellPathByName(logFileInfo->wellName());
+            RimWellPath* wellPath = tryFindMatchingWellPath(logFileInfo->wellName());
             if (!wellPath)
             {
                 wellPath = new RimWellPath();
@@ -428,7 +432,17 @@ RimWellPath* RimWellPathCollection::wellPathByName(const QString& wellPathName) 
         }
     }
 
-    return NULL;
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimWellPathCollection::tryFindMatchingWellPath(const QString& wellName) const
+{
+    QString matchedWellPath = RiaWellNameComparer::tryFindMatchingWellPath(wellName);
+
+    return !matchedWellPath.isEmpty() ? wellPathByName(matchedWellPath) : nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

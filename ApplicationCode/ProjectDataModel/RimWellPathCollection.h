@@ -94,6 +94,7 @@ public:
     void                                deleteAllWellPaths();
 
     RimWellPath*                        wellPathByName(const QString& wellPathName) const;
+    RimWellPath*                        tryFindMatchingWellPath(const QString& wellName) const;
     void                                addWellPaths(const std::vector<RimWellPath*> wellPaths);
     RimWellLogFile*                     addWellLogs(const QStringList& filePaths);
 

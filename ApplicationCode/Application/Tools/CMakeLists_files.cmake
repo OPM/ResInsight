@@ -18,6 +18,7 @@ ${CEE_CURRENT_LIST_DIR}RiaRegressionTest.h
 ${CEE_CURRENT_LIST_DIR}RiaImportEclipseCaseTools.h
 ${CEE_CURRENT_LIST_DIR}RiaQDateTimeTools.h
 ${CEE_CURRENT_LIST_DIR}RiaSummaryTools.h
+${CEE_CURRENT_LIST_DIR}RiaWellNameComparer.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -33,6 +34,7 @@ ${CEE_CURRENT_LIST_DIR}RiaRegressionTest.cpp
 ${CEE_CURRENT_LIST_DIR}RiaImportEclipseCaseTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaQDateTimeTools.cpp
 ${CEE_CURRENT_LIST_DIR}RiaSummaryTools.cpp
+${CEE_CURRENT_LIST_DIR}RiaWellNameComparer.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
