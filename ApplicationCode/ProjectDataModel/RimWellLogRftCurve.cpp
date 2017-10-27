@@ -177,6 +177,10 @@ void RimWellLogRftCurve::setDefaultAddress(QString wellName)
     {
         m_timeStep = timeSteps[0];
     }
+    else
+    {
+        m_timeStep = QDateTime();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,6 +401,10 @@ void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     }
     else if (changedField == &m_wellLogChannelName)
     {
+        if (m_wellLogChannelName == RifEclipseRftAddress::NONE)
+        {
+            m_timeStep = QDateTime();
+        }
         this->loadDataAndUpdate(true);
     }
     else if (changedField == &m_timeStep)
