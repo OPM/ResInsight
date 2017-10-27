@@ -31,6 +31,7 @@ QTextStream&  operator >> (QTextStream& str, QDateTime& value)
     QString text;
     str >> text;
     value = QDateTime::fromString(text, "yyyy_MM_dd-HH:mm:ss");
+    value.setTimeSpec(Qt::UTC);
     return str;
 }
 
