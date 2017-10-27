@@ -82,7 +82,7 @@ const std::set<QString> RimWellPltPlot::FLOW_DATA_NAMES = {
     GAS_CHANNEL_NAME,
     WATER_CHANNEL_NAME,
     TOTAL_CHANNEL_NAME };
-const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
+const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "PLT: %1";
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -91,7 +91,7 @@ RimWellPltPlot::RimWellPltPlot()
 {
     CAF_PDM_InitObject("Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "");
 
-    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("RFT Plot"), "Name", "", "", "");
+    CAF_PDM_InitField(&m_userName, "PlotDescription", QString("PLT Plot"), "Name", "", "", "");
     m_userName.uiCapability()->setUiReadOnly(true);
 
     CAF_PDM_InitField(&m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "");
