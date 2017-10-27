@@ -398,7 +398,7 @@ bool RimCellEdgeColors::hasResult() const
 {
     if (!enableCellEdgeColors()) return false;
 
-    if (isUsingSingleVariable() && m_singleVarEdgeResultColors->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (isUsingSingleVariable() && m_singleVarEdgeResultColors->isFlowDiagOrInjectionFlooding())
     {
         return true;
     }
@@ -437,7 +437,7 @@ void RimCellEdgeColors::minMaxCellEdgeValues(double& min, double& max)
     globalMin = HUGE_VAL;
     globalMax = -HUGE_VAL;
 
-    if (isUsingSingleVariable() && singleVarEdgeResultColors()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (isUsingSingleVariable() && singleVarEdgeResultColors()->isFlowDiagOrInjectionFlooding())
     {
         int currentTimeStep = m_reservoirView->currentTimeStep();
 

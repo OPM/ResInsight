@@ -179,7 +179,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuEclipseSelec
 {
     RimEclipseView* eclipseView = eclipseSelectionItem->m_view.p();
 
-    if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+    if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
     { 
         // NB! Do not read out data for flow results, as this can be a time consuming operation
 

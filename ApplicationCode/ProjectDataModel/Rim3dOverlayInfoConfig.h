@@ -88,6 +88,7 @@ private:
     
     void updateVisCellStatsIfNeeded();
     void displayPropertyFilteredStatisticsMessage(bool showSwitchToCurrentTimestep);
+    bool hasInvalidStatisticsCombination();
     bool                                        m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache>            m_visibleCellStatistics;
 };

@@ -117,14 +117,13 @@ Rim3dOverlayInfoConfig::~Rim3dOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (m_viewDef->propertyFilterCollection() && m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
-        m_statisticsCellRange() == VISIBLE_CELLS && m_statisticsTimeRange() == ALL_TIMESTEPS)
+
+    if ( hasInvalidStatisticsCombination() )
     {
         displayPropertyFilteredStatisticsMessage(false);
-        if (changedField == &m_statisticsTimeRange) m_statisticsTimeRange = CURRENT_TIMESTEP;
-        if (changedField == &m_statisticsCellRange) m_statisticsCellRange = ALL_CELLS;
+        if ( changedField == &m_statisticsTimeRange ) m_statisticsTimeRange = CURRENT_TIMESTEP;
+        if ( changedField == &m_statisticsCellRange ) m_statisticsCellRange = ALL_CELLS;
     }
-
 
     this->update3DInfo();
 
@@ -167,10 +166,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
     m_isVisCellStatUpToDate = false;
 
-    if (m_viewDef->propertyFilterCollection() && 
-        m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() &&
-        m_statisticsCellRange() == VISIBLE_CELLS && 
-        m_statisticsTimeRange() == ALL_TIMESTEPS)
+    if (hasInvalidStatisticsCombination())
     {
         displayPropertyFilteredStatisticsMessage(true);
         m_statisticsTimeRange = CURRENT_TIMESTEP;
@@ -384,7 +380,7 @@ void Rim3dOverlayInfoConfig::updateEclipse3DInfo(RimEclipseView * eclipseView)
         {
             QString propName = eclipseView->cellResult()->resultVariableUiShortName();
             QString timeRangeText = m_statisticsTimeRange().uiText();
-            if (eclipseView->cellResult()->resultType() == RiaDefines::FLOW_DIAGNOSTICS)
+            if (eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())
             {
                 timeRangeText = caf::AppEnum<StatisticsTimeRangeType>::uiText(CURRENT_TIMESTEP);
             }
@@ -678,4 +674,24 @@ void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage(bool showS
             + switchString);
         isShowing = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Rim3dOverlayInfoConfig::hasInvalidStatisticsCombination()
+{
+    if (m_viewDef->propertyFilterCollection() 
+        && m_viewDef->propertyFilterCollection()->hasActiveDynamicFilters() 
+        && m_statisticsCellRange() == VISIBLE_CELLS 
+        && m_statisticsTimeRange() == ALL_TIMESTEPS )
+    {
+        RimEclipseView * eclipseView = dynamic_cast<RimEclipseView*>(m_viewDef.p());
+        if (!(eclipseView && eclipseView->cellResult()->isFlowDiagOrInjectionFlooding())) // If isFlowDiagOrInjFlooding then skip this check as ALL_TIMESTEPS is overridden to CURRENT behind the scenes
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
