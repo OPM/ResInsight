@@ -102,9 +102,9 @@ protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
 
 private:
-    void                                            addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
+    static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                      const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
-    void                                            addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
+    static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);

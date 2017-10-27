@@ -48,9 +48,16 @@ CAF_PDM_SOURCE_INIT(RimRftAddress, "RftAddress");
 //--------------------------------------------------------------------------------------------------
 RimRftAddress::RimRftAddress()
 {
-    CAF_PDM_InitFieldNoDefault(&m_sourceType, "SourceType", "SourceType", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_eclCase, "EclipseCase", "EclipseCase", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "WellLogFile", "", "", "");
+    InitPdmObject();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimRftAddress::RimRftAddress(const RifWellRftAddress& addr)
+{
+    InitPdmObject();
+    setAddress(addr);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,4 +78,25 @@ RifWellRftAddress RimRftAddress::address() const
     return m_eclCase() != nullptr ?
         RifWellRftAddress(m_sourceType(), m_eclCase()) :
         RifWellRftAddress(m_sourceType(), m_wellLogFile());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimRftAddress::InitPdmObject()
+{
+    CAF_PDM_InitFieldNoDefault(&m_sourceType, "SourceType", "SourceType", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_eclCase, "EclipseCase", "EclipseCase", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_wellLogFile, "WellLogFile", "WellLogFile", "", "", "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimRftAddress& RimRftAddress::operator=(const RimRftAddress& other)
+{
+    m_sourceType = other.m_sourceType();
+    m_eclCase = other.m_eclCase();
+    m_wellLogFile = other.m_wellLogFile();
+    return *this;
 }

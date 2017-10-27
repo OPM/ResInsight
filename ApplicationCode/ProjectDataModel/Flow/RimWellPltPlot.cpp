@@ -104,10 +104,14 @@ RimWellPltPlot::RimWellPltPlot()
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "WellName", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "BranchIndex", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedSources, "Sources", "Sources", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedSources, "SourcesInternal", "SourcesInternal", "", "", "");
     m_selectedSources.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_selectedSources.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue(false);
+    m_selectedSources.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedSourcesForIo, "Sources", "Sources", "", "", "");
+    m_selectedSourcesForIo.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_selectedTimeSteps, "TimeSteps", "TimeSteps", "", "", "");
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
@@ -118,8 +122,10 @@ RimWellPltPlot::RimWellPltPlot()
 
     CAF_PDM_InitFieldNoDefault(&m_phases, "Phases", "Phases", "", "", "");
     m_phases.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
+    m_phases = std::vector<caf::AppEnum<FlowPhase>>({ FlowPhase::PHASE_OIL, FlowPhase::PHASE_GAS, FlowPhase::PHASE_WATER });
 
     this->setAsPlotMdiWindow();
+    m_doInitAfterLoad = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -253,7 +259,7 @@ void RimWellPltPlot::deleteViewWidget()
 void RimWellPltPlot::updateSelectedTimeStepsFromSelectedSources()
 {
     std::vector<QDateTime> newTimeStepsSelections;
-    std::vector<RifWellRftAddress> selectedSourcesVector = selectedSources();
+    std::vector<RifWellRftAddress> selectedSourcesVector = m_selectedSources();
     auto selectedSources = std::set<RifWellRftAddress>(selectedSourcesVector.begin(), selectedSourcesVector.end());
 
     for (const QDateTime& timeStep : m_selectedTimeSteps())
@@ -385,35 +391,6 @@ std::vector<RimEclipseCase*> RimWellPltPlot::eclipseCases() const
 //
 //    syncCurvesFromUiSelection();
 //}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::updateEditorsFromCurves()
-{
-//    std::set<RifWellRftAddress>                         selectedSources;
-//    std::set<QDateTime>                                 selectedTimeSteps;
-//    std::map<QDateTime, std::set<RifWellRftAddress>>    selectedTimeStepsMap;
-//
-//    for (const std::pair<RifWellRftAddress, QDateTime>& curveDef : curveDefsFromCurves())
-//    {
-//        if (curveDef.first.sourceType() == RftSourceType::OBSERVED)
-//            selectedSources.insert(RifWellRftAddress(RftSourceType::OBSERVED));
-//        else
-//            selectedSources.insert(curveDef.first);
-//
-//        auto newTimeStepMap = std::map<QDateTime, std::set<RifWellRftAddress>>
-//        {
-//            { curveDef.second, std::set<RifWellRftAddress> { curveDef.first} }
-//        };
-//        addTimeStepsToMap(selectedTimeStepsMap, newTimeStepMap);
-//        selectedTimeSteps.insert(curveDef.second);
-//    }
-//
-//    m_selectedSources = std::vector<RifWellRftAddress>(selectedSources.begin(), selectedSources.end());
-//    m_selectedTimeSteps = std::vector<QDateTime>(selectedTimeSteps.begin(), selectedTimeSteps.end());
-//    addTimeStepsToMap(m_timeStepsToAddresses, selectedTimeStepsMap);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -992,6 +969,30 @@ std::vector<RifWellRftAddress> RimWellPltPlot::selectedSources() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RifWellRftAddress> RimWellPltPlot::selectedSourcesAndTimeSteps() const
+{
+    std::vector<RifWellRftAddress> sources;
+    for (const RifWellRftAddress& addr : m_selectedSources())
+    {
+        if (addr.sourceType() == RifWellRftAddress::OBSERVED)
+        {
+            for (const QDateTime& timeStep : m_selectedTimeSteps())
+            {
+                for (const RifWellRftAddress& address : m_timeStepsToAddresses.at(timeStep))
+                {
+                    sources.push_back(address);
+                }
+            }
+        }
+        else
+            sources.push_back(addr);
+    }
+    return sources;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QWidget* RimWellPltPlot::viewWidget()
 {
     return m_wellLogPlotWidget;
@@ -1194,7 +1195,6 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
             plotTrack->removeCurve(curve);
         }
         m_timeStepsToAddresses.clear();
-        updateEditorsFromCurves();
     }
     else if (changedField == &m_selectedSources)
     {
@@ -1240,12 +1240,6 @@ QImage RimWellPltPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    //if (!m_selectedSourcesOrTimeStepsFieldsChanged)
-    //{
-    //    updateEditorsFromCurves();
-    //}
-    //m_selectedSourcesOrTimeStepsFieldsChanged = false;
-
     uiOrdering.add(&m_userName);
     uiOrdering.add(&m_wellName);
     
@@ -1285,6 +1279,49 @@ void RimWellPltPlot::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         attrib->showTextFilter = false;
         attrib->showToggleAllCheckbox = false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::initAfterRead()
+{
+    RimViewWindow::initAfterRead();
+
+    // Postpone init until data has been loaded
+    m_doInitAfterLoad = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::setupBeforeSave()
+{
+    m_selectedSourcesForIo.clear();
+    for (const RifWellRftAddress& addr : selectedSourcesAndTimeSteps())
+    {
+        m_selectedSourcesForIo.push_back(new RimRftAddress(addr));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::initAfterLoad()
+{
+    std::set<RifWellRftAddress> selectedSources;
+    for (RimRftAddress* addr : m_selectedSourcesForIo)
+    {
+        if (addr->address().sourceType() == RifWellRftAddress::OBSERVED)
+        {
+            selectedSources.insert(RifWellRftAddress(RifWellRftAddress::OBSERVED));
+        }
+        else
+        {
+            selectedSources.insert(addr->address());
+        }
+    }
+    m_selectedSources = std::vector<RifWellRftAddress>(selectedSources.begin(), selectedSources.end());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1456,9 +1493,15 @@ QString RimWellPltPlot::description() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::loadDataAndUpdate()
 {
+    if (m_doInitAfterLoad)
+    {
+        initAfterLoad();
+        m_doInitAfterLoad = false;
+    }
+
     updateMdiWindowVisibility();
+    syncCurvesFromUiSelection();
     m_wellLogPlot->loadDataAndUpdate();
-    updateEditorsFromCurves();
 }
 
 //--------------------------------------------------------------------------------------------------

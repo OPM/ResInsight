@@ -68,8 +68,6 @@ private:
     caf::PdmPointer<RimWellLogFile> m_wellLogFile;
 };
 
-//Q_DECLARE_METATYPE(RifWellRftAddress);
-
 bool operator==(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2);
 QTextStream& operator <<(QTextStream& str, const RifWellRftAddress& addr);
 QTextStream& operator >> (QTextStream& str, RifWellRftAddress& addr);

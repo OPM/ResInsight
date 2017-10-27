@@ -22,14 +22,15 @@
 #include "RimViewWindow.h"
 #include "RigFlowDiagResultAddress.h"
 
+#include "RimRftAddress.h"
+#include "RifWellRftAddressQMetaType.h"
+#include "RimPlotCurve.h"
+
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafPdmChildArrayField.h"
 #include "cvfCollection.h"
-#include "RimPlotCurve.h"
-
-#include "RifWellRftAddress.h"
-#include "RifWellRftAddressQMetaType.h"
 
 #include <QPointer>
 #include <QDate>
@@ -114,15 +115,18 @@ protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
+    virtual void                                    initAfterRead() override;
+    virtual void                                    setupBeforeSave() override;
+    void                                            initAfterLoad();
+
 private:
-    void                                            addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
+    static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                      const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
-    void                                            addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
+    static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 
-    void                                            updateEditorsFromCurves();
     void                                            updateWidgetTitleWindowTitle();
 
     void                                            syncCurvesFromUiSelection();
@@ -154,6 +158,7 @@ private:
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;
     std::vector<RifWellRftAddress>                  selectedSources() const;
+    std::vector<RifWellRftAddress>                  selectedSourcesAndTimeSteps() const;
 
     // RimViewWindow overrides
 
@@ -172,8 +177,10 @@ private:
 
     caf::PdmField<QString>                          m_wellName;
     caf::PdmField<int>                              m_branchIndex;
+
     caf::PdmField<std::vector<RifWellRftAddress>>   m_selectedSources;
-    
+    caf::PdmChildArrayField<RimRftAddress*>         m_selectedSourcesForIo;
+
     caf::PdmField<std::vector<QDateTime>>           m_selectedTimeSteps;
 
     QPointer<RiuWellPltPlot>                        m_wellLogPlotWidget;
@@ -184,4 +191,6 @@ private:
 
     caf::PdmField<caf::AppEnum<FlowType>>               m_phaseSelectionMode;
     caf::PdmField<std::vector<caf::AppEnum<FlowPhase>>> m_phases;
+
+    bool                                            m_doInitAfterLoad;
 };

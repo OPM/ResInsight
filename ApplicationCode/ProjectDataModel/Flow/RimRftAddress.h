@@ -47,13 +47,17 @@ class RimRftAddress : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-
     RimRftAddress();
+    RimRftAddress(const RifWellRftAddress& addr);
 
     void setAddress(const RifWellRftAddress& address);
     RifWellRftAddress address() const;
 
+    RimRftAddress& operator=(const RimRftAddress& other);
+
 private:
+    void InitPdmObject();
+
     caf::PdmField<caf::AppEnum<RifWellRftAddress::SourceType> > m_sourceType;
     caf::PdmPtrField<RimEclipseCase*>                           m_eclCase;
     caf::PdmPtrField<RimWellLogFile*>                           m_wellLogFile;
