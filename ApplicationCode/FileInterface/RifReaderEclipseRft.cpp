@@ -50,6 +50,8 @@ void RifReaderEclipseRft::open()
 
     int fileSize = ecl_rft_file_get_size(m_ecl_rft_file);
 
+    m_eclipseRftAddresses.clear();
+    
     for (int i = 0; i < fileSize; i++)
     {
         ecl_rft_node_type* node = ecl_rft_file_iget_node(m_ecl_rft_file, i);
@@ -276,17 +278,64 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
 
     if (wellName == "") return wellLogChannelNames;
 
+    bool pressureAndDepthFound = false;
+    bool rftFound = false;
+    bool pltFound = false;
+
     for (const RifEclipseRftAddress& address : m_eclipseRftAddresses)
     {
         if (address.wellName() == wellName)
         {
             RifEclipseRftAddress::RftWellLogChannelName name = address.wellLogChannelName();
-            if (name != RifEclipseRftAddress::RftWellLogChannelName::DEPTH)
+            
+            if (!pressureAndDepthFound)
             {
-                wellLogChannelNames.push_back(address.wellLogChannelName());
+                if ( name == RifEclipseRftAddress::PRESSURE )
+                {
+                    pressureAndDepthFound = true;
+                    if (rftFound && pltFound) break;
+                }
+            }
+
+            if (!rftFound)
+            {
+                if ( name == RifEclipseRftAddress::RftWellLogChannelName::SWAT )
+                {
+                    rftFound = true;
+                    if (pltFound && pressureAndDepthFound) break;
+                    continue;
+                }
+            }
+            
+            if (!pltFound)
+            {
+                if ( name == RifEclipseRftAddress::RftWellLogChannelName::WRAT )
+                {
+                    pltFound = true;
+                    if (rftFound && pressureAndDepthFound) break;
+                }
             }
         }
     }
+
+    if (pressureAndDepthFound)
+    {
+        wellLogChannelNames.push_back(RifEclipseRftAddress::PRESSURE);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::DEPTH);
+    }
+    if (rftFound)
+    {
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::SWAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::SOIL);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::SGAS);
+    }
+    if (pltFound)
+    {
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::WRAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::ORAT);
+        wellLogChannelNames.push_back(RifEclipseRftAddress::RftWellLogChannelName::GRAT);
+    }
+
     return wellLogChannelNames;
 }
 

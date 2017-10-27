@@ -351,7 +351,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
     }
     else if (fieldNeedingOptions == &m_wellLogChannelName)
     {
-        options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
         RifReaderEclipseRft* reader = rftReader();
         if (reader)
         {
@@ -359,6 +358,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
             {
                 options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelName), channelName));
             }
+        }
+        if (options.empty())
+        {
+            options.push_back(caf::PdmOptionItemInfo(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(RifEclipseRftAddress::NONE), RifEclipseRftAddress::NONE));
         }
     }
     else if (fieldNeedingOptions == &m_timeStep)
