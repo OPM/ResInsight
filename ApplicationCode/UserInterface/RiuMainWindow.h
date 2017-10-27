@@ -43,6 +43,8 @@ class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
 class RiuViewer;
+class RiuRelativePermeabilityPlotPanel;
+class RiuPvtPlotPanel;
 
 struct RimMdiWindowGeometry;
 
@@ -111,8 +113,10 @@ public:
     QMdiSubWindow*  findMdiSubWindow(QWidget* viewer);
 	QList<QMdiSubWindow*> subWindowList(QMdiArea::WindowOrder order);
 
-    RiuResultQwtPlot*   resultPlot();
-    RiuMessagePanel*    messagePanel();
+    RiuResultQwtPlot*                   resultPlot();
+    RiuRelativePermeabilityPlotPanel*   relativePermeabilityPlotPanel();
+    RiuPvtPlotPanel*                    pvtPlotPanel();
+    RiuMessagePanel*                    messagePanel();
 
     void            showProcessMonitorDockPanel();
 
@@ -167,8 +171,10 @@ private:
     RiuProcessMonitor*  m_processMonitor;
     QPointer<RiuMessagePanel>               m_messagePanel;
     
-    RiuResultQwtPlot*   m_resultQwtPlot;
-    
+    RiuResultQwtPlot*                   m_resultQwtPlot;
+    RiuRelativePermeabilityPlotPanel*   m_relPermPlotPanel;
+    RiuPvtPlotPanel*                    m_pvtPlotPanel;
+
     QMenu*              m_windowMenu;
 
 

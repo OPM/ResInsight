@@ -28,6 +28,9 @@
 #include "RigFlowDiagInterfaceTools.h"
 #include "opm/flowdiagnostics/DerivedQuantities.hpp"
 
+#include "opm/utility/ECLSaturationFunc.hpp"
+#include "opm/utility/ECLPvtCurveCollection.hpp"
+
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
@@ -119,6 +122,9 @@ public:
 
         m_hasUnifiedRestartFile = false;
         m_poreVolume = m_eclGraph->poreVolume();
+
+        m_eclSaturationFunc.reset(new Opm::ECLSaturationFunc(*m_eclGraph, initData));
+        //m_eclPvtCurveCollection.reset(new Opm::ECLPVT::ECLPvtCurveCollection(*m_eclGraph, initData));
     }
 
     std::unique_ptr<Opm::ECLGraph>                  m_eclGraph;
@@ -127,6 +133,9 @@ public:
     bool                                            m_hasUnifiedRestartFile;
     std::vector<Opm::ECLRestartData>                m_singleRestartDataTimeSteps;
     std::unique_ptr<Opm::ECLRestartData>            m_unifiedRestartData;
+
+    std::unique_ptr<Opm::ECLSaturationFunc>             m_eclSaturationFunc;
+//    std::unique_ptr<Opm::ECLPVT::ECLPvtCurveCollection> m_eclPvtCurveCollection;
 };
 
 
@@ -219,22 +228,18 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 
     caf::ProgressInfo progressInfo(8, "Calculating Flow Diagnostics");
 
-    if ( m_opmFlowDiagStaticData.isNull() )
     {
         progressInfo.setProgressDescription("Grid access");
 
-        // Get set of files
-        QString gridFileName = m_eclipseCase->gridFileName();
-
-        std::string initFileName = getInitFileName();
-
-        if (initFileName.empty()) return result;
-
-        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName);
+        if (!ensureStaticDataObjectInstanceCreated())
+        {
+            return result;
+        }
 
         progressInfo.incrementProgress();
         progressInfo.setProgressDescription("Calculating Connectivities");
 
+        CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
         const  Opm::FlowDiagnostics::ConnectivityGraph connGraph =
             Opm::FlowDiagnostics::ConnectivityGraph{ static_cast<int>(m_opmFlowDiagStaticData->m_eclGraph->numCells()),
             m_opmFlowDiagStaticData->m_eclGraph->neighbours() };
@@ -250,6 +255,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
         // Look for unified restart file
         QStringList m_filesWithSameBaseName;
 
+        QString gridFileName = m_eclipseCase->gridFileName();
         if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(gridFileName, &m_filesWithSameBaseName) ) return result;
 
         QString restartFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
@@ -531,6 +537,24 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate(size_t timeStepI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
+{
+    if (m_opmFlowDiagStaticData.isNull())
+    {
+        // Get set of files
+        QString gridFileName = m_eclipseCase->gridFileName();
+        std::string initFileName = getInitFileName();
+        if (initFileName.empty()) return false;
+
+        m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData(gridFileName.toStdString(), initFileName);
+    }
+
+    return m_opmFlowDiagStaticData.notNull() ? true : false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInterface::calculateFlowCharacteristics(const std::vector<double>* injector_tof,
                                                                                                                     const std::vector<double>* producer_tof,
                                                                                                                     const std::vector<size_t>& selected_cell_indices,
@@ -572,6 +596,102 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame RigFlowDiagSolverInte
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurvesForActiveCell(size_t activeCellIndex)
+{
+    std::vector<RelPermCurve> retCurveArr;
+
+    if (!ensureStaticDataObjectInstanceCreated())
+    {
+        return retCurveArr;
+    }
+
+    CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
+    CVF_ASSERT(m_opmFlowDiagStaticData->m_eclSaturationFunc);
+
+    const Opm::ECLSaturationFunc::RawCurve krw  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Aqua };    // water rel-perm in oil-water system
+    const Opm::ECLSaturationFunc::RawCurve krg  { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Vapour };  // gas rel-perm in oil-gas system
+    const Opm::ECLSaturationFunc::RawCurve krow { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilWater, Opm::ECLPhaseIndex::Liquid };  // oil rel-perm in oil-water system
+    const Opm::ECLSaturationFunc::RawCurve krog { Opm::ECLSaturationFunc::RawCurve::Function::RelPerm, Opm::ECLSaturationFunc::RawCurve::SubSystem::OilGas,   Opm::ECLPhaseIndex::Liquid };  // oil rel-perm in oil-gas system
+
+    std::vector<std::pair<RelPermCurve::Ident, std::string>> curveIdentNameArr;
+    std::vector<Opm::ECLSaturationFunc::RawCurve> satFuncRequests;
+    curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KRW,  "KRW"));    satFuncRequests.push_back(krw);
+    curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KRG,  "KRG"));    satFuncRequests.push_back(krg);
+    curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KROW, "KROW"));   satFuncRequests.push_back(krow);
+    curveIdentNameArr.push_back(std::make_pair(RelPermCurve::KROG, "KROG"));   satFuncRequests.push_back(krog);
+
+    const bool useEPS = true;
+    std::vector<Opm::FlowDiagnostics::Graph> graphArr = m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve(satFuncRequests, static_cast<int>(activeCellIndex), useEPS);
+
+    for (size_t i = 0; i < graphArr.size(); i++)
+    {
+        const Opm::FlowDiagnostics::Graph& srcGraph = graphArr[i];
+        if (srcGraph.first.size() > 0)
+        {
+            const RelPermCurve::Ident curveIdent = curveIdentNameArr[i].first;
+            const std::string curveName = curveIdentNameArr[i].second;
+            std::vector<double> xVals = srcGraph.first;
+            const std::vector<double>& yVals = srcGraph.second;
+            
+            // According to Issue https://github.com/OPM/ResInsight/issues/2014,
+            // we need to modify the x values to be 1 - x
+            if (curveIdent == RelPermCurve::KROW || curveIdent == RelPermCurve::KROG)
+            {
+                for (size_t i = 0; i < xVals.size(); i++)
+                {
+                    xVals[i] = 1.0 - xVals[i];
+                }
+            }
+
+            retCurveArr.push_back({ curveIdent, curveName, xVals, yVals});
+        }
+    }
+
+    //{
+    //    // Dummy test data until we can get real data
+    //    std::vector<double> dummyX { 0.1, 0.3, 0.5, 0.7, 0.9 };
+    //    std::vector<double> dummyY { 0.1, 0.3, 0.3, 1.7, 1.9 };
+    //    retCurveArr.push_back({ RelPermCurve::PCOG, "PCOG", dummyX, dummyX });
+    //    retCurveArr.push_back({ RelPermCurve::PCOW, "PCOW", dummyX, dummyY });
+    //}
+
+    return retCurveArr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtFvfCurvesForActiveCell(size_t activeCellIndex)
+{
+    std::vector<PvtCurve> retCurveArr;
+
+    if (!ensureStaticDataObjectInstanceCreated())
+    {
+        return retCurveArr;
+    }
+
+    //CVF_ASSERT(m_opmFlowDiagStaticData.notNull());
+    //CVF_ASSERT(m_opmFlowDiagStaticData->m_eclPvtCurveCollection);
+
+    //{
+    //    Opm::FlowDiagnostics::Graph graph = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Vapour, static_cast<int>(activeCellIndex));
+    //    retCurveDataArr.push_back({ "FVF_Gas", graph.first, graph.second });
+    //}
+    //{
+    //    Opm::FlowDiagnostics::Graph graph = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Liquid, static_cast<int>(activeCellIndex));
+    //    retCurveDataArr.push_back({ "FVF_Oil", graph.first, graph.second });
+    //}
+    //{
+    //    Opm::FlowDiagnostics::Graph graph = m_opmFlowDiagStaticData->m_eclPvtCurveCollection->getPvtCurve(Opm::ECLPVT::RawCurve::FVF, Opm::ECLPhaseIndex::Aqua, static_cast<int>(activeCellIndex));
+    //    retCurveDataArr.push_back({ "FVF_Water", graph.first, graph.second });
+    //}
+
+    return retCurveArr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::string RigFlowDiagSolverInterface::getInitFileName() const
 {
     QString gridFileName = m_eclipseCase->gridFileName();
@@ -584,7 +704,6 @@ std::string RigFlowDiagSolverInterface::getInitFileName() const
 
     return initFileName.toStdString();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

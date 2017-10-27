@@ -20,11 +20,13 @@ ${CEE_CURRENT_LIST_DIR}RiuMultiCaseImportDialog.h
 ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.h
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.h
+${CEE_CURRENT_LIST_DIR}RiuPvtPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuQwtPlotZoomer.h
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.h
+${CEE_CURRENT_LIST_DIR}RiuRelativePermeabilityPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuResultTextBuilder.h
@@ -76,10 +78,12 @@ ${CEE_CURRENT_LIST_DIR}RiuMultiCaseImportDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuProjectPropertyView.cpp
 ${CEE_CURRENT_LIST_DIR}RiuPropertyViewTabWidget.cpp
+${CEE_CURRENT_LIST_DIR}RiuPvtPlotPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtScalePicker.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtCurvePointTracker.cpp
 ${CEE_CURRENT_LIST_DIR}RiuQwtPlotWheelZoomer.cpp
 ${CEE_CURRENT_LIST_DIR}RiuRecentFileActionProvider.cpp
+${CEE_CURRENT_LIST_DIR}RiuRelativePermeabilityPlotPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultQwtPlot.cpp
 ${CEE_CURRENT_LIST_DIR}RiuResultTextBuilder.cpp
@@ -126,6 +130,7 @@ list(APPEND QT_MOC_HEADERS
 ${CEE_CURRENT_LIST_DIR}RiuMainWindowBase.h
 ${CEE_CURRENT_LIST_DIR}RiuMainWindow.h
 ${CEE_CURRENT_LIST_DIR}RiuMainPlotWindow.h
+${CEE_CURRENT_LIST_DIR}RiuRelativePermeabilityPlotPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuResultInfoPanel.h
 ${CEE_CURRENT_LIST_DIR}RiuViewer.h
 ${CEE_CURRENT_LIST_DIR}RiuProcessMonitor.h

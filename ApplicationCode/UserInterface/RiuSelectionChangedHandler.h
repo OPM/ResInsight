@@ -40,6 +40,8 @@ private:
     void addCurveFromSelectionItem(const RiuSelectionItem* itemAdded) const;
     void addCurveFromSelectionItem(const RiuEclipseSelectionItem* selectionItem) const;
     void addCurveFromSelectionItem(const RiuGeoMechSelectionItem* selectionItem) const;
+    void updateRelativePermeabilityPlot(const RiuSelectionItem* selectionItem) const;
+    void updatePvtPlot(const RiuSelectionItem* selectionItem) const;
 
     void scheduleUpdateForAllVisibleViews() const;
     void updateResultInfo(const RiuSelectionItem* itemAdded) const;

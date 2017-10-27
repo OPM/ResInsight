@@ -46,6 +46,8 @@
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
+#include "RiuRelativePermeabilityPlotPanel.h"
+#include "RiuPvtPlotPanel.h"
 
 #include "cafAnimationToolBar.h"
 #include "cafCmdExecCommandManager.h"
@@ -98,6 +100,8 @@ RiuMainWindow* RiuMainWindow::sm_mainWindowInstance = NULL;
 RiuMainWindow::RiuMainWindow()
     : m_pdmRoot(NULL),
     m_mainViewer(NULL),
+    m_relPermPlotPanel(NULL),
+    m_pvtPlotPanel(NULL),
     m_windowMenu(NULL),
     m_blockSlotSubWindowActivated(false)
 {
@@ -169,6 +173,8 @@ void RiuMainWindow::cleanupGuiCaseClose()
     setResultInfo("");
 
     m_resultQwtPlot->deleteAllCurves();
+    if (m_relPermPlotPanel) m_relPermPlotPanel->clearPlot();
+    if (m_pvtPlotPanel) m_pvtPlotPanel->clearPlot();
 
     if (m_pdmUiPropertyView)
     {
@@ -616,6 +622,28 @@ void RiuMainWindow::createDockPanels()
     }
  
     {
+        QDockWidget* dockPanel = new QDockWidget("Relative Permeability Plot", this);
+        dockPanel->setObjectName("dockRelativePermeabilityPlotPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_relPermPlotPanel = new RiuRelativePermeabilityPlotPanel(dockPanel);
+        dockPanel->setWidget(m_relPermPlotPanel);
+
+        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        dockPanel->hide();
+    }
+
+    {
+        QDockWidget* dockPanel = new QDockWidget("PVT Plot", this);
+        dockPanel->setObjectName("dockPvtPlotPanel");
+        dockPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+        m_pvtPlotPanel = new RiuPvtPlotPanel(dockPanel);
+        dockPanel->setWidget(m_pvtPlotPanel);
+
+        addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+        dockPanel->hide();
+    }
+
+    {
         QDockWidget* dockWidget = new QDockWidget("Messages", this);
         dockWidget->setObjectName("dockMessages");
         m_messagePanel = new RiuMessagePanel(dockWidget);
@@ -836,6 +864,22 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList(QMdiArea::WindowOrder order)
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuRelativePermeabilityPlotPanel* RiuMainWindow::relativePermeabilityPlotPanel()
+{
+    return m_relPermPlotPanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuPvtPlotPanel* RiuMainWindow::pvtPlotPanel()
+{
+    return m_pvtPlotPanel;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -75,6 +75,26 @@ public:
         double m_lorenzCoefficient;
     };
 
+    struct RelPermCurve
+    {
+        enum Ident { KRW, KRG, KROW, KROG, PCOW, PCOG };
+
+        Ident               ident;
+        std::string         name;
+        std::vector<double> xVals;
+        std::vector<double> yVals;
+    };
+
+    struct PvtCurve
+    {
+        enum Ident { FVT_OIL, FVT_GAS, FVT_WATER };
+
+        Ident               ident;
+        std::string         name;
+        std::vector<double> xVals;
+        std::vector<double> yVals;
+    };
+
 public:
     explicit RigFlowDiagSolverInterface(RimEclipseResultCase * eclipseCase);
     virtual ~RigFlowDiagSolverInterface();
@@ -89,8 +109,12 @@ public:
                                                                 const std::vector<size_t>& selected_cell_indices,
                                                                 double max_pv_fraction);
 
+    std::vector<RelPermCurve>      calculateRelPermCurvesForActiveCell(size_t activeCellIndex);
+    std::vector<PvtCurve>          calculatePvtFvfCurvesForActiveCell(size_t activeCellIndex);
+
 private:
     std::string getInitFileName() const;
+    bool        ensureStaticDataObjectInstanceCreated();
 
     RimEclipseResultCase * m_eclipseCase;
 

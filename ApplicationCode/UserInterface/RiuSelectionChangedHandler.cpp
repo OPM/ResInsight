@@ -27,6 +27,8 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
 #include "RigTimeHistoryResultAccessor.h"
+#include "RigGridBase.h"
+#include "RigActiveCellInfo.h"
 #include "RiuFemTimeHistoryResultAccessor.h"
 
 #include "RimEclipseCase.h"
@@ -36,16 +38,84 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimEclipseResultCase.h"
 
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuResultTextBuilder.h"
 #include "RiuSelectionManager.h"
+#include "RiuRelativePermeabilityPlotPanel.h"
+#include "RiuPvtPlotPanel.h"
+
+//#include "cvfTrace.h"
 
 #include <QStatusBar>
 
 #include <assert.h>
+
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class CellLookupHelper
+{
+public:
+    static size_t mapToActiveCellIndex(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex)
+    {
+        const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
+        const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
+        if (grid && gridLocalCellIndex < grid->cellCount())
+        {
+            // Note!!
+            // Which type of porosity model to choose? Currently hard-code to MATRIX_MODEL
+            const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo(RiaDefines::MATRIX_MODEL);
+            CVF_ASSERT(activeCellInfo);
+
+            const size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
+            const size_t activeCellIndex = activeCellInfo->cellResultIndex(reservoirCellIndex);
+            return activeCellIndex;
+        }
+
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
+    static QString cellReferenceText(const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex)
+    {
+        const size_t gridCount = eclipseCaseData ? eclipseCaseData->gridCount() : 0;
+        const RigGridBase* grid = gridIndex < gridCount ? eclipseCaseData->grid(gridIndex) : NULL;
+        if (grid && gridLocalCellIndex < grid->cellCount())
+        {
+            size_t i = 0;
+            size_t j = 0;
+            size_t k = 0;
+            if (grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+            {
+                // Adjust to 1-based Eclipse indexing
+                i++;
+                j++;
+                k++;
+
+                QString retText = QString("Grid index %1, Cell : [%2, %3, %4]").arg(gridIndex).arg(i).arg(j).arg(k);
+                return retText;
+            }
+        }
+
+        return QString();
+    }
+};
+
+
+
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -69,6 +139,9 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
 {
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
+    updateRelativePermeabilityPlot(NULL);
+    updatePvtPlot(NULL);
+
     updateResultInfo(NULL);
 
     scheduleUpdateForAllVisibleViews();
@@ -80,6 +153,9 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
 void RiuSelectionChangedHandler::handleItemAppended(const RiuSelectionItem* item) const
 {
     addCurveFromSelectionItem(item);
+
+    updateRelativePermeabilityPlot(item);
+    updatePvtPlot(item);
 
     updateResultInfo(item);
 
@@ -231,6 +307,88 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem(const RiuSelectionIte
 
         addCurveFromSelectionItem(geomSelectionItem);
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionChangedHandler::updateRelativePermeabilityPlot(const RiuSelectionItem* selectionItem) const
+{
+    RiuRelativePermeabilityPlotPanel* relPermPlotPanel = RiuMainWindow::instance()->relativePermeabilityPlotPanel();
+    if (!relPermPlotPanel)
+    {
+        return;
+    }
+
+    bool mustClearPlot = true;
+
+    if (relPermPlotPanel->isVisible() && selectionItem && selectionItem->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+    {
+        const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>(selectionItem);
+        RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(eclipseSelectionItem->m_view->eclipseCase());
+        if (eclipseResultCase && eclipseResultCase->flowDiagSolverInterface())
+        {
+            size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
+            if (activeCellIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                //cvf::Trace::show("Updating RelPerm plot for active cell index: %d", static_cast<int>(activeCellIndex));
+
+                std::vector<RigFlowDiagSolverInterface::RelPermCurve> relPermCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculateRelPermCurvesForActiveCell(activeCellIndex);
+                QString cellRefText = CellLookupHelper::cellReferenceText(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
+
+                relPermPlotPanel->setPlotData(relPermCurveArr, cellRefText);
+                mustClearPlot = false;
+            }
+        }
+    }
+
+    if (mustClearPlot)
+    {
+        relPermPlotPanel->clearPlot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionChangedHandler::updatePvtPlot(const RiuSelectionItem* selectionItem) const
+{
+    RiuPvtPlotPanel* pvtPlotPanel = RiuMainWindow::instance()->pvtPlotPanel();
+    if (!pvtPlotPanel)
+    {
+        return;
+    }
+
+    bool mustClearPlot = true;
+
+    if (pvtPlotPanel->isVisible() && selectionItem && selectionItem->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT)
+    {
+        const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>(selectionItem);
+        RimEclipseResultCase* eclipseResultCase = dynamic_cast<RimEclipseResultCase*>(eclipseSelectionItem->m_view->eclipseCase());
+        if (eclipseResultCase && eclipseResultCase->flowDiagSolverInterface())
+        {
+            size_t activeCellIndex = CellLookupHelper::mapToActiveCellIndex(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
+            if (activeCellIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                //cvf::Trace::show("Update PVT plot for active cell index: %d", static_cast<int>(activeCellIndex));
+                
+                //std::vector<RigFlowDiagSolverInterface::PvtCurve> fvfCurveArr = eclipseResultCase->flowDiagSolverInterface()->calculatePvtFvfCurvesForActiveCell(activeCellIndex);
+                //cvf::Trace::show("Got %d fvf curves", static_cast<int>(fvfCurveArr.size()));
+                
+                QString cellRefText = CellLookupHelper::cellReferenceText(eclipseResultCase->eclipseCaseData(), eclipseSelectionItem->m_gridIndex, eclipseSelectionItem->m_gridLocalCellIndex);
+
+                pvtPlotPanel->setPlotData(cellRefText);
+                mustClearPlot = false;
+            }
+        }
+    }
+
+    if (mustClearPlot)
+    {
+        pvtPlotPanel->clearPlot();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
