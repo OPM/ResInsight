@@ -289,7 +289,7 @@ void RimWellPathCollection::addWellPaths(const std::vector<RimWellPath*> wellPat
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile* RimWellPathCollection::addWellLogs(const QStringList& filePaths)
 {
-    RimWellLogFile* logFileInfo;
+    RimWellLogFile* logFileInfo = nullptr;
 
     foreach (QString filePath, filePaths)
     {
