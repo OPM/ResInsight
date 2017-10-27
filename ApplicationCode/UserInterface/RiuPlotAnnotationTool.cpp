@@ -55,7 +55,7 @@ void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& nam
 
         m_markers.push_back(std::move(line));
 
-        if ((i == names.size() - 1) || cvf::Math::abs(yPositions[i].second - yPositions[i+1].first) > delta)
+        if ((i != names.size() - 1) && cvf::Math::abs(yPositions[i].second - yPositions[i+1].first) > delta)
         {
             std::unique_ptr<QwtPlotMarker> line(new QwtPlotMarker());
 
