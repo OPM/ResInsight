@@ -34,6 +34,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cvfObject.h"    
 
+#include <functional>
+
 class RifWellPathImporter;
 class RigWellPath;
 class RimProject;
@@ -120,7 +122,9 @@ public:
     int                                 associatedSimulationWellBranch() const;
     bool                                tryAssociateWithSimulationWell();
     bool                                isAssociatedWithSimulationWell() const;
-    bool                                tryMatchName(QString wellPathName, const std::vector<QString>& simWellNames);
+    bool                                tryMatchName(QString wellPathName, 
+                                                     const std::vector<QString>& simWellNames,
+                                                     std::function<QString(QString)> stringFormatter = nullptr);
 
 private:
 

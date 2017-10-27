@@ -710,23 +710,19 @@ bool RimWellPath::tryAssociateWithSimulationWell()
 
     QString wellPathName = QString(m_name);
 
+    // Try to remove prefix on the format 'xx xxxx/xx-'
+    std::regex pattern("^.*\\d*[/]\\d*[-_]");
+
+    wellPathName = QString::fromStdString(std::regex_replace(wellPathName.toStdString(), pattern, ""));
+
     // Try exact name match
     if (tryMatchName(wellPathName, simWellNames)) return true;
 
-    // Try matching ignoring spaces
-    wellPathName = QString(m_name).remove(' ');
-    if (tryMatchName(wellPathName, simWellNames)) return true;
-
-    // Try to remove prefix on the format 'xxxx/xx-'
-    std::regex pattern("^\\d*[/]\\d*-");
-
-    wellPathName = QString::fromStdString(std::regex_replace(m_name().toStdString(), pattern, ""));
-    if (tryMatchName(wellPathName, simWellNames)) return true;
-
-    wellPathName = wellPathName.remove(' ');
-    if (tryMatchName(wellPathName, simWellNames)) return true;
-
-    return false;
+    // Try matching ignoring spaces, dashes and underscores
+    return tryMatchName(wellPathName, simWellNames, [](const QString& str) {
+        QString s = str;
+        return s.remove(' ').remove('-').remove('_');
+    });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -740,13 +736,23 @@ bool RimWellPath::isAssociatedWithSimulationWell() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::tryMatchName(QString wellPathName, const std::vector<QString>& simWellNames)
+bool RimWellPath::tryMatchName(QString wellPathName, const std::vector<QString>& simWellNames, std::function<QString (QString)> stringFormatter)
 {
     if (wellPathName.isEmpty()) return false;
 
+    if (stringFormatter != nullptr)
+    {
+        wellPathName = stringFormatter(wellPathName);
+    }
+
     for (const auto& simWellName : simWellNames)
     {
-        if (QString::compare(simWellName, wellPathName, Qt::CaseInsensitive) == 0)
+        QString simWn = simWellName;
+        if (stringFormatter != nullptr)
+        {
+            simWn = stringFormatter(simWn);
+        }
+        if (QString::compare(simWn, wellPathName, Qt::CaseInsensitive) == 0)
         {
             m_simWellName = simWellName;
             return true;
