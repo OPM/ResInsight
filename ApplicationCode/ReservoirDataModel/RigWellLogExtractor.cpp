@@ -37,6 +37,32 @@ RigWellLogExtractor::~RigWellLogExtractor()
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<CellIntersectionInfo> RigWellLogExtractor::intersectionInfo() const
+{
+    std::vector<CellIntersectionInfo> infoVector;
+
+    for (size_t i = 0; i < m_intersectedCellsGlobIdx.size() - 1; i=i+2)
+    {
+        CVF_ASSERT(m_intersectedCellsGlobIdx[i] == m_intersectedCellsGlobIdx[i + 1]);
+
+        CellIntersectionInfo cellInfo;
+
+        cellInfo.globCellIndex = m_intersectedCellsGlobIdx[i];
+        cellInfo.startPoint = m_intersections[i];
+        cellInfo.endPoint = m_intersections[i+1];
+        cellInfo.intersectedCellFaceIn = m_intersectedCellFaces[i];
+        cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i+1];
+
+        infoVector.push_back(cellInfo);
+    }
+    
+    return infoVector;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

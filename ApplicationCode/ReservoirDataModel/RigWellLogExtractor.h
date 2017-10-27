@@ -32,6 +32,18 @@
 #include "RigWellLogExtractionTools.h"
 #include "RigHexIntersectionTools.h"
 
+//==================================================================================================
+/// 
+//==================================================================================================
+struct CellIntersectionInfo
+{
+    size_t                             globCellIndex;
+    cvf::Vec3d                         startPoint;
+    cvf::Vec3d                         endPoint;
+    cvf::StructGridInterface::FaceType intersectedCellFaceIn;
+    cvf::StructGridInterface::FaceType intersectedCellFaceOut;
+};
+
 class RigWellPath;
 
 //==================================================================================================
@@ -47,6 +59,8 @@ public:
     const std::vector<double>&  trueVerticalDepth() { return m_trueVerticalDepth; }
 
     const RigWellPath*          wellPathData()      { return m_wellPath.p();}
+
+    std::vector<CellIntersectionInfo> intersectionInfo() const;
 
 protected:
     static void                 insertIntersectionsInMap(const std::vector<HexIntersectionInfo> &intersections,
