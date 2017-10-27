@@ -184,10 +184,9 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
         m_curveTreeView->treeView()->setHeaderHidden(true);
     }
 
-    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-    if (sumCurveCreator)
+    if (m_summaryCurveCreator)
     {
-        RimSummaryCurveCollection* sumColl = sumCurveCreator->previewPlot()->summaryCurveCollection();
+        RimSummaryCurveCollection* sumColl = m_summaryCurveCreator->previewPlot()->summaryCurveCollection();
         m_curveTreeView->setPdmItem(sumColl);
     }
 
@@ -200,11 +199,10 @@ QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreateCurveTreeWidget()
 //--------------------------------------------------------------------------------------------------
 QWidget* RicSummaryCurveCreatorSplitterUi::getOrCreatePlotWidget()
 {
-    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-    if (sumCurveCreator)
+    if (m_summaryCurveCreator)
     {
         // TODO: Rename previewPlot()->createViewWidget to getOrCreateViewWidget
-        return sumCurveCreator->previewPlot()->createViewWidget(this->widget());
+        return m_summaryCurveCreator->previewPlot()->createViewWidget(this->widget());
     }
 
     return nullptr;
