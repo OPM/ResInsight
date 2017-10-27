@@ -115,6 +115,8 @@ Toolbox::Impl::assignInflowFlux(const std::map<CellSetID, CellSetValues>& inflow
 {
     only_inflow_flux_.clear();
     only_outflow_flux_.clear();
+    inj_flux_by_id_.clear();
+    prod_flux_by_id_.clear();
     for (const auto& inflow_set : inflow_flux) {
         const CellSetID& id = inflow_set.first;
         for (const auto& data : inflow_set.second) {
@@ -143,8 +145,7 @@ Toolbox::Impl::injDiag(const std::vector<CellSet>& start_sets)
             throw std::runtime_error("Start set ID not present in data passed to assignInflowFlux().");
         }
         for (const int cell : start) {
-            if (only_inflow_flux_.count(cell) != 1)// || only_outflow_flux_.count(cell) != 0) 
-            {
+            if (only_inflow_flux_.count(cell) != 1) {
                 throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
             }
         }
@@ -184,11 +185,9 @@ Toolbox::Impl::prodDiag(const std::vector<CellSet>& start_sets)
             throw std::runtime_error("Start set ID not present in data passed to assignInflowFlux().");
         }
         for (const int cell : start) {
-           if (//only_inflow_flux_.count(cell) != 0 || 
-               only_outflow_flux_.count(cell) != 1 )
-           {
+            if (only_outflow_flux_.count(cell) != 1) {
                  throw std::runtime_error("Start set inconsistent with assignInflowFlux()-given values");
-           }
+            }
         }
     }
 

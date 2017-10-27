@@ -11,7 +11,7 @@ set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f")
 set(ERT_GITHUB_SHA "2e36798b43daf18c112b91aa3febbf2fccd4a95f") 
 
 # https://github.com/OPM/opm-flowdiagnostics
-set(OPM_FLOWDIAGNOSTICS_SHA "b0b8bbd32881fa100661cc8da5d4843794a4184a")
+set(OPM_FLOWDIAGNOSTICS_SHA "7e2be931d430796ed42efcfb5c6b67a8d5962f7f")
 
 # https://github.com/OPM/opm-flowdiagnostics-applications
 set(OPM_FLOWDIAGNOSTICS_APPLICATIONS_SHA "e6ae223fbeb0c9bd83c63a5fb6f57e4a3ad2ec18")
