@@ -42,10 +42,10 @@
 //
 //
 //==================================================================================================
-class MyQwtPlot : public QwtPlot
+class PvtQwtPlot : public QwtPlot
 {
 public:
-    MyQwtPlot(QWidget* parent) : QwtPlot(parent) {}
+    PvtQwtPlot(QWidget* parent) : QwtPlot(parent) {}
     virtual QSize sizeHint() const { return QSize(100, 100); }
     virtual QSize minimumSizeHint() const { return QSize(0, 0); }
 };
@@ -77,8 +77,8 @@ RiuPvtPlotPanel::RiuPvtPlotPanel(QDockWidget* parent)
     comboLayout->addWidget(m_phaseComboBox);
     comboLayout->addStretch(1);
 
-    m_fvfPlot = new MyQwtPlot(this);
-    m_viscosityPlot = new MyQwtPlot(this);
+    m_fvfPlot = new PvtQwtPlot(this);
+    m_viscosityPlot = new PvtQwtPlot(this);
     setPlotDefaults(m_fvfPlot);
     setPlotDefaults(m_viscosityPlot);
 

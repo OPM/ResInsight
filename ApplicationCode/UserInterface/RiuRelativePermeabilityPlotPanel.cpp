@@ -47,10 +47,10 @@
 //
 //
 //==================================================================================================
-class MyQwtPlot : public QwtPlot
+class RelPermQwtPlot : public QwtPlot
 {
 public:
-    MyQwtPlot(QWidget* parent) : QwtPlot(parent) {}
+    RelPermQwtPlot(QWidget* parent) : QwtPlot(parent) {}
     virtual QSize sizeHint() const { return QSize(100, 100); }
     virtual QSize minimumSizeHint() const { return QSize(0, 0); }
 };
@@ -73,7 +73,7 @@ public:
 RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel(QDockWidget* parent)
 :   QWidget(parent)
 {
-    m_qwtPlot = new MyQwtPlot(this);
+    m_qwtPlot = new RelPermQwtPlot(this);
     setPlotDefaults(m_qwtPlot);
 
     m_selectedCurvesButtonGroup = new QButtonGroup(this);
