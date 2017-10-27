@@ -44,6 +44,9 @@ public:
     virtual QString wellName() const override;
     virtual QString wellLogChannelName() const override;
 
+    void            setGroupId(int groupId);
+    int             groupId() const;
+
 protected:
     virtual QString createCurveAutoName() override;
     virtual void onLoadDataAndUpdate(bool updateParentPlot) override;
@@ -56,5 +59,7 @@ private:
     RimWellAllocationPlot* wellAllocationPlot() const;
 
     QString m_tracerName;
+
+    int     m_groupId;
 };
 

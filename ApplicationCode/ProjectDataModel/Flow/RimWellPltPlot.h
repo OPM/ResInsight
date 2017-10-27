@@ -153,7 +153,8 @@ private:
     void                                            addStackedCurve(const QString& tracerName,
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,
-                                                                    RimWellLogTrack* plotTrack);
+                                                                    RimWellLogTrack* plotTrack,
+                                                                    int curveGroupId);
 
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;

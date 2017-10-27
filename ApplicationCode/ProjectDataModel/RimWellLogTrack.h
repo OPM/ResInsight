@@ -31,6 +31,7 @@
 
 #include <memory>
 #include <vector>
+#include <map>
 
 class RigWellPath;
 class RimCase;
@@ -92,7 +93,7 @@ public:
 
     void setLogarithmicScale(bool enable);
 
-    std::vector<RimWellFlowRateCurve*> visibleStackedCurves();
+    std::map<int, std::vector<RimWellFlowRateCurve*>> visibleStackedCurves();
 
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();

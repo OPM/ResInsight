@@ -90,6 +90,22 @@ QString RimWellFlowRateCurve::wellLogChannelName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::setGroupId(int groupId)
+{
+    m_groupId = groupId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RimWellFlowRateCurve::groupId() const
+{
+    return m_groupId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::createCurveAutoName()
 {
     return m_tracerName;
@@ -181,7 +197,13 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     std::vector< std::pair<size_t, size_t> > polyLineStartStopIndices = m_curveData->polylineStartStopIndices();
     std::vector<double> stackedValues(depthValues.size(), 0.0);
      
-    std::vector<RimWellFlowRateCurve*> stackedCurves =  wellLogTrack->visibleStackedCurves();
+    std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurveGroups =  wellLogTrack->visibleStackedCurves();
+    std::vector<RimWellFlowRateCurve*> stackedCurves;
+    if (stackedCurveGroups.count(groupId()) > 0)
+    {
+        stackedCurves = stackedCurveGroups[groupId()];
+    }
+
     double zPos = -0.1;
     for ( RimWellFlowRateCurve * stCurve: stackedCurves )
     {

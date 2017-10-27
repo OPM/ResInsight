@@ -512,8 +512,11 @@ void RimWellLogTrack::updateXZoomAndParentPlotDepthZoom()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateXZoom()
 {
-    std::vector<RimWellFlowRateCurve*> stackCurves = visibleStackedCurves();
-    for (RimWellFlowRateCurve* stCurve: stackCurves) stCurve->updateStackedPlotData();
+    std::map<int, std::vector<RimWellFlowRateCurve*>> stackCurveGroups = visibleStackedCurves();
+    for (const std::pair<int, std::vector<RimWellFlowRateCurve*>>& curveGroup : stackCurveGroups)
+    {
+        for (RimWellFlowRateCurve* stCurve : curveGroup.second) stCurve->updateStackedPlotData();
+    }
 
     if (!m_isAutoScaleXEnabled())
     {
@@ -734,15 +737,22 @@ void RimWellLogTrack::setLogarithmicScale(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellFlowRateCurve*> RimWellLogTrack::visibleStackedCurves()
+std::map<int, std::vector<RimWellFlowRateCurve*>> RimWellLogTrack::visibleStackedCurves()
 {
-    std::vector<RimWellFlowRateCurve*> stackedCurves;
+    std::map<int, std::vector<RimWellFlowRateCurve*>> stackedCurves;
     for (RimWellLogCurve* curve: curves)
     {
         if (curve && curve->isCurveVisible() )
         {
             RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>(curve);
-            if (wfrCurve) stackedCurves.push_back(wfrCurve);
+            if (wfrCurve != nullptr)
+            {
+                if (stackedCurves.count(wfrCurve->groupId()) == 0)
+                {
+                    stackedCurves.insert(std::make_pair(wfrCurve->groupId(), std::vector<RimWellFlowRateCurve*>()));
+                }
+                stackedCurves[wfrCurve->groupId()].push_back(wfrCurve);
+            }
         }
     }
 

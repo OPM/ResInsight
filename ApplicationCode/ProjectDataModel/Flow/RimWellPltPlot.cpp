@@ -816,9 +816,15 @@ void RimWellPltPlot::updateCurvesInPlot(const std::set<std::pair<RifWellRftAddre
         plotTrack->removeCurve(curve);
     }
 
+    int curveGroupId = 0;
+
     // Add curves
     for (const std::pair<RifWellRftAddress, QDateTime>& curveDefToAdd : curveDefs)
     {
+        std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
+            std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
+            std::set<FlowPhase>({ PHASE_TOTAL });
+
         //if (curveDefToAdd.first.sourceType() == RftSourceType::RFT)
         //{
         //    auto curve = new RimWellLogRftCurve();
@@ -874,10 +880,6 @@ void RimWellPltPlot::updateCurvesInPlot(const std::set<std::pair<RifWellRftAddre
             RimWellPath* const wellPath = wellPathFromWellLogFile(wellLogFile);
             if(wellLogFile!= nullptr)
             {
-                std::set<FlowPhase> selectedPhases = m_phaseSelectionMode == FLOW_TYPE_PHASE_SPLIT ?
-                    std::set<FlowPhase>(m_phases().begin(), m_phases().end()) :
-                    std::set<FlowPhase>({ PHASE_TOTAL });
-
                 RigWellLogFile* rigWellLogFile = wellLogFile->wellLogFile();
 
                 if (rigWellLogFile != nullptr)
@@ -887,13 +889,13 @@ void RimWellPltPlot::updateCurvesInPlot(const std::set<std::pair<RifWellRftAddre
                         const auto& channelName = channel->name();
                         if (selectedPhases.count(flowPhaseFromChannelName(channelName)) > 0)
                         {
-
-                            addStackedCurve(channelName, rigWellLogFile->depthValues(), rigWellLogFile->values(channelName), plotTrack);
+                            addStackedCurve(channelName, rigWellLogFile->depthValues(), rigWellLogFile->values(channelName), plotTrack, curveGroupId);
                         }
                     }
                 }
             }
         }
+        curveGroupId++;
     }
 }
 
@@ -903,7 +905,8 @@ void RimWellPltPlot::updateCurvesInPlot(const std::set<std::pair<RifWellRftAddre
 void RimWellPltPlot::addStackedCurve(const QString& channelName,
                                      const std::vector<double>& depthValues,
                                      const std::vector<double>& accFlow,
-                                     RimWellLogTrack* plotTrack)
+                                     RimWellLogTrack* plotTrack,
+                                     int curveGroupId)
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
     curve->setFlowValuesPrDepthValue(channelName, depthValues, accFlow);
@@ -912,8 +915,8 @@ void RimWellPltPlot::addStackedCurve(const QString& channelName,
                  channelName == GAS_CHANNEL_NAME   ? cvf::Color3f::DARK_RED :
                  channelName == WATER_CHANNEL_NAME ? cvf::Color3f::BLUE : 
                  cvf::Color3f::DARK_GRAY;
-        curve->setColor(color);
-
+    curve->setColor(color);
+    curve->setGroupId(curveGroupId);
     plotTrack->addCurve(curve);
 
     curve->loadDataAndUpdate(true);
