@@ -154,7 +154,8 @@ private:
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,
                                                                     RimWellLogTrack* plotTrack,
-                                                                    int curveGroupId);
+                                                                    int curveGroupId,
+                                                                    bool doFillCurve);
 
     bool                                            isOnlyGridSourcesSelected() const;
     bool                                            isAnySourceAddressSelected(const std::set<RifWellRftAddress>& addresses) const;

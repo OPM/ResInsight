@@ -48,6 +48,8 @@ CAF_PDM_SOURCE_INIT(RimWellFlowRateCurve, "WellFlowRateCurve");
 RimWellFlowRateCurve::RimWellFlowRateCurve()
 {
     CAF_PDM_InitObject("Flow Rate Curve", "", "", "");
+    m_groupId = 0;
+    m_doFillCurve = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,6 +108,22 @@ int RimWellFlowRateCurve::groupId() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellFlowRateCurve::setDoFillCurve(bool doFill)
+{
+    m_doFillCurve = doFill;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellFlowRateCurve::doFillCurve() const
+{
+    return m_doFillCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QString RimWellFlowRateCurve::createCurveAutoName()
 {
     return m_tracerName;
@@ -143,26 +161,29 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         m_qwtPlotCurve->setStyle(QwtPlotCurve::Steps);
     }
 
-    QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
-    m_qwtPlotCurve->setBrush(QBrush( curveQColor));
+    if (m_doFillCurve)
+    {
+        QColor curveQColor = QColor (m_curveColor.value().rByte(), m_curveColor.value().gByte(), m_curveColor.value().bByte());
+        m_qwtPlotCurve->setBrush(QBrush( curveQColor));
 
-    QLinearGradient gradient; 
-    gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
-    gradient.setColorAt(0,curveQColor.darker(110));
-    gradient.setColorAt(0.15,curveQColor);
-    gradient.setColorAt(0.25,curveQColor);
-    gradient.setColorAt(0.4,curveQColor.darker(110));
-    gradient.setColorAt(0.6,curveQColor);
-    gradient.setColorAt(0.8,curveQColor.darker(110));
-    gradient.setColorAt(1,curveQColor);
-    m_qwtPlotCurve->setBrush(gradient);
+        QLinearGradient gradient;
+        gradient.setCoordinateMode(QGradient::StretchToDeviceMode);
+        gradient.setColorAt(0, curveQColor.darker(110));
+        gradient.setColorAt(0.15, curveQColor);
+        gradient.setColorAt(0.25, curveQColor);
+        gradient.setColorAt(0.4, curveQColor.darker(110));
+        gradient.setColorAt(0.6, curveQColor);
+        gradient.setColorAt(0.8, curveQColor.darker(110));
+        gradient.setColorAt(1, curveQColor);
+        m_qwtPlotCurve->setBrush(gradient);
 
-    QPen curvePen = m_qwtPlotCurve->pen();
-    curvePen.setColor(curveQColor.darker());
-    m_qwtPlotCurve->setPen(curvePen);
-    m_qwtPlotCurve->setOrientation(Qt::Horizontal);
-    m_qwtPlotCurve->setBaseline(0.0);
-    m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, true);
+        QPen curvePen = m_qwtPlotCurve->pen();
+        curvePen.setColor(curveQColor.darker());
+        m_qwtPlotCurve->setPen(curvePen);
+        m_qwtPlotCurve->setOrientation(Qt::Horizontal);
+        m_qwtPlotCurve->setBaseline(0.0);
+        m_qwtPlotCurve->setCurveAttribute(QwtPlotCurve::Inverted, true);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,7 +283,7 @@ void RimWellFlowRateCurve::updateStackedPlotData()
     m_qwtPlotCurve->setSamples(stackedValues.data(), depthValues.data(), static_cast<int>(depthValues.size()));
     m_qwtPlotCurve->setLineSegmentStartStopIndices(polyLineStartStopIndices);
 
-    m_qwtPlotCurve->setZ(zPos);
+    m_qwtPlotCurve->setZ(doFillCurve() ? zPos : zPos + 10 /*?*/);
 }
 
 //--------------------------------------------------------------------------------------------------

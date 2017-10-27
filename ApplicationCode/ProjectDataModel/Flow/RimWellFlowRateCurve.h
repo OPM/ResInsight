@@ -47,6 +47,9 @@ public:
     void            setGroupId(int groupId);
     int             groupId() const;
 
+    void            setDoFillCurve(bool doFill);
+    bool            doFillCurve() const;
+
 protected:
     virtual QString createCurveAutoName() override;
     virtual void onLoadDataAndUpdate(bool updateParentPlot) override;
@@ -61,5 +64,6 @@ private:
     QString m_tracerName;
 
     int     m_groupId;
+    bool    m_doFillCurve;
 };
 
