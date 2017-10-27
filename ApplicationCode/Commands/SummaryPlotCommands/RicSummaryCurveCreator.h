@@ -59,10 +59,11 @@ public:
     RimSummaryPlot*                         previewPlot() const;
     void                                    updateFromSummaryPlot(RimSummaryPlot* targetPlot);
 
+    QWidget*                                addressSelectionWidget(QWidget* parent);
+
     bool                                    isCloseButtonPressed() const;
     void                                    clearCloseButton();
     void                                    updateCurveNames();
-    void                                    setCurveDefSelectionObject(RiuSummaryCurveDefSelection* curveDefSelection);
 
 private:
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
@@ -96,8 +97,6 @@ private:
     void                                    selectionEditorFieldChanged();
 
 private:
-    caf::PdmPointer<RiuSummaryCurveDefSelection>    m_selectionEditor;
-
     caf::PdmPtrField<RimSummaryPlot*>               m_targetPlot;
     
     std::unique_ptr<RimSummaryPlot>                 m_previewPlot;
@@ -115,4 +114,6 @@ private:
     caf::PdmField<bool>                             m_okButtonField;
     caf::PdmField<bool>                             m_applyButtonField;
     caf::PdmField<bool>                             m_closeButtonField;
+
+    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_summaryCurveSelectionEditor;
 };

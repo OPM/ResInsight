@@ -44,7 +44,10 @@
 RicSummaryCurveCreatorSplitterUi::RicSummaryCurveCreatorSplitterUi(QWidget* parent)
 {
     m_parentWidget = parent;
-    m_addrSelWidget = std::unique_ptr<RiuSummaryCurveDefSelectionEditor>(new RiuSummaryCurveDefSelectionEditor());
+
+    m_summaryCurveCreator.reset(new RicSummaryCurveCreator());
+
+    this->setPdmObject(m_summaryCurveCreator.get());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,25 +61,26 @@ RicSummaryCurveCreatorSplitterUi::~RicSummaryCurveCreatorSplitterUi()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCreatorSplitterUi::updateFromSummaryPlot(RimSummaryPlot* summaryPlot)
+{
+    m_summaryCurveCreator->updateFromSummaryPlot(summaryPlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreatorSplitterUi::recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems, const QString& uiConfigName)
 {
-    RicSummaryCurveCreator* sumCurveCreator = dynamic_cast<RicSummaryCurveCreator*>(this->pdmItem());
-    if (sumCurveCreator)
+    if (m_summaryCurveCreator->isCloseButtonPressed())
     {
-        sumCurveCreator->setCurveDefSelectionObject(m_addrSelWidget->summaryAddressSelection());
+        m_summaryCurveCreator->clearCloseButton();
 
-        if (sumCurveCreator->isCloseButtonPressed())
-        {
-            sumCurveCreator->clearCloseButton();
-
-            emit signalCloseButtonPressed();
-        }
+        emit signalCloseButtonPressed();
     }
 
     if (!m_layout) return;
 
-    QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget(m_parentWidget);
-    m_addrSelWidget->summaryAddressSelection()->updateConnectedEditors();
+    QWidget* addrWidget = m_summaryCurveCreator->addressSelectionWidget(m_parentWidget);
 
     m_firstRowLayout->addWidget(addrWidget);
 

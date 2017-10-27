@@ -21,9 +21,9 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RicEditSummaryPlotFeature.h"
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
-#include "RicSummaryCurveCreatorFactoryImpl.h"
 
 #include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
@@ -54,8 +54,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    auto dialog = RicSummaryCurveCreatorFactoryImpl::instance()->dialog();
-    auto curveCreator = RicSummaryCurveCreatorFactoryImpl::instance()->curveCreator();
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
     if (!dialog->isVisible())
     {
@@ -66,7 +65,7 @@ void RicNewSummaryPlotFeature::onActionTriggered(bool isChecked)
         dialog->raise();
     }
 
-    curveCreator->updateFromSummaryPlot(nullptr);
+    dialog->updateFromSummaryPlot(nullptr);
 }
 
 //--------------------------------------------------------------------------------------------------

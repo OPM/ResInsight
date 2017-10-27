@@ -19,11 +19,12 @@
 #pragma once
 
 #include "cafPdmUiWidgetBasedObjectEditor.h"
+
 #include <vector>
 #include <memory>
 
+class RimSummaryPlot;
 class RicSummaryCurveCreator;
-class RiuSummaryCurveDefSelectionEditor;
 
 class QMinimizePanel;
 class QSplitter;
@@ -49,6 +50,8 @@ class RicSummaryCurveCreatorSplitterUi : public caf::PdmUiWidgetBasedObjectEdito
 public:
     RicSummaryCurveCreatorSplitterUi(QWidget* parent);
     ~RicSummaryCurveCreatorSplitterUi();
+
+    void                    updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
 
 private:
     virtual void            recursivelyConfigureAndUpdateTopLevelUiItems(const std::vector<caf::PdmUiItem *>& topLevelUiItems,
@@ -89,5 +92,6 @@ private:
     QPointer<caf::PdmUiTreeView> m_curveTreeView;
 
     QWidget*                    m_parentWidget;
-    std::unique_ptr<RiuSummaryCurveDefSelectionEditor> m_addrSelWidget;
+
+    std::unique_ptr<RicSummaryCurveCreator> m_summaryCurveCreator;
 };

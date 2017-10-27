@@ -21,7 +21,7 @@
 #include <QDialog>
 
 class RicSummaryCurveCreatorSplitterUi;
-class RicSummaryCurveCreator;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///  
@@ -34,7 +34,7 @@ public:
     RicSummaryCurveCreatorDialog(QWidget* parent);
     ~RicSummaryCurveCreatorDialog();
 
-    void setCurveCreator(RicSummaryCurveCreator* summaryCurveCreator);
+    void updateFromSummaryPlot(RimSummaryPlot* summaryPlot);
 
 private slots:
     void slotDialogFinished();

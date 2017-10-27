@@ -97,6 +97,12 @@ RicSummaryCurveCreator::RicSummaryCurveCreator()
     m_curveNameConfig = new RimSummaryCurveAutoName();
     m_curveNameConfig.uiCapability()->setUiHidden(true);
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden(true);
+
+    m_summaryCurveSelectionEditor.reset(new RiuSummaryCurveDefSelectionEditor());
+
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler([this]() { this->selectionEditorFieldChanged(); });
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setMultiSelectionMode(true);
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,6 +140,14 @@ void RicSummaryCurveCreator::updateFromSummaryPlot(RimSummaryPlot* targetPlot)
     }
 
     caf::PdmUiItem::updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* RicSummaryCurveCreator::addressSelectionWidget(QWidget* parent)
+{
+    return m_summaryCurveSelectionEditor->getOrCreateWidget(parent);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,6 +272,8 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     uiOrdering.skipRemainingFields(true);
 
     syncPreviewCurvesFromUiSelection();
+
+    m_summaryCurveSelectionEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,9 +281,7 @@ void RicSummaryCurveCreator::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCreator::syncPreviewCurvesFromUiSelection()
 {
-    if (!m_selectionEditor) return;
-
-    std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector = m_selectionEditor->selectedCurveDefinitions();
+    std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector = m_summaryCurveSelectionEditor->summaryAddressSelection()->selectedCurveDefinitions();
     std::set<RiaSummaryCurveDefinition> allCurveDefinitions = std::set<RiaSummaryCurveDefinition>(allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end());
 
     std::vector<RimSummaryCurve*> currentCurvesInPreviewPlot = m_previewPlot->summaryCurves();
@@ -460,7 +474,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
         curveDefs.push_back(RiaSummaryCurveDefinition(curve->summaryCase(), curve->summaryAddress()));
 
         // Copy curve object to the preview plot
-        copyCurveAndAddToPlot(curve, m_previewPlot, true);
+        copyCurveAndAddToPlot(curve, m_previewPlot.get(), true);
     }
 
     // Set visibility for imported curves which were not checked in source plot
@@ -477,7 +491,7 @@ void RicSummaryCurveCreator::populateCurveCreator(const RimSummaryPlot& sourceSu
             curve->setCurveVisiblity(false);
     }
 
-    m_selectionEditor->setSelectedCurveDefinitions(curveDefs);
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setSelectedCurveDefinitions(curveDefs);
 
     updateAppearanceEditor();
 }
@@ -657,16 +671,6 @@ void RicSummaryCurveCreator::updateCurveNames()
     }
 
    if (m_previewPlot && m_previewPlot->qwtPlot()) m_previewPlot->qwtPlot()->updateLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreator::setCurveDefSelectionObject(RiuSummaryCurveDefSelection* curveDefSelection)
-{
-    m_selectionEditor = curveDefSelection;
-    m_selectionEditor->setFieldChangedHandler([this]() { this->selectionEditorFieldChanged(); });
-    m_selectionEditor->setMultiSelectionMode(true);
 }
 
 //--------------------------------------------------------------------------------------------------

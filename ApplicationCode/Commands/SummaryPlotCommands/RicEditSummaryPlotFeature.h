@@ -21,6 +21,7 @@
 #include "cafCmdFeature.h"
 
 class RimSummaryPlot;
+class RicSummaryCurveCreatorDialog;
 
 //==================================================================================================
 /// 
@@ -33,11 +34,14 @@ class RicEditSummaryPlotFeature : public caf::CmdFeature
 public:
     void closeDialogAndResetTargetPlot();
 
+    static RicSummaryCurveCreatorDialog* curveCreatorDialog();
+
 protected:
     // Overrides
     virtual bool isCommandEnabled();
     virtual void onActionTriggered( bool isChecked );
     virtual void setupActionLook(QAction* actionToSetup);
+
 
 private:
     RimSummaryPlot* selectedSummaryPlot() const;

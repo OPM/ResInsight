@@ -23,7 +23,6 @@
 
 #include "RicSummaryCurveCreator.h"
 #include "RicSummaryCurveCreatorDialog.h"
-#include "RicSummaryCurveCreatorFactoryImpl.h"
 
 #include "RimSummaryPlot.h"
 
@@ -48,18 +47,24 @@ RicEditSummaryPlotFeature::RicEditSummaryPlotFeature()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 {
-    auto dialog = RicSummaryCurveCreatorFactoryImpl::instance()->dialog();
-    auto curveCreator = RicSummaryCurveCreatorFactoryImpl::instance()->curveCreator();
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
     if (dialog && dialog->isVisible())
     {
         dialog->hide();
     }
 
-    if (curveCreator)
-    {
-        curveCreator->updateFromSummaryPlot(nullptr);
-    }
+    dialog->updateFromSummaryPlot(nullptr);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RicSummaryCurveCreatorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
+{
+    static RicSummaryCurveCreatorDialog* singletonDialog = new RicSummaryCurveCreatorDialog(nullptr);
+
+    return singletonDialog;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,8 +85,7 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
     RimProject* project = RiaApplication::instance()->project();
     CVF_ASSERT(project);
 
-    auto dialog = RicSummaryCurveCreatorFactoryImpl::instance()->dialog();
-    auto curveCreator = RicSummaryCurveCreatorFactoryImpl::instance()->curveCreator();
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
 
     if (!dialog->isVisible())
     {
@@ -95,7 +99,7 @@ void RicEditSummaryPlotFeature::onActionTriggered(bool isChecked)
     // Set target plot
     if (selectedSummaryPlot())
     {
-        curveCreator->updateFromSummaryPlot(selectedSummaryPlot());
+        dialog->updateFromSummaryPlot(selectedSummaryPlot());
     }
 }
 

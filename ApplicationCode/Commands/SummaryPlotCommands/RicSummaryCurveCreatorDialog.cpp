@@ -58,9 +58,9 @@ RicSummaryCurveCreatorDialog::~RicSummaryCurveCreatorDialog()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCreatorDialog::setCurveCreator(RicSummaryCurveCreator* summaryCurveCreator)
+void RicSummaryCurveCreatorDialog::updateFromSummaryPlot(RimSummaryPlot* summaryPlot)
 {
-    m_curveCreatorSplitterUi->setPdmObject(summaryCurveCreator);
+    m_curveCreatorSplitterUi->updateFromSummaryPlot(summaryPlot);
     m_curveCreatorSplitterUi->updateUi();
 }
 
