@@ -18,6 +18,8 @@
 
 #include "RifReaderEclipseRft.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "cafVecIjk.h"
 
 #include "ert/ecl/ecl_rft_file.h"
@@ -61,8 +63,8 @@ void RifReaderEclipseRft::open()
         m_wellNames.insert(wellName);
 
         time_t timeStepTime_t = ecl_rft_node_get_date(node);
-        QDateTime timeStep;
-        timeStep.setTimeSpec(Qt::TimeSpec::UTC);
+        
+        QDateTime timeStep = RiaQDateTimeTools::createUtcDateTime();
         timeStep.setTime_t(timeStepTime_t);
 
         RifEclipseRftAddress addressPressure(wellName, timeStep, RifEclipseRftAddress::PRESSURE);
