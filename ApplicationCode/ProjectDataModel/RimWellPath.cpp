@@ -663,6 +663,7 @@ void RimWellPath::deleteWellLogFile(RimWellLogFile* logFileInfo)
         if (m_wellLogFiles[i] == pdmObject)
         {
             m_wellLogFiles.removeChildObject(pdmObject);
+            delete pdmObject;
             break;
         }
     }
