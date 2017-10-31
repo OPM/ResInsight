@@ -117,12 +117,14 @@ protected:
     virtual void                                    initAfterRead() override;
     virtual void                                    setupBeforeSave() override;
     void                                            initAfterLoad();
+    void                                            syncSourcesIoFieldFromGuiField();
 
 private:
     static void                                     addTimeStepToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                      const std::pair<QDateTime, std::set<RifWellRftAddress>>& timeStepToAdd);
     static void                                     addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAddress>>& destMap,
                                                                       const std::map<QDateTime, std::set<RifWellRftAddress>>& timeStepsToAdd);
+    void                                            updateTimeStepsToAddresses(const std::vector<RifWellRftAddress>& addressesToKeep);
     void                                            calculateValueOptionsForWells(QList<caf::PdmOptionItemInfo>& options);
     void                                            calculateValueOptionsForTimeSteps(const QString& wellName, QList<caf::PdmOptionItemInfo>& options);
 

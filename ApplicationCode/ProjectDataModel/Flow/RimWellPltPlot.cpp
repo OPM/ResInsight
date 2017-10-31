@@ -1100,6 +1100,8 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
     }
     else if (fieldNeedingOptions == &m_selectedSources)
     {
+        std::set<RifWellRftAddress> optionAddresses;
+
         //const std::vector<std::tuple<RimEclipseResultCase*, bool, bool>>& eclipseCases = eclipseCasesForWell(m_wellName);
 
         //const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
@@ -1136,6 +1138,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions(const caf::P
             auto item = caf::PdmOptionItemInfo("Observed Data", QVariant::fromValue(addr));
             item.setLevel(1);
             options.push_back(item);
+            optionAddresses.insert(addr);
         }
     }
     else if (fieldNeedingOptions == &m_selectedTimeSteps)
@@ -1202,6 +1205,7 @@ void RimWellPltPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_selectedSources ||
         changedField == &m_selectedTimeSteps)
     {
+        syncSourcesIoFieldFromGuiField();
         syncCurvesFromUiSelection();
     }
     else if (changedField == &m_showPlotTitle)
@@ -1294,11 +1298,7 @@ void RimWellPltPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setupBeforeSave()
 {
-    m_selectedSourcesForIo.clear();
-    for (const RifWellRftAddress& addr : selectedSourcesAndTimeSteps())
-    {
-        m_selectedSourcesForIo.push_back(new RimRftAddress(addr));
-    }
+    syncCurvesFromUiSelection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1319,6 +1319,18 @@ void RimWellPltPlot::initAfterLoad()
         }
     }
     m_selectedSources = std::vector<RifWellRftAddress>(selectedSources.begin(), selectedSources.end());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
+{
+    m_selectedSourcesForIo.clear();
+    for (const RifWellRftAddress& addr : selectedSourcesAndTimeSteps())
+    {
+        m_selectedSourcesForIo.push_back(new RimRftAddress(addr));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1351,6 +1363,28 @@ void RimWellPltPlot::addTimeStepsToMap(std::map<QDateTime, std::set<RifWellRftAd
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPltPlot::updateTimeStepsToAddresses(const std::vector<RifWellRftAddress>& addressesToKeep)
+{
+    for (auto& timeStepPair : m_timeStepsToAddresses)
+    {
+        std::vector<RifWellRftAddress> addressesToDelete;
+        std::set<RifWellRftAddress> keepAddresses = std::set<RifWellRftAddress>(addressesToKeep.begin(), addressesToKeep.end());
+        std::set<RifWellRftAddress>& currentAddresses = timeStepPair.second;
+
+        std::set_difference(currentAddresses.begin(), currentAddresses.end(),
+                            keepAddresses.begin(), keepAddresses.end(),
+                            std::inserter(addressesToDelete, addressesToDelete.end()));
+
+        for (const auto& addr : addressesToDelete)
+        {
+            currentAddresses.erase(addr);
+        }
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1391,7 +1425,11 @@ void RimWellPltPlot::calculateValueOptionsForTimeSteps(const QString& wellName, 
     //const std::vector<RimEclipseResultCase*> rftCases = rftCasesFromEclipseCases(eclipseCases);
     //const std::vector<RimEclipseResultCase*> gridCases = gridCasesFromEclipseCases(eclipseCases);
 
-    for (const RifWellRftAddress& selection : selectedSources())
+    // First update timeSteps to Address 'cache'
+    std::vector<RifWellRftAddress> selSources = selectedSources();
+    updateTimeStepsToAddresses(selectedSources());
+
+    for (const RifWellRftAddress& selection : selSources)
     {
         //if (selection.sourceType() == RftSourceType::RFT)
         //{

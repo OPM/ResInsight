@@ -20,6 +20,10 @@
 #pragma once
 
 #include "cafCmdFeature.h"
+#include <set>
+
+class RimWellLogFile;
+class RimViewWindow;
 
 //==================================================================================================
 /// 
@@ -33,4 +37,6 @@ protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook( QAction* actionToSetup ) override;
+
+    std::set<RimViewWindow*> referringWellLogPlots(const RimWellLogFile* wellLogFile);
 };

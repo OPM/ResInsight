@@ -23,6 +23,8 @@
 #include "RimProject.h"
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiObjectEditorHandle.h"
+
 #include <QAction>
 #include <QFileDialog>
 
@@ -52,6 +54,8 @@ void RicWellLogsImportFileFeature::onActionTriggered(bool isChecked)
     app->setLastUsedDialogDirectory("WELL_LOGS_DIR", QFileInfo(wellLogFilePaths.last()).absolutePath());
 
     app->addWellLogsToModel(wellLogFilePaths);
+
+    caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
