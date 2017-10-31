@@ -84,7 +84,6 @@ public:
 
     RimWellLogTrack*                                trackByIndex(size_t index);
 
-    virtual void                                    loadDataAndUpdate() override;
     void                                            updateTracks();
     void                                            updateTrackNames();
 
@@ -115,6 +114,7 @@ protected:
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*                    userDescriptionField()  { return &m_userName; }
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
+    virtual void                                    onLoadDataAndUpdate() override;
 
     virtual QImage                                  snapshotWindowContent() override;
 

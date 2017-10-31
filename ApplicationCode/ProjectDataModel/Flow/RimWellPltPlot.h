@@ -84,8 +84,6 @@ public:
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    virtual void                                    loadDataAndUpdate() override;
-
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
@@ -114,6 +112,7 @@ protected:
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual void                                    onLoadDataAndUpdate() override;
 
     virtual void                                    initAfterRead() override;
     virtual void                                    setupBeforeSave() override;
@@ -149,7 +148,6 @@ private:
     std::set<std::pair<RifWellRftAddress, QDateTime>> selectedCurveDefs() const;
     std::set<std::pair<RifWellRftAddress, QDateTime>> curveDefsFromCurves() const;
     std::pair<RifWellRftAddress, QDateTime>         curveDefFromCurve(const RimWellLogCurve* curve) const;
-    void                                            updateCurvesInPlot(const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefs);
     void                                            addStackedCurve(const QString& tracerName,
                                                                     const std::vector<double>& depthValues,
                                                                     const std::vector<double>& accFlow,

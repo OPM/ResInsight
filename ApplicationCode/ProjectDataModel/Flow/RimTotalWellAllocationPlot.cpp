@@ -189,7 +189,7 @@ void RimTotalWellAllocationPlot::clearSlices()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTotalWellAllocationPlot::loadDataAndUpdate()
+void RimTotalWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 

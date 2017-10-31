@@ -85,7 +85,7 @@ void RimTofAccumulatedPhaseFractionsPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimTofAccumulatedPhaseFractionsPlot::reloadFromWell()
 {
-    loadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ void RimTofAccumulatedPhaseFractionsPlot::fieldChangedByUi(const caf::PdmFieldHa
     }
     else if (changedField == &m_maxTof)
     {
-        loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
  
 }
@@ -189,7 +189,7 @@ QString RimTofAccumulatedPhaseFractionsPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimTofAccumulatedPhaseFractionsPlot::loadDataAndUpdate()
+void RimTofAccumulatedPhaseFractionsPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 

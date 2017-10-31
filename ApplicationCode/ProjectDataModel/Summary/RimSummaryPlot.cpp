@@ -1029,7 +1029,7 @@ void RimSummaryPlot::defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::loadDataAndUpdate()
+void RimSummaryPlot::onLoadDataAndUpdate()
 {
    updateMdiWindowVisibility();    
 

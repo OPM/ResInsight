@@ -47,6 +47,7 @@ public:
     RimViewWindow(void);
     virtual ~RimViewWindow(void);
 
+    void                         loadDataAndUpdate();
     void                         handleMdiWindowClosed();
                                  
     void                         setAs3DViewMdiWindow()  { setAsMdiWindow(0); }
@@ -72,7 +73,7 @@ protected:
     virtual void                 updateViewWidgetAfterCreation() {};
     virtual void                 updateMdiWindowTitle(); // Has real default implementation
     virtual void                 deleteViewWidget() = 0;
-    virtual void                 loadDataAndUpdate() = 0; 
+    virtual void                 onLoadDataAndUpdate() = 0; 
     //////////
 
     // Derived classes are not supposed to override this function. The intention is to always use m_showWindow

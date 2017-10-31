@@ -145,7 +145,7 @@ void RimWellAllocationPlot::setFromSimulationWell(RimSimWellInView* simWell)
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
 
-    loadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,7 +697,7 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
         if (!sortedWellNames.size()) m_wellName = "";
         else if ( sortedWellNames.count(m_wellName()) == 0 ){ m_wellName = *sortedWellNames.begin();}
 
-        loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
     else if (   changedField == &m_wellName
              || changedField == &m_timeStep
@@ -706,7 +706,7 @@ void RimWellAllocationPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedF
              || changedField == &m_smallContributionsThreshold
              || changedField == &m_flowType )
     {
-        loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
 }
 
@@ -787,7 +787,7 @@ QString RimWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlot::loadDataAndUpdate()
+void RimWellAllocationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateFromWell();

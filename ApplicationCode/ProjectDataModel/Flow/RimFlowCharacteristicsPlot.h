@@ -65,8 +65,6 @@ public:
     virtual void                                    zoomAll() override;
     virtual QWidget*                                createViewWidget(QWidget* mainWindowParent) override; 
     virtual void                                    deleteViewWidget() override; 
-    virtual void                                    loadDataAndUpdate() override;
-
     void                                            viewGeometryUpdated();
 
     enum TimeSelectionType 
@@ -85,6 +83,7 @@ protected:
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) override;
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
     virtual void                                    defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
+    virtual void                                    onLoadDataAndUpdate() override;
 
 private:
 

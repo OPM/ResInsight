@@ -140,7 +140,7 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution(RimFlowDiagSolution* flowSo
     m_flowDiagSolution = flowSolution;
     m_showWindow = true;
 
-    loadDataAndUpdate();
+    onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ void RimFlowCharacteristicsPlot::updateCurrentTimeStep()
     
     if (m_currentlyPlottedTimeSteps == calculatedTimesteps) return;
 
-    this->loadDataAndUpdate();
+    this->onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -526,7 +526,7 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi(const caf::PdmFieldHandle* cha
 
     // All fields update plot
 
-    this->loadDataAndUpdate();
+    this->onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -548,7 +548,7 @@ QImage RimFlowCharacteristicsPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFlowCharacteristicsPlot::loadDataAndUpdate()
+void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
@@ -652,7 +652,7 @@ void RimFlowCharacteristicsPlot::viewGeometryUpdated()
     if (m_cellFilter() == RigFlowDiagResults::CELLS_VISIBLE)
     {
         // Only need to reload data if cell filtering is based on visible cells in view.
-        loadDataAndUpdate();
+        onLoadDataAndUpdate();
     }
 }
 

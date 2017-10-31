@@ -72,8 +72,6 @@ public:
     caf::PdmObject*                                 findRimCurveFromQwtCurve(const QwtPlotCurve* curve) const;
     size_t                                          curveCount() const;
     
-    virtual void                                    loadDataAndUpdate() override;
-
     void                                            detachAllCurves();
     void                                            updateCaseNameHasChanged();
 
@@ -118,6 +116,7 @@ protected:
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
     virtual void                                    defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+    virtual void                                    onLoadDataAndUpdate() override;
 
     virtual QImage                                  snapshotWindowContent() override;
 

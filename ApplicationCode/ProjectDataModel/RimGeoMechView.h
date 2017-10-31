@@ -63,8 +63,6 @@ public:
     RimGeoMechCase*                                     geoMechCase();
     virtual RimCase*                                    ownerCase() const override;
 
-    virtual void                                        loadDataAndUpdate() override;
-
     caf::PdmChildField<RimGeoMechCellColors*>           cellResult;
     RimGeoMechResultDefinition*                         cellResultResultDefinition();
 
@@ -88,7 +86,8 @@ public:
 
 protected:
     virtual void                                        defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
-    
+    virtual void                                        onLoadDataAndUpdate() override;
+
     virtual void                                        createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
 
 private:

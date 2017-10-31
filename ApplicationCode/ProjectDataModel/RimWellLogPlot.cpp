@@ -562,7 +562,7 @@ void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::loadDataAndUpdate()
+void RimWellLogPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     updateTracks();

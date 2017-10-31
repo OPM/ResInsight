@@ -170,7 +170,6 @@ public:
     void                                    forceShowWindowOn();
 
 public:
-    virtual void                            loadDataAndUpdate() = 0;
     void                                    updateGridBoxData();
     virtual RimCase*                        ownerCase() const = 0;
 
@@ -204,6 +203,8 @@ protected:
 
     virtual void                            resetLegendsInViewer() = 0;
     virtual void                            calculateCurrentTotalCellVisibility(cvf::UByteArray* totalVisibility, int timeStep) = 0;
+
+    virtual void                            onLoadDataAndUpdate() = 0;
 
     RimWellPathCollection*                  wellPathsPartManager();
 

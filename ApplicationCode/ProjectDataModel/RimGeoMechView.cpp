@@ -103,7 +103,7 @@ RimGeoMechView::~RimGeoMechView(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::loadDataAndUpdate()
+void RimGeoMechView::onLoadDataAndUpdate()
 {
     caf::ProgressInfo progress(7, "");
     progress.setNextProgressIncrement(5);

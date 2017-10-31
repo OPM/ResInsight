@@ -66,8 +66,6 @@ public:
     void                                            setDescription(const QString& description);
     QString                                         description() const;
 
-    virtual void                                    loadDataAndUpdate() override;
-
     virtual QWidget*                                viewWidget() override;
     virtual void                                    zoomAll() override;
 
@@ -96,6 +94,7 @@ protected:
 
 
     virtual void                                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual void                                    onLoadDataAndUpdate() override;
 
 private:
     void                                            updateFromWell();

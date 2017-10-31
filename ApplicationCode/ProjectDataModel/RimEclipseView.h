@@ -125,7 +125,6 @@ public:
 
     // Display model generation
 
-    virtual void                                    loadDataAndUpdate() override;
     bool                                            isTimeStepDependentDataVisible() const;
 
     virtual void                                    scheduleGeometryRegen(RivCellSetEnum geometryType) override;
@@ -154,6 +153,7 @@ protected:
     virtual void                                    initAfterRead() override;
     virtual void                                    defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     virtual void                                    defineUiTreeOrdering(caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "") override;
+    virtual void                                    onLoadDataAndUpdate() override;
 
     virtual void                                    createPartCollectionFromSelection(cvf::Collection<cvf::Part>* parts) override;
     virtual bool                                    showActiveCellsOnly() override;

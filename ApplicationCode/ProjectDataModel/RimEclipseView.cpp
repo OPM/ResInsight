@@ -736,7 +736,7 @@ void RimEclipseView::updateCurrentTimeStep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimEclipseView::loadDataAndUpdate()
+void RimEclipseView::onLoadDataAndUpdate()
 {
     updateScaleTransform();
 

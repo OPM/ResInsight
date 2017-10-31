@@ -70,7 +70,7 @@ public:
 protected:
     // RimViewWindow overrides
 
-    virtual void                                    loadDataAndUpdate() override;
+    virtual void                                    onLoadDataAndUpdate() override;
     virtual QImage                                  snapshotWindowContent() override;
 
     // Overridden PDM methods

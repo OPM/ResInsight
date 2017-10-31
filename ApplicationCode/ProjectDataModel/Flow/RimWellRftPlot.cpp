@@ -1313,7 +1313,7 @@ QString RimWellRftPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellRftPlot::loadDataAndUpdate()
+void RimWellRftPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
     m_wellLogPlot->loadDataAndUpdate();

@@ -415,16 +415,6 @@ void RimWellPltPlot::updateWidgetTitleWindowTitle()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::syncCurvesFromUiSelection()
-{
-    RimWellLogTrack* plotTrack = m_wellLogPlot->trackByIndex(0);
-    const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefs = selectedCurveDefs();
-    updateCurvesInPlot(curveDefs);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogFile*> RimWellPltPlot::wellLogFilesContainingFlow(const QString& wellName) const
 {
     std::vector<RimWellLogFile*> wellLogFiles;
@@ -803,9 +793,10 @@ std::pair<RifWellRftAddress, QDateTime> RimWellPltPlot::curveDefFromCurve(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::updateCurvesInPlot(const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefs)
+void RimWellPltPlot::syncCurvesFromUiSelection()
 {
-    RimWellLogTrack* const plotTrack = m_wellLogPlot->trackByIndex(0);
+    RimWellLogTrack* plotTrack = m_wellLogPlot->trackByIndex(0);
+    const std::set<std::pair<RifWellRftAddress, QDateTime>>& curveDefs = selectedCurveDefs();
 
     setPlotXAxisTitles(plotTrack);
 
@@ -1497,7 +1488,7 @@ QString RimWellPltPlot::description() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::loadDataAndUpdate()
+void RimWellPltPlot::onLoadDataAndUpdate()
 {
     if (m_doInitAfterLoad)
     {
