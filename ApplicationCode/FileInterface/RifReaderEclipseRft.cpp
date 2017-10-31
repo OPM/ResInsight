@@ -280,7 +280,7 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
 
     if (wellName == "") return wellLogChannelNames;
 
-    bool pressureAndDepthFound = false;
+    bool pressureFound = false;
     bool rftFound = false;
     bool pltFound = false;
 
@@ -290,11 +290,11 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
         {
             RifEclipseRftAddress::RftWellLogChannelName name = address.wellLogChannelName();
             
-            if (!pressureAndDepthFound)
+            if (!pressureFound)
             {
                 if ( name == RifEclipseRftAddress::PRESSURE )
                 {
-                    pressureAndDepthFound = true;
+                    pressureFound = true;
                     if (rftFound && pltFound) break;
                 }
             }
@@ -304,7 +304,7 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
                 if ( name == RifEclipseRftAddress::RftWellLogChannelName::SWAT )
                 {
                     rftFound = true;
-                    if (pltFound && pressureAndDepthFound) break;
+                    if (pltFound && pressureFound) break;
                     continue;
                 }
             }
@@ -314,13 +314,13 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
                 if ( name == RifEclipseRftAddress::RftWellLogChannelName::WRAT )
                 {
                     pltFound = true;
-                    if (rftFound && pressureAndDepthFound) break;
+                    if (rftFound && pressureFound) break;
                 }
             }
         }
     }
 
-    if (pressureAndDepthFound)
+    if (pressureFound)
     {
         wellLogChannelNames.push_back(RifEclipseRftAddress::PRESSURE);
     }
