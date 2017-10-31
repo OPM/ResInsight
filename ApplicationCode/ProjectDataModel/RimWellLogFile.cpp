@@ -21,6 +21,9 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimTools.h"
+#include "RimWellPltPlot.h"
+#include "RiaDateStringParser.h"
 
 #include "RigWellLogFile.h"
 
@@ -29,9 +32,20 @@
 #include <QStringList>
 #include <QFileInfo>
 #include <QMessageBox>
+#include "cafPdmUiLineEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
+
+namespace caf
+{
+    template<>
+    void caf::AppEnum< RimWellLogFile::WellFlowCondition>::setUp()
+    {
+        addItem(RimWellLogFile::WELL_FLOW_COND_RESERVOIR, "RESERVOIR", "Reservoir");
+        addItem(RimWellLogFile::WELL_FLOW_COND_STANDARD, "STANDARD", "Standard");
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -45,9 +59,9 @@ RimWellLogFile::RimWellLogFile()
     m_wellName.uiCapability()->setUiHidden(true);
     m_wellName.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_date, "Date", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_date, "Date", "Date", "", "", "");
     m_date.uiCapability()->setUiReadOnly(true);
-    m_date.uiCapability()->setUiHidden(true);
+    //m_date.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
     m_date.xmlCapability()->setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&m_fileName, "FileName", "Filename",  "", "", "");
@@ -61,6 +75,8 @@ RimWellLogFile::RimWellLogFile()
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelNames, "WellLogFileChannels", "",  "", "", "");
     m_wellLogChannelNames.uiCapability()->setUiHidden(true);
     m_wellLogChannelNames.xmlCapability()->setIOWritable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_wellFlowCondition, "WellFlowCondition", "", "", "", "");
 
     m_wellLogDataFile = NULL;
 }
@@ -188,4 +204,50 @@ std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
         channels.push_back(channel);
     }
     return channels;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&m_fileName);
+    uiOrdering.add(&m_date);
+
+    if (RimWellPltPlot::hasFlowData(this))
+    {
+        uiOrdering.add(&m_wellFlowCondition);
+    }
+
+    uiOrdering.skipRemainingFields(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellLogFile::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_date)
+    {
+        QString dateString = formatDate(date());
+        options.push_back(caf::PdmOptionItemInfo(!dateString.isEmpty() ? dateString : "Invalid or no date", date()));
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogFile::formatDate(const QString dateString)
+{
+    QDateTime timeStep = RiaDateStringParser::parseDateString(dateString);
+    if (timeStep.isValid())
+    {
+        const QString dateFormatString = RimTools::createTimeFormatStringFromDates({ timeStep });
+        auto ddd = timeStep.toString(dateFormatString);
+        return timeStep.toString(dateFormatString);
+    }
+    return "";
 }
