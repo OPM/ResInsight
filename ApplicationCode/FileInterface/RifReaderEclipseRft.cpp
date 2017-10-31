@@ -323,7 +323,6 @@ std::vector<RifEclipseRftAddress::RftWellLogChannelName> RifReaderEclipseRft::av
     if (pressureAndDepthFound)
     {
         wellLogChannelNames.push_back(RifEclipseRftAddress::PRESSURE);
-        wellLogChannelNames.push_back(RifEclipseRftAddress::DEPTH);
     }
     if (rftFound)
     {
