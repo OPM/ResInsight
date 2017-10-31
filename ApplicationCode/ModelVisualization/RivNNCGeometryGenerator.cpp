@@ -169,7 +169,7 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
         nncResultVals = m_nncData->generatedConnectionScalarResult(scalarResultIndex, nativeTimeStepIndex);
     }
 
-    if (!nncResultVals)
+    if (!nncResultVals || nncResultVals->size() == 0)
     {
         textureCoords->setAll(cvf::Vec2f(0.0f, 1.0f));
         return;

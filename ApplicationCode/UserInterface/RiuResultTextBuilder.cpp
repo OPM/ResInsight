@@ -340,7 +340,7 @@ QString RiuResultTextBuilder::nncResultText()
             RigNNCData* nncData = grid->nncData();
             CVF_ASSERT(nncData);
 
-            if (nncData)
+            if (nncData && m_nncIndex < nncData->connections().size())
             {
                 const RigConnection& conn = nncData->connections()[m_nncIndex];
                 cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
@@ -362,7 +362,7 @@ QString RiuResultTextBuilder::nncResultText()
                             nncValues = nncData->dynamicConnectionScalarResult(scalarResultIdx, nativeTimeStep);
                         }
                     }
-                    if (nncValues)
+                    if (nncValues && (m_nncIndex < nncValues->size()))
                     {
                         QString resultVar = m_reservoirView->currentFaultResultColors()->resultVariableUiName();
                         double scalarValue = (*nncValues)[m_nncIndex];
@@ -585,7 +585,7 @@ QString RiuResultTextBuilder::nncDetails()
             RigNNCData* nncData = grid->nncData();
             CVF_ASSERT(nncData);
 
-            if (nncData)
+            if (nncData && m_nncIndex < nncData->connections().size())
             {
                 text += "-- NNC details --\n";
                 {
