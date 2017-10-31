@@ -197,17 +197,6 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
     RifReaderEclipseRft* reader = rftReader();
     if (!reader) return;
 
-    std::vector<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
-
-    if (timeSteps.empty())
-    {
-        m_timeStep = QDateTime();
-    }
-    else if (std::find(timeSteps.begin(), timeSteps.end(), m_timeStep()) == timeSteps.end())
-    {
-        m_timeStep = timeSteps[0];
-    }
-
     std::vector<RifEclipseRftAddress::RftWellLogChannelName> channelNames = reader->availableWellLogChannels(m_wellName);
 
     if (channelNames.empty())
@@ -217,6 +206,17 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
     else if (std::find(channelNames.begin(), channelNames.end(), m_wellLogChannelName()) == channelNames.end())
     {
         m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
+    }
+
+    std::vector<QDateTime> timeSteps = reader->availableTimeSteps(m_wellName, m_wellLogChannelName());
+
+    if (timeSteps.empty())
+    {
+        m_timeStep = QDateTime();
+    }
+    else if (std::find(timeSteps.begin(), timeSteps.end(), m_timeStep()) == timeSteps.end())
+    {
+        m_timeStep = timeSteps[0];
     }
 }
 
@@ -266,9 +266,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
         firstAncestorOrThisOfType(wellLogPlot);
         CVF_ASSERT(wellLogPlot);
 
-        std::vector<double> values = xValues();
-        std::vector<double> tvDepthVector = tvDepthValues();
         std::vector<double> measuredDepthVector = measuredDepthValues();
+        std::vector<double> tvDepthVector = tvDepthValues();
+        std::vector<double> values = xValues();
 
         if (values.empty()) return;
         if (values.size() != tvDepthVector.size()) return;
@@ -388,6 +388,8 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    m_idxInWellPathToIdxInRftFile.clear();
+
     RimWellLogCurve::fieldChangedByUi(changedField, oldValue, newValue);
     if (changedField == &m_eclipseResultCase)
     {
@@ -429,51 +431,16 @@ RifReaderEclipseRft* RimWellLogRftCurve::rftReader() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::xValues() const
+RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
 {
     RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> values;
-
-    if (!reader) return values;
-
-    RifEclipseRftAddress address(m_wellName(), m_timeStep, m_wellLogChannelName());
-
-    reader->values(address, &values);
-
-    return values;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::tvDepthValues() const
-{
-    RifReaderEclipseRft* reader = rftReader();
-    std::vector<double> tvDepthValues;
-
-    if (!reader) return tvDepthValues;
-
-    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
-
-    reader->values(depthAddress, &tvDepthValues);
-    return tvDepthValues;
-}
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RimWellLogRftCurve::measuredDepthValues() const
-{
-    std::vector<double> measuredDepthForCells;
-    
-    RifReaderEclipseRft* reader = rftReader();
-    if (!reader) return measuredDepthForCells;
-
+    if (!reader) return nullptr;
 
     RimMainPlotCollection* mainPlotCollection;
     this->firstAncestorOrThisOfTypeAsserted(mainPlotCollection);
 
     RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
-    if (!wellLogCollection) return measuredDepthForCells;
+    if (!wellLogCollection) return nullptr;
 
     RigEclipseWellLogExtractor* eclExtractor = nullptr;
 
@@ -484,38 +451,193 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues() const
     if (!eclExtractor)
     {
         std::vector<const RigWellPath*> wellPaths = proj->simulationWellBranches(m_wellName());
-        if (wellPaths.size() == 0) return measuredDepthForCells;
+        if (wellPaths.size() == 0) return nullptr;
 
         eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_wellName(), QString("Find or create sim well extractor"), wellPaths[0], m_eclipseResultCase->eclipseCaseData());
     }
 
-    if (!eclExtractor) return measuredDepthForCells;
+    return eclExtractor;
+}
 
-    std::vector<double> measuredDepthForIntersections = eclExtractor->measuredDepth();
-    
-    std::vector< size_t> globCellIndices = eclExtractor->intersectedCellsGlobIdx();
-
-    std::map<size_t, std::vector<double>> globCellIdToIntersectionDepthsMap;
-
-    for (size_t iIdx = 0; iIdx < measuredDepthForIntersections.size(); ++iIdx)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
+{
+    if (!m_idxInWellPathToIdxInRftFile.empty())
     {
-        globCellIdToIntersectionDepthsMap[globCellIndices[iIdx]].push_back(measuredDepthForIntersections[iIdx]);
+        return true;
     }
+
+    RigEclipseWellLogExtractor* eclExtractor = extractor();
+
+    if (!eclExtractor) return false;
+
+    std::vector<CellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+
+    std::map<size_t, size_t> globCellIndicesToIndexInWell;
+
+    for (size_t i = 0; i < intersections.size(); i++)
+    {
+        globCellIndicesToIndexInWell[intersections[i].globCellIndex] = i;
+    }
+
+    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
+    std::vector<caf::VecIjk> rftIndices;
+    rftReader()->cellIndices(depthAddress, &rftIndices);
 
     const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
 
-    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
-    std::vector<caf::VecIjk> indices;
-    rftReader()->cellIndices(depthAddress, &indices);
-
-    for (const caf::VecIjk& ijkIndex : indices)
+    for (size_t i = 0; i < rftIndices.size(); i++)
     {
+        caf::VecIjk ijkIndex = rftIndices[i];
         size_t globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
 
-        double sum = std::accumulate(globCellIdToIntersectionDepthsMap[globalCellIndex].begin(), globCellIdToIntersectionDepthsMap[globalCellIndex].end(), 0);
-
-        measuredDepthForCells.push_back(sum / (double)globCellIdToIntersectionDepthsMap[globalCellIndex].size());
+        m_idxInWellPathToIdxInRftFile[globCellIndicesToIndexInWell[globalCellIndex]] = i;
     }
 
-    return measuredDepthForCells;
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimWellLogRftCurve::rftFileIndex(size_t wellPathIndex)
+{
+    if (m_idxInWellPathToIdxInRftFile.empty())
+    {
+        createWellPathIdxToRftFileIdxMapping();
+    }
+
+    if (m_idxInWellPathToIdxInRftFile.find(wellPathIndex) == m_idxInWellPathToIdxInRftFile.end())
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
+    return m_idxInWellPathToIdxInRftFile[wellPathIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RimWellLogRftCurve::sortedIndicesInRftFile()
+{
+    if (m_idxInWellPathToIdxInRftFile.empty())
+    {
+        createWellPathIdxToRftFileIdxMapping();
+    }
+
+    std::vector<size_t> indices;
+    for (auto it = m_idxInWellPathToIdxInRftFile.begin(); it != m_idxInWellPathToIdxInRftFile.end(); it++)
+    {
+        indices.push_back(it->second);
+    }
+
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::xValues()
+{
+    RifReaderEclipseRft* reader = rftReader();
+    std::vector<double> values;
+
+    if (!reader) return values;
+
+    RifEclipseRftAddress address(m_wellName(), m_timeStep, m_wellLogChannelName());
+
+    reader->values(address, &values);
+    
+    bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
+
+    if (wellPathExists)
+    {
+        std::vector<double> valuesSorted;
+
+        for (size_t idx : sortedIndicesInRftFile())
+        {
+            if (idx < values.size())
+            {
+                valuesSorted.push_back((values.at(idx)));
+            }
+        }
+        
+        return valuesSorted;
+    }
+    else
+    {
+        return values;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::tvDepthValues()
+{
+    RifReaderEclipseRft* reader = rftReader();
+    std::vector<double> values;
+
+    if (!reader) return values;
+
+    RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
+    reader->values(depthAddress, &values);
+
+    bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
+
+    if (wellPathExists)
+    {
+        std::vector<double> valuesSorted;
+
+        for (size_t idx : sortedIndicesInRftFile())
+        {
+            if (idx < values.size())
+            {
+                valuesSorted.push_back((values.at(idx)));
+            }
+        }
+
+        return valuesSorted;
+    }
+    else
+    {
+        return values;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimWellLogRftCurve::measuredDepthValues()
+{
+    std::vector<double> measuredDepthForCells;
+    
+    RigEclipseWellLogExtractor* eclExtractor = extractor();
+
+    if (!eclExtractor) return measuredDepthForCells;
+
+    std::vector<double> measuredDepthForIntersections = eclExtractor->measuredDepth();
+
+    std::vector< size_t> globCellIndices = eclExtractor->intersectedCellsGlobIdx();
+
+    for (size_t i = 0; i < globCellIndices.size() - 1; i = i + 2)
+    {
+        double sum = measuredDepthForIntersections[i] + measuredDepthForIntersections[i + 1];
+
+        measuredDepthForCells.push_back( sum / 2.0 );
+    }
+
+    std::vector<double> measuredDepthForCellsWhichHasRftData;
+
+    for (size_t i = 0; i < measuredDepthForCells.size(); i++)
+    {
+        if(rftFileIndex(i) != cvf::UNDEFINED_SIZE_T)
+        {
+            measuredDepthForCellsWhichHasRftData.push_back(measuredDepthForCells[i]);
+        }
+    }
+
+    return measuredDepthForCellsWhichHasRftData;
 }

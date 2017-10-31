@@ -29,7 +29,10 @@
 
 #include "cvfObject.h"
 
+#include <map>
+
 class RifReaderEclipseRft;
+class RigEclipseWellLogExtractor;
 class RimEclipseResultCase;
 class RimWellPath;
 
@@ -70,11 +73,19 @@ protected:
 private:
     RifReaderEclipseRft* rftReader() const;
 
-    std::vector<double>  xValues() const;
-    std::vector<double>  tvDepthValues() const;
-    std::vector<double>  measuredDepthValues() const;
+    RigEclipseWellLogExtractor* extractor();
+
+    bool                 createWellPathIdxToRftFileIdxMapping();
+    size_t               rftFileIndex(size_t wellPathIndex);
+    std::vector<size_t>  sortedIndicesInRftFile();
+
+    std::vector<double>  xValues();
+    std::vector<double>  tvDepthValues();
+    std::vector<double>  measuredDepthValues();
 
 private:
+    std::map<size_t, size_t>                                                      m_idxInWellPathToIdxInRftFile;
+
     caf::PdmPtrField<RimEclipseResultCase*>                                       m_eclipseResultCase;
     caf::PdmField<QDateTime>                                                      m_timeStep;
     caf::PdmField<QString>                                                        m_wellName;
