@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cafPdmChildArrayField.h"
-
+#include "cafPdmProxyValueField.h"
 #include "RigWellLogFile.h"
 
 #include "cvfBase.h"
@@ -64,11 +64,10 @@ public:
 
 private:
     virtual void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
 
     virtual caf::PdmFieldHandle*         userDescriptionField()  { return &m_name; }
 
-    static QString                              formatDate(const QString dateString);
+    QString                              formatDate() const;
 
     caf::PdmChildArrayField<RimWellLogFileChannel*>  m_wellLogChannelNames;
 
@@ -78,5 +77,6 @@ private:
     caf::PdmField<QString>               m_fileName;
     caf::PdmField<QString>               m_name;
     caf::PdmField<QString>               m_date;
+    caf::PdmProxyValueField<QString>     m_uiDate;
     caf::PdmField<caf::AppEnum<WellFlowCondition>>  m_wellFlowCondition;
 };
