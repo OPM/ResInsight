@@ -230,30 +230,27 @@ void RimWellLogRftCurve::updateWellChannelNameAndTimeStep()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
-    QString name;
-    if (m_eclipseResultCase)
-    {
-        name += m_eclipseResultCase->caseName();
-    }
+    QStringList name;
+
     if (wellName() != "")
     {
-        name += ", ";
-        name += wellName();
+        name.push_back(wellName());
+    }
+    if (m_eclipseResultCase)
+    {
+        name.push_back(m_eclipseResultCase->caseName());
     }
     if (wellLogChannelName() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::text(RifEclipseRftAddress::NONE))
     { 
-        name += ", ";
         RifEclipseRftAddress::RftWellLogChannelName channelNameEnum = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::fromText(wellLogChannelName());
-        name += caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelNameEnum);
+        name.push_back(caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelName>::uiText(channelNameEnum));
     }
     if ( !m_timeStep().isNull())
     {
-        QString dateFormat = "dd MMM yyyy";
-        name += ", ";
-        name += m_timeStep().toString(dateFormat);
+        name.push_back(m_timeStep().toString(RimTools::dateFormatString()));
     }
 
-    return name;
+    return name.join(", ");
 }
 
 //--------------------------------------------------------------------------------------------------
