@@ -888,6 +888,8 @@ void RimWellLogTrack::findFormationNamesToPlot(const CurveSamplingPointData&    
                                                std::vector<QString>*                   formationNamesToPlot,
                                                std::vector<std::pair<double, double>>* yValues)
 {
+    if (formationNamesVector.empty()) return;
+
     std::vector<size_t> formationNameIndicesFromCurve;
 
     for (double nameIdx : curveData.data)
@@ -946,16 +948,20 @@ std::vector<QString> RimWellLogTrack::formationNamesVector(RimCase* rimCase)
 
     if (eclipseCase)
     {
-        return eclipseCase->eclipseCaseData()->activeFormationNames()->formationNames();
+        if (eclipseCase->eclipseCaseData()->activeFormationNames())
+        {
+            return eclipseCase->eclipseCaseData()->activeFormationNames()->formationNames();
+        }
     }
     else if (geoMechCase)
     {
-        return geoMechCase->geoMechData()->femPartResults()->activeFormationNames()->formationNames();
+        if (geoMechCase->geoMechData()->femPartResults()->activeFormationNames())
+        {
+            return geoMechCase->geoMechData()->femPartResults()->activeFormationNames()->formationNames();
+        }
     }
-    else
-    {
-        return std::vector<QString>();
-    }
+
+    return std::vector<QString>();
 }
 
 //--------------------------------------------------------------------------------------------------
