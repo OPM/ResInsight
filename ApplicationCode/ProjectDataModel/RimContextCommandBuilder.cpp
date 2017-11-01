@@ -285,6 +285,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteSummaryPlotFeature";
             commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
+            commandIds << "RicShowSummaryCurveCalculatorFeature";
             commandIds << "RicNewSummaryPlotFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
@@ -353,6 +354,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         {
             if (!dynamic_cast<RimObservedData*>(uiItem))
             {
+                commandIds << "RicShowSummaryCurveCalculatorFeature";
                 commandIds << "RicNewSummaryPlotFeature";
             }
         }

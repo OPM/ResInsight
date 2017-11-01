@@ -267,6 +267,7 @@ QStringList RiuMainPlotWindow::toolbarCommandIds(const QString& toolbarName)
     {
         commandIds << "RicShowMainWindowFeature";
         commandIds << "RicTilePlotWindowsFeature";
+        commandIds << "RicShowSummaryCurveCalculatorFeature";
     }
 
     if (toolbarName.isEmpty() || toolbarName == "View Snapshots")

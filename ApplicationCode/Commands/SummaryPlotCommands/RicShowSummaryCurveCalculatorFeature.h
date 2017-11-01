@@ -21,6 +21,8 @@
 #include "cafCmdFeature.h"
 
 class RimSummaryPlot;
+class RimSummaryPlotCollection;
+class RimSummaryCase;
 
 //==================================================================================================
 /// 
@@ -33,7 +35,4 @@ protected:
     virtual bool isCommandEnabled() override;
     virtual void onActionTriggered( bool isChecked ) override;
     virtual void setupActionLook(QAction* actionToSetup) override;
-
-private:
-    RimSummaryPlot* selectedSummaryPlot() const;
 };

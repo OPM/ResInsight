@@ -24,6 +24,7 @@
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -35,9 +36,7 @@ CAF_CMD_SOURCE_INIT(RicShowSummaryCurveCalculatorFeature, "RicShowSummaryCurveCa
 //--------------------------------------------------------------------------------------------------
 bool RicShowSummaryCurveCalculatorFeature::isCommandEnabled()
 {
-    if (selectedSummaryPlot()) return true;
-
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,20 +55,4 @@ void RicShowSummaryCurveCalculatorFeature::setupActionLook(QAction* actionToSetu
 {
     actionToSetup->setText("Curve Calculator");
     actionToSetup->setIcon(QIcon(":/SummaryPlot16x16.png"));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicShowSummaryCurveCalculatorFeature::selectedSummaryPlot() const
-{
-    RimSummaryPlot* sumPlot = nullptr;
-
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>(caf::SelectionManager::instance()->selectedItem());
-    if (selObj)
-    {
-        selObj->firstAncestorOrThisOfType(sumPlot);
-    }
-
-    return sumPlot;
 }
