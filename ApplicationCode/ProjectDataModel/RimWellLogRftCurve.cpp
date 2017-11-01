@@ -232,10 +232,13 @@ QString RimWellLogRftCurve::createCurveAutoName()
 {
     QStringList name;
 
-    if (wellName() != "")
+    if (!wellName().isEmpty())
     {
         name.push_back(wellName());
     }
+
+    name.push_back("RFT");
+
     if (m_eclipseResultCase)
     {
         name.push_back(m_eclipseResultCase->caseName());
