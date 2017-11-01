@@ -168,7 +168,12 @@ void RimWellLogRftCurve::setDefaultAddress(QString wellName)
         }
     }
 
-    if (!wellNameHasRftData) return;
+    if (!wellNameHasRftData)
+    {
+        m_wellLogChannelName = RifEclipseRftAddress::NONE;
+        m_timeStep = QDateTime();
+        return;
+    }
 
     m_wellLogChannelName = RifEclipseRftAddress::PRESSURE;
 
@@ -474,12 +479,13 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
     if (!eclExtractor) return false;
 
     std::vector<CellIntersectionInfo> intersections = eclExtractor->intersectionInfo();
+    if (intersections.empty()) return false;
 
     std::map<size_t, size_t> globCellIndicesToIndexInWell;
 
-    for (size_t i = 0; i < intersections.size(); i++)
+    for (size_t idx = 0; idx < intersections.size(); idx++)
     {
-        globCellIndicesToIndexInWell[intersections[i].globCellIndex] = i;
+        globCellIndicesToIndexInWell[intersections[idx].globCellIndex] = idx;
     }
 
     RifEclipseRftAddress depthAddress(m_wellName(), m_timeStep, RifEclipseRftAddress::DEPTH);
@@ -488,12 +494,15 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
 
     const RigMainGrid* mainGrid = eclExtractor->caseData()->mainGrid();
 
-    for (size_t i = 0; i < rftIndices.size(); i++)
+    for (size_t idx = 0; idx < rftIndices.size(); idx++)
     {
-        caf::VecIjk ijkIndex = rftIndices[i];
+        caf::VecIjk ijkIndex = rftIndices[idx];
         size_t globalCellIndex = mainGrid->cellIndexFromIJK(ijkIndex.i(), ijkIndex.j(), ijkIndex.k());
 
-        m_idxInWellPathToIdxInRftFile[globCellIndicesToIndexInWell[globalCellIndex]] = i;
+        if (globCellIndicesToIndexInWell.find(globalCellIndex) != globCellIndicesToIndexInWell.end())
+        {
+            m_idxInWellPathToIdxInRftFile[globCellIndicesToIndexInWell[globalCellIndex]] = idx;
+        }
     }
 
     return true;
@@ -619,8 +628,14 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
     if (!eclExtractor) return measuredDepthForCells;
 
     std::vector<double> measuredDepthForIntersections = eclExtractor->measuredDepth();
-
+    
+    if (measuredDepthForIntersections.empty())
+    {
+        return measuredDepthForCells;
+    }
+    
     std::vector< size_t> globCellIndices = eclExtractor->intersectedCellsGlobIdx();
+
 
     for (size_t i = 0; i < globCellIndices.size() - 1; i = i + 2)
     {
