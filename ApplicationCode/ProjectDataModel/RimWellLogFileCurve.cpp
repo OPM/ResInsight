@@ -358,29 +358,46 @@ bool RimWellLogFileCurve::isRftPlotChild() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogFileCurve::createCurveAutoName()
 {
+    QStringList name;
+    QString unit;
+    bool channelNameAvailable = false;
+
     if (m_wellPath)
     {
-        QString txt;
+        name.push_back(wellName());
 
-        txt += wellName();
-        txt += " : ";
-        txt += m_wellLogChannnelName;
-
-        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFile() : nullptr;
-        if (wellLogFile)
+        if (!m_wellLogChannnelName().isEmpty())
         {
-            RimWellLogPlot* wellLogPlot;
-            firstAncestorOrThisOfType(wellLogPlot);
-            CVF_ASSERT(wellLogPlot);
-
-            QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());
-            if (!unitName.isEmpty())
-            {
-                txt += QString(" [%1]").arg(unitName);
-            }
+            name.push_back(m_wellLogChannnelName);
+            channelNameAvailable = true;
         }
 
-        return txt;
+        RigWellLogFile* wellLogFile = m_wellLogFile ? m_wellLogFile->wellLogFile() : nullptr;
+
+        if (wellLogFile)
+        {
+            if (channelNameAvailable)
+            {
+                RimWellLogPlot* wellLogPlot;
+                firstAncestorOrThisOfType(wellLogPlot);
+                CVF_ASSERT(wellLogPlot);
+                QString unitName = wellLogFile->wellLogChannelUnitString(m_wellLogChannnelName, wellLogPlot->depthUnit());
+
+                if (!unitName.isEmpty())
+                {
+                    name.back() += QString(" [%1]").arg(unitName);
+                }
+            }
+
+            QString date = wellLogFile->date();
+            if (!date.isEmpty())
+            {
+                name.push_back(wellLogFile->date());
+            }
+
+        }
+
+        return name.join(", ");
     }
 
     return "Empty curve";
