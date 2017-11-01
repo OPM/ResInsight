@@ -275,10 +275,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
         std::vector<double> tvDepthVector = tvDepthValues();
         std::vector<double> values = xValues();
 
-        if (values.empty()) return;
-        if (values.size() != tvDepthVector.size()) return;
-        if (values.size() != measuredDepthVector.size()) return;
-        
+        if (values.empty() ||
+            values.size() != tvDepthVector.size() ||
+            values.size() != measuredDepthVector.size())
+        {
+            this->detachQwtCurve();
+            return;
+        }
+
         m_curveData->setValuesWithTVD(values, measuredDepthVector, tvDepthVector, RiaEclipseUnitTools::depthUnit(m_eclipseResultCase->eclipseCaseData()->unitsType()), false);
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::UNIT_METER;
