@@ -44,6 +44,7 @@ RigWellLogExtractor::~RigWellLogExtractor()
 std::vector<CellIntersectionInfo> RigWellLogExtractor::intersectionInfo() const
 {
     std::vector<CellIntersectionInfo> infoVector;
+    if (m_intersectedCellsGlobIdx.empty()) return infoVector;
 
     for (size_t i = 0; i < m_intersectedCellsGlobIdx.size() - 1; i=i+2)
     {
