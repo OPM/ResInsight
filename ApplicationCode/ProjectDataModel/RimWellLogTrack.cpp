@@ -446,6 +446,21 @@ void RimWellLogTrack::loadDataAndUpdate()
         m_simulationWellChosen = true;
     }
 
+    if (m_showFormations)
+    {
+        m_trajectoryType.uiCapability()->setUiReadOnly(false);
+        m_simWellName.uiCapability()->setUiReadOnly(false);
+        m_case.uiCapability()->setUiReadOnly(false);
+        m_wellPath.uiCapability()->setUiReadOnly(false);
+    }
+    else
+    {
+        m_trajectoryType.uiCapability()->setUiReadOnly(true);
+        m_simWellName.uiCapability()->setUiReadOnly(true);
+        m_case.uiCapability()->setUiReadOnly(true);
+        m_wellPath.uiCapability()->setUiReadOnly(true);
+    }
+
     updateFormationNamesOnPlot();
 }
 
