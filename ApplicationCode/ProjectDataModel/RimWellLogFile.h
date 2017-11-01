@@ -27,6 +27,9 @@
 
 #include "cvfBase.h"
 
+#include <QDateTime>
+
+
 class RimWellLogFileChannel;
 
 class QString;
@@ -57,17 +60,21 @@ public:
     bool                                 readFile(QString* errorMessage);
                                          
     QString                              wellName() const;
-    QString                              date() const;
+    QDateTime                            date() const;
                                          
     RigWellLogFile*                      wellLogFile()           { return m_wellLogDataFile.p(); }
     std::vector<RimWellLogFileChannel*>  wellLogChannels() const;
 
+    bool                                 hasFlowData() const;
+
 private:
+    virtual void                         setupBeforeSave() override;
     virtual void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                         defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
+                                                               caf::PdmUiEditorAttribute* attribute) override;
 
     virtual caf::PdmFieldHandle*         userDescriptionField()  { return &m_name; }
-
-    QString                              formatDate() const;
 
     caf::PdmChildArrayField<RimWellLogFileChannel*>  m_wellLogChannelNames;
 
@@ -76,7 +83,7 @@ private:
     caf::PdmField<QString>               m_wellName;
     caf::PdmField<QString>               m_fileName;
     caf::PdmField<QString>               m_name;
-    caf::PdmField<QString>               m_date;
-    caf::PdmProxyValueField<QString>     m_uiDate;
+    caf::PdmField<QDateTime>             m_date;
+    bool                                 m_lasFileHasValidDate;
     caf::PdmField<caf::AppEnum<WellFlowCondition>>  m_wellFlowCondition;
 };

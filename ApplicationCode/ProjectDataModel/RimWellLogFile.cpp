@@ -29,10 +29,11 @@
 
 #include "RiuMainWindow.h"
 
+#include "cafPdmUiDateEditor.h"
+
 #include <QStringList>
 #include <QFileInfo>
 #include <QMessageBox>
-#include "cafPdmUiLineEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellLogFile, "WellLogFile");
@@ -59,16 +60,8 @@ RimWellLogFile::RimWellLogFile()
     m_wellName.uiCapability()->setUiHidden(true);
     m_wellName.xmlCapability()->setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_uiDate, "ui_Date", "Date", "", "", "");
-    m_uiDate.registerGetMethod(this, &RimWellLogFile::formatDate);
-    m_uiDate.uiCapability()->setUiHidden(false);
-    m_uiDate.uiCapability()->setUiReadOnly(true);
-    m_uiDate.xmlCapability()->disableIO();
-
     CAF_PDM_InitFieldNoDefault(&m_date, "Date", "Date", "", "", "");
     m_date.uiCapability()->setUiReadOnly(true);
-    m_date.uiCapability()->setUiHidden(true);
-    m_date.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_fileName, "FileName", "Filename",  "", "", "");
     m_fileName.uiCapability()->setUiReadOnly(true);
@@ -158,7 +151,13 @@ bool RimWellLogFile::readFile(QString* errorMessage)
     }
 
     m_wellName = m_wellLogDataFile->wellName();
-    m_date = m_wellLogDataFile->date();
+
+    QDateTime date = RiaDateStringParser::parseDateString(m_wellLogDataFile->date());
+    m_lasFileHasValidDate = date.isValid();
+    if (m_lasFileHasValidDate)
+    {
+        m_date = date;
+    }
 
     m_wellLogChannelNames.deleteAllChildObjects();
 
@@ -194,7 +193,7 @@ QString RimWellLogFile::wellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogFile::date() const
+QDateTime RimWellLogFile::date() const
 {
     return m_date;
 }
@@ -215,12 +214,29 @@ std::vector<RimWellLogFileChannel*> RimWellLogFile::wellLogChannels() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RimWellLogFile::hasFlowData() const
+{
+    return RimWellPltPlot::hasFlowData(this);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::setupBeforeSave()
+{
+    m_wellFlowCondition.xmlCapability()->setIOWritable(hasFlowData());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogFile::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_fileName);
-    uiOrdering.add(&m_uiDate);
+    uiOrdering.add(&m_date);
+    m_date.uiCapability()->setUiReadOnly(m_lasFileHasValidDate);
 
-    if (RimWellPltPlot::hasFlowData(this))
+    if (hasFlowData())
     {
         uiOrdering.add(&m_wellFlowCondition);
     }
@@ -231,14 +247,26 @@ void RimWellLogFile::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogFile::formatDate() const
+QList<caf::PdmOptionItemInfo> RimWellLogFile::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    QDateTime timeStep = RiaDateStringParser::parseDateString(m_date());
-    if (timeStep.isValid())
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (fieldNeedingOptions == &m_date)
     {
-        const QString dateFormatString = RimTools::createTimeFormatStringFromDates({ timeStep });
-        auto ddd = timeStep.toString(dateFormatString);
-        return timeStep.toString(dateFormatString);
+
     }
-    return "";
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogFile::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*> (attribute);
+    if (attrib != nullptr)
+    {
+        attrib->dateFormat = RimTools::dateFormatString();
+    }
 }

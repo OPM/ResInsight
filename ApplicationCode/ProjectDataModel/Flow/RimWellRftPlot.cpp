@@ -583,7 +583,7 @@ std::map<QDateTime, std::set<RifWellRftAddress> > RimWellRftPlot::timeStepsFromW
 {
     std::map<QDateTime, std::set<RifWellRftAddress> > timeStepsMap;
 
-    QDateTime timeStep = RiaDateStringParser::parseDateString(wellLogFile->date());
+    QDateTime timeStep = wellLogFile->date();
 
     if (timeStepsMap.count(timeStep) == 0)
     {
@@ -745,7 +745,7 @@ std::pair<RifWellRftAddress, QDateTime> RimWellRftPlot::curveDefFromCurve(const 
 
         if (wellLogFile != nullptr)
         {
-            const QDateTime date = RiaDateStringParser::parseDateString(wellLogFile->date());
+            const QDateTime date = wellLogFile->date();
 
             if (date.isValid())
             {
