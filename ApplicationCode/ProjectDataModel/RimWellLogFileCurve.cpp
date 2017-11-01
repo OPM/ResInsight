@@ -365,6 +365,7 @@ QString RimWellLogFileCurve::createCurveAutoName()
     if (m_wellPath)
     {
         name.push_back(wellName());
+        name.push_back("LAS");
 
         if (!m_wellLogChannnelName().isEmpty())
         {
