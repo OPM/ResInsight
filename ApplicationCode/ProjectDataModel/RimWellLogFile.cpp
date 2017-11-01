@@ -63,11 +63,12 @@ RimWellLogFile::RimWellLogFile()
     m_uiDate.registerGetMethod(this, &RimWellLogFile::formatDate);
     m_uiDate.uiCapability()->setUiHidden(false);
     m_uiDate.uiCapability()->setUiReadOnly(true);
+    m_uiDate.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_date, "Date", "Date", "", "", "");
     m_date.uiCapability()->setUiReadOnly(true);
     m_date.uiCapability()->setUiHidden(true);
-    m_date.xmlCapability()->setIOWritable(false);
+    m_date.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault(&m_fileName, "FileName", "Filename",  "", "", "");
     m_fileName.uiCapability()->setUiReadOnly(true);
