@@ -685,41 +685,32 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
-    QString generatedCurveName;
+    
+    QStringList generatedCurveName;
 
-    if (m_addWellNameToCurveName )
+    if (m_addWellNameToCurveName)
     {
         generatedCurveName += wellName();
         if (m_trajectoryType == SIMULATION_WELL && m_generatedSimulationWellPathBranches.size() > 1)
         {
-           generatedCurveName += " Br" + QString::number(m_branchIndex + 1); 
+            generatedCurveName.push_back(" Br" + QString::number(m_branchIndex + 1));
         }
     }
 
     if (m_addCaseNameToCurveName && m_case())
     {
-        if (!generatedCurveName.isEmpty())
-        {
-            generatedCurveName += ", ";
-        }
-
-        generatedCurveName += m_case->caseUserDescription();
+        generatedCurveName.push_back(m_case->caseUserDescription());
     }
 
     if (m_addPropertyToCurveName)
     {
-        if (!generatedCurveName.isEmpty())
-        {
-            generatedCurveName += ",";
-        }
-
-        generatedCurveName += wellLogChannelName();
+        generatedCurveName.push_back(wellLogChannelName());
     }
 
     if (m_addTimestepToCurveName || m_addDateToCurveName)
     {
         size_t maxTimeStep = 0;
-        
+
         if (eclipseCase)
         {
             if (eclipseCase->eclipseCaseData())
@@ -740,27 +731,17 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
             QString dateString = wellDate();
             if (!dateString.isEmpty())
             {
-                if (!generatedCurveName.isEmpty())
-                {
-                    generatedCurveName += ", ";
-                }
-
-                generatedCurveName += dateString;
+                generatedCurveName.push_back(dateString);
             }
         }
 
         if (m_addTimestepToCurveName)
         {
-            if (!generatedCurveName.isEmpty())
-            {
-                generatedCurveName += ", ";
-            }
-
-            generatedCurveName += QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep);
+            generatedCurveName.push_back(QString("[%1/%2]").arg(m_timeStep()).arg(maxTimeStep));
         }
     }
 
-    return generatedCurveName;
+    return generatedCurveName.join(", ");
 }
 
 //--------------------------------------------------------------------------------------------------
