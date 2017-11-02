@@ -234,6 +234,7 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
+            commandIds << "RicNewRftPlotFeature";
         }
         else if (dynamic_cast<RimWellLogFile*>(uiItem))
         {
@@ -503,7 +504,6 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         commandIds << "RicCloseSummaryCaseInCollectionFeature";
         commandIds << "RicDeleteSummaryCaseCollectionFeature";
         commandIds << "RicCloseObservedDataFeature";
-
 
         // Fracture commands
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES

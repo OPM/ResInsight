@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2017  Statoil ASA
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,27 +18,18 @@
 
 #include "RicNewRftPlotFeature.h"
 
-#include "RicWellLogPlotCurveFeatureImpl.h"
-#include "RicNewWellLogPlotFeatureImpl.h"
-
 #include "RiaApplication.h"
 
-#include "RigWellLogCurveData.h"
-
+#include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimRftPlotCollection.h"
 #include "RimSimWellInView.h"
-#include "RimView.h"
-#include "RimWellLogExtractionCurve.h"
-#include "RimWellRftPlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
-#include "RimRftPlotCollection.h"
-#include "RimMainPlotCollection.h"
-#include "RimEclipseResultCase.h"
+#include "RimWellRftPlot.h"
 
 #include "RiuMainPlotWindow.h"
-#include "RiuSelectionManager.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -55,25 +45,15 @@ CAF_CMD_SOURCE_INIT(RicNewRftPlotFeature, "RicNewRftPlotFeature");
 //--------------------------------------------------------------------------------------------------
 bool RicNewRftPlotFeature::isCommandEnabled()
 {
-    if (RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()) return false;
-
-    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
-    RimWellPath* rimWellPath = simWell == nullptr ? caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>() : nullptr;
+    RimRftPlotCollection* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimRftPlotCollection*>();
+    if (simWell) return true;
     
-    bool enable = true;
-    if (simWell != nullptr)
+    if (selectedWellName().isEmpty())
     {
-        RimEclipseResultCase* eclCase = caf::firstAncestorOfTypeFromSelectedObject<RimEclipseResultCase*>();
-        if (simWell != nullptr)
-        {
-            enable &= RimWellRftPlot::hasPressureData(eclCase);
-        }
+        return false;
     }
-    else if (rimWellPath)
-    {
-        enable &= RimWellRftPlot::hasPressureData(rimWellPath);
-    }
-    return enable;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,24 +61,12 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftPlotFeature::onActionTriggered(bool isChecked)
 {
-    //if (RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()) return;
-
     RimProject* proj = RiaApplication::instance()->project();
 
     RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
     if (rftPlotColl)
     {
-        QString wellName;
-        RimWellPath* wellPath = nullptr;
-        RimSimWellInView* eclipseWell = nullptr;
-        if ((wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>()) != nullptr)
-        {
-            wellName = wellPath->name();
-        }
-        else if ((eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>()) != nullptr)
-        {
-            wellName = eclipseWell->name();
-        }
+        QString wellName = selectedWellName();
 
         QString plotName = QString(RimWellRftPlot::plotNameFormatString()).arg(wellName);
 
@@ -137,50 +105,13 @@ void RicNewRftPlotFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewRftPlotFeature::selectedWellLogPlotTrack() const
+QString RicNewRftPlotFeature::selectedWellName()
 {
-    auto selection = caf::selectedObjectsByType<RimWellLogTrack*>();
-    return selection.size() > 0 ? selection[0] : nullptr;
+    RimSimWellInView* simWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
+    if (simWell) return simWell->name();
+
+    RimWellPath* rimWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+    if (rimWellPath) return rimWellPath->name();
+
+    return QString();
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimWellPath* RicNewRftPlotFeature::selectedWellPath() const
-{
-    auto selection = caf::selectedObjectsByType<RimWellPath*>();
-    return selection.size() > 0 ? selection[0] : nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimSimWellInView* RicNewRftPlotFeature::selectedSimulationWell(int * branchIndex) const
-{
-    RiuSelectionItem* selItem = RiuSelectionManager::instance()->selectedItem(RiuSelectionManager::RUI_TEMPORARY);
-    RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>(selItem);
-    if (simWellSelItem)
-    {
-        (*branchIndex) = static_cast<int>(simWellSelItem->m_branchIndex);
-        return simWellSelItem->m_simWell;
-    }
-    else
-    {
-        std::vector<RimSimWellInView*> selection;
-        caf::SelectionManager::instance()->objectsByType(&selection);
-        (*branchIndex) = 0;
-        return selection.size() > 0 ? selection[0] : nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RicNewRftPlotFeature::caseAvailable() const
-{
-    std::vector<RimCase*> cases;
-    RiaApplication::instance()->project()->allCases(cases);
-
-    return cases.size() > 0;
-}
-
