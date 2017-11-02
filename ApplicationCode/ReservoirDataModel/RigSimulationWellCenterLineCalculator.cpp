@@ -741,10 +741,47 @@ private:
 
         const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
+        #if 1
+        if ( wellCellIndices.size() )
+        {
+            if ( !branchLineIt->first ) // Is real branch, with first cell as cell *before* entry point on main branch
+            {
+                RigWellResultPoint branchStartAsResultPoint;
+                const RigCell& branchStartCell = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[wellCellIndices.front()]);
+                cvf::Vec3d branchStartPos = branchStartCell.center();
+
+                if ( wellCellIndices.size() > 1 )
+                {
+                    // Use the shared face between the cell before, and the branching cell as start point for the branch, to make the pipe "whole"
+
+                    cvf::StructGridInterface::FaceType sharedFace = cvf::StructGridInterface::NO_FACE;
+                    m_eclipseCaseData->findSharedSourceFace(sharedFace, orgWellResultPoints[wellCellIndices[0]], orgWellResultPoints[wellCellIndices[1]]);
+                    if ( sharedFace != cvf::StructGridInterface::NO_FACE )
+                    {
+                        branchStartPos = branchStartCell.faceCenter(sharedFace);
+                    }
+                }
+
+                branchStartAsResultPoint.m_bottomPosition = branchStartPos;
+                m_branchedWell.m_wellResultBranches[branchIdx].m_branchResultPoints.push_back(branchStartAsResultPoint);
+            }
+            else
+            {
+                currentBranch.m_branchResultPoints.push_back(orgWellResultPoints[wellCellIndices.front()]);
+            }
+
+            for ( size_t i = 1; i < wellCellIndices.size(); ++i )
+            {
+                size_t wcIdx = wellCellIndices[i];
+                currentBranch.m_branchResultPoints.push_back(orgWellResultPoints[wcIdx]);
+            }
+        }
+        #else
         for (size_t wcIdx : wellCellIndices)
         {
             currentBranch.m_branchResultPoints.push_back(orgWellResultPoints[wcIdx]);
         }
+        #endif
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -872,6 +909,7 @@ private:
                 branchList.push_back(cellWithNeighborsPair.first);
 
                 unsigned endToGrow = 0; // 0 end, 1 front, > 1 new branch
+                #if 0
                 for ( size_t neighbour : cellWithNeighborsPair.second )
                 {
                     if ( m_unusedWellCellIndices.count(neighbour) )
@@ -892,16 +930,75 @@ private:
                         }
                         else // if ( endToGrow > 1 )
                         {
-                            m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{cellWithNeighborsPair.first, neighbour }));
+                            m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{branchList.front(), cellWithNeighborsPair.first, neighbour }));
                             auto newBranchLineIt = std::prev(m_branchLines.end());
                             growBranchListEnd(newBranchLineIt);
                         }
                     }
                 }
+                #endif
+                size_t neighbour = findBestNeighbor(cellWithNeighborsPair.first, cellWithNeighborsPair.second);
+                while (neighbour != -1)
+                {
+                    m_unusedWellCellIndices.erase(neighbour);
+                    if ( endToGrow == 0 )
+                    {
+                        branchList.push_back(neighbour);
+                        growBranchListEnd(currentBranchLineIt);
+                        endToGrow++;
+                    }
+                    else if ( endToGrow == 1 )
+                    {
+                        branchList.push_front(neighbour);
+                        growBranchListFront(currentBranchLineIt);
+                        endToGrow++;
+
+                    }
+                    else // if ( endToGrow > 1 )
+                    {
+                        m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{branchList.front(), cellWithNeighborsPair.first, neighbour }));
+                        auto newBranchLineIt = std::prev(m_branchLines.end());
+                        growBranchListEnd(newBranchLineIt);
+                    }
+
+                    neighbour = findBestNeighbor(cellWithNeighborsPair.first, cellWithNeighborsPair.second);
+                }
+
             }
         }
     }
 
+    size_t findBestNeighbor(size_t cell, std::set<size_t> neighbors)
+    {
+        size_t posKNeighbor = -1;
+        size_t firstUnused = -1;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+
+        for ( size_t neighbor : neighbors)
+        {
+            if ( m_unusedWellCellIndices.count(neighbor) )
+            {
+
+                cvf::StructGridInterface::FaceType sharedFace;
+                m_eclipseCaseData->findSharedSourceFace(sharedFace, orgWellResultPoints[cell], orgWellResultPoints[neighbor]);
+                if ( sharedFace == cvf::StructGridInterface::NEG_K ) return neighbor;
+                if ( sharedFace == cvf::StructGridInterface::POS_K ) posKNeighbor = neighbor;
+                else if (firstUnused == -1)
+                {
+                    firstUnused = neighbor;
+                }
+            }
+        }
+
+        if (posKNeighbor != -1) 
+        {
+            return posKNeighbor;
+        }
+        else 
+        {
+            return firstUnused;
+        }
+    }
 
 
     //--------------------------------------------------------------------------------------------------
@@ -914,8 +1011,38 @@ private:
         CVF_ASSERT(branchList.size());
 
         size_t startCell = branchList.back();
+        size_t prevCell = -1;
+
+        if (branchList.size() > 1) prevCell = branchList[branchList.size()-2];
+        
         const auto& neighbors = m_cellsWithNeighbors[startCell];
 
+        #if 1
+        ////
+        size_t nb = findBestNeighbor(startCell, neighbors);
+        if (nb != -1)
+        {
+            branchList.push_back(nb);
+            m_unusedWellCellIndices.erase(nb);
+            growBranchListEnd(branchListIt);
+        }
+
+        nb = findBestNeighbor(startCell, neighbors);
+        if (nb != -1)
+        {
+            if (prevCell == -1)
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, nb}));
+            else
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, nb}) );
+            m_unusedWellCellIndices.erase(nb);
+
+            auto lastBranchIt = std::prev(m_branchLines.end());
+
+            growBranchListEnd(lastBranchIt);
+        }
+
+        ////
+        #else
         // Find first unused cell among the neighbors
 
         auto it = neighbors.begin();
@@ -939,7 +1066,11 @@ private:
             size_t neighbor = *it;
             if (m_unusedWellCellIndices.count(neighbor))
             {
-                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}) );
+                if (prevCell == -1)
+                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}));
+                else
+                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, neighbor}) );
+
                 m_unusedWellCellIndices.erase(neighbor);
                 auto lastBranchIt = std::prev(m_branchLines.end());
 
@@ -947,6 +1078,7 @@ private:
             }
             ++it;
         }
+        #endif
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -959,7 +1091,38 @@ private:
         CVF_ASSERT(branchList.size());
 
         size_t startCell = branchList.front();
+        size_t prevCell = -1;
+
+        if (branchList.size() > 1) prevCell = branchList[1];
+
         const auto& neighbors = m_cellsWithNeighbors[startCell];
+        #if 1
+        ////
+        size_t nb = findBestNeighbor(startCell, neighbors);
+        if (nb != -1)
+        {
+            branchList.push_front(nb);
+            m_unusedWellCellIndices.erase(nb);
+            growBranchListFront(branchListIt);
+        }
+
+        nb = findBestNeighbor(startCell, neighbors);
+        if (nb != -1)
+        {
+            if (prevCell == -1)
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, nb}));
+            else
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, nb}) );
+
+            m_unusedWellCellIndices.erase(nb);
+
+            auto lastBranchIt = std::prev(m_branchLines.end());
+
+            growBranchListEnd(lastBranchIt);
+        }
+
+        ////
+        #else
 
         // Find first unused cell among the neighbors
 
@@ -984,7 +1147,11 @@ private:
             size_t neighbor = *it;
             if (m_unusedWellCellIndices.count(neighbor))
             {
-                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}) );
+                if (prevCell == -1)
+                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}));
+                else
+                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, neighbor}) );
+
                 m_unusedWellCellIndices.erase(neighbor);
                 auto lastBranchIt = std::prev(m_branchLines.end());
 
@@ -992,6 +1159,7 @@ private:
             }
             ++it;
         }
+        #endif
     }
 
     //--------------------------------------------------------------------------------------------------
