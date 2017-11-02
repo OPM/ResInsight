@@ -30,11 +30,14 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
+#include "RiuExpressionContextMenuManager.h"
+
 #include "cafPdmUiTextEditor.h"
 
 #include <QMessageBox>
 
 #include <algorithm>
+#include "QMenu"
 
 
 CAF_PDM_SOURCE_INIT(RimSummaryCalculation, "RimSummaryCalculation");
@@ -46,16 +49,18 @@ RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject("RimSummaryCalculation", ":/octave.png", "Calculation", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_description,      "Description",      "Description", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_description, "Description", "Description", "", "", "");
     m_description.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_expression,                "Expression",       QString("variableName := a"),       "Expression", "", "", "");
+    CAF_PDM_InitField(&m_expression, "Expression", QString("variableName := a"), "Expression", "", "", "");
     m_expression.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_variables,        "Variables",        "Variables", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_variables, "Variables", "Variables", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_timesteps,        "TimeSteps",        "Time Steps", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_timesteps, "TimeSteps", "Time Steps", "", "", "");
+
+    m_exprContextMenuMgr = std::unique_ptr<RiuExpressionContextMenuManager>(new RiuExpressionContextMenuManager());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +206,7 @@ bool RimSummaryCalculation::calculate()
     variableValues.resize(m_variables.size());
 
     std::vector<time_t> sourceTimeSteps;
-    
+
     size_t itemCount = 0;
 
     for (size_t i = 0; i < m_variables.size(); i++)
@@ -298,6 +303,30 @@ QString RimSummaryCalculation::findLeftHandSide(const QString& expresion)
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::attachToWidget()
+{
+    for (auto e : m_expression.uiCapability()->connectedEditors())
+    {
+        caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>(e);
+        if (!textEditor) continue;
+
+        QWidget* containerWidget = textEditor->editorWidget();
+        if (!containerWidget) continue;
+
+        for (auto qObj : containerWidget->children())
+        {
+            QTextEdit* textEdit = dynamic_cast<QTextEdit*>(qObj);
+            if (textEdit)
+            {
+                m_exprContextMenuMgr->attachTextEdit(textEdit);
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

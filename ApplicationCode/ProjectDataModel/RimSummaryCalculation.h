@@ -18,11 +18,15 @@
 
 #pragma once
 
+#include "RiuExpressionContextMenuManager.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
+#include <QPointer>
+#include <memory>
 
 class RimSummaryCalculationVariable;
+class QTextEdit;
 
 //==================================================================================================
 ///  
@@ -46,10 +50,11 @@ public:
     bool                            parseExpression();
     bool                            calculate();
     void                            updateDependentCurvesAndPlots();
-    
+
     virtual caf::PdmFieldHandle*    userDescriptionField() override;
 
     static QString                  findLeftHandSide(const QString& expresion);
+    void                            attachToWidget();
 
 private:
     RimSummaryCalculationVariable*  findByName(const QString& name) const;
@@ -66,4 +71,6 @@ private:
 
     caf::PdmField<std::vector<double>>                  m_calculatedValues;
     caf::PdmField<std::vector<time_t>>                  m_timesteps;
+
+    std::unique_ptr<RiuExpressionContextMenuManager>    m_exprContextMenuMgr;
 };

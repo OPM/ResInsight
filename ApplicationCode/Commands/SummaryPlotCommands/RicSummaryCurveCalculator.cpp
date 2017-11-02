@@ -256,3 +256,14 @@ void RicSummaryCurveCalculator::defineEditorAttribute(const caf::PdmFieldHandle*
         RicSummaryCurveCalculator::assignPushButtonEditorText(attribute, "Delete Calculation");
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculator::onEditorWidgetsCreated()
+{
+    if (m_currentCalculation() != nullptr)
+    {
+        m_currentCalculation->attachToWidget();
+    }
+}
