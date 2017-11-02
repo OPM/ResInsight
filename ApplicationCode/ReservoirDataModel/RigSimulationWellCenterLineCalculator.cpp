@@ -32,6 +32,7 @@
 #include "RigMainGrid.h"
 #include <deque>
 #include <list>
+#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Based on the points and cells, calculate a pipe centerline
@@ -534,7 +535,15 @@ public:
         {
             if (cellNeighborsPair.second.size() > 2)
             {
-
+               // // If any of the other neighbors are found as neighbor to a particular neighbor we have a loop
+               // const auto & neighbors = cellNeighborsPair.second;
+               // for (size_t currentNeighbor : neighbors)
+               // {
+               //     const auto& neighborsToCurrentNeighbor = m_cellsWithNeighbors[currentNeighbor];
+               //     std::set<size_t> intersection;
+               //     std::set_difference(neighbors.begin(), neighbors.end(), neighborsToCurrentNeighbor.begin(), neighborsToCurrentNeighbor.end(), std::back_inserter(intersection));
+               //
+               // }
             }
         }
 
@@ -780,6 +789,10 @@ private:
     {
         const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
         size_t cellCount = orgWellResultPoints.size();
+        const std::vector<cvf::Vec3d>& nodes = m_eclipseCaseData->mainGrid()->nodes();
+        double cellSizeI, cellSizeJ, cellSizeK; 
+        m_eclipseCaseData->mainGrid()->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
+        double stdArea = cellSizeK*(cellSizeI+cellSizeJ)*0.5;
 
         for ( size_t cIdx = 0; cIdx < cellCount; ++ cIdx )
         {
@@ -795,10 +808,29 @@ private:
                 if ( idxToCloseCell != cIdx && m_cellsWithNeighbors[cIdx].count(idxToCloseCell) == 0 )
                 {
                     const RigCell& c2 = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[idxToCloseCell]);
-                    auto contactFace = RigNNCData::calculateCellFaceOverlap(c1, c2, *(m_eclipseCaseData->mainGrid()), nullptr, nullptr);
+                    std::vector<size_t> poygonIndices; 
+                    std::vector<cvf::Vec3d> intersections;
+
+                    auto contactFace = RigNNCData::calculateCellFaceOverlap(c1, c2, *(m_eclipseCaseData->mainGrid()), &poygonIndices, &intersections);
 
                     if ( contactFace != cvf::StructGridInterface::NO_FACE )
                     {
+                        std::vector<cvf::Vec3d> realPolygon;
+
+                        for ( size_t pIdx = 0; pIdx < poygonIndices.size(); ++pIdx )
+                        {
+                            if ( poygonIndices[pIdx] < nodes.size() )
+                                realPolygon.push_back(nodes[poygonIndices[pIdx]]);
+                            else
+                                realPolygon.push_back(intersections[poygonIndices[pIdx] - nodes.size()]);
+                        }
+
+                        // Polygon area vector
+
+                        cvf::Vec3d area = cvf::GeometryTools::polygonAreaNormal3D(realPolygon);
+
+                        if (area.length() < 1e-3 * stdArea) continue;
+
                         m_cellsWithNeighbors[cIdx].insert(idxToCloseCell);
                         m_cellsWithNeighbors[idxToCloseCell].insert(cIdx);
                     }
@@ -839,7 +871,7 @@ private:
 
                 branchList.push_back(cellWithNeighborsPair.first);
 
-                unsigned endToGrow = 0; // 0 end, 1 front, 1< new branch
+                unsigned endToGrow = 0; // 0 end, 1 front, > 1 new branch
                 for ( size_t neighbour : cellWithNeighborsPair.second )
                 {
                     if ( m_unusedWellCellIndices.count(neighbour) )
