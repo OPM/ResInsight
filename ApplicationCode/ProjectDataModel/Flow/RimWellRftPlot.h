@@ -21,19 +21,21 @@
 
 #include "RimViewWindow.h"
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-#include "cvfCollection.h"
+#include "RimCase.h"
 #include "RimPlotCurve.h"
 
 #include "RifWellRftAddressQMetaType.h"
 
-#include <QPointer>
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+#include "cvfCollection.h"
+
 #include <QDate>
 #include <QMetaType>
-#include <set>
+#include <QPointer>
 #include <map>
+#include <set>
 #include <utility>
 
 class RimEclipseCase;
@@ -91,7 +93,7 @@ public:
 
 protected:
     // Overridden PDM methods
-    virtual caf::PdmFieldHandle*                    userDescriptionField() { return &m_userName; }
+    virtual caf::PdmFieldHandle*                    userDescriptionField() override { return &m_userName; }
     virtual void                                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
 
     virtual QList<caf::PdmOptionItemInfo>           calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
@@ -163,6 +165,9 @@ private:
     caf::PdmChildField<RimWellLogPlot*>             m_wellLogPlot;
 
     std::map<QDateTime, std::set<RifWellRftAddress>> m_timeStepsToAddresses;
+
+    caf::PdmField<bool>                             m_showFormations;
+    caf::PdmPtrField<RimCase*>                      m_formationCase;
 
     bool m_selectedSourcesOrTimeStepsFieldsChanged;
 };
