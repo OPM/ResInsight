@@ -48,6 +48,8 @@ class RimWellLogFile : public caf::PdmObject
         WELL_FLOW_COND_STANDARD
     };
 
+    const static QDateTime DEFAULT_DATE_TIME;
+
 public:
     RimWellLogFile();
     virtual ~RimWellLogFile();
@@ -70,11 +72,13 @@ public:
 private:
     virtual void                         setupBeforeSave() override;
     virtual void                         defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) override;
+    virtual void                         fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void                         defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName,
                                                                caf::PdmUiEditorAttribute* attribute) override;
 
     virtual caf::PdmFieldHandle*         userDescriptionField()  { return &m_name; }
+
+    static bool                          isDateValid(const QDateTime dateTime);
 
     caf::PdmChildArrayField<RimWellLogFileChannel*>  m_wellLogChannelNames;
 
@@ -86,4 +90,6 @@ private:
     caf::PdmField<QDateTime>             m_date;
     bool                                 m_lasFileHasValidDate;
     caf::PdmField<caf::AppEnum<WellFlowCondition>>  m_wellFlowCondition;
+
+    caf::PdmField<QString>               m_invalidDateMessage;
 };
