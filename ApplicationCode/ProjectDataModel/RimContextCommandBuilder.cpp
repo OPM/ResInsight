@@ -70,6 +70,7 @@
 #include "RimWellPltPlot.h"
 #include "RimRftPlotCollection.h"
 #include "RimPltPlotCollection.h"
+#include "RimWellLogFile.h"
 
 #ifdef USE_PROTOTYPE_FEATURE_FRACTURES
 #include "RimEllipseFractureTemplate.h"
@@ -225,11 +226,19 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
         }
         else if (dynamic_cast<RimWellPath*>(uiItem))
         {
+            commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "RicWellLogsImportFileFeature";
+            commandIds << "Separator";
             commandIds << "RicNewRftPlotFeature";
             commandIds << "RicNewPltPlotFeature";
             commandIds << "RicNewWellLogFileCurveFeature";
             commandIds << "RicNewWellLogCurveExtractionFeature";
             commandIds << "RicNewWellPathIntersectionFeature";
+        }
+        else if (dynamic_cast<RimWellLogFile*>(uiItem))
+        {
+            commandIds << "RicWellPathsImportFileFeature";
+            commandIds << "RicWellLogsImportFileFeature";
         }
         else if (dynamic_cast<RimWellRftPlot*>(uiItem))
         {
