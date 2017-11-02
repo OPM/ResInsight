@@ -83,6 +83,11 @@ public:
 
     void loadDataAndUpdate();
 
+    void setShowFormations(bool show = true);
+    void setCase(RimCase* rimCase);
+    void setSimWellName(const QString& simWellName);
+    void setBranchIndex(int branchIndex);
+
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void updateXZoomAndParentPlotDepthZoom();
     void updateXZoom();
