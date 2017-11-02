@@ -42,16 +42,24 @@ const std::string MONTH_NAMES[] =
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaDateStringParser::parseDateString(const QString& dateString)
 {
+    return RiaDateStringParser::parseDateString(dateString.toStdString());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime RiaDateStringParser::parseDateString(const std::string& dateString)
+{
     int year, month, day;
-    std::string s = dateString.toStdString();
-    bool parsedOk = 
-        tryParseYearFirst(s, year, month, day) ||
-        tryParseDayFirst(s, year, month, day) ||
-        tryParseMonthFirst(s, year, month, day);
+    bool parsedOk =
+        tryParseYearFirst(dateString, year, month, day) ||
+        tryParseDayFirst(dateString, year, month, day) ||
+        tryParseMonthFirst(dateString, year, month, day);
 
     QDateTime dt;
     dt.setTimeSpec(RiaQDateTimeTools::currentTimeSpec());
     if (parsedOk) dt.setDate(QDate(year, month, day));
+
     return dt;
 }
 

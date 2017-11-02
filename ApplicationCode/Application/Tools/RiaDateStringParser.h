@@ -31,6 +31,7 @@ class RiaDateStringParser
 {
 public:
     static QDateTime parseDateString(const QString& dateString);
+    static QDateTime parseDateString(const std::string& dateString);
 
 private:
     static bool tryParseYearFirst(const std::string& s, int& year, int& month, int& day);
