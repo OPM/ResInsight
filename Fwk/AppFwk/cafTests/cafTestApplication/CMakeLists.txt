@@ -15,6 +15,7 @@ set ( QT_MOC_HEADERS
     WidgetLayoutTest.h
     ManyGroups.h
     CustomObjectEditor.h
+    MenuItemProducer.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP
@@ -60,6 +61,8 @@ set( PROJECT_FILES
     ManyGroups.h
     CustomObjectEditor.cpp
     CustomObjectEditor.h
+    MenuItemProducer.cpp
+    MenuItemProducer.h
 )
 
 

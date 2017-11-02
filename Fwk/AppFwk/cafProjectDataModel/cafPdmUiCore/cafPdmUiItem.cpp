@@ -400,5 +400,19 @@ void PdmUiItem::updateUiIconFromState(bool isActive, QString uiConfigName)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<PdmUiEditorHandle*> PdmUiItem::connectedEditors() const
+{
+    std::vector<PdmUiEditorHandle*> editors;
+    for (auto e : m_editors)
+    {
+        editors.push_back(e);
+    }
+
+    return editors;
+}
+
 } //End of namespace caf
 

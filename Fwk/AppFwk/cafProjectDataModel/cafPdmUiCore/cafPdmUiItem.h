@@ -237,6 +237,9 @@ public:
 
     void             updateUiIconFromState(bool isActive,  QString uiConfigName = "");
 
+    std::vector<PdmUiEditorHandle*>
+                    connectedEditors() const;
+
 public: // Pdm-Private only
     //==================================================================================================
     /// This method sets the GUI description pointer, which is supposed to be statically allocated 

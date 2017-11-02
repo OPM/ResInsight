@@ -60,6 +60,10 @@ public: // Virtual
     virtual QList<caf::PdmOptionItemInfo>
         calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
 
+    /// Override used to attach application defined slots to caf created widgets
+    /// All field editor widgets are supposed to be created when this function is called
+    virtual void            onEditorWidgetsCreated() {}
+
 protected:
     /// Override to customize the order and grouping of the Gui.
     /// Fill up the uiOrdering object with groups and field references to create the gui structure

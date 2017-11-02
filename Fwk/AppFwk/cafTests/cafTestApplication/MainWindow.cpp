@@ -6,6 +6,7 @@
 #include "CustomObjectEditor.h"
 #include "ManyGroups.h"
 #include "WidgetLayoutTest.h"
+#include "MenuItemProducer.h"
 
 #include <QDockWidget>
 #include <QTreeView>
@@ -404,6 +405,7 @@ public:
         m_longText.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
         m_longText.capability<caf::PdmUiFieldHandle>()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+        m_menuItemProducer = new MenuItemProducer;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -487,6 +489,9 @@ public:
 
 
     caf::PdmField<bool>     m_toggleField;
+
+    MenuItemProducer* m_menuItemProducer;
+
     virtual caf::PdmFieldHandle* objectToggleField() 
     {
         return &m_toggleField;
@@ -500,6 +505,30 @@ public:
        }
     }
 
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void onEditorWidgetsCreated() override
+    {
+        for (auto e : m_longText.uiCapability()->connectedEditors())
+        {
+            caf::PdmUiTextEditor* textEditor = dynamic_cast<caf::PdmUiTextEditor*>(e);
+            if (!textEditor) continue;
+
+            QWidget* containerWidget = textEditor->editorWidget();
+            if (!containerWidget) continue;
+
+            for (auto qObj : containerWidget->children())
+            {
+                QTextEdit* textEdit = dynamic_cast<QTextEdit*>(qObj);
+                if (textEdit)
+                {
+                    m_menuItemProducer->attachTextEdit(textEdit);
+                }
+            }
+        }
+    }
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");

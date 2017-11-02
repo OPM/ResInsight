@@ -380,6 +380,13 @@ void caf::PdmUiWidgetBasedObjectEditor::configureAndUpdateUi(const QString& uiCo
         }
     }
     m_groupBoxes = m_newGroupBoxes;
+
+    // Notify pdm object when widgets have been created
+    caf::PdmUiObjectHandle* uiObject = uiObj(pdmObject());
+    if (uiObject)
+    {
+        uiObject->onEditorWidgetsCreated();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
