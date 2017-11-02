@@ -529,24 +529,6 @@ public:
 
         buildCellsToNeighborsMap();
 
-        // Detect and remove small loops
-
-        for (auto& cellNeighborsPair: m_cellsWithNeighbors)
-        {
-            if (cellNeighborsPair.second.size() > 2)
-            {
-               // // If any of the other neighbors are found as neighbor to a particular neighbor we have a loop
-               // const auto & neighbors = cellNeighborsPair.second;
-               // for (size_t currentNeighbor : neighbors)
-               // {
-               //     const auto& neighborsToCurrentNeighbor = m_cellsWithNeighbors[currentNeighbor];
-               //     std::set<size_t> intersection;
-               //     std::set_difference(neighbors.begin(), neighbors.end(), neighborsToCurrentNeighbor.begin(), neighborsToCurrentNeighbor.end(), std::back_inserter(intersection));
-               //
-               // }
-            }
-        }
-
         buildUnusedCellsSet();
   
         buildBranchLinesOfContinousNeighbourCells();
@@ -574,7 +556,6 @@ public:
                        };
 
         std::set< std::list< std::pair<bool, std::deque<size_t> > >::iterator, decltype(cmp) > unusedBranchLineIterators(cmp);
-
 
         std::map<int, std::multiset<DistToEndPoint> > resBranchIdxToBranchLineEndPointsDists;
 
@@ -698,11 +679,11 @@ public:
             resBranchIdxToBranchLineEndPointsDists.erase(minDistanceBrIdx);
             removeBranchLineFromDistanceMap(branchLineToAddIt);
         } 
-
     }
 
-
-
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
     RigWellResultFrame splittedWellResultFrame()
     {
         return m_branchedWell;
@@ -889,6 +870,7 @@ private:
             if ( orgWellResultPoints[i].isCell() ) m_unusedWellCellIndices.insert(i);
         }
     }
+
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
@@ -909,34 +891,7 @@ private:
                 branchList.push_back(cellWithNeighborsPair.first);
 
                 unsigned endToGrow = 0; // 0 end, 1 front, > 1 new branch
-                #if 0
-                for ( size_t neighbour : cellWithNeighborsPair.second )
-                {
-                    if ( m_unusedWellCellIndices.count(neighbour) )
-                    {
-                        m_unusedWellCellIndices.erase(neighbour);
-                        if ( endToGrow == 0 )
-                        {
-                            branchList.push_back(neighbour);
-                            growBranchListEnd(currentBranchLineIt);
-                            endToGrow++;
-                        }
-                        else if ( endToGrow == 1 )
-                        {
-                            branchList.push_front(neighbour);
-                            growBranchListFront(currentBranchLineIt);
-                            endToGrow++;
 
-                        }
-                        else // if ( endToGrow > 1 )
-                        {
-                            m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{branchList.front(), cellWithNeighborsPair.first, neighbour }));
-                            auto newBranchLineIt = std::prev(m_branchLines.end());
-                            growBranchListEnd(newBranchLineIt);
-                        }
-                    }
-                }
-                #endif
                 size_t neighbour = findBestNeighbor(cellWithNeighborsPair.first, cellWithNeighborsPair.second);
                 while (neighbour != -1)
                 {
@@ -968,6 +923,9 @@ private:
         }
     }
 
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
     size_t findBestNeighbor(size_t cell, std::set<size_t> neighbors)
     {
         size_t posKNeighbor = -1;
@@ -1000,7 +958,6 @@ private:
         }
     }
 
-
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
@@ -1017,8 +974,6 @@ private:
         
         const auto& neighbors = m_cellsWithNeighbors[startCell];
 
-        #if 1
-        ////
         size_t nb = findBestNeighbor(startCell, neighbors);
         if (nb != -1)
         {
@@ -1027,58 +982,29 @@ private:
             growBranchListEnd(branchListIt);
         }
 
-        nb = findBestNeighbor(startCell, neighbors);
-        if (nb != -1)
+        startAndGrowSeparateBranchesFromRestOfNeighbors(startCell, prevCell, neighbors);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void startAndGrowSeparateBranchesFromRestOfNeighbors(size_t startCell, size_t prevCell, const  std::set<size_t>& neighbors)
+    {
+        size_t nb = findBestNeighbor(startCell, neighbors);
+        while ( nb != -1 )
         {
-            if (prevCell == -1)
+            if ( prevCell == -1 )
                 m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, nb}));
             else
-                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, nb}) );
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, nb}));
             m_unusedWellCellIndices.erase(nb);
 
             auto lastBranchIt = std::prev(m_branchLines.end());
 
             growBranchListEnd(lastBranchIt);
+
+            nb = findBestNeighbor(startCell, neighbors);
         }
-
-        ////
-        #else
-        // Find first unused cell among the neighbors
-
-        auto it = neighbors.begin();
-        for (; it != neighbors.end(); ++it)
-        {
-            size_t neighbor = *it;
-            if (m_unusedWellCellIndices.count(neighbor))
-            {
-                branchList.push_back(neighbor);
-                m_unusedWellCellIndices.erase(neighbor);
-                ++it;
-                break;
-            }
-        }
-
-        // If we added a cell grow further
-        if ( branchList.back() != startCell ) growBranchListEnd(branchListIt);
-
-        while ( it != neighbors.end())  // Possible branches starting
-        {
-            size_t neighbor = *it;
-            if (m_unusedWellCellIndices.count(neighbor))
-            {
-                if (prevCell == -1)
-                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}));
-                else
-                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, neighbor}) );
-
-                m_unusedWellCellIndices.erase(neighbor);
-                auto lastBranchIt = std::prev(m_branchLines.end());
-
-                growBranchListEnd(lastBranchIt);
-            }
-            ++it;
-        }
-        #endif
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -1096,8 +1022,7 @@ private:
         if (branchList.size() > 1) prevCell = branchList[1];
 
         const auto& neighbors = m_cellsWithNeighbors[startCell];
-        #if 1
-        ////
+
         size_t nb = findBestNeighbor(startCell, neighbors);
         if (nb != -1)
         {
@@ -1106,60 +1031,7 @@ private:
             growBranchListFront(branchListIt);
         }
 
-        nb = findBestNeighbor(startCell, neighbors);
-        if (nb != -1)
-        {
-            if (prevCell == -1)
-                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, nb}));
-            else
-                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, nb}) );
-
-            m_unusedWellCellIndices.erase(nb);
-
-            auto lastBranchIt = std::prev(m_branchLines.end());
-
-            growBranchListEnd(lastBranchIt);
-        }
-
-        ////
-        #else
-
-        // Find first unused cell among the neighbors
-
-        auto it = neighbors.begin();
-        for (; it != neighbors.end(); ++it)
-        {
-            size_t neighbor = *it;
-            if (m_unusedWellCellIndices.count(neighbor))
-            {
-                branchList.push_front(neighbor);
-                m_unusedWellCellIndices.erase(neighbor);
-                ++it;
-                break;
-            }
-        }
-
-        // If we added a cell grow further
-        if ( branchList.front() != startCell ) growBranchListFront(branchListIt);
-
-        while ( it != neighbors.end())  // Possible branches starting
-        {
-            size_t neighbor = *it;
-            if (m_unusedWellCellIndices.count(neighbor))
-            {
-                if (prevCell == -1)
-                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}));
-                else
-                    m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, neighbor}) );
-
-                m_unusedWellCellIndices.erase(neighbor);
-                auto lastBranchIt = std::prev(m_branchLines.end());
-
-                growBranchListEnd(lastBranchIt);
-            }
-            ++it;
-        }
-        #endif
+        startAndGrowSeparateBranchesFromRestOfNeighbors(startCell, prevCell, neighbors);
     }
 
     //--------------------------------------------------------------------------------------------------
