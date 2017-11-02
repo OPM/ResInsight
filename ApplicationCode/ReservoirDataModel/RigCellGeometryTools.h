@@ -33,8 +33,6 @@
 class RigCellGeometryTools
 {
 public:
-    RigCellGeometryTools();
-    ~RigCellGeometryTools(); 
 
     static void createPolygonFromLineSegments(std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> &intersectionLineSegments, std::vector<std::vector<cvf::Vec3d>> &polygons);
 
