@@ -90,6 +90,8 @@ private:
     caf::PdmField<QDateTime>                                                      m_timeStep;
     caf::PdmField<QString>                                                        m_wellName;
     caf::PdmField< caf::AppEnum< RifEclipseRftAddress::RftWellLogChannelName > >  m_wellLogChannelName;
+
+    bool                                                                          m_isUsingPseudoLength;
 };
 
 

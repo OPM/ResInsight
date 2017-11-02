@@ -296,6 +296,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
     if (isCurveVisible())
     {
         // Make sure we have set correct case data into the result definitions.
+        bool isUsingPseudoLength = false;
 
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>(m_case.value());
         RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>(m_case.value());
@@ -323,6 +324,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
                                                                                eclipseCase->caseUserDescription(),
                                                                                m_generatedSimulationWellPathBranches[m_branchIndex].p(),
                                                                                eclipseCase->eclipseCaseData());
+                isUsingPseudoLength = true;
             }
         }
         cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = wellLogCollection->findOrCreateExtractor(m_wellPath, geomCase);
@@ -394,6 +396,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         if(wellLogPlot->depthType() == RimWellLogPlot::TRUE_VERTICAL_DEPTH)
         {
             m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+            isUsingPseudoLength = false;
         }
         else if (wellLogPlot->depthType() == RimWellLogPlot::MEASURED_DEPTH)
         {
@@ -401,6 +404,19 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate(bool updateParentPlot)
         }
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
+
+        if (isUsingPseudoLength)
+        {
+            RimWellLogTrack* wellLogTrack;
+            firstAncestorOrThisOfType(wellLogTrack);
+            CVF_ASSERT(wellLogTrack);
+
+            RiuWellLogTrack* viewer = wellLogTrack->viewer();
+            if (viewer)
+            {
+                viewer->setDepthTitle("PL/" + wellLogPlot->depthPlotTitle());
+            }
+        }
 
         updateZoomInParentPlot();
 

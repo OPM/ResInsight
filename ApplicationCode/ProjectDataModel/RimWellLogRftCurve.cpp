@@ -28,6 +28,7 @@
 #include "RimTools.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
 #include "RigEclipseCaseData.h"
@@ -38,6 +39,7 @@
 #include "RigWellPathIntersectionTools.h"
 
 #include "RiuLineSegmentQwtPlotCurve.h"
+#include "RiuWellLogTrack.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -89,6 +91,8 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "Well Name", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogChannelName, "WellLogChannelName", "Well Property", "", "", "");
+
+    m_isUsingPseudoLength = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,6 +267,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
 {
     RimWellLogCurve::updateCurvePresentation();
 
+    m_isUsingPseudoLength = false;
+    
     if (isCurveVisible())
     {
         m_curveData = new RigWellLogCurveData;
@@ -298,6 +304,20 @@ void RimWellLogRftCurve::onLoadDataAndUpdate(bool updateParentPlot)
         else
         {
             m_qwtPlotCurve->setSamples(m_curveData->xPlotValues().data(), m_curveData->trueDepthPlotValues(displayUnit).data(), static_cast<int>(m_curveData->xPlotValues().size()));
+            m_isUsingPseudoLength = false;
+        }
+
+        if (m_isUsingPseudoLength)
+        {
+            RimWellLogTrack* wellLogTrack;
+            firstAncestorOrThisOfType(wellLogTrack);
+            CVF_ASSERT(wellLogTrack);
+
+            RiuWellLogTrack* viewer = wellLogTrack->viewer();
+            if (viewer)
+            {
+                viewer->setDepthTitle("PL/" + wellLogPlot->depthPlotTitle());
+            }
         }
 
         m_qwtPlotCurve->setLineSegmentStartStopIndices(m_curveData->polylineStartStopIndices());
@@ -463,6 +483,7 @@ RigEclipseWellLogExtractor* RimWellLogRftCurve::extractor()
         if (wellPaths.size() == 0) return nullptr;
 
         eclExtractor = wellLogCollection->findOrCreateSimWellExtractor(m_wellName(), QString("Find or create sim well extractor"), wellPaths[0], m_eclipseResultCase->eclipseCaseData());
+        m_isUsingPseudoLength = true;
     }
 
     return eclExtractor;
