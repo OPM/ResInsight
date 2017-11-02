@@ -34,7 +34,7 @@
 #include <QMetaType>
 #include <set>
 #include <map>
-
+#include <utility>
 
 class RimEclipseCase;
 class RimEclipseResultCase;
@@ -43,6 +43,7 @@ class RimWellLogFileChannel;
 class RimWellLogPlot;
 class RimWellPath;
 class RiuWellRftPlot;
+class RigEclipseCaseData;
 
 namespace cvf {
     class Color3f;
@@ -61,7 +62,7 @@ class RimWellRftPlot : public RimViewWindow
 {
     CAF_PDM_HEADER_INIT;
 
-    static const char PRESSURE_DATA_NAME[];
+    static const std::set<QString> PRESSURE_DATA_NAMES;
     static const char PLOT_NAME_QFORMAT_STRING[];
 
 public:
@@ -83,6 +84,7 @@ public:
     static bool                                     isPressureChannel(RimWellLogFileChannel* channel);
     static bool                                     hasPressureData(RimEclipseResultCase* gridCase);
     static bool                                     hasPressureData(RimWellPath* wellPath);
+    static std::pair<size_t, QString>               pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData);
     static const char*                              plotNameFormatString();
 
     void                                            applyInitialSelections();

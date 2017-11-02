@@ -53,7 +53,7 @@ CAF_PDM_SOURCE_INIT(RimWellRftPlot, "WellRftPlot");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const char RimWellRftPlot::PRESSURE_DATA_NAME[] = "PRESSURE";
+const std::set<QString> RimWellRftPlot::PRESSURE_DATA_NAMES = { "PRESSURE", "PRES_FORM" };
 const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 
 //--------------------------------------------------------------------------------------------------
@@ -557,14 +557,12 @@ std::map<QDateTime, std::set<RifWellRftAddress>> RimWellRftPlot::timeStepsFromRf
 std::map<QDateTime, std::set<RifWellRftAddress>> RimWellRftPlot::timeStepsFromGridCase(RimEclipseCase* gridCase) const
 {
     const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-    size_t resultIndex = eclipseCaseData != nullptr ? 
-        eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME) :
-        cvf::UNDEFINED_SIZE_T;
+    std::pair<size_t, QString> resultDataInfo = pressureResultDataInfo(eclipseCaseData);
 
     std::map<QDateTime, std::set<RifWellRftAddress>> timeStepsMap;
-    if (resultIndex != cvf::UNDEFINED_SIZE_T)
+    if (resultDataInfo.first != cvf::UNDEFINED_SIZE_T)
     {
-        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultIndex))
+        for (const QDateTime& timeStep : eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->timeStepDates(resultDataInfo.first))
         {
             if (timeStepsMap.count(timeStep) == 0)
             {
@@ -802,12 +800,14 @@ void RimWellRftPlot::updateCurvesInPlot(const std::set<std::pair<RifWellRftAddre
             auto gridCase = curveDefToAdd.first.eclCase();
             if (gridCase != nullptr)
             {
+                std::pair<size_t, QString> resultDataInfo = pressureResultDataInfo(gridCase->eclipseCaseData());
+
                 // Case
                 curve->setCase(gridCase);
 
                 // Result definition
                 RimEclipseResultDefinition* resultDef = new RimEclipseResultDefinition();
-                resultDef->setResultVariable(PRESSURE_DATA_NAME);
+                resultDef->setResultVariable(resultDataInfo.second);
                 curve->setEclipseResultDefinition(resultDef);
 
                 // Time step
@@ -960,10 +960,33 @@ bool RimWellRftPlot::hasPressureData(RimWellPath* wellPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::pair<size_t, QString> RimWellRftPlot::pressureResultDataInfo(const RigEclipseCaseData* eclipseCaseData)
+{
+    if (eclipseCaseData != nullptr)
+    {
+        for (const auto& pressureDataName : PRESSURE_DATA_NAMES)
+        {
+            size_t index = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
+                findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, pressureDataName);
+            if (index != cvf::UNDEFINED_SIZE_T)
+            {
+                return std::make_pair(index, pressureDataName);
+            }
+        }
+    }
+    return std::make_pair(cvf::UNDEFINED_SIZE_T, "");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellRftPlot::isPressureChannel(RimWellLogFileChannel* channel)
 {
-    // Todo: read pressure channel names from config/defines
-    return QString::compare(channel->name(), PRESSURE_DATA_NAME) == 0;
+    for (const auto& pressureDataName : PRESSURE_DATA_NAMES)
+    {
+        if (QString::compare(channel->name(), pressureDataName, Qt::CaseInsensitive) == 0) return true;
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -971,10 +994,7 @@ bool RimWellRftPlot::isPressureChannel(RimWellLogFileChannel* channel)
 //--------------------------------------------------------------------------------------------------
 bool RimWellRftPlot::hasPressureData(RimEclipseResultCase* gridCase)
 {
-    const RigEclipseCaseData* const eclipseCaseData = gridCase->eclipseCaseData();
-    size_t resultIndex = eclipseCaseData->results(RiaDefines::MATRIX_MODEL)->
-        findScalarResultIndex(RiaDefines::DYNAMIC_NATIVE, PRESSURE_DATA_NAME);
-    return resultIndex != cvf::UNDEFINED_SIZE_T;
+    return pressureResultDataInfo(gridCase->eclipseCaseData()).first != cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
