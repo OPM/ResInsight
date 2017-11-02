@@ -51,6 +51,7 @@ private:
     static bool hasAnyValidDataCells(const RigWellResultBranch& branch);
     static void finishPipeCenterLine( std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter ) ;
 
+    static RigWellResultFrame splitIntoBranches(const RigWellResultFrame& wellResultFrame, const RigEclipseCaseData* eclipseCaseData);
     static void addCellCenterPoints(const RigEclipseCaseData* eclipseCaseData, std::vector<std::vector<cvf::Vec3d>> &pipeBranchesCLCoords, std::vector<std::vector<RigWellResultPoint>> &pipeBranchesCellIds);
 };
 

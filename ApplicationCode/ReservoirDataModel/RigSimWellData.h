@@ -200,9 +200,9 @@ public:  // Todo: Clean up this regarding public members and constness etc.
                                            
     std::vector<size_t>                    m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
     std::vector< RigWellResultFrame >      m_wellCellsTimeSteps;
+private:
     mutable RigWellResultFrame             m_staticWellCells;
 
-private:
     void                                   computeStaticWellCellPath() const;
 
 private:

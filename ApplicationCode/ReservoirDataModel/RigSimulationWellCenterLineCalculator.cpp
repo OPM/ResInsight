@@ -28,6 +28,10 @@
 #include "RimSimWellInView.h"
 
 #include "cvfRay.h"
+#include "cvfBoundingBoxTree.h"
+#include "RigMainGrid.h"
+#include <deque>
+#include <list>
 
 //--------------------------------------------------------------------------------------------------
 /// Based on the points and cells, calculate a pipe centerline
@@ -100,8 +104,17 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
         wellFramePtr =  &(wellResults->wellResultFrame(timeStepIndex));
     }
 
-    const RigWellResultFrame& wellFrame = *wellFramePtr;
     bool isMultiSegmentWell             = wellResults->isMultiSegmentWell();
+
+    RigWellResultFrame splittedWellFrame;
+    if (!isMultiSegmentWell && isAutoDetectBranches)
+    {
+        splittedWellFrame = splitIntoBranches(*wellFramePtr, eclipseCaseData);
+        wellFramePtr = &splittedWellFrame;
+        isMultiSegmentWell = true;
+    }
+
+    const RigWellResultFrame& wellFrame = *wellFramePtr;
 
     // Initialize the return arrays
     pipeBranchesCLCoords.clear();
@@ -481,3 +494,525 @@ void RigSimulationWellCenterLineCalculator::finishPipeCenterLine(std::vector< st
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class BranchSplitter
+{
+public:
+    BranchSplitter(const RigWellResultFrame& awellResultFrame, 
+                   const RigEclipseCaseData* eclipseCaseData)
+                   :m_eclipseCaseData(eclipseCaseData), m_orgWellResultFrame(awellResultFrame)
+    {
+        CVF_ASSERT(m_orgWellResultFrame.m_wellResultBranches.size() <= 1);
+        m_branchedWell = m_orgWellResultFrame;
+        
+        buildCellSearchTree();
+
+        buildCellsToNeighborsMap();
+
+        // Detect and remove small loops
+
+        for (auto& cellNeighborsPair: m_cellsWithNeighbors)
+        {
+            if (cellNeighborsPair.second.size() > 2)
+            {
+
+            }
+        }
+
+        buildUnusedCellsSet();
+  
+        buildBranchLinesOfContinousNeighbourCells();
+  
+        
+        class DistToEndPoint
+        {
+        public:
+            DistToEndPoint(double adist, std::list< std::pair<bool, std::deque<size_t> > >::iterator aBranchLineIt, bool aToFrontOfBranchLine2)
+                : dist(adist), branchLineIt(aBranchLineIt), toFrontOfBranchLine(aToFrontOfBranchLine2)
+            {}
+
+            double dist;
+
+            std::list< std::pair<bool, std::deque<size_t> > >::iterator branchLineIt;
+            bool toFrontOfBranchLine; 
+
+            bool operator<(const DistToEndPoint& other ) const { return dist < other.dist; } 
+        };
+
+        auto cmp = [] (std::list< std::pair<bool, std::deque<size_t> > >::iterator a, 
+                       std::list< std::pair<bool, std::deque<size_t> > >::iterator b) 
+                       { 
+                           return &(*a) < &(*b);
+                       };
+
+        std::set< std::list< std::pair<bool, std::deque<size_t> > >::iterator, decltype(cmp) > unusedBranchLineIterators(cmp);
+
+
+        std::map<int, std::multiset<DistToEndPoint> > resBranchIdxToBranchLineEndPointsDists;
+
+        /// Creating useful lambda functions
+
+        auto buildResBranchToBranchLineEndsDistMap = 
+        [&unusedBranchLineIterators, &resBranchIdxToBranchLineEndPointsDists, this](cvf::Vec3d& fromPoint, int resultBranchIndex)
+        {
+            for ( auto it :unusedBranchLineIterators )
+            {
+                {
+                    double dist = calculateFrontToPointDistance(it->second, fromPoint);
+                    resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert(DistToEndPoint(dist, it, true));
+                }
+
+                {
+                    double dist = calculateEndToPointDistance(it->second, fromPoint);
+                    resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert(DistToEndPoint(dist, it, false));
+                }
+            }
+        };
+
+        auto removeBranchLineFromDistanceMap = 
+            [&resBranchIdxToBranchLineEndPointsDists](std::list< std::pair<bool, std::deque<size_t> > >::iterator branchLineToMergeIt)
+        {
+            for ( auto& brIdx_DistToEndPointSet : resBranchIdxToBranchLineEndPointsDists )
+            {
+                std::vector<std::multiset<DistToEndPoint>::iterator> iteratorsToErase;
+                for ( auto it = brIdx_DistToEndPointSet.second.begin(); it != brIdx_DistToEndPointSet.second.end(); ++it )
+                {
+                    if ( it->branchLineIt == branchLineToMergeIt )
+                    {
+                        iteratorsToErase.push_back(it);
+                    }
+                }
+
+                for (auto itToErase : iteratorsToErase)  brIdx_DistToEndPointSet.second.erase(itToErase);
+            }
+        };
+
+        // Make the result container ready
+
+        m_branchedWell.m_wellResultBranches.clear();
+        m_branchedWell.m_wellResultBranches.push_back(RigWellResultBranch());
+
+        // Build set of unused branch lines
+
+        for (auto brLIt = m_branchLines.begin(); brLIt != m_branchLines.end(); ++brLIt)
+        {
+            if (brLIt->first) unusedBranchLineIterators.insert(brLIt);
+        }
+
+        // Calculate wellhead to branch line ends distances
+        {
+            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(m_orgWellResultFrame.m_wellHead);
+            cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
+
+            buildResBranchToBranchLineEndsDistMap(whStartPos, -1);
+        }
+
+        // Add the branchLine closest to wellhead into the result
+        {
+            auto closestEndPointIt =  resBranchIdxToBranchLineEndPointsDists[-1].begin();
+            addBranchLineToLastWellResultBranch(closestEndPointIt->branchLineIt, closestEndPointIt->toFrontOfBranchLine);
+            unusedBranchLineIterators.erase(closestEndPointIt->branchLineIt);
+            removeBranchLineFromDistanceMap(closestEndPointIt->branchLineIt);
+        }
+
+        // Add the branchLines that starts directly from another branchLine
+        {
+            for ( auto brLIt = m_branchLines.begin(); brLIt != m_branchLines.end(); ++brLIt )
+            {
+                if ( !brLIt->first )
+                {
+                    m_branchedWell.m_wellResultBranches.push_back(RigWellResultBranch());
+                    addBranchLineToLastWellResultBranch(brLIt, true);
+                }
+            }
+        }
+
+        while ( !unusedBranchLineIterators.empty() ) 
+        {
+            //    Calculate distance from end of all currently added result branches to all branch lines
+
+            for (size_t resultBranchIndex = 0; resultBranchIndex < m_branchedWell.m_wellResultBranches.size(); ++resultBranchIndex)
+            {
+                if (! resBranchIdxToBranchLineEndPointsDists.count((int)resultBranchIndex) 
+                    && m_branchedWell.m_wellResultBranches[resultBranchIndex].m_branchResultPoints.size()
+                    && m_branchedWell.m_wellResultBranches[resultBranchIndex].m_branchResultPoints.back().isCell())
+                {
+                    const RigCell& whCell = eclipseCaseData->cellFromWellResultCell(m_branchedWell.m_wellResultBranches[resultBranchIndex].m_branchResultPoints.back());
+                    cvf::Vec3d branchEndPoint = whCell.center();
+
+                    buildResBranchToBranchLineEndsDistMap(branchEndPoint, (int)resultBranchIndex);
+                }
+            }
+
+            // Find the result branch to grow, by finding the one with the closest distance to a branchLine
+
+            int minDistanceBrIdx = -1;
+            DistToEndPoint closestEndPoint(HUGE_VAL,m_branchLines.end(), true);
+
+            for (auto& brIdx_DistToEndPointSet : resBranchIdxToBranchLineEndPointsDists)
+            {
+                if (brIdx_DistToEndPointSet.second.begin()->dist < closestEndPoint.dist)
+                {
+                    minDistanceBrIdx =  brIdx_DistToEndPointSet.first;
+                    closestEndPoint = *( brIdx_DistToEndPointSet.second.begin());
+                }
+            }
+
+            // Grow the result branch with the branchLine
+
+            auto closestEndPointIt =  resBranchIdxToBranchLineEndPointsDists[minDistanceBrIdx].begin();
+            auto branchLineToAddIt = closestEndPointIt->branchLineIt;
+            addBranchLineToWellResultBranch(minDistanceBrIdx, branchLineToAddIt, closestEndPointIt->toFrontOfBranchLine);
+
+            // Remove the branchLine from the control datastructures
+
+            unusedBranchLineIterators.erase(branchLineToAddIt);
+            resBranchIdxToBranchLineEndPointsDists.erase(minDistanceBrIdx);
+            removeBranchLineFromDistanceMap(branchLineToAddIt);
+        } 
+
+    }
+
+
+
+    RigWellResultFrame splittedWellResultFrame()
+    {
+        return m_branchedWell;
+    }
+
+private:
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void addBranchLineToLastWellResultBranch(std::list< std::pair<bool, std::deque<size_t> > >::iterator branchLineIt, bool startAtFront)
+    {
+        addBranchLineToWellResultBranch( static_cast<int>(m_branchedWell.m_wellResultBranches.size()) - 1, branchLineIt, startAtFront);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// branchIdx == -1 creates a new branch
+    //--------------------------------------------------------------------------------------------------
+    void addBranchLineToWellResultBranch(int branchIdx, std::list< std::pair<bool, std::deque<size_t> > >::iterator branchLineIt, bool startAtFront)
+    {
+        if (branchIdx < 0)
+        {
+            m_branchedWell.m_wellResultBranches.push_back(RigWellResultBranch());
+            branchIdx = static_cast<int>( m_branchedWell.m_wellResultBranches.size()) - 1;
+        }
+
+        RigWellResultBranch& currentBranch = m_branchedWell.m_wellResultBranches[branchIdx];  
+        std::deque<size_t> wellCellIndices = branchLineIt->second;
+        if (!startAtFront) std::reverse(wellCellIndices.begin(), wellCellIndices.end());
+
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+
+        for (size_t wcIdx : wellCellIndices)
+        {
+            currentBranch.m_branchResultPoints.push_back(orgWellResultPoints[wcIdx]);
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void buildCellSearchTree()
+    {
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t cellCount = orgWellResultPoints.size();
+
+        m_cellBoundingBoxes.resize(cellCount);
+
+        const std::vector<cvf::Vec3d>& nodes = m_eclipseCaseData->mainGrid()->nodes();
+
+        for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
+        {
+            if ( !orgWellResultPoints[cIdx].isCell() ) continue;
+            const RigCell& wellCell = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[cIdx]);
+
+            if ( wellCell.isInvalid() ) continue;
+
+            const caf::SizeTArray8& cellIndices = wellCell.cornerIndices();
+
+            cvf::BoundingBox& cellBB = m_cellBoundingBoxes[cIdx];
+            cellBB.add(nodes[cellIndices[0]]);
+            cellBB.add(nodes[cellIndices[1]]);
+            cellBB.add(nodes[cellIndices[2]]);
+            cellBB.add(nodes[cellIndices[3]]);
+            cellBB.add(nodes[cellIndices[4]]);
+            cellBB.add(nodes[cellIndices[5]]);
+            cellBB.add(nodes[cellIndices[6]]);
+            cellBB.add(nodes[cellIndices[7]]);
+        }
+
+        m_cellSearchTree.buildTreeFromBoundingBoxes(m_cellBoundingBoxes, nullptr);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void buildCellsToNeighborsMap()
+    {
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t cellCount = orgWellResultPoints.size();
+
+        for ( size_t cIdx = 0; cIdx < cellCount; ++ cIdx )
+        {
+            std::vector<size_t> closeCells;
+            m_cellSearchTree.findIntersections(m_cellBoundingBoxes[cIdx], &closeCells);
+
+            const RigCell& c1 = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[cIdx]);
+
+            for ( size_t idxToCloseCell : closeCells )
+            {
+                if ( idxToCloseCell != cIdx && m_cellsWithNeighbors[cIdx].count(idxToCloseCell) == 0 )
+                {
+                    const RigCell& c2 = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[idxToCloseCell]);
+                    auto contactFace = RigNNCData::calculateCellFaceOverlap(c1, c2, *(m_eclipseCaseData->mainGrid()), nullptr, nullptr);
+
+                    if ( contactFace != cvf::StructGridInterface::NO_FACE )
+                    {
+                        m_cellsWithNeighbors[cIdx].insert(idxToCloseCell);
+                        m_cellsWithNeighbors[idxToCloseCell].insert(cIdx);
+                    }
+                }
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void buildUnusedCellsSet()
+    {
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t cellCount = orgWellResultPoints.size();
+
+        for ( size_t i = 0; i < cellCount; ++i )
+        {
+            if ( orgWellResultPoints[i].isCell() ) m_unusedWellCellIndices.insert(i);
+        }
+    }
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void buildBranchLinesOfContinousNeighbourCells()
+    {
+        for ( auto& cellWithNeighborsPair : m_cellsWithNeighbors )
+        {
+            auto it = m_unusedWellCellIndices.find(cellWithNeighborsPair.first);
+            if ( it !=  m_unusedWellCellIndices.end() )
+            {
+                m_unusedWellCellIndices.erase(it);
+
+                // Create a new branchline containing with the cell itself.
+                m_branchLines.push_back(std::make_pair(true, std::deque<size_t>()));
+                auto currentBranchLineIt = std::prev(m_branchLines.end());
+                auto& branchList = currentBranchLineIt->second;
+
+                branchList.push_back(cellWithNeighborsPair.first);
+
+                unsigned endToGrow = 0; // 0 end, 1 front, 1< new branch
+                for ( size_t neighbour : cellWithNeighborsPair.second )
+                {
+                    if ( m_unusedWellCellIndices.count(neighbour) )
+                    {
+                        m_unusedWellCellIndices.erase(neighbour);
+                        if ( endToGrow == 0 )
+                        {
+                            branchList.push_back(neighbour);
+                            growBranchListEnd(currentBranchLineIt);
+                            endToGrow++;
+                        }
+                        else if ( endToGrow == 1 )
+                        {
+                            branchList.push_front(neighbour);
+                            growBranchListFront(currentBranchLineIt);
+                            endToGrow++;
+
+                        }
+                        else // if ( endToGrow > 1 )
+                        {
+                            m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{cellWithNeighborsPair.first, neighbour }));
+                            auto newBranchLineIt = std::prev(m_branchLines.end());
+                            growBranchListEnd(newBranchLineIt);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void growBranchListEnd( std::list< std::pair<bool, std::deque<size_t> > >::iterator  branchListIt)
+    {
+        std::deque<size_t>& branchList = branchListIt->second;
+
+        CVF_ASSERT(branchList.size());
+
+        size_t startCell = branchList.back();
+        const auto& neighbors = m_cellsWithNeighbors[startCell];
+
+        // Find first unused cell among the neighbors
+
+        auto it = neighbors.begin();
+        for (; it != neighbors.end(); ++it)
+        {
+            size_t neighbor = *it;
+            if (m_unusedWellCellIndices.count(neighbor))
+            {
+                branchList.push_back(neighbor);
+                m_unusedWellCellIndices.erase(neighbor);
+                ++it;
+                break;
+            }
+        }
+
+        // If we added a cell grow further
+        if ( branchList.back() != startCell ) growBranchListEnd(branchListIt);
+
+        while ( it != neighbors.end())  // Possible branches starting
+        {
+            size_t neighbor = *it;
+            if (m_unusedWellCellIndices.count(neighbor))
+            {
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}) );
+                m_unusedWellCellIndices.erase(neighbor);
+                auto lastBranchIt = std::prev(m_branchLines.end());
+
+                growBranchListEnd(lastBranchIt);
+            }
+            ++it;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    void growBranchListFront( std::list< std::pair<bool, std::deque<size_t> > >::iterator  branchListIt)
+    {
+        std::deque<size_t>& branchList = branchListIt->second;
+
+        CVF_ASSERT(branchList.size());
+
+        size_t startCell = branchList.front();
+        const auto& neighbors = m_cellsWithNeighbors[startCell];
+
+        // Find first unused cell among the neighbors
+
+        auto it = neighbors.begin();
+        for (; it != neighbors.end(); ++it)
+        {
+            size_t neighbor = *it;
+            if (m_unusedWellCellIndices.count(neighbor))
+            {
+                branchList.push_front(neighbor);
+                m_unusedWellCellIndices.erase(neighbor);
+                ++it;
+                break;
+            }
+        }
+
+        // If we added a cell grow further
+        if ( branchList.front() != startCell ) growBranchListFront(branchListIt);
+
+        while ( it != neighbors.end())  // Possible branches starting
+        {
+            size_t neighbor = *it;
+            if (m_unusedWellCellIndices.count(neighbor))
+            {
+                m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, neighbor}) );
+                m_unusedWellCellIndices.erase(neighbor);
+                auto lastBranchIt = std::prev(m_branchLines.end());
+
+                growBranchListEnd(lastBranchIt);
+            }
+            ++it;
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    double calculateFrontToPointDistance(const std::deque<size_t>& second, const cvf::Vec3d& point)
+    {
+        // Todo, more fancy virtual curvature based distance using an estimated direction from the branch-end
+
+        return calculateWellCellToPointDistance(second.front(), point);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    double calculateEndToPointDistance(const std::deque<size_t>& second, const cvf::Vec3d& point)
+    {
+        // Todo, more fancy virtual curvature based distance using an estimated direction from the branch-end
+
+        return calculateWellCellToPointDistance(second.back(), point);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    double calculateWellCellToPointDistance(size_t wellCellIdx, const cvf::Vec3d& point)
+    {
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+
+        const RigCell& c = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[wellCellIdx]);
+
+        cvf::Vec3d cellCenter = c.center();
+
+        return (point-cellCenter).length();
+    }
+
+    // The bool tells if this can be expanded in the front,
+    // Set to false when the branchLine starts from a branching cell (cell with more than two neighbors)
+    std::list< std::pair<bool, std::deque<size_t> > > m_branchLines;
+
+    std::vector<cvf::BoundingBox> m_cellBoundingBoxes;
+    cvf::BoundingBoxTree m_cellSearchTree;
+
+    std::map<size_t, std::set<size_t> > m_cellsWithNeighbors;
+    std::set<size_t> m_unusedWellCellIndices;
+
+    RigWellResultFrame m_branchedWell;
+
+    const RigEclipseCaseData* m_eclipseCaseData;
+    const RigWellResultFrame& m_orgWellResultFrame;
+
+
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigWellResultFrame RigSimulationWellCenterLineCalculator::splitIntoBranches(const RigWellResultFrame& wellResultFrame, 
+                                                                            const RigEclipseCaseData* eclipseCaseData)
+{
+    BranchSplitter splitter(wellResultFrame, eclipseCaseData);
+
+    return splitter.splittedWellResultFrame();
+}

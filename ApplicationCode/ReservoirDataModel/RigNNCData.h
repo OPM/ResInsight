@@ -32,6 +32,8 @@
 
 
 class RigMainGrid;
+class RigCell;
+
 
 class RigConnection
 {
@@ -76,7 +78,14 @@ public:
     RigNNCData();
 
     void processConnections(const RigMainGrid& mainGrid);
-  
+
+    static cvf::StructGridInterface::FaceType calculateCellFaceOverlap(const RigCell &c1, 
+                                                                       const RigCell &c2, 
+                                                                       const RigMainGrid &mainGrid, 
+                                                                       std::vector<size_t>* connectionPolygon, 
+                                                                       std::vector<cvf::Vec3d>* connectionIntersections);
+
+
     std::vector<RigConnection>&         connections()        { return m_connections; }
     const std::vector<RigConnection>&   connections() const  { return m_connections; }
 
