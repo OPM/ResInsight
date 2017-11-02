@@ -141,7 +141,7 @@ TEST(RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFract
                                                                                              accumulatedPhaseFractionSwat2,
                                                                                              accumulatedPhaseFractionSoil2,
                                                                                              accumulatedPhaseFractionSgas2);
-    EXPECT_EQ(tofInIncreasingOrder2.size(), 3);
+    EXPECT_EQ(size_t(3), tofInIncreasingOrder2.size());
 
     double sumForOneTOF = accumulatedPhaseFractionSwat2[2] 
                         + accumulatedPhaseFractionSoil2[2]

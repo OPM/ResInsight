@@ -42,7 +42,7 @@ TEST(DISABLED_HDFTests, BasicFileRead)
 			hsize_t   group_size = GridFunctions.getNumObjs();
 
 			//std::cout << "GridFunctions group_size " << group_size << std::endl;
-			EXPECT_EQ(group_size, 20);
+			EXPECT_EQ(size_t(20), group_size);
 
 /*			for (hsize_t i = 0; i < group_size; i++)
 			{

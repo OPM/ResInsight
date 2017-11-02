@@ -32,7 +32,7 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash)
     
     std::vector<QDateTime> timeSteps = parser.timeSteps();
 
-    ASSERT_EQ(4, parser.timeSteps().size());
+    ASSERT_EQ(size_t(4), parser.timeSteps().size());
     EXPECT_EQ("1993-02-23", timeSteps[0].toString(dateFormat).toStdString());
     EXPECT_EQ("1993-06-15", timeSteps[1].toString(dateFormat).toStdString());
     EXPECT_EQ("1994-02-26", timeSteps[2].toString(dateFormat).toStdString());
@@ -60,7 +60,7 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot)
 
     std::vector<QDateTime> timeSteps = parser.timeSteps();
 
-    ASSERT_EQ(4, parser.timeSteps().size());
+    ASSERT_EQ(size_t(4), parser.timeSteps().size());
     EXPECT_EQ("93.02.23", timeSteps[0].toString(dateFormat).toStdString());
 }
 
@@ -85,7 +85,7 @@ TEST(RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot)
 
     std::vector<QDateTime> timeSteps = parser.timeSteps();
 
-    ASSERT_EQ(4, parser.timeSteps().size());
+    ASSERT_EQ(size_t(4), parser.timeSteps().size());
     EXPECT_EQ("23.02.93", timeSteps[0].toString(dateFormat).toStdString());
 }
 
@@ -111,13 +111,13 @@ TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian)
     std::vector<double> oilValues = parser.columnValues(0);
     std::vector<double> pwValues = parser.columnValues(1);
 
-    ASSERT_EQ(4, oilValues.size());
+    ASSERT_EQ(size_t(4), oilValues.size());
     EXPECT_EQ(10.1, oilValues[0]);
     EXPECT_EQ(20.40, oilValues[1]);
     EXPECT_EQ(30.2, oilValues[2]);
     EXPECT_EQ(40.8, oilValues[3]);
 
-    ASSERT_EQ(4, pwValues.size());
+    ASSERT_EQ(size_t(4), pwValues.size());
     EXPECT_EQ(1.0, pwValues[0]);
     EXPECT_EQ(1, pwValues[0]);
     EXPECT_EQ(2.33, pwValues[1]);
@@ -148,19 +148,19 @@ TEST(RifColumnBasedAsciiParserTest, TestDecimalLocaleC)
     std::vector<double> pwValues = parser.columnValues(1);
     std::vector<double> h2sValues = parser.columnValues(2);
 
-    ASSERT_EQ(4, oilValues.size());
+    ASSERT_EQ(size_t(4), oilValues.size());
     EXPECT_EQ(10.1, oilValues[0]);
     EXPECT_EQ(20.40, oilValues[1]);
     EXPECT_EQ(30.2, oilValues[2]);
     EXPECT_EQ(40.8, oilValues[3]);
 
-    ASSERT_EQ(4, pwValues.size());
+    ASSERT_EQ(size_t(4), pwValues.size());
     EXPECT_EQ(1.0, pwValues[0]);
     EXPECT_EQ(2.33, pwValues[1]);
     EXPECT_EQ(3.09, pwValues[2]);
     EXPECT_EQ(4.44, pwValues[3]);
 
-    ASSERT_EQ(4, h2sValues.size());
+    ASSERT_EQ(size_t(4), h2sValues.size());
     EXPECT_EQ(0.2, h2sValues[0]);
     EXPECT_EQ(2.13, h2sValues[1]);
     EXPECT_EQ(2.1, h2sValues[2]);
@@ -190,13 +190,13 @@ TEST(RifColumnBasedAsciiParserTest, TestCellSeparatorComma)
     std::vector<double> oilValues = parser.columnValues(0);
     std::vector<double> pwValues = parser.columnValues(1);
 
-    ASSERT_EQ(4, oilValues.size());
+    ASSERT_EQ(size_t(4), oilValues.size());
     EXPECT_EQ(10.1, oilValues[0]);
     EXPECT_EQ(20.40, oilValues[1]);
     EXPECT_EQ(30.2, oilValues[2]);
     EXPECT_EQ(40.8, oilValues[3]);
 
-    ASSERT_EQ(4, pwValues.size());
+    ASSERT_EQ(size_t(4), pwValues.size());
     EXPECT_EQ(1.0, pwValues[0]);
     EXPECT_EQ(2.33, pwValues[1]);
     EXPECT_EQ(3.09, pwValues[2]);
@@ -236,13 +236,13 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
         table.push_back(values);
     }
 
-    ASSERT_EQ(10, table.size());
-    ASSERT_EQ(6, table[0].size());
-    ASSERT_EQ(6, table[3].size());
+    ASSERT_EQ(size_t(10), table.size());
+    ASSERT_EQ(size_t(6), table[0].size());
+    ASSERT_EQ(size_t(6), table[3].size());
 
-    EXPECT_EQ(1, table[0][0]);
+    EXPECT_EQ(size_t(1), table[0][0]);
     EXPECT_EQ(0.0, table[5][2]);
-    EXPECT_EQ(279, table[7][3]);
+    EXPECT_EQ(size_t(279), table[7][3]);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,7 +292,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTwoPages)
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     auto tables = parser.tableData();
-    ASSERT_EQ(2, tables.size());
+    ASSERT_EQ(size_t(2), tables.size());
     EXPECT_EQ("1 1 2000", tables[0].startDate());
     EXPECT_EQ("OP-1_TR", tables[0].origin());
     EXPECT_EQ("DD/MM/YY", tables[0].dateFormat());
@@ -301,7 +301,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTwoPages)
     EXPECT_EQ("OP-2_TR", tables[1].origin());
     EXPECT_EQ("DD/MM/YY", tables[1].dateFormat());
 
-    ASSERT_EQ(8, tables.at(0).columnInfos().size());
+    ASSERT_EQ(size_t(8), tables.at(0).columnInfos().size());
     EXPECT_EQ(1.0E-12, tables.at(0).columnInfos().at(4).values[0]);
 }
 
@@ -358,22 +358,22 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     auto tables = parser.tableData();
-    ASSERT_EQ(tables.size(), 2);
+    ASSERT_EQ(size_t(2), tables.size());
     
-    ASSERT_EQ(tables.at(0).columnInfos().size(), 6);
-    ASSERT_EQ(tables.at(1).columnInfos().size(), 6);
+    ASSERT_EQ(size_t(6), tables.at(0).columnInfos().size());
+    ASSERT_EQ(size_t(6), tables.at(1).columnInfos().size());
 
-    ASSERT_EQ(18, tables.at(0).columnInfos().at(0).values.size());
-    ASSERT_EQ(4, tables.at(1).columnInfos().at(0).values.size());
+    ASSERT_EQ(size_t(18), tables.at(0).columnInfos().at(0).values.size());
+    ASSERT_EQ(size_t(4), tables.at(1).columnInfos().at(0).values.size());
 
 //     EXPECT_TRUE(tables.at(0).columnInfos().at(2).isAVector);
 //     EXPECT_FALSE(tables.at(1).columnInfos().at(0).isAVector);
 
     EXPECT_EQ(0.0, tables.at(0).columnInfos().at(1).values.at(6));
-    EXPECT_EQ(282, tables.at(0).columnInfos().at(3).values.at(6));
+    EXPECT_EQ(282.0, tables.at(0).columnInfos().at(3).values.at(6));
 
-    EXPECT_EQ(3, tables.at(1).columnInfos().at(0).values.at(2));
-    EXPECT_EQ(370, tables.at(1).columnInfos().at(3).values.at(3));
+    EXPECT_EQ(3.0, tables.at(1).columnInfos().at(0).values.at(2));
+    EXPECT_EQ(370.0, tables.at(1).columnInfos().at(3).values.at(3));
 
     EXPECT_EQ("WLVP", tables.at(0).columnInfos().at(1).summaryAddress.quantityName());
     EXPECT_EQ("P-15P", tables.at(0).columnInfos().at(5).summaryAddress.wellName());
@@ -421,7 +421,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableMissingWellNames)
     auto tables = parser.tableData();
 
     // Missing header line with well name, returning empty table
-    ASSERT_EQ(tables.size(), 0);
+    ASSERT_EQ(size_t(0), tables.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -471,7 +471,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     auto tables = parser.tableData();
-    ASSERT_EQ(tables.size(), 1);
+    ASSERT_EQ(size_t(1), tables.size());
 }
 
 
@@ -522,7 +522,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableDateOnly)
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     auto tables = parser.tableData();
-    ASSERT_EQ(tables.size(), 1);
+    ASSERT_EQ(size_t(1), tables.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -596,12 +596,12 @@ TEST(RifKeywordBasedRsmspecParserTest, TestKeywordBasedVectorsValues)
 
     EXPECT_TRUE(RifKeywordVectorParser::canBeParsed(data));
 
-    ASSERT_EQ(4, vectors.size());
+    ASSERT_EQ(size_t(4), vectors.size());
 
-    ASSERT_LE(1, vectors[0].header.size());
+    ASSERT_LE(size_t(1), vectors[0].header.size());
     EXPECT_EQ("VECTOR S-1AH-GOR", vectors[0].header.at(0));
 
-    ASSERT_LE(3, vectors[0].values.size());
+    ASSERT_LE(size_t(3), vectors[0].values.size());
     EXPECT_EQ(335.9894, vectors[0].values[2]);
 }
 
@@ -674,9 +674,9 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
     auto tables = parser.tableData();
-    ASSERT_EQ(1, tables.size());
-    ASSERT_EQ(3, tables[0].columnInfos().size());
-    ASSERT_EQ(18, tables.at(0).columnInfos().at(2).values.size());
+    ASSERT_EQ(size_t(1), tables.size());
+    ASSERT_EQ(size_t(3), tables[0].columnInfos().size());
+    ASSERT_EQ(size_t(18), tables.at(0).columnInfos().at(2).values.size());
 
     EXPECT_EQ(2014.39, tables.at(0).columnInfos().at(1).values[2]);
 
@@ -752,7 +752,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     QDateTime qDay1 = startDate.addDays(3043);
     time_t day1 = qDay1.toTime_t();
 
-    ASSERT_EQ(18, timeSteps.size());
+    ASSERT_EQ(size_t(18), timeSteps.size());
 
     //EXPECT_EQ("Tue May  1 00:00:00 2012\n", (std::string)asctime(gmtime(&day1)));
     //EXPECT_EQ("Tue May  1 00:00:00 2012\n", (std::string)asctime(gmtime(&timeSteps[0])));

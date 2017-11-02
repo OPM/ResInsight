@@ -10,59 +10,57 @@ TEST(RifEclipseUserDataKeywordToolsTest, TestIdentifierItemsPerLine)
 {
     {
         std::string s = "AA";
-        EXPECT_EQ(0, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s).size());
+        EXPECT_EQ(size_t(0), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s).size());
     }
     {
         std::string s = "BB";
-        EXPECT_EQ(3, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(3), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
     }
     {
         std::string s = "CC";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
-        EXPECT_EQ(3, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(3), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
     }
     {
         std::string s = "FF";
-        EXPECT_EQ(0, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s).size());
+        EXPECT_EQ(size_t(0), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s).size());
     }
     {
         std::string s = "GG";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
     }
     {
         std::string s = "NN";
-        EXPECT_EQ(0, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s).size());
+        EXPECT_EQ(size_t(0), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s).size());
     }
     {
         std::string s = "RR";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
     }
     {
         std::string s = "SS";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
     }
     {
         std::string s = "WW";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
     }
-
-
     {
         std::string s = "LB";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
-        EXPECT_EQ(3, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(3), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
     }
     {
         std::string s = "LC";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
-        EXPECT_EQ(3, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[2]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
+        EXPECT_EQ(size_t(3), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[2]);
     }
     {
         std::string s = "LW";
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
-        EXPECT_EQ(1, RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[0]);
+        EXPECT_EQ(size_t(1), RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(s)[1]);
     }
 }
 
@@ -77,11 +75,11 @@ TEST(RifEclipseUserDataKeywordToolsTest, BuildTableHeaderText)
     std::vector<std::vector<std::string>> headerLines = { firstheader };
 
     auto tableHeaderData = RifEclipseUserDataKeywordTools::buildColumnHeaderText(keywordNames, headerLines);
-    EXPECT_EQ(4, tableHeaderData.size());
-    EXPECT_EQ(1, tableHeaderData[0].size());
-    EXPECT_EQ(1, tableHeaderData[1].size());
-    EXPECT_EQ(2, tableHeaderData[2].size());
-    EXPECT_EQ(2, tableHeaderData[3].size());
+    EXPECT_EQ(size_t(4), tableHeaderData.size());
+    EXPECT_EQ(size_t(1), tableHeaderData[0].size());
+    EXPECT_EQ(size_t(1), tableHeaderData[1].size());
+    EXPECT_EQ(size_t(2), tableHeaderData[2].size());
+    EXPECT_EQ(size_t(2), tableHeaderData[3].size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,16 +93,16 @@ TEST(RifEclipseUserDataKeywordToolsTest, BuildTableHeaderTextComplex)
     std::vector<std::vector<std::string>> headerLines = { firstheader, secondHeader };
 
     auto tableHeaderData = RifEclipseUserDataKeywordTools::buildColumnHeaderText(keywordNames, headerLines);
-    EXPECT_EQ(8, tableHeaderData.size());
+    EXPECT_EQ(size_t(8), tableHeaderData.size());
     
-    EXPECT_EQ(1, tableHeaderData[0].size());
-    EXPECT_EQ(2, tableHeaderData[1].size());
-    EXPECT_EQ(1, tableHeaderData[2].size());
-    EXPECT_EQ(2, tableHeaderData[3].size());
-    EXPECT_EQ(2, tableHeaderData[4].size());
-    EXPECT_EQ(5, tableHeaderData[5].size());
-    EXPECT_EQ(1, tableHeaderData[6].size());
-    EXPECT_EQ(5, tableHeaderData[7].size());
+    EXPECT_EQ(size_t(1), tableHeaderData[0].size());
+    EXPECT_EQ(size_t(2), tableHeaderData[1].size());
+    EXPECT_EQ(size_t(1), tableHeaderData[2].size());
+    EXPECT_EQ(size_t(2), tableHeaderData[3].size());
+    EXPECT_EQ(size_t(2), tableHeaderData[4].size());
+    EXPECT_EQ(size_t(5), tableHeaderData[5].size());
+    EXPECT_EQ(size_t(1), tableHeaderData[6].size());
+    EXPECT_EQ(size_t(5), tableHeaderData[7].size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +116,7 @@ TEST(RifEclipseUserDataKeywordToolsTest, MissingHeaderData)
         std::vector<std::vector<std::string>> headerLines = { firstheader };
 
         auto tableHeaderData = RifEclipseUserDataKeywordTools::buildColumnHeaderText(keywordNames, headerLines);
-        EXPECT_EQ(0, tableHeaderData.size());
+        EXPECT_EQ(size_t(0), tableHeaderData.size());
     }
 
 
@@ -129,7 +127,7 @@ TEST(RifEclipseUserDataKeywordToolsTest, MissingHeaderData)
         std::vector<std::vector<std::string>> headerLines = { firstheader, secondHeader };
 
         auto tableHeaderData = RifEclipseUserDataKeywordTools::buildColumnHeaderText(keywordNames, headerLines);
-        EXPECT_EQ(0, tableHeaderData.size());
+        EXPECT_EQ(size_t(0), tableHeaderData.size());
     }
 }
 
@@ -276,5 +274,4 @@ TEST(RifEclipseUserDataKeywordToolsTest, CreationOfMisc)
         EXPECT_EQ(address.category(), RifEclipseSummaryAddress::SUMMARY_MISC);
         EXPECT_STREQ(quantity.data(), address.quantityName().data());
     }
-
 }
