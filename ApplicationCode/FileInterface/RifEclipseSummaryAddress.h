@@ -106,6 +106,7 @@ public:
 
     static RifEclipseSummaryAddress fieldVarAddress(const std::string& fieldVarName);
     static RifEclipseSummaryAddress calculatedCurveAddress(const std::string& curveName);
+    static RifEclipseSummaryAddress miscAddress(const std::string& quantityName);
 
     // Access methods
 

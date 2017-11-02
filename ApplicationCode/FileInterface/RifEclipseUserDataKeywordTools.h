@@ -18,29 +18,25 @@
 
 #pragma once
 
-#include "RifEclipseSummaryAddress.h"
-
-#include <QString>
+#include "RifEclipseUserDataParserTools.h"
 
 #include <vector>
-
-class ColumnInfo;
-class TableData;
+#include <string>
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RifColumnBasedUserDataParser
+class RifEclipseUserDataKeywordTools
 {
 public:
-    RifColumnBasedUserDataParser(const QString& data);
-    const std::vector<TableData>& tableData() const;
+    static std::vector<size_t>                          requiredItemsPerLineForKeyword(const std::string& identifier);
+    
+    static std::vector<std::vector<std::string>>        buildColumnHeaderText(const std::vector<std::string>& quantityNames,
+                                                                              const std::vector<std::vector<std::string>>& restOfHeaderRows,
+                                                                              std::vector<std::string>* errorText = nullptr);
 
-    const ColumnInfo* columnInfo(size_t tableIndex, size_t columnIndex) const;
+    static bool                                         isDate(const std::string& identifier);
 
-private:
-    void parseTableData(const QString& data);
-
-private:
-    std::vector<TableData> m_tableDatas;
+    static  RifEclipseSummaryAddress                    makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText);
 };
+

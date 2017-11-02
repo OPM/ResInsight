@@ -28,18 +28,86 @@
 #include <string>
 #include <vector>
 
-struct ColumnInfo
+//==================================================================================================
+/// 
+//==================================================================================================
+class ColumnInfo
 {
-    bool                                            isAVector = false;
+public:
+    ColumnInfo()
+        : scaleFactor(1.0),
+        isStringData(false)
+    {
+    }
+
+    ColumnInfo(const RifEclipseSummaryAddress& adr, const std::string& unit)
+        : summaryAddress(adr),
+        scaleFactor(1.0),
+        unitName(unit),
+        isStringData(false)
+    {
+    }
+
+public:
     RifEclipseSummaryAddress                        summaryAddress;
     std::string                                     unitName;
     double                                          scaleFactor;
     std::vector<double>                             values;
-    std::string                                     origin;
-    std::string                                     dateFormatString;
-    std::string                                     startDateString;
-    QDateTime                                       startQDateTime;
-    std::vector<QDateTime>                          observationDateTimes;
+    bool                                            isStringData;
+    std::vector<std::string>                        stringValues;
+};
+
+//==================================================================================================
+/// 
+//==================================================================================================
+class TableData
+{
+public:
+    TableData()
+    {}
+
+    TableData(const std::string& origin,
+              const std::string& dateFormat,
+              const std::string& startDate,
+              const std::vector<ColumnInfo>& columnInfos)
+        : m_origin(origin),
+        m_dateFormat(dateFormat),
+        m_startDate(startDate),
+        m_columnInfos(columnInfos)
+    {
+    }
+
+    std::string origin() const
+    {
+        return m_origin;
+    }
+
+    std::string startDate() const
+    {
+        return m_startDate;
+    }
+
+    std::string dateFormat() const
+    {
+        return m_dateFormat;
+    }
+
+    std::vector<ColumnInfo>& columnInfos()
+    {
+        return m_columnInfos;
+    }
+
+    const std::vector<ColumnInfo>& columnInfos() const
+    {
+        return m_columnInfos;
+    }
+
+private:
+    std::string             m_origin;
+    std::string             m_dateFormat;
+    std::string             m_startDate;
+
+    std::vector<ColumnInfo> m_columnInfos;
 };
 
 //==================================================================================================
@@ -54,12 +122,15 @@ public:
     static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
     static void                                         splitLineToDoubles(const std::string& line, std::vector<double>& values);
     static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
-    static  RifEclipseSummaryAddress                    makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn);
     static bool                                         keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate);
-    static std::vector<ColumnInfo>                      columnInfoForTable(std::stringstream& data);
     static bool                                         isANumber(const std::string& line);
     static std::vector<std::string>                     headerReader(std::stringstream& streamData, std::string& line);
 
     static bool                                         hasTimeUnit(const std::string& line);
     static bool                                         hasOnlyValidDoubleValues(const std::vector<std::string>& words, std::vector<double>* doubleValues = nullptr);
+
+    static bool                                         hasDateUnit(const std::string& word);
+    static bool                                         isValidTableData(size_t columnCount, const std::string& line);
+
+    static TableData                                    tableDataFromText(std::stringstream& data, std::vector<std::string>* errorText = nullptr);
 };

@@ -8,6 +8,8 @@
 
 #include <vector>
 #include <QTextStream>
+#include <QDebug>
+#include "RifEclipseUserDataKeywordTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -246,7 +248,7 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
+TEST(RifColumnBasedRsmspecParserTest, TestTwoPages)
 {
 
     QString data;
@@ -258,7 +260,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
     out << "DATEFORMAT        DD/MM/YY\n";
     out << "\n";
     out << "TIME    YEARX    WGT1    WGT2    WGT4    WR12    WR22    WR42    \n";
-    out << "DAYS    YEARS    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3        \n";
+    out << "DAYS    YEARS    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3    kg/Sm3  kg/Sm3        \n";
     out << "1    1    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    1.00E+03    \n";
     out << "        OP-1    OP-1    OP-1    OP-1    OP-1    OP-1    \n";
     out << "\n";
@@ -289,21 +291,18 @@ TEST(RifColumnBasedRsmspecParserTest, TestKeywordsAndMissingUnitName)
 
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    auto tables = parser.tableData();
     ASSERT_EQ(2, tables.size());
-    EXPECT_EQ("112000", tables[0].at(0).startDateString);
-    EXPECT_EQ("OP-1_TR", tables[0].at(0).origin);
-    EXPECT_EQ("DD/MM/YY", tables[0].at(0).dateFormatString);
+    EXPECT_EQ("1 1 2000", tables[0].startDate());
+    EXPECT_EQ("OP-1_TR", tables[0].origin());
+    EXPECT_EQ("DD/MM/YY", tables[0].dateFormat());
 
-    EXPECT_EQ("112000", tables[1].at(0).startDateString);
-    EXPECT_EQ("OP-2_TR", tables[1].at(0).origin);
-    EXPECT_EQ("DD/MM/YY", tables[1].at(0).dateFormatString);
+    EXPECT_EQ("1 1 2000", tables[1].startDate());
+    EXPECT_EQ("OP-2_TR", tables[1].origin());
+    EXPECT_EQ("DD/MM/YY", tables[1].dateFormat());
 
-    // Assume missing units at start of row
-    EXPECT_EQ("", tables[0].at(0).unitName);
-
-    ASSERT_EQ(8, tables.at(0).size());
-    EXPECT_EQ(1.0E-12, tables.at(0).at(4).values[0]);
+    ASSERT_EQ(8, tables.at(0).columnInfos().size());
+    EXPECT_EQ(1.0E-12, tables.at(0).columnInfos().at(4).values[0]);
 }
 
 
@@ -358,28 +357,28 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValues)
 
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    auto tables = parser.tableData();
     ASSERT_EQ(tables.size(), 2);
     
-    ASSERT_EQ(tables.at(0).size(), 6);
-    ASSERT_EQ(tables.at(1).size(), 6);
+    ASSERT_EQ(tables.at(0).columnInfos().size(), 6);
+    ASSERT_EQ(tables.at(1).columnInfos().size(), 6);
 
-    ASSERT_EQ(18, tables.at(0).at(0).values.size());
-    ASSERT_EQ(4, tables.at(1).at(0).values.size());
+    ASSERT_EQ(18, tables.at(0).columnInfos().at(0).values.size());
+    ASSERT_EQ(4, tables.at(1).columnInfos().at(0).values.size());
 
-    EXPECT_TRUE(tables.at(0).at(2).isAVector);
-    EXPECT_FALSE(tables.at(1).at(0).isAVector);
+//     EXPECT_TRUE(tables.at(0).columnInfos().at(2).isAVector);
+//     EXPECT_FALSE(tables.at(1).columnInfos().at(0).isAVector);
 
-    EXPECT_EQ(0.0, tables.at(0).at(1).values.at(6));
-    EXPECT_EQ(282, tables.at(0).at(3).values.at(6));
+    EXPECT_EQ(0.0, tables.at(0).columnInfos().at(1).values.at(6));
+    EXPECT_EQ(282, tables.at(0).columnInfos().at(3).values.at(6));
 
-    EXPECT_EQ(3, tables.at(1).at(0).values.at(2));
-    EXPECT_EQ(370, tables.at(1).at(3).values.at(3));
+    EXPECT_EQ(3, tables.at(1).columnInfos().at(0).values.at(2));
+    EXPECT_EQ(370, tables.at(1).columnInfos().at(3).values.at(3));
 
-    EXPECT_EQ("WLVP", tables.at(0).at(1).summaryAddress.quantityName());
-    EXPECT_EQ("P-15P", tables.at(0).at(5).summaryAddress.wellName());
-    EXPECT_EQ("P-9P", tables.at(1).at(1).summaryAddress.wellName());
-    EXPECT_NE("P-9P", tables.at(1).at(0).summaryAddress.wellName());
+    EXPECT_EQ("WLVP", tables.at(0).columnInfos().at(1).summaryAddress.quantityName());
+    EXPECT_EQ("P-15P", tables.at(0).columnInfos().at(5).summaryAddress.wellName());
+    EXPECT_EQ("P-9P", tables.at(1).columnInfos().at(1).summaryAddress.wellName());
+    EXPECT_NE("P-9P", tables.at(1).columnInfos().at(0).summaryAddress.wellName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -419,9 +418,10 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableMissingWellNames)
 
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
-    ASSERT_EQ(tables.size(), 1);
-    ASSERT_EQ(tables.at(0).size(), 6);
+    auto tables = parser.tableData();
+
+    // Missing header line with well name, returning empty table
+    ASSERT_EQ(tables.size(), 0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -437,7 +437,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
     out << " SUMMARY OF RUN NORNE_ATW2013_RFTPLT_V3 EC\n";
     out << " -----------------------------------------\n";
     out << " DATE         YEARS        WBHP           \n";
-    out << "              YEARS        BARSA          \n";
+    out << " DATE         YEARS        BARSA          \n";
     out << "                           B-1H           \n";
     out << "                                          \n";
     out << " -----------------------------------------\n";
@@ -470,7 +470,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableValuesHeaderWithSpaces)
     
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    auto tables = parser.tableData();
     ASSERT_EQ(tables.size(), 1);
 }
 
@@ -521,7 +521,7 @@ TEST(RifColumnBasedRsmspecParserTest, TestTableDateOnly)
 
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    auto tables = parser.tableData();
     ASSERT_EQ(tables.size(), 1);
 }
 
@@ -673,17 +673,17 @@ TEST(RifKeywordBasedRsmspecParserTest, TestShutins)
 
     RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
+    auto tables = parser.tableData();
     ASSERT_EQ(1, tables.size());
-    ASSERT_EQ(3, tables.at(0).size());
-    ASSERT_EQ(18, tables.at(0).at(2).values.size());
+    ASSERT_EQ(3, tables[0].columnInfos().size());
+    ASSERT_EQ(18, tables.at(0).columnInfos().at(2).values.size());
 
-    EXPECT_EQ(2014.39, tables.at(0).at(1).values[2]);
+    EXPECT_EQ(2014.39, tables.at(0).columnInfos().at(1).values[2]);
 
-    EXPECT_EQ("WBP9L", tables.at(0).at(2).summaryAddress.quantityName());
+    EXPECT_EQ("WBP9L", tables.at(0).columnInfos().at(2).summaryAddress.quantityName());
 
-    EXPECT_EQ("OP-1", tables.at(0).at(2).summaryAddress.wellName());
-    EXPECT_NE("OP-1", tables.at(0).at(1).summaryAddress.wellName());
+    EXPECT_EQ("OP-1", tables.at(0).columnInfos().at(2).summaryAddress.wellName());
+    EXPECT_NE("OP-1", tables.at(0).columnInfos().at(1).summaryAddress.wellName());
 }
 
 
@@ -732,12 +732,19 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     std::vector< std::string > headerColumn;
     headerColumn.push_back("OP-1");
 
-    RifEclipseSummaryAddress address = RifEclipseUserDataParserTools::makeAndFillAddress(quantityName, headerColumn);
+    RifEclipseSummaryAddress address = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantityName, headerColumn);
 
     RifColumnBasedUserData columnBasedUserdata;
 
     columnBasedUserdata.parse(data, "", "");
     std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps(address);
+
+    for (auto t : timeSteps)
+    {
+        QDateTime dt = QDateTime::fromTime_t(t);
+
+        qDebug() << dt;
+    }
 
     QDateTime startDate = QDateTime::fromString("01012004", "ddMMyyyy");
     startDate.setTimeSpec(Qt::UTC);
@@ -756,33 +763,35 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RifColumnBasedRsmspecParserTest, TestTooManyColumnsInFile)
+TEST(RifColumnBasedRsmspecParserTest, IsTableData)
 {
-    QString data;
-    QTextStream out(&data);
+    {
+        std::string line("  6-NOV-1997       0        ");
+        EXPECT_TRUE(RifEclipseUserDataParserTools::isValidTableData(2, line));
+    }
 
-    out << "1 \n";
-    out << "--------------------------------------- \n";
-    out << "SUMMARY OF RUN BHP_THP USER FILE DATA VECTORS \n";
-    out << "--------------------------------------- \n";
-    out << "TIME      WTHPH       WBHPH  \n";
-    out << "DAYS      BARSA       BARSA \n";
-    out << " \n";
-    out << "          K-6HWG          K-6HWG \n";
-    out << "     1     0.0   0.0      0.0 \n";
-    out << "     2     0.0   0.0      0.0 \n";
-    out << "     3     0.0   0.0      0.0 \n";
-    out << "     4     0.0   0.0      0.0 \n";
-    out << "     5     0.0   0.0      0.0 \n";
-    out << "     6     0.0   0.0      0.0 \n";
-    out << "     7     0.0   0.0      0.0 \n";
-    out << "     8     0.0   0.0      0.0 \n";
-    out << "     9     0.0   0.0      0.0 \n";
-    out << "     10     0.0   0.0     0.0 \n";
-    out << " \n";
+    {
+        std::string line("  DATE BARSA        ");
+        EXPECT_FALSE(RifEclipseUserDataParserTools::isValidTableData(2, line));
+    }
 
-    RifColumnBasedUserDataParser parser = RifColumnBasedUserDataParser(data);
+    {
+        std::string line("  1.2       0        ");
+        EXPECT_TRUE(RifEclipseUserDataParserTools::isValidTableData(2, line));
+    }
 
-    std::vector< std::vector<ColumnInfo> > tables = parser.tables();
-    ASSERT_EQ(tables.size(), 1);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RifColumnBasedRsmspecParserTest, HasOnlyValidDoubleValues)
+{
+    {
+        std::vector<double> doubleValues;
+        std::string line("  6-NOV-1997       0        ");
+        std::vector<std::string> words = RifEclipseUserDataParserTools::splitLineAndRemoveComments(line);
+        
+        EXPECT_FALSE(RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(words, &doubleValues));
+    }
 }

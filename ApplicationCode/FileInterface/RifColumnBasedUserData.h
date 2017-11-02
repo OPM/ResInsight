@@ -50,6 +50,9 @@ public:
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
+    void                                buildTimeStepsFromTables();
+
+private:
     std::unique_ptr<RifColumnBasedUserDataParser>    m_parser;
     std::vector< std::vector<time_t> >               m_timeSteps;
 

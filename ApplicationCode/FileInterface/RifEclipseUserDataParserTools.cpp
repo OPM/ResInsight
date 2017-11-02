@@ -18,7 +18,10 @@
 
 #include "RifEclipseUserDataParserTools.h"
 
+#include "RiaDateStringParser.h"
 #include "RiaLogging.h"
+
+#include "RifEclipseUserDataKeywordTools.h"
 
 #include "cvfAssert.h"
 
@@ -80,7 +83,7 @@ bool RifEclipseUserDataParserTools::isLineSkippable(const std::string& line)
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isAComment(const std::string& word)
 {
-    if (word.size() > 1 && word.substr(0, 2) == "--")
+    if (word.find("--") != std::string::npos)
     {
         return true;
     }
@@ -164,77 +167,6 @@ size_t RifEclipseUserDataParserTools::findFirstNonEmptyEntryIndex(std::vector<st
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseUserDataParserTools::makeAndFillAddress(std::string quantityName, std::vector< std::string > headerColumn)
-{
-    int         regionNumber = -1;
-    int         regionNumber2 = -1;
-    std::string wellGroupName = "";
-    std::string wellName = "";
-    int         wellSegmentNumber = -1;
-    std::string lgrName = "";
-    int         cellI = -1;
-    int         cellJ = -1;
-    int         cellK = -1;
-
-    RifEclipseSummaryAddress::SummaryVarCategory category = identifyCategory(quantityName);
-
-    switch (category) //TODO: More categories
-    {
-    case (RifEclipseSummaryAddress::SUMMARY_INVALID):
-    {
-        break;
-    }
-    case (RifEclipseSummaryAddress::SUMMARY_WELL):
-    {
-        size_t index = findFirstNonEmptyEntryIndex(headerColumn);
-        if (index < headerColumn.size())
-        {
-            wellName = headerColumn[index];
-        }
-	    break;
-    }
-    case (RifEclipseSummaryAddress::SUMMARY_WELL_GROUP):
-    {
-        size_t index = findFirstNonEmptyEntryIndex(headerColumn);
-        if (index < headerColumn.size())
-        {
-            wellGroupName = headerColumn[index];
-        }
-        break;
-    }
-    case (RifEclipseSummaryAddress::SUMMARY_REGION):
-    {
-        size_t index = findFirstNonEmptyEntryIndex(headerColumn);
-        if (index < headerColumn.size())
-        {
-            try
-            {
-                regionNumber = std::stoi(headerColumn[index]);
-            }
-            catch (...){}
-        }
-        break;
-    }
-    default:
-        break;
-    }
-
-    return RifEclipseSummaryAddress(category,
-        quantityName,
-        regionNumber,
-        regionNumber2,
-        wellGroupName,
-        wellName,
-        wellSegmentNumber,
-        lgrName,
-        cellI,
-        cellJ,
-        cellK);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate)
 {
     std::vector<std::string> words = splitLineAndRemoveComments(line);
@@ -248,7 +180,19 @@ bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::
     else if (words[0] == "STARTDATE")
     {
         words.erase(words.begin());
-        startDate = std::accumulate(words.begin(), words.end(), std::string(""));
+
+        for (size_t i = 0; i < words.size(); i++)
+        {
+            std::string s = words[i];
+
+            startDate += s;
+
+            if (i < words.size() - 1)
+            {
+                startDate += " ";
+            }
+        }
+
         return true;
     }
     else if (words[0] == "DATEFORMAT")
@@ -257,162 +201,6 @@ bool RifEclipseUserDataParserTools::keywordParser(const std::string& line, std::
         return true;
     }
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoForTable(std::stringstream& streamData)
-{
-    std::vector<ColumnInfo> table;
-
-    std::string origin = "";
-    std::string dateFormat = "";
-    std::string startDate  = "";
-
-    std::string line;
-    std::getline(streamData, line);
-
-    while (isLineSkippable(line) || keywordParser(line, origin, dateFormat, startDate))
-    {
-        if (!streamData.good()) return table;
-        
-        std::getline(streamData, line);
-    }
-
-    std::vector<std::string> quantityNames = splitLineAndRemoveComments(line);
-    size_t columnCount = quantityNames.size();
-
-    std::vector< std::vector< std::string > > allHeaderRows;
-
-    {
-        std::stringstream::pos_type posAtStartOfLine = streamData.tellg();
-
-        std::string secondLine;
-        std::getline(streamData, line);
-    
-        std::stringstream::pos_type posAtStartOfSecondLine = streamData.tellg();
-        std::getline(streamData, secondLine);
-
-        bool header = true;
-        while (header)
-        {
-            std::vector<std::string> words = splitLineAndRemoveComments(line);
-            std::vector<std::string> wordsSecondLine = splitLineAndRemoveComments(secondLine);
-
-            if (words.size() == columnCount &&
-                wordsSecondLine.size() == columnCount &&
-                hasOnlyValidDoubleValues(words) &&
-                hasOnlyValidDoubleValues(wordsSecondLine))
-            {
-                header = false;
-                break;
-            }
-            else
-            {
-                if (words.size() > columnCount) break;
-
-                size_t diff = columnCount - words.size();
-
-                if (diff == columnCount)
-                {
-                    std::vector< std::string > vectorOfEmptyStrings(columnCount, "");
-                    allHeaderRows.push_back(vectorOfEmptyStrings);
-                }
-                else
-                {
-                    words.insert(words.begin(), diff, "");
-                    allHeaderRows.push_back(words);
-                }
-            }
-
-            posAtStartOfLine = posAtStartOfSecondLine;
-            line = secondLine;
-
-            posAtStartOfSecondLine = streamData.tellg();
-            std::getline(streamData, secondLine);
-        }
-
-        streamData.seekg(posAtStartOfLine);
-    }
-
-    std::vector<std::string> unitNames;
-    std::vector<double> scaleFactors;
-    std::vector< std::vector< std::string > > restOfHeaderRows;
-
-    for (const auto& wordsForRow : allHeaderRows)
-    {
-        bool excludeFromHeader = false;
-        if (unitNames.size() == 0)
-        {
-            for (const std::string& word : wordsForRow)
-            {
-                if (hasTimeUnit(word))
-                {
-                    unitNames = wordsForRow;
-                    excludeFromHeader = true;
-                }
-            }
-        }
-
-        if (scaleFactors.size() == 0)
-        {
-            std::vector<double> values;
-
-            if (hasOnlyValidDoubleValues(wordsForRow, &values))
-            {
-                scaleFactors = values;
-                excludeFromHeader = true;
-            }
-        }
-
-        if (!excludeFromHeader)
-        {
-            restOfHeaderRows.push_back(wordsForRow);
-        }
-    }
-
-    for (const std::string& unit : unitNames)
-    {
-        ColumnInfo columnInfo;
-        columnInfo.unitName = unit;
-        columnInfo.origin = origin;
-        columnInfo.dateFormatString = dateFormat;
-        columnInfo.startDateString = startDate;
-        table.push_back(columnInfo);
-    }
-
-    for (size_t i = 0; i < table.size(); i++)
-    {
-        if (scaleFactors.size() == table.size())
-        {
-            table[i].scaleFactor = scaleFactors[i];
-        }
-        else
-        {
-            table[i].scaleFactor = 1.0;
-        }
-    }
-    
-    for (size_t i = 0; i < table.size(); i++)
-    {
-        std::vector< std::string > restOfHeaderColumn;
-        for (std::vector< std::string > restOfHeaderRow : restOfHeaderRows)
-        {
-            restOfHeaderColumn.push_back(restOfHeaderRow.at(i));
-        }
-        table[i].summaryAddress = makeAndFillAddress(quantityNames.at(i), restOfHeaderColumn);
-    }
-
-    for (ColumnInfo& column : table)
-    {
-        if (column.summaryAddress.category() != RifEclipseSummaryAddress::SUMMARY_INVALID)
-        {
-            column.isAVector = true;
-        }
-    }
-
-    return table;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -486,19 +274,234 @@ bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<s
 {
     char* end;
 
+    bool onlyValidValues = true;
+
     for (const auto& word : words)
     {
-        double doubleVal = strtod(word.data(), &end);
-        if (end == word.data())
+        if (word.find_first_not_of("0123456789.eE-") != std::string::npos)
         {
-            return false;
+            onlyValidValues = false;
         }
-
-        if (doubleValues)
+        else
         {
+            double doubleVal = strtod(word.data(), &end);
             doubleValues->push_back(doubleVal);
         }
     }
 
-    return true;
+    return onlyValidValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataParserTools::hasDateUnit(const std::string& word)
+{
+    if (word.find("DATE") != std::string::npos) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataParserTools::isValidTableData(size_t columnCount, const std::string& line)
+{
+    std::vector<std::string> words = splitLineAndRemoveComments(line);
+
+    if (words.size() != columnCount) return false;
+
+    std::vector<double> doubleValues;
+    RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(words, &doubleValues);
+    if (doubleValues.size() == columnCount) return true;
+
+    size_t columnsWithDate = 0;
+    for (auto w : words)
+    {
+        if (RiaDateStringParser::parseDateString(w).isValid())
+        {
+            columnsWithDate++;
+        }
+    }
+
+    if (columnsWithDate == 1 && doubleValues.size() == columnCount - 1)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& streamData, std::vector<std::string>* errorText)
+{
+    TableData emptyTable;
+
+    std::string origin = "";
+    std::string dateFormat = "";
+    std::string startDate = "";
+
+    std::string firstLine;
+    std::getline(streamData, firstLine);
+
+    while (isLineSkippable(firstLine) || keywordParser(firstLine, origin, dateFormat, startDate))
+    {
+        if (!streamData.good())
+        {
+            if (errorText) errorText->push_back("Failed to detect start of table header");
+
+            return emptyTable;
+        }
+
+        std::getline(streamData, firstLine);
+    }
+
+    std::vector<std::string> quantityNames = splitLineAndRemoveComments(firstLine);
+    size_t columnCount = quantityNames.size();
+
+    if (columnCount == 0)
+    {
+        if (errorText) errorText->push_back("No quantities detected in table");
+
+        return emptyTable;
+    }
+
+    std::vector< std::vector< std::string > > allHeaderRows;
+
+    {
+        std::stringstream::pos_type posAtStartOfFirstLine = streamData.tellg();
+
+        std::string secondLine;
+        std::getline(streamData, firstLine);
+
+        std::stringstream::pos_type posAtStartOfSecondLine = streamData.tellg();
+        std::getline(streamData, secondLine);
+
+        bool header = true;
+        while (header)
+        {
+            if (isValidTableData(columnCount, firstLine) &&
+                isValidTableData(columnCount, secondLine))
+            {
+                header = false;
+                break;
+            }
+            else
+            {
+                std::vector<std::string> words = splitLineAndRemoveComments(firstLine);
+                if (words.size() > 0)
+                {
+                    allHeaderRows.push_back(words);
+                }
+            }
+
+            posAtStartOfFirstLine = posAtStartOfSecondLine;
+            firstLine = secondLine;
+
+            posAtStartOfSecondLine = streamData.tellg();
+            std::getline(streamData, secondLine);
+
+            if (!streamData.good())
+            {
+                header = false;
+            }
+        }
+
+        streamData.seekg(posAtStartOfFirstLine);
+    }
+
+    std::vector<std::string> unitNames;
+    std::vector<double> scaleFactors;
+    std::vector< std::vector< std::string > > headerRows;
+
+    for (const auto& rowWords : allHeaderRows)
+    {
+        bool excludeFromHeader = false;
+
+        if (rowWords.size() == columnCount)
+        {
+            if (unitNames.size() == 0)
+            {
+                for (const std::string& word : rowWords)
+                {
+                    if (hasTimeUnit(word))
+                    {
+                        unitNames = rowWords;
+                        excludeFromHeader = true;
+                    }
+                }
+            }
+
+            if (scaleFactors.size() == 0)
+            {
+                std::vector<double> values;
+
+                if (hasOnlyValidDoubleValues(rowWords, &values))
+                {
+                    scaleFactors = values;
+                    excludeFromHeader = true;
+                }
+            }
+        }
+
+        if (!excludeFromHeader)
+        {
+            headerRows.push_back(rowWords);
+        }
+    }
+
+    if (columnCount != unitNames.size())
+    {
+        if (errorText) errorText->push_back("Number of quantities is different from number of units");
+
+        return emptyTable;
+    }
+
+
+    std::vector<ColumnInfo> columnInfos;
+
+    // Create string vectors for each column
+    {
+        std::vector<std::string> parserErrors;
+        std::vector<std::vector<std::string>> tableHeaderText = RifEclipseUserDataKeywordTools::buildColumnHeaderText(quantityNames, headerRows, &parserErrors);
+        if (parserErrors.size() > 0)
+        {
+            if (errorText) errorText->insert(errorText->end(), parserErrors.begin(), parserErrors.end());
+            
+            return emptyTable;
+        }
+
+
+        // For each column header, create rif adress and date time
+        for (size_t i = 0; i < tableHeaderText.size(); i++)
+        {
+            auto columnText = tableHeaderText[i];
+            if (columnText.size() == 0)
+            {
+                if (errorText) errorText->push_back("Detected column with no content");
+                continue;
+            }
+
+            std::string quantity = columnText[0];
+            std::string unit = unitNames[i];
+
+            std::vector<std::string> columnHeader;
+
+            if (columnText.size() > 1) columnHeader.insert(columnHeader.begin(), columnText.begin() + 1, columnText.end());
+
+            RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, columnHeader);
+
+            ColumnInfo ci(adr, unit);
+            if (quantity == "DATE")
+            {
+                ci.isStringData = true;
+            }
+
+            columnInfos.push_back(ci);
+        }
+    }
+
+    return TableData(origin, dateFormat, startDate, columnInfos);
 }

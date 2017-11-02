@@ -18,10 +18,12 @@
 
 #include "RifColumnBasedUserData.h"
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateStringParser.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifColumnBasedUserDataParser.h"
+#include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 
 #include "cafUtils.h"
@@ -64,130 +66,7 @@ bool RifColumnBasedUserData::parse(const QString& data, const QString& customWel
         return false;
     }
 
-    for (size_t tableIndex = 0; tableIndex < m_parser->tables().size(); tableIndex++)
-    {
-        // Find time index
-        size_t dateColumnIndex = m_parser->tables()[tableIndex].size();
-        size_t dayOrYearColumnIndex = m_parser->tables()[tableIndex].size();
-
-        for (size_t columIndex = 0; columIndex < m_parser->tables()[tableIndex].size(); columIndex++)
-        {
-            const ColumnInfo& ci = m_parser->tables()[tableIndex][columIndex];
-            if (!ci.isAVector)
-            {
-                QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
-                if (unit == "DATE" ||
-                    unit == "DATES")
-                {
-                    dateColumnIndex = columIndex;
-                }
-                else if (unit == "DAY" ||
-                         unit == "DAYS" ||
-                         unit == "YEAR" ||
-                         unit == "YEARS")
-                {
-                    dayOrYearColumnIndex = columIndex;
-                    break;
-                }
-            }
-        }
-
-        size_t timeColumnIndex = m_parser->tables()[tableIndex].size();
-        if (dayOrYearColumnIndex < m_parser->tables()[tableIndex].size())
-        {
-            timeColumnIndex = dayOrYearColumnIndex;
-        }
-        else if (dateColumnIndex < m_parser->tables()[tableIndex].size())
-        {
-            timeColumnIndex = dateColumnIndex;
-        }
-
-        if (timeColumnIndex == m_parser->tables()[tableIndex].size())
-        {
-            RiaLogging::warning(QString("Failed to find time data for table %1 in file %2").arg(tableIndex));
-            RiaLogging::warning(QString("No data for this table is imported"));
-        }
-        else
-        {
-            m_timeSteps.resize(m_timeSteps.size() + 1);
-            std::vector<time_t>& timeSteps = m_timeSteps.back();
-
-            const ColumnInfo& ci = m_parser->tables()[tableIndex][timeColumnIndex];
-            
-            if (timeColumnIndex == dateColumnIndex)
-            {
-                for (const auto& timeStepValue : ci.observationDateTimes)
-                {
-                    timeSteps.push_back(timeStepValue.toTime_t());
-                }
-            }
-            else
-            {
-                QDateTime startDate;
-                if (ci.startQDateTime.isValid())
-                {
-                    startDate = ci.startQDateTime;
-                }
-                else
-                {
-                    QString startDateString = QString::fromStdString(ci.startDateString);
-                    if (!startDateString.isEmpty())
-                    {
-                        QString dateFormatString = "ddMMyyyy";
-
-                        startDate = RiaQDateTimeTools::fromString(startDateString, dateFormatString);
-                    }
-                    else
-                    {
-                        startDate = RiaQDateTimeTools::epoch();
-                    }
-                }
-
-                QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
-
-                if (unit == "DAY" || unit == "DAYS")
-                {
-                    for (const auto& timeStepValue : ci.values)
-                    {
-                        QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
-                        timeSteps.push_back(dateTime.toTime_t());
-                    }
-                }
-                else if (unit == "YEAR" || unit == "YEARS")
-                {
-                    for (const auto& timeStepValue : ci.values)
-                    {
-                        QDateTime dateTime = RiaQDateTimeTools::addYears(startDate, timeStepValue);
-                        timeSteps.push_back(dateTime.toTime_t());
-                    }
-                }
-            }
-            
-            for (size_t columIndex = 0; columIndex < m_parser->tables()[tableIndex].size(); columIndex++)
-            {
-                const ColumnInfo& ci = m_parser->tables()[tableIndex][columIndex];
-                if (ci.isAVector)
-                {
-                    RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
-
-                    if (customWellName.size() > 0)
-                    {
-                        sumAddress.setWellName(customWellName.toStdString());
-                    }
-
-                    if (customWellGroupName.size() > 0)
-                    {
-                        sumAddress.setWellGroupName(customWellGroupName.toStdString());
-                    }
-
-                    m_allResultAddresses.push_back(sumAddress);
-
-                    m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;
-                    m_mapFromAddressToResultIndex[sumAddress] = std::make_pair(tableIndex, columIndex);
-                }
-            }
-        }
-    }
+    buildTimeStepsFromTables();
 
     return true;
 
@@ -203,8 +82,10 @@ bool RifColumnBasedUserData::values(const RifEclipseSummaryAddress& resultAddres
     {
         std::pair<size_t, size_t> tableColIndices = search->second;
 
-        const ColumnInfo& ci = m_parser->tables()[tableColIndices.first][tableColIndices.second];
-        for (const auto& v : ci.values)
+        const ColumnInfo* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
+        if (!ci) return false;
+
+        for (const auto& v : ci->values)
         {
             values->push_back(v);
         }
@@ -239,10 +120,119 @@ std::string RifColumnBasedUserData::unitName(const RifEclipseSummaryAddress& res
     {
         std::pair<size_t, size_t> tableColIndices = search->second;
 
-        const ColumnInfo& ci = m_parser->tables()[tableColIndices.first][tableColIndices.second];
-
-        return ci.unitName;
+        const ColumnInfo* ci = m_parser->columnInfo(tableColIndices.first, tableColIndices.second);
+        if (ci)
+        {
+            return ci->unitName;
+        }
     }
 
     return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifColumnBasedUserData::buildTimeStepsFromTables()
+{
+    for (size_t tableIndex = 0; tableIndex < m_parser->tableData().size(); tableIndex++)
+    {
+        auto tableData = m_parser->tableData()[tableIndex];
+
+        // Find time index
+        size_t dateColumnIndex = tableData.columnInfos().size();
+        size_t dayOrYearColumnIndex = tableData.columnInfos().size();
+
+        for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
+        {
+            const ColumnInfo& ci = tableData.columnInfos()[columIndex];
+            if (dateColumnIndex == tableData.columnInfos().size() &&
+                RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
+            {
+                dateColumnIndex = columIndex;
+            }
+            else if (dayOrYearColumnIndex == tableData.columnInfos().size() &&
+                     RifEclipseUserDataParserTools::hasTimeUnit(ci.unitName))
+            {
+                dayOrYearColumnIndex = columIndex;
+            }
+        }
+
+        if (dateColumnIndex == tableData.columnInfos().size() &&
+            dayOrYearColumnIndex == tableData.columnInfos().size())
+        {
+            RiaLogging::warning(QString("Failed to find time data for table %1 in file %2").arg(tableIndex));
+            RiaLogging::warning(QString("No data for this table is imported"));
+        }
+        else
+        {
+            m_timeSteps.resize(m_timeSteps.size() + 1);
+            std::vector<time_t>& timeSteps = m_timeSteps.back();
+
+            if (dateColumnIndex != tableData.columnInfos().size())
+            {
+                const ColumnInfo& ci = tableData.columnInfos()[dateColumnIndex];
+
+                QString dateFormat;
+                for (auto s : ci.stringValues)
+                {
+                    QDateTime dt = RiaDateStringParser::parseDateString(s);
+
+                    timeSteps.push_back(dt.toTime_t());
+                }
+            }
+            else
+            {
+                QDateTime startDate = RiaQDateTimeTools::epoch();
+
+                if (!tableData.startDate().empty())
+                {
+                    QDateTime candidate = RiaDateStringParser::parseDateString(tableData.startDate());
+                    if (candidate.isValid())
+                    {
+                        startDate = candidate;
+                    }
+                }
+
+                if (dayOrYearColumnIndex != tableData.columnInfos().size())
+                {
+                    const ColumnInfo& ci = tableData.columnInfos()[dayOrYearColumnIndex];
+
+                    QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
+
+                    if (unit == "DAY" || unit == "DAYS")
+                    {
+                        for (const auto& timeStepValue : ci.values)
+                        {
+                            QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
+                            timeSteps.push_back(dateTime.toTime_t());
+                        }
+                    }
+                    else if (unit == "YEAR" || unit == "YEARS")
+                    {
+                        for (const auto& timeStepValue : ci.values)
+                        {
+                            QDateTime dateTime = RiaQDateTimeTools::addYears(startDate, timeStepValue);
+                            timeSteps.push_back(dateTime.toTime_t());
+                        }
+                    }
+
+                }
+            }
+
+            for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
+            {
+                const ColumnInfo& ci = tableData.columnInfos()[columIndex];
+                if (!ci.isStringData)
+                {
+                    RifEclipseSummaryAddress sumAddress = ci.summaryAddress;
+
+                    m_allResultAddresses.push_back(sumAddress);
+
+                    m_mapFromAddressToTimeStepIndex[sumAddress] = m_timeSteps.size() - 1;
+                    m_mapFromAddressToResultIndex[sumAddress] = std::make_pair(tableIndex, columIndex);
+                }
+            }
+        }
+    }
 }

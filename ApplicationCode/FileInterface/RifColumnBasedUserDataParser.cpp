@@ -35,85 +35,71 @@
 //--------------------------------------------------------------------------------------------------
 RifColumnBasedUserDataParser::RifColumnBasedUserDataParser(const QString& data)
 {
-    parseData(data);
+    parseTableData(data);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<ColumnInfo> >& RifColumnBasedUserDataParser::tables() const
+const std::vector<TableData>& RifColumnBasedUserDataParser::tableData() const
 {
-    return m_tables;
+    return m_tableDatas;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const ColumnInfo* RifColumnBasedUserDataParser::columnInfo(size_t tableIndex, size_t columnIndex) const
+{
+    if (tableIndex >= m_tableDatas.size()) return nullptr;
+
+    if (columnIndex >= m_tableDatas[tableIndex].columnInfos().size()) return nullptr;
+
+    return &(m_tableDatas[tableIndex].columnInfos()[columnIndex]);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifColumnBasedUserDataParser::parseData(const QString& data)
+void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 {
     std::stringstream streamData;
     streamData.str(data.toStdString());
 
-    do 
+    do
     {
-        std::vector<ColumnInfo> table = RifEclipseUserDataParserTools::columnInfoForTable(streamData);
-        size_t columnCount = table.size();
+        auto table = RifEclipseUserDataParserTools::tableDataFromText(streamData);
+        std::vector<ColumnInfo>& columnInfos = table.columnInfos();
+        int columnCount = static_cast<int>(columnInfos.size());
         if (columnCount == 0) break;
-    
+
         std::string line;
         std::getline(streamData, line);
 
-        size_t dateColumnIndex = table.size();
-        for (size_t i = 0; i < columnCount; i++)
-        {
-            if (table[i].summaryAddress.quantityName() == "DATE" ||
-                table[i].summaryAddress.quantityName() == "DATES")
-            {
-                dateColumnIndex = i;
-            }
-        }
-
-        // If a DATE column is present, use the first date as the start date of the samples
-        // This date is then used as basis for times defined by days or years given as double values
-        QDateTime startDate;
-
-        std::vector<double> values;
-        QString qLine;
         do
         {
-            qLine = QString::fromStdString(line);
+            QString qLine = QString::fromStdString(line);
             QStringList entries = qLine.split(" ", QString::SkipEmptyParts);
 
-            if (entries.size() < static_cast<int>(columnCount)) break;
+            if (entries.size() < columnCount) break;
 
-            for (size_t i = 0; i < columnCount; i++)
+            for (int i = 0; i < columnCount; i++)
             {
-                if (dateColumnIndex < columnCount)
+                if (columnInfos[i].isStringData)
                 {
-                    QDateTime observationDate = RiaDateStringParser::parseDateString(entries[static_cast<int>(dateColumnIndex)]);
-
-                    if (observationDate.isValid() && !startDate.isValid())
-                    {
-                        startDate = observationDate;
-                    }
-
-                    table[i].observationDateTimes.push_back(observationDate);
+                    columnInfos[i].stringValues.push_back(entries[i].toStdString());
                 }
-
-                double entry = entries.at(static_cast<int>(i)).toDouble();
-                table[i].values.push_back(entry);
+                else
+                {
+                    double entry = entries[i].toDouble();
+                    columnInfos[i].values.push_back(entry);
+                }
             }
         } while (std::getline(streamData, line));
 
-        if (startDate.isValid())
-        {
-            for (auto& ci : table)
-            {
-                ci.startQDateTime = startDate;
-            }
-        }
-
-        m_tables.push_back(table);
+        m_tableDatas.push_back(table);
 
     } while (streamData.good());
 }
