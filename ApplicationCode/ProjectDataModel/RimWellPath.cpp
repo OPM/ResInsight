@@ -126,7 +126,7 @@ RimWellPath::RimWellPath()
     m_completions.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "");
-    m_wellLogFiles.uiCapability()->setUiHidden(true);
+    m_wellLogFiles.uiCapability()->setUiTreeHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellLogFile_OBSOLETE,      "WellLogFile",  "Well Log File", "", "", "");
     m_wellLogFile_OBSOLETE.uiCapability()->setUiHidden(true);
