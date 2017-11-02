@@ -718,6 +718,12 @@ private:
         {
             m_branchedWell.m_wellResultBranches.push_back(RigWellResultBranch());
             branchIdx = static_cast<int>( m_branchedWell.m_wellResultBranches.size()) - 1;
+            RigWellResultPoint wellHeadAsPoint;
+            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell(m_orgWellResultFrame.m_wellHead);
+            cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
+
+            wellHeadAsPoint.m_bottomPosition = whStartPos;
+            m_branchedWell.m_wellResultBranches[branchIdx].m_branchResultPoints.push_back(wellHeadAsPoint);
         }
 
         RigWellResultBranch& currentBranch = m_branchedWell.m_wellResultBranches[branchIdx];  
@@ -781,6 +787,8 @@ private:
             m_cellSearchTree.findIntersections(m_cellBoundingBoxes[cIdx], &closeCells);
 
             const RigCell& c1 = m_eclipseCaseData->cellFromWellResultCell(orgWellResultPoints[cIdx]);
+            
+            m_cellsWithNeighbors[cIdx]; // Add an empty set for this cell, in case we have no neighbors
 
             for ( size_t idxToCloseCell : closeCells )
             {
@@ -824,7 +832,7 @@ private:
             {
                 m_unusedWellCellIndices.erase(it);
 
-                // Create a new branchline containing with the cell itself.
+                // Create a new branchline containing the cell itself.
                 m_branchLines.push_back(std::make_pair(true, std::deque<size_t>()));
                 auto currentBranchLineIt = std::prev(m_branchLines.end());
                 auto& branchList = currentBranchLineIt->second;
