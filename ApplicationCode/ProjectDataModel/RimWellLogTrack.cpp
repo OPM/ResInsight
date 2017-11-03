@@ -461,6 +461,7 @@ void RimWellLogTrack::loadDataAndUpdate()
         m_simWellName.uiCapability()->setUiReadOnly(false);
         m_formationCase.uiCapability()->setUiReadOnly(false);
         m_wellPath.uiCapability()->setUiReadOnly(false);
+        m_branchIndex.uiCapability()->setUiReadOnly(false);
     }
     else
     {
@@ -468,6 +469,7 @@ void RimWellLogTrack::loadDataAndUpdate()
         m_simWellName.uiCapability()->setUiReadOnly(true);
         m_formationCase.uiCapability()->setUiReadOnly(true);
         m_wellPath.uiCapability()->setUiReadOnly(true);
+        m_branchIndex.uiCapability()->setUiReadOnly(true);
     }
 
     updateFormationNamesOnPlot();
