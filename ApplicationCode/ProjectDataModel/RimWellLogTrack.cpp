@@ -244,7 +244,7 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_showFormations)
     {
-        if (!m_formationCase)
+        if (!m_formationCase && m_showFormations)
         {
             RimProject* proj = RiaApplication::instance()->project();
             if (proj)
