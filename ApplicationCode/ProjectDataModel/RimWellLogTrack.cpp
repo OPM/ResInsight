@@ -107,7 +107,7 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitField(&m_simWellName, "SimulationWellName", QString("None"), " ", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "Branch", 0, " ", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_case, "CurveCase", "Formation Case", "", "", "");
     m_case.uiCapability()->setUiTreeChildrenHidden(true);
 
     m_simulationWellChosen = false;
@@ -467,42 +467,6 @@ void RimWellLogTrack::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setShowFormations(bool show /*= true*/)
-{
-    m_showFormations = show;
-    loadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setCase(RimCase* rimCase)
-{
-    m_case = rimCase;
-
-    QList<caf::PdmOptionItemInfo> options;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setSimWellName(const QString& simWellName)
-{
-    m_simWellName = simWellName;
-    m_trajectoryType = RimWellLogTrack::SIMULATION_WELL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setBranchIndex(int branchIndex)
-{
-    m_branchIndex = branchIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setXAxisTitle(const QString& text)
 {
     m_xAxisTitle = text;
@@ -702,11 +666,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         }
     }
 
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
-    gridGroup->add(&m_isAutoScaleXEnabled);
-    gridGroup->add(&m_isLogarithmicScaleEnabled);
-    gridGroup->add(&m_visibleXRangeMin);
-    gridGroup->add(&m_visibleXRangeMax);
+    uiOrderingForVisibleXRange(uiConfigName, uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -831,6 +791,28 @@ std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
     }
 
     return curvesVector;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names Properties");
+    formationGroup->add(&m_showFormations);
+    formationGroup->add(&m_case);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::uiOrderingForVisibleXRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
+    gridGroup->add(&m_isAutoScaleXEnabled);
+    gridGroup->add(&m_isLogarithmicScaleEnabled);
+    gridGroup->add(&m_visibleXRangeMin);
+    gridGroup->add(&m_visibleXRangeMax);
 }
 
 //--------------------------------------------------------------------------------------------------

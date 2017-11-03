@@ -94,9 +94,6 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue(false);
 
-    CAF_PDM_InitField(&m_showFormations, "ShowFormations", false, "Show Formations", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_formationCase, "FormationCase", "Formation Case", "", "", "");
-
     this->setAsPlotMdiWindow();
     m_selectedSourcesOrTimeStepsFieldsChanged = false;
 }
@@ -1085,15 +1082,6 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions(const caf::P
             options.push_front(caf::PdmOptionItemInfo("None", -1));
         }
     }
-    else if (fieldNeedingOptions == &m_formationCase)
-    {
-        for (RifWellRftAddress source : selectedSources())
-        {
-            RifWellRftAddress addr = RifWellRftAddress(RifWellRftAddress::RFT, source.eclCase());
-            //caf::PdmOptionItemInfo item = caf::PdmOptionItemInfo(source.eclCase()->caseUserDescription(), QVariant::fromValue(addr));
-            options.push_back(caf::PdmOptionItemInfo(source.eclCase()->caseUserDescription(), source.eclCase(), false, source.eclCase()->uiIcon()));
-        }
-    }
 
     return options;
 }
@@ -1135,39 +1123,6 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     else if (changedField == &m_showPlotTitle)
     {
         //m_wellLogPlot->setShowDescription(m_showPlotTitle);
-    }
-    else if (changedField == &m_showFormations)
-    {
-        if (m_wellLogPlot->trackCount())
-        {
-            RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
-            if (m_formationCase != nullptr)
-            {
-                track->setCase(m_formationCase());
-            }
-            else if (!m_selectedSources().empty())
-            {
-                m_formationCase = m_selectedSources().at(0).eclCase();
-                track->setCase(m_formationCase);
-            }
-            
-            if (!m_wellName().isEmpty())
-            {
-                track->setSimWellName(m_wellName);
-            }
-            
-            track->setBranchIndex(m_branchIndex());
-            track->setShowFormations(m_showFormations());
-        }
-        
-    }
-    else if (changedField == &m_formationCase)
-    {
-        if (m_wellLogPlot->trackCount())
-        {
-            RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
-            updateConnectedEditors();
-        }
     }
 }
 
@@ -1215,10 +1170,12 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     //uiOrdering.add(&m_showPlotTitle);
 
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names Properties");
-
-    formationGroup->add(&m_showFormations);
-    formationGroup->add(&m_formationCase);
+    if (m_wellLogPlot && m_wellLogPlot->trackCount() > 0)
+    {
+        RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
+        track->uiOrderingForShowFormationNamesAndCase(uiConfigName, uiOrdering);
+        track->uiOrderingForVisibleXRange(uiConfigName, uiOrdering);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }

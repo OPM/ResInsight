@@ -83,11 +83,6 @@ public:
 
     void loadDataAndUpdate();
 
-    void setShowFormations(bool show = true);
-    void setCase(RimCase* rimCase);
-    void setSimWellName(const QString& simWellName);
-    void setBranchIndex(int branchIndex);
-
     void availableDepthRange(double* minimumDepth, double* maximumDepth);
     void updateXZoomAndParentPlotDepthZoom();
     void updateXZoom();
@@ -102,6 +97,9 @@ public:
 
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();
+
+    void uiOrderingForShowFormationNamesAndCase(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForVisibleXRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

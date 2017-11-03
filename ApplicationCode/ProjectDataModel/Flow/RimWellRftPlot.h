@@ -166,8 +166,5 @@ private:
 
     std::map<QDateTime, std::set<RifWellRftAddress>> m_timeStepsToAddresses;
 
-    caf::PdmField<bool>                             m_showFormations;
-    caf::PdmPtrField<RimCase*>                      m_formationCase;
-
     bool m_selectedSourcesOrTimeStepsFieldsChanged;
 };
