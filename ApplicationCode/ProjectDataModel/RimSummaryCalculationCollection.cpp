@@ -51,6 +51,7 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
     QString varName = QString("Calculation_%1").arg(m_calcuations.size() + 1);
     calculation->setDescription(varName);
     calculation->setDefaultExpression(varName + " := a + b");
+    calculation->parseExpression();
 
     m_calcuations.push_back(calculation);
 
