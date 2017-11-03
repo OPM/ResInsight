@@ -30,5 +30,6 @@ public:
     static bool         isNumber(const std::string& s);
 
     static int          toInt(const std::string& s);
+    static double       toDouble(const std::string& s);
 };
 

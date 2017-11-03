@@ -20,6 +20,7 @@
 
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "RifEclipseUserDataKeywordTools.h"
 
@@ -283,8 +284,6 @@ bool RifEclipseUserDataParserTools::hasTimeUnit(const std::string& word)
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<std::string>& words, std::vector<double>* doubleValues)
 {
-    char* end;
-
     bool onlyValidValues = true;
 
     for (const auto& word : words)
@@ -295,7 +294,7 @@ bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<s
         }
         else
         {
-            double doubleVal = strtod(word.data(), &end);
+            double doubleVal = RiaStdStringTools::toDouble(word);
             doubleValues->push_back(doubleVal);
         }
     }

@@ -18,6 +18,8 @@
 
 #include "RifKeywordVectorParser.h"
 
+#include "RiaStdStringTools.h"
+
 #include "RifEclipseUserDataParserTools.h"
 
 #include "cvfAssert.h"
@@ -90,7 +92,7 @@ void RifKeywordVectorParser::parseData(const QString& data)
 
         while (RifEclipseUserDataParserTools::isANumber(line))
         {
-            keywordBasedVector.values.push_back(std::stod(line));
+            keywordBasedVector.values.push_back(RiaStdStringTools::toDouble(line));
             std::getline(streamData, line);
         }
 

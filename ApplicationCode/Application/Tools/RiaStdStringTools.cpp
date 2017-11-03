@@ -54,3 +54,16 @@ int RiaStdStringTools::toInt(const std::string& s)
 
     return intValue;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RiaStdStringTools::toDouble(const std::string& s)
+{
+    double doubleValue = -1.0;
+
+    char* end;
+    doubleValue = std::strtod(s.data(), &end);
+
+    return doubleValue;
+}
