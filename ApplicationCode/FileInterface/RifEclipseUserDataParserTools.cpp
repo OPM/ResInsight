@@ -754,60 +754,54 @@ std::vector<size_t> RifEclipseUserDataParserTools::columnIndexForWords(const std
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<ColumnInfo>> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const std::vector<std::vector<ColumnInfo>>& tables)
+std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps(const std::vector<TableData>& tables)
 {
-    return tables;
-
-/*
     if (tables.size() < 2)
     {
         return tables;
     }
 
-    const ColumnInfo* timeCi = nullptr;
-    for (const ColumnInfo& ci : tables[0])
+    if (tables[0].columnInfos().size() == 0) return tables;
+
+    ColumnInfo* dateColumn = nullptr;
+    for (auto c : tables[0].columnInfos())
     {
-        if (!ci.isAVector)
+        if (c.summaryAddress.quantityName() == "DATE")
         {
-            timeCi = &ci;
-            break;
+            dateColumn = &c;
         }
     }
 
-    if (!timeCi)
+    // Support only merge of tables with the DATE column present
+    if (!dateColumn) return tables;
+
+    std::vector<TableData> largeTables;
+
+    largeTables.push_back(tables[0]);
+
+    TableData& firstTable = largeTables[0];
+    size_t itemsInFirstTable = tables[0].columnInfos()[0].itemCount();
+
+    for (size_t i = 1; i < tables.size(); i++)
     {
-        return tables;
-    }
-
-    std::vector<std::vector<ColumnInfo>> largeTables;
-    {
-        std::vector<ColumnInfo> largeTable;
-
-        largeTable.push_back(*timeCi);
-
-        for (const auto& t : tables)
+        if (tables[i].columnInfos().size() > 0 &&
+            tables[i].columnInfos()[0].itemCount() == itemsInFirstTable)
         {
-            if (t.size() > 0 && t[0].itemCount() != timeCi->itemCount())
+            for (auto& c : tables[i].columnInfos())
             {
-                largeTables.push_back(t);
-                continue;
-            }
-
-            for (const auto& c : t)
-            {
-                if (c.isAVector &&
-                    c.values.size() == timeCi->observationDateTimes.size())
+                if (c.summaryAddress.quantityName() != "DATE")
                 {
-                    largeTable.push_back(c);
+                    firstTable.columnInfos().push_back(c);
                 }
             }
         }
-
-        largeTables.push_back(largeTable);
+        else
+        {
+            largeTables.push_back(tables[i]);
+        }
     }
 
     return largeTables;
-*/
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -836,6 +830,19 @@ bool RifEclipseUserDataParserTools::isUnitText(const std::string& word)
     if (word.find("RM3") != std::string::npos) return true;
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t ColumnInfo::itemCount() const
+{
+    if (isStringData)
+    {
+        return stringValues.size();
+    }
+    else
+        return values.size();
 }
 
 //--------------------------------------------------------------------------------------------------

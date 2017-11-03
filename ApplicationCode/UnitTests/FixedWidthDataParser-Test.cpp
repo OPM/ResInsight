@@ -151,9 +151,9 @@ TEST(FixedWidthDataParser, DetectFixedWidth)
 
     RifColumnBasedUserDataParser parser(data);
     auto tables = parser.tableData();
-    EXPECT_EQ(size_t(3), tables.size());
+    EXPECT_EQ(size_t(1), tables.size());
 
-    EXPECT_EQ(size_t(10), tables[0].columnInfos().size());
+    EXPECT_EQ(size_t(28), tables[0].columnInfos().size());
     EXPECT_EQ(size_t(13), tables[0].columnInfos()[0].stringValues.size());
 }
 
@@ -209,6 +209,6 @@ TEST(FixedWidthDataParser, VaryingTimeStepCount)
 
     RifColumnBasedUserDataParser parser(data);
     auto tables = parser.tableData();
-    EXPECT_EQ(2, tables.size());
+    EXPECT_EQ(size_t(2), tables.size());
 }
 

@@ -48,6 +48,8 @@ public:
     {
     }
 
+    size_t itemCount() const;
+
 public:
     static ColumnInfo createColumnInfo(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
 
@@ -146,7 +148,7 @@ public:
     static std::vector<ColumnInfo>                      columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
     static std::vector<size_t>                          columnIndexForWords(const std::string& line);
 
-    static std::vector<std::vector<ColumnInfo>>         mergeEqualTimeSteps(const std::vector<std::vector<ColumnInfo>>& columns);
+    static std::vector<TableData>                       mergeEqualTimeSteps(const std::vector<TableData>& tables);
 
     static bool                                         isUnitText(const std::string& word);
 

@@ -72,6 +72,8 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
     std::stringstream streamData;
     streamData.str(stdData);
 
+    std::vector<TableData> rawTables;
+
     do
     {
         std::vector<std::string> errorStrings;
@@ -125,7 +127,9 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
             }
         } while (std::getline(streamData, line));
 
-        m_tableDatas.push_back(table);
+        rawTables.push_back(table);
 
     } while (streamData.good());
+
+    m_tableDatas = RifEclipseUserDataParserTools::mergeEqualTimeSteps(rawTables);
 }
