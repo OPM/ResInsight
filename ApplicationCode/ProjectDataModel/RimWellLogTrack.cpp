@@ -244,6 +244,20 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     }
     else if (changedField == &m_showFormations)
     {
+        if (!m_formationCase)
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+            if (proj)
+            {
+                std::vector<RimCase*> cases;
+                proj->allCases(cases);
+                if (!cases.empty())
+                {
+                    m_formationCase = cases[0];
+                }
+            }
+        }
+
         loadDataAndUpdate();
     }
     else if (changedField == &m_formationCase)
@@ -453,6 +467,16 @@ void RimWellLogTrack::loadDataAndUpdate()
     if (m_trajectoryType == RimWellLogTrack::SIMULATION_WELL)
     {
         m_simulationWellChosen = true;
+    }
+
+    RimWellRftPlot* rftPlot(nullptr);
+    firstAncestorOrThisOfType(rftPlot);
+
+    if (rftPlot)
+    {
+        m_trajectoryType = RimWellLogTrack::SIMULATION_WELL;
+        m_simWellName = rftPlot->currentWellName();
+        m_branchIndex = rftPlot->branchIndex();
     }
 
     if (m_showFormations)
