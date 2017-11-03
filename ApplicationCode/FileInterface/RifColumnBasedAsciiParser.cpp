@@ -55,7 +55,7 @@ const std::vector<QDateTime>& RifColumnBasedAsciiParser::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 const std::vector<double>& RifColumnBasedAsciiParser::columnValues(size_t columnIndex) const
 {
-    CVF_TIGHT_ASSERT(m_data.m_values.size() <= columnIndex);
+    CVF_TIGHT_ASSERT(columnIndex < m_data.m_values.size());
 
     return m_data.m_values[columnIndex];
 }
