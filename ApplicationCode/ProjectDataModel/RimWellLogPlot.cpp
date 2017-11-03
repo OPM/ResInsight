@@ -525,6 +525,41 @@ bool RimWellLogPlot::isPltPlotChild() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::uiOrderingForVisibleDepthRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
+    gridGroup->add(&m_isAutoScaleDepthEnabled);
+    gridGroup->add(&m_minVisibleDepth);
+    gridGroup->add(&m_maxVisibleDepth);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::uiOrderingForPlot(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    RimWellRftPlot* rftp;
+    firstAncestorOrThisOfType(rftp);
+
+    if (!rftp)
+    {
+        uiOrdering.add(&m_depthType);
+    }
+
+    RimWellAllocationPlot* wap;
+    firstAncestorOrThisOfType(wap);
+
+    if (!(wap || rftp))
+    {
+        uiOrdering.add(&m_depthUnit);
+    }
+
+    uiOrdering.add(&m_showTrackLegends);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth) const
 {
     *minimumDepth = m_minVisibleDepth;
@@ -538,22 +573,8 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-    uiOrdering.add(&m_depthType);
-
-    RimWellAllocationPlot* wap;
-    firstAncestorOrThisOfType(wap);
-    if (!wap)
-    {
-        uiOrdering.add(&m_depthUnit);
-    }
-
-    uiOrdering.add(&m_showTrackLegends);
-
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
-    gridGroup->add(&m_isAutoScaleDepthEnabled);
-    gridGroup->add(&m_minVisibleDepth);
-    gridGroup->add(&m_maxVisibleDepth);
-
+    uiOrderingForPlot(uiConfigName, uiOrdering);
+    uiOrderingForVisibleDepthRange(uiConfigName, uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

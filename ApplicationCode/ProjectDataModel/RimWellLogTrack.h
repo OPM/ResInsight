@@ -148,7 +148,7 @@ private:
     caf::PdmField<bool>   m_isLogarithmicScaleEnabled;
 
     caf::PdmField<bool>                             m_showFormations;
-    caf::PdmPtrField<RimCase*>                      m_case;
+    caf::PdmPtrField<RimCase*>                      m_formationCase;
     caf::PdmField<caf::AppEnum<TrajectoryType> >    m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>                  m_wellPath;
     caf::PdmField<QString>                          m_simWellName;
