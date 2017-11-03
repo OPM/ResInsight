@@ -26,11 +26,20 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions)
+RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 {
     detachAllAnnotations();
-    if (names.size() != yPositions.size()) return;
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions)
+{
+    detachAllAnnotations();
+
+    if (names.size() != yPositions.size()) return;
+    m_plot = plot;
     QPen curvePen;
     curvePen.setStyle(Qt::DashLine);
     curvePen.setColor(Qt::blue);
@@ -40,7 +49,7 @@ void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& nam
 
     for (size_t i = 0; i < names.size(); i++)
     {
-        std::unique_ptr<QwtPlotMarker> line(new QwtPlotMarker());
+        QwtPlotMarker* line(new QwtPlotMarker());
    
         line->setLineStyle(QwtPlotMarker::HLine);
         line->setLinePen(curvePen);
@@ -57,7 +66,7 @@ void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& nam
 
         if ((i != names.size() - 1) && cvf::Math::abs(yPositions[i].second - yPositions[i+1].first) > delta)
         {
-            std::unique_ptr<QwtPlotMarker> line(new QwtPlotMarker());
+            QwtPlotMarker* line(new QwtPlotMarker());
 
             line->setLineStyle(QwtPlotMarker::HLine);
             line->setLinePen(curvePen);
@@ -75,9 +84,13 @@ void RiuPlotAnnotationTool::attachFormationNames(const std::vector<QString>& nam
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::detachAllAnnotations()
 {
-    for (size_t i = 0; i < m_markers.size(); i++)
+    if (m_plot)
     {
-        m_markers[i]->detach();
+        for (size_t i = 0; i < m_markers.size(); i++)
+        {
+            m_markers[i]->detach();
+            delete m_markers[i];
+        }
     }
     m_markers.clear();
 }

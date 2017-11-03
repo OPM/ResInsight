@@ -23,18 +23,21 @@
 #include <memory>
 #include <vector>
 
+#include <QPointer>
+
 class QString;
 class QwtPlot;
 
 class RiuPlotAnnotationTool
 {
 public:
-    RiuPlotAnnotationTool(QwtPlot* plot) : m_plot(plot) {};
+    RiuPlotAnnotationTool() {};
+    ~RiuPlotAnnotationTool();
 
-    void attachFormationNames(const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions);
+    void attachFormationNames(QwtPlot* plot, const std::vector<QString>& names, const std::vector<std::pair<double, double>> yPositions);
     void detachAllAnnotations();
 
 private:
-    QwtPlot* m_plot;
-    std::vector<std::unique_ptr<QwtPlotMarker>> m_markers;
+    QPointer<QwtPlot> m_plot;
+    std::vector<QwtPlotMarker*> m_markers;
 };

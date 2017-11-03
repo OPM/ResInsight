@@ -798,7 +798,7 @@ std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names Properties");
+    caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
     formationGroup->add(&m_showFormations);
     formationGroup->add(&m_case);
 }
@@ -995,7 +995,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
     if (m_annotationTool == nullptr)
     {
-        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool(this->viewer()));
+        m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>(new RiuPlotAnnotationTool());
     }
 
     RimMainPlotCollection* mainPlotCollection;
@@ -1050,7 +1050,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                               &formationNamesToPlot,
                                               &yValues);
 
-    m_annotationTool->attachFormationNames(formationNamesToPlot, yValues);
+    m_annotationTool->attachFormationNames(this->viewer(), formationNamesToPlot, yValues);
 }
 
 //--------------------------------------------------------------------------------------------------
