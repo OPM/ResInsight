@@ -18,8 +18,10 @@
 
 #include "RiaDateStringParser.h"
 
-#include <algorithm>
+#include "RiaStdStringTools.h"
 #include "RiaQDateTimeTools.h"
+
+#include <algorithm>
 
 const std::string MONTH_NAMES[] =
 {
@@ -138,19 +140,16 @@ bool RiaDateStringParser::tryParseMonthFirst(const std::string& s, int& year, in
 bool RiaDateStringParser::tryParseYear(const std::string& s, int &year)
 {
     if (containsAlphabetic(s)) return false;
-    try
+
+    auto today = QDate::currentDate();
+    int y = RiaStdStringTools::toInt(s);
+    if (y > 1970 && y <= today.year())
     {
-        auto today = QDate::currentDate();
-        int y = std::stoi(s);
-        if (y > 1970 && y <= today.year())
-        {
-            year = y;
-            return true;
-        }
+        year = y;
+
+        return true;
     }
-    catch (...)
-    {
-    }
+
     return false;
 }
 
@@ -174,19 +173,15 @@ bool RiaDateStringParser::tryParseMonth(const std::string& s, int &month)
     }
     else
     {
-        try
+        int m = RiaStdStringTools::toInt(s);
+        if (m >= 1 && m <= 12)
         {
-            int m = std::stoi(s);
-            if (m >= 1 && m <= 12)
-            {
-                month = m;
-                return true;
-            }
-        }
-        catch (...)
-        {
+            month = m;
+            
+            return true;
         }
     }
+
     return false;
 }
 
@@ -196,18 +191,15 @@ bool RiaDateStringParser::tryParseMonth(const std::string& s, int &month)
 bool RiaDateStringParser::tryParseDay(const std::string& s, int &day)
 {
     if (containsAlphabetic(s)) return false;
-    try
+
+    int d = RiaStdStringTools::toInt(s);
+    if (d >= 1 && d <= 31)
     {
-        int d = std::stoi(s);
-        if (d >= 1 && d <= 31)
-        {
-            day = d;
-            return true;
-        }
+        day = d;
+
+        return true;
     }
-    catch (...)
-    {
-    }
+
     return false;
 }
 
@@ -231,4 +223,3 @@ std::string RiaDateStringParser::trimString(const std::string& s)
 
     return sCopy;
 }
-

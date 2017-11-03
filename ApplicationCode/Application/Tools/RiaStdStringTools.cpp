@@ -28,3 +28,29 @@ std::string RiaStdStringTools::trimString(const std::string& s)
 
     return sCopy;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaStdStringTools::isNumber(const std::string& s)
+{
+    return (s.find_first_not_of("0123456789.eE-") != std::string::npos);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaStdStringTools::toInt(const std::string& s)
+{
+    int intValue = -1;
+
+    try
+    {
+        intValue = std::stoi(s);
+    }
+    catch (...)
+    {
+    }
+
+    return intValue;
+}

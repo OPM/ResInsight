@@ -19,6 +19,7 @@
 #include "RifEclipseUserDataKeywordTools.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "RifEclipseUserDataParserTools.h"
 
@@ -151,7 +152,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
     {
         if (columnHeaderText.size() > 0)
         {
-            regionNumber = std::stoi(columnHeaderText[0]);
+            regionNumber = RiaStdStringTools::toInt(columnHeaderText[0]);
         }
         break;
     }
@@ -178,9 +179,9 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
         if (columnHeaderText.size() > 3)
         {
             wellName = columnHeaderText[0];
-            cellI = std::stoi(columnHeaderText[1]);
-            cellJ = std::stoi(columnHeaderText[2]);
-            cellK = std::stoi(columnHeaderText[3]);
+            cellI = RiaStdStringTools::toInt(columnHeaderText[1]);
+            cellJ = RiaStdStringTools::toInt(columnHeaderText[2]);
+            cellK = RiaStdStringTools::toInt(columnHeaderText[3]);
         }
         break;
     }
@@ -195,35 +196,35 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
     case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
         if (columnHeaderText.size() > 4)
         {
-            wellName        = columnHeaderText[0];
-            lgrName         = columnHeaderText[1];
-            cellI = std::stoi(columnHeaderText[2]);
-            cellJ = std::stoi(columnHeaderText[3]);
-            cellK = std::stoi(columnHeaderText[4]);
+            wellName                       = columnHeaderText[0];
+            lgrName                        = columnHeaderText[1];
+            cellI = RiaStdStringTools::toInt(columnHeaderText[2]);
+            cellJ = RiaStdStringTools::toInt(columnHeaderText[3]);
+            cellK = RiaStdStringTools::toInt(columnHeaderText[4]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
         if (columnHeaderText.size() > 1)
         {
-            wellName                    = columnHeaderText[0];
-            wellSegmentNumber = std::stoi(columnHeaderText[1]);
+            wellName                                   = columnHeaderText[0];
+            wellSegmentNumber = RiaStdStringTools::toInt(columnHeaderText[1]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_BLOCK:
         if (columnHeaderText.size() > 2)
         {
-            cellI = std::stoi(columnHeaderText[0]);
-            cellJ = std::stoi(columnHeaderText[1]);
-            cellK = std::stoi(columnHeaderText[2]);
+            cellI = RiaStdStringTools::toInt(columnHeaderText[0]);
+            cellJ = RiaStdStringTools::toInt(columnHeaderText[1]);
+            cellK = RiaStdStringTools::toInt(columnHeaderText[2]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
         if (columnHeaderText.size() > 3)
         {
-            lgrName         = columnHeaderText[0];
-            cellI = std::stoi(columnHeaderText[1]);
-            cellJ = std::stoi(columnHeaderText[2]);
-            cellK = std::stoi(columnHeaderText[3]);
+            lgrName                        = columnHeaderText[0];
+            cellI = RiaStdStringTools::toInt(columnHeaderText[1]);
+            cellJ = RiaStdStringTools::toInt(columnHeaderText[2]);
+            cellK = RiaStdStringTools::toInt(columnHeaderText[3]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_CALCULATED:

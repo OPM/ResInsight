@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseSummaryAddress.h"
+
+#include "RiaStdStringTools.h"
+
 #include "cvfAssert.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -37,7 +40,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
     switch (category)
     {
     case SUMMARY_REGION:
-        m_regionNumber = std::stoi(identifiers[INPUT_REGION_NUMBER]);
+        m_regionNumber = RiaStdStringTools::toInt(identifiers[INPUT_REGION_NUMBER]);
         break;
     case SUMMARY_REGION_2_REGION:
         reg2regPair = regionToRegionPairFromUiText(identifiers[INPUT_REGION_2_REGION]);
@@ -71,7 +74,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress(SummaryVarCategory category,
         break;
     case SUMMARY_WELL_SEGMENT:
         m_wellName = identifiers[INPUT_WELL_NAME];
-        m_wellSegmentNumber = std::stoi(identifiers[INPUT_SEGMENT_NUMBER]);
+        m_wellSegmentNumber = RiaStdStringTools::toInt(identifiers[INPUT_SEGMENT_NUMBER]);
     case SUMMARY_BLOCK:
         ijkTuple = ijkTupleFromUiText(identifiers[INPUT_CELL_IJK]);
         m_cellI = std::get<0>(ijkTuple);
@@ -303,7 +306,8 @@ std::tuple<int, int, int> RifEclipseSummaryAddress::ijkTupleFromUiText(const std
     auto textI = s.substr(0, firstSep);
     auto textJ = s.substr(firstSep + 1, lastSep - firstSep - 1);
     auto textK = s.substr(lastSep + 1);
-    return std::make_tuple(std::stoi(textI), std::stoi(textJ), std::stoi(textK));
+
+    return std::make_tuple(RiaStdStringTools::toInt(textI), RiaStdStringTools::toInt(textJ), RiaStdStringTools::toInt(textK));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -324,7 +328,8 @@ std::pair<int, int> RifEclipseSummaryAddress::regionToRegionPairFromUiText(const
     CVF_ASSERT(sep != std::string::npos );
     auto textReg = s.substr(0, sep);
     auto textReg2 = s.substr(sep + 2);
-    return std::make_pair(std::stoi(textReg), std::stoi(textReg2));
+    
+    return std::make_pair(RiaStdStringTools::toInt(textReg), RiaStdStringTools::toInt(textReg2));
 }
 
 //--------------------------------------------------------------------------------------------------
