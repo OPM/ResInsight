@@ -120,7 +120,7 @@ public:
     static bool                                         isAComment(const std::string& word);
     static std::vector<std::string>                     splitLineAndRemoveComments(const std::string& line);
     static RifEclipseSummaryAddress::SummaryVarCategory identifyCategory(const std::string& word);
-    static void                                         splitLineToDoubles(const std::string& line, std::vector<double>& values);
+    static std::vector<double>                          splitLineToDoubles(const std::string& line);
     static size_t                                       findFirstNonEmptyEntryIndex(std::vector<std::string>& list);
     static bool                                         keywordParser(const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate);
     static bool                                         isANumber(const std::string& line);
@@ -133,4 +133,21 @@ public:
     static bool                                         isValidTableData(size_t columnCount, const std::string& line);
 
     static TableData                                    tableDataFromText(std::stringstream& data, std::vector<std::string>* errorText = nullptr);
+
+    // Fixed width functions
+
+    static bool                                         isFixedWidthHeader(const std::string& lines);
+    static bool                                         hasCompleteDataForAllHeaderColumns(const std::string& lines);
+    static std::vector<ColumnInfo>                      columnInfoForFixedColumnWidth(std::stringstream& streamData);
+    static std::vector<std::string>                     findValidHeaderLines(std::stringstream& streamData);
+    static std::vector<std::vector<std::string>>        splitIntoColumnHeaders(const std::vector<std::string>& headerLines);
+    static std::vector<ColumnInfo>                      columnInfoFromColumnHeaders(const std::vector<std::vector<std::string>>& columnData);
+    static std::vector<size_t>                          columnIndexForWords(const std::string& line);
+
+    static std::vector<std::vector<ColumnInfo>>         mergeEqualTimeSteps(const std::vector<std::vector<ColumnInfo>>& columns);
+
+    static bool                                         isUnitText(const std::string& word);
+
+private:
+    static std::string                                  trimString(const std::string& s);
 };

@@ -231,8 +231,7 @@ TEST(RifRsmspecParserToolsTest, TestSplitLineToDoubles)
 
     while (std::getline(streamData, line))
     {
-        std::vector<double> values;
-        RifEclipseUserDataParserTools::splitLineToDoubles(line, values);
+        std::vector<double> values = RifEclipseUserDataParserTools::splitLineToDoubles(line);
         table.push_back(values);
     }
 
