@@ -51,7 +51,7 @@ RifColumnBasedUserData::~RifColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifColumnBasedUserData::parse(const QString& data, const QString& customWellName, const QString& customWellGroupName)
+bool RifColumnBasedUserData::parse(const QString& data)
 {
     m_allResultAddresses.clear();
     m_timeSteps.clear();

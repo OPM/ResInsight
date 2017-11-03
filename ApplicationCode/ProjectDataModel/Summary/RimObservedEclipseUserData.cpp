@@ -82,11 +82,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
         else
         {
             RifColumnBasedUserData* columnBaseUserData = new RifColumnBasedUserData();
-            if (!columnBaseUserData->parse(fileContents, customWellName(), customWellGroupName()))
-            {
-                columnBaseUserData = nullptr;
-            }
-            else
+            if (columnBaseUserData->parse(fileContents))
             {
                 m_summeryReader = columnBaseUserData;
             }
