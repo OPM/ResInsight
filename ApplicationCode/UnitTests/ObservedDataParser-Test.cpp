@@ -10,6 +10,7 @@
 #include <QTextStream>
 #include <QDebug>
 #include "RifEclipseUserDataKeywordTools.h"
+#include "RiaQDateTimeTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -738,25 +739,9 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
     columnBasedUserdata.parse(data);
     std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps(address);
 
-    for (auto t : timeSteps)
-    {
-        QDateTime dt = QDateTime::fromTime_t(t);
+    QDateTime firstDate = RiaQDateTimeTools::fromYears(2014.32);
 
-        qDebug() << dt;
-    }
-
-    QDateTime startDate = QDateTime::fromString("01012004", "ddMMyyyy");
-    startDate.setTimeSpec(Qt::UTC);
-    
-    QDateTime qDay1 = startDate.addDays(3043);
-    time_t day1 = qDay1.toTime_t();
-
-    ASSERT_EQ(size_t(18), timeSteps.size());
-
-    //EXPECT_EQ("Tue May  1 00:00:00 2012\n", (std::string)asctime(gmtime(&day1)));
-    //EXPECT_EQ("Tue May  1 00:00:00 2012\n", (std::string)asctime(gmtime(&timeSteps[0])));
-
-    EXPECT_EQ(day1, timeSteps[0]);
+    EXPECT_TRUE(firstDate == QDateTime::fromTime_t(timeSteps[0]));
 }
 
 //--------------------------------------------------------------------------------------------------

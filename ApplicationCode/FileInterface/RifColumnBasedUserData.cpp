@@ -142,6 +142,7 @@ void RifColumnBasedUserData::buildTimeStepsFromTables()
         // Find time index
         size_t dateColumnIndex = tableData.columnInfos().size();
         size_t dayOrYearColumnIndex = tableData.columnInfos().size();
+        size_t yearXColumnIndex = tableData.columnInfos().size();
 
         for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
         {
@@ -151,10 +152,17 @@ void RifColumnBasedUserData::buildTimeStepsFromTables()
             {
                 dateColumnIndex = columIndex;
             }
-            else if (dayOrYearColumnIndex == tableData.columnInfos().size() &&
+            
+            if (dayOrYearColumnIndex == tableData.columnInfos().size() &&
                      RifEclipseUserDataParserTools::hasTimeUnit(ci.unitName))
             {
                 dayOrYearColumnIndex = columIndex;
+            }
+
+            if (yearXColumnIndex == tableData.columnInfos().size() &&
+                ci.summaryAddress.quantityName() == "YEARX")
+            {
+                yearXColumnIndex = columIndex;
             }
         }
 
@@ -179,6 +187,16 @@ void RifColumnBasedUserData::buildTimeStepsFromTables()
                     QDateTime dt = RiaDateStringParser::parseDateString(s);
 
                     timeSteps.push_back(dt.toTime_t());
+                }
+            }
+            else if (yearXColumnIndex != tableData.columnInfos().size())
+            {
+                const ColumnInfo& ci = tableData.columnInfos()[yearXColumnIndex];
+
+                for (const auto& timeStepValue : ci.values)
+                {
+                    QDateTime dateTime = RiaQDateTimeTools::fromYears(timeStepValue);
+                    timeSteps.push_back(dateTime.toTime_t());
                 }
             }
             else
@@ -216,7 +234,6 @@ void RifColumnBasedUserData::buildTimeStepsFromTables()
                             timeSteps.push_back(dateTime.toTime_t());
                         }
                     }
-
                 }
             }
 
