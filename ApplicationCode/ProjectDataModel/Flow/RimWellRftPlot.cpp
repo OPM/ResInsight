@@ -941,6 +941,14 @@ QString RimWellRftPlot::currentWellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int RimWellRftPlot::branchIndex() const
+{
+    return m_branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellRftPlot::hasPressureData(const RimWellLogFile* wellLogFile)
 {
     for (RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels())
