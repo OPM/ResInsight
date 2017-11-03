@@ -896,6 +896,12 @@ private:
                         m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{ branchList.front(), cellWithNeighborsPair.first, neighbour } ));
                         auto newBranchLineIt = std::prev(m_branchLines.end());
                         growBranchListEnd(newBranchLineIt);
+                        if (newBranchLineIt->second.size() == 3)
+                        {
+                            // No real contribution from the branch.
+                            // Put the cell into main stem
+                            // Todo
+                        }
                     }
 
                     neighbour = findBestNeighbor(cellWithNeighborsPair.first, cellWithNeighborsPair.second);
@@ -951,6 +957,7 @@ private:
 
         size_t startCell = branchList.back();
         size_t prevCell = -1;
+        size_t startCellPosInStem = branchList.size()-1;
 
         if (branchList.size() > 1) prevCell = branchList[branchList.size()-2];
         
@@ -964,13 +971,13 @@ private:
             growBranchListEnd(branchListIt);
         }
 
-        startAndGrowSeparateBranchesFromRestOfNeighbors(startCell, prevCell, neighbors);
+        startAndGrowSeparateBranchesFromRestOfNeighbors(startCell, prevCell, neighbors, branchList, startCellPosInStem, true);
     }
 
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    void startAndGrowSeparateBranchesFromRestOfNeighbors(size_t startCell, size_t prevCell, const  std::set<size_t>& neighbors)
+    void startAndGrowSeparateBranchesFromRestOfNeighbors(size_t startCell, size_t prevCell, const std::set<size_t>& neighbors, std::deque<size_t> mainStem, size_t branchPosInMainStem, bool stemEndIsGrowing)
     {
         size_t nb = findBestNeighbor(startCell, neighbors);
         while ( nb != -1 )
@@ -987,8 +994,19 @@ private:
             m_unusedWellCellIndices.erase(nb);
 
             auto lastBranchIt = std::prev(m_branchLines.end());
-
+            size_t separateBranchStartSize = lastBranchIt->second.size();
             growBranchListEnd(lastBranchIt);
+
+            if (lastBranchIt->second.size() == separateBranchStartSize)
+            {
+                // No use in this branch.
+                // put cell into main stem instead
+                if (stemEndIsGrowing)
+                    mainStem.insert(mainStem.begin() + branchPosInMainStem, nb);
+                else
+                    mainStem.insert(mainStem.end() - branchPosInMainStem, nb);
+                m_branchLines.erase(lastBranchIt);
+            }
 
             nb = findBestNeighbor(startCell, neighbors);
         }
@@ -1005,6 +1023,7 @@ private:
 
         size_t startCell = branchList.front();
         size_t prevCell = -1;
+        size_t startCellPosInStem = branchList.size()-1;
 
         if (branchList.size() > 1) prevCell = branchList[1];
 
@@ -1018,7 +1037,7 @@ private:
             growBranchListFront(branchListIt);
         }
 
-        startAndGrowSeparateBranchesFromRestOfNeighbors(startCell, prevCell, neighbors);
+        startAndGrowSeparateBranchesFromRestOfNeighbors(startCell, prevCell, neighbors, branchList, startCellPosInStem, false);
     }
 
     //--------------------------------------------------------------------------------------------------
