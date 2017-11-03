@@ -75,7 +75,7 @@ void RimObservedDataCollection::addObservedData(RimObservedData* observedData)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName)
+RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName(const QString& fileName, QString* errorText)
 {
     RimObservedData* observedData = nullptr;
 
@@ -84,7 +84,10 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            RiaLogging::error(QString("Failed to open %1").arg(fileName));
+            QString s = QString("Failed to open %1").arg(fileName);
+            RiaLogging::error(s);
+
+            if (errorText) errorText->append(s);
 
             return nullptr;
         }
@@ -117,6 +120,11 @@ RimObservedData* RimObservedDataCollection::createAndAddObservedDataFromFileName
             observedData->createSummaryReaderInterface();
             observedData->updateMetaData();
             observedData->updateOptionSensitivity();
+
+            if (errorText && !observedData->errorMessagesFromReader().isEmpty())
+            {
+                errorText->append(observedData->errorMessagesFromReader());
+            }
 
             RiuMainPlotWindow* mainPlotWindow = RiaApplication::instance()->getOrCreateAndShowMainPlotWindow();
             if (mainPlotWindow)

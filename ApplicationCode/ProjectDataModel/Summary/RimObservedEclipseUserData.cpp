@@ -82,7 +82,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
         else
         {
             RifColumnBasedUserData* columnBaseUserData = new RifColumnBasedUserData();
-            if (columnBaseUserData->parse(fileContents))
+            if (columnBaseUserData->parse(fileContents, &m_errorText))
             {
                 m_summeryReader = columnBaseUserData;
             }
@@ -100,4 +100,12 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
 RifSummaryReaderInterface* RimObservedEclipseUserData::summaryReader()
 {
     return m_summeryReader.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimObservedEclipseUserData::errorMessagesFromReader()
+{
+    return m_errorText;
 }

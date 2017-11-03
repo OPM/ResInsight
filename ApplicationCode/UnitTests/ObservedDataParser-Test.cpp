@@ -736,7 +736,7 @@ TEST(RifKeywordBasedRsmspecParserTest, TestTimeSteps)
 
     RifColumnBasedUserData columnBasedUserdata;
 
-    columnBasedUserdata.parse(data, "", "");
+    columnBasedUserdata.parse(data);
     std::vector<time_t> timeSteps = columnBasedUserdata.timeSteps(address);
 
     for (auto t : timeSteps)

@@ -37,7 +37,7 @@ public:
 
     void                            removeObservedData(RimObservedData* observedData);
     void                            addObservedData(RimObservedData* observedData);
-    RimObservedData*                createAndAddObservedDataFromFileName(const QString& fileName);
+    RimObservedData*                createAndAddObservedDataFromFileName(const QString& fileName, QString* errorText = nullptr);
     std::vector<RimSummaryCase*>    allObservedData();
 
 private:

@@ -51,14 +51,14 @@ RifColumnBasedUserData::~RifColumnBasedUserData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifColumnBasedUserData::parse(const QString& data)
+bool RifColumnBasedUserData::parse(const QString& data, QString* errorText)
 {
     m_allResultAddresses.clear();
     m_timeSteps.clear();
     m_mapFromAddressToTimeStepIndex.clear();
     m_mapFromAddressToResultIndex.clear();
 
-    m_parser = std::unique_ptr<RifColumnBasedUserDataParser>(new RifColumnBasedUserDataParser(data));
+    m_parser = std::unique_ptr<RifColumnBasedUserDataParser>(new RifColumnBasedUserDataParser(data, errorText));
     if (!m_parser)
     {
         RiaLogging::error(QString("Failed to parse file"));

@@ -32,6 +32,7 @@
 
 #include <QAction>
 #include <QFileDialog>
+#include <QMessageBox>
 
 
 CAF_CMD_SOURCE_INIT(RicImportObservedDataFeature, "RicImportObservedDataFeature");
@@ -61,9 +62,29 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return;
 
+    QString aggregatedErrorStrings;
+
     for (const QString& fileName : fileNames)
     {
-        RicImportObservedDataFeature::createAndAddObservedDataFromFile(fileName);
+        QString s;
+        RicImportObservedDataFeature::createAndAddObservedDataFromFile(fileName, &s);
+        if (!s.isEmpty())
+        {
+            aggregatedErrorStrings += fileName;
+            aggregatedErrorStrings += "\n";
+            aggregatedErrorStrings += s;
+            aggregatedErrorStrings += "\n";
+            aggregatedErrorStrings += "\n";
+        }
+    }
+
+    if (!aggregatedErrorStrings.isEmpty())
+    {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText("Errors detected during import");
+        msgBox.setDetailedText(aggregatedErrorStrings);
+        msgBox.exec();
     }
 }
 
@@ -101,7 +122,7 @@ void RicImportObservedDataFeature::setupActionLook(QAction* actionToSetup)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QString& fileName)
+bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QString& fileName, QString* errorText)
 {
     RiaApplication* app = RiaApplication::instance();
     RimProject* proj = app->project();
@@ -109,7 +130,7 @@ bool RicImportObservedDataFeature::createAndAddObservedDataFromFile(const QStrin
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if (!observedDataCollection) return false;
 
-    RimObservedData* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName);
+    RimObservedData* newObservedData = observedDataCollection->createAndAddObservedDataFromFileName(fileName, errorText);
 
     RiaApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem(newObservedData);
 

@@ -44,6 +44,7 @@ public:
 
     virtual void        createSummaryReaderInterface() = 0;
     virtual RifSummaryReaderInterface* summaryReader() = 0;
+    virtual QString     errorMessagesFromReader()               { return QString(); }
 
     virtual void        updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath) = 0;
 

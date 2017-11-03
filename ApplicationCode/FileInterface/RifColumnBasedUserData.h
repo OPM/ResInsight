@@ -40,7 +40,7 @@ public:
     RifColumnBasedUserData();
     ~RifColumnBasedUserData();
 
-    bool                                parse(const QString& data);
+    bool                                parse(const QString& data, QString* errorText = nullptr);
 
     virtual const std::vector<time_t>&  timeSteps(const RifEclipseSummaryAddress& resultAddress) const override;
 

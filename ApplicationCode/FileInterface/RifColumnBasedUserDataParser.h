@@ -21,6 +21,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include <QString>
+#include <QPointer>
 
 #include <vector>
 
@@ -33,7 +34,7 @@ class TableData;
 class RifColumnBasedUserDataParser
 {
 public:
-    RifColumnBasedUserDataParser(const QString& data);
+    RifColumnBasedUserDataParser(const QString& data, QString* errorText = nullptr);
     const std::vector<TableData>& tableData() const;
 
     const ColumnInfo* columnInfo(size_t tableIndex, size_t columnIndex) const;
@@ -42,5 +43,6 @@ private:
     void parseTableData(const QString& data);
 
 private:
-    std::vector<TableData> m_tableDatas;
+    std::vector<TableData>  m_tableDatas;
+    QString*                m_errorText;
 };

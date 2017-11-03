@@ -33,7 +33,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifColumnBasedUserDataParser::RifColumnBasedUserDataParser(const QString& data)
+RifColumnBasedUserDataParser::RifColumnBasedUserDataParser(const QString& data, QString* errorText)
+    : m_errorText(errorText)
 {
     parseTableData(data);
 }
@@ -70,7 +71,18 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 
     do
     {
-        auto table = RifEclipseUserDataParserTools::tableDataFromText(streamData);
+        std::vector<std::string> errorStrings;
+
+        auto table = RifEclipseUserDataParserTools::tableDataFromText(streamData, &errorStrings);
+        if (m_errorText)
+        {
+            for (auto s : errorStrings)
+            {
+                QString errorText = QString("\n%1").arg(QString::fromStdString(s));
+                m_errorText->append(errorText);
+            }
+        }
+
         std::vector<ColumnInfo>& columnInfos = table.columnInfos();
         int columnCount = static_cast<int>(columnInfos.size());
         if (columnCount == 0) break;

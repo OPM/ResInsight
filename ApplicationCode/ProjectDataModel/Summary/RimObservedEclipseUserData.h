@@ -40,6 +40,9 @@ public:
 
     virtual RifSummaryReaderInterface* summaryReader() override;
 
+    virtual QString errorMessagesFromReader() override;
+
 private:
     cvf::ref<RifSummaryReaderInterface> m_summeryReader;
+    QString                             m_errorText;
 };
