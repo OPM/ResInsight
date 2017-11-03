@@ -494,24 +494,6 @@ void RigSimulationWellCenterLineCalculator::finishPipeCenterLine(std::vector< st
     pipeBranchesCLCoords.back().push_back(entryPointLastCell + 1.5*(lastCellCenter - entryPointLastCell)  );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -911,7 +893,7 @@ private:
                     }
                     else // if ( endToGrow > 1 )
                     {
-                        m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{branchList.front(), cellWithNeighborsPair.first, neighbour }));
+                        m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{ branchList.front(), cellWithNeighborsPair.first, neighbour } ));
                         auto newBranchLineIt = std::prev(m_branchLines.end());
                         growBranchListEnd(newBranchLineIt);
                     }
@@ -994,9 +976,14 @@ private:
         while ( nb != -1 )
         {
             if ( prevCell == -1 )
+            {
                 m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{startCell, nb}));
+            }
             else
+            {
                 m_branchLines.push_back(std::make_pair(false, std::deque<size_t>{prevCell, startCell, nb}));
+            }
+
             m_unusedWellCellIndices.erase(nb);
 
             auto lastBranchIt = std::prev(m_branchLines.end());
@@ -1068,6 +1055,7 @@ private:
         return (point-cellCenter).length();
     }
 
+private:
     // The bool tells if this can be expanded in the front,
     // Set to false when the branchLine starts from a branching cell (cell with more than two neighbors)
     std::list< std::pair<bool, std::deque<size_t> > > m_branchLines;
@@ -1082,8 +1070,6 @@ private:
 
     const RigEclipseCaseData* m_eclipseCaseData;
     const RigWellResultFrame& m_orgWellResultFrame;
-
-
 };
 
 //--------------------------------------------------------------------------------------------------
