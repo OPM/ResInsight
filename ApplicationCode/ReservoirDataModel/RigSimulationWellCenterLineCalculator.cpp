@@ -107,6 +107,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
     bool isMultiSegmentWell             = wellResults->isMultiSegmentWell();
 
+    #if 0 // Fancy branch splitting, but with artifacts. Needs a bit more work to be better overall than the one we have.
     RigWellResultFrame splittedWellFrame;
     if (!isMultiSegmentWell && isAutoDetectBranches)
     {
@@ -114,6 +115,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
         wellFramePtr = &splittedWellFrame;
         isMultiSegmentWell = true;
     }
+    #endif
 
     const RigWellResultFrame& wellFrame = *wellFramePtr;
 
