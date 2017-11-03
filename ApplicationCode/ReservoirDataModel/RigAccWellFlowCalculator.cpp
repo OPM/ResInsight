@@ -72,6 +72,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 
     m_tracerNames.push_back(RIG_RESERVOIR_TRACER_NAME);
 
+    initializePipeBranchesMeasuredDepths();
     calculateAccumulatedFlowPrConnection(0, 1);
     calculateFlowPrPseudoLength(0, 0.0);
     sortTracers();
@@ -102,13 +103,61 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector< std::vecto
 #else
     m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
 #endif
-
+    initializePipeBranchesMeasuredDepths();
     calculateAccumulatedFlowPrConnection(0, 1);
     calculateFlowPrPseudoLength(0, 0.0);
 #ifdef USE_WELL_PHASE_RATES
     sortTracers();
 #endif
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigAccWellFlowCalculator::RigAccWellFlowCalculator(const std::vector<cvf::Vec3d>&         pipeBranchCLCoords,
+                                                   const std::vector <RigWellResultPoint> & pipeBranchCellIds,
+                                                   const std::vector <double> &             pipeBranchMeasuredDepths,
+                                                   double smallContribThreshold)
+                                                 : m_tracerCellFractionValues(nullptr),
+                                                   m_cellIndexCalculator(RigEclCellIndexCalculator(nullptr, nullptr)),
+                                                   m_smallContributionsThreshold(smallContribThreshold),
+                                                   m_isProducer(true)
+{
+    m_connectionFlowPrBranch.resize(m_pipeBranchesCellIds.size());
+    m_pseudoLengthFlowPrBranch.resize(m_pipeBranchesCellIds.size());
+
+    m_pipeBranchesCLCoords.push_back(pipeBranchCLCoords);
+    m_pipeBranchesCellIds.push_back(pipeBranchCellIds);
+    m_pipeBranchesMeasuredDepths.push_back(pipeBranchMeasuredDepths);
+
+    #ifdef USE_WELL_PHASE_RATES
+    m_tracerNames.push_back(RIG_FLOW_OIL_NAME);
+    m_tracerNames.push_back(RIG_FLOW_GAS_NAME);
+    m_tracerNames.push_back(RIG_FLOW_WATER_NAME);
+    #else
+    m_tracerNames.push_back(RIG_FLOW_TOTAL_NAME);
+    #endif
+    initializePipeBranchesMeasuredDepths();
+    calculateAccumulatedFlowPrConnection(0, 1);
+    calculateFlowPrPseudoLength(0, 0.0);
+    #ifdef USE_WELL_PHASE_RATES
+    sortTracers();
+    #endif
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigAccWellFlowCalculator::initializePipeBranchesMeasuredDepths()
+{
+    for (const auto & branchClPoints: m_pipeBranchesCLCoords)
+    {
+        RigSimulationWellCoordsAndMD mdCalculator(branchClPoints);
+        m_pipeBranchesMeasuredDepths.push_back(mdCalculator.measuredDepths());
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -401,8 +450,7 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
 {
     const std::vector<RigWellResultPoint>& branchCells =  m_pipeBranchesCellIds[branchIdx];
     const std::vector <cvf::Vec3d>& branchClPoints = m_pipeBranchesCLCoords[branchIdx];
-
-    RigSimulationWellCoordsAndMD mdCalculator(branchClPoints);
+    const std::vector <double>& branchMDs = m_pipeBranchesMeasuredDepths[branchIdx];
 
     int clSegIdx = static_cast<int>(branchCells.size()) - 1;
 
@@ -432,8 +480,8 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
         const RigWellResultPoint& wellCell =  branchCells[currentSegmentIndex];
         std::vector<double> flowPrTracerToAccumulate = calculateWellCellFlowPrTracer( wellCell, accFlowPrTracer);
 
-        double pseudoLengthFromTop_lower = mdCalculator.measuredDepths()[cellBottomPointIndex] + startPseudoLengthFromTop;
-        double tvd_lower = -mdCalculator.wellPathPoints()[cellBottomPointIndex][2];
+        double pseudoLengthFromTop_lower = branchMDs[cellBottomPointIndex] + startPseudoLengthFromTop;
+        double tvd_lower = -branchClPoints[cellBottomPointIndex][2];
 
         // Push back the new start-of-cell flow, with the previously accumulated result into the storage
 
@@ -455,8 +503,8 @@ void RigAccWellFlowCalculator::calculateFlowPrPseudoLength(size_t branchIdx, dou
 
         addDownStreamBranchFlow(&accFlowPrTracer, flowPrTracerToAccumulate);
 
-        double pseudoLengthFromTop_upper = mdCalculator.measuredDepths()[cellUpperPointIndex] + startPseudoLengthFromTop;
-        double tvd_upper = -mdCalculator.wellPathPoints()[cellUpperPointIndex][2];
+        double pseudoLengthFromTop_upper = branchMDs[cellUpperPointIndex] + startPseudoLengthFromTop;
+        double tvd_upper = -branchClPoints[cellUpperPointIndex][2];
 
         // Push back the accumulated result into the storage
 
