@@ -706,10 +706,13 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
 
     if (m_addWellNameToCurveName)
     {
-        generatedCurveName += wellName();
-        if (m_trajectoryType == SIMULATION_WELL && m_generatedSimulationWellPathBranches.size() > 1)
+        if (!wellName().isEmpty())
         {
-            generatedCurveName.push_back(" Br" + QString::number(m_branchIndex + 1));
+            generatedCurveName += wellName();
+            if (m_trajectoryType == SIMULATION_WELL && m_generatedSimulationWellPathBranches.size() > 1)
+            {
+                generatedCurveName.push_back(" Br" + QString::number(m_branchIndex + 1));
+            }
         }
     }
 
@@ -718,7 +721,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         generatedCurveName.push_back(m_case->caseUserDescription());
     }
 
-    if (m_addPropertyToCurveName)
+    if (m_addPropertyToCurveName && !wellLogChannelName().isEmpty())
     {
         generatedCurveName.push_back(wellLogChannelName());
     }
