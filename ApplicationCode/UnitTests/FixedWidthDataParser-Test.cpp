@@ -149,15 +149,12 @@ TEST(FixedWidthDataParser, DetectFixedWidth)
 
     EXPECT_TRUE(RifEclipseUserDataParserTools::isFixedWidthHeader(data.toStdString()));
 
-//     RifColumnBasedUserDataParser parser(data);
-//     auto tables = parser.tableData();
-//     EXPECT_EQ(3, tables.size());
+    RifColumnBasedUserDataParser parser(data);
+    auto tables = parser.tableData();
+    EXPECT_EQ(size_t(3), tables.size());
 
-/*
-    auto mergedTables = RifEclipseUserDataParserTools::mergeEqualTimeSteps(tables);
-    EXPECT_EQ(1, mergedTables.size());
-    EXPECT_EQ(28, mergedTables[0].size());
-*/
+    EXPECT_EQ(size_t(10), tables[0].columnInfos().size());
+    EXPECT_EQ(size_t(13), tables[0].columnInfos()[0].stringValues.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,13 +207,8 @@ TEST(FixedWidthDataParser, VaryingTimeStepCount)
         " 14-NOV-1997         0     2637960.     5415305.     592557.9            0     10541.03            0     14.09936     -38974.5  \n"
         ;
 
-//     RifColumnBasedUserDataParser parser(data);
-//     auto tables = parser.tableData();
-//     EXPECT_EQ(2, tables.size());
-
-/*
-    auto mergedTables = RifEclipseUserDataParserTools::mergeEqualTimeSteps(tables);
-    EXPECT_EQ(2, mergedTables.size());
-*/
+    RifColumnBasedUserDataParser parser(data);
+    auto tables = parser.tableData();
+    EXPECT_EQ(2, tables.size());
 }
 

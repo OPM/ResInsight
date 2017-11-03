@@ -503,11 +503,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText(std::stringstream& st
 
             RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, columnHeader);
 
-            ColumnInfo ci(adr, unit);
-            if (quantity == "DATE")
-            {
-                ci.isStringData = true;
-            }
+            ColumnInfo ci = ColumnInfo::createColumnInfo(quantity, unit, adr);
 
             columnInfos.push_back(ci);
         }
@@ -728,27 +724,10 @@ std::vector<ColumnInfo> RifEclipseUserDataParserTools::columnInfoFromColumnHeade
 
         RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress(quantity, restOfHeader);
 
-        ColumnInfo columnInfo;
-        columnInfo.unitName = unit;
+        ColumnInfo ci = ColumnInfo::createColumnInfo(quantity, unit, adr);
 
-//         if (hasDateUnit(unit) ||
-//             hasDateUnit(quantity))
-//         {
-//             columnInfo.isAVector = false;
-//         }
-//         else
-//         {
-//             columnInfo.isAVector = true;
-//         }
-        //columnInfo.origin = origin;
-        //columnInfo.dateFormatString = dateFormat;
-        //columnInfo.startDateString = startDate;
-
-        columnInfo.summaryAddress = adr;
-
-        table.push_back(columnInfo);
+        table.push_back(ci);
     }
-
 
     return table;
 }
@@ -859,3 +838,17 @@ bool RifEclipseUserDataParserTools::isUnitText(const std::string& word)
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ColumnInfo ColumnInfo::createColumnInfo(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr)
+{
+    ColumnInfo ci(adr, unit);
+
+    if (RifEclipseUserDataParserTools::hasDateUnit(quantity))
+    {
+        ci.isStringData = true;
+    }
+
+    return ci;
+}

@@ -66,14 +66,28 @@ const ColumnInfo* RifColumnBasedUserDataParser::columnInfo(size_t tableIndex, si
 //--------------------------------------------------------------------------------------------------
 void RifColumnBasedUserDataParser::parseTableData(const QString& data)
 {
+    std::string stdData = data.toStdString();
+    bool isFixedWidth = RifEclipseUserDataParserTools::isFixedWidthHeader(stdData);
+
     std::stringstream streamData;
-    streamData.str(data.toStdString());
+    streamData.str(stdData);
 
     do
     {
         std::vector<std::string> errorStrings;
 
-        auto table = RifEclipseUserDataParserTools::tableDataFromText(streamData, &errorStrings);
+        TableData table;
+
+        if (isFixedWidth)
+        {
+            auto columnInfos = RifEclipseUserDataParserTools::columnInfoForFixedColumnWidth(streamData);
+            table = TableData("", "", "", columnInfos);
+        }
+        else
+        {
+            table = RifEclipseUserDataParserTools::tableDataFromText(streamData, &errorStrings);
+        }
+
         if (m_errorText)
         {
             for (auto s : errorStrings)

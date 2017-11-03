@@ -49,6 +49,8 @@ public:
     }
 
 public:
+    static ColumnInfo createColumnInfo(const std::string& quantity, const std::string& unit, const RifEclipseSummaryAddress& adr);
+
     RifEclipseSummaryAddress                        summaryAddress;
     std::string                                     unitName;
     double                                          scaleFactor;
