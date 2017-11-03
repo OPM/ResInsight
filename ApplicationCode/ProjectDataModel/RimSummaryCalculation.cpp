@@ -52,7 +52,7 @@ RimSummaryCalculation::RimSummaryCalculation()
     CAF_PDM_InitFieldNoDefault(&m_description, "Description", "Description", "", "", "");
     m_description.uiCapability()->setUiReadOnly(true);
 
-    CAF_PDM_InitField(&m_expression, "Expression", QString("variableName := a"), "Expression", "", "", "");
+    CAF_PDM_InitField(&m_expression, "Expression", QString(""), "Expression", "", "", "");
     m_expression.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_variables, "Variables", "Variables", "", "", "");
@@ -124,6 +124,14 @@ const std::vector<double>& RimSummaryCalculation::values() const
 const std::vector<time_t>& RimSummaryCalculation::timeSteps() const
 {
     return m_timesteps();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::setDefaultExpression(const QString& expr)
+{
+    m_expression = expr;
 }
 
 //--------------------------------------------------------------------------------------------------
