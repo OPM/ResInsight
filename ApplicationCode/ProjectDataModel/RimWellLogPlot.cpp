@@ -139,7 +139,14 @@ void RimWellLogPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         updateTracks();
         if (m_viewer) m_viewer->updateChildrenLayout();
     }
-    
+
+    RimWellRftPlot* rftPlot(nullptr);
+    this->firstAncestorOrThisOfType(rftPlot);
+
+    if (rftPlot)
+    {
+        rftPlot->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

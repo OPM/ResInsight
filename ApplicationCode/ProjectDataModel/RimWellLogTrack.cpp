@@ -245,13 +245,6 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_showFormations)
     {
         loadDataAndUpdate();
-        RimWellRftPlot* rftPlot;
-        this->firstAncestorOrThisOfType(rftPlot);
-
-        if (rftPlot)
-        {
-            rftPlot->updateConnectedEditors();
-        }
     }
     else if (changedField == &m_formationCase)
     {
@@ -286,6 +279,14 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
     else if (changedField == &m_branchIndex)
     {
         loadDataAndUpdate();
+    }
+
+    RimWellRftPlot* rftPlot(nullptr);
+    this->firstAncestorOrThisOfType(rftPlot);
+
+    if (rftPlot)
+    {
+        rftPlot->updateConnectedEditors();
     }
 }
 
