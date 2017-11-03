@@ -80,7 +80,11 @@ bool RigWellLogFile::open(const QString& fileName, QString* errorMessage)
     try
     {
         int wellFormat = NRLib::Well::LAS;
+#ifdef _WINDOWS
         well = NRLib::Well::ReadWell(fileName.toStdString(), wellFormat);
+#else
+        well = NRLib::Well::ReadWell(fileName.toUtf8().data(), wellFormat);
+#endif
         if (!well)
         {
             return false;
