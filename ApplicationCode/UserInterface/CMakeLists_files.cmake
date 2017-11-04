@@ -61,6 +61,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionDialog.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionEditor.h
 ${CEE_CURRENT_LIST_DIR}RiuSummaryVectorDescriptionMap.h
 ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.h
+${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -118,6 +119,7 @@ ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionDialog.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryCurveDefSelectionEditor.cpp
 ${CEE_CURRENT_LIST_DIR}RiuSummaryVectorDescriptionMap.cpp
 ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.cpp
+${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
@@ -155,6 +157,7 @@ ${CEE_CURRENT_LIST_DIR}RiuFlowCharacteristicsPlot.h
 ${CEE_CURRENT_LIST_DIR}RiuNightchartsWidget.h
 ${CEE_CURRENT_LIST_DIR}RiuMessagePanel.h
 ${CEE_CURRENT_LIST_DIR}RiuExpressionContextMenuManager.h
+${CEE_CURRENT_LIST_DIR}RiuCalculationsContextMenuManager.h
 )
 
 list(APPEND QT_UI_FILES

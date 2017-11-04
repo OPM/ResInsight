@@ -18,13 +18,14 @@
 
 #pragma once
 
-
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include <memory>
 
 class RimSummaryCalculationCollection;
 class RimSummaryCalculation;
+class RiuCalculationsContextMenuManager;
 
 //==================================================================================================
 /// 
@@ -44,6 +45,8 @@ public:
     bool            parseExpression() const;
     bool            calculate() const;
 
+    static RimSummaryCalculationCollection* calculationCollection();
+
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
     virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
@@ -52,8 +55,6 @@ private:
     virtual void onEditorWidgetsCreated();
 
 private:
-    static RimSummaryCalculationCollection* calculationCollection();
-
     // TODO : Move to a common caf helper class
     static void assignPushButtonEditor(caf::PdmFieldHandle* fieldHandle);
     static void assignPushButtonEditorText(caf::PdmUiEditorAttribute* attribute, const QString& text);
@@ -63,4 +64,6 @@ private:
     
     caf::PdmField<bool>                 m_newCalculation;
     caf::PdmField<bool>                 m_deleteCalculation;
+
+    std::unique_ptr<RiuCalculationsContextMenuManager> m_calcContextMenuMgr;
 };

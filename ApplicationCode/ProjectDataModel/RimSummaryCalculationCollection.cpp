@@ -50,7 +50,7 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
 
     QString varName = QString("Calculation_%1").arg(m_calcuations.size() + 1);
     calculation->setDescription(varName);
-    calculation->setDefaultExpression(varName + " := a + b");
+    calculation->setExpression(varName + " := a + b");
     calculation->parseExpression();
 
     m_calcuations.push_back(calculation);
@@ -58,6 +58,41 @@ RimSummaryCalculation* RimSummaryCalculationCollection::addCalculation()
     rebuildCaseMetaData();
 
     return calculation;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimSummaryCalculation* RimSummaryCalculationCollection::addCalculationCopy(const RimSummaryCalculation* sourceCalculation)
+{
+    RimSummaryCalculation* calcCopy = dynamic_cast<RimSummaryCalculation*>(
+        sourceCalculation->xmlCapability()->copyByXmlSerialization(caf::PdmDefaultObjectFactory::instance()));
+    CVF_ASSERT(calcCopy);
+
+    std::set<QString> calcNames;
+    for (const auto& calc : m_calcuations)
+    {
+        calcNames.insert(calc->findLeftHandSide(calc->expression()));
+    }
+
+    QString expression = calcCopy->expression();
+    QString currVarName = calcCopy->findLeftHandSide(expression);
+
+    QString newVarName = currVarName;
+    while (calcNames.count(newVarName) > 0)
+    {
+        newVarName += "_copy";
+    }
+
+    expression.replace(currVarName, newVarName);
+    calcCopy->setExpression(expression);
+    calcCopy->parseExpression();
+
+    m_calcuations.push_back(calcCopy);
+
+    rebuildCaseMetaData();
+
+    return calcCopy;
 }
 
 //--------------------------------------------------------------------------------------------------

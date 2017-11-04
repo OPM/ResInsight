@@ -25,6 +25,8 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
+#include "RiuCalculationsContextMenuManager.h"
+
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -39,8 +41,8 @@ RicSummaryCurveCalculator::RicSummaryCurveCalculator()
 {
     CAF_PDM_InitObject("RicSummaryCurveCalculator", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_currentCalculation, "CurrentCalculation", "Current Calculation", "", "", "");
-    m_currentCalculation.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+    CAF_PDM_InitFieldNoDefault(&m_currentCalculation, "CurrentCalculation", "", "", "", "");
+    m_currentCalculation.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     //m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
     m_currentCalculation.uiCapability()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
@@ -49,6 +51,8 @@ RicSummaryCurveCalculator::RicSummaryCurveCalculator()
     
     CAF_PDM_InitFieldNoDefault(&m_deleteCalculation, "DeleteCalculation", "Delete Calculation", "", "", "");
     RicSummaryCurveCalculator::assignPushButtonEditor(&m_deleteCalculation);
+
+    m_calcContextMenuMgr = std::unique_ptr<RiuCalculationsContextMenuManager>(new RiuCalculationsContextMenuManager());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,5 +269,16 @@ void RicSummaryCurveCalculator::onEditorWidgetsCreated()
     if (m_currentCalculation() != nullptr)
     {
         m_currentCalculation->attachToWidget();
+    }
+
+    for (const auto& e : m_currentCalculation.uiCapability()->connectedEditors())
+    {
+        caf::PdmUiListEditor* listEditor = dynamic_cast<caf::PdmUiListEditor*>(e);
+        if (!listEditor) continue;
+
+        QWidget* widget = listEditor->editorWidget();
+        if (!widget) continue;
+
+        m_calcContextMenuMgr->attachWidget(widget, this);
     }
 }

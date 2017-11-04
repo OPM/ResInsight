@@ -18,39 +18,41 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "SummaryPlotCommands/RicSummaryCurveCalculator.h"
 #include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include <QPointer>
+#include <QAction>
+#include <QWidget>
+#include <memory>
 
-class RimSummaryCalculation;
-class RimSummaryCase;
-class RimCalculatedSummaryCase;
+class RimSummaryCalculationVariable;
 
 //==================================================================================================
 ///  
 ///  
 //==================================================================================================
-class RimSummaryCalculationCollection : public caf::PdmObject
+class RiuCalculationsContextMenuManager : public QObject
 {
-     CAF_PDM_HEADER_INIT;
+    Q_OBJECT
+
+     static const std::map<QString, std::set<QString>> MENU_MAP;
 
 public:
-    RimSummaryCalculationCollection();
+    RiuCalculationsContextMenuManager() { }
 
-    RimSummaryCalculation*              addCalculation();
-    RimSummaryCalculation*              addCalculationCopy(const RimSummaryCalculation* sourceCalculation);
-    void                                deleteCalculation(RimSummaryCalculation* calculation);
-    std::vector<RimSummaryCalculation*> calculations() const;
+	void attachWidget(QWidget* widget, RicSummaryCurveCalculator* curveCalc);
 
-    RimSummaryCase*                     calculationSummaryCase();
+public slots:
+	void slotMenuItems(QPoint point);
 
-    void                                deleteAllContainedObjects();
-    void                                rebuildCaseMetaData();
+private slots:
+	void slotCreateCalculationCopy();
 
 private:
-    virtual void                        initAfterRead() override;
-
-private:
-    caf::PdmChildArrayField<RimSummaryCalculation*> m_calcuations;
-    caf::PdmChildField<RimCalculatedSummaryCase*>   m_calcuationSummaryCase;
+	QPointer<QWidget>                           m_widget;
+    std::unique_ptr<RicSummaryCurveCalculator>  m_curveCalc;
+	int                                         m_textPosition;
+    std::map<QString, std::unique_ptr<QAction>> m_actionCache;
 };

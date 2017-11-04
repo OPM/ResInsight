@@ -129,9 +129,17 @@ const std::vector<time_t>& RimSummaryCalculation::timeSteps() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::setDefaultExpression(const QString& expr)
+void RimSummaryCalculation::setExpression(const QString& expr)
 {
     m_expression = expr;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCalculation::expression() const
+{
+    return m_expression;
 }
 
 //--------------------------------------------------------------------------------------------------

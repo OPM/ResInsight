@@ -47,7 +47,8 @@ public:
     const std::vector<double>&      values() const;
     const std::vector<time_t>&      timeSteps() const;
 
-    void                            setDefaultExpression(const QString& expr);
+    void                            setExpression(const QString& expr);
+    QString                         expression() const;
 
     bool                            parseExpression();
     bool                            calculate();
