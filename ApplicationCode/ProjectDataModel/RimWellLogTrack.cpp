@@ -44,6 +44,7 @@
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
+#include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
@@ -258,6 +259,16 @@ void RimWellLogTrack::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
                 {
                     m_formationCase = cases[0];
                 }
+            }
+
+            RimWellAllocationPlot* wellAllocationPlot;
+            firstAncestorOrThisOfType(wellAllocationPlot);
+
+            if (wellAllocationPlot)
+            {
+                m_trajectoryType = RimWellLogTrack::SIMULATION_WELL;
+                m_simulationWellChosen = true;
+                m_simWellName = wellAllocationPlot->wellName();
             }
         }
 
@@ -508,29 +519,32 @@ void RimWellLogTrack::loadDataAndUpdate()
         }
         else
         {
-            m_trajectoryType == RimWellLogTrack::SIMULATION_WELL;
+            m_trajectoryType = RimWellLogTrack::SIMULATION_WELL;
             m_simulationWellChosen = true;
             m_simWellName = wellName;
             m_branchIndex = rftPlot->branchIndex();
         }
     }
 
-    if (m_showFormations)
+    RimWellAllocationPlot* wellAllocationPlot;
+    (rftPlot || pltPlot) ? wellAllocationPlot = nullptr : firstAncestorOrThisOfType(wellAllocationPlot);
+
+    if (wellAllocationPlot)
     {
-        m_trajectoryType.uiCapability()->setUiReadOnly(false);
-        m_simWellName.uiCapability()->setUiReadOnly(false);
-        m_formationCase.uiCapability()->setUiReadOnly(false);
-        m_wellPath.uiCapability()->setUiReadOnly(false);
-        m_branchIndex.uiCapability()->setUiReadOnly(false);
+        setFormationFieldsUiReadOnly(true);
     }
     else
     {
-        m_trajectoryType.uiCapability()->setUiReadOnly(true);
-        m_simWellName.uiCapability()->setUiReadOnly(true);
-        m_formationCase.uiCapability()->setUiReadOnly(true);
-        m_wellPath.uiCapability()->setUiReadOnly(true);
-        m_branchIndex.uiCapability()->setUiReadOnly(true);
+        if (m_showFormations)
+        {
+            setFormationFieldsUiReadOnly(false);
+        }
+        else
+        {
+            setFormationFieldsUiReadOnly(true);
+        }
     }
+   
 
     updateFormationNamesOnPlot();
 }
@@ -541,6 +555,14 @@ void RimWellLogTrack::loadDataAndUpdate()
 void RimWellLogTrack::setXAxisTitle(const QString& text)
 {
     m_xAxisTitle = text;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setBranchIndex(int branchIndex)
+{
+    m_branchIndex = branchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1052,6 +1074,18 @@ std::vector<QString> RimWellLogTrack::formationNamesVector(RimCase* rimCase)
     }
 
     return std::vector<QString>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setFormationFieldsUiReadOnly(bool readOnly /*= true*/)
+{
+    m_trajectoryType.uiCapability()->setUiReadOnly(readOnly);
+    m_simWellName.uiCapability()->setUiReadOnly(readOnly);
+    m_formationCase.uiCapability()->setUiReadOnly(readOnly);
+    m_wellPath.uiCapability()->setUiReadOnly(readOnly);
+    m_branchIndex.uiCapability()->setUiReadOnly(readOnly);
 }
 
 //--------------------------------------------------------------------------------------------------

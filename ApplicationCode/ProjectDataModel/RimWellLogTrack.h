@@ -77,6 +77,7 @@ public:
     size_t curveIndex(RimWellLogCurve* curve);
     size_t curveCount() { return curves.size(); }
     void setXAxisTitle(const QString& text);
+    void setBranchIndex(int branchIndex);
 
     void recreateViewer();
     void detachAllCurves();
@@ -131,6 +132,8 @@ private:
                                          std::vector<std::pair<double, double>>* yValues);
 
     static std::vector<QString> formationNamesVector(RimCase* rimCase);
+
+    void setFormationFieldsUiReadOnly(bool readOnly = true);
 
     void updateFormationNamesOnPlot();
     void removeFormationNames();
