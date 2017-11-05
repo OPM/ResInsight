@@ -1138,6 +1138,14 @@ QString RimWellPltPlot::currentWellName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+int RimWellPltPlot::branchIndex() const
+{
+    return m_branchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RimWellPltPlot::hasFlowData(const RimWellLogFile* wellLogFile)
 {
     for (RimWellLogFileChannel* const wellLogChannel : wellLogFile->wellLogChannels())

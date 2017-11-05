@@ -91,6 +91,7 @@ public:
 
     void                                            setCurrentWellName(const QString& currWellName);
     QString                                         currentWellName() const;
+    int                                             branchIndex() const;
 
     static bool                                     hasFlowData(const RimWellLogFile* wellLogFile);
     static bool                                     isFlowChannel(RimWellLogFileChannel* channel);
