@@ -40,6 +40,7 @@
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimMainPlotCollection.h"
+#include "RimOilField.h"
 #include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
@@ -47,6 +48,8 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPltPlot.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuMainWindow.h"
@@ -472,11 +475,44 @@ void RimWellLogTrack::loadDataAndUpdate()
     RimWellRftPlot* rftPlot(nullptr);
     firstAncestorOrThisOfType(rftPlot);
 
-    if (rftPlot)
+    RimWellPltPlot* pltPlot;
+    rftPlot ? pltPlot = nullptr : firstAncestorOrThisOfType(pltPlot);
+
+    if (rftPlot || pltPlot)
     {
-        m_trajectoryType = RimWellLogTrack::SIMULATION_WELL;
-        m_simWellName = rftPlot->currentWellName();
-        m_branchIndex = rftPlot->branchIndex();
+        RimProject* proj = RiaApplication::instance()->project();
+        RimOilField* oilField = proj->activeOilField();
+
+        RimWellPathCollection* wellPathCollection = oilField->wellPathCollection();
+        RimWellPath* wellPath;
+
+        QString wellName;
+
+        if (rftPlot)
+        {
+            wellName = rftPlot->currentWellName();
+            m_branchIndex = rftPlot->branchIndex();
+        }
+        else
+        {
+            wellName = pltPlot->currentWellName();
+            m_branchIndex = pltPlot->branchIndex();
+        }
+        
+        wellPath = wellPathCollection->wellPathByName(wellName);
+
+        if (wellPath)
+        {
+            m_trajectoryType = RimWellLogTrack::WELL_PATH;
+            m_wellPath = wellPath;
+        }
+        else
+        {
+            m_trajectoryType == RimWellLogTrack::SIMULATION_WELL;
+            m_simulationWellChosen = true;
+            m_simWellName = wellName;
+            m_branchIndex = rftPlot->branchIndex();
+        }
     }
 
     if (m_showFormations)
