@@ -29,6 +29,7 @@ class QString;
 
 class RifColumnBasedUserDataParser;
 class RifEclipseSummaryAddress;
+class TableData;
 
 //==================================================================================================
 //
@@ -50,7 +51,8 @@ public:
     std::string                         unitName(const RifEclipseSummaryAddress& resultAddress) const override;
 
 private:
-    void                                buildTimeStepsFromTables();
+    void                                buildTimeStepsAndMappings();
+    static std::vector<time_t>          createTimeSteps(const TableData& table);
 
 private:
     std::unique_ptr<RifColumnBasedUserDataParser>    m_parser;

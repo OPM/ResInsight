@@ -150,7 +150,7 @@ public:
     static std::vector<TableData>                       mergeEqualTimeSteps(const std::vector<TableData>& tables);
 
     static bool                                         isUnitText(const std::string& word);
-
+    
 private:
     static std::string                                  trimString(const std::string& s);
 };
