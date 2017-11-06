@@ -25,8 +25,6 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
-#include "RiuCalculationsContextMenuManager.h"
-
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"

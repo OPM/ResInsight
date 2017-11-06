@@ -18,6 +18,7 @@
 
 #include "RiuCalculationsContextMenuManager.h"
 #include "RimSummaryCalculationCollection.h"
+#include "SummaryPlotCommands/RicSummaryCurveCalculator.h"
 #include <QMenu>
 
 //--------------------------------------------------------------------------------------------------

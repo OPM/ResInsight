@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RiuCalculationsContextMenuManager.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -25,7 +26,6 @@
 
 class RimSummaryCalculationCollection;
 class RimSummaryCalculation;
-class RiuCalculationsContextMenuManager;
 
 //==================================================================================================
 /// 

@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "SummaryPlotCommands/RicSummaryCurveCalculator.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
@@ -26,8 +25,10 @@
 #include <QAction>
 #include <QWidget>
 #include <memory>
+#include <map>
 
 class RimSummaryCalculationVariable;
+class RicSummaryCurveCalculator;
 
 //==================================================================================================
 ///  
