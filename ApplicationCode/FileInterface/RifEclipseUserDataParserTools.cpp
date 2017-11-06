@@ -305,16 +305,6 @@ bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues(const std::vector<s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::hasDateUnit(const std::string& word)
-{
-    if (word.find("DATE") != std::string::npos) return true;
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isValidTableData(size_t columnCount, const std::string& line)
 {
     std::vector<std::string> words = splitLineAndRemoveComments(line);
@@ -870,7 +860,7 @@ ColumnInfo ColumnInfo::createColumnInfo(const std::string& quantity, const std::
 {
     ColumnInfo ci(adr, unit);
 
-    if (RifEclipseUserDataParserTools::hasDateUnit(quantity))
+    if (RifEclipseUserDataKeywordTools::isDate(quantity))
     {
         ci.isStringData = true;
     }

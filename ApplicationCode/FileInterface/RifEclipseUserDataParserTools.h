@@ -133,7 +133,6 @@ public:
     static bool                                         hasTimeUnit(const std::string& line);
     static bool                                         hasOnlyValidDoubleValues(const std::vector<std::string>& words, std::vector<double>* doubleValues = nullptr);
 
-    static bool                                         hasDateUnit(const std::string& word);
     static bool                                         isValidTableData(size_t columnCount, const std::string& line);
 
     static TableData                                    tableDataFromText(std::stringstream& data, std::vector<std::string>* errorText = nullptr);
