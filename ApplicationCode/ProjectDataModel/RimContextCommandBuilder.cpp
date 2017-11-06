@@ -295,8 +295,9 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteSummaryPlotFeature";
             commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
-            commandIds << "RicShowSummaryCurveCalculatorFeature";
             commandIds << "RicNewSummaryPlotFeature";
+            commandIds << "Separator";
+            commandIds << "RicShowSummaryCurveCalculatorFeature";
         }
         else if (dynamic_cast<RimWellLogPlot*>(uiItem))
         {
@@ -329,9 +330,11 @@ QStringList RimContextCommandBuilder::commandsFromSelection()
             commandIds << "RicPasteAsciiDataToSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicEditSummaryPlotFeature";
-            commandIds << "RicShowSummaryCurveCalculatorFeature";
             commandIds << "RicNewSummaryPlotFeature";
             commandIds << "RicNewSummaryCurveFeature";
+            commandIds << "Separator";
+            commandIds << "RicShowSummaryCurveCalculatorFeature";
+            commandIds << "Separator";
             commandIds << "RicAsciiExportSummaryPlotFeature";
             commandIds << "Separator";
             commandIds << "RicCopyReferencesToClipboardFeature";
