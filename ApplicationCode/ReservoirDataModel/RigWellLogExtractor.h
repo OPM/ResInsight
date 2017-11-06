@@ -40,6 +40,9 @@ struct CellIntersectionInfo
     size_t                             globCellIndex;
     cvf::Vec3d                         startPoint;
     cvf::Vec3d                         endPoint;
+    double                             startMD;
+    double                             endMD;
+
     cvf::StructGridInterface::FaceType intersectedCellFaceIn;
     cvf::StructGridInterface::FaceType intersectedCellFaceOut;
 };

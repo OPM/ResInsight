@@ -55,6 +55,9 @@ std::vector<CellIntersectionInfo> RigWellLogExtractor::intersectionInfo() const
         cellInfo.globCellIndex = m_intersectedCellsGlobIdx[i];
         cellInfo.startPoint = m_intersections[i];
         cellInfo.endPoint = m_intersections[i+1];
+        cellInfo.startMD = m_measuredDepth[i];
+        cellInfo.endMD = m_measuredDepth[i+1];
+
         cellInfo.intersectedCellFaceIn = m_intersectedCellFaces[i];
         cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i+1];
 
