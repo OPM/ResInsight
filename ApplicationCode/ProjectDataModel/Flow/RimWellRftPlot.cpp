@@ -252,6 +252,43 @@ void RimWellRftPlot::updateSelectedTimeStepsFromSelectedSources()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellRftPlot::updateFormationNamesData() const
+{
+    if (m_selectedTimeSteps().empty())
+    {
+        for (size_t i = 0; i < m_wellLogPlot->trackCount(); i++)
+        {
+            m_wellLogPlot->trackByIndex(i)->updateFormationNamesData(RimWellLogTrack::WELL_PATH, nullptr, QString(), 0);
+        }
+        return;
+    }
+
+    RimProject* proj = RiaApplication::instance()->project();
+    RimOilField* oilField = proj->activeOilField();
+
+    RimWellPathCollection* wellPathCollection = oilField->wellPathCollection();
+    RimWellPath* wellPath = wellPathCollection->wellPathByName(m_wellName);
+
+    RimWellLogTrack::TrajectoryType trajectoryType;
+
+    if (wellPath)
+    {
+        trajectoryType = RimWellLogTrack::WELL_PATH;
+    }
+    else
+    {
+        trajectoryType = RimWellLogTrack::SIMULATION_WELL;
+    }
+
+    if (m_wellLogPlot->trackCount() > 0)
+    {
+        m_wellLogPlot->trackByIndex(0)->updateFormationNamesData(trajectoryType, wellPath, m_wellName, m_branchIndex);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::applyInitialSelections()
@@ -1117,6 +1154,7 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
         }
         m_timeStepsToAddresses.clear();
         updateEditorsFromCurves();
+        updateFormationNamesData();
     }
     else if (changedField == &m_selectedSources)
     {
@@ -1127,6 +1165,7 @@ void RimWellRftPlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, c
     if (changedField == &m_selectedSources ||
         changedField == &m_selectedTimeSteps)
     {
+        updateFormationNamesData();
         syncCurvesFromUiSelection();
         m_selectedSourcesOrTimeStepsFieldsChanged = true;
     }
@@ -1373,6 +1412,7 @@ QString RimWellRftPlot::description() const
 void RimWellRftPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
+    updateFormationNamesData();
     m_wellLogPlot->loadDataAndUpdate();
     updateEditorsFromCurves();
 }

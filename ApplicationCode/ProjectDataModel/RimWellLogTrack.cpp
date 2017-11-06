@@ -472,7 +472,6 @@ void RimWellLogTrack::loadDataAndUpdate()
         m_wellLogTrackPlotWidget->setDepthTitle(wellLogPlot->depthPlotTitle());
         m_wellLogTrackPlotWidget->setXTitle(m_xAxisTitle);
     }
-
     for (size_t cIdx = 0; cIdx < curves.size(); ++cIdx)
     {
         curves[cIdx]->loadDataAndUpdate(true);
@@ -483,73 +482,28 @@ void RimWellLogTrack::loadDataAndUpdate()
         m_simulationWellChosen = true;
     }
 
-    RimWellRftPlot* rftPlot(nullptr);
-    firstAncestorOrThisOfType(rftPlot);
-
-    RimWellPltPlot* pltPlot = nullptr;
-    if (!rftPlot)
+    if (m_showFormations)
     {
-        firstAncestorOrThisOfType(pltPlot);
-    }
-
-    RimWellAllocationPlot* wellAllocationPlot = nullptr;
-
-    if (rftPlot || pltPlot)
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-        RimOilField* oilField = proj->activeOilField();
-
-        RimWellPathCollection* wellPathCollection = oilField->wellPathCollection();
-        RimWellPath* wellPath;
-
-        QString wellName;
-
-        if (rftPlot)
-        {
-            wellName = rftPlot->currentWellName();
-            m_formationBranchIndex = rftPlot->branchIndex();
-        }
-        else
-        {
-            wellName = pltPlot->currentWellName();
-            m_formationBranchIndex = pltPlot->branchIndex();
-        }
-        
-        wellPath = wellPathCollection->wellPathByName(wellName);
-
-        if (wellPath)
-        {
-            m_formationTrajectoryType = RimWellLogTrack::WELL_PATH;
-            m_formationWellPath = wellPath;
-        }
-        else
-        {
-            m_formationTrajectoryType = RimWellLogTrack::SIMULATION_WELL;
-            m_simulationWellChosen = true;
-            m_formationSimWellName = wellName;
-        }
+        setFormationFieldsUiReadOnly(false);
     }
     else
-    {
-        firstAncestorOrThisOfType(wellAllocationPlot);
-    }
-
-    if (wellAllocationPlot)
     {
         setFormationFieldsUiReadOnly(true);
     }
-    else
-    {
-        if (m_showFormations)
-        {
-            setFormationFieldsUiReadOnly(false);
-        }
-        else
-        {
-            setFormationFieldsUiReadOnly(true);
-        }
-    }
    
+    updateFormationNamesOnPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateFormationNamesData(TrajectoryType trajectoryType, RimWellPath* wellPath, QString simWellName, int branchIndex)
+{
+    m_formationTrajectoryType = trajectoryType;
+    m_formationWellPath = wellPath;
+    m_formationSimWellName = simWellName;
+    m_formationBranchIndex = branchIndex;
+
     updateFormationNamesOnPlot();
 }
 
