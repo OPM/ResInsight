@@ -486,8 +486,13 @@ void RimWellLogTrack::loadDataAndUpdate()
     RimWellRftPlot* rftPlot(nullptr);
     firstAncestorOrThisOfType(rftPlot);
 
-    RimWellPltPlot* pltPlot;
-    rftPlot ? pltPlot = nullptr : firstAncestorOrThisOfType(pltPlot);
+    RimWellPltPlot* pltPlot = nullptr;
+    if (!rftPlot)
+    {
+        firstAncestorOrThisOfType(pltPlot);
+    }
+
+    RimWellAllocationPlot* wellAllocationPlot = nullptr;
 
     if (rftPlot || pltPlot)
     {
@@ -524,9 +529,10 @@ void RimWellLogTrack::loadDataAndUpdate()
             m_simWellName = wellName;
         }
     }
-
-    RimWellAllocationPlot* wellAllocationPlot;
-    (rftPlot || pltPlot) ? wellAllocationPlot = nullptr : firstAncestorOrThisOfType(wellAllocationPlot);
+    else
+    {
+        firstAncestorOrThisOfType(wellAllocationPlot);
+    }
 
     if (wellAllocationPlot)
     {
@@ -544,7 +550,6 @@ void RimWellLogTrack::loadDataAndUpdate()
         }
     }
    
-
     updateFormationNamesOnPlot();
 }
 
