@@ -107,6 +107,8 @@ RimWellPltPlot::RimWellPltPlot()
     m_wellLogPlot.uiCapability()->setUiHidden(true);
     m_wellLogPlot = new RimWellLogPlot();
     m_wellLogPlot->setDepthType(RimWellLogPlot::MEASURED_DEPTH);
+    m_wellLogPlot.uiCapability()->setUiTreeHidden(true);
+    m_wellLogPlot.uiCapability()->setUiTreeChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&m_wellName, "WellName", "WellName", "", "", "");
     CAF_PDM_InitField(&m_branchIndex, "BranchIndex", 0, "BranchIndex", "", "", "");
@@ -1426,6 +1428,22 @@ void RimWellPltPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     }
 
     //uiOrdering.add(&m_showPlotTitle);
+
+    if (m_wellLogPlot && m_wellLogPlot->trackCount() > 0)
+    {
+        RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
+
+        track->uiOrderingForShowFormationNamesAndCase(uiOrdering);
+
+        caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
+        legendAndAxisGroup->setCollapsedByDefault(true);
+
+        m_wellLogPlot->uiOrderingForPlot(*legendAndAxisGroup);
+
+        track->uiOrderingForVisibleXRange(*legendAndAxisGroup);
+
+        m_wellLogPlot->uiOrderingForVisibleDepthRange(*legendAndAxisGroup);
+    }
 
     uiOrdering.skipRemainingFields(true);
 }
