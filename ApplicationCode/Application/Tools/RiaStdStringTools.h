@@ -18,7 +18,11 @@
 
 #pragma once
 
+#include <algorithm>
+#include <iterator>
+#include <sstream>
 #include <string>
+#include <vector>
 
 //==================================================================================================
 //
@@ -31,5 +35,19 @@ public:
 
     static int          toInt(const std::string& s);
     static double       toDouble(const std::string& s);
+
+    static std::vector<std::string> splitStringBySpace(const std::string& s);
+
+private:
+    template <class Container>
+    static void splitByDelimiter(const std::string& str, Container& cont, char delimiter = ' ')
+    {
+        std::stringstream ss(str);
+        std::string token;
+        while (std::getline(ss, token, delimiter))
+        {
+            cont.push_back(token);
+        }
+    }
 };
 

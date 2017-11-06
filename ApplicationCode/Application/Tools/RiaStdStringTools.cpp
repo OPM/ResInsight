@@ -67,3 +67,15 @@ double RiaStdStringTools::toDouble(const std::string& s)
 
     return doubleValue;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> RiaStdStringTools::splitStringBySpace(const std::string& s)
+{
+    std::vector<std::string> words;
+
+    splitByDelimiter(s, words);
+
+    return words;
+}
