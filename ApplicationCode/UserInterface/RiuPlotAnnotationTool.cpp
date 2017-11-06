@@ -42,7 +42,7 @@ void RiuPlotAnnotationTool::attachFormationNames(QwtPlot* plot, const std::vecto
     m_plot = plot;
     QPen curvePen;
     curvePen.setStyle(Qt::DashLine);
-    curvePen.setColor(Qt::blue);
+    curvePen.setColor(QColor(0, 0, 100));
     curvePen.setWidth(1);
 
     double delta = 0.5;
