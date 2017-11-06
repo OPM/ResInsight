@@ -152,10 +152,10 @@ private:
 
     caf::PdmField<bool>                             m_showFormations;
     caf::PdmPtrField<RimCase*>                      m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType> >    m_trajectoryType;
-    caf::PdmPtrField<RimWellPath*>                  m_wellPath;
-    caf::PdmField<QString>                          m_simWellName;
-    caf::PdmField<int>                              m_branchIndex;
+    caf::PdmField<caf::AppEnum<TrajectoryType> >    m_formationTrajectoryType;
+    caf::PdmPtrField<RimWellPath*>                  m_formationWellPath;
+    caf::PdmField<QString>                          m_formationSimWellName;
+    caf::PdmField<int>                              m_formationBranchIndex;
 
     bool                                            m_simulationWellChosen;
 
