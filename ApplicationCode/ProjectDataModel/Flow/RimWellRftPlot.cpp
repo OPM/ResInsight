@@ -1184,16 +1184,16 @@ void RimWellRftPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     {
         RimWellLogTrack* track = m_wellLogPlot->trackByIndex(0);
 
-        track->uiOrderingForShowFormationNamesAndCase(uiConfigName, uiOrdering);
+        track->uiOrderingForShowFormationNamesAndCase(uiOrdering);
 
         caf::PdmUiGroup* legendAndAxisGroup = uiOrdering.addNewGroup("Legend and Axis");
         legendAndAxisGroup->setCollapsedByDefault(true);
         
-        m_wellLogPlot->uiOrderingForPlot(uiConfigName, *legendAndAxisGroup);
+        m_wellLogPlot->uiOrderingForPlot(*legendAndAxisGroup);
 
-        track->uiOrderingForVisibleXRange(uiConfigName, *legendAndAxisGroup);
+        track->uiOrderingForVisibleXRange(*legendAndAxisGroup);
 
-        m_wellLogPlot->uiOrderingForVisibleDepthRange(uiConfigName, *legendAndAxisGroup);
+        m_wellLogPlot->uiOrderingForVisibleDepthRange(*legendAndAxisGroup);
     }
 
     uiOrdering.skipRemainingFields(true);

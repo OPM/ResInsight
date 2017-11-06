@@ -99,8 +99,8 @@ public:
     QString description();
     std::vector<RimWellLogCurve* > curvesVector();
 
-    void uiOrderingForShowFormationNamesAndCase(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    void uiOrderingForVisibleXRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForShowFormationNamesAndCase(caf::PdmUiOrdering& uiOrdering);
+    void uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering);
 
 private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;

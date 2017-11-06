@@ -763,7 +763,7 @@ void RimWellLogTrack::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
         }
     }
 
-    uiOrderingForVisibleXRange(uiConfigName, uiOrdering);
+    uiOrderingForVisibleXRange(uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }
@@ -893,7 +893,7 @@ std::vector<RimWellLogCurve* > RimWellLogTrack::curvesVector()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup("Formation Names");
     formationGroup->setCollapsedByDefault(true);
@@ -904,7 +904,7 @@ void RimWellLogTrack::uiOrderingForShowFormationNamesAndCase(QString uiConfigNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::uiOrderingForVisibleXRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogTrack::uiOrderingForVisibleXRange(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible X Axis Range");
     gridGroup->add(&m_isAutoScaleXEnabled);

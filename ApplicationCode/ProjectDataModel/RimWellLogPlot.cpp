@@ -532,7 +532,7 @@ bool RimWellLogPlot::isPltPlotChild() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForVisibleDepthRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogPlot::uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrdering)
 {
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Visible Depth Range");
     gridGroup->add(&m_isAutoScaleDepthEnabled);
@@ -543,7 +543,7 @@ void RimWellLogPlot::uiOrderingForVisibleDepthRange(QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimWellLogPlot::uiOrderingForPlot(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimWellLogPlot::uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering)
 {
     RimWellRftPlot* rftp;
     firstAncestorOrThisOfType(rftp);
@@ -580,8 +580,8 @@ void RimWellLogPlot::depthZoomMinMax(double* minimumDepth, double* maximumDepth)
 void RimWellLogPlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&m_userName);
-    uiOrderingForPlot(uiConfigName, uiOrdering);
-    uiOrderingForVisibleDepthRange(uiConfigName, uiOrdering);
+    uiOrderingForPlot(uiOrdering);
+    uiOrderingForVisibleDepthRange(uiOrdering);
 
     uiOrdering.skipRemainingFields(true);
 }

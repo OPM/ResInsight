@@ -107,8 +107,8 @@ public:
     RimWellPltPlot*                                 pltPlot() const;
     bool                                            isPltPlotChild() const;
 
-    void                                            uiOrderingForVisibleDepthRange(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-    void                                            uiOrderingForPlot(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    void                                            uiOrderingForVisibleDepthRange(caf::PdmUiOrdering& uiOrdering);
+    void                                            uiOrderingForPlot(caf::PdmUiOrdering& uiOrdering);
 
 protected:
 
