@@ -122,7 +122,7 @@ void RifColumnBasedUserDataParser::parseTableData(const QString& data)
             QStringList entries = qLine.split(" ", QString::SkipEmptyParts);
 
             if (stepTypeIndex > -1 &&
-                entries.size() < columnInfos.size())
+                (unsigned int)entries.size() < columnInfos.size())
             {
                 entries.insert(stepTypeIndex, " ");
             }
