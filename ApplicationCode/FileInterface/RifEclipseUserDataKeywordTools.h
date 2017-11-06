@@ -35,7 +35,11 @@ public:
                                                                               const std::vector<std::vector<std::string>>& restOfHeaderRows,
                                                                               std::vector<std::string>* errorText = nullptr);
 
+    static bool                                         isTime(const std::string& identifier);
     static bool                                         isDate(const std::string& identifier);
+    static bool                                         isDays(const std::string& identifier);
+    static bool                                         isYears(const std::string& identifier);
+    static bool                                         isYearX(const std::string& identifier);
 
     static  RifEclipseSummaryAddress                    makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText);
 

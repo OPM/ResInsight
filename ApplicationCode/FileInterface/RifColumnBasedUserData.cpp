@@ -174,94 +174,96 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps(const TableData& tab
 {
     std::vector<time_t> tsVector;
 
-    // Find time index
     size_t dateColumnIndex = tableData.columnInfos().size();
-    size_t dayOrYearColumnIndex = tableData.columnInfos().size();
+    size_t daysColumnIndex = tableData.columnInfos().size();
+    size_t yearsColumnIndex = tableData.columnInfos().size();
     size_t yearXColumnIndex = tableData.columnInfos().size();
 
+    // Find first column matching the text criteria
+    
     for (size_t columIndex = 0; columIndex < tableData.columnInfos().size(); columIndex++)
     {
         const ColumnInfo& ci = tableData.columnInfos()[columIndex];
+        
         if (dateColumnIndex == tableData.columnInfos().size() &&
             RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
         {
             dateColumnIndex = columIndex;
         }
 
-        if (dayOrYearColumnIndex == tableData.columnInfos().size() &&
-            RifEclipseUserDataParserTools::hasTimeUnit(ci.unitName))
+        if (daysColumnIndex == tableData.columnInfos().size() &&
+            RifEclipseUserDataKeywordTools::isTime(ci.summaryAddress.quantityName()) &&
+            RifEclipseUserDataKeywordTools::isDays(ci.unitName))
         {
-            dayOrYearColumnIndex = columIndex;
+            daysColumnIndex = columIndex;
+        }
+
+        if (yearsColumnIndex == tableData.columnInfos().size() &&
+            RifEclipseUserDataKeywordTools::isYears(ci.summaryAddress.quantityName()) &&
+            RifEclipseUserDataKeywordTools::isYears(ci.unitName))
+        {
+            yearsColumnIndex = columIndex;
         }
 
         if (yearXColumnIndex == tableData.columnInfos().size() &&
-            ci.summaryAddress.quantityName() == "YEARX")
+            RifEclipseUserDataKeywordTools::isYearX(ci.summaryAddress.quantityName()) &&
+            RifEclipseUserDataKeywordTools::isYears(ci.unitName))
         {
             yearXColumnIndex = columIndex;
         }
     }
 
-    if (dateColumnIndex < tableData.columnInfos().size() ||
-        dayOrYearColumnIndex < tableData.columnInfos().size())
+    // YEARX is interpreted as absolute decimal year (2014.32)
+    if (tsVector.empty() && yearXColumnIndex != tableData.columnInfos().size())
     {
-        if (dateColumnIndex != tableData.columnInfos().size())
+        const ColumnInfo& ci = tableData.columnInfos()[yearXColumnIndex];
+
+        for (const auto& timeStepValue : ci.values)
         {
-            const ColumnInfo& ci = tableData.columnInfos()[dateColumnIndex];
-
-            QString dateFormat;
-            for (auto s : ci.stringValues)
-            {
-                QDateTime dt = RiaDateStringParser::parseDateString(s);
-
-                tsVector.push_back(dt.toTime_t());
-            }
+            QDateTime dateTime = RiaQDateTimeTools::fromYears(timeStepValue);
+            tsVector.push_back(dateTime.toTime_t());
         }
-        else if (yearXColumnIndex != tableData.columnInfos().size())
-        {
-            const ColumnInfo& ci = tableData.columnInfos()[yearXColumnIndex];
+    }
 
-            for (const auto& timeStepValue : ci.values)
-            {
-                QDateTime dateTime = RiaQDateTimeTools::fromYears(timeStepValue);
-                tsVector.push_back(dateTime.toTime_t());
-            }
+    // DAYS is interpreted as decimal days since simulation start (23.32)
+    if (tsVector.empty() && daysColumnIndex != tableData.columnInfos().size())
+    {
+        const ColumnInfo& ci = tableData.columnInfos()[daysColumnIndex];
+
+        QDateTime simulationStartDate = tableData.findFirstDate();
+
+        for (const auto& timeStepValue : ci.values)
+        {
+            QDateTime dateTime = RiaQDateTimeTools::addDays(simulationStartDate, timeStepValue);
+            tsVector.push_back(dateTime.toTime_t());
         }
-        else
+    }
+
+    // YEARS is interpreted as decimal years since simulation start (23.32)
+    if (tsVector.empty() && yearsColumnIndex != tableData.columnInfos().size())
+    {
+        const ColumnInfo& ci = tableData.columnInfos()[yearsColumnIndex];
+
+        QDateTime simulationStartDate = tableData.findFirstDate();
+
+        for (const auto& timeStepValue : ci.values)
         {
-            QDateTime startDate = RiaQDateTimeTools::epoch();
+            QDateTime dateTime = RiaQDateTimeTools::addYears(simulationStartDate, timeStepValue);
+            tsVector.push_back(dateTime.toTime_t());
+        }
+    }
 
-            if (!tableData.startDate().empty())
-            {
-                QDateTime candidate = RiaDateStringParser::parseDateString(tableData.startDate());
-                if (candidate.isValid())
-                {
-                    startDate = candidate;
-                }
-            }
+    // DATE is interpreted as date string (6-NOV-1997)
+    if (tsVector.empty() && dateColumnIndex != tableData.columnInfos().size())
+    {
+        const ColumnInfo& ci = tableData.columnInfos()[dateColumnIndex];
 
-            if (dayOrYearColumnIndex != tableData.columnInfos().size())
-            {
-                const ColumnInfo& ci = tableData.columnInfos()[dayOrYearColumnIndex];
+        QString dateFormat;
+        for (auto s : ci.stringValues)
+        {
+            QDateTime dt = RiaDateStringParser::parseDateString(s);
 
-                QString unit = QString::fromStdString(ci.unitName).trimmed().toUpper();
-
-                if (unit == "DAY" || unit == "DAYS")
-                {
-                    for (const auto& timeStepValue : ci.values)
-                    {
-                        QDateTime dateTime = RiaQDateTimeTools::addDays(startDate, timeStepValue);
-                        tsVector.push_back(dateTime.toTime_t());
-                    }
-                }
-                else if (unit == "YEAR" || unit == "YEARS")
-                {
-                    for (const auto& timeStepValue : ci.values)
-                    {
-                        QDateTime dateTime = RiaQDateTimeTools::addYears(startDate, timeStepValue);
-                        tsVector.push_back(dateTime.toTime_t());
-                    }
-                }
-            }
+            tsVector.push_back(dt.toTime_t());
         }
     }
 

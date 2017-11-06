@@ -106,6 +106,8 @@ public:
         return m_columnInfos;
     }
 
+    QDateTime findFirstDate() const;
+
 private:
     std::string             m_origin;
     std::string             m_dateFormat;

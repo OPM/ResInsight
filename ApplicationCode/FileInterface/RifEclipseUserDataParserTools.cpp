@@ -871,3 +871,26 @@ ColumnInfo ColumnInfo::createColumnInfo(const std::string& quantity, const std::
 
     return ci;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QDateTime TableData::findFirstDate() const
+{
+    QDateTime dt;
+
+    for (auto ci : m_columnInfos)
+    {
+        if (RifEclipseUserDataKeywordTools::isDate(ci.summaryAddress.quantityName()))
+        {
+            if (ci.stringValues.size() > 0)
+            {
+                std::string firstDateString = ci.stringValues[0];
+
+                dt = RiaDateStringParser::parseDateString(firstDateString);
+            }
+        }
+    }
+
+    return dt;
+}

@@ -109,11 +109,41 @@ std::vector<std::vector<std::string>> RifEclipseUserDataKeywordTools::buildColum
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataKeywordTools::isTime(const std::string& identifier)
+{
+    return (identifier == "TIME");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataKeywordTools::isDate(const std::string& identifier)
 {
-    if (identifier.find("DATE") != std::string::npos) return true;
+    return (identifier == "DATE");
+}
 
-    return false;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataKeywordTools::isDays(const std::string& identifier)
+{
+    return (identifier.find("DAYS") != std::string::npos);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataKeywordTools::isYears(const std::string& identifier)
+{
+    return (identifier.find("YEARS") != std::string::npos);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataKeywordTools::isYearX(const std::string& identifier)
+{
+    return (identifier.find("YEARX") != std::string::npos);
 }
 
 //--------------------------------------------------------------------------------------------------
