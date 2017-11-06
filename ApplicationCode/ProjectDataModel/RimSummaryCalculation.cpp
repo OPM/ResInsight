@@ -33,6 +33,7 @@
 #include "RiuExpressionContextMenuManager.h"
 
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiLineEditor.h"
 
 #include <QMessageBox>
 
@@ -54,6 +55,9 @@ RimSummaryCalculation::RimSummaryCalculation()
 
     CAF_PDM_InitField(&m_expression, "Expression", QString(""), "Expression", "", "", "");
     m_expression.uiCapability()->setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&m_unit, "Unit", QString(""), "Unit", "", "", "");
+    m_unit.uiCapability()->setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&m_variables, "Variables", "Variables", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_calculatedValues, "CalculatedValues", "Calculated Values", "", "", "");
@@ -140,6 +144,14 @@ void RimSummaryCalculation::setExpression(const QString& expr)
 QString RimSummaryCalculation::expression() const
 {
     return m_expression;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCalculation::unitName() const
+{
+    return m_unit;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -169,6 +169,11 @@ bool RifCalculatedSummaryCurveReader::values(const RifEclipseSummaryAddress& res
 //--------------------------------------------------------------------------------------------------
 std::string RifCalculatedSummaryCurveReader::unitName(const RifEclipseSummaryAddress& resultAddress) const
 {
+    RimSummaryCalculation* calculation = findCalculationByName(resultAddress);
+    if (calculation != nullptr && !calculation->unitName().isEmpty())
+    {
+        return calculation->unitName().toStdString();
+    }
     return "Calculated Curve Unit";
 }
 

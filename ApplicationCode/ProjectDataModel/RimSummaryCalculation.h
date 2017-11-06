@@ -49,6 +49,7 @@ public:
 
     void                            setExpression(const QString& expr);
     QString                         expression() const;
+    QString                         unitName() const;
 
     bool                            parseExpression();
     bool                            calculate();
@@ -69,6 +70,7 @@ private:
 private:
     caf::PdmField<QString>                              m_description;
     caf::PdmField<QString>                              m_expression;
+    caf::PdmField<QString>                              m_unit;
 
     caf::PdmChildArrayField<RimSummaryCalculationVariable*> m_variables;
 
