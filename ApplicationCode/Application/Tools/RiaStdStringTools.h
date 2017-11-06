@@ -46,7 +46,10 @@ private:
         std::string token;
         while (std::getline(ss, token, delimiter))
         {
-            cont.push_back(token);
+            if (token.find_first_not_of(delimiter) != std::string::npos)
+            {
+                cont.push_back(token);
+            }
         }
     }
 };
