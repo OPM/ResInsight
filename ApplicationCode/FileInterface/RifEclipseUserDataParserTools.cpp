@@ -584,6 +584,8 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std
     std::string line;
     bool continueParsing = true;
     bool hasStepType = false;
+    size_t minimunRequiredExtraHeaderLines = 0;
+
     while (continueParsing)
     {
         posAtTableDataStart = streamData.tellg();
@@ -615,6 +617,12 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines(std
 
                     columnCount = words.size();
 
+                    minimunRequiredExtraHeaderLines = RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(words);
+
+                    headerLines.push_back(line);
+                }
+                else if (headerLines.size() < minimunRequiredExtraHeaderLines)
+                {
                     headerLines.push_back(line);
                 }
                 else

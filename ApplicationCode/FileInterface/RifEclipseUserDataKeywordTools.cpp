@@ -206,12 +206,11 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
     }
     case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
     {
-        if (columnHeaderText.size() > 3)
+        if (columnHeaderText.size() > 1)
         {
             wellName = columnHeaderText[0];
-            cellI = RiaStdStringTools::toInt(columnHeaderText[1]);
-            cellJ = RiaStdStringTools::toInt(columnHeaderText[2]);
-            cellK = RiaStdStringTools::toInt(columnHeaderText[3]);
+
+            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[1]);
         }
         break;
     }
@@ -220,17 +219,16 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
         if (columnHeaderText.size() > 1)
         {
             wellName = columnHeaderText[0];
-            lgrName = columnHeaderText[1];
+            lgrName  = columnHeaderText[1];
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
-        if (columnHeaderText.size() > 4)
+        if (columnHeaderText.size() > 2)
         {
-            wellName                       = columnHeaderText[0];
-            lgrName                        = columnHeaderText[1];
-            cellI = RiaStdStringTools::toInt(columnHeaderText[2]);
-            cellJ = RiaStdStringTools::toInt(columnHeaderText[3]);
-            cellK = RiaStdStringTools::toInt(columnHeaderText[4]);
+            wellName = columnHeaderText[0];
+            lgrName  = columnHeaderText[1];
+
+            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[2]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
@@ -241,20 +239,17 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        if (columnHeaderText.size() > 2)
+        if (columnHeaderText.size() > 0)
         {
-            cellI = RiaStdStringTools::toInt(columnHeaderText[0]);
-            cellJ = RiaStdStringTools::toInt(columnHeaderText[1]);
-            cellK = RiaStdStringTools::toInt(columnHeaderText[2]);
+            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[0]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        if (columnHeaderText.size() > 3)
+        if (columnHeaderText.size() > 1)
         {
-            lgrName                        = columnHeaderText[0];
-            cellI = RiaStdStringTools::toInt(columnHeaderText[1]);
-            cellJ = RiaStdStringTools::toInt(columnHeaderText[2]);
-            cellK = RiaStdStringTools::toInt(columnHeaderText[3]);
+            lgrName = columnHeaderText[0];
+
+            RifEclipseUserDataKeywordTools::extractThreeInts(&cellI, &cellJ, &cellK, columnHeaderText[1]);
         }
         break;
     case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
@@ -283,5 +278,75 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress(cons
 bool RifEclipseUserDataKeywordTools::isStepType(const std::string& identifier)
 {
     return (identifier.find("STEPTYPE") != std::string::npos);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount(const std::vector<std::string>& words)
+{
+    size_t maxHeaderLinesFromKeywords = 0;
+
+    for (auto w : words)
+    {
+        if (knownKeywordsWithZeroRequiredHeaderLines(w)) continue;
+
+        auto linesForKeyword = RifEclipseUserDataKeywordTools::requiredItemsPerLineForKeyword(w).size();
+        if (linesForKeyword > maxHeaderLinesFromKeywords)
+        {
+            maxHeaderLinesFromKeywords = linesForKeyword;
+        }
+    }
+
+    // Quantity and unit, scaling is optional
+    return 2 + maxHeaderLinesFromKeywords;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUserDataKeywordTools::knownKeywordsWithZeroRequiredHeaderLines(const std::string& identifier)
+{
+    if (identifier.find("DAY") != std::string::npos) return true;
+    if (identifier.find("MONTH") != std::string::npos) return true;
+    if (identifier.find("YEAR") != std::string::npos) return true;
+    
+    if (identifier.find("DATE") != std::string::npos) return true;
+    if (identifier.find("TIME") != std::string::npos) return true;
+    
+    if (identifier.find("ELAPSED") != std::string::npos) return true;
+
+    if (identifier.find("NEWTON") != std::string::npos) return true;
+    
+    if (identifier.find("NLINSMIN") != std::string::npos) return true;
+    if (identifier.find("NLINSMAX") != std::string::npos) return true;
+    
+    if (identifier.find("MLINEARS") != std::string::npos) return true;
+    
+    if (identifier.find("MSUMLINS") != std::string::npos) return true;
+    if (identifier.find("MSUMNEWT") != std::string::npos) return true;
+   
+    if (identifier.find("TCPU") != std::string::npos) return true;
+    if (identifier.find("TCPUTS") != std::string::npos) return true;
+    if (identifier.find("TCPUDAY") != std::string::npos) return true;
+
+    if (identifier.find("TELAPLIN") != std::string::npos) return true;
+    if (identifier.find("STEPTYPE") != std::string::npos) return true;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseUserDataKeywordTools::extractThreeInts(int* cellI, int* cellJ, int* cellK, const std::string& line)
+{
+    std::vector<std::string> words = RiaStdStringTools::splitStringBySpace(line);
+    if (words.size() > 2)
+    {
+        *cellI = RiaStdStringTools::toInt(words[0]);
+        *cellJ = RiaStdStringTools::toInt(words[1]);
+        *cellK = RiaStdStringTools::toInt(words[2]);
+    }
 }
 

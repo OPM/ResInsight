@@ -44,5 +44,9 @@ public:
     static  RifEclipseSummaryAddress                    makeAndFillAddress(const std::string quantityName, const std::vector<std::string>& columnHeaderText);
 
     static bool                                         isStepType(const std::string& identifier);
+    static size_t                                       computeRequiredHeaderLineCount(const std::vector<std::string>& words);
+
+    static bool                                         knownKeywordsWithZeroRequiredHeaderLines(const std::string& identifier);
+    static void                                         extractThreeInts(int* i, int* j, int* k, const std::string& line);
 };
 
